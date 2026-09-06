@@ -22,13 +22,12 @@ const automator = require('miniprogram-automator');
 const NODE_EXE = 'D:\\Program Files (x86)\\Tencent\\微信web开发者工具\\node.exe';
 const CLI_JS = 'D:\\Program Files (x86)\\Tencent\\微信web开发者工具\\cli.js';
 const PROJECT_PATH = 'E:\\Code\\小程序\\study_game\\miniprogram';
-const AUTO_PORT = 9420;
+const AUTO_PORT = 3799;
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-// 用工具自带 node.exe 执行 cli.js（等价 cli.bat <args>）
 function runCli(args) {
   return new Promise((resolve) => {
     const child = spawn(NODE_EXE, [CLI_JS, ...args], { stdio: 'ignore' });
@@ -38,6 +37,10 @@ function runCli(args) {
     });
     child.on('exit', (code) => resolve(code));
   });
+}
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 async function connectWithRetry(retries = 30) {
