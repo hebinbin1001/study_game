@@ -28,6 +28,9 @@ const RankRecord = require("./models/rank-record")(sequelize);
 const CustomLevel = require("./models/custom-level")(sequelize);
 const LevelReview = require("./models/level-review")(sequelize);
 const WrongRecord = require("./models/wrong-record")(sequelize);
+const CheckinRecord = require("./models/checkin-record")(sequelize);
+const Achievement = require("./models/achievement")(sequelize);
+const UserAchievement = require("./models/user-achievement")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
@@ -35,6 +38,8 @@ User.hasMany(UserAvatar, { foreignKey: "openid", sourceKey: "openid" });
 User.hasMany(RankRecord, { foreignKey: "openid", sourceKey: "openid" });
 User.hasMany(CustomLevel, { foreignKey: "authorOpenid", sourceKey: "openid" });
 User.hasMany(WrongRecord, { foreignKey: "openid", sourceKey: "openid" });
+User.hasMany(CheckinRecord, { foreignKey: "openid", sourceKey: "openid" });
+User.hasMany(UserAchievement, { foreignKey: "openid", sourceKey: "openid" });
 
 /**
  * 数据库初始化方法。
@@ -117,4 +122,7 @@ module.exports = {
   CustomLevel,
   LevelReview,
   WrongRecord,
+  CheckinRecord,
+  Achievement,
+  UserAchievement,
 };
