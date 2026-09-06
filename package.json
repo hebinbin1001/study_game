@@ -1,0 +1,28 @@
+{
+  "name": "study_game",
+  "version": "1.0.0",
+  "description": "> 一款「打怪学字词」的轻竞技教育射击游戏微信小程序。\r > 字母 / 汉字当子弹，补全挖空打爆怪兽，覆盖幼儿园 → 大学的字词学习。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "node miniprogram/utils/__tests__/run-all.js",
+    "e2e:verify": "node e2e/verify-game.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hebinbin1001/study_game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hebinbin1001/study_game/issues"
+  },
+  "homepage": "https://github.com/hebinbin1001/study_game#readme",
+  "devDependencies": {
+    "miniprogram-automator": "^0.12.1"
+  }
+}
