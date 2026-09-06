@@ -31,6 +31,7 @@ Page({
     page: 1,
     pageSize: 20,
     total: 0,
+    totalPages: 0,
     loading: false
   },
 
@@ -50,9 +51,17 @@ Page({
       var rankData = results[0]; // 世界榜 data：{ list, total, ... }
       var myData = results[1];   // 我的排名 data：{ rank, nickname, ... }
 
+      var total = rankData.total || 0;
+      var list = (rankData.list || []).map(function (item) {
+        item.rankClass = self.getRankClass(item.rank);
+        item.rankEmoji = self.getRankEmoji(item.rank);
+        return item;
+      });
+
       self.setData({
-        list: rankData.list || [],
-        total: rankData.total || 0,
+        list: list,
+        total: total,
+        totalPages: Math.ceil(total / self.data.pageSize),
         myRank: myData,
         loading: false
       });
@@ -70,8 +79,7 @@ Page({
 
   // 下一页
   nextPage: function () {
-    var totalPages = Math.ceil(this.data.total / this.data.pageSize);
-    if (this.data.page >= totalPages) return;
+    if (this.data.page >= this.data.totalPages) return;
     this.setData({ page: this.data.page + 1 });
     this.loadRank();
   },

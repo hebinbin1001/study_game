@@ -139,6 +139,47 @@ function setAvatar(url) {
   set(STORAGE_KEYS.avatar, url);
 }
 
+// ============ 二点五、皮肤选择（战士/boss 皮肤） ============
+// 说明：皮肤列表与解锁状态由后端 /api/avatar/* 管理；此处仅缓存
+//   「当前使用」的皮肤 avatarId，供游戏页离线渲染（离线时回退默认皮肤）。
+//   形象页「使用」成功后将 avatarId 写入，游戏页渲染前读取。
+
+/**
+ * 读取当前战士皮肤 avatarId。
+ * @returns {string} avatarId，未设置返回空串（渲染层回退默认皮肤）
+ */
+function getWarriorSkin() {
+  var v = get(STORAGE_KEYS.warriorSkin);
+  return v || '';
+}
+
+/**
+ * 保存当前战士皮肤 avatarId。
+ * @param {string} avatarId 如 'warrior_02'
+ * @returns {boolean} true 写入成功
+ */
+function setWarriorSkin(avatarId) {
+  return set(STORAGE_KEYS.warriorSkin, avatarId);
+}
+
+/**
+ * 读取当前怪兽皮肤 avatarId。
+ * @returns {string} avatarId，未设置返回空串（渲染层回退默认皮肤）
+ */
+function getBossSkin() {
+  var v = get(STORAGE_KEYS.bossSkin);
+  return v || '';
+}
+
+/**
+ * 保存当前怪兽皮肤 avatarId。
+ * @param {string} avatarId 如 'monster_03'
+ * @returns {boolean} true 写入成功
+ */
+function setBossSkin(avatarId) {
+  return set(STORAGE_KEYS.bossSkin, avatarId);
+}
+
 // ============ 三、星级存档（REQ-GAME-13） ============
 
 /**
@@ -388,6 +429,11 @@ module.exports = {
   setNickname: setNickname,
   getAvatar: getAvatar,
   setAvatar: setAvatar,
+  // 皮肤选择
+  getWarriorSkin: getWarriorSkin,
+  setWarriorSkin: setWarriorSkin,
+  getBossSkin: getBossSkin,
+  setBossSkin: setBossSkin,
   // 星级存档
   getAllStars: getAllStars,
   getStars: getStars,

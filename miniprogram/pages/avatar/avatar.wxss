@@ -1,15 +1,16 @@
+/* 形象选择页（avatar）—— 暖色天空卡通风（与 app.wxss 全局主题一致） */
 .page-avatar {
-  padding: 20rpx;
+  padding: 30rpx;
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-  color: #fff;
+  box-sizing: border-box;
 }
 
 .rank-bar {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20rpx;
-  padding: 20rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  padding: 24rpx 28rpx;
   margin-bottom: 30rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 16rpx 32rpx rgba(0, 0, 0, 0.08);
 }
 
 .rank-info {
@@ -20,24 +21,26 @@
 
 .rank-name {
   font-size: 36rpx;
-  font-weight: bold;
-  color: #ffd700;
+  font-weight: 900;
+  color: #ffb703;
 }
 
 .rank-wins, .rank-stars {
   font-size: 28rpx;
-  color: #ccc;
+  color: #5c7f9e;
 }
 
 .avatar-section {
-  margin-bottom: 40rpx;
+  margin-bottom: 36rpx;
 }
 
 .section-title {
-  font-size: 32rpx;
-  font-weight: bold;
+  font-size: 34rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 4rpx;
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
   margin-bottom: 20rpx;
-  color: #ffd700;
 }
 
 .avatar-list {
@@ -47,58 +50,47 @@
 }
 
 .avatar-item {
-  width: 200rpx;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20rpx;
-  padding: 20rpx;
+  width: 210rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 24rpx 16rpx;
   text-align: center;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
   border: 4rpx solid transparent;
-  transition: all 0.3s;
+  box-sizing: border-box;
 }
 
 .avatar-item.active {
-  border-color: #ffd700;
-  background: rgba(255, 215, 0, 0.1);
+  border-color: #ffb703;
+  background: #fff7e0;
 }
 
 .avatar-rarity {
   font-size: 20rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 8rpx;
-  margin-bottom: 10rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  margin-bottom: 12rpx;
   display: inline-block;
+  font-weight: 700;
 }
 
-.avatar-rarity.common {
-  background: #888;
-  color: #fff;
-}
+.avatar-rarity.common { background: #c9d6e8; color: #fff; }
+.avatar-rarity.rare { background: #4cc9f0; color: #fff; }
+.avatar-rarity.epic { background: #b388ff; color: #fff; }
+.avatar-rarity.legend { background: #ffb703; color: #6b4e00; }
 
-.avatar-rarity.rare {
-  background: #4169e1;
-  color: #fff;
-}
-
-.avatar-rarity.epic {
-  background: #9370db;
-  color: #fff;
-}
-
-.avatar-rarity.legend {
-  background: #ffd700;
-  color: #333;
-}
-
-.avatar-icon {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  margin-bottom: 10rpx;
+.avatar-emoji {
+  display: block;
+  font-size: 96rpx;
+  line-height: 1;
+  margin-bottom: 14rpx;
 }
 
 .avatar-name {
-  font-size: 24rpx;
-  margin-bottom: 10rpx;
+  font-size: 26rpx;
+  color: #3a3a5c;
+  font-weight: 700;
+  margin-bottom: 12rpx;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -108,38 +100,31 @@
   font-size: 22rpx;
 }
 
-.status-unlocked {
-  color: #4caf50;
-}
-
-.status-using {
-  color: #ffd700;
-}
-
-.status-locked {
-  color: #888;
-}
+.status-unlocked { color: #7bd389; font-weight: 700; }
+.status-using { color: #ffb703; font-weight: 700; }
+.status-locked { color: #9aa7bc; }
 
 .btn-use, .btn-unlock {
   margin-top: 10rpx;
-  padding: 8rpx 16rpx;
-  font-size: 22rpx;
-  border-radius: 10rpx;
+  padding: 10rpx 20rpx;
+  font-size: 24rpx;
+  border-radius: 24rpx;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
-.btn-use {
-  background: #4caf50;
-  color: #fff;
-}
+.btn-use { background: #7bd389; color: #fff; }
+.btn-unlock { background: #ffb703; color: #fff; }
 
-.btn-unlock {
-  background: #ff9800;
-  color: #fff;
+button.btn-use::after,
+button.btn-unlock::after {
+  border: none;
 }
 
 .btn-back {
-  margin-top: 40rpx;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border-radius: 20rpx;
+  margin-top: 20rpx;
+  background: rgba(255, 255, 255, 0.9);
+  color: #3a3a5c;
+  border-radius: 40rpx;
+  font-weight: 700;
 }

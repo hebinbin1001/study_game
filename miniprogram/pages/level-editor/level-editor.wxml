@@ -21,7 +21,7 @@
       <text class="label">学段</text>
       <picker class="picker" value="{{grade}}" range="{{gradeOptions}}" range-key="label" bindchange="onGradeChange">
         <view class="picker-value">
-          {{gradeOptions.find(g => g.value === grade)?.label || '请选择'}}
+          {{gradeLabel}}
         </view>
       </picker>
     </view>

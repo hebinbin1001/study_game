@@ -13,6 +13,7 @@ Page({
     title: '',
     description: '',
     grade: 'primary12',
+    gradeLabel: '小学1-2',
     items: [],
     gradeOptions: [
       { value: 'kindergarten', label: '幼儿园' },
@@ -44,6 +45,7 @@ Page({
           title: level.title,
           description: level.description,
           grade: level.grade,
+          gradeLabel: self.getGradeLabel(level.grade),
           items: level.items || [],
           editing: true
         });
@@ -65,7 +67,19 @@ Page({
 
   // 选择学段
   onGradeChange: function (e) {
-    this.setData({ grade: e.detail.value });
+    var grade = e.detail.value;
+    this.setData({ grade: grade, gradeLabel: this.getGradeLabel(grade) });
+  },
+
+  // 根据学段值取展示文案
+  getGradeLabel: function (grade) {
+    var options = this.data.gradeOptions;
+    for (var i = 0; i < options.length; i++) {
+      if (options[i].value === grade) {
+        return options[i].label;
+      }
+    }
+    return '请选择';
   },
 
   // 添加题目

@@ -43,6 +43,7 @@ const {
 const { render, blankCenter, clamp } = require('./renderer');
 const { speakByItem } = require('./audio');
 const { starsByRate } = require('../utils/constants');
+const { getWarriorSkin, getMonsterSkin } = require('../utils/skins');
 
 // ============ 工具 ============
 const rand = (n) => Math.floor(Math.random() * n);
@@ -83,6 +84,12 @@ const engine = {
     this.G = createInitialState();
     this._last = 0;
     this._now = 0;
+
+    // 解析皮肤（options.skins = { warrior: avatarId, monster: avatarId }）：
+    // 未选择 / 未知 id 回退默认皮肤，保证离线与异常场景可渲染。
+    const skins = (options && options.skins) || {};
+    this.G.warriorSkin = getWarriorSkin(skins.warrior);
+    this.G.monsterSkin = getMonsterSkin(skins.monster);
 
     // 出第一题并启动主循环
     this._newQuestion();
@@ -430,7 +437,9 @@ const engine = {
     G.monster = {
       x: (W - MON_W) / 2,
       y: MON_START_Y,
-      color: MONSTER_COLORS[rand(MONSTER_COLORS.length)],
+      // 怪兽皮肤：优先取当前 boss 皮肤主色；无皮肤时回退 6 色随机循环（保视觉变化）
+      color: (G.monsterSkin && G.monsterSkin.color) || MONSTER_COLORS[rand(MONSTER_COLORS.length)],
+      emoji: (G.monsterSkin && G.monsterSkin.emoji) || '',
       blinkSeed: Math.random() * 6.28,
       shake: 0
     };

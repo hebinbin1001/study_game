@@ -12,6 +12,7 @@ Page({
     items: [],
     currentIndex: 0,
     currentItem: null,
+    displayOptions: [],
     selectedOption: null,
     answered: false,
     correct: false,
@@ -40,6 +41,7 @@ Page({
         totalCount: pending.length,
         currentIndex: 0,
         currentItem: pending[0],
+        displayOptions: self.toDisplayOptions(pending[0]),
         selectedOption: null,
         answered: false,
         correct: false,
@@ -52,6 +54,14 @@ Page({
     });
   },
 
+  // 将题目选项转为带展示样式的对象数组
+  toDisplayOptions: function (question) {
+    var d = (question && question.d) || [];
+    return d.map(function (value) {
+      return { value: value, cls: '' };
+    });
+  },
+
   // 选择选项
   selectOption: function (e) {
     var self = this;
@@ -60,12 +70,26 @@ Page({
     var option = e.currentTarget.dataset.option;
     var currentItem = this.data.currentItem;
     var correct = option === currentItem.question.a;
+    var answer = currentItem.question.a;
+
+    // 计算每个选项的展示样式
+    var displayOptions = this.data.displayOptions.map(function (opt) {
+      var cls = '';
+      if (opt.value === option) {
+        cls = correct ? 'correct' : 'wrong';
+      }
+      if (opt.value === answer) {
+        cls = cls ? cls + ' answer' : 'answer';
+      }
+      return { value: opt.value, cls: cls };
+    });
 
     this.setData({
       selectedOption: option,
       answered: true,
       correct: correct,
-      showFeedback: true
+      showFeedback: true,
+      displayOptions: displayOptions
     });
 
     // 上报复习结果
@@ -96,9 +120,11 @@ Page({
       return;
     }
 
+    var nextItem = this.data.items[nextIndex];
     this.setData({
       currentIndex: nextIndex,
-      currentItem: this.data.items[nextIndex],
+      currentItem: nextItem,
+      displayOptions: this.toDisplayOptions(nextItem),
       selectedOption: null,
       answered: false,
       correct: false,

@@ -57,6 +57,10 @@ function createInitialState() {
     // ---- 场景对象 ----
     monster: null,        // { x, y, color, blinkSeed, shake, anger?, approachStart?, approachTarget?, approachT?, explode? }
     bullet: null,         // { x, y, tx, ty, speed, correct, letter } 或 null
+
+    // ---- 皮肤（由 engine.start 注入已解析的 { emoji, color }，渲染层读取） ----
+    warriorSkin: null,    // 当前战士皮肤 { id, emoji, color } 或 null（渲染回退默认）
+    monsterSkin: null,    // 当前怪兽皮肤 { id, emoji, color } 或 null（渲染回退默认）
     particles: [],        // 粒子数组（爆炸/星星，上限 MAX_PARTICLES）
     popups: [],           // 弹字数组（+100/-1命/连击提示）
     checkmark: null       // ✓ 反馈 { x, y, t, life } 或 null

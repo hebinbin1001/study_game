@@ -18,6 +18,9 @@ page {
   --green: #7bd389;     /* 卡通绿 */
   --purple: #b388ff;    /* 卡通紫 */
   --ink: #3a3a5c;       /* 主文字墨色 */
+  --text-sub: #5c7f9e;  /* 次要文字 */
+  --gold: #ffd166;      /* 星星/成就金 */
+  --danger: #ff5a5a;    /* 危险/错误红 */
 
   /* 暖色天空渐变背景 */
   background: linear-gradient(180deg, #5aa9e6 0%, #a3d5ff 60%, #d8efff 100%);
@@ -147,4 +150,83 @@ button.btn::after {
   align-items: center;
   justify-content: center;
   box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.12);
+}
+
+/* ============ 辅助组件（UI 重设计新增，各页复用） ============ */
+
+/* 软卡片变体：浅底、更轻阴影（用于内嵌信息卡） */
+.card--soft {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.06), 0 12rpx 24rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 标签 / 徽章（稀有度、成就、签到天数等） */
+.tag,
+.badge {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.tag {
+  background: rgba(255, 255, 255, 0.85);
+  color: #5c7f9e;
+}
+.badge {
+  background: #ffd166;
+  color: #6b4e00;
+}
+.badge--green { background: #7bd389; color: #fff; }
+.badge--blue { background: #4cc9f0; color: #fff; }
+.badge--pink { background: #ff5d8f; color: #fff; }
+.badge--purple { background: #b388ff; color: #fff; }
+
+/* 大 emoji 头像容器（皮肤/吉祥物展示） */
+.emoji-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 16rpx 32rpx rgba(0, 0, 0, 0.08);
+}
+.emoji-avatar text {
+  font-size: 96rpx;
+  line-height: 1;
+}
+
+/* 空态占位（统一风格） */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 240rpx;
+  color: #8899aa;
+  font-size: 28rpx;
+  text-align: center;
+}
+.empty-state .empty-emoji {
+  font-size: 88rpx;
+  line-height: 1;
+  margin-bottom: 16rpx;
+}
+
+/* 进度条（错题本熟练度、成就进度等） */
+.progress-bar {
+  width: 100%;
+  height: 20rpx;
+  border-radius: 10rpx;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.progress-bar__fill {
+  height: 100%;
+  border-radius: 10rpx;
+  background: linear-gradient(90deg, #4cc9f0, #7bd389);
+  transition: width 0.3s ease;
 }

@@ -29,6 +29,7 @@
 
 const { CONFIG, W, H, MON_W, MON_H, CANNON_Y } = require('./config');
 const { displayChar, meaningText } = require('./question');
+const { DEFAULT_WARRIOR } = require('../utils/skins');
 
 // ============ 工具函数 ============
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -301,7 +302,7 @@ function render(ctx, state, now) {
   ctx.clearRect(0, 0, W, H);
   drawSky(ctx);
   if (state.monster && state.question) drawMonster(ctx, state, now);
-  drawCannon(ctx);
+  drawCannon(ctx, state);
   if (state.bullet) drawBullet(ctx, state.bullet);
   drawParticles(ctx, state);
   drawCheckmark(ctx, state);
@@ -358,6 +359,14 @@ function drawMonster(ctx, state, now) {
   const eyeY = y + 34;
   drawEye(ctx, x + MON_W * 0.3, eyeY, angry);
   drawEye(ctx, x + MON_W * 0.7, eyeY, angry);
+
+  // 怪兽皮肤徽章（emoji 占位）：置于卡片顶部中央，标识当前 boss 皮肤
+  if (m.emoji) {
+    ctx.font = '16px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(m.emoji, x + MON_W / 2, y + 18);
+  }
 
   // H2-B：词级题（fill/trans/xhy/zc）—— 整词空槽布局，不走逐字挖格
   if (q.wordLevel) {
@@ -421,20 +430,20 @@ function drawEye(ctx, cx, cy, angry) {
   ctx.fillStyle = '#fff'; ctx.fill();
 }
 
-// ============ 炮台 ============
-function drawCannon(ctx) {
+// ============ 炮台（战士皮肤） ============
+function drawCannon(ctx, state) {
+  // 战士皮肤：取 state.warriorSkin（engine 注入的 { emoji, color }），无则回退默认
+  const skin = (state && state.warriorSkin) || DEFAULT_WARRIOR;
   const cx = W / 2, cy = CANNON_Y;
   ctx.save();
-  // 底座
+  // 底座（卡通硬阴影平台，保留"炮台"站位感）
   ctx.fillStyle = '#5c7f9e';
   roundRect(ctx, cx - 30, cy - 4, 60, 18, 8); ctx.fill();
-  // 炮管
-  ctx.fillStyle = '#3a3a5c';
-  roundRect(ctx, cx - 14, cy - 34, 28, 34, 8); ctx.fill();
-  // 炮口
-  ctx.fillStyle = '#ffb703';
-  ctx.beginPath(); ctx.arc(cx, cy - 34, 12, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
+  // 皮肤角色：emoji 占位（战士本体）
+  ctx.font = '30px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(skin.emoji, cx, cy - 24);
   ctx.restore();
 }
 

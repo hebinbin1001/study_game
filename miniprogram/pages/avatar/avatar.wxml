@@ -15,8 +15,8 @@
     <view class="avatar-list">
       <block wx:for="{{warriors}}" wx:key="avatarId">
         <view class="avatar-item {{item.currentUsed ? 'active' : ''}}" data-avatar-id="{{item.avatarId}}">
-          <view class="avatar-rarity {{item.rarity}}">{{item.rarity}}</view>
-          <image class="avatar-icon" src="{{item.icon}}" mode="aspectFill"></image>
+          <view class="avatar-rarity {{item.rarity}}">{{item.rarityLabel}}</view>
+          <text class="avatar-emoji">{{item.emoji}}</text>
           <view class="avatar-name">{{item.name}}</view>
           <view class="avatar-status">
             <block wx:if="{{item.unlocked}}">
@@ -44,8 +44,8 @@
     <view class="avatar-list">
       <block wx:for="{{monsters}}" wx:key="avatarId">
         <view class="avatar-item {{item.currentUsed ? 'active' : ''}}" data-avatar-id="{{item.avatarId}}">
-          <view class="avatar-rarity {{item.rarity}}">{{item.rarity}}</view>
-          <image class="avatar-icon" src="{{item.icon}}" mode="aspectFill"></image>
+          <view class="avatar-rarity {{item.rarity}}">{{item.rarityLabel}}</view>
+          <text class="avatar-emoji">{{item.emoji}}</text>
           <view class="avatar-name">{{item.name}}</view>
           <view class="avatar-status">
             <block wx:if="{{item.unlocked}}">

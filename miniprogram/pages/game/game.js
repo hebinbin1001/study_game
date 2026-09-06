@@ -20,6 +20,7 @@
 var engine = require('../../game/engine');
 var config = require('../../game/config');
 var dict = require('../../utils/dict');
+var storage = require('../../utils/storage');
 
 var CONFIG = config.CONFIG;
 
@@ -67,6 +68,12 @@ Page({
       level: level,
       totalQ: CONFIG.totalQ
     });
+
+    // 读取本地皮肤选择（离线渲染，未选择时回退默认皮肤）
+    this._skins = {
+      warrior: storage.getWarriorSkin(),
+      monster: storage.getBossSkin()
+    };
 
     // 重置运行时状态
     this._usedItems = [];
@@ -153,6 +160,9 @@ Page({
   _startEngine() {
     var self = this;
     engine.start(this._canvasNode, this._ctx, {
+      // 皮肤选择（战士/boss avatarId），引擎解析为 emoji+主色渲染
+      skins: this._skins,
+
       /**
        * 获取下一个词条（词库抽题，REQ-DICT-3）。
        * @returns {Object|null} WordItem，无可用题目返回 null（引擎会触发结算）

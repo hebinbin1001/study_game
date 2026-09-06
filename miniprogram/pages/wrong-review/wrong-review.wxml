@@ -14,9 +14,9 @@
 
     <!-- 选项 -->
     <view class="options">
-      <block wx:for="{{currentItem.question.d || []}}" wx:key="index">
-        <view class="option {{selectedOption === item ? (correct ? 'correct' : 'wrong') : ''}} {{answered && item === currentItem.question.a ? 'answer' : ''}}" data-option="{{item}}" bindtap="selectOption">
-          {{item}}
+      <block wx:for="{{displayOptions}}" wx:key="value">
+        <view class="option {{item.cls}}" data-option="{{item.value}}" bindtap="selectOption">
+          {{item.value}}
         </view>
       </block>
     </view>

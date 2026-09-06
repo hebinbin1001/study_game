@@ -19,8 +19,8 @@
   <!-- 排行榜列表 -->
   <view class="rank-list">
     <view class="rank-item {{item.openid === myRank.openid ? 'me' : ''}}" wx:for="{{list}}" wx:key="openid">
-      <view class="rank-number {{getRankClass(item.rank)}}">
-        {{item.rank <= 3 ? getRankEmoji(item.rank) : item.rank}}
+      <view class="rank-number {{item.rankClass}}">
+        {{item.rank <= 3 ? item.rankEmoji : item.rank}}
       </view>
       <image class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
       <view class="rank-info">
@@ -37,8 +37,8 @@
   <!-- 分页 -->
   <view class="pagination" wx:if="{{total > pageSize}}">
     <button class="btn-page" bindtap="prevPage" disabled="{{page <= 1}}">上一页</button>
-    <text class="page-info">第 {{page}} / {{Math.ceil(total / pageSize)}} 页</text>
-    <button class="btn-page" bindtap="nextPage" disabled="{{page >= Math.ceil(total / pageSize)}}">下一页</button>
+    <text class="page-info">第 {{page}} / {{totalPages}} 页</text>
+    <button class="btn-page" bindtap="nextPage" disabled="{{page >= totalPages}}">下一页</button>
   </view>
 
   <!-- 返回按钮 -->
