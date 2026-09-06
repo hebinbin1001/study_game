@@ -14,6 +14,9 @@ const scoreRouter = require("./routes/score");
 const avatarRouter = require("./routes/avatar");
 const rankRouter = require("./routes/rank");
 const ranklistRouter = require("./routes/ranklist");
+const levelRouter = require("./routes/level");
+const levelReviewRouter = require("./routes/level-review");
+const wrongRouter = require("./routes/wrong");
 
 const app = express();
 
@@ -54,6 +57,9 @@ app.use("/api/score", openid, scoreRouter);
 app.use("/api/avatar", openid, avatarRouter);
 app.use("/api/rank", openid, rankRouter);
 app.use("/api/ranklist", openid, ranklistRouter);
+app.use("/api/level", openid, levelRouter);
+app.use("/api/level/review", openid, levelReviewRouter);
+app.use("/api/wrong", openid, wrongRouter);
 
 const port = process.env.PORT || 80;
 

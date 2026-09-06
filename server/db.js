@@ -25,11 +25,16 @@ const Avatar = require("./models/avatar")(sequelize);
 const UserAvatar = require("./models/user-avatar")(sequelize);
 const Rank = require("./models/rank")(sequelize);
 const RankRecord = require("./models/rank-record")(sequelize);
+const CustomLevel = require("./models/custom-level")(sequelize);
+const LevelReview = require("./models/level-review")(sequelize);
+const WrongRecord = require("./models/wrong-record")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
 User.hasMany(UserAvatar, { foreignKey: "openid", sourceKey: "openid" });
 User.hasMany(RankRecord, { foreignKey: "openid", sourceKey: "openid" });
+User.hasMany(CustomLevel, { foreignKey: "authorOpenid", sourceKey: "openid" });
+User.hasMany(WrongRecord, { foreignKey: "openid", sourceKey: "openid" });
 
 /**
  * 数据库初始化方法。
@@ -109,4 +114,7 @@ module.exports = {
   UserAvatar,
   Rank,
   RankRecord,
+  CustomLevel,
+  LevelReview,
+  WrongRecord,
 };

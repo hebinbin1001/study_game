@@ -1,0 +1,78 @@
+<!-- 关卡编辑器页 -->
+<view class="page-editor">
+  <view class="editor-header">
+    <button class="btn-back" bindtap="goBack">‹ 返回</button>
+    <view class="header-title">{{editing ? '编辑关卡' : '创建关卡'}}</view>
+  </view>
+
+  <!-- 关卡信息 -->
+  <view class="form-section">
+    <view class="form-item">
+      <text class="label">标题</text>
+      <input class="input" value="{{title}}" bindinput="onTitleInput" placeholder="请输入关卡标题" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">描述</text>
+      <textarea class="textarea" value="{{description}}" bindinput="onDescriptionInput" placeholder="请输入关卡描述" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">学段</text>
+      <picker class="picker" value="{{grade}}" range="{{gradeOptions}}" range-key="label" bindchange="onGradeChange">
+        <view class="picker-value">
+          {{gradeOptions.find(g => g.value === grade)?.label || '请选择'}}
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 题目列表 -->
+  <view class="items-section">
+    <view class="section-header">
+      <text class="section-title">题目列表（{{items.length}}）</text>
+      <button class="btn-add" bindtap="addItem">+ 添加</button>
+    </view>
+
+    <view class="item-list">
+      <block wx:for="{{items}}" wx:key="index">
+        <view class="item-card">
+          <view class="item-header">
+            <text class="item-index">第 {{index + 1}} 题</text>
+            <button class="btn-remove" data-idx="{{index}}" bindtap="removeItem">删除</button>
+          </view>
+
+          <view class="item-form">
+            <view class="form-item">
+              <text class="label">类型</text>
+              <picker class="picker" value="{{item.type}}" range="{{['w1', 'w2', 'c1', 'c2', 'xhy', 'zc', 'fill', 'trans']}}" data-idx="{{index}}" data-field="type" bindchange="onItemInput">
+                <view class="picker-value">{{item.type}}</view>
+              </picker>
+            </view>
+
+            <view class="form-item">
+              <text class="label">题目</text>
+              <input class="input" value="{{item.q}}" data-idx="{{index}}" data-field="q" bindinput="onItemInput" placeholder="如：c*t" />
+            </view>
+
+            <view class="form-item">
+              <text class="label">答案</text>
+              <input class="input" value="{{item.a}}" data-idx="{{index}}" data-field="a" bindinput="onItemInput" placeholder="如：a" />
+            </view>
+
+            <view class="form-item">
+              <text class="label">提示</text>
+              <input class="input" value="{{item.hint}}" data-idx="{{index}}" data-field="hint" bindinput="onItemInput" placeholder="如：猫" />
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-section">
+    <button class="btn-save" bindtap="saveDraft" disabled="{{saving}}">保存草稿</button>
+    <button class="btn-submit" bindtap="submitReview" disabled="{{saving}}">提交审核</button>
+  </view>
+</view>
