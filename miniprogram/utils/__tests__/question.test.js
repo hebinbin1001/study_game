@@ -446,7 +446,7 @@ s.test('全量真实词库：zc/xhy/fill/trans 每条 wordLevelGuide 均不含�
   const count = { zc: 0, xhy: 0, fill: 0, trans: 0 };
   let total = 0;
   for (const g of constants.GRADES) {
-    const obj = JSON.parse(fs.readFileSync(path.join(DATA_DIR, g.file), 'utf8'));
+    const obj = require(path.join(DATA_DIR, g.file));
     for (const it of (obj.items || [])) {
       if (WORD_TYPES.indexOf(it.type) === -1) continue;
       count[it.type]++;

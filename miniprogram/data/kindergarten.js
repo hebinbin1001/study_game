@@ -1,4 +1,4 @@
-{
+module.exports = {
   "grade": "kindergarten",
   "label": "幼儿园",
   "count": 100,
@@ -604,4 +604,4 @@
       "hint": "娃娃"
     }
   ]
-}
+};

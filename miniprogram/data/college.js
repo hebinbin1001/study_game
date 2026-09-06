@@ -1,4 +1,4 @@
-{
+module.exports = {
   "grade": "college",
   "label": "大学",
   "count": 200,
@@ -1204,4 +1204,4 @@
       "hint": "动词"
     }
   ]
-}
+};

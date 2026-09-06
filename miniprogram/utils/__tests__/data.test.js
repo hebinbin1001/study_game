@@ -29,11 +29,9 @@ const EXPECTED = {
 function readAll() {
   const result = {};
   for (const g of constants.GRADES) {
-    const file = g.file;
-    const p = path.join(DATA_DIR, file);
-    const raw = fs.readFileSync(p, 'utf8'); // 读不到会抛错，测试即失败
-    const obj = JSON.parse(raw);
-    result[g.key] = { file: file, obj: obj, items: Array.isArray(obj) ? obj : obj.items };
+    // 词库为 JS 模块（module.exports = {...}），直接 require 装载
+    const mod = require(path.join(DATA_DIR, g.file));
+    result[g.key] = { file: g.file, obj: mod, items: Array.isArray(mod) ? mod : mod.items };
   }
   return result;
 }

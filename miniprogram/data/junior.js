@@ -1,4 +1,4 @@
-{
+module.exports = {
   "grade": "junior",
   "label": "初中",
   "count": 200,
@@ -1204,4 +1204,4 @@
       "hint": "多管闲事"
     }
   ]
-}
+};

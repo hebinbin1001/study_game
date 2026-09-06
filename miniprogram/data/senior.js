@@ -1,4 +1,4 @@
-{
+module.exports = {
   "grade": "senior",
   "label": "高中",
   "count": 200,
@@ -1204,4 +1204,4 @@
       "hint": "形容词"
     }
   ]
-}
+};

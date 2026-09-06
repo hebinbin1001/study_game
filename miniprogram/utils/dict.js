@@ -33,6 +33,20 @@ var GRADES = constants.GRADES;
 // 学段 → items 数组的内存缓存（避免重复 require/解析）
 var gradeCache = {};
 
+// 学段 key → 静态 require 的 JS 词库模块。
+// 重要：微信小程序不支持 require .json 文件（会把路径解析成 .json.js 而失败），
+// 动态拼接路径也无法被打包分析。故词库以 data/*.js 模块形式（module.exports = {...}）
+// 静态引用，key 与 GRADES.key 一一对应。
+var GRADE_DATA = {
+  kindergarten: require('../data/kindergarten.js'),
+  primary12: require('../data/primary12.js'),
+  primary34: require('../data/primary34.js'),
+  primary56: require('../data/primary56.js'),
+  junior: require('../data/junior.js'),
+  senior: require('../data/senior.js'),
+  college: require('../data/college.js')
+};
+
 /**
  * 根据学段 key 查找 GRADES 中的配置项。
  * @param {string} grade 学段 key，如 'primary34'
@@ -67,22 +81,15 @@ function loadByGrade(grade) {
     return [];
   }
 
-  // 动态 require 内置 JSON（data/ 与 utils/ 同级）
-  // 用 try-catch 容错：T8 词库数据未就绪时不阻塞调用方
+  // 从静态映射取内置 JS 词库模块（见 GRADE_DATA 说明）。
+  var dict = GRADE_DATA[grade];
   var items = [];
-  try {
-    // require 路径相对本文件：../data/<file>
-    var dict = require('../data/' + config.file);
-    // 兼容两种 JSON 结构：{ items: [] } 或直接为数组
-    if (Array.isArray(dict)) {
-      items = dict;
-    } else if (dict && Array.isArray(dict.items)) {
-      items = dict.items;
-    } else {
-      items = [];
-    }
-  } catch (e) {
-    // JSON 文件不存在或格式错误，返回空数组，不抛错
+  // 兼容两种 JSON 结构：{ items: [] } 或直接为数组
+  if (Array.isArray(dict)) {
+    items = dict;
+  } else if (dict && Array.isArray(dict.items)) {
+    items = dict.items;
+  } else {
     items = [];
   }
 

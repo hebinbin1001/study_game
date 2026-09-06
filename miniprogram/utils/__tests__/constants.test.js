@@ -12,13 +12,13 @@ const s = suite('utils/constants.js');
 
 const c = require('../constants');
 
-s.test('GRADES：7 个学段且 key/file 覆盖 7 个 JSON', () => {
+s.test('GRADES：7 个学段且 key/file 覆盖 7 个 JS 模块', () => {
   s.assert.equal(c.GRADES.length, 7);
   const keys = c.GRADES.map((g) => g.key);
   s.assert.deepEqual(keys, ['kindergarten', 'primary12', 'primary34', 'primary56', 'junior', 'senior', 'college']);
   for (const g of c.GRADES) {
     s.assert.ok(g.label.length > 0);
-    s.assert.ok(/\.json$/.test(g.file));
+    s.assert.ok(/\.js$/.test(g.file));
   }
 });
 

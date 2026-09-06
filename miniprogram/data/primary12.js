@@ -1,4 +1,4 @@
-{
+module.exports = {
   "grade": "primary12",
   "label": "小学1-2年级",
   "count": 150,
@@ -1044,4 +1044,4 @@
       ]
     }
   ]
-}
+};

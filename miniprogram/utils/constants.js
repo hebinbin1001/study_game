@@ -13,15 +13,15 @@
  */
 
 // ============ 一、学段枚举（7 个学段，REQ-DICT-1） ============
-// key 对应 data/ 下的内置词库 JSON 文件名，label 为界面展示中文名
+// key 对应 data/ 下的内置词库 JS 模块文件名，label 为界面展示中文名
 const GRADES = [
-  { key: 'kindergarten', label: '幼儿园',  file: 'kindergarten.json' },
-  { key: 'primary12',    label: '小学1-2', file: 'primary12.json' },
-  { key: 'primary34',    label: '小学3-4', file: 'primary34.json' },
-  { key: 'primary56',    label: '小学5-6', file: 'primary56.json' },
-  { key: 'junior',       label: '初中',    file: 'junior.json' },
-  { key: 'senior',       label: '高中',    file: 'senior.json' },
-  { key: 'college',      label: '大学',    file: 'college.json' }
+  { key: 'kindergarten', label: '幼儿园',  file: 'kindergarten.js' },
+  { key: 'primary12',    label: '小学1-2', file: 'primary12.js' },
+  { key: 'primary34',    label: '小学3-4', file: 'primary34.js' },
+  { key: 'primary56',    label: '小学5-6', file: 'primary56.js' },
+  { key: 'junior',       label: '初中',    file: 'junior.js' },
+  { key: 'senior',       label: '高中',    file: 'senior.js' },
+  { key: 'college',      label: '大学',    file: 'college.js' }
 ];
 
 // ============ 二、8 类型码枚举（REQ-DICT-2） ============
