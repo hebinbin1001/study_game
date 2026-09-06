@@ -1,0 +1,20 @@
+# Git
+.git
+.gitignore
+
+# 依赖：本地 node_modules 不进镜像（由 npm ci 在容器内重装）
+node_modules
+**/node_modules
+
+# 前端/文档/工具/临时目录：后端镜像无需携带
+miniprogram
+docs
+.codeartsdoer
+.tmp_dict
+
+# 日志与编辑器
+*.log
+.DS_Store
+Thumbs.db
+.idea
+.vscode
