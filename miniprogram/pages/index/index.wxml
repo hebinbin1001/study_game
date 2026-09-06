@@ -36,6 +36,24 @@
         <view class="entry-icon">🏆</view>
         <view class="entry-text">排行</view>
       </view>
+
+      <!-- 错题本入口（M3） -->
+      <view class="entry" bindtap="goWrongBook">
+        <view class="entry-icon">📖</view>
+        <view class="entry-text">错题</view>
+      </view>
+
+      <!-- 签到入口（M4） -->
+      <view class="entry" bindtap="goCheckin">
+        <view class="entry-icon">✓</view>
+        <view class="entry-text">签到</view>
+      </view>
+
+      <!-- 成就入口（M4） -->
+      <view class="entry" bindtap="goAchievement">
+        <view class="entry-icon">🏅</view>
+        <view class="entry-text">成就</view>
+      </view>
     </view>
   </view>
 </view>

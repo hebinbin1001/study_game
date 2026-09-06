@@ -6,7 +6,12 @@
     "pages/result/result",
     "pages/nickname/nickname",
     "pages/avatar/avatar",
-    "pages/rank/rank"
+    "pages/rank/rank",
+    "pages/wrong-book/wrong-book",
+    "pages/wrong-review/wrong-review",
+    "pages/level-share/level-share",
+    "pages/checkin/checkin",
+    "pages/achievement/achievement"
   ],
   "window": {
     "navigationBarBackgroundColor": "#5aa9e6",

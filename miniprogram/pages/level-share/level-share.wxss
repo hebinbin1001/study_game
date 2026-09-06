@@ -1,0 +1,120 @@
+.page-level-share {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.btn-back {
+  background: transparent;
+  color: #fff;
+  font-size: 32rpx;
+  padding: 0 20rpx;
+}
+
+.header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.input-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.label {
+  display: block;
+  font-size: 24rpx;
+  color: #ccc;
+  margin-bottom: 15rpx;
+}
+
+.input-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.input {
+  flex: 1;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10rpx;
+  color: #fff;
+  font-size: 32rpx;
+  text-align: center;
+  letter-spacing: 10rpx;
+}
+
+.btn-import {
+  padding: 0 40rpx;
+  background: #ff9800;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 10rpx;
+}
+
+.level-info {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.level-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+}
+
+.level-meta {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.meta-item {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.level-description {
+  font-size: 24rpx;
+  color: #ccc;
+  margin-bottom: 30rpx;
+  line-height: 1.5;
+}
+
+.btn-start {
+  padding: 30rpx;
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 20rpx;
+}
+
+.empty {
+  text-align: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 30rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #888;
+  margin-bottom: 10rpx;
+}

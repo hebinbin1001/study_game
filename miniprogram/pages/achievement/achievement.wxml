@@ -1,0 +1,27 @@
+<!-- 成就列表页 -->
+<view class="page-achievement">
+  <view class="header">
+    <button class="btn-back" bindtap="goBack">‹ 返回</button>
+    <view class="header-title">成就勋章</view>
+    <button class="btn-check" bindtap="checkUnlock">检查</button>
+  </view>
+
+  <!-- 成就列表 -->
+  <view class="achievement-list">
+    <block wx:for="{{achievements}}" wx:key="achievementId">
+      <view class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}">
+        <view class="achievement-icon">
+          <image src="{{item.icon}}" mode="aspectFill"></image>
+        </view>
+        <view class="achievement-info">
+          <view class="achievement-name">{{item.name}}</view>
+          <view class="achievement-desc">{{item.description}}</view>
+        </view>
+        <view class="achievement-status">
+          <text wx:if="{{item.unlocked}}">已解锁</text>
+          <text wx:else>未解锁</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

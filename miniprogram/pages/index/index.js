@@ -48,5 +48,20 @@ Page({
   // 进入排行榜页（M2）
   goRank: function () {
     wx.navigateTo({ url: '/pages/rank/rank' });
+  },
+
+  // 进入错题本页（M3）
+  goWrongBook: function () {
+    wx.navigateTo({ url: '/pages/wrong-book/wrong-book' });
+  },
+
+  // 进入签到页（M4）
+  goCheckin: function () {
+    wx.navigateTo({ url: '/pages/checkin/checkin' });
+  },
+
+  // 进入成就页（M4）
+  goAchievement: function () {
+    wx.navigateTo({ url: '/pages/achievement/achievement' });
   }
 });

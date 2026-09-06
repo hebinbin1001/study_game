@@ -1,0 +1,117 @@
+.page-checkin {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.btn-back {
+  background: transparent;
+  color: #fff;
+  font-size: 32rpx;
+  padding: 0 20rpx;
+}
+
+.header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.checkin-card {
+  background: linear-gradient(135deg, #ffd700 0%, #ff9800 100%);
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin-bottom: 40rpx;
+  display: flex;
+  justify-content: space-around;
+}
+
+.streak, .total {
+  text-align: center;
+}
+
+.streak-number, .total-number {
+  display: block;
+  font-size: 64rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.streak-label, .total-label {
+  font-size: 24rpx;
+  color: #333;
+}
+
+.btn-checkin {
+  width: 100%;
+  padding: 40rpx;
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: bold;
+  border-radius: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.btn-checkin.checked {
+  background: rgba(255, 255, 255, 0.2);
+  color: #888;
+}
+
+.rewards {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.reward-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.reward-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reward-item {
+  text-align: center;
+  opacity: 0.5;
+}
+
+.reward-item.active {
+  opacity: 1;
+}
+
+.reward-day {
+  display: block;
+  font-size: 22rpx;
+  color: #888;
+  margin-bottom: 5rpx;
+}
+
+.reward-stars {
+  display: block;
+  font-size: 24rpx;
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.tip {
+  text-align: center;
+  padding: 20rpx;
+  background: rgba(76, 175, 80, 0.2);
+  border-radius: 10rpx;
+  color: #4caf50;
+  font-size: 24rpx;
+}

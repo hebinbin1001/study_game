@@ -1,0 +1,149 @@
+.page-wrong-review {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+.progress-bar {
+  height: 8rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-bottom: 10rpx;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #ffd700);
+  transition: width 0.3s;
+}
+
+.progress-text {
+  font-size: 24rpx;
+  color: #888;
+  margin-bottom: 30rpx;
+}
+
+.question-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  padding: 40rpx;
+}
+
+.question-type {
+  font-size: 24rpx;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  display: inline-block;
+  margin-bottom: 20rpx;
+}
+
+.question-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.question-hint {
+  font-size: 24rpx;
+  color: #888;
+  margin-bottom: 30rpx;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.option {
+  padding: 25rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15rpx;
+  font-size: 28rpx;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.option:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.option.correct {
+  background: #4caf50;
+  color: #fff;
+}
+
+.option.wrong {
+  background: #f44336;
+  color: #fff;
+}
+
+.option.answer {
+  background: #4caf50;
+  color: #fff;
+}
+
+.completed {
+  text-align: center;
+  padding: 100rpx 0;
+}
+
+.completed-icon {
+  font-size: 120rpx;
+  color: #4caf50;
+  margin-bottom: 30rpx;
+}
+
+.completed-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.completed-stats {
+  font-size: 32rpx;
+  color: #ffd700;
+  margin-bottom: 50rpx;
+}
+
+.btn-restart {
+  padding: 30rpx;
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 20rpx;
+}
+
+.feedback {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30rpx 60rpx;
+  border-radius: 20rpx;
+  font-size: 36rpx;
+  font-weight: bold;
+  z-index: 100;
+}
+
+.feedback.correct {
+  background: #4caf50;
+  color: #fff;
+}
+
+.feedback.wrong {
+  background: #f44336;
+  color: #fff;
+}
