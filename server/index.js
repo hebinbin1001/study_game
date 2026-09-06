@@ -11,6 +11,9 @@ const healthRouter = require("./routes/health");
 const userRouter = require("./routes/user");
 const nicknameRouter = require("./routes/nickname");
 const scoreRouter = require("./routes/score");
+const avatarRouter = require("./routes/avatar");
+const rankRouter = require("./routes/rank");
+const ranklistRouter = require("./routes/ranklist");
 
 const app = express();
 
@@ -48,6 +51,9 @@ app.use("/api/health", healthRouter);
 app.use("/api/user", openid, userRouter);
 app.use("/api/nickname", openid, nicknameRouter);
 app.use("/api/score", openid, scoreRouter);
+app.use("/api/avatar", openid, avatarRouter);
+app.use("/api/rank", openid, rankRouter);
+app.use("/api/ranklist", openid, ranklistRouter);
 
 const port = process.env.PORT || 80;
 

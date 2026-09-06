@@ -4,7 +4,9 @@
     "pages/level/level",
     "pages/game/game",
     "pages/result/result",
-    "pages/nickname/nickname"
+    "pages/nickname/nickname",
+    "pages/avatar/avatar",
+    "pages/rank/rank"
   ],
   "window": {
     "navigationBarBackgroundColor": "#5aa9e6",

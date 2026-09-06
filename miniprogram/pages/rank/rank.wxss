@@ -1,0 +1,188 @@
+.page-rank {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx;
+  font-size: 28rpx;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.tab.active {
+  background: #ffd700;
+  color: #333;
+  font-weight: bold;
+}
+
+.my-rank {
+  background: linear-gradient(135deg, #ffd700 0%, #ff9800 100%);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.my-rank-label {
+  font-size: 24rpx;
+  color: #333;
+}
+
+.my-rank-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.my-info {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.my-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+}
+
+.my-nickname {
+  font-size: 24rpx;
+  color: #333;
+  max-width: 200rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.my-stars {
+  font-size: 22rpx;
+  color: #333;
+}
+
+.rank-list {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.rank-item:last-child {
+  border-bottom: none;
+}
+
+.rank-item.me {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.rank-number {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #888;
+}
+
+.rank-number.top1 {
+  color: #ffd700;
+  font-size: 40rpx;
+}
+
+.rank-number.top2 {
+  color: #c0c0c0;
+  font-size: 40rpx;
+}
+
+.rank-number.top3 {
+  color: #cd7f32;
+  font-size: 40rpx;
+}
+
+.rank-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin: 0 20rpx;
+}
+
+.rank-info {
+  flex: 1;
+}
+
+.rank-nickname {
+  font-size: 28rpx;
+  margin-bottom: 5rpx;
+}
+
+.rank-stars {
+  font-size: 22rpx;
+  color: #888;
+}
+
+.rank-detail {
+  text-align: right;
+}
+
+.rank-rankName {
+  font-size: 22rpx;
+  color: #ffd700;
+}
+
+.rank-score {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #fff;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30rpx;
+  margin: 30rpx 0;
+}
+
+.btn-page {
+  padding: 10rpx 30rpx;
+  font-size: 24rpx;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 10rpx;
+}
+
+.btn-page[disabled] {
+  opacity: 0.5;
+}
+
+.page-info {
+  font-size: 24rpx;
+  color: #ccc;
+}
+
+.btn-back {
+  margin-top: 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 20rpx;
+}

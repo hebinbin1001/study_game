@@ -17,14 +17,25 @@
     <!-- 开始游戏：跳转关卡选择页（REQ-GAME-1） -->
     <button class="btn btn-start" bindtap="goLevel">开始游戏</button>
 
-    <!-- 昵称入口：显示已存昵称或「未设置昵称」占位，点击进入昵称页（REQ-NICK-4） -->
-    <view class="nickname-entry" bindtap="goNickname">
-      <view class="avatar-wrap">
-        <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
-        <view wx:else class="avatar-default">👤</view>
+    <!-- 功能入口区 -->
+    <view class="entries">
+      <!-- 昵称入口 -->
+      <view class="entry" bindtap="goNickname">
+        <view class="entry-icon">👤</view>
+        <view class="entry-text">昵称</view>
       </view>
-      <view class="nickname-text">{{nickname || '未设置昵称'}}</view>
-      <view class="nickname-arrow">›</view>
+
+      <!-- 形象入口（M2） -->
+      <view class="entry" bindtap="goAvatar">
+        <view class="entry-icon">👗</view>
+        <view class="entry-text">形象</view>
+      </view>
+
+      <!-- 排行榜入口（M2） -->
+      <view class="entry" bindtap="goRank">
+        <view class="entry-icon">🏆</view>
+        <view class="entry-text">排行</view>
+      </view>
     </view>
   </view>
 </view>

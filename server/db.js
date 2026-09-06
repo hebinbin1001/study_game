@@ -21,9 +21,15 @@ const sequelize = new Sequelize("word_warrior", MYSQL_USERNAME, MYSQL_PASSWORD, 
 // 引入模型定义（传入 sequelize 实例）
 const User = require("./models/user")(sequelize);
 const Score = require("./models/score")(sequelize);
+const Avatar = require("./models/avatar")(sequelize);
+const UserAvatar = require("./models/user-avatar")(sequelize);
+const Rank = require("./models/rank")(sequelize);
+const RankRecord = require("./models/rank-record")(sequelize);
 
-// 建立关联：一个用户拥有多条成绩
+// 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
+User.hasMany(UserAvatar, { foreignKey: "openid", sourceKey: "openid" });
+User.hasMany(RankRecord, { foreignKey: "openid", sourceKey: "openid" });
 
 /**
  * 数据库初始化方法。
@@ -62,6 +68,11 @@ async function connect() {
     await sequelize.authenticate();
   } else {
     await sequelize.sync({ alter: true });
+    // 非生产环境：初始化内置数据（形象 + 段位）
+    const { seedAvatars } = require("./seeders/avatar-seed");
+    const { seedRanks } = require("./seeders/rank-seed");
+    await seedAvatars(sequelize);
+    await seedRanks(sequelize);
   }
 }
 
@@ -94,4 +105,8 @@ module.exports = {
   connect,
   User,
   Score,
+  Avatar,
+  UserAvatar,
+  Rank,
+  RankRecord,
 };

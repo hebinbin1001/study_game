@@ -165,3 +165,32 @@ page {
   color: #8899aa;
   font-weight: 700;
 }
+
+/* ===== 功能入口区 ===== */
+.entries {
+  display: flex;
+  justify-content: center;
+  gap: 40rpx;
+  margin-top: 60rpx;
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+}
+
+.entry-icon {
+  font-size: 48rpx;
+  margin-bottom: 8rpx;
+}
+
+.entry-text {
+  font-size: 24rpx;
+  color: #5c7f9e;
+  font-weight: 700;
+}

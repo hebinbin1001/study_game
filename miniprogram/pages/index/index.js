@@ -4,8 +4,10 @@
 //   1. onShow 时读取本地昵称/头像更新展示（REQ-NICK-4）
 //   2. 「开始游戏」跳转关卡选择页（REQ-GAME-1）
 //   3. 昵称入口跳转昵称设置页（REQ-NICK-4）
+//   4. 形象入口跳转形象选择页（M2）
+//   5. 排行榜入口跳转排行榜页（M2）
 //
-// 关联需求：REQ-GAME-1、REQ-NICK-4
+// 关联需求：REQ-GAME-1、REQ-NICK-4、M2 形象/排行榜
 
 var storage = require('../../utils/storage');
 
@@ -36,5 +38,15 @@ Page({
   // 进入昵称设置页（REQ-NICK-4）
   goNickname: function () {
     wx.navigateTo({ url: '/pages/nickname/nickname' });
+  },
+
+  // 进入形象选择页（M2）
+  goAvatar: function () {
+    wx.navigateTo({ url: '/pages/avatar/avatar' });
+  },
+
+  // 进入排行榜页（M2）
+  goRank: function () {
+    wx.navigateTo({ url: '/pages/rank/rank' });
   }
 });

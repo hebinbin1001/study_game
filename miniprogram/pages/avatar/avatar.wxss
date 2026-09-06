@@ -1,0 +1,145 @@
+.page-avatar {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+.rank-bar {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.rank-info {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.rank-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.rank-wins, .rank-stars {
+  font-size: 28rpx;
+  color: #ccc;
+}
+
+.avatar-section {
+  margin-bottom: 40rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #ffd700;
+}
+
+.avatar-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.avatar-item {
+  width: 200rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  text-align: center;
+  border: 4rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.avatar-item.active {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.avatar-rarity {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  margin-bottom: 10rpx;
+  display: inline-block;
+}
+
+.avatar-rarity.common {
+  background: #888;
+  color: #fff;
+}
+
+.avatar-rarity.rare {
+  background: #4169e1;
+  color: #fff;
+}
+
+.avatar-rarity.epic {
+  background: #9370db;
+  color: #fff;
+}
+
+.avatar-rarity.legend {
+  background: #ffd700;
+  color: #333;
+}
+
+.avatar-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  margin-bottom: 10rpx;
+}
+
+.avatar-name {
+  font-size: 24rpx;
+  margin-bottom: 10rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avatar-status {
+  font-size: 22rpx;
+}
+
+.status-unlocked {
+  color: #4caf50;
+}
+
+.status-using {
+  color: #ffd700;
+}
+
+.status-locked {
+  color: #888;
+}
+
+.btn-use, .btn-unlock {
+  margin-top: 10rpx;
+  padding: 8rpx 16rpx;
+  font-size: 22rpx;
+  border-radius: 10rpx;
+}
+
+.btn-use {
+  background: #4caf50;
+  color: #fff;
+}
+
+.btn-unlock {
+  background: #ff9800;
+  color: #fff;
+}
+
+.btn-back {
+  margin-top: 40rpx;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 20rpx;
+}

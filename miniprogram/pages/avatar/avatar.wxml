@@ -1,0 +1,72 @@
+<!-- 形象选择页 -->
+<view class="page-avatar">
+  <!-- 段位信息栏 -->
+  <view class="rank-bar">
+    <view class="rank-info">
+      <text class="rank-name">{{rankInfo.rankName || '青铜'}}</text>
+      <text class="rank-wins">胜场: {{rankInfo.wins || 0}}</text>
+      <text class="rank-stars">星数: {{rankInfo.stars || 0}}</text>
+    </view>
+  </view>
+
+  <!-- 战士皮肤区 -->
+  <view class="avatar-section">
+    <view class="section-title">战士皮肤</view>
+    <view class="avatar-list">
+      <block wx:for="{{warriors}}" wx:key="avatarId">
+        <view class="avatar-item {{item.currentUsed ? 'active' : ''}}" data-avatar-id="{{item.avatarId}}">
+          <view class="avatar-rarity {{item.rarity}}">{{item.rarity}}</view>
+          <image class="avatar-icon" src="{{item.icon}}" mode="aspectFill"></image>
+          <view class="avatar-name">{{item.name}}</view>
+          <view class="avatar-status">
+            <block wx:if="{{item.unlocked}}">
+              <text class="status-unlocked">已解锁</text>
+              <block wx:if="{{!item.currentUsed}}">
+                <button class="btn-use" bindtap="useAvatar" data-avatar-id="{{item.avatarId}}">使用</button>
+              </block>
+              <block wx:else>
+                <text class="status-using">使用中</text>
+              </block>
+            </block>
+            <block wx:else>
+              <text class="status-locked">未解锁</text>
+              <button class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">解锁</button>
+            </block>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 怪兽皮肤区 -->
+  <view class="avatar-section">
+    <view class="section-title">怪兽皮肤</view>
+    <view class="avatar-list">
+      <block wx:for="{{monsters}}" wx:key="avatarId">
+        <view class="avatar-item {{item.currentUsed ? 'active' : ''}}" data-avatar-id="{{item.avatarId}}">
+          <view class="avatar-rarity {{item.rarity}}">{{item.rarity}}</view>
+          <image class="avatar-icon" src="{{item.icon}}" mode="aspectFill"></image>
+          <view class="avatar-name">{{item.name}}</view>
+          <view class="avatar-status">
+            <block wx:if="{{item.unlocked}}">
+              <text class="status-unlocked">已解锁</text>
+              <block wx:if="{{!item.currentUsed}}">
+                <button class="btn-use" bindtap="useAvatar" data-avatar-id="{{item.avatarId}}">使用</button>
+              </block>
+              <block wx:else>
+                <text class="status-using">使用中</text>
+              </block>
+            </block>
+            <block wx:else>
+              <text class="status-locked">未解锁</text>
+              <button class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">解锁</button>
+            </block>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 返回按钮 -->
+  <button class="btn-back" bindtap="goBack">返回</button>
+</view>
