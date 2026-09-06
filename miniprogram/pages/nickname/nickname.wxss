@@ -1,0 +1,119 @@
+/* 昵称设置页样式（T17）：
+   头像选择 + 昵称输入 + 保存按钮
+   配色参考 prototype/index.html */
+
+page {
+  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+  min-height: 100vh;
+  color: #3a3a5c;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.page-nickname {
+  padding: 48rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== 区块 ===== */
+.section {
+  width: 100%;
+  margin-bottom: 48rpx;
+}
+.section-title {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #3a3a5c;
+  margin-bottom: 24rpx;
+  padding-left: 8rpx;
+}
+
+/* ===== 头像选择 ===== */
+.avatar-btn {
+  width: 100%;
+  height: 240rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+  margin: 0;
+  padding: 0;
+  line-height: normal;
+}
+.avatar-btn::after {
+  border: none;
+}
+.avatar-wrap {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e0e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar {
+  width: 128rpx;
+  height: 128rpx;
+}
+.avatar-default {
+  font-size: 64rpx;
+}
+.avatar-tip {
+  font-size: 26rpx;
+  color: #8899aa;
+  margin-top: 16rpx;
+}
+
+/* ===== 昵称输入 ===== */
+.nickname-input {
+  width: 100%;
+  height: 96rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 0 32rpx;
+  font-size: 32rpx;
+  color: #3a3a5c;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+.input-hint {
+  font-size: 24rpx;
+  color: #8899aa;
+  margin-top: 16rpx;
+  padding-left: 8rpx;
+}
+
+/* ===== 保存按钮 ===== */
+.btn {
+  border: none;
+  color: #fff;
+  font-weight: 900;
+  border-radius: 44rpx;
+  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.18);
+  letter-spacing: 4rpx;
+}
+.btn::after {
+  border: none;
+}
+.btn-save {
+  width: 480rpx;
+  height: 104rpx;
+  font-size: 36rpx;
+  background: #ffb703;
+  line-height: 104rpx;
+  margin-top: 32rpx;
+}
+
+/* ===== 返回链接 ===== */
+.back-link {
+  margin-top: 32rpx;
+  font-size: 30rpx;
+  color: #5c7f9e;
+  padding: 16rpx 48rpx;
+}

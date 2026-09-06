@@ -1,0 +1,31 @@
+<!-- 结算页（T16）：
+     星级 + 得分 + 答对题数 + 正确率 + 操作按钮
+     关联需求：REQ-GAME-11（失败态）、REQ-GAME-12（星级评定）、REQ-GAME-15（结算展示） -->
+<view class="page-result">
+  <!-- 大星级展示（★/☆，REQ-GAME-12） -->
+  <view class="big-stars">
+    <text
+      wx:for="{{starArr}}"
+      wx:key="*this"
+      class="big-star {{item ? 'on' : 'off'}}">{{item ? '★' : '☆'}}</text>
+  </view>
+
+  <!-- 结算面板 -->
+  <view class="result-panel">
+    <!-- 标题：通关 / 失败（REQ-GAME-11） -->
+    <view class="res-title {{failed ? 'res-title-fail' : ''}}">{{titleText}}</view>
+
+    <!-- 统计数据（REQ-GAME-15） -->
+    <view class="stats">
+      <view class="row"><text class="row-label">得分</text><text class="row-value">{{score}}</text></view>
+      <view class="row"><text class="row-label">答对</text><text class="row-value">{{correctCount}}/{{totalQ}}</text></view>
+      <view class="row"><text class="row-label">正确率</text><text class="row-value">{{ratePercent}}%</text></view>
+    </view>
+
+    <!-- 操作按钮（REQ-GAME-15） -->
+    <view class="res-btns">
+      <button class="btn btn-res btn-blue" bindtap="playAgain">再玩一次</button>
+      <button class="btn btn-res btn-orange" bindtap="goHome">回首页</button>
+    </view>
+  </view>
+</view>

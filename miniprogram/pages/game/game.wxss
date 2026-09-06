@@ -1,0 +1,169 @@
+/**
+ * 游戏页样式：Canvas 2D + HUD + 选项按钮
+ * 关联 REQ：REQ-GAME-2（分层布局）、REQ-GAME-3（命数/题号）、REQ-NFR-3（画布几何）
+ * 平移来源：prototype/index.html 第 74-94 行游戏页样式
+ */
+
+/* ============ 页面容器 ============ */
+/* 暖色天空渐变背景，纵向布局，禁用滚动（game.json disableScroll:true） */
+.game-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16rpx 24rpx 32rpx;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 70%, #eaf8ff 100%);
+}
+
+/* ============ HUD 层 ============ */
+/* 命数 / 得分 / 题号横向布局，半透明覆盖于 Canvas 上方 */
+.hud {
+  width: 100%;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16rpx;
+  box-sizing: border-box;
+}
+
+/* 命数：粉色 ❤ 字符，白色硬阴影营造卡通感 */
+.hud-lives {
+  font-size: 44rpx;
+  color: #ff5d8f;
+  text-shadow: 0 4rpx 0 #ffffff;
+  letter-spacing: 4rpx;
+  min-width: 120rpx;
+}
+
+/* 得分：白色粗体，墨色硬阴影 */
+.hud-score {
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.18);
+}
+
+/* 题号：灰蓝色粗体 */
+.hud-qnum {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #5c7f9e;
+}
+
+/* ============ 游戏画布 ============ */
+/* 逻辑尺寸 390×500（与 config.js W/H 一致），dpr 适配在 onReady 中处理 */
+.game-canvas {
+  width: 390px;
+  height: 500px;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 70%, #eaf8ff 100%);
+  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.12);
+}
+
+/* ============ 底部面板 ============ */
+/* 提示文字 + 选项按钮垂直堆叠 */
+.bottom-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24rpx;
+  gap: 16rpx;
+}
+
+/* 提示文字：答对/答错/逼近时由 engine.onTip 回调驱动 */
+.tip {
+  font-size: 26rpx;
+  color: #5c7f9e;
+  font-weight: 700;
+  text-align: center;
+  min-height: 36rpx;
+  line-height: 1.4;
+  padding: 0 16rpx;
+}
+
+/* ============ 选项按钮 ============ */
+/* 字符级：4 个字符选项横排居中；词级整词较长，允许换行成两行（H2-B） */
+.options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20rpx 20rpx;
+  width: 100%;
+}
+
+/* 单个选项按钮：卡通硬阴影风格（平移原型 .char-btn） */
+.option {
+  width: 132rpx;
+  height: 132rpx;
+  border-radius: 40rpx;
+  color: #ffffff;
+  font-size: 60rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.18), 0 24rpx 44rpx rgba(0, 0, 0, 0.14);
+  transition: transform 0.06s, box-shadow 0.06s, opacity 0.15s;
+}
+
+/* 词级整词按钮（H2-B）：胶囊形、自动宽度，容纳长整词（如 COMPETITION） */
+.option.wide {
+  width: auto;
+  min-width: 120rpx;
+  height: 96rpx;
+  padding: 0 30rpx;
+  border-radius: 48rpx;
+  font-size: 34rpx;
+  max-width: 46%;
+  word-break: keep-all;
+}
+
+/* 按下效果：下沉 + 阴影收缩 */
+.option:active {
+  transform: translateY(6rpx);
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.18);
+}
+
+/* 已用（选错）的选项置灰禁用 */
+.option.used {
+  opacity: 0.25;
+}
+
+/* 5 种配色循环（对应原型 .char-btn.c0~c4） */
+.option.c0 { background: #ff5d8f; }  /* 粉 */
+.option.c1 { background: #4cc9f0; }  /* 蓝 */
+.option.c2 { background: #ffb703; }  /* 橙 */
+.option.c3 { background: #7bd389; }  /* 绿 */
+.option.c4 { background: #b388ff; }  /* 紫 */
+
+/* ============ 连击提示浮层 ============ */
+/* 连对 2/3/5 题时由 engine.onCombo 触发，800ms 自动消失 */
+.combo-toast {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(40, 40, 60, 0.88);
+  color: #ffb703;
+  padding: 16rpx 36rpx;
+  border-radius: 24rpx;
+  font-size: 40rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  z-index: 99;
+  white-space: nowrap;
+  box-shadow: 0 16rpx 44rpx rgba(0, 0, 0, 0.25);
+  animation: comboPop 0.8s ease-out forwards;
+}
+
+/* 连击提示弹出动画：从下方淡入 → 放大回弹 → 上浮淡出 */
+@keyframes comboPop {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(20rpx) scale(0.8); }
+  20%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.1); }
+  40%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-40rpx) scale(1); }
+}

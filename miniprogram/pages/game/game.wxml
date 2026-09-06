@@ -1,0 +1,51 @@
+<!--
+  游戏页：Canvas 2D + HUD + 选项按钮，对接 game/engine.js 主循环
+  关联 REQ：REQ-GAME-2（Canvas+HUD 分层）、REQ-GAME-3（命数/题号）、
+           REQ-GAME-6/7/8/9/10（答对/答错/下沉/连击/反馈）、
+           REQ-NFR-1（HUD 仅变化时 setData）、REQ-NFR-3（dpr 适配）
+  平移来源：prototype/index.html 第 156-168 行游戏页 UI 结构
+-->
+<view class="game-page">
+
+  <!-- HUD 层：命数 / 得分 / 题号（REQ-GAME-3，半透明覆盖于 Canvas 上方） -->
+  <view class="hud">
+    <view class="hud-lives">{{livesText}}</view>
+    <view class="hud-score">得分 {{score}}</view>
+    <view class="hud-qnum">第 {{qIndex}}/{{totalQ}} 题</view>
+  </view>
+
+  <!--
+    游戏画布：Canvas 2D 新接口，逻辑尺寸 390×500（与 config.js W/H 一致）
+    onReady 中经 createSelectorQuery 获取 node + ctx，dpr 适配后注入 engine
+    关联 REQ-GAME-2、REQ-NFR-3
+  -->
+  <canvas type="2d" id="game-canvas" class="game-canvas"></canvas>
+
+  <!-- 底部面板：提示文字 + 选项按钮（REQ-GAME-2 分层） -->
+  <view class="bottom-panel">
+    <!-- 提示文字：答对/答错/逼近时由 engine.onTip 回调驱动 -->
+    <view class="tip">{{tip}}</view>
+
+    <!--
+      选项按钮区：wx:for 渲染选项
+      - 字符级题：4 个字符按钮（item.letter）
+      - 词级题（H2-B）：按钮文本为整词 item.display（英文大写），
+        item.wide=true 走宽版样式（自动宽度/换行）
+      catchtap 阻止冒泡并转发给 onOptionTap → engine.fire(opt)
+      关联 REQ-GAME-6/7（点选项触发答对/答错流程）
+    -->
+    <view class="options">
+      <view
+        wx:for="{{options}}"
+        wx:key="letter"
+        class="option {{item.colorClass}} {{item.used ? 'used' : ''}} {{item.wide ? 'wide' : ''}}"
+        catchtap="onOptionTap"
+        data-index="{{index}}"
+      >{{item.display || item.letter}}</view>
+    </view>
+  </view>
+
+  <!-- 连击提示浮层（REQ-GAME-9，连对 2/3/5 题时由 engine.onCombo 触发） -->
+  <view wx:if="{{comboText}}" class="combo-toast">{{comboText}}</view>
+
+</view>

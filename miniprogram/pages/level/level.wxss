@@ -1,0 +1,101 @@
+/* 关卡选择页样式（T14）：
+   学段 tab + 关卡卡片网格
+   配色参考 prototype/index.html */
+
+page {
+  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+  min-height: 100vh;
+  color: #3a3a5c;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.page-level {
+  padding: 24rpx 0 48rpx;
+}
+
+/* ===== 学段 tab ===== */
+.grade-tabs {
+  white-space: nowrap;
+  padding: 0 24rpx 36rpx;
+}
+.grade-tab {
+  display: inline-block;
+  width: 172rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 32rpx;
+  font-weight: 800;
+  font-size: 30rpx;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.12);
+  margin-right: 20rpx;
+  transition: all 0.12s;
+}
+.grade-tab.on {
+  background: #ffb703;
+}
+
+/* ===== 关卡卡片网格 ===== */
+.level-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 32rpx;
+}
+.level-card {
+  width: 208rpx;
+  height: 260rpx;
+  background: #fff;
+  border-radius: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.1), 0 20rpx 40rpx rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s, box-shadow 0.12s;
+  position: relative;
+  margin-right: 32rpx;
+  margin-bottom: 32rpx;
+}
+.level-card.locked {
+  filter: grayscale(0.9);
+  opacity: 0.7;
+}
+.level-card.shake {
+  animation: cardShake 0.4s;
+}
+@keyframes cardShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-12rpx); }
+  75% { transform: translateX(12rpx); }
+}
+
+/* 星级 */
+.stars {
+  font-size: 36rpx;
+  letter-spacing: 4rpx;
+  height: 44rpx;
+  line-height: 44rpx;
+}
+.star-on {
+  color: #ffb703;
+}
+.star-off {
+  color: #e0e0e0;
+}
+
+/* 关卡编号 */
+.num {
+  font-size: 68rpx;
+  font-weight: 900;
+  color: #4cc9f0;
+  line-height: 1.2;
+}
+
+/* 锁定标识 */
+.lock {
+  font-size: 52rpx;
+  opacity: 0.5;
+  margin-top: 8rpx;
+}

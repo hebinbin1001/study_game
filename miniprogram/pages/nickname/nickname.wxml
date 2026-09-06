@@ -1,0 +1,35 @@
+<!-- 昵称设置页（T17）：
+     头像昵称填写能力（chooseAvatar + nickname input 双通道）
+     关联需求：REQ-NICK-1（头像昵称填写能力）、REQ-NICK-2（持久化）、REQ-NICK-3（校验） -->
+<view class="page-nickname">
+  <!-- 头像选择（REQ-NICK-1：chooseAvatar 按钮） -->
+  <view class="section">
+    <view class="section-title">选择头像</view>
+    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <view class="avatar-wrap">
+        <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+        <view wx:else class="avatar-default">👤</view>
+      </view>
+      <view class="avatar-tip">点击更换头像</view>
+    </button>
+  </view>
+
+  <!-- 昵称输入（REQ-NICK-1：nickname input 双通道） -->
+  <view class="section">
+    <view class="section-title">设置昵称</view>
+    <input
+      class="nickname-input"
+      type="nickname"
+      placeholder="请输入昵称（2~12字）"
+      value="{{nickname}}"
+      bindinput="onNicknameInput"
+      maxlength="12" />
+    <view class="input-hint">长度 2~12 个字符，支持中英文</view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <button class="btn btn-save" bindtap="onSave">保 存</button>
+
+  <!-- 返回链接 -->
+  <view class="back-link" bindtap="goBack">返回</view>
+</view>

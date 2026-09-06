@@ -1,0 +1,30 @@
+<!-- 首页（T14）：
+     游戏标题「词力战士」+ 开始游戏按钮 + 昵称入口
+     关联需求：REQ-GAME-1（开始游戏入口）、REQ-NICK-4（昵称入口展示） -->
+<view class="page-home">
+  <!-- 装饰云朵 -->
+  <view class="cloud cloud-1"></view>
+  <view class="cloud cloud-2"></view>
+
+  <!-- 标题装饰区（导航栏已显示「词力战士」，此处放副标题与装饰） -->
+  <view class="logo-area">
+    <view class="logo-emoji">⚔️</view>
+    <view class="sub-title">玩中学 · 学中记</view>
+  </view>
+
+  <!-- 主操作区 -->
+  <view class="action-area">
+    <!-- 开始游戏：跳转关卡选择页（REQ-GAME-1） -->
+    <button class="btn btn-start" bindtap="goLevel">开始游戏</button>
+
+    <!-- 昵称入口：显示已存昵称或「未设置昵称」占位，点击进入昵称页（REQ-NICK-4） -->
+    <view class="nickname-entry" bindtap="goNickname">
+      <view class="avatar-wrap">
+        <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+        <view wx:else class="avatar-default">👤</view>
+      </view>
+      <view class="nickname-text">{{nickname || '未设置昵称'}}</view>
+      <view class="nickname-arrow">›</view>
+    </view>
+  </view>
+</view>

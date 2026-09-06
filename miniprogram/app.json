@@ -1,0 +1,18 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/level/level",
+    "pages/game/game",
+    "pages/result/result",
+    "pages/nickname/nickname"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#5aa9e6",
+    "navigationBarTitleText": "词力战士",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#d8efff",
+    "backgroundTextStyle": "light",
+    "pageOrientation": "portrait"
+  },
+  "sitemapLocation": "sitemap.json"
+}

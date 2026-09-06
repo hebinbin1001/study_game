@@ -1,0 +1,167 @@
+/* 首页样式（T14）：
+   渐变天空蓝背景 + 云朵装饰 + 开始游戏按钮 + 昵称入口
+   配色参考 prototype/index.html */
+
+page {
+  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+  min-height: 100vh;
+  color: #3a3a5c;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.page-home {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 60rpx;
+  overflow: hidden;
+}
+
+/* ===== 云朵装饰 ===== */
+.cloud {
+  position: absolute;
+  background: #fff;
+  border-radius: 60rpx;
+  opacity: 0.9;
+}
+.cloud::before,
+.cloud::after {
+  content: "";
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+}
+.cloud-1 {
+  width: 180rpx;
+  height: 56rpx;
+  top: 180rpx;
+  left: -40rpx;
+}
+.cloud-1::before {
+  width: 120rpx;
+  height: 120rpx;
+  top: -56rpx;
+  left: 36rpx;
+}
+.cloud-1::after {
+  width: 84rpx;
+  height: 84rpx;
+  top: -36rpx;
+  left: 112rpx;
+}
+.cloud-2 {
+  width: 140rpx;
+  height: 48rpx;
+  top: 300rpx;
+  right: -28rpx;
+}
+.cloud-2::before {
+  width: 96rpx;
+  height: 96rpx;
+  top: -44rpx;
+  left: 24rpx;
+}
+.cloud-2::after {
+  width: 72rpx;
+  height: 72rpx;
+  top: -32rpx;
+  left: 80rpx;
+}
+
+/* ===== 标题装饰区 ===== */
+.logo-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40rpx;
+}
+.logo-emoji {
+  font-size: 120rpx;
+  line-height: 1;
+  text-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.2);
+}
+.sub-title {
+  color: #5c7f9e;
+  font-size: 28rpx;
+  letter-spacing: 12rpx;
+  margin-top: 24rpx;
+  font-weight: 700;
+}
+
+/* ===== 主操作区 ===== */
+.action-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 120rpx;
+  width: 100%;
+}
+
+/* 通用按钮 */
+.btn {
+  border: none;
+  color: #fff;
+  font-weight: 900;
+  border-radius: 44rpx;
+  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.18), 0 20rpx 40rpx rgba(0, 0, 0, 0.12);
+  letter-spacing: 4rpx;
+}
+.btn::after {
+  border: none;
+}
+.btn-start {
+  width: 480rpx;
+  height: 128rpx;
+  font-size: 48rpx;
+  background: #ffb703;
+  line-height: 128rpx;
+}
+
+/* ===== 昵称入口 ===== */
+.nickname-entry {
+  display: flex;
+  align-items: center;
+  width: 480rpx;
+  height: 96rpx;
+  margin-top: 48rpx;
+  padding: 0 32rpx;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 48rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+.avatar-wrap {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e0e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.avatar {
+  width: 64rpx;
+  height: 64rpx;
+}
+.avatar-default {
+  font-size: 40rpx;
+}
+.nickname-text {
+  flex: 1;
+  margin-left: 24rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #3a3a5c;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nickname-arrow {
+  font-size: 40rpx;
+  color: #8899aa;
+  font-weight: 700;
+}

@@ -1,0 +1,11 @@
+# 构建镜像时排除本地依赖与无关文件（配合 Dockerfile COPY . /app）
+node_modules
+npm-debug.log
+.git
+.gitignore
+Dockerfile
+container.config.json
+.dockerignore
+*.log
+.idea
+.vscode

@@ -1,0 +1,24 @@
+{
+  "name": "word-warrior-server",
+  "version": "1.0.0",
+  "description": "词力战士（Word Warrior）微信云托管后端服务",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.24.3",
+    "sequelize": "^6.8.0"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
+  }
+}

@@ -1,0 +1,39 @@
+<!-- 关卡选择页（T14）：
+     7 学段 tab + 关卡卡片网格
+     关联需求：REQ-DICT-1（学段枚举）、REQ-GAME-13（星级存档）、REQ-GAME-14（关卡解锁） -->
+<view class="page-level">
+  <!-- 学段 tab（7 个学段，REQ-DICT-1） -->
+  <scroll-view class="grade-tabs" scroll-x="true" enable-flex="true">
+    <view
+      wx:for="{{grades}}"
+      wx:key="key"
+      class="grade-tab {{currentGradeIndex === index ? 'on' : ''}}"
+      data-index="{{index}}"
+      bindtap="pickGrade">
+      {{item.label}}
+    </view>
+  </scroll-view>
+
+  <!-- 关卡卡片网格（wx:for 渲染，REQ-DICT-1） -->
+  <view class="level-grid">
+    <view
+      wx:for="{{levels}}"
+      wx:key="level"
+      class="level-card {{item.unlocked ? '' : 'locked'}} {{item.shaking ? 'shake' : ''}}"
+      data-index="{{index}}"
+      bindtap="onLevelTap">
+      <!-- 星级展示（读 ww_stars，REQ-GAME-13） -->
+      <view class="stars">
+        <text
+          wx:for="{{item.starArr}}"
+          wx:for-item="s"
+          wx:key="*this"
+          class="star {{s ? 'star-on' : 'star-off'}}">{{s ? '★' : '☆'}}</text>
+      </view>
+      <!-- 关卡编号 -->
+      <view class="num">{{item.level}}</view>
+      <!-- 锁定标识（REQ-GAME-14） -->
+      <view wx:if="{{!item.unlocked}}" class="lock">🔒</view>
+    </view>
+  </view>
+</view>

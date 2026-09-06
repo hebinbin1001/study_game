@@ -1,0 +1,150 @@
+/**
+ * app.wxss —— 词力战士全局样式
+ *
+ * 设计说明：
+ *   - 配色取自 HTML 试玩原型（prototype/index.html）的暖色天空卡通风格
+ *   - 卡通扁平化：大圆角 + 底部硬阴影（box-shadow 0 Xpx 0）营造「按压感」
+ *   - 提供通用按钮 / 卡片 / 背景基线样式，各页面可复用或覆盖
+ */
+
+/* ============ 全局基座 ============ */
+page {
+  /* 卡通配色变量（供各页面引用） */
+  --sky1: #7ec8ff;      /* 天空浅蓝 */
+  --sky2: #d8efff;      /* 天空更浅蓝 */
+  --pink: #ff5d8f;      /* 卡通粉 */
+  --orange: #ffb703;    /* 卡通橙 */
+  --blue: #4cc9f0;      /* 卡通蓝 */
+  --green: #7bd389;     /* 卡通绿 */
+  --purple: #b388ff;    /* 卡通紫 */
+  --ink: #3a3a5c;       /* 主文字墨色 */
+
+  /* 暖色天空渐变背景 */
+  background: linear-gradient(180deg, #5aa9e6 0%, #a3d5ff 60%, #d8efff 100%);
+  background-attachment: fixed;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  color: #3a3a5c;
+  font-size: 28rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 页面容器（全屏纵向布局） */
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+}
+
+/* ============ 标题 ============ */
+.page-title {
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 8rpx;
+  text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
+  margin: 40rpx 0 0;
+}
+
+.page-sub {
+  color: #5c7f9e;
+  font-size: 26rpx;
+  letter-spacing: 8rpx;
+  margin: 12rpx 0 40rpx;
+}
+
+/* ============ 通用按钮（卡通硬阴影风格） ============ */
+.btn {
+  border: none;
+  border-radius: 44rpx;
+  font-weight: 900;
+  color: #ffffff;
+  text-align: center;
+  letter-spacing: 4rpx;
+  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.18), 0 20rpx 40rpx rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s;
+}
+
+/* 重置小程序 button 默认样式（对齐自定义 .btn 风格） */
+button.btn {
+  padding: 0;
+  margin: 0;
+  line-height: inherit;
+  background: #ffb703;
+}
+button.btn::after {
+  border: none;
+}
+.btn:active {
+  transform: translateY(6rpx);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.18);
+}
+
+/* 主按钮（大号，常用于「开始游戏」） */
+.btn-primary {
+  width: 480rpx;
+  height: 128rpx;
+  font-size: 44rpx;
+  background: #ffb703;
+  line-height: 128rpx;
+}
+
+/* 次级按钮（颜色可分主题覆写） */
+.btn-secondary {
+  min-width: 240rpx;
+  padding: 0 40rpx;
+  height: 88rpx;
+  font-size: 32rpx;
+  background: #4cc9f0;
+  line-height: 88rpx;
+}
+
+/* 按钮配色变体（对应原型 .btn-xxx） */
+.btn-blue { background: #4cc9f0; }
+.btn-purple { background: #b388ff; }
+.btn-green { background: #7bd389; }
+.btn-pink { background: #ff5d8f; }
+.btn-orange { background: #ffb703; }
+
+/* ============ 通用卡片 ============ */
+.card {
+  background: #ffffff;
+  border-radius: 40rpx;
+  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.1), 0 24rpx 48rpx rgba(0, 0, 0, 0.12);
+  padding: 40rpx;
+}
+
+/* ============ 布局辅助 ============ */
+/* 页面内按钮/元素之间的垂直间距 */
+.menu-gap { margin-top: 32rpx; }
+
+/* 占位内容卡片（骨架期提示后续任务实现） */
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240rpx;
+  color: #8899aa;
+  font-size: 30rpx;
+  text-align: center;
+}
+
+/* ============ 返回按钮 ============ */
+.back-btn {
+  align-self: flex-start;
+  margin: 24rpx 0;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.85);
+  color: #3a3a5c;
+  font-size: 40rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.12);
+}
