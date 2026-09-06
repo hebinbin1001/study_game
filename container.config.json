@@ -20,7 +20,7 @@
   ],
   "envParams": {},
   "customLogs": "stdout",
-  "initialDelaySeconds": 2,
+  "initialDelaySeconds": 10,
   "dataBaseName": "word_warrior",
   "executeSQLs": [
     "CREATE DATABASE IF NOT EXISTS word_warrior;",
