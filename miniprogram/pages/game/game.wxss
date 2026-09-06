@@ -5,13 +5,15 @@
  */
 
 /* ============ 页面容器 ============ */
-/* 暖色天空渐变背景，纵向布局，禁用滚动（game.json disableScroll:true） */
+/* 暖色天空渐变背景，纵向布局；内容超出时允许滚动兜底（小屏机型） */
 .game-page {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 16rpx 24rpx 32rpx;
+  padding: 16rpx 24rpx;
+  /* 底部安全区适配：全面屏底部选项按钮不被 Home 指示条遮挡 */
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 70%, #eaf8ff 100%);
 }
@@ -55,8 +57,11 @@
 /* ============ 游戏画布 ============ */
 /* 逻辑尺寸 390×500（与 config.js W/H 一致），dpr 适配在 onReady 中处理 */
 .game-canvas {
-  width: 390px;
-  height: 500px;
+  /* 响应式：宽占满内容区（702rpx），高按 390:500 比例（702 × 500/390 ≈ 900rpx），
+     渲染坐标系仍为 390×500，由 game.js onReady 中 ctx.scale 等比缩放适配。
+     宽高比必须严格保持 390:500，否则与 ctx.scale 等比缩放不一致会导致画面变形 */
+  width: 100%;
+  height: 900rpx;
   border-radius: 24rpx;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 70%, #eaf8ff 100%);
   box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.12);

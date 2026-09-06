@@ -10,7 +10,9 @@ page {
 }
 
 .page-level {
-  padding: 24rpx 0 48rpx;
+  padding: 24rpx 0;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 /* ===== 学段 tab ===== */

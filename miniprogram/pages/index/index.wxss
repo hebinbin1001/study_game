@@ -16,6 +16,8 @@ page {
   flex-direction: column;
   align-items: center;
   padding-top: 60rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
   overflow: hidden;
 }
 

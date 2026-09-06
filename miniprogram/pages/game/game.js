@@ -118,11 +118,14 @@ Page({
         var width = res[0].width;
         var height = res[0].height;
 
-        // dpr 适配：物理像素 = 逻辑像素 × dpr，绘制坐标以逻辑像素为准（REQ-NFR-3）
+        // dpr + 尺寸适配：物理像素 = 逻辑像素 × dpr；
+        // 渲染坐标系固定 390×500（config.W/H），按实际 CSS 宽度等比缩放，
+        // 使画面在不同屏宽下填满画布且不变形（REQ-NFR-3）
         var dpr = wx.getSystemInfoSync().pixelRatio;
         canvasNode.width = width * dpr;
         canvasNode.height = height * dpr;
-        ctx.scale(dpr, dpr);
+        var scale = width / config.W;
+        ctx.scale(dpr * scale, dpr * scale);
 
         self._canvasNode = canvasNode;
         self._ctx = ctx;
