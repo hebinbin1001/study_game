@@ -40,11 +40,10 @@ var DEFAULT_API_HOSTS = {
 
 // 当前小程序环境版本（develop/trial/release），惰性探测并缓存
 var _envVersion = null;
-// 未取到 openid 的 warning 是否已打过（避免刷屏）
-var _warnedNoOpenid = false;
 
-// 请求来源标识（云托管约定，后端据此识别小程序请求并取 x-wx-openid）
-var SOURCE_HEADER = 'miniprogram';
+// 请求来源标识：必须与后端 openid 中间件可信白名单（WX_TRUSTED_SOURCES，
+// 默认 weixin,wechat）保持一致，否则后端会以 code=1003「不受信任的请求来源」拒绝。
+var SOURCE_HEADER = 'weixin';
 
 /**
  * 探测当前小程序环境版本（wx.getAccountInfoSync → envVersion）。
@@ -176,18 +175,16 @@ function request(options) {
     }
 
     // —— 构造请求头：自动附加 x-wx-source / x-wx-openid（REQ-API-5） ——
+    // 仅在「已取得 openid」时才附带 x-wx-source + x-wx-openid（完整身份，后端校验通过）。
+    // 未取得 openid（云托管方案下由微信网关自动注入、前端通常拿不到）时不带这两个头，
+    // 让请求走后端「匿名放行」路径：业务路由返回 code=1001（未识别用户），
+    // 由调用方本地降级（离线可玩 / 成绩入队补报），而非被 code=1003 直接拒绝。
     var header = Object.assign({}, opts.header || {});
-    header['x-wx-source'] = SOURCE_HEADER;
     if (!skipAuth) {
       var openid = getOpenid();
       if (openid) {
+        header['x-wx-source'] = SOURCE_HEADER;
         header['x-wx-openid'] = openid;
-      } else {
-        // M1 降级：云托管真实部署时网关会自动注入 x-wx-openid，前端未取到不阻塞请求
-        if (!_warnedNoOpenid && typeof console !== 'undefined' && console.warn) {
-          _warnedNoOpenid = true;
-          console.warn('[utils/request] 未取得 openid，请求不携带 x-wx-openid 头（离线/未登录为正常降级）。');
-        }
       }
     }
 
