@@ -28,37 +28,33 @@ Page({
     var self = this;
     self.setData({ loading: true });
 
-    request.get('/api/avatar/list').then(function (res) {
-      if (res.code === 0 && res.data) {
-        var warriors = res.data.warriors || [];
-        var monsters = res.data.monsters || [];
+    request.get('/api/avatar/list').then(function (data) {
+      var warriors = data.warriors || [];
+      var monsters = data.monsters || [];
 
-        // 获取当前使用的形象
-        var currentWarrior = warriors.find(function (w) { return w.currentUsed; });
-        var currentMonster = monsters.find(function (m) { return m.currentUsed; });
+      // 获取当前使用的形象
+      var currentWarrior = warriors.find(function (w) { return w.currentUsed; });
+      var currentMonster = monsters.find(function (m) { return m.currentUsed; });
 
-        self.setData({
-          warriors: warriors,
-          monsters: monsters,
-          currentWarrior: currentWarrior ? currentWarrior.avatarId : '',
-          currentMonster: currentMonster ? currentMonster.avatarId : '',
-          loading: false
-        });
-      } else {
-        self.setData({ loading: false });
-      }
+      self.setData({
+        warriors: warriors,
+        monsters: monsters,
+        currentWarrior: currentWarrior ? currentWarrior.avatarId : '',
+        currentMonster: currentMonster ? currentMonster.avatarId : '',
+        loading: false
+      });
     }).catch(function () {
       self.setData({ loading: false });
     });
   },
 
-  // 加载段位信息
+  // 加载段位信息（/api/rank/info 为段位信息接口，路径正确）
   loadRankInfo: function () {
     var self = this;
-    request.get('/api/rank/info').then(function (res) {
-      if (res.code === 0 && res.data) {
-        self.setData({ rankInfo: res.data });
-      }
+    request.get('/api/rank/info').then(function (data) {
+      self.setData({ rankInfo: data });
+    }).catch(function () {
+      // 段位信息获取失败，静默降级
     });
   },
 
@@ -73,13 +69,11 @@ Page({
       success: function (modalRes) {
         if (!modalRes.confirm) return;
 
-        request.post('/api/avatar/unlock', { avatarId: avatarId }).then(function (res) {
-          if (res.code === 0) {
-            wx.showToast({ title: '解锁成功', icon: 'success' });
-            self.loadAvatars();
-          } else {
-            wx.showToast({ title: res.message || '解锁失败', icon: 'none' });
-          }
+        request.post('/api/avatar/unlock', { avatarId: avatarId }).then(function () {
+          wx.showToast({ title: '解锁成功', icon: 'success' });
+          self.loadAvatars();
+        }).catch(function (err) {
+          wx.showToast({ title: err.message || '解锁失败', icon: 'none' });
         });
       }
     });
@@ -90,13 +84,11 @@ Page({
     var avatarId = e.currentTarget.dataset.avatarId;
     var self = this;
 
-    request.post('/api/avatar/use', { avatarId: avatarId }).then(function (res) {
-      if (res.code === 0) {
-        wx.showToast({ title: '已使用', icon: 'success' });
-        self.loadAvatars();
-      } else {
-        wx.showToast({ title: res.message || '操作失败', icon: 'none' });
-      }
+    request.post('/api/avatar/use', { avatarId: avatarId }).then(function () {
+      wx.showToast({ title: '已使用', icon: 'success' });
+      self.loadAvatars();
+    }).catch(function (err) {
+      wx.showToast({ title: err.message || '操作失败', icon: 'none' });
     });
   },
 

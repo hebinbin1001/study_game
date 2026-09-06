@@ -36,20 +36,20 @@ Page({
   // 加载关卡
   loadLevel: function (levelId) {
     var self = this;
-    request.get('/api/level/list').then(function (res) {
-      if (res.code === 0 && res.data) {
-        var level = res.data.find(function (l) { return l.levelId === levelId; });
-        if (level) {
-          self.setData({
-            levelId: level.levelId,
-            title: level.title,
-            description: level.description,
-            grade: level.grade,
-            items: level.items || [],
-            editing: true
-          });
-        }
+    request.get('/api/level/list').then(function (data) {
+      var level = data.find(function (l) { return l.levelId === levelId; });
+      if (level) {
+        self.setData({
+          levelId: level.levelId,
+          title: level.title,
+          description: level.description,
+          grade: level.grade,
+          items: level.items || [],
+          editing: true
+        });
       }
+    }).catch(function () {
+      // 加载失败静默降级
     });
   },
 
@@ -133,30 +133,32 @@ Page({
 
     self.setData({ saving: true });
 
-    request.post('/api/level', data).then(function (res) {
+    request.post('/api/level', data).then(function (level) {
       self.setData({ saving: false });
-      if (res.code === 0) {
-        var levelId = res.data.levelId;
+      var levelId = level.levelId;
 
-        if (status === 'pending') {
-          // 提交审核
-          request.post('/api/level/submit', { levelId: levelId }).then(function (submitRes) {
-            if (submitRes.code === 0) {
-              wx.showToast({ title: '已提交审核', icon: 'success' });
-              wx.navigateBack();
-            } else {
-              wx.showToast({ title: '保存成功，提交审核失败', icon: 'none' });
-            }
+      if (status === 'pending') {
+        // 提交审核
+        request.post('/api/level/submit', { levelId: levelId }).then(function () {
+          // 提交审核成功 → 生成分享码 → 跳转分享页展示
+          request.post('/api/level/share', { levelId: levelId }).then(function (shareData) {
+            wx.navigateTo({
+              url: '/pages/level-share/level-share?shareCode=' + shareData.shareCode
+            });
+          }).catch(function (shareErr) {
+            wx.showToast({ title: shareErr.message || '生成分享码失败', icon: 'none' });
+            wx.navigateBack();
           });
-        } else {
-          wx.showToast({ title: '已保存草稿', icon: 'success' });
-          wx.navigateBack();
-        }
+        }).catch(function (submitErr) {
+          wx.showToast({ title: submitErr.message || '保存成功，提交审核失败', icon: 'none' });
+        });
       } else {
-        wx.showToast({ title: res.message || '保存失败', icon: 'none' });
+        wx.showToast({ title: '已保存草稿', icon: 'success' });
+        wx.navigateBack();
       }
-    }).catch(function () {
+    }).catch(function (err) {
       self.setData({ saving: false });
+      wx.showToast({ title: err.message || '保存失败', icon: 'none' });
     });
   },
 

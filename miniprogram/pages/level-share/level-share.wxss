@@ -103,6 +103,43 @@
   border-radius: 20rpx;
 }
 
+.share-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20rpx;
+  padding: 60rpx 30rpx;
+  margin-bottom: 30rpx;
+  text-align: center;
+}
+
+.share-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.share-tip {
+  font-size: 26rpx;
+  color: #888;
+  margin-bottom: 30rpx;
+}
+
+.share-code {
+  font-size: 80rpx;
+  font-weight: bold;
+  letter-spacing: 16rpx;
+  color: #ffd700;
+  margin-bottom: 40rpx;
+  padding: 0 20rpx;
+}
+
+.btn-copy {
+  background: linear-gradient(135deg, #ff9800, #ff5722);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 20rpx;
+  padding: 30rpx;
+}
+
 .empty {
   text-align: center;
   padding: 100rpx 0;

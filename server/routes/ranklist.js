@@ -18,7 +18,7 @@ router.get("/world", async (req, res) => {
       order: [
         ["stars", "DESC"],
         ["wins", "DESC"],
-        ["updatedAt", "ASC"],
+        ["createdAt", "ASC"],
       ],
       limit: pageSize,
       offset,
@@ -119,7 +119,7 @@ router.get("/me", async (req, res) => {
         stars: myRecord.stars,
         openid: { $ne: openid },
       },
-      order: [["updatedAt", "ASC"]],
+      order: [["createdAt", "ASC"]],
     });
 
     const myRank = higherCount + sameStars.length + 1;

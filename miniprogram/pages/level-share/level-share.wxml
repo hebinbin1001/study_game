@@ -2,11 +2,19 @@
 <view class="page-level-share">
   <view class="header">
     <button class="btn-back" bindtap="goBack">‹ 返回</button>
-    <view class="header-title">导入关卡</view>
+    <view class="header-title">{{mode === 'share' ? '分享关卡' : '导入关卡'}}</view>
   </view>
 
-  <!-- 输入分享码 -->
-  <view class="input-section">
+  <!-- 分享模式：展示分享码 -->
+  <view class="share-section" wx:if="{{mode === 'share'}}">
+    <view class="share-icon">🎁</view>
+    <view class="share-tip">把分享码发给好友，一起挑战吧</view>
+    <view class="share-code">{{shareCode}}</view>
+    <button class="btn-copy" bindtap="copyShareCode">复制分享码</button>
+  </view>
+
+  <!-- 导入模式：输入分享码 -->
+  <view class="input-section" wx:else>
     <text class="label">分享码</text>
     <view class="input-row">
       <input class="input" value="{{shareCode}}" bindinput="onInput" placeholder="输入 6 位分享码" maxlength="6" />
@@ -26,8 +34,8 @@
     <button class="btn-start" bindtap="startGame">开始游戏</button>
   </view>
 
-  <!-- 空状态 -->
-  <view class="empty" wx:if="{{!levelInfo}}">
+  <!-- 空状态（仅导入模式） -->
+  <view class="empty" wx:if="{{!levelInfo && mode === 'import'}}">
     <view class="empty-icon">🔗</view>
     <view class="empty-text">输入好友分享的 6 位码</view>
     <view class="empty-text">即可导入自定义关卡</view>

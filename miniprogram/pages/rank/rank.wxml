@@ -1,9 +1,8 @@
 <!-- 排行榜页 -->
 <view class="page-rank">
-  <!-- 标签切换 -->
+  <!-- 全服榜标题（好友榜已下线，仅保留全服榜） -->
   <view class="tabs">
-    <view class="tab {{tab === 'world' ? 'active' : ''}}" data-tab="world" bindtap="switchTab">世界排行</view>
-    <view class="tab {{tab === 'friends' ? 'active' : ''}}" data-tab="friends" bindtap="switchTab">好友排行</view>
+    <view class="tab active">全服榜</view>
   </view>
 
   <!-- 我的排名 -->

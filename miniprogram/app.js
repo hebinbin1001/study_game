@@ -11,11 +11,9 @@
 const MIN_SDK_VERSION = '2.9.0';
 
 // 云托管后端基础地址（REQ-API-5）。
-// TODO(替换)：在「微信云托管控制台」为当前环境开通后，将默认域名填到此处，
-//   例如 const API_BASE_URL = 'https://your-env-id-xxxx.ap-shanghai.app.tcloudbase.com';
-// 留空时回退 utils/request.js 内 detectEnvVersion() 推断的占位；develop 环境默认
-// 不发外网请求、由调用方本地入队降级，保证离线可玩不报错。
-const API_BASE_URL = '';
+// 已接入真实云托管环境（联调收尾，任务 27），域名见下；健康检查：
+//   GET /api/health → { code:0, data:{ status:"ok", db:"connected" } }
+const API_BASE_URL = 'https://express-g0hk-309012-5-1304586666.sh.run.tcloudbase.com';
 
 var request = require('./utils/request');
 var storage = require('./utils/storage');

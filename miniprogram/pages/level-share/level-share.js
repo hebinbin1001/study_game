@@ -1,8 +1,8 @@
-// 分享导入页（level-share）
+// 分享/导入页（level-share）
 //
 // 职责：
-//   1. 输入分享码导入关卡
-//   2. 展示关卡信息
+//   1. 展示分享码（从 level-editor 提交审核成功后跳转进入）
+//   2. 输入分享码导入关卡
 //   3. 开始游戏
 
 var request = require('../../utils/request');
@@ -12,12 +12,35 @@ Page({
     shareCode: '',
     levelInfo: null,
     loading: false,
-    importing: false
+    importing: false,
+    mode: 'import' // 'import' | 'share'
+  },
+
+  onLoad: function (options) {
+    // 携带 shareCode 进入 → 分享展示模式
+    if (options && options.shareCode) {
+      this.setData({
+        mode: 'share',
+        shareCode: options.shareCode.toUpperCase()
+      });
+    }
   },
 
   // 输入分享码
   onInput: function (e) {
     this.setData({ shareCode: e.detail.value.toUpperCase() });
+  },
+
+  // 复制分享码
+  copyShareCode: function () {
+    var code = this.data.shareCode;
+    if (!code) return;
+    wx.setClipboardData({
+      data: code,
+      success: function () {
+        wx.showToast({ title: '已复制', icon: 'success' });
+      }
+    });
   },
 
   // 导入关卡
@@ -32,17 +55,12 @@ Page({
 
     self.setData({ loading: true });
 
-    request.get('/api/level/import?code=' + code).then(function (res) {
+    request.get('/api/level/import?code=' + code).then(function (data) {
+      self.setData({ loading: false, levelInfo: data });
+      wx.showToast({ title: '导入成功', icon: 'success' });
+    }).catch(function (err) {
       self.setData({ loading: false });
-      if (res.code === 0 && res.data) {
-        self.setData({ levelInfo: res.data });
-        wx.showToast({ title: '导入成功', icon: 'success' });
-      } else {
-        wx.showToast({ title: res.message || '导入失败', icon: 'none' });
-      }
-    }).catch(function () {
-      self.setData({ loading: false });
-      wx.showToast({ title: '网络错误', icon: 'none' });
+      wx.showToast({ title: err.message || '导入失败', icon: 'none' });
     });
   },
 

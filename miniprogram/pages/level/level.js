@@ -93,6 +93,11 @@ Page({
     }, 400);
   },
 
+  // 进入自定义关卡编辑器（M3）
+  goCustomLevel: function () {
+    wx.navigateTo({ url: '/pages/level-editor/level-editor' });
+  },
+
   // 返回首页
   goBack: function () {
     wx.navigateBack();

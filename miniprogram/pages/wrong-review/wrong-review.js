@@ -28,26 +28,27 @@ Page({
   // 加载待复习题目
   loadPendingItems: function () {
     var self = this;
-    request.get('/api/wrong/list').then(function (res) {
-      if (res.code === 0 && res.data) {
-        var pending = res.data.pending || [];
-        if (pending.length === 0) {
-          self.setData({ completed: true, totalCount: 0 });
-          return;
-        }
-
-        self.setData({
-          items: pending,
-          totalCount: pending.length,
-          currentIndex: 0,
-          currentItem: pending[0],
-          selectedOption: null,
-          answered: false,
-          correct: false,
-          showFeedback: false,
-          correctCount: 0
-        });
+    request.get('/api/wrong/list').then(function (data) {
+      var pending = data.pending || [];
+      if (pending.length === 0) {
+        self.setData({ completed: true, totalCount: 0 });
+        return;
       }
+
+      self.setData({
+        items: pending,
+        totalCount: pending.length,
+        currentIndex: 0,
+        currentItem: pending[0],
+        selectedOption: null,
+        answered: false,
+        correct: false,
+        showFeedback: false,
+        correctCount: 0
+      });
+    }).catch(function () {
+      // 加载失败，标记为空完成态
+      self.setData({ completed: true, totalCount: 0 });
     });
   },
 
@@ -71,13 +72,13 @@ Page({
     request.post('/api/wrong/review', {
       recordId: currentItem.recordId,
       correct: correct
-    }).then(function (res) {
-      if (res.code === 0) {
-        // 更新本地数据
-        if (correct) {
-          self.setData({ correctCount: self.data.correctCount + 1 });
-        }
+    }).then(function () {
+      // 更新本地数据
+      if (correct) {
+        self.setData({ correctCount: self.data.correctCount + 1 });
       }
+    }).catch(function () {
+      // 上报失败静默降级，不影响本地作答流程
     });
 
     // 1.5 秒后进入下一题

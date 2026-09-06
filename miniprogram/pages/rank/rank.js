@@ -1,9 +1,11 @@
 // 排行榜页（rank）
 //
 // 职责：
-//   1. 展示世界排行榜（Top 100）
+//   1. 展示全服排行榜（Top 100）
 //   2. 展示我的排名
 //   3. 分页加载
+//
+// 注：好友榜已下线，只保留「全服榜」。
 
 var request = require('../../utils/request');
 
@@ -29,50 +31,34 @@ Page({
     page: 1,
     pageSize: 20,
     total: 0,
-    loading: false,
-    tab: 'world' // 'world' | 'friends'
+    loading: false
   },
 
   onShow: function () {
     this.loadRank();
   },
 
-  // 加载排行榜
+  // 加载排行榜（v2 契约：resolve 的是 data，失败走 catch）
   loadRank: function () {
     var self = this;
     self.setData({ loading: true });
 
-    var tab = self.data.tab;
-    var api = tab === 'world' ? '/api/rank/world' : '/api/rank/friends';
-
     Promise.all([
-      request.get(api + '?page=' + self.data.page + '&pageSize=' + self.data.pageSize),
-      request.get('/api/rank/me')
+      request.get('/api/ranklist/world?page=' + self.data.page + '&pageSize=' + self.data.pageSize),
+      request.get('/api/ranklist/me')
     ]).then(function (results) {
-      var rankRes = results[0];
-      var myRes = results[1];
+      var rankData = results[0]; // 世界榜 data：{ list, total, ... }
+      var myData = results[1];   // 我的排名 data：{ rank, nickname, ... }
 
-      if (rankRes.code === 0 && rankRes.data) {
-        self.setData({
-          list: rankRes.data.list || [],
-          total: rankRes.data.total || 0,
-          loading: false
-        });
-      }
-
-      if (myRes.code === 0 && myRes.data) {
-        self.setData({ myRank: myRes.data });
-      }
+      self.setData({
+        list: rankData.list || [],
+        total: rankData.total || 0,
+        myRank: myData,
+        loading: false
+      });
     }).catch(function () {
       self.setData({ loading: false });
     });
-  },
-
-  // 切换标签
-  switchTab: function (e) {
-    var tab = e.currentTarget.dataset.tab;
-    this.setData({ tab: tab, page: 1 });
-    this.loadRank();
   },
 
   // 上一页

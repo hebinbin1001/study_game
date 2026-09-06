@@ -21,15 +21,11 @@ Page({
     var self = this;
     self.setData({ loading: true });
 
-    request.get('/api/achievement/list').then(function (res) {
-      if (res.code === 0 && res.data) {
-        self.setData({
-          achievements: res.data,
-          loading: false
-        });
-      } else {
-        self.setData({ loading: false });
-      }
+    request.get('/api/achievement/list').then(function (data) {
+      self.setData({
+        achievements: data,
+        loading: false
+      });
     }).catch(function () {
       self.setData({ loading: false });
     });
@@ -38,14 +34,14 @@ Page({
   // 检查解锁
   checkUnlock: function () {
     var self = this;
-    request.post('/api/achievement/check', {}).then(function (res) {
-      if (res.code === 0 && res.data) {
-        if (res.data.newlyUnlocked && res.data.newlyUnlocked.length > 0) {
-          var names = res.data.newlyUnlocked.map(function (a) { return a.name; }).join('、');
-          wx.showToast({ title: '解锁成就：' + names, icon: 'success' });
-        }
-        self.loadAchievements();
+    request.post('/api/achievement/check', {}).then(function (data) {
+      if (data.newlyUnlocked && data.newlyUnlocked.length > 0) {
+        var names = data.newlyUnlocked.map(function (a) { return a.name; }).join('、');
+        wx.showToast({ title: '解锁成就：' + names, icon: 'success' });
       }
+      self.loadAchievements();
+    }).catch(function () {
+      // 检查解锁失败，静默忽略
     });
   },
 

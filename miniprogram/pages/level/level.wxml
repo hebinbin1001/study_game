@@ -36,4 +36,10 @@
       <view wx:if="{{!item.unlocked}}" class="lock">🔒</view>
     </view>
   </view>
+
+  <!-- 自定义关卡入口（M3） -->
+  <view class="custom-level-entry" bindtap="goCustomLevel">
+    <text class="entry-plus">+</text>
+    <text class="entry-text">自定义关卡</text>
+  </view>
 </view>

@@ -26,48 +26,44 @@ Page({
     var self = this;
     self.setData({ loading: true });
 
-    request.get('/api/wrong/list').then(function (res) {
-      if (res.code === 0 && res.data) {
-        // 处理待复习题目，计算复习进度
-        var pending = (res.data.pending || []).map(function (item) {
-          return {
-            recordId: item.recordId,
-            questionId: item.questionId,
-            question: item.question,
-            wrongCount: item.wrongCount,
-            mastery: item.mastery,
-            nextReviewAt: item.nextReviewAt,
-            reviewCount: item.reviewCount,
-            reviewProgress: ebbinghaus.getReviewProgress(item.mastery),
-            reviewStageText: ebbinghaus.getReviewStageText(item.reviewCount),
-            nextReviewText: ebbinghaus.getNextReviewText(item.nextReviewAt)
-          };
-        });
+    request.get('/api/wrong/list').then(function (data) {
+      // 处理待复习题目，计算复习进度
+      var pending = (data.pending || []).map(function (item) {
+        return {
+          recordId: item.recordId,
+          questionId: item.questionId,
+          question: item.question,
+          wrongCount: item.wrongCount,
+          mastery: item.mastery,
+          nextReviewAt: item.nextReviewAt,
+          reviewCount: item.reviewCount,
+          reviewProgress: ebbinghaus.getReviewProgress(item.mastery),
+          reviewStageText: ebbinghaus.getReviewStageText(item.reviewCount),
+          nextReviewText: ebbinghaus.getNextReviewText(item.nextReviewAt)
+        };
+      });
 
-        // 已掌握题目
-        var mastered = (res.data.mastered || []).map(function (item) {
-          return {
-            recordId: item.recordId,
-            questionId: item.questionId,
-            question: item.question,
-            wrongCount: item.wrongCount,
-            mastery: item.mastery
-          };
-        });
+      // 已掌握题目
+      var mastered = (data.mastered || []).map(function (item) {
+        return {
+          recordId: item.recordId,
+          questionId: item.questionId,
+          question: item.question,
+          wrongCount: item.wrongCount,
+          mastery: item.mastery
+        };
+      });
 
-        self.setData({
-          pending: pending,
-          mastered: mastered,
-          stats: {
-            total: pending.length + mastered.length,
-            pending: pending.length,
-            mastered: mastered.length
-          },
-          loading: false
-        });
-      } else {
-        self.setData({ loading: false });
-      }
+      self.setData({
+        pending: pending,
+        mastered: mastered,
+        stats: {
+          total: pending.length + mastered.length,
+          pending: pending.length,
+          mastered: mastered.length
+        },
+        loading: false
+      });
     }).catch(function () {
       self.setData({ loading: false });
     });

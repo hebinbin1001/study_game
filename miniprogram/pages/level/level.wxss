@@ -99,3 +99,27 @@ page {
   opacity: 0.5;
   margin-top: 8rpx;
 }
+
+/* ===== 自定义关卡入口（M3） ===== */
+.custom-level-entry {
+  margin: 32rpx 32rpx 0;
+  height: 120rpx;
+  border-radius: 40rpx;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.1), 0 20rpx 40rpx rgba(0, 0, 0, 0.12);
+}
+.entry-plus {
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #ffb703;
+  line-height: 1;
+}
+.entry-text {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #3a3a5c;
+}

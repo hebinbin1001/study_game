@@ -27,19 +27,20 @@ Page({
     var now = new Date();
     var month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
 
-    request.get('/api/checkin?month=' + month).then(function (res) {
-      if (res.code === 0 && res.data) {
-        var today = now.toISOString().split('T')[0];
-        var checkedIn = res.data.records.some(function (r) { return r.date === today; });
+    request.get('/api/checkin?month=' + month).then(function (data) {
+      var today = now.toISOString().split('T')[0];
+      var records = data.records || [];
+      var checkedIn = records.some(function (r) { return r.date === today; });
 
-        self.setData({
-          today: today,
-          currentStreak: res.data.currentStreak || 0,
-          totalCheckins: res.data.totalCheckins || 0,
-          checkedIn: checkedIn,
-          loading: false
-        });
-      }
+      self.setData({
+        today: today,
+        currentStreak: data.currentStreak || 0,
+        totalCheckins: data.totalCheckins || 0,
+        checkedIn: checkedIn,
+        loading: false
+      });
+    }).catch(function () {
+      self.setData({ loading: false });
     });
   },
 
@@ -53,25 +54,21 @@ Page({
 
     self.setData({ loading: true });
 
-    request.post('/api/checkin', {}).then(function (res) {
+    request.post('/api/checkin', {}).then(function (data) {
+      self.setData({
+        loading: false,
+        checkedIn: true,
+        currentStreak: data.streak,
+        totalCheckins: self.data.totalCheckins + 1,
+        rewardStars: data.rewardStars
+      });
+      wx.showToast({
+        title: '签到成功 +' + data.rewardStars + '星',
+        icon: 'success'
+      });
+    }).catch(function (err) {
       self.setData({ loading: false });
-      if (res.code === 0 && res.data) {
-        self.setData({
-          checkedIn: true,
-          currentStreak: res.data.streak,
-          totalCheckins: self.data.totalCheckins + 1,
-          rewardStars: res.data.rewardStars
-        });
-        wx.showToast({
-          title: '签到成功 +' + res.data.rewardStars + '星',
-          icon: 'success'
-        });
-      } else {
-        wx.showToast({ title: res.message || '签到失败', icon: 'none' });
-      }
-    }).catch(function () {
-      self.setData({ loading: false });
-      wx.showToast({ title: '网络错误', icon: 'none' });
+      wx.showToast({ title: err.message || '签到失败', icon: 'none' });
     });
   },
 
