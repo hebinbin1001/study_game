@@ -12,6 +12,7 @@
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var request = require('../../utils/request');
+var auth = require('../../utils/auth');
 
 Page({
   data: {
@@ -90,6 +91,22 @@ Page({
 
     // 上报成绩（REQ-API-4）
     this.reportScore(score, correctCount, totalQ, stars, maxCombo, grade, level);
+
+    // M6-E 每日目标：登录且通关 → 自动学习打卡（静默，失败不影响结算）
+    this.autoCheckin();
+  },
+
+  // 学习自动打卡（M6-E）：今日完成闯关即视为达成学习目标，后端自动签到
+  autoCheckin: function () {
+    if (!auth.isLoggedIn()) return;
+    request.post('/api/checkin/auto').then(function (data) {
+      // 静默：仅首次达成可给用户轻提示（已签则不重复打扰）
+      if (data && data.checkedIn && !data.already) {
+        wx.showToast({ title: '已打卡，连续 ' + (data.streak || 1) + ' 天', icon: 'none', duration: 1500 });
+      }
+    }).catch(function () {
+      // 网络失败静默（下次通关自动再试）
+    });
   },
 
   // 上报成绩到后端（REQ-API-4、REQ-NFR-2）
