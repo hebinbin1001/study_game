@@ -1,0 +1,147 @@
+/* 个人中心页（M6-N）：卡通白卡 + 硬阴影 + 设计 token */
+page {
+  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+  min-height: 100vh;
+  color: #3a3a5c;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.page-me {
+  padding: 40rpx 32rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* 资料卡 */
+.profile-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 36rpx;
+  padding: 36rpx 32rpx;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.08), 0 18rpx 36rpx rgba(0, 0, 0, 0.1);
+}
+.avatar {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e8f0fa;
+  flex-shrink: 0;
+}
+.avatar--default {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72rpx;
+}
+.info {
+  flex: 1;
+  margin-left: 28rpx;
+  overflow: hidden;
+}
+.name {
+  font-size: 38rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meta {
+  margin-top: 14rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.meta-chip {
+  font-size: 22rpx;
+  color: #5c7f9e;
+  background: #f0f4fa;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  font-weight: 700;
+}
+.edit-hint {
+  flex-shrink: 0;
+  padding: 0 30rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  border-radius: 30rpx;
+  background: #4cc9f0;
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
+/* 功能菜单 */
+.menu-card {
+  margin-top: 32rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  overflow: hidden;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.06), 0 18rpx 36rpx rgba(0, 0, 0, 0.08);
+}
+.menu-row {
+  display: flex;
+  align-items: center;
+  padding: 0 32rpx;
+  height: 108rpx;
+  border-bottom: 2rpx solid #f2f6fb;
+}
+.menu-row:last-child {
+  border-bottom: none;
+}
+.menu-row:active {
+  background: #f6f9fd;
+}
+.menu-emoji {
+  font-size: 40rpx;
+  width: 56rpx;
+  flex-shrink: 0;
+}
+.menu-name {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #3a3a5c;
+}
+.menu-arrow {
+  font-size: 44rpx;
+  color: #c9d6e8;
+  font-weight: 700;
+}
+
+/* 危险区 */
+.danger-card {
+  margin-top: 32rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  overflow: hidden;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.06), 0 18rpx 36rpx rgba(0, 0, 0, 0.08);
+}
+.danger-row {
+  text-align: center;
+  height: 100rpx;
+  line-height: 100rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #5c7f9e;
+  border-bottom: 2rpx solid #f2f6fb;
+}
+.danger-row:last-child {
+  border-bottom: none;
+}
+.danger-row:active {
+  background: #f6f9fd;
+}
+.danger-row--red {
+  color: #ff5a5a;
+}
+
+.version {
+  text-align: center;
+  margin-top: 48rpx;
+  font-size: 22rpx;
+  color: #8aa0b8;
+}

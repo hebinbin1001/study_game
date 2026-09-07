@@ -23,9 +23,9 @@
       <view wx:else class="login-avatar login-avatar--default">😎</view>
       <view class="login-text">
         <view class="login-name">{{nickname || '已登录'}}</view>
-        <view class="login-sub">点击设置资料</view>
+        <view class="login-sub">点击进入个人中心</view>
       </view>
-      <view class="login-btn">资料</view>
+      <view class="login-btn">我的</view>
     </block>
     <block wx:else>
       <view class="login-avatar login-avatar--default">👤</view>

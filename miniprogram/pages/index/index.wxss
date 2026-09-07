@@ -310,3 +310,10 @@ page {
 .login-bar.guest .login-btn {
   background: #4cc9f0;
 }
+
+/* ===== 深色模式（M6-O 基础）：门户页深色渐变；其余页面按需后续适配 ===== */
+@media (prefers-color-scheme: dark) {
+  page {
+    background: linear-gradient(180deg, #1b2735 0%, #22303f 60%, #12171f 100%);
+  }
+}

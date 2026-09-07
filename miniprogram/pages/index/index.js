@@ -140,11 +140,11 @@ Page({
     wx.navigateTo({ url: '/pages/level/level' });
   },
 
-  // 登录状态条点击：未登录 → 登录引导；已登录 → 昵称页
+  // 登录状态条点击：未登录 → 登录引导；已登录 → 个人中心（M6-N）
   onLoginTap: function () {
     var self = this;
     if (auth.isLoggedIn()) {
-      wx.navigateTo({ url: '/pages/nickname/nickname' });
+      wx.navigateTo({ url: '/pages/me/me' });
       return;
     }
     auth.promptLogin().then(function (user) {

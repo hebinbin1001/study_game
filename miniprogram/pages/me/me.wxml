@@ -1,0 +1,49 @@
+<!-- 个人中心页（M6-N） -->
+<view class="page-me">
+  <!-- 资料卡 -->
+  <view class="profile-card">
+    <block wx:if="{{loggedIn}}">
+      <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view wx:else class="avatar avatar--default">😎</view>
+      <view class="info">
+        <view class="name">{{nickname || '未设置昵称'}}</view>
+        <view class="meta">
+          <text class="meta-chip">🏅 {{rankName || '青铜'}}</text>
+          <text class="meta-chip">⭐ {{rankStars}}</text>
+          <text class="meta-chip">🏆 {{wins}} 胜</text>
+        </view>
+      </view>
+      <view class="edit-hint" bindtap="goNickname">编辑</view>
+    </block>
+    <block wx:else>
+      <view class="avatar avatar--default">👤</view>
+      <view class="info">
+        <view class="name">未登录</view>
+        <view class="meta" style="color:#8a9bb5;">登录后同步资料与进度</view>
+      </view>
+      <view class="edit-hint" bindtap="goLogin">登录</view>
+    </block>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-card">
+    <view
+      class="menu-row"
+      wx:for="{{menu}}"
+      wx:key="name"
+      data-url="{{item.url}}"
+      bindtap="onMenuTap">
+      <text class="menu-emoji">{{item.emoji}}</text>
+      <text class="menu-name">{{item.name}}</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 危险区（仅已登录） -->
+  <view class="danger-card" wx:if="{{loggedIn}}">
+    <view class="danger-row" bindtap="goLogout">退出登录</view>
+    <view class="danger-row danger-row--red" bindtap="goDeleteAccount">注销账号</view>
+  </view>
+
+  <view class="version">词力战士 · Word Warrior v1.0</view>
+</view>

@@ -11,6 +11,7 @@
     "pages/game/game",
     "pages/result/result",
     "pages/nickname/nickname",
+    "pages/me/me",
     "pages/avatar/avatar",
     "pages/rank/rank",
     "pages/wrong-book/wrong-book",
@@ -29,5 +30,7 @@
     "backgroundTextStyle": "light",
     "pageOrientation": "portrait"
   },
+  "darkmode": true,
+  "themeLocation": "theme.json",
   "sitemapLocation": "sitemap.json"
 }

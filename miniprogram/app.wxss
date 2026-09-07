@@ -230,3 +230,22 @@ button.btn::after {
   background: linear-gradient(90deg, #4cc9f0, #7bd389);
   transition: width 0.3s ease;
 }
+
+/* ============ 深色模式（M6-O 基础） ============
+   说明：多数页面在自身 wxss 定义了浅色渐变背景（会覆盖此处 page 背景），
+   故此处只做全局文字/默认背景/通用组件的深色兜底；各页面按需自行追加深色覆盖。 */
+@media (prefers-color-scheme: dark) {
+  page {
+    background: #12171f;
+    color: #dce4f0;
+  }
+  .page-sub {
+    color: #9fb0c8;
+  }
+  .placeholder {
+    color: #8a9bb5;
+  }
+  .card--soft {
+    background: rgba(31, 41, 51, 0.92);
+  }
+}
