@@ -315,6 +315,10 @@ function validateLine(fields, lineNo, seenSet, distractors) {
   if (distractors.length > 0) {
     item.d = distractors;
   }
+  // M6-M：可选例句字段（第 6 段 ex，纯透传，向后兼容旧 5 段格式）
+  if (fields.length >= 6 && String(fields[5] || '').trim() !== '') {
+    item.ex = String(fields[5]).trim();
+  }
   return { item: item, errors: [] };
 }
 

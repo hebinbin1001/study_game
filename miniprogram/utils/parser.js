@@ -12,7 +12,7 @@
  *   - errors：解析阶段自身的错误（如空字段），校验阶段错误由 validator 产生
  *
  * 字段约定（docs/词库格式规范.md）：
- *   类型码|题目|答案|提示/释义|干扰项(可选)
+ *   类型码|题目|答案|提示/释义|干扰项(可选)|例句ex(可选)
  *   - 字段间用 ASCII 半角 | 分隔
  *   - 干扰项用 , 分隔
  *   - 挖空位置在题目中用 * 标记
@@ -95,13 +95,14 @@ function splitDistractors(dStr) {
  * 流程：
  *   1. 预处理（全角｜→半角|、统一换行、按行切分）
  *   2. 跳过空行与 # 注释行（保留原始行号用于报错定位）
- *   3. 逐行按 | 切分为 [type, q, a, hint, d?]
+ *   3. 逐行按 | 切分为 [type, q, a, hint, d?, ex?]
  *   4. d（干扰项）按 , 分隔为数组
- *   5. 返回 { items, errors }，items 含 lineNo 与 fields
+ *   5. ex（可选例句，第 6 段）非空时原样保留
+ *   6. 返回 { items, errors }，items 含 lineNo 与 fields
  *
  * 关联需求：REQ-IMP-1
  * @param {string} text 原始纯文本
- * @returns {{ items: Array<{lineNo:number, fields:string[], distractors:string[]}>, errors: Array<{line:number, reason:string}> }}
+ * @returns {{ items: Array<{lineNo:number, fields:string[], distractors:string[], ex?:string}>, errors: Array<{line:number, reason:string}> }}
  */
 function parseText(text) {
   var lines = splitLines(text);
@@ -133,11 +134,18 @@ function parseText(text) {
       distractors = splitDistractors(fields[4]);
     }
 
-    items.push({
+    var parsedItem = {
       lineNo: lineNo,
       fields: fields,
       distractors: distractors
-    });
+    };
+
+    // M6-M：可选第 6 段「例句 ex」——非空时透传给校验器
+    if (fields.length >= 6 && String(fields[5] || '').trim() !== '') {
+      parsedItem.ex = String(fields[5]).trim();
+    }
+
+    items.push(parsedItem);
   }
 
   return { items: items, errors: errors };
