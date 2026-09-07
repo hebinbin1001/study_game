@@ -139,6 +139,55 @@ function setAvatar(url) {
   set(STORAGE_KEYS.avatar, url);
 }
 
+// ============ 二点二、登录态缓存（M5） ============
+// token 与 user 由 utils/auth.js 读写；此处仅做存储封装。
+
+/**
+ * 读取登录态令牌。
+ * @returns {string} token，未登录返回空串
+ */
+function getToken() {
+  var v = get(STORAGE_KEYS.token);
+  return v || '';
+}
+
+/**
+ * 保存登录态令牌。
+ * @param {string} token
+ * @returns {boolean} true 写入成功
+ */
+function setToken(token) {
+  return set(STORAGE_KEYS.token, token);
+}
+
+/** 清除登录态令牌。 */
+function clearToken() {
+  remove(STORAGE_KEYS.token);
+}
+
+/**
+ * 读取用户资料缓存。
+ * @returns {Object|null} { nickname, avatarUrl, needProfile, openid } 或 null
+ */
+function getUser() {
+  var v = get(STORAGE_KEYS.user);
+  return (v && typeof v === 'object') ? v : null;
+}
+
+/**
+ * 保存用户资料缓存。
+ * @param {Object} user
+ * @returns {boolean} true 写入成功
+ */
+function setUser(user) {
+  return set(STORAGE_KEYS.user, user);
+}
+
+/** 清除用户资料缓存。 */
+function clearUser() {
+  remove(STORAGE_KEYS.user);
+}
+
 // ============ 二点五、皮肤选择（战士/boss 皮肤） ============
 // 说明：皮肤列表与解锁状态由后端 /api/avatar/* 管理；此处仅缓存
 //   「当前使用」的皮肤 avatarId，供游戏页离线渲染（离线时回退默认皮肤）。
@@ -429,6 +478,13 @@ module.exports = {
   setNickname: setNickname,
   getAvatar: getAvatar,
   setAvatar: setAvatar,
+  // 登录态缓存（M5）
+  getToken: getToken,
+  setToken: setToken,
+  clearToken: clearToken,
+  getUser: getUser,
+  setUser: setUser,
+  clearUser: clearUser,
   // 皮肤选择
   getWarriorSkin: getWarriorSkin,
   setWarriorSkin: setWarriorSkin,

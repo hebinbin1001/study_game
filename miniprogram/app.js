@@ -17,11 +17,14 @@ const API_BASE_URL = 'https://express-g0hk-309012-5-1304586666.sh.run.tcloudbase
 
 var request = require('./utils/request');
 var storage = require('./utils/storage');
+var auth = require('./utils/auth');
 
 App({
   // 全局共享数据
   globalData: {
-    openid: '',        // 用户微信 openid（登录态获取后填充）
+    openid: '',        // 用户微信 openid（登录后填充）
+    token: '',         // 登录态令牌（M5，由 utils/auth 维护）
+    user: null,        // 用户资料 { nickname, avatarUrl, needProfile }（M5）
     nickname: '',      // 用户昵称（来自本地存储 ww_nickname）
     avatarUrl: '',     // 用户头像地址（来自本地存储 ww_avatar）
     wordCache: null    // 词库缓存（后续按学段装载后填充，避免重复加载）
@@ -34,11 +37,19 @@ App({
     // 1. 接线后端地址（REQ-API-5，见文件头 TODO 替换真实域名）
     request.setBaseUrl(API_BASE_URL);
 
-    // 2. openid 获取占位（M1 降级实现，见 initOpenid）
+    // 2. 恢复本地登录态（同步，立即生效，不发请求）
+    auth.restore();
+
+    // 3. openid 获取占位（M1 降级实现，见 initOpenid；M5 已由 auth 静默登录替代）
     this.initOpenid();
 
-    // 3. 基础库版本兼容检测（低于 2.9.0 提示升级，REQ-NFR-3）
+    // 4. 基础库版本兼容检测（低于 2.9.0 提示升级，REQ-NFR-3）
     this.checkSDKVersion();
+
+    // 5. M5 静默登录：刷新/获取登录态；失败（离线/未配置）静默降级游客，不阻塞主流程
+    auth.loginSilently().catch(function () {
+      // 游客模式：仅第 1 关可玩（关卡页按 isLoggedIn 判定）
+    });
   },
 
   onShow() {

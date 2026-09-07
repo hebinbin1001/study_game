@@ -60,8 +60,10 @@ function starsByRate(rate) {
 
 // ============ 四、本地存储 key（REQ-NICK-2、REQ-GAME-13、REQ-NFR-2） ============
 const STORAGE_KEYS = {
-  nickname: 'ww_nickname',        // 昵称
-  avatar: 'ww_avatar',            // 头像地址
+  nickname: 'ww_nickname',        // 昵称（本地镜像，云端为准）
+  avatar: 'ww_avatar',            // 头像地址（本地镜像）
+  token: 'ww_token',              // 登录态令牌（M5）
+  user: 'ww_user',                // 用户资料缓存（M5：nickname/avatarUrl/needProfile）
   stars: 'ww_stars',              // 星级存档（按「学段+关卡」维度）
   pendingScores: 'ww_pending_scores', // 待上报成绩队列（离线暂存）
   warriorSkin: 'ww_warrior_skin', // 当前使用的战士皮肤 avatarId

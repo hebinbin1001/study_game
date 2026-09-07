@@ -25,6 +25,9 @@
 
 // ============ 一、配置 ============
 
+// 登录态缓存（token/user，M5）——request 据此自动附带 Authorization 头
+var storage = require('./storage');
+
 // 后端基础地址（显式注入值），空串表示未注入
 var BASE_URL = '';
 
@@ -174,17 +177,21 @@ function request(options) {
       return;
     }
 
-    // —— 构造请求头：自动附加 x-wx-source / x-wx-openid（REQ-API-5） ——
-    // 仅在「已取得 openid」时才附带 x-wx-source + x-wx-openid（完整身份，后端校验通过）。
-    // 未取得 openid（云托管方案下由微信网关自动注入、前端通常拿不到）时不带这两个头，
-    // 让请求走后端「匿名放行」路径：业务路由返回 code=1001（未识别用户），
-    // 由调用方本地降级（离线可玩 / 成绩入队补报），而非被 code=1003 直接拒绝。
+    // —— 构造请求头：自动附加登录身份（M5） ——
+    // 优先级：① 标准登录态 token → Authorization: Bearer <token>；
+    //         ② 未登录但有 openid（网关注入等）→ x-wx-source + x-wx-openid 兜底；
+    //         ③ 均无 → 匿名（后端业务路由返回 1001，前端本地降级）。
     var header = Object.assign({}, opts.header || {});
     if (!skipAuth) {
-      var openid = getOpenid();
-      if (openid) {
-        header['x-wx-source'] = SOURCE_HEADER;
-        header['x-wx-openid'] = openid;
+      var token = storage.getToken();
+      if (token) {
+        header['Authorization'] = 'Bearer ' + token;
+      } else {
+        var openid = getOpenid();
+        if (openid) {
+          header['x-wx-source'] = SOURCE_HEADER;
+          header['x-wx-openid'] = openid;
+        }
       }
     }
 
