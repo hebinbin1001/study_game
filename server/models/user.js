@@ -31,6 +31,17 @@ module.exports = (sequelize) => {
         allowNull: true,
         comment: "头像 URL（预留）",
       },
+      token: {
+        type: DataTypes.STRING(64),
+        allowNull: true,
+        unique: true,
+        comment: "登录态令牌（M5：标准登录签发，单用户单 token，重登刷新）",
+      },
+      phone: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        comment: "手机号（预留字段，M5 不开放绑定流程，需企业认证后开通）",
+      },
     },
     {
       tableName: "users",

@@ -8,6 +8,7 @@ const openid = require("./middlewares/openid");
 
 // 引入各业务路由
 const healthRouter = require("./routes/health");
+const loginRouter = require("./routes/login");
 const userRouter = require("./routes/user");
 const nicknameRouter = require("./routes/nickname");
 const scoreRouter = require("./routes/score");
@@ -53,6 +54,8 @@ app.use(morgan("tiny"));
 
 // 挂载路由（业务路由统一先经过 openid 中间件解析用户身份）
 app.use("/api/health", healthRouter);
+// 登录接口不需要鉴权（用 code 换 openid）
+app.use("/api/login", loginRouter);
 app.use("/api/user", openid, userRouter);
 app.use("/api/nickname", openid, nicknameRouter);
 app.use("/api/score", openid, scoreRouter);

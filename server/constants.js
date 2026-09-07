@@ -15,6 +15,8 @@ const CODE = {
   SOURCE_UNTRUSTED: 1003, // x-wx-source 不受信任（伪造/未知来源）
   NICKNAME_INVALID: 2001, // 昵称非法（长度或为空）
   SCORE_INVALID: 3001, // 成绩上报字段缺失/非法
+  LOGIN_CODE_INVALID: 4010, // 登录 code 缺失/非法或 code2session 失败
+  LOGIN_NOT_CONFIGURED: 4011, // 登录服务未配置（缺 WX_SECRET）
   INTERNAL_ERROR: 5000, // 服务内部错误 / 数据库异常
   HEALTH_DB_DOWN: 5001, // 健康检查：数据库不可用
 };
