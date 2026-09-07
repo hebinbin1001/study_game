@@ -8,9 +8,9 @@
     <view class="empty-emoji">⏳</view>
     <text>加载中...</text>
   </view>
-  <view wx:elif="{{error}}" class="empty-state" style="margin-top:120rpx;">
+  <view wx:elif="{{error}}" class="empty-state" style="margin-top:120rpx;" bindtap="load">
     <view class="empty-emoji">📡</view>
-    <text>网络开小差了，下拉页面重试</text>
+    <text>网络开小差了，点这里重试</text>
   </view>
   <view wx:elif="{{empty}}" class="empty-state" style="margin-top:120rpx;">
     <view class="empty-emoji">🚀</view>

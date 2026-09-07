@@ -41,7 +41,7 @@ const {
   meaningText, wordLevelGuide, isWordLevel
 } = require('./question');
 const { render, blankCenter, clamp } = require('./renderer');
-const { speakByItem, playCorrect, playWrong, playCombo } = require('./audio');
+const { speakByItem, playCorrect, playWrong, playCombo, playWin } = require('./audio');
 const { starsByRate } = require('../utils/constants');
 const { getWarriorSkin, getMonsterSkin } = require('../utils/skins');
 
@@ -469,6 +469,7 @@ const engine = {
     const rate = Math.round(G.correctCount / CONFIG.totalQ * 100);
     const stars = starsByRate(rate); // 用 constants.js 星级阈值 90/70/40
     G.over = true;
+    if (win) playWin(); // M6-H 通关音效
 
     // 通知页面层结算
     if (this._callbacks.onGameOver) {
