@@ -1,9 +1,12 @@
 /**
  * game/audio.js —— 词力战士 发音(TTS) + 合成音效（M6-C / M6-H）
  *
- * 发音：speak/speakByItem 接入微信「同声传译」TTS 插件
- *   （app.json plugins 声明 WechatSI，provider wx069ba97219f66d99）；
- *   插件未授权 / 不可用 / 离线 → 静默降级，绝不抛错（REQ-NFR-2）。
+ * 发音：speak/speakByItem 接入微信「同声传译」TTS 插件。
+ *   【当前状态】插件声明已从 app.json 移除（小程序后台未授权该插件，避免平台
+ *   编译报「插件未授权」）。需要发音时：① 在 app.json 恢复 plugins 声明
+ *   { "WechatSI": { "version":"0.3.5", "provider":"wx069ba97219f66d99" } }；
+ *   ② 在小程序后台「设置→第三方设置→插件管理」添加该插件。
+ *   未声明 / 未授权 / 不可用 → 本模块 try/catch 静默降级，绝不抛错（REQ-NFR-2）。
  *
  * 音效：WebAudio（wx.createWebAudioContext）合成短音，无音频资源依赖：
  *   playCorrect（答对）/ playWrong（答错）/ playCombo（连击）/ playWin（通关）。
