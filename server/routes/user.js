@@ -1,5 +1,16 @@
 const express = require("express");
-const { User } = require("../db");
+const {
+  User,
+  Score,
+  UserAvatar,
+  RankRecord,
+  CustomLevel,
+  WrongRecord,
+  CheckinRecord,
+  UserAchievement,
+  sequelize,
+} = require("../db");
+const { checkContent } = require("../utils/wechat");
 
 const router = express.Router();
 
@@ -99,7 +110,17 @@ router.post("/profile", async (req, res) => {
           message: "昵称非法（需去除首尾空白后 2~12 个字符）",
         });
       }
-      patch.nickname = nickname.trim();
+      const trimmed = nickname.trim();
+      // M6-B 内容安全：昵称涉违规（微信 msgSecCheck，未配置 secret 时放行）
+      const sec = await checkContent(trimmed, req.openid, 1);
+      if (!sec.safe) {
+        return res.send({
+          code: 2001,
+          data: null,
+          message: "昵称包含违规内容，请修改后重试",
+        });
+      }
+      patch.nickname = trimmed;
     }
 
     if (avatarUrl !== undefined && avatarUrl !== null) {
@@ -138,6 +159,46 @@ router.post("/logout", async (req, res) => {
     res.send({ code: 0, data: { success: true } });
   } catch (err) {
     console.error("POST /api/user/logout 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
+/**
+ * POST /api/user/delete —— 注销账号（M6-A）
+ * 事务删除该用户全部关联数据（成绩/形象/段位/自定义关卡/错题/签到/成就）后删除用户。
+ * 幂等：openid 无账号也返回成功（供前端本地清理）。
+ */
+router.post("/delete", async (req, res) => {
+  const openid = req.openid;
+  if (!openid) {
+    return res.send({
+      code: 1001,
+      data: null,
+      message: "未识别用户（openid 缺失）",
+    });
+  }
+
+  const user = await findUserByOpenid(openid);
+  if (!user) {
+    // 已无账号：幂等返回成功
+    return res.send({ code: 0, data: { success: true } });
+  }
+
+  const t = await sequelize.transaction();
+  try {
+    await Score.destroy({ where: { user_id: user.id }, transaction: t });
+    await UserAvatar.destroy({ where: { openid }, transaction: t });
+    await RankRecord.destroy({ where: { openid }, transaction: t });
+    await CustomLevel.destroy({ where: { authorOpenid: openid }, transaction: t });
+    await WrongRecord.destroy({ where: { openid }, transaction: t });
+    await CheckinRecord.destroy({ where: { openid }, transaction: t });
+    await UserAchievement.destroy({ where: { openid }, transaction: t });
+    await user.destroy({ transaction: t });
+    await t.commit();
+    res.send({ code: 0, data: { success: true } });
+  } catch (err) {
+    await t.rollback();
+    console.error("POST /api/user/delete 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
 });

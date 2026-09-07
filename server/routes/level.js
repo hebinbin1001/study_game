@@ -1,5 +1,6 @@
 const express = require("express");
 const { CustomLevel, User } = require("../db");
+const { checkContent } = require("../utils/wechat");
 
 const router = express.Router();
 
@@ -42,6 +43,23 @@ router.post("/", async (req, res) => {
         code: 4000,
         data: null,
         message: "参数缺失",
+      });
+    }
+
+    // M6-B 内容安全：标题/描述/词条聚合检测（微信 msgSecCheck，未配置 secret 时放行）
+    const contentParts = [title, description];
+    if (Array.isArray(items)) {
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i] || {};
+        contentParts.push(it.q || "", it.a || "", it.hint || "");
+      }
+    }
+    const sec = await checkContent(contentParts.join(" "), openid, 2);
+    if (!sec.safe) {
+      return res.send({
+        code: 4000,
+        data: null,
+        message: "关卡包含违规内容，请修改后保存",
       });
     }
 

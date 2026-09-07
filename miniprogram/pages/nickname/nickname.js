@@ -119,5 +119,55 @@ Page({
   // 返回上一页
   goBack: function () {
     wx.navigateBack();
+  },
+
+  // 注销账号（M6-A：双重确认 → 后端删全量数据 → 清本地态回首页）
+  goDeleteAccount: function () {
+    if (!auth.isLoggedIn()) {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      return;
+    }
+    var self = this;
+    wx.showModal({
+      title: '注销账号',
+      content: '注销将删除该账号的全部成绩、星级、错题、皮肤与成就数据，且不可恢复。确定注销吗？',
+      confirmText: '注销',
+      confirmColor: '#ff5a5a',
+      success: function (r) {
+        if (!r.confirm) return;
+        wx.showModal({
+          title: '再次确认',
+          content: '删除后无法找回，是否继续？',
+          confirmText: '确认注销',
+          confirmColor: '#ff5a5a',
+          success: function (r2) {
+            if (r2.confirm) self._doDeleteAccount();
+          }
+        });
+      }
+    });
+  },
+
+  _doDeleteAccount: function () {
+    wx.showLoading({ title: '注销中...' });
+    request.post('/api/user/delete').then(function () {
+      wx.hideLoading();
+      // 先退登录（清 token/user），再清空本地全部存档（含游戏进度/协议标记）
+      auth.logout();
+      storage.setNickname('');
+      storage.setAvatar('');
+      try { wx.clearStorageSync(); } catch (e) { /* 忽略 */ }
+      wx.showToast({ title: '账号已注销', icon: 'none' });
+      setTimeout(function () {
+        wx.reLaunch({ url: '/pages/index/index' });
+      }, 900);
+    }).catch(function (err) {
+      wx.hideLoading();
+      wx.showModal({
+        title: '注销失败',
+        content: (err && err.message) || '请稍后重试',
+        showCancel: false
+      });
+    });
   }
 });

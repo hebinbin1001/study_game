@@ -49,4 +49,7 @@
 
   <!-- 退出登录（M5：仅已登录显示） -->
   <view wx:if="{{loggedIn}}" class="back-link logout-link" bindtap="goLogout">退出登录</view>
+
+  <!-- 注销账号（M6-A：双重确认，删除全部数据） -->
+  <view wx:if="{{loggedIn}}" class="back-link logout-link" style="color:#ff5a5a;" bindtap="goDeleteAccount">注销账号</view>
 </view>
