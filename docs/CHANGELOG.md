@@ -38,3 +38,30 @@
 - 移除 openid 误报 warning 及 `_warnedNoOpenid` 防刷屏变量。
 
 > 备注：若后端仍返回 `code=1001`（未识别用户），需检查云托管控制台是否开启「微信登录 / openid 注入」能力，属部署侧配置。
+
+---
+
+## 2026-09-06（同日 · M5 微信登录注册 + 游客限制）
+
+规划与设计文档：`.codeartsdoer/specs/m5-login-guest/`（spec.md / design.md / tasks.md）
+已确认决策：标准登录（wx.login + code2session + token）；手机号仅预留字段/接口；范围 P1~P4（P4 部分完成）。
+
+### P1 登录闭环
+- 后端：`models/user.js` 扩展 `token/phone`；新增 `routes/login.js`（code → code2session → findOrCreate → 签发 token，含 `dev_` 测试码降级）；`middlewares/openid.js` 支持 `Authorization: Bearer <token>`（优先于 x-wx-openid）；`routes/user.js` 新增 `/me` `/profile` `/logout`；`constants.js` 新增 4010/4011。
+- 前端：新增 `utils/auth.js`（静默登录/登录态判定/登出/promptLogin）；`utils/storage.js` + `constants.js` 增 token/user 缓存；`utils/request.js` 自动附带 Bearer token；`app.js` onLaunch 静默登录（失败降级游客）。
+- 配置：云托管需注入 `WX_APPID / WX_SECRET`（缺省时仅 `dev_` 测试码可登录，真实登录返回 `code=4011`）。
+
+### P2 游客限制
+- 未登录游客：首页「游客模式」登录条（微信登录入口）；关卡页仅第 1 关可玩，第 2+ 关锁定点击引导登录 + 游客横幅；形象/排行/错题/签到/成就入口未登录先引导登录（REQ-GUEST-1/2）。
+- TODO：受限页自身 onLoad 直入守卫、结算页游客「登录保存成绩」提示。
+
+### P3 资料完善 + 合规
+- 昵称/头像登录后云端保存（POST /api/user/profile），本地镜像兜底（离线可保存）；首登 needProfile=true 自动引导设昵称；`isProfileComplete` 判定注册完成。
+- 隐私协议：首页首次进入 modal 同意（`ww_agreed` 持久化，最小实现）；完整协议文本页 TODO（提审前补）。
+
+### P4 增强（部分）
+- 分享：index / level 页 `onShareAppMessage`；退出登录（nickname 页入口 → auth.logout()）。
+- TODO：result/错题/形象/排行等页分享、星级云同步、受限页 URL 守卫。
+
+> 部署注意：云托管环境变量需新增 `WX_APPID`、`WX_SECRET`（小程序 AppID 与 AppSecret），否则真实登录返回 `code=4011`。
+
