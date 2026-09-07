@@ -25,6 +25,7 @@ Page({
   onShow: function () {
     this.refreshProfile();
     this._ensureAgreement();
+    this._ensureReminderPrompt();
   },
 
   // 首次进入弹「用户协议与隐私政策」同意（M5 REQ-COMPLY-1，最小实现；完整协议页审核前补充）
@@ -37,6 +38,61 @@ Page({
       showCancel: false,
       success: function () {
         storage.set('ww_agreed', '1');
+      }
+    });
+  },
+
+  // 学习提醒引导（M6-I）：已同意协议 + 已登录 + 未提示过 → 订阅服务通知授权
+  // 说明：模板 ID 需在小程序后台「订阅消息」申请后替换；真正的推送需后端定时任务（TODO）。
+  _ensureReminderPrompt: function () {
+    if (storage.get('ww_reminder_prompted')) return;
+    if (!storage.get('ww_agreed')) return; // 等协议同意后再引导，避免弹窗叠加
+    if (!auth.isLoggedIn()) return;
+    // 先标记，避免用户反复被打扰
+    storage.set('ww_reminder_prompted', '1');
+    var self = this;
+    wx.showModal({
+      title: '开启学习提醒',
+      content: '开启后，需要复习时我们会通过微信服务通知提醒你，帮你坚持每天进步一点点～',
+      confirmText: '开启',
+      cancelText: '暂不',
+      success: function (r) {
+        if (!r.confirm) return;
+        if (typeof wx.requestSubscribeMessage !== 'function') return;
+        // TODO：替换为在小程序后台申请的订阅消息模板 ID（一次性订阅）
+        wx.requestSubscribeMessage({
+          tmplIds: ['TEMPLATE_ID_PLACEHOLDER'],
+          complete: function () {
+            // 授权结果（accept/reject）静默处理；真正推送依赖后端发送（待申请模板后接入）
+            self.refreshProfile();
+          }
+        });
+      }
+    });
+  },
+
+  // 分享引导（M6-J）：入口弹窗引导走微信分享菜单
+  // 说明：微信分享无可靠「成功」回调，星星奖励需自定义邀请链路后端校验（本次仅引导，TODO）
+  goShare: function () {
+    wx.showModal({
+      title: '分享给好友',
+      content: '把「词力战士」分享给好友，一起打怪学字词、闯关赢星星！',
+      confirmText: '去分享',
+      cancelText: '取消',
+      success: function (r) {
+        if (!r.confirm) return;
+        try {
+          if (wx.showShareMenu) {
+            wx.showShareMenu({ withShareTicket: false });
+          }
+        } catch (e) {
+          // 低版本忽略
+        }
+        wx.showToast({
+          title: '通过右上角「···」分享给好友即可（每日分享得更多星星）',
+          icon: 'none',
+          duration: 2200
+        });
       }
     });
   },

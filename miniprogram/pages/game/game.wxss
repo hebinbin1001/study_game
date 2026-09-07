@@ -185,3 +185,75 @@
   40%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
   100% { opacity: 0; transform: translateX(-50%) translateY(-40rpx) scale(1); }
 }
+
+/* ============ 新手引导蒙层（M6-L） ============ */
+.tutorial-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 200;
+  background: rgba(30, 40, 60, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 60rpx;
+}
+.tutorial-card {
+  width: 560rpx;
+  background: #ffffff;
+  border-radius: 44rpx;
+  padding: 56rpx 44rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 16rpx 0 rgba(0, 0, 0, 0.1), 0 30rpx 60rpx rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+}
+.tutorial-emoji {
+  font-size: 100rpx;
+  line-height: 1;
+  margin-bottom: 24rpx;
+}
+.tutorial-title {
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+  letter-spacing: 4rpx;
+  margin-bottom: 18rpx;
+}
+.tutorial-desc {
+  font-size: 28rpx;
+  color: #5c7f9e;
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 32rpx;
+}
+.tutorial-dots {
+  display: flex;
+  gap: 14rpx;
+  margin-bottom: 36rpx;
+}
+.tutorial-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #d5dde8;
+}
+.tutorial-dot.on {
+  background: #4cc9f0;
+}
+.tutorial-btn {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  text-align: center;
+  border-radius: 48rpx;
+  background: #ffb703;
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.12);
+}

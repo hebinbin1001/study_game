@@ -6,13 +6,35 @@
   </view>
   <view class="progress-text">第 {{currentIndex + 1}} / {{totalCount}} 题</view>
 
+  <!-- 复习形态切换（M6-G）：原题 / 听音选义 / 看中文选词 -->
+  <view class="mode-bar" wx:if="{{currentItem && !completed}}">
+    <view
+      wx:for="{{modes}}"
+      wx:key="key"
+      class="mode-chip {{currentMode === item.key ? 'on' : ''}}"
+      data-mode="{{item.key}}"
+      catchtap="switchMode"
+    >{{item.label}}</view>
+  </view>
+
   <!-- 题目卡片 -->
   <view class="question-card" wx:if="{{currentItem && !completed}}">
     <view class="question-head">
       <text class="question-type tag">👾 {{currentItem.question.type}}</text>
     </view>
-    <view class="question-text">{{currentItem.question.q}}</view>
-    <view class="question-hint" wx:if="{{currentItem.question.hint}}">💡 提示：{{currentItem.question.hint}}</view>
+
+    <!-- 题干区：随复习形态变化（M6-G） -->
+    <view class="question-text" wx:if="{{showQ}}">{{currentItem.question.q}}</view>
+    <view wx:elif="{{showListen}}" class="question-text question-text--listen">🎧 听发音，选出听到的内容</view>
+    <view wx:elif="{{showHint}}" class="question-text question-text--meaning">{{hintText}}</view>
+
+    <!-- 听音播放按钮 -->
+    <view class="listen-row" wx:if="{{showListen}}">
+      <view class="listen-btn" catchtap="playAudio">🔊 再听一遍</view>
+    </view>
+
+    <!-- 释义提示（原题形态下作为辅助提示；hint 剧透时为空） -->
+    <view class="question-hint" wx:if="{{showHint && currentMode === 'original'}}">💡 提示：{{hintText}}</view>
 
     <!-- 选项 -->
     <view class="options">

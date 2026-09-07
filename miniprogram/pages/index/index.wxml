@@ -106,6 +106,12 @@
         <view class="entry-icon entry-icon--orange">🏅</view>
         <view class="entry-text">成就</view>
       </view>
+
+      <!-- 分享入口（M6-J：所有用户可见，引导分享） -->
+      <view class="entry" bindtap="goShare">
+        <view class="entry-icon entry-icon--gold">🎁</view>
+        <view class="entry-text">分享</view>
+      </view>
     </view>
   </view>
 </view>

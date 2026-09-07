@@ -24,6 +24,13 @@ var storage = require('../../utils/storage');
 
 var CONFIG = config.CONFIG;
 
+// 新手引导步骤文案（M6-L，首次游玩展示；ww_tutorial_done 持久化）
+var TUTORIAL_STEPS = [
+  { title: '欢迎，小战士！', desc: '怪兽身上是挖空的题目。点下方字母/词语，把它补全！' },
+  { title: '答对打跑怪兽', desc: '答对 +100 分、涨连击，还有爆炸星星特效 ✨' },
+  { title: '小心 3 条命', desc: '答错会扣命，3 条命用完本局就输啦。准备好了吗？' }
+];
+
 Page({
   data: {
     // ---- 本局配置 ----
@@ -41,7 +48,12 @@ Page({
     options: [],              // 选项列表 [{ letter, correct, used, colorClass, display, wide }]
 
     // ---- 连击提示 ----
-    comboText: ''             // 连击浮层文字（空串时不显示）
+    comboText: '',             // 连击浮层文字（空串时不显示）
+
+    // ---- 新手引导（M6-L） ----
+    tutorialStep: 0,           // 0=不显示；1..3 引导步骤
+    tutorialTitle: '',         // 当前步骤标题
+    tutorialDesc: ''           // 当前步骤文案
   },
 
   // ============ 本局运行时状态（不参与 setData） ============
@@ -231,6 +243,9 @@ Page({
 
     // 标记引擎已启动：onShow 依据该标记决定是否 resume（onShow 可能早于 onReady）
     this._engineStarted = true;
+
+    // M6-L：引擎就绪后，首次进入展示新手引导（不阻塞主循环）
+    this._maybeShowTutorial();
   },
 
   // ============ HUD 更新（差值比较，REQ-NFR-1） ============
@@ -323,6 +338,41 @@ Page({
     }
   },
 
+  // ============ 新手引导（M6-L） ============
+
+  // 首次进入（ww_tutorial_done 无值）且引擎已启动后展示 3 步入场引导
+  _maybeShowTutorial() {
+    if (storage.get('ww_tutorial_done')) return;
+    this._showTutorialStep(1);
+  },
+
+  _showTutorialStep(step) {
+    var cfg = TUTORIAL_STEPS[step - 1];
+    if (!cfg) return;
+    this.setData({
+      tutorialStep: step,
+      tutorialTitle: cfg.title,
+      tutorialDesc: cfg.desc
+    });
+  },
+
+  // 引导蒙层点击：未到最后一步 → 下一步；最后一步 → 完成进入游戏
+  onTutorialTap() {
+    var step = this.data.tutorialStep;
+    if (!step) return;
+    if (step < 3) {
+      this._showTutorialStep(step + 1);
+    } else {
+      this.finishTutorial();
+    }
+  },
+
+  // 完成引导：标记 ww_tutorial_done 并关闭蒙层（不阻塞游戏主循环）
+  finishTutorial() {
+    storage.set('ww_tutorial_done', '1');
+    this.setData({ tutorialStep: 0 });
+  },
+
   // ============ 玩家操作 ============
 
   /**
@@ -331,6 +381,11 @@ Page({
    * 关联 REQ-GAME-6/7（点选项触发答对/答错流程）
    */
   onOptionTap(e) {
+    // M6-L：若引导蒙层仍显示（异常路径兜底），先关闭引导再继续作答
+    if (this.data.tutorialStep > 0) {
+      this.finishTutorial();
+      return;
+    }
     var index = e.currentTarget.dataset.index;
     var opt = this.data.options[index];
     if (!opt || opt.used) {

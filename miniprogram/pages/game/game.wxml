@@ -48,4 +48,19 @@
   <!-- 连击提示浮层（REQ-GAME-9，连对 2/3/5 题时由 engine.onCombo 触发） -->
   <view wx:if="{{comboText}}" class="combo-toast">{{comboText}}</view>
 
+  <!-- 新手引导蒙层（M6-L：首次进入 3 步，点击任意处下一步/开始） -->
+  <view wx:if="{{tutorialStep > 0}}" class="tutorial-mask" catchtap="onTutorialTap">
+    <view class="tutorial-card">
+      <view class="tutorial-emoji">{{tutorialStep === 1 ? '🐱' : (tutorialStep === 2 ? '💥' : '❤️')}}</view>
+      <view class="tutorial-title">{{tutorialTitle}}</view>
+      <view class="tutorial-desc">{{tutorialDesc}}</view>
+      <view class="tutorial-dots">
+        <view class="tutorial-dot {{tutorialStep === 1 ? 'on' : ''}}"></view>
+        <view class="tutorial-dot {{tutorialStep === 2 ? 'on' : ''}}"></view>
+        <view class="tutorial-dot {{tutorialStep === 3 ? 'on' : ''}}"></view>
+      </view>
+      <view class="tutorial-btn">{{tutorialStep < 3 ? '下一步' : '开始闯关！'}}</view>
+    </view>
+  </view>
+
 </view>
