@@ -1,0 +1,18 @@
+<!-- 战绩分享卡页（M6-K）：绘制 → 导出 → 保存/转发 -->
+<view class="page-share">
+  <view class="pg-title">🎁 战绩分享卡</view>
+  <view class="pg-sub">生成你的专属战绩海报，分享给好友</view>
+
+  <view class="card-wrap">
+    <!-- 绘制用画布（导出成功后由图片覆盖展示） -->
+    <canvas type="2d" id="share-canvas" class="share-canvas"></canvas>
+    <image wx:if="{{tmpPath}}" class="share-img" src="{{tmpPath}}" mode="widthFix"></image>
+  </view>
+
+  <view class="btns">
+    <button class="btn-act btn-act--save" bindtap="saveToAlbum" disabled="{{!tmpPath}}">保存到相册</button>
+    <button class="btn-act btn-act--share" open-type="share" disabled="{{!tmpPath}}">转发给好友</button>
+  </view>
+
+  <view class="back-link" bindtap="goBack">← 返回</view>
+</view>

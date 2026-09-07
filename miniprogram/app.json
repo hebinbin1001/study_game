@@ -20,7 +20,8 @@
     "pages/level-share/level-share",
     "pages/checkin/checkin",
     "pages/achievement/achievement",
-    "pages/report/report"
+    "pages/report/report",
+    "pages/share-card/share-card"
   ],
   "window": {
     "navigationBarBackgroundColor": "#5aa9e6",

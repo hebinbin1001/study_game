@@ -1,0 +1,90 @@
+/* 战绩分享卡页（M6-K） */
+page {
+  background: linear-gradient(180deg, #1b2735 0%, #22303f 60%, #12171f 100%);
+  min-height: 100vh;
+  color: #dce4f0;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.page-share {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 32rpx;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.pg-title {
+  font-size: 44rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 4rpx;
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.2);
+}
+.pg-sub {
+  font-size: 24rpx;
+  color: #9fb0c8;
+  margin-top: 12rpx;
+  margin-bottom: 28rpx;
+}
+
+/* 画布/图片（宽 600rpx ≈ 逻辑 600×900 等比，2:3） */
+.card-wrap {
+  position: relative;
+  width: 600rpx;
+  height: 900rpx;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 14rpx 0 rgba(0, 0, 0, 0.18), 0 24rpx 48rpx rgba(0, 0, 0, 0.35);
+}
+.share-canvas {
+  width: 600rpx;
+  height: 900rpx;
+}
+.share-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 600rpx;
+}
+
+/* 操作按钮 */
+.btns {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 36rpx;
+}
+.btn-act {
+  width: 270rpx;
+  height: 96rpx;
+  line-height: 96rpx;
+  border-radius: 48rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #ffffff;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.btn-act::after {
+  border: none;
+}
+.btn-act--save {
+  background: #4cc9f0;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.2);
+}
+.btn-act--share {
+  background: #ffb703;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.2);
+}
+.btn-act[disabled] {
+  opacity: 0.5;
+}
+
+.back-link {
+  margin-top: 40rpx;
+  font-size: 28rpx;
+  color: #9fb0c8;
+  padding: 12rpx 24rpx;
+}

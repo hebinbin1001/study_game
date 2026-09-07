@@ -5,6 +5,7 @@
 //   2. 检查并解锁新成就
 
 var request = require('../../utils/request');
+var auth = require('../../utils/auth');
 
 // 成就勋章 emoji 映射（服务端 icon 为占位路径，本地用 emoji 呈现勋章视觉；
 // 未匹配 id 时回退默认奖牌）
@@ -88,6 +89,26 @@ Page({
     }).catch(function () {
       // 检查解锁失败，静默忽略
     });
+  },
+
+  // 生成战绩分享卡（M6-K）：带昵称 + 段位 + 累计星 进入分享卡页
+  goShareCard: function () {
+    var self = this;
+    var u = auth.getUser();
+    var nickname = (u && u.nickname) || '';
+    request.get('/api/rank/info').then(function (d) {
+      self._openShareCard(nickname, (d && d.rankName) || '', (d && d.stars) || 0);
+    }).catch(function () {
+      self._openShareCard(nickname, '', 0);
+    });
+  },
+
+  _openShareCard: function (nickname, rankName, stars) {
+    var q =
+      'nickname=' + encodeURIComponent(nickname || '') +
+      '&rankName=' + encodeURIComponent(rankName || '') +
+      '&stars=' + (parseInt(stars, 10) || 0);
+    wx.navigateTo({ url: '/pages/share-card/share-card?' + q });
   },
 
   // 返回首页

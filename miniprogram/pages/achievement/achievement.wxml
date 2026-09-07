@@ -50,4 +50,16 @@
       <view class="empty-sub">快去挑战关卡，赢取第一枚勋章吧！</view>
     </view>
   </view>
+
+  <!-- 生成战绩分享卡（M6-K） -->
+  <view class="card summary-card share-cta" bindtap="goShareCard">
+    <view class="summary-row">
+      <view class="summary-icon">🎁</view>
+      <view class="summary-text">
+        <view class="summary-title">生成战绩分享卡</view>
+        <view class="summary-count">晒出段位与星星，邀请好友一起挑战</view>
+      </view>
+      <view class="summary-percent">→</view>
+    </view>
+  </view>
 </view>
