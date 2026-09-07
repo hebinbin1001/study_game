@@ -10,15 +10,20 @@
 
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
+var auth = require('../../utils/auth');
 
 // 每学段关卡数
 var LEVELS_PER_GRADE = 10;
 
 Page({
   data: {
-    grades: [],            // 学段列表（来自 GRADES，REQ-DICT-1）
-    currentGradeIndex: 0,  // 当前选中的学段下标
-    levels: []             // 当前学段的关卡卡片数据
+    grades: [],             // 学段列表（来自 GRADES，REQ-DICT-1）
+    currentGradeIndex: 0,   // 当前选中的学段下标
+    levels: [],             // 当前学段的关卡卡片数据
+    loggedIn: false,        // 登录态（M5：未登录仅第 1 关可玩）
+    gradeEarnedStars: 0,    // 进度卡：本学段已得星星数（模板预处理）
+    gradeTotalStars: 30,    // 进度卡：本学段星星总数（10 关 × 3 星）
+    gradeStarPercent: 0     // 进度卡：星星进度百分比 0~100（模板预处理）
   },
 
   onLoad: function () {
@@ -28,7 +33,7 @@ Page({
   },
 
   onShow: function () {
-    // 从游戏页返回后刷新星级（REQ-GAME-13）
+    // 从游戏页/登录返回后刷新星级与登录态（REQ-GAME-13、M5）
     this.refreshLevels();
   },
 
@@ -40,23 +45,41 @@ Page({
     this.refreshLevels();
   },
 
-  // 刷新当前学段的关卡卡片数据（REQ-GAME-13、REQ-GAME-14）
+  // 刷新当前学段的关卡卡片数据（REQ-GAME-13、REQ-GAME-14、M5 游客限制）
   refreshLevels: function () {
     var grade = this.data.grades[this.data.currentGradeIndex];
     if (!grade) return;
     var key = grade.key;
+    var loggedIn = auth.isLoggedIn();
     var levels = [];
+    var gradeEarnedStars = 0;
     for (var i = 1; i <= LEVELS_PER_GRADE; i++) {
       var stars = storage.getStars(key, i);
+      gradeEarnedStars += stars;
+      var unlocked = loggedIn
+        ? storage.isLevelUnlocked(key, i)   // 登录：按本地星级推导（REQ-GAME-14）
+        : (i === 1);                        // 游客：仅第 1 关可玩（REQ-GUEST-1）
       levels.push({
         level: i,
         stars: stars,
         starArr: [stars >= 1, stars >= 2, stars >= 3],  // 渲染用布尔数组
-        unlocked: storage.isLevelUnlocked(key, i),       // 解锁状态（REQ-GAME-14）
+        unlocked: unlocked,                              // 解锁状态
+        needLogin: !loggedIn && i > 1,                   // 游客被锁的关卡（点击引导登录）
         shaking: false                                    // 抖动动画标记
       });
     }
-    this.setData({ levels: levels });
+    // 本学段星星进度（UI 进度卡展示用，纯模板预处理）
+    var gradeTotalStars = LEVELS_PER_GRADE * 3;
+    var gradeStarPercent = gradeTotalStars > 0
+      ? Math.round(gradeEarnedStars / gradeTotalStars * 100)
+      : 0;
+    this.setData({
+      levels: levels,
+      loggedIn: loggedIn,
+      gradeEarnedStars: gradeEarnedStars,
+      gradeTotalStars: gradeTotalStars,
+      gradeStarPercent: gradeStarPercent
+    });
   },
 
   // 点击关卡卡片
@@ -65,10 +88,17 @@ Page({
     var card = this.data.levels[index];
     if (!card) return;
 
-    // 未解锁：触发抖动提示，不可进入（REQ-GAME-14）
+    // 未解锁：区分「游客需登录」与「前关未通」（REQ-GAME-14 / M5 REQ-GUEST-1）
     if (!card.unlocked) {
       this.shakeCard(index);
-      wx.showToast({ title: '请先通关前一关', icon: 'none', duration: 1200 });
+      if (card.needLogin) {
+        var self = this;
+        auth.promptLogin('登录后可解锁全部关卡').then(function (user) {
+          if (user) self.refreshLevels();
+        });
+      } else {
+        wx.showToast({ title: '请先通关前一关', icon: 'none', duration: 1200 });
+      }
       return;
     }
 
@@ -93,6 +123,14 @@ Page({
     }, 400);
   },
 
+  // 游客横幅点击：登录解锁全部关卡（M5 REQ-GUEST-1）
+  guestLogin: function () {
+    var self = this;
+    auth.promptLogin('登录后可解锁全部关卡').then(function (user) {
+      if (user) self.refreshLevels();
+    });
+  },
+
   // 进入自定义关卡编辑器（M3）
   goCustomLevel: function () {
     wx.navigateTo({ url: '/pages/level-editor/level-editor' });
@@ -101,5 +139,13 @@ Page({
   // 返回首页
   goBack: function () {
     wx.navigateBack();
+  },
+
+  // 页面分享（M5 P4）
+  onShareAppMessage: function () {
+    return {
+      title: '词力战士 - 来挑战我的关卡吧',
+      path: '/pages/index/index'
+    };
   }
 });

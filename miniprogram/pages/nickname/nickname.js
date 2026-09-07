@@ -1,15 +1,16 @@
-// 昵称设置页逻辑（T17）
+// 昵称设置页逻辑（T17 · M5 云端化）
 //
 // 职责：
-//   1. chooseAvatar 按钮回调获取头像（REQ-NICK-1）
-//   2. nickname input 双通道输入（REQ-NICK-1）
-//   3. 自定义昵称校验：去首尾空白、非空、长度 2~12（REQ-NICK-3）
-//   4. 保存写入 storage.ww_nickname，退出重进可读取（REQ-NICK-2）
-//   5. 可选调用 POST /api/nickname 同步云端，失败静默降级（REQ-API-3）
+//   1. chooseAvatar + nickname input 双通道（REQ-NICK-1）
+//   2. 昵称校验：去首尾空白、非空、长度 2~12（REQ-NICK-3）
+//   3. 已登录时保存到后端 PUT/POST /api/user/profile（云端为准，M5 REQ-PROFILE-1）
+//   4. 本地镜像兜底：离线/后端不可用时仍可保存本机（REQ-NFR-2）
+//   5. 退出登录入口（M5）
 //
-// 关联需求：REQ-NICK-1、REQ-NICK-2、REQ-NICK-3、REQ-API-3
+// 关联需求：REQ-NICK-1~3、REQ-API-3、M5 REQ-PROFILE-1/2
 
 var storage = require('../../utils/storage');
+var auth = require('../../utils/auth');
 var request = require('../../utils/request');
 
 // 昵称长度约束（REQ-NICK-3：可配置 2~12）
@@ -19,14 +20,25 @@ var NICKNAME_MAX_LEN = 12;
 Page({
   data: {
     avatarUrl: '',    // 头像地址
-    nickname: ''      // 昵称（输入框当前值）
+    nickname: '',     // 昵称（输入框当前值）
+    loggedIn: false   // 登录态（M5）
   },
 
   onLoad: function () {
-    // 读取已存昵称/头像填充（REQ-NICK-2：退出重进可读取并展示）
+    this.refreshProfile();
+  },
+
+  onShow: function () {
+    this.refreshProfile();
+  },
+
+  // 填充云端/本地资料（登录后以云端 user 为准）
+  refreshProfile: function () {
+    var u = auth.getUser();
     this.setData({
-      avatarUrl: storage.getAvatar(),
-      nickname: storage.getNickname()
+      loggedIn: auth.isLoggedIn(),
+      avatarUrl: (u && u.avatarUrl) || storage.getAvatar() || '',
+      nickname: (u && u.nickname) || storage.getNickname() || ''
     });
   },
 
@@ -35,56 +47,71 @@ Page({
     var avatarUrl = e.detail && e.detail.avatarUrl;
     if (!avatarUrl) return;
     this.setData({ avatarUrl: avatarUrl });
-    // 头像立即持久化（REQ-NICK-2）
-    storage.setAvatar(avatarUrl);
   },
 
-  // nickname input 输入回调（REQ-NICK-1：双通道，授权填充或手动输入）
+  // nickname input 输入回调（REQ-NICK-1）
   onNicknameInput: function (e) {
     this.setData({ nickname: e.detail.value });
   },
 
-  // 保存昵称（REQ-NICK-2、REQ-NICK-3）
+  // 保存昵称/头像（REQ-NICK-2/3；M5 登录后云端保存）
   onSave: function () {
     var raw = this.data.nickname || '';
-    // 去首尾空白（REQ-NICK-3）
     var nick = String(raw).trim();
+    var self = this;
 
-    // 校验：非空
     if (!nick) {
       wx.showToast({ title: '昵称不能为空', icon: 'none' });
       return;
     }
-    // 校验：长度 2~12（REQ-NICK-3）
     if (nick.length < NICKNAME_MIN_LEN || nick.length > NICKNAME_MAX_LEN) {
       wx.showToast({ title: '昵称长度需 2~12 个字符', icon: 'none' });
       return;
     }
 
-    // 保存到本地存储（REQ-NICK-2）
+    var avatarUrl = this.data.avatarUrl || '';
+
+    // 本地镜像先行（离线可保存，REQ-NFR-2）
     storage.setNickname(nick);
+    if (avatarUrl) storage.setAvatar(avatarUrl);
 
-    // 同步云端，失败静默降级（REQ-API-3、REQ-NFR-2）
-    this.syncNickname(nick);
+    // 未登录：仅保存本机（游客也可暂存，登录后需重新保存上云）
+    if (!auth.isLoggedIn()) {
+      wx.showToast({ title: '已保存到本机', icon: 'none', duration: 1200 });
+      setTimeout(function () { wx.navigateBack(); }, 1300);
+      return;
+    }
 
-    wx.showToast({ title: '保存成功', icon: 'success', duration: 1200 });
-
-    // 延迟返回上一页（首页 onShow 会刷新昵称展示）
-    setTimeout(function () {
-      wx.navigateBack();
-    }, 1200);
+    // 已登录：云端保存（M5 REQ-PROFILE-1）
+    request.post('/api/user/profile', { nickname: nick, avatarUrl: avatarUrl }).then(function () {
+      auth.refreshMe(); // 拉取最新资料回写缓存（needProfile → false）
+      wx.showToast({ title: '保存成功', icon: 'success', duration: 1200 });
+      setTimeout(function () { wx.navigateBack(); }, 1300);
+    }).catch(function (err) {
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('[nickname] 云端同步失败，昵称仅保存在本机。code=' + (err && err.code));
+      }
+      wx.showToast({ title: '已保存到本机，联网后同步', icon: 'none', duration: 1200 });
+      setTimeout(function () { wx.navigateBack(); }, 1300);
+    });
   },
 
-  // 同步昵称到云端，失败静默降级（REQ-API-3、REQ-NFR-2）
-  syncNickname: function (nick) {
-    // utils/request.js v2 契约：失败一律 reject(err)，err 携带 code/message。
-    // 云端失败不影响本地已保存的昵称，此处显式 catch 静默降级。
-    request.post('/api/nickname', { nickname: nick }).then(function () {
-      // 同步成功
-    }).catch(function (err) {
-      // 静默降级：本地已保存，云端失败不阻塞主流程（可在此打日志，不提示用户）
-      if (typeof console !== 'undefined' && console.warn) {
-        console.warn('[nickname] 云端同步失败，昵称仅保存在本地。code=' + (err && err.code));
+  // 退出登录（M5）
+  goLogout: function () {
+    wx.showModal({
+      title: '退出登录',
+      content: '退出后需重新登录才能解锁全部关卡',
+      confirmText: '退出',
+      success: function (r) {
+        if (!r.confirm) return;
+        auth.logout();
+        // 清除本地昵称镜像，游客态不再展示云端昵称
+        storage.setNickname('');
+        storage.setAvatar('');
+        wx.showToast({ title: '已退出', icon: 'none' });
+        setTimeout(function () {
+          wx.reLaunch({ url: '/pages/index/index' });
+        }, 700);
       }
     });
   },

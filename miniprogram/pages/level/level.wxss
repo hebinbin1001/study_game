@@ -1,6 +1,6 @@
-/* 关卡选择页样式（T14）：
-   学段 tab + 关卡卡片网格
-   配色参考 prototype/index.html */
+/* 关卡选择页样式（T14 · UI 重设计）：
+   学段卡通胶囊 tab + 星星进度卡 + 白色大圆角关卡卡片网格 + 自定义关卡入口
+   硬阴影 + :active 按压位移（与 avatar 页样板一致） */
 
 page {
   background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
@@ -10,33 +10,98 @@ page {
 }
 
 .page-level {
-  padding: 24rpx 0;
+  padding: 40rpx 0;
   padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
-/* ===== 学段 tab ===== */
+/* ===== 页面标题 ===== */
+.level-title {
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 8rpx;
+  text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+.level-sub {
+  margin-top: 12rpx;
+  margin-bottom: 32rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+  opacity: 0.85;
+  letter-spacing: 4rpx;
+  text-align: center;
+}
+
+/* ===== 学段 tab（卡通胶囊） ===== */
 .grade-tabs {
   white-space: nowrap;
-  padding: 0 24rpx 36rpx;
+  padding: 0 24rpx 32rpx;
+  box-sizing: border-box;
 }
 .grade-tab {
   display: inline-block;
   width: 172rpx;
-  height: 88rpx;
-  line-height: 88rpx;
+  height: 84rpx;
+  line-height: 84rpx;
   text-align: center;
-  border-radius: 32rpx;
+  border-radius: 42rpx;
   font-weight: 800;
   font-size: 30rpx;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.12);
+  color: #5c7f9e;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.08);
   margin-right: 20rpx;
   transition: all 0.12s;
 }
+.grade-tab:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.08);
+}
 .grade-tab.on {
+  color: #ffffff;
   background: #ffb703;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12), 0 12rpx 24rpx rgba(255, 183, 3, 0.35);
+}
+
+/* ===== 本学段星星进度卡 ===== */
+.progress-card {
+  margin: 0 32rpx 32rpx;
+  padding: 26rpx 32rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+.progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+.progress-label {
+  display: flex;
+  align-items: center;
+}
+.progress-emoji {
+  font-size: 32rpx;
+  line-height: 1;
+  margin-right: 10rpx;
+}
+.progress-text {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #3a3a5c;
+}
+.progress-value {
+  font-size: 28rpx;
+  font-weight: 900;
+  color: #ffb703;
+}
+/* 星星进度填充：金色渐变 */
+.progress-bar__fill--gold {
+  background: linear-gradient(90deg, #ffd166, #ffb703);
 }
 
 /* ===== 关卡卡片网格 ===== */
@@ -49,20 +114,33 @@ page {
   width: 208rpx;
   height: 260rpx;
   background: #fff;
-  border-radius: 40rpx;
+  border-radius: 32rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.1), 0 20rpx 40rpx rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  border: 4rpx solid transparent;
   transition: transform 0.12s, box-shadow 0.12s;
   position: relative;
   margin-right: 32rpx;
   margin-bottom: 32rpx;
+  box-sizing: border-box;
+}
+/* 已解锁卡片按压位移 */
+.level-card:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08), 0 8rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+/* 已得 1 星及以上：金色描边强化进度感 */
+.level-card.has-star {
+  border-color: #ffd166;
+  background: #fffdf4;
 }
 .level-card.locked {
   filter: grayscale(0.9);
-  opacity: 0.7;
+  opacity: 0.65;
+  background: #f0f3f8;
 }
 .level-card.shake {
   animation: cardShake 0.4s;
@@ -73,55 +151,112 @@ page {
   75% { transform: translateX(12rpx); }
 }
 
-/* 星级 */
+/* 星级（⭐ emoji / 灰 ☆） */
 .stars {
-  font-size: 36rpx;
-  letter-spacing: 4rpx;
+  font-size: 34rpx;
+  letter-spacing: 2rpx;
   height: 44rpx;
   line-height: 44rpx;
+  margin-bottom: 4rpx;
 }
 .star-on {
   color: #ffb703;
 }
 .star-off {
-  color: #e0e0e0;
+  color: #d5dde8;
+  font-size: 28rpx;
 }
 
 /* 关卡编号 */
 .num {
-  font-size: 68rpx;
+  font-size: 72rpx;
   font-weight: 900;
   color: #4cc9f0;
   line-height: 1.2;
+  text-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.06);
+}
+.level-card.locked .num {
+  color: #9aa7bc;
 }
 
 /* 锁定标识 */
 .lock {
-  font-size: 52rpx;
-  opacity: 0.5;
-  margin-top: 8rpx;
+  font-size: 48rpx;
+  margin-top: 4rpx;
 }
 
 /* ===== 自定义关卡入口（M3） ===== */
 .custom-level-entry {
-  margin: 32rpx 32rpx 0;
+  margin: 16rpx 32rpx 0;
   height: 120rpx;
-  border-radius: 40rpx;
+  border-radius: 32rpx;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12rpx;
-  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.1), 0 20rpx 40rpx rgba(0, 0, 0, 0.12);
+  gap: 16rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  transition: transform 0.12s, box-shadow 0.12s;
 }
-.entry-plus {
-  font-size: 48rpx;
+.custom-level-entry:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08), 0 8rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+.entry-plus-circle {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
   font-weight: 900;
-  color: #ffb703;
+  color: #ffffff;
   line-height: 1;
+  background: #ffb703;
+  border-radius: 50%;
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.1);
 }
 .entry-text {
   font-size: 34rpx;
   font-weight: 800;
   color: #3a3a5c;
+}
+.entry-arrow {
+  font-size: 32rpx;
+  font-weight: 900;
+  color: #c9d6e8;
+}
+
+/* ===== 游客横幅（M5 REQ-GUEST-1） ===== */
+.guest-banner {
+  margin: 8rpx 32rpx 0;
+  height: 88rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  padding: 0 28rpx;
+  box-sizing: border-box;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.05), 0 10rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+.guest-banner-icon {
+  font-size: 34rpx;
+  margin-right: 12rpx;
+}
+.guest-banner-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #5c7f9e;
+  font-weight: 700;
+}
+.guest-banner-btn {
+  flex-shrink: 0;
+  padding: 0 24rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  border-radius: 26rpx;
+  background: #4cc9f0;
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: 900;
 }

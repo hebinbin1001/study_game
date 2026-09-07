@@ -1,57 +1,103 @@
-<!-- 首页（T14）：
-     游戏标题「词力战士」+ 开始游戏按钮 + 昵称入口
+<!-- 首页（T14 · UI 重设计）：
+     卡通可爱风：猫战士吉祥物 + 大字重标题 + 数据概览卡 + 「开始闯关」主按钮 + 功能入口卡片网格
      关联需求：REQ-GAME-1（开始游戏入口）、REQ-NICK-4（昵称入口展示） -->
 <view class="page-home">
   <!-- 装饰云朵 -->
   <view class="cloud cloud-1"></view>
   <view class="cloud cloud-2"></view>
 
-  <!-- 标题装饰区（导航栏已显示「词力战士」，此处放副标题与装饰） -->
+  <!-- 吉祥物 + 标题区 -->
   <view class="logo-area">
-    <view class="logo-emoji">⚔️</view>
+    <view class="mascot-wrap">
+      <view class="mascot-main">🐱</view>
+      <view class="mascot-sword">⚔️</view>
+    </view>
+    <view class="logo-title">词力战士</view>
     <view class="sub-title">玩中学 · 学中记</view>
+  </view>
+
+  <!-- 登录状态条（M5）：未登录引导微信登录；已登录点击进入昵称/资料页 -->
+  <view class="login-bar {{loggedIn ? '' : 'guest'}}" bindtap="onLoginTap">
+    <block wx:if="{{loggedIn}}">
+      <image wx:if="{{avatarUrl}}" class="login-avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view wx:else class="login-avatar login-avatar--default">😎</view>
+      <view class="login-text">
+        <view class="login-name">{{nickname || '已登录'}}</view>
+        <view class="login-sub">点击设置资料</view>
+      </view>
+      <view class="login-btn">资料</view>
+    </block>
+    <block wx:else>
+      <view class="login-avatar login-avatar--default">👤</view>
+      <view class="login-text">
+        <view class="login-name">游客模式</view>
+        <view class="login-sub">微信登录解锁全部关卡与功能</view>
+      </view>
+      <view class="login-btn">登录</view>
+    </block>
+  </view>
+
+  <!-- 数据概览卡：累计星星 / 已过关卡 / 昵称（js 预处理 setData） -->
+  <view class="stat-card">
+    <view class="stat-item">
+      <view class="stat-emoji">⭐</view>
+      <view class="stat-num">{{totalStars}}</view>
+      <view class="stat-label">累计星星</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-emoji">🏅</view>
+      <view class="stat-num">{{passedLevels}}</view>
+      <view class="stat-label">已过关卡</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-emoji">😎</view>
+      <view class="stat-num stat-num--name">{{nicknameDisplay}}</view>
+      <view class="stat-label">我的昵称</view>
+    </view>
   </view>
 
   <!-- 主操作区 -->
   <view class="action-area">
-    <!-- 开始游戏：跳转关卡选择页（REQ-GAME-1） -->
-    <button class="btn btn-start" bindtap="goLevel">开始游戏</button>
+    <!-- 开始闯关：跳转关卡选择页（REQ-GAME-1） -->
+    <button class="btn btn-primary btn-start" bindtap="goLevel">⚔️ 开始闯关</button>
 
-    <!-- 功能入口区 -->
+    <!-- 功能入口区（3×2 卡片网格） -->
     <view class="entries">
       <!-- 昵称入口 -->
       <view class="entry" bindtap="goNickname">
-        <view class="entry-icon">👤</view>
+        <view class="entry-icon entry-icon--pink">👤</view>
         <view class="entry-text">昵称</view>
       </view>
 
       <!-- 形象入口（M2） -->
       <view class="entry" bindtap="goAvatar">
-        <view class="entry-icon">👗</view>
+        <view class="entry-icon entry-icon--purple">👗</view>
         <view class="entry-text">形象</view>
       </view>
 
       <!-- 排行榜入口（M2） -->
       <view class="entry" bindtap="goRank">
-        <view class="entry-icon">🏆</view>
+        <view class="entry-icon entry-icon--gold">🏆</view>
         <view class="entry-text">排行</view>
       </view>
 
       <!-- 错题本入口（M3） -->
       <view class="entry" bindtap="goWrongBook">
-        <view class="entry-icon">📖</view>
+        <view class="entry-icon entry-icon--blue">📖</view>
         <view class="entry-text">错题</view>
       </view>
 
       <!-- 签到入口（M4） -->
       <view class="entry" bindtap="goCheckin">
-        <view class="entry-icon">✓</view>
+        <view class="entry-icon entry-icon--green">✅</view>
         <view class="entry-text">签到</view>
       </view>
 
       <!-- 成就入口（M4） -->
       <view class="entry" bindtap="goAchievement">
-        <view class="entry-icon">🏅</view>
+        <view class="entry-icon entry-icon--orange">🏅</view>
         <view class="entry-text">成就</view>
       </view>
     </view>

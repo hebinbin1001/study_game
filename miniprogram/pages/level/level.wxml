@@ -1,8 +1,19 @@
-<!-- 关卡选择页（T14）：
-     7 学段 tab + 关卡卡片网格
+<!-- 关卡选择页（T14 · UI 重设计）：
+     白色卡通卡片网格 + ⭐ 星级 + 锁定置灰 + 学段星星进度条
      关联需求：REQ-DICT-1（学段枚举）、REQ-GAME-13（星级存档）、REQ-GAME-14（关卡解锁） -->
 <view class="page-level">
-  <!-- 学段 tab（7 个学段，REQ-DICT-1） -->
+  <!-- 标题 -->
+  <view class="level-title">选择关卡</view>
+  <view class="level-sub">收集星星 · 解锁新关卡</view>
+
+  <!-- 游客横幅（M5 REQ-GUEST-1：未登录仅第 1 关可玩） -->
+  <view wx:if="{{!loggedIn}}" class="guest-banner" bindtap="guestLogin">
+    <text class="guest-banner-icon">🔒</text>
+    <text class="guest-banner-text">游客模式 · 登录解锁全部关卡</text>
+    <text class="guest-banner-btn">去登录</text>
+  </view>
+
+  <!-- 学段 tab（7 个学段，REQ-DICT-1，交互保留） -->
   <scroll-view class="grade-tabs" scroll-x="true" enable-flex="true">
     <view
       wx:for="{{grades}}"
@@ -14,21 +25,35 @@
     </view>
   </scroll-view>
 
+  <!-- 本学段星星进度卡（js 预处理：gradeEarnedStars / gradeTotalStars / gradeStarPercent） -->
+  <view class="progress-card">
+    <view class="progress-head">
+      <view class="progress-label">
+        <text class="progress-emoji">⭐</text>
+        <text class="progress-text">本学段星星</text>
+      </view>
+      <view class="progress-value">{{gradeEarnedStars}}/{{gradeTotalStars}}</view>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-bar__fill progress-bar__fill--gold" style="width: {{gradeStarPercent}}%;"></view>
+    </view>
+  </view>
+
   <!-- 关卡卡片网格（wx:for 渲染，REQ-DICT-1） -->
   <view class="level-grid">
     <view
       wx:for="{{levels}}"
       wx:key="level"
-      class="level-card {{item.unlocked ? '' : 'locked'}} {{item.shaking ? 'shake' : ''}}"
+      class="level-card {{item.unlocked ? '' : 'locked'}} {{item.stars > 0 ? 'has-star' : ''}} {{item.shaking ? 'shake' : ''}}"
       data-index="{{index}}"
       bindtap="onLevelTap">
-      <!-- 星级展示（读 ww_stars，REQ-GAME-13） -->
+      <!-- 星级展示（已得星 ⭐，未得星灰 ☆，REQ-GAME-13） -->
       <view class="stars">
         <text
           wx:for="{{item.starArr}}"
           wx:for-item="s"
           wx:key="*this"
-          class="star {{s ? 'star-on' : 'star-off'}}">{{s ? '★' : '☆'}}</text>
+          class="star {{s ? 'star-on' : 'star-off'}}">{{s ? '⭐' : '☆'}}</text>
       </view>
       <!-- 关卡编号 -->
       <view class="num">{{item.level}}</view>
@@ -39,7 +64,8 @@
 
   <!-- 自定义关卡入口（M3） -->
   <view class="custom-level-entry" bindtap="goCustomLevel">
-    <text class="entry-plus">+</text>
+    <view class="entry-plus-circle">+</view>
     <text class="entry-text">自定义关卡</text>
+    <text class="entry-arrow">→</text>
   </view>
 </view>

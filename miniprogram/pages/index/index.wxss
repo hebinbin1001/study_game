@@ -1,6 +1,7 @@
-/* 首页样式（T14）：
-   渐变天空蓝背景 + 云朵装饰 + 开始游戏按钮 + 昵称入口
-   配色参考 prototype/index.html */
+/* 首页样式（T14 · UI 重设计）：
+   卡通可爱风：云朵 + 猫战士吉祥物 + 数据概览卡 + 主按钮 + 3×2 入口卡片网格
+   硬阴影 + :active 按压位移（与 avatar 页样板一致）
+   配色引用 app.wxss 设计 token */
 
 page {
   background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
@@ -72,24 +73,114 @@ page {
   left: 80rpx;
 }
 
-/* ===== 标题装饰区 ===== */
+/* ===== 吉祥物 + 标题区 ===== */
 .logo-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 40rpx;
+  margin-top: 20rpx;
 }
-.logo-emoji {
-  font-size: 120rpx;
+
+/* 猫战士吉祥物：大 emoji + 手持宝剑装饰 + 上下浮动 */
+.mascot-wrap {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  animation: mascotFloat 2.4s ease-in-out infinite;
+}
+.mascot-main {
+  width: 200rpx;
+  height: 200rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 150rpx;
   line-height: 1;
-  text-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.2);
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+}
+.mascot-sword {
+  position: absolute;
+  right: -24rpx;
+  bottom: 8rpx;
+  font-size: 60rpx;
+  line-height: 1;
+  transform: rotate(20deg);
+  text-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.15);
+}
+@keyframes mascotFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-16rpx); }
+}
+
+/* 大字重标题（保留 900） */
+.logo-title {
+  margin-top: 28rpx;
+  font-size: 60rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 8rpx;
+  text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
 }
 .sub-title {
-  color: #5c7f9e;
+  color: #ffffff;
+  opacity: 0.85;
   font-size: 28rpx;
   letter-spacing: 12rpx;
-  margin-top: 24rpx;
+  margin-top: 16rpx;
   font-weight: 700;
+}
+
+/* ===== 数据概览卡 ===== */
+.stat-card {
+  display: flex;
+  align-items: stretch;
+  width: 640rpx;
+  margin-top: 44rpx;
+  padding: 28rpx 20rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+.stat-item {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stat-emoji {
+  font-size: 44rpx;
+  line-height: 1;
+  margin-bottom: 8rpx;
+}
+.stat-num {
+  max-width: 100%;
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+  line-height: 1.2;
+}
+/* 昵称格：数字改文本，超长省略 */
+.stat-num--name {
+  font-size: 30rpx;
+  max-width: 180rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.stat-label {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #5c7f9e;
+}
+.stat-divider {
+  width: 2rpx;
+  border-radius: 2rpx;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 6rpx 0;
 }
 
 /* ===== 主操作区 ===== */
@@ -97,102 +188,125 @@ page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 120rpx;
+  margin-top: 56rpx;
   width: 100%;
 }
 
-/* 通用按钮 */
-.btn {
-  border: none;
-  color: #fff;
-  font-weight: 900;
-  border-radius: 44rpx;
-  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.18), 0 20rpx 40rpx rgba(0, 0, 0, 0.12);
-  letter-spacing: 4rpx;
-}
-.btn::after {
-  border: none;
-}
+/* 主按钮：使用全局 .btn.btn-primary（480×128 橙色大按钮），微调字号 */
 .btn-start {
-  width: 480rpx;
-  height: 128rpx;
   font-size: 48rpx;
-  background: #ffb703;
-  line-height: 128rpx;
 }
 
-/* ===== 昵称入口 ===== */
-.nickname-entry {
-  display: flex;
-  align-items: center;
-  width: 480rpx;
-  height: 96rpx;
-  margin-top: 48rpx;
-  padding: 0 32rpx;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 48rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
-}
-.avatar-wrap {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #e0e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.avatar {
-  width: 64rpx;
-  height: 64rpx;
-}
-.avatar-default {
-  font-size: 40rpx;
-}
-.nickname-text {
-  flex: 1;
-  margin-left: 24rpx;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #3a3a5c;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.nickname-arrow {
-  font-size: 40rpx;
-  color: #8899aa;
-  font-weight: 700;
-}
-
-/* ===== 功能入口区 ===== */
+/* ===== 功能入口区（3×2 卡片网格） ===== */
 .entries {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 40rpx;
-  margin-top: 60rpx;
+  gap: 28rpx;
+  margin-top: 56rpx;
+  width: 640rpx;
 }
 
 .entry {
+  width: 194rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20rpx;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 20rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  padding: 26rpx 0 22rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+/* 按压位移（卡通「按压感」，与 avatar 页一致） */
+.entry:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08), 0 8rpx 16rpx rgba(0, 0, 0, 0.08);
 }
 
+/* 彩色圆底 emoji 图标 */
 .entry-icon {
-  font-size: 48rpx;
-  margin-bottom: 8rpx;
+  width: 88rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52rpx;
+  line-height: 1;
+  border-radius: 50%;
+  margin-bottom: 12rpx;
 }
+.entry-icon--pink   { background: rgba(255, 93, 143, 0.16); }
+.entry-icon--purple { background: rgba(179, 136, 255, 0.18); }
+.entry-icon--gold   { background: rgba(255, 209, 102, 0.25); }
+.entry-icon--blue   { background: rgba(76, 201, 240, 0.18); }
+.entry-icon--green  { background: rgba(123, 211, 137, 0.2); }
+.entry-icon--orange { background: rgba(255, 183, 3, 0.22); }
 
 .entry-text {
-  font-size: 24rpx;
-  color: #5c7f9e;
-  font-weight: 700;
+  font-size: 26rpx;
+  color: #3a3a5c;
+}
+
+/* ===== 登录状态条（M5） ===== */
+.login-bar {
+  width: 640rpx;
+  margin-top: 32rpx;
+  display: flex;
+  align-items: center;
+  padding: 18rpx 22rpx;
+  background: #ffffff;
+  border-radius: 32rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.06), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+.login-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e8f0fa;
+  flex-shrink: 0;
+}
+.login-avatar--default {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+}
+.login-text {
+  flex: 1;
+  margin-left: 20rpx;
+  overflow: hidden;
+}
+.login-name {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #3a3a5c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.login-sub {
+  font-size: 22rpx;
+  color: #8a9bb5;
+  margin-top: 4rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.login-btn {
+  flex-shrink: 0;
+  padding: 0 28rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: 28rpx;
+  background: #ffb703;
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+.login-bar.guest .login-btn {
+  background: #4cc9f0;
 }

@@ -1,35 +1,52 @@
-<!-- 昵称设置页（T17）：
-     头像昵称填写能力（chooseAvatar + nickname input 双通道）
+<!-- 昵称设置页（T17 · UI 重设计）：
+     卡通档案卡：头像选择 + 昵称输入 + 保存按钮 + 可爱引导文案
      关联需求：REQ-NICK-1（头像昵称填写能力）、REQ-NICK-2（持久化）、REQ-NICK-3（校验） -->
 <view class="page-nickname">
-  <!-- 头像选择（REQ-NICK-1：chooseAvatar 按钮） -->
-  <view class="section">
-    <view class="section-title">选择头像</view>
-    <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-      <view class="avatar-wrap">
-        <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
-        <view wx:else class="avatar-default">👤</view>
-      </view>
-      <view class="avatar-tip">点击更换头像</view>
-    </button>
+  <!-- 标题 + 吉祥物 -->
+  <view class="head-area">
+    <view class="head-emoji">🐱</view>
+    <view class="page-title-nick">战士档案</view>
+    <view class="head-sub">闯关榜单上就叫这个名字啦！</view>
   </view>
 
-  <!-- 昵称输入（REQ-NICK-1：nickname input 双通道） -->
-  <view class="section">
-    <view class="section-title">设置昵称</view>
-    <input
-      class="nickname-input"
-      type="nickname"
-      placeholder="请输入昵称（2~12字）"
-      value="{{nickname}}"
-      bindinput="onNicknameInput"
-      maxlength="12" />
-    <view class="input-hint">长度 2~12 个字符，支持中英文</view>
+  <!-- 档案卡 -->
+  <view class="profile-card">
+    <!-- 头像选择（REQ-NICK-1：chooseAvatar 按钮，交互保留） -->
+    <view class="section">
+      <view class="section-title">😄 选择头像</view>
+      <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <view class="avatar-wrap">
+          <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+          <view wx:else class="avatar-default">👤</view>
+          <view class="avatar-pen">✏️</view>
+        </view>
+        <view class="avatar-tip">点击更换头像</view>
+      </button>
+    </view>
+
+    <!-- 昵称输入（REQ-NICK-1：nickname input 双通道，交互保留） -->
+    <view class="section">
+      <view class="section-title">✍️ 设置昵称</view>
+      <view class="input-card">
+        <input
+          class="nickname-input"
+          type="nickname"
+          placeholder="请输入昵称（2~12字）"
+          placeholder-class="input-placeholder"
+          value="{{nickname}}"
+          bindinput="onNicknameInput"
+          maxlength="12" />
+      </view>
+      <view class="input-hint">长度 2~12 个字符，支持中英文哦</view>
+    </view>
   </view>
 
   <!-- 保存按钮 -->
-  <button class="btn btn-save" bindtap="onSave">保 存</button>
+  <button class="btn btn-primary btn-save" bindtap="onSave">保存 ✨</button>
 
   <!-- 返回链接 -->
-  <view class="back-link" bindtap="goBack">返回</view>
+  <view class="back-link" bindtap="goBack">← 返回</view>
+
+  <!-- 退出登录（M5：仅已登录显示） -->
+  <view wx:if="{{loggedIn}}" class="back-link logout-link" bindtap="goLogout">退出登录</view>
 </view>
