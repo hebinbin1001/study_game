@@ -18,7 +18,8 @@
     "pages/level-editor/level-editor",
     "pages/level-share/level-share",
     "pages/checkin/checkin",
-    "pages/achievement/achievement"
+    "pages/achievement/achievement",
+    "pages/report/report"
   ],
   "window": {
     "navigationBarBackgroundColor": "#5aa9e6",

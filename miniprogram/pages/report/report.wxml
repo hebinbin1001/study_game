@@ -1,0 +1,89 @@
+<!-- 学习报告页（M6-D） -->
+<view class="page-report">
+  <view class="rep-title">📊 学习报告</view>
+  <view class="rep-sub">近 7 天学习情况 · 数据已同步云端</view>
+
+  <!-- 加载/错误/空态 -->
+  <view wx:if="{{loading}}" class="empty-state" style="margin-top:120rpx;">
+    <view class="empty-emoji">⏳</view>
+    <text>加载中...</text>
+  </view>
+  <view wx:elif="{{error}}" class="empty-state" style="margin-top:120rpx;">
+    <view class="empty-emoji">📡</view>
+    <text>网络开小差了，下拉页面重试</text>
+  </view>
+  <view wx:elif="{{empty}}" class="empty-state" style="margin-top:120rpx;">
+    <view class="empty-emoji">🚀</view>
+    <text>还没有学习记录</text>
+    <text style="color:#8a9bb5;margin-top:8rpx;">完成一次闯关后，这里会生成你的学习报告</text>
+    <button class="btn btn-primary" style="margin-top:40rpx;" bindtap="goHome">去闯关</button>
+  </view>
+
+  <block wx:else>
+    <!-- 概览卡 -->
+    <view class="stat-grid">
+      <view class="stat-card">
+        <view class="stat-num">{{totalDays}}</view>
+        <view class="stat-label">学习天数</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-num">{{totalPlays}}</view>
+        <view class="stat-label">闯关次数</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-num">{{totalQ}}</view>
+        <view class="stat-label">答题数</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-num">{{avgRate}}%</view>
+        <view class="stat-label">正确率</view>
+      </view>
+    </view>
+
+    <!-- 错题掌握概览 -->
+    <view class="rep-card">
+      <view class="rep-card-title">📕 错题掌握</view>
+      <view class="wrong-stats">
+        <view class="ws-item">
+          <view class="ws-num ws-num--orange">{{pending}}</view>
+          <view class="ws-label">待复习</view>
+        </view>
+        <view class="ws-item">
+          <view class="ws-num ws-num--green">{{mastered}}</view>
+          <view class="ws-label">已掌握</view>
+        </view>
+        <view class="ws-item">
+          <view class="ws-num">{{totalWrong}}</view>
+          <view class="ws-label">总错题</view>
+        </view>
+      </view>
+      <view class="rep-link" bindtap="goWrongBook">去错题本复习 →</view>
+    </view>
+
+    <!-- 日趋势（正确率） -->
+    <view class="rep-card" wx:if="{{trend.length > 0}}">
+      <view class="rep-card-title">📈 每日正确率</view>
+      <view class="trend">
+        <view class="trend-item" wx:for="{{trend}}" wx:key="date">
+          <view class="trend-bar-wrap">
+            <view class="trend-bar" style="height:{{item.rate}}%;"></view>
+          </view>
+          <view class="trend-val">{{item.rate}}%</view>
+          <view class="trend-date">{{item.date.slice(5)}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 薄弱题型 -->
+    <view class="rep-card" wx:if="{{wrongByType.length > 0}}">
+      <view class="rep-card-title">🎯 薄弱题型（错题分布）</view>
+      <view class="type-row" wx:for="{{wrongByType}}" wx:key="type">
+        <text class="type-name">{{item.type}}</text>
+        <view class="type-bar-wrap">
+          <view class="type-bar" style="width:{{item.percent}}%;"></view>
+        </view>
+        <text class="type-count">{{item.count}}</text>
+      </view>
+    </view>
+  </block>
+</view>

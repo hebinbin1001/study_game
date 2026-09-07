@@ -83,6 +83,12 @@
         <view class="entry-text">排行</view>
       </view>
 
+      <!-- 学习报告入口（M6-D：需登录） -->
+      <view wx:if="{{loggedIn}}" class="entry" bindtap="goReport">
+        <view class="entry-icon entry-icon--green">📊</view>
+        <view class="entry-text">报告</view>
+      </view>
+
       <!-- 错题本入口（M3） -->
       <view class="entry" bindtap="goWrongBook">
         <view class="entry-icon entry-icon--blue">📖</view>

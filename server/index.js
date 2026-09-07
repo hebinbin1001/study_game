@@ -20,6 +20,7 @@ const levelReviewRouter = require("./routes/level-review");
 const wrongRouter = require("./routes/wrong");
 const checkinRouter = require("./routes/checkin");
 const achievementRouter = require("./routes/achievement");
+const reportRouter = require("./routes/report");
 
 const app = express();
 
@@ -67,6 +68,7 @@ app.use("/api/level/review", openid, levelReviewRouter);
 app.use("/api/wrong", openid, wrongRouter);
 app.use("/api/checkin", openid, checkinRouter);
 app.use("/api/achievement", openid, achievementRouter);
+app.use("/api/report", openid, reportRouter);
 
 const port = process.env.PORT || 80;
 

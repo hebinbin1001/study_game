@@ -114,6 +114,7 @@ Page({
   goWrongBook: function () { this._guardThenGo('/pages/wrong-book/wrong-book', '错题本需登录同步'); },
   goCheckin: function () { this._guardThenGo('/pages/checkin/checkin', '每日签到需登录'); },
   goAchievement: function () { this._guardThenGo('/pages/achievement/achievement', '成就勋章需登录'); },
+  goReport: function () { this._guardThenGo('/pages/report/report', '学习报告需登录'); },
 
   // 通用受限跳转：已登录直达；未登录引导登录后（资料完善）再跳
   _guardThenGo: function (url, desc) {
