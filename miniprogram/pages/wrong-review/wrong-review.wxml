@@ -1,16 +1,18 @@
 <!-- 错题复习页 -->
 <view class="page-wrong-review">
-  <!-- 进度条 -->
-  <view class="progress-bar">
-    <view class="progress" style="width: {{(currentIndex / totalCount) * 100}}%"></view>
+  <!-- 顶部进度条 -->
+  <view class="progress-bar review-progress">
+    <view class="progress-bar__fill" style="width: {{(currentIndex / totalCount) * 100}}%"></view>
   </view>
   <view class="progress-text">第 {{currentIndex + 1}} / {{totalCount}} 题</view>
 
   <!-- 题目卡片 -->
   <view class="question-card" wx:if="{{currentItem && !completed}}">
-    <view class="question-type">{{currentItem.question.type}}</view>
+    <view class="question-head">
+      <text class="question-type tag">👾 {{currentItem.question.type}}</text>
+    </view>
     <view class="question-text">{{currentItem.question.q}}</view>
-    <view class="question-hint" wx:if="{{currentItem.question.hint}}">提示：{{currentItem.question.hint}}</view>
+    <view class="question-hint" wx:if="{{currentItem.question.hint}}">💡 提示：{{currentItem.question.hint}}</view>
 
     <!-- 选项 -->
     <view class="options">
@@ -24,18 +26,24 @@
 
   <!-- 完成页 -->
   <view class="completed" wx:if="{{completed}}">
-    <view class="completed-icon">✓</view>
-    <view class="completed-title">复习完成</view>
-    <view class="completed-stats">
-      答对 {{correctCount}} / {{totalCount}} 题
+    <view class="completed-card">
+      <view class="completed-icon">🎉</view>
+      <view class="completed-title">复习完成</view>
+      <view class="completed-stats" wx:if="{{totalCount > 0}}">
+        答对 {{correctCount}} / {{totalCount}} 题
+      </view>
+      <view class="completed-stats" wx:else>
+        暂无待复习题目，休息一下吧～
+      </view>
+      <button class="btn-restart" bindtap="restart">🔄 继续复习</button>
+      <button class="btn-back" bindtap="goBack">返回错题本</button>
     </view>
-    <button class="btn-restart" bindtap="restart">继续复习</button>
-    <button class="btn-back" bindtap="goBack">返回错题本</button>
   </view>
 
   <!-- 反馈提示 -->
   <view class="feedback {{correct ? 'correct' : 'wrong'}}" wx:if="{{showFeedback}}">
-    <text wx:if="{{correct}}">✓ 回答正确</text>
-    <text wx:else>✗ 回答错误</text>
+    <text class="feedback-emoji">{{correct ? '🎉' : '💪'}}</text>
+    <text wx:if="{{correct}}">回答正确</text>
+    <text wx:else>回答错误</text>
   </view>
 </view>

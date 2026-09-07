@@ -119,8 +119,8 @@ Page({
         var height = res[0].height;
 
         // dpr + 尺寸适配：物理像素 = 逻辑像素 × dpr；
-        // 渲染坐标系固定 390×500（config.W/H），按实际 CSS 宽度等比缩放，
-        // 使画面在不同屏宽下填满画布且不变形（REQ-NFR-3）
+        // 渲染坐标系固定 390×500（config.W/H），画布为响应式（CSS width:100%，
+        // height:900rpx），故按实际 CSS 宽度等比缩放 ctx，使画面填满画布且不变形（REQ-NFR-3）
         var dpr = wx.getSystemInfoSync().pixelRatio;
         canvasNode.width = width * dpr;
         canvasNode.height = height * dpr;

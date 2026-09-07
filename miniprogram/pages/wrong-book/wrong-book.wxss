@@ -1,63 +1,111 @@
+/* 错题本列表页（wrong-book）—— 暖色天空卡通风（与 app.wxss 全局主题一致） */
 .page-wrong-book {
-  padding: 20rpx;
+  padding: 20rpx 30rpx 60rpx;
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-  color: #fff;
+  box-sizing: border-box;
+  color: #3a3a5c;
 }
 
+/* ============ 页面标题 ============ */
+.book-title-bar {
+  text-align: center;
+  margin: 30rpx 0 28rpx;
+}
+
+.book-title-emoji {
+  font-size: 76rpx;
+  line-height: 1;
+  margin-bottom: 10rpx;
+}
+
+.book-title {
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 8rpx;
+  text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
+}
+
+.book-title-sub {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 4rpx;
+  margin-top: 8rpx;
+}
+
+/* ============ 统计卡（三格） ============ */
 .stats-bar {
   display: flex;
-  justify-content: space-around;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20rpx;
-  padding: 30rpx 20rpx;
-  margin-bottom: 30rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx 20rpx;
+  margin-bottom: 28rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
 }
 
 .stat-item {
-  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.stat-emoji {
+  font-size: 40rpx;
+  line-height: 1;
 }
 
 .stat-number {
-  display: block;
   font-size: 48rpx;
-  font-weight: bold;
-  color: #ffd700;
+  font-weight: 900;
+  color: #3b3b5f;
+  line-height: 1.1;
 }
 
 .stat-label {
-  font-size: 24rpx;
-  color: #ccc;
+  font-size: 22rpx;
+  color: #5c7f9e;
+  font-weight: 700;
 }
 
 .stat-item.pending .stat-number {
-  color: #ff9800;
+  color: #ff6b9d;
 }
 
 .stat-item.mastered .stat-number {
-  color: #4caf50;
+  color: #7bd389;
 }
 
+/* ============ 标签切换（胶囊） ============ */
 .tabs {
   display: flex;
-  margin-bottom: 30rpx;
+  gap: 16rpx;
+  margin-bottom: 28rpx;
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 32rpx;
+  padding: 8rpx;
 }
 
 .tab {
   flex: 1;
   text-align: center;
-  padding: 20rpx;
-  font-size: 28rpx;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ccc;
+  padding: 18rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #ffffff;
+  border-radius: 26rpx;
+  transition: transform 0.12s;
 }
 
 .tab.active {
-  background: #ffd700;
-  color: #333;
-  font-weight: bold;
+  background: #ffb703;
+  color: #ffffff;
+  text-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.1);
 }
 
+/* ============ 错题列表（卡片化） ============ */
 .list {
   display: flex;
   flex-direction: column;
@@ -65,93 +113,136 @@
 }
 
 .item-card {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20rpx;
-  padding: 20rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  border-left: 8rpx solid #4cc9f0;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
 }
 
 .item-card.mastered {
-  border-left: 6rpx solid #4caf50;
+  border-left-color: #7bd389;
 }
 
 .item-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15rpx;
+  align-items: center;
+  margin-bottom: 18rpx;
 }
 
 .item-type {
-  font-size: 24rpx;
-  color: #ffd700;
-  background: rgba(255, 215, 0, 0.1);
-  padding: 4rpx 12rpx;
-  border-radius: 8rpx;
+  background: rgba(255, 183, 3, 0.16);
+  color: #b07a00;
+}
+
+.tag--green {
+  background: rgba(127, 211, 160, 0.2);
+  color: #2e8b57;
 }
 
 .item-mastery {
   font-size: 22rpx;
-  color: #4caf50;
+  font-weight: 700;
+  color: #4cc9f0;
 }
 
 .item-question {
-  margin-bottom: 15rpx;
+  margin-bottom: 18rpx;
 }
 
 .question-text {
   display: block;
   font-size: 28rpx;
-  margin-bottom: 8rpx;
+  font-weight: 700;
+  color: #3b3b5f;
+  margin-bottom: 10rpx;
 }
 
 .question-answer {
   display: block;
   font-size: 24rpx;
-  color: #4caf50;
+  color: #7fd8a0;
+  font-weight: 700;
 }
 
 .item-meta {
   display: flex;
-  gap: 20rpx;
-  margin-bottom: 15rpx;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 18rpx;
 }
 
 .meta-text {
   font-size: 22rpx;
-  color: #888;
+  color: #5c7f9e;
+  background: #eef3fa;
+  padding: 6rpx 14rpx;
+  border-radius: 20rpx;
 }
 
-.progress-bar {
-  height: 8rpx;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4rpx;
-  overflow: hidden;
+/* 熟练度进度条：复用全局 .progress-bar / .progress-bar__fill */
+.item-card .progress-bar {
+  margin-top: 4rpx;
 }
 
-.progress {
-  height: 100%;
-  background: linear-gradient(90deg, #4caf50, #ffd700);
+/* ============ 空态 ============ */
+.empty-state {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 28rpx;
+  padding: 60rpx 30rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.06), 0 14rpx 28rpx rgba(0, 0, 0, 0.06);
 }
 
-.empty {
-  text-align: center;
-  padding: 60rpx 0;
-  color: #888;
+.empty-text {
+  color: #8899aa;
   font-size: 28rpx;
 }
 
+/* ============ 开始复习按钮 ============ */
 .btn-review {
-  margin-top: 30rpx;
-  padding: 30rpx;
-  background: linear-gradient(135deg, #4caf50, #8bc34a);
-  color: #fff;
-  font-size: 32rpx;
-  font-weight: bold;
-  border-radius: 20rpx;
+  margin-top: 32rpx;
+  padding: 28rpx;
+  background: #7bd389;
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  border-radius: 44rpx;
+  line-height: 1.4;
+  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.14), 0 20rpx 40rpx rgba(0, 0, 0, 0.1);
+  transition: transform 0.12s;
 }
 
+.btn-review:active {
+  transform: translateY(6rpx);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.14);
+}
+
+button.btn-review::after {
+  border: none;
+}
+
+/* ============ 返回按钮 ============ */
 .btn-back {
-  margin-top: 30rpx;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border-radius: 20rpx;
+  margin-top: 32rpx;
+  width: 320rpx;
+  padding: 20rpx 0;
+  background: rgba(255, 255, 255, 0.9);
+  color: #3a3a5c;
+  font-size: 30rpx;
+  font-weight: 700;
+  border-radius: 40rpx;
+  line-height: 1.4;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08);
+  transition: transform 0.12s;
+}
+
+.btn-back:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08);
+}
+
+button.btn-back::after {
+  border: none;
 }

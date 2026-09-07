@@ -22,6 +22,7 @@ Page({
     score: 0,               // 得分
     correctCount: 0,        // 答对题数
     totalQ: 10,             // 总题数
+    maxCombo: 0,            // 最高连击数（结算数据卡展示，REQ-GAME-15）
     ratePercent: 0,         // 正确率百分比
     grade: '',              // 学段 key
     level: 1                // 关卡序号
@@ -53,6 +54,7 @@ Page({
         score: score,
         correctCount: correctCount,
         totalQ: totalQ,
+        maxCombo: maxCombo,
         ratePercent: ratePercent,
         grade: grade,
         level: level
@@ -75,6 +77,7 @@ Page({
       score: score,
       correctCount: correctCount,
       totalQ: totalQ,
+      maxCombo: maxCombo,
       ratePercent: ratePercent,
       grade: grade,
       level: level

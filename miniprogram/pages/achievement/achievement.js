@@ -6,10 +6,25 @@
 
 var request = require('../../utils/request');
 
+// 成就勋章 emoji 映射（服务端 icon 为占位路径，本地用 emoji 呈现勋章视觉；
+// 未匹配 id 时回退默认奖牌）
+var ACHIEVEMENT_EMOJI = {
+  first_blood: '🥇',
+  combo_master: '🔥',
+  star_collector: '⭐',
+  rank_bronze: '🛡️',
+  rank_king: '👑',
+  perfect_clear: '💯'
+};
+var DEFAULT_EMOJI = '🏅';
+
 Page({
   data: {
     achievements: [],
-    loading: false
+    loading: false,
+    unlockedCount: 0,      // 已解锁数量（页头总进度卡）
+    totalCount: 0,         // 成就总数
+    progressPercent: 0     // 收集进度百分比（0-100，模板预处理字段）
   },
 
   onShow: function () {
@@ -22,8 +37,38 @@ Page({
     self.setData({ loading: true });
 
     request.get('/api/achievement/list').then(function (data) {
+      var list = data || [];
+      var viewList = [];
+      var unlockedCount = 0;
+
+      // 模板预处理：补充 emoji 勋章字段，统计解锁数（供总进度条展示）
+      for (var i = 0; i < list.length; i++) {
+        var ach = list[i];
+        if (ach.unlocked) {
+          unlockedCount++;
+        }
+        viewList.push({
+          achievementId: ach.achievementId,
+          name: ach.name,
+          description: ach.description,
+          icon: ach.icon,
+          conditionType: ach.conditionType,
+          conditionValue: ach.conditionValue,
+          unlocked: ach.unlocked,
+          emoji: ACHIEVEMENT_EMOJI[ach.achievementId] || DEFAULT_EMOJI
+        });
+      }
+
+      var totalCount = list.length;
+      var percent = totalCount > 0
+        ? Math.round((unlockedCount / totalCount) * 100)
+        : 0;
+
       self.setData({
-        achievements: data,
+        achievements: viewList,
+        unlockedCount: unlockedCount,
+        totalCount: totalCount,
+        progressPercent: percent,
         loading: false
       });
     }).catch(function () {

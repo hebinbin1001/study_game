@@ -1,157 +1,246 @@
+/**
+ * 分享/导入页（level-share）—— 卡通卡片风
+ * 风格对齐 app.wxss 设计系统 + avatar 样板：
+ *   白色卡片 + 大圆角 + 底部硬阴影 + :active 按压位移
+ */
+
 .page-level-share {
-  padding: 20rpx;
+  padding: 30rpx;
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-  color: #fff;
+  box-sizing: border-box;
 }
 
+/* ============ 页头 ============ */
 .header {
   display: flex;
   align-items: center;
-  margin-bottom: 40rpx;
+  margin-bottom: 32rpx;
 }
 
-.btn-back {
-  background: transparent;
-  color: #fff;
-  font-size: 32rpx;
-  padding: 0 20rpx;
+.back-pill {
+  min-width: 140rpx;
+  padding: 0 24rpx;
+  height: 76rpx;
+  line-height: 76rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  border-radius: 38rpx;
+  background: rgba(255, 255, 255, 0.9);
+  color: #3a3a5c;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.08), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
+  transition: transform 0.12s;
+}
+.back-pill:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.08);
+}
+button.back-pill::after {
+  border: none;
 }
 
 .header-title {
   flex: 1;
   text-align: center;
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 6rpx;
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
+  margin-right: 140rpx; /* 平衡返回按钮宽度，标题保持视觉居中 */
+}
+
+/* ============ 卡片标题 ============ */
+.card-title {
   font-size: 32rpx;
-  font-weight: bold;
+  font-weight: 900;
+  color: #3a3a5c;
+  margin-bottom: 28rpx;
 }
 
-.input-section {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-}
-
-.label {
-  display: block;
-  font-size: 24rpx;
-  color: #ccc;
-  margin-bottom: 15rpx;
-}
-
-.input-row {
-  display: flex;
-  gap: 20rpx;
-}
-
-.input {
-  flex: 1;
-  padding: 20rpx;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10rpx;
-  color: #fff;
-  font-size: 32rpx;
+/* ============ 分享模式卡 ============ */
+.share-card {
   text-align: center;
-  letter-spacing: 10rpx;
-}
-
-.btn-import {
-  padding: 0 40rpx;
-  background: #ff9800;
-  color: #fff;
-  font-size: 28rpx;
-  border-radius: 10rpx;
-}
-
-.level-info {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-}
-
-.level-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  margin-bottom: 15rpx;
-}
-
-.level-meta {
-  display: flex;
-  gap: 20rpx;
-  margin-bottom: 20rpx;
-}
-
-.meta-item {
-  font-size: 24rpx;
-  color: #888;
-}
-
-.level-description {
-  font-size: 24rpx;
-  color: #ccc;
-  margin-bottom: 30rpx;
-  line-height: 1.5;
-}
-
-.btn-start {
-  padding: 30rpx;
-  background: linear-gradient(135deg, #4caf50, #8bc34a);
-  color: #fff;
-  font-size: 32rpx;
-  font-weight: bold;
-  border-radius: 20rpx;
-}
-
-.share-section {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20rpx;
-  padding: 60rpx 30rpx;
-  margin-bottom: 30rpx;
-  text-align: center;
+  padding: 60rpx 40rpx;
+  margin-bottom: 32rpx;
 }
 
 .share-icon {
-  font-size: 80rpx;
+  font-size: 110rpx;
+  line-height: 1.2;
   margin-bottom: 20rpx;
 }
 
 .share-tip {
   font-size: 26rpx;
-  color: #888;
-  margin-bottom: 30rpx;
+  color: #5c7f9e;
+  margin-bottom: 32rpx;
 }
 
+/* 分享码大字：金橙渐变强调 */
 .share-code {
   font-size: 80rpx;
-  font-weight: bold;
+  font-weight: 900;
   letter-spacing: 16rpx;
-  color: #ffd700;
-  margin-bottom: 40rpx;
-  padding: 0 20rpx;
+  color: #ff9f43;
+  margin-bottom: 44rpx;
+  padding: 24rpx 20rpx;
+  background: #fff7e0;
+  border-radius: 24rpx;
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.06);
 }
 
+/* 复制按钮：橙色主按钮按压感 */
 .btn-copy {
-  background: linear-gradient(135deg, #ff9800, #ff5722);
-  color: #fff;
-  font-size: 32rpx;
-  font-weight: bold;
+  min-width: 320rpx;
+  padding: 26rpx 0;
+  font-size: 30rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  border-radius: 44rpx;
+  background: #ffb703;
+  color: #ffffff;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.15), 0 18rpx 36rpx rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s;
+}
+.btn-copy:active {
+  transform: translateY(6rpx);
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.15);
+}
+button.btn-copy::after {
+  border: none;
+}
+
+/* ============ 导入模式卡 ============ */
+.import-card {
+  margin-bottom: 32rpx;
+}
+
+.input-row {
+  display: flex;
+  gap: 20rpx;
+  align-items: stretch;
+}
+
+/* 分享码输入框：大圆角 + 居中字距 */
+.code-input {
+  flex: 1;
+  padding: 24rpx;
+  background: #f2f7fc;
   border-radius: 20rpx;
-  padding: 30rpx;
-}
-
-.empty {
+  border: 4rpx solid #e1edf6;
+  color: #3a3a5c;
+  font-size: 36rpx;
+  font-weight: 900;
   text-align: center;
-  padding: 100rpx 0;
+  letter-spacing: 12rpx;
+  box-sizing: border-box;
 }
 
-.empty-icon {
-  font-size: 80rpx;
-  margin-bottom: 30rpx;
+.field-placeholder {
+  color: #a8bacf;
+  font-weight: 700;
+  font-size: 28rpx;
+  letter-spacing: 4rpx;
+}
+
+/* 导入按钮：蓝色次按钮按压感 */
+.btn-import {
+  min-width: 180rpx;
+  padding: 0 32rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  border-radius: 44rpx;
+  background: #4cc9f0;
+  color: #ffffff;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.15), 0 14rpx 28rpx rgba(0, 0, 0, 0.1);
+  transition: transform 0.12s;
+}
+.btn-import:active {
+  transform: translateY(6rpx);
+  box-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.15);
+}
+button.btn-import::after {
+  border: none;
+}
+
+.input-hint {
+  margin-top: 20rpx;
+  font-size: 22rpx;
+  color: #8a9bb5;
+  text-align: center;
+}
+
+/* ============ 关卡信息卡 ============ */
+.level-card {
+  margin-bottom: 32rpx;
+}
+
+.level-title {
+  font-size: 34rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+  margin-bottom: 20rpx;
+}
+
+.level-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+/* 标签复用全局 .tag（浅底灰字），仅调字号 */
+.level-meta .tag {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+}
+
+.level-description {
+  font-size: 26rpx;
+  color: #5c7f9e;
+  margin-bottom: 28rpx;
+  line-height: 1.6;
+  background: #f2f7fc;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+}
+
+/* 开始游戏：绿色大按钮按压感 */
+.btn-start {
+  padding: 28rpx 0;
+  font-size: 32rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  border-radius: 44rpx;
+  background: #7bd389;
+  color: #ffffff;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.15), 0 18rpx 36rpx rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s;
+}
+.btn-start:active {
+  transform: translateY(6rpx);
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.15);
+}
+button.btn-start::after {
+  border: none;
+}
+
+/* ============ 空态说明卡 ============ */
+.empty-card {
+  border-radius: 28rpx;
+  padding: 40rpx;
 }
 
 .empty-text {
   font-size: 28rpx;
-  color: #888;
-  margin-bottom: 10rpx;
+  color: #5c7f9e;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.empty-sub {
+  font-size: 24rpx;
+  color: #8a9bb5;
 }

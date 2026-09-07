@@ -1,6 +1,6 @@
-/* 昵称设置页样式（T17）：
-   头像选择 + 昵称输入 + 保存按钮
-   配色参考 prototype/index.html */
+/* 昵称设置页样式（T17 · UI 重设计）：
+   卡通档案卡：标题吉祥物 + 白色大卡片 + 圆形头像 + 圆角输入框 + 橙色保存按钮
+   硬阴影 + :active 按压位移（与 avatar 页样板一致） */
 
 page {
   background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
@@ -10,16 +10,61 @@ page {
 }
 
 .page-nickname {
-  padding: 48rpx 40rpx;
+  padding: 40rpx 40rpx 0;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* ===== 标题 + 吉祥物 ===== */
+.head-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+.head-emoji {
+  font-size: 88rpx;
+  line-height: 1;
+  animation: headBounce 2.4s ease-in-out infinite;
+  text-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.12);
+}
+@keyframes headBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12rpx); }
+}
+.page-title-nick {
+  margin-top: 16rpx;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 8rpx;
+  text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
+}
+.head-sub {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+  opacity: 0.85;
+  letter-spacing: 2rpx;
+}
+
+/* ===== 档案大卡片 ===== */
+.profile-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 40rpx;
+  padding: 44rpx 36rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
 /* ===== 区块 ===== */
 .section {
   width: 100%;
-  margin-bottom: 48rpx;
+}
+.section + .section {
+  margin-top: 44rpx;
 }
 .section-title {
   font-size: 32rpx;
@@ -32,55 +77,88 @@ page {
 /* ===== 头像选择 ===== */
 .avatar-btn {
   width: 100%;
-  height: 240rpx;
-  background: #fff;
+  height: auto;
+  background: #f6faff;
+  border: 3rpx dashed #bcd8ee;
   border-radius: 32rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+  padding: 36rpx 0;
   margin: 0;
-  padding: 0;
   line-height: normal;
+  transition: transform 0.12s;
+  box-sizing: border-box;
 }
 .avatar-btn::after {
   border: none;
 }
+.avatar-btn:active {
+  transform: translateY(4rpx);
+  background: #eef6ff;
+}
 .avatar-wrap {
-  width: 128rpx;
-  height: 128rpx;
+  position: relative;
+  width: 148rpx;
+  height: 148rpx;
   border-radius: 50%;
   overflow: hidden;
-  background: #e0e8f0;
+  background: #e0ecf7;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.06), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
 }
 .avatar {
-  width: 128rpx;
-  height: 128rpx;
+  width: 148rpx;
+  height: 148rpx;
 }
 .avatar-default {
-  font-size: 64rpx;
+  font-size: 76rpx;
+}
+/* 角标小铅笔，暗示可更换 */
+.avatar-pen {
+  position: absolute;
+  right: 2rpx;
+  bottom: 2rpx;
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  background: #ffb703;
+  border-radius: 50%;
+  box-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.12);
 }
 .avatar-tip {
   font-size: 26rpx;
-  color: #8899aa;
-  margin-top: 16rpx;
+  color: #5c7f9e;
+  margin-top: 20rpx;
+  font-weight: 700;
 }
 
-/* ===== 昵称输入 ===== */
+/* ===== 昵称输入（卡通输入卡） ===== */
+.input-card {
+  width: 100%;
+  background: #f6faff;
+  border: 3rpx solid #dcebf7;
+  border-radius: 28rpx;
+  padding: 6rpx 24rpx;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
 .nickname-input {
   width: 100%;
   height: 96rpx;
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 0 32rpx;
   font-size: 32rpx;
+  font-weight: 700;
   color: #3a3a5c;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
+}
+.input-placeholder {
+  color: #a9bccf;
+  font-weight: 400;
 }
 .input-hint {
   font-size: 24rpx;
@@ -89,31 +167,22 @@ page {
   padding-left: 8rpx;
 }
 
-/* ===== 保存按钮 ===== */
-.btn {
-  border: none;
-  color: #fff;
-  font-weight: 900;
-  border-radius: 44rpx;
-  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.18);
-  letter-spacing: 4rpx;
-}
-.btn::after {
-  border: none;
-}
+/* ===== 保存按钮（全局 .btn-primary：480×128 橙色大按钮） ===== */
 .btn-save {
-  width: 480rpx;
-  height: 104rpx;
-  font-size: 36rpx;
-  background: #ffb703;
-  line-height: 104rpx;
-  margin-top: 32rpx;
+  margin-top: 48rpx;
 }
 
 /* ===== 返回链接 ===== */
 .back-link {
   margin-top: 32rpx;
+  margin-bottom: calc(24rpx + env(safe-area-inset-bottom));
   font-size: 30rpx;
-  color: #5c7f9e;
+  color: #ffffff;
+  opacity: 0.9;
+  font-weight: 700;
   padding: 16rpx 48rpx;
+  transition: opacity 0.12s;
+}
+.back-link:active {
+  opacity: 0.6;
 }

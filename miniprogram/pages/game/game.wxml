@@ -7,11 +7,11 @@
 -->
 <view class="game-page">
 
-  <!-- HUD 层：命数 / 得分 / 题号（REQ-GAME-3，半透明覆盖于 Canvas 上方） -->
+  <!-- HUD 层：命数 / 得分 / 题号（REQ-GAME-3，白色卡通胶囊卡覆盖于 Canvas 上方） -->
   <view class="hud">
-    <view class="hud-lives">{{livesText}}</view>
-    <view class="hud-score">得分 {{score}}</view>
-    <view class="hud-qnum">第 {{qIndex}}/{{totalQ}} 题</view>
+    <view class="hud-chip hud-lives">{{livesText}}</view>
+    <view class="hud-chip hud-score">得分 {{score}}</view>
+    <view class="hud-chip hud-qnum">第 {{qIndex}}/{{totalQ}} 题</view>
   </view>
 
   <!--

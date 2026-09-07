@@ -32,6 +32,8 @@ Page({
     pageSize: 20,
     total: 0,
     totalPages: 0,
+    // 榜单是否有数据（供模板空态判断，避免 WXML 中做数组长度运算）
+    hasList: false,
     loading: false
   },
 
@@ -63,6 +65,7 @@ Page({
         total: total,
         totalPages: Math.ceil(total / self.data.pageSize),
         myRank: myData,
+        hasList: list.length > 0,
         loading: false
       });
     }).catch(function () {

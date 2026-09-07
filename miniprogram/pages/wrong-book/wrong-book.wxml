@@ -1,16 +1,26 @@
 <!-- 错题本列表页 -->
 <view class="page-wrong-book">
-  <!-- 统计栏 -->
+  <!-- 页面标题 -->
+  <view class="book-title-bar">
+    <view class="book-title-emoji">📖</view>
+    <view class="book-title">错题本</view>
+    <view class="book-title-sub">打败小怪兽，错题变星星</view>
+  </view>
+
+  <!-- 统计卡 -->
   <view class="stats-bar">
     <view class="stat-item">
+      <text class="stat-emoji">📚</text>
       <text class="stat-number">{{stats.total}}</text>
       <text class="stat-label">总错题</text>
     </view>
     <view class="stat-item pending">
+      <text class="stat-emoji">⏰</text>
       <text class="stat-number">{{stats.pending}}</text>
       <text class="stat-label">待复习</text>
     </view>
     <view class="stat-item mastered">
+      <text class="stat-emoji">🏆</text>
       <text class="stat-number">{{stats.mastered}}</text>
       <text class="stat-label">已掌握</text>
     </view>
@@ -31,7 +41,7 @@
     <block wx:for="{{pending}}" wx:key="recordId">
       <view class="item-card">
         <view class="item-header">
-          <text class="item-type">{{item.question.type}}</text>
+          <text class="item-type tag">{{item.question.type}}</text>
           <text class="item-mastery">熟练度 {{item.mastery}}%</text>
         </view>
         <view class="item-question">
@@ -44,14 +54,15 @@
           <text class="meta-text">{{item.nextReviewText}}</text>
         </view>
         <view class="progress-bar">
-          <view class="progress" style="width: {{item.reviewProgress * 20}}%"></view>
+          <view class="progress-bar__fill" style="width: {{item.reviewProgress * 20}}%"></view>
         </view>
       </view>
     </block>
-    <view class="empty" wx:if="{{pending.length === 0}}">
-      <text>暂无待复习题目</text>
+    <view class="empty-state" wx:if="{{pending.length === 0}}">
+      <view class="empty-emoji">📝</view>
+      <view class="empty-text">暂无待复习题目，太棒啦！</view>
     </view>
-    <button class="btn-review" wx:if="{{pending.length > 0}}" bindtap="startReview">开始复习</button>
+    <button class="btn-review" wx:if="{{pending.length > 0}}" bindtap="startReview">✏️ 开始复习</button>
   </view>
 
   <!-- 已掌握列表 -->
@@ -59,8 +70,8 @@
     <block wx:for="{{mastered}}" wx:key="recordId">
       <view class="item-card mastered">
         <view class="item-header">
-          <text class="item-type">{{item.question.type}}</text>
-          <text class="item-mastery">已掌握</text>
+          <text class="item-type tag tag--green">{{item.question.type}}</text>
+          <text class="item-mastery">🏅 已掌握</text>
         </view>
         <view class="item-question">
           <text class="question-text">{{item.question.q}}</text>
@@ -71,8 +82,9 @@
         </view>
       </view>
     </block>
-    <view class="empty" wx:if="{{mastered.length === 0}}">
-      <text>暂无已掌握题目</text>
+    <view class="empty-state" wx:if="{{mastered.length === 0}}">
+      <view class="empty-emoji">🌱</view>
+      <view class="empty-text">暂无已掌握题目，继续加油！</view>
     </view>
   </view>
 

@@ -1,27 +1,53 @@
-<!-- 成就列表页 -->
+<!-- 成就列表页（卡通勋章卡片化重设计） -->
 <view class="page-achievement">
+  <!-- 页头：返回 / 标题 / 检查解锁 -->
   <view class="header">
-    <button class="btn-back" bindtap="goBack">‹ 返回</button>
+    <button class="back-pill" bindtap="goBack">‹ 返回</button>
     <view class="header-title">成就勋章</view>
-    <button class="btn-check" bindtap="checkUnlock">检查</button>
+    <button class="check-pill" bindtap="checkUnlock">🔍 检查</button>
   </view>
 
-  <!-- 成就列表 -->
+  <!-- 总进度卡：勋章收集进度（进度条） -->
+  <view class="card summary-card" wx:if="{{totalCount > 0}}">
+    <view class="summary-row">
+      <view class="summary-icon">🎖️</view>
+      <view class="summary-text">
+        <view class="summary-title">勋章收集进度</view>
+        <view class="summary-count">已解锁 {{unlockedCount}} / {{totalCount}} 枚</view>
+      </view>
+      <view class="summary-percent">{{progressPercent}}%</view>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-bar__fill" style="width: {{progressPercent}}%"></view>
+    </view>
+  </view>
+
+  <!-- 成就列表：勋章卡片（已解锁 / 未解锁两种状态） -->
   <view class="achievement-list">
     <block wx:for="{{achievements}}" wx:key="achievementId">
-      <view class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}">
-        <view class="achievement-icon">
-          <image src="{{item.icon}}" mode="aspectFill"></image>
+      <view class="medal-card {{item.unlocked ? 'unlocked' : 'locked'}}">
+        <view class="medal {{item.unlocked ? 'medal--on' : 'medal--off'}}">
+          <text class="medal-emoji">{{item.unlocked ? item.emoji : '🔒'}}</text>
+          <view class="medal-shine" wx:if="{{item.unlocked}}">✨</view>
         </view>
-        <view class="achievement-info">
-          <view class="achievement-name">{{item.name}}</view>
-          <view class="achievement-desc">{{item.description}}</view>
+        <view class="medal-info">
+          <view class="medal-name">{{item.name}}</view>
+          <view class="medal-desc">{{item.description}}</view>
         </view>
-        <view class="achievement-status">
-          <text wx:if="{{item.unlocked}}">已解锁</text>
-          <text wx:else>未解锁</text>
+        <view class="medal-status">
+          <view class="badge badge--green" wx:if="{{item.unlocked}}">已解锁</view>
+          <view class="badge badge-locked" wx:else>未解锁</view>
         </view>
       </view>
     </block>
+  </view>
+
+  <!-- 空态：尚无成就记录 -->
+  <view class="card--soft empty-card" wx:if="{{!loading && achievements.length === 0}}">
+    <view class="empty-state">
+      <text class="empty-emoji">🏅</text>
+      <view class="empty-text">还没有成就记录</view>
+      <view class="empty-sub">快去挑战关卡，赢取第一枚勋章吧！</view>
+    </view>
   </view>
 </view>

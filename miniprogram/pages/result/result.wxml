@@ -1,25 +1,43 @@
-<!-- 结算页（T16）：
-     星级 + 得分 + 答对题数 + 正确率 + 操作按钮
+<!-- 结算页（T16 · UI 重设计）：
+     ⭐ 星级大展示 + 数据卡（得分/答对/正确率/最高连击）+ 按压感按钮
      关联需求：REQ-GAME-11（失败态）、REQ-GAME-12（星级评定）、REQ-GAME-15（结算展示） -->
 <view class="page-result">
-  <!-- 大星级展示（★/☆，REQ-GAME-12） -->
+  <!-- ⭐ 大星级展示（REQ-GAME-12，js 预处理 starArr） -->
   <view class="big-stars">
     <text
       wx:for="{{starArr}}"
       wx:key="*this"
-      class="big-star {{item ? 'on' : 'off'}}">{{item ? '★' : '☆'}}</text>
+      class="big-star {{item ? 'on' : 'off'}}">{{item ? '⭐' : '☆'}}</text>
   </view>
 
   <!-- 结算面板 -->
   <view class="result-panel">
     <!-- 标题：通关 / 失败（REQ-GAME-11） -->
     <view class="res-title {{failed ? 'res-title-fail' : ''}}">{{titleText}}</view>
+    <view class="res-sub">{{failed ? '别灰心，再来一次一定行！' : '太棒了，继续加油！'}}</view>
 
-    <!-- 统计数据（REQ-GAME-15） -->
-    <view class="stats">
-      <view class="row"><text class="row-label">得分</text><text class="row-value">{{score}}</text></view>
-      <view class="row"><text class="row-label">答对</text><text class="row-value">{{correctCount}}/{{totalQ}}</text></view>
-      <view class="row"><text class="row-label">正确率</text><text class="row-value">{{ratePercent}}%</text></view>
+    <!-- 统计数据卡（REQ-GAME-15） -->
+    <view class="stats-grid">
+      <view class="stat-box stat-box--blue">
+        <view class="stat-emoji">💯</view>
+        <view class="stat-value">{{score}}</view>
+        <view class="stat-label">得分</view>
+      </view>
+      <view class="stat-box stat-box--green">
+        <view class="stat-emoji">🎯</view>
+        <view class="stat-value">{{correctCount}}/{{totalQ}}</view>
+        <view class="stat-label">答对</view>
+      </view>
+      <view class="stat-box stat-box--purple">
+        <view class="stat-emoji">📈</view>
+        <view class="stat-value">{{ratePercent}}%</view>
+        <view class="stat-label">正确率</view>
+      </view>
+      <view class="stat-box stat-box--orange">
+        <view class="stat-emoji">🔥</view>
+        <view class="stat-value">{{maxCombo}}</view>
+        <view class="stat-label">最高连击</view>
+      </view>
     </view>
 
     <!-- 操作按钮（REQ-GAME-15） -->

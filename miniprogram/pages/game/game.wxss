@@ -19,39 +19,52 @@
 }
 
 /* ============ HUD 层 ============ */
-/* 命数 / 得分 / 题号横向布局，半透明覆盖于 Canvas 上方 */
+/* 命数 / 得分 / 题号：白色卡通胶囊卡横排（配色统一引用 app.wxss 设计 token） */
 .hud {
   width: 100%;
-  height: 88rpx;
+  min-height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16rpx;
+  gap: 12rpx;
+  padding: 0 4rpx;
   box-sizing: border-box;
 }
 
-/* 命数：粉色 ❤ 字符，白色硬阴影营造卡通感 */
+/* HUD 胶囊卡：白色半透明底 + 小号硬阴影（卡通按压风格） */
+.hud-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 76rpx;
+  padding: 0 24rpx;
+  border-radius: 38rpx;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.08), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 命数：粉色 ❤ 字符（token --pink） */
 .hud-lives {
-  font-size: 44rpx;
-  color: #ff5d8f;
-  text-shadow: 0 4rpx 0 #ffffff;
+  font-size: 34rpx;
+  font-weight: 900;
+  color: var(--pink, #ff5d8f);
   letter-spacing: 4rpx;
   min-width: 120rpx;
 }
 
-/* 得分：白色粗体，墨色硬阴影 */
+/* 得分：墨色粗体（token --ink，白底上用深色保证对比度） */
 .hud-score {
-  font-size: 36rpx;
+  font-size: 30rpx;
   font-weight: 900;
-  color: #ffffff;
-  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.18);
+  color: var(--ink, #3a3a5c);
 }
 
-/* 题号：灰蓝色粗体 */
+/* 题号：次级灰蓝粗体（token --text-sub） */
 .hud-qnum {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 800;
-  color: #5c7f9e;
+  color: var(--text-sub, #5c7f9e);
+  min-width: 160rpx;
 }
 
 /* ============ 游戏画布 ============ */
@@ -78,10 +91,10 @@
   gap: 16rpx;
 }
 
-/* 提示文字：答对/答错/逼近时由 engine.onTip 回调驱动 */
+/* 提示文字：答对/答错/逼近时由 engine.onTip 回调驱动（token --text-sub） */
 .tip {
   font-size: 26rpx;
-  color: #5c7f9e;
+  color: var(--text-sub, #5c7f9e);
   font-weight: 700;
   text-align: center;
   min-height: 36rpx;
@@ -138,24 +151,24 @@
   opacity: 0.25;
 }
 
-/* 5 种配色循环（对应原型 .char-btn.c0~c4） */
-.option.c0 { background: #ff5d8f; }  /* 粉 */
-.option.c1 { background: #4cc9f0; }  /* 蓝 */
-.option.c2 { background: #ffb703; }  /* 橙 */
-.option.c3 { background: #7bd389; }  /* 绿 */
-.option.c4 { background: #b388ff; }  /* 紫 */
+/* 5 种配色循环（对应原型 .char-btn.c0~c4，统一引用设计系统 token） */
+.option.c0 { background: var(--pink, #ff5d8f); }    /* 粉 */
+.option.c1 { background: var(--blue, #4cc9f0); }    /* 蓝 */
+.option.c2 { background: var(--orange, #ffb703); }  /* 橙 */
+.option.c3 { background: var(--green, #7bd389); }   /* 绿 */
+.option.c4 { background: var(--purple, #b388ff); }  /* 紫 */
 
 /* ============ 连击提示浮层 ============ */
-/* 连对 2/3/5 题时由 engine.onCombo 触发，800ms 自动消失 */
+/* 连对 2/3/5 题时由 engine.onCombo 触发，800ms 自动消失（墨底金字，token --ink/--gold） */
 .combo-toast {
   position: fixed;
   top: 40%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(40, 40, 60, 0.88);
-  color: #ffb703;
+  background: rgba(58, 58, 92, 0.9);
+  color: var(--gold, #ffd166);
   padding: 16rpx 36rpx;
-  border-radius: 24rpx;
+  border-radius: 44rpx;
   font-size: 40rpx;
   font-weight: 900;
   letter-spacing: 4rpx;

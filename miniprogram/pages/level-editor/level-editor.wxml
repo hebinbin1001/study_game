@@ -1,27 +1,30 @@
-<!-- 关卡编辑器页 -->
+<!-- 关卡编辑器页（表单卡片化重设计） -->
 <view class="page-editor">
   <view class="editor-header">
-    <button class="btn-back" bindtap="goBack">‹ 返回</button>
-    <view class="header-title">{{editing ? '编辑关卡' : '创建关卡'}}</view>
+    <button class="back-pill" bindtap="goBack">‹ 返回</button>
+    <view class="header-title">{{editing ? '✏️ 编辑关卡' : '✨ 创建关卡'}}</view>
   </view>
 
-  <!-- 关卡信息 -->
-  <view class="form-section">
+  <!-- 关卡信息卡 -->
+  <view class="card form-card">
+    <view class="card-title">📋 关卡信息</view>
+
     <view class="form-item">
       <text class="label">标题</text>
-      <input class="input" value="{{title}}" bindinput="onTitleInput" placeholder="请输入关卡标题" />
+      <input class="field-input" value="{{title}}" bindinput="onTitleInput" placeholder="请输入关卡标题" placeholder-class="field-placeholder" />
     </view>
 
     <view class="form-item">
       <text class="label">描述</text>
-      <textarea class="textarea" value="{{description}}" bindinput="onDescriptionInput" placeholder="请输入关卡描述" />
+      <textarea class="field-textarea" value="{{description}}" bindinput="onDescriptionInput" placeholder="请输入关卡描述" placeholder-class="field-placeholder" />
     </view>
 
     <view class="form-item">
       <text class="label">学段</text>
-      <picker class="picker" value="{{grade}}" range="{{gradeOptions}}" range-key="label" bindchange="onGradeChange">
-        <view class="picker-value">
-          {{gradeLabel}}
+      <picker value="{{grade}}" range="{{gradeOptions}}" range-key="label" bindchange="onGradeChange">
+        <view class="field-picker">
+          <text class="picker-text">{{gradeLabel}}</text>
+          <text class="picker-arrow">▾</text>
         </view>
       </picker>
     </view>
@@ -30,8 +33,8 @@
   <!-- 题目列表 -->
   <view class="items-section">
     <view class="section-header">
-      <text class="section-title">题目列表（{{items.length}}）</text>
-      <button class="btn-add" bindtap="addItem">+ 添加</button>
+      <text class="section-title">📝 题目列表（{{items.length}}）</text>
+      <button class="btn-add" bindtap="addItem">＋ 添加</button>
     </view>
 
     <view class="item-list">
@@ -45,34 +48,46 @@
           <view class="item-form">
             <view class="form-item">
               <text class="label">类型</text>
-              <picker class="picker" value="{{item.type}}" range="{{['w1', 'w2', 'c1', 'c2', 'xhy', 'zc', 'fill', 'trans']}}" data-idx="{{index}}" data-field="type" bindchange="onItemInput">
-                <view class="picker-value">{{item.type}}</view>
+              <picker value="{{item.type}}" range="{{['w1', 'w2', 'c1', 'c2', 'xhy', 'zc', 'fill', 'trans']}}" data-idx="{{index}}" data-field="type" bindchange="onItemInput">
+                <view class="field-picker">
+                  <text class="picker-text">{{item.type}}</text>
+                  <text class="picker-arrow">▾</text>
+                </view>
               </picker>
             </view>
 
             <view class="form-item">
               <text class="label">题目</text>
-              <input class="input" value="{{item.q}}" data-idx="{{index}}" data-field="q" bindinput="onItemInput" placeholder="如：c*t" />
+              <input class="field-input" value="{{item.q}}" data-idx="{{index}}" data-field="q" bindinput="onItemInput" placeholder="如：c*t" placeholder-class="field-placeholder" />
             </view>
 
             <view class="form-item">
               <text class="label">答案</text>
-              <input class="input" value="{{item.a}}" data-idx="{{index}}" data-field="a" bindinput="onItemInput" placeholder="如：a" />
+              <input class="field-input" value="{{item.a}}" data-idx="{{index}}" data-field="a" bindinput="onItemInput" placeholder="如：a" placeholder-class="field-placeholder" />
             </view>
 
             <view class="form-item">
               <text class="label">提示</text>
-              <input class="input" value="{{item.hint}}" data-idx="{{index}}" data-field="hint" bindinput="onItemInput" placeholder="如：猫" />
+              <input class="field-input" value="{{item.hint}}" data-idx="{{index}}" data-field="hint" bindinput="onItemInput" placeholder="如：猫" placeholder-class="field-placeholder" />
             </view>
           </view>
         </view>
       </block>
     </view>
+
+    <!-- 题目空态 -->
+    <view class="card--soft empty-card" wx:if="{{items.length === 0}}">
+      <view class="empty-state">
+        <text class="empty-emoji">🗂️</text>
+        <view class="empty-text">还没有题目</view>
+        <view class="empty-sub">点「＋ 添加」出第一道题吧</view>
+      </view>
+    </view>
   </view>
 
   <!-- 操作按钮 -->
   <view class="action-section">
-    <button class="btn-save" bindtap="saveDraft" disabled="{{saving}}">保存草稿</button>
-    <button class="btn-submit" bindtap="submitReview" disabled="{{saving}}">提交审核</button>
+    <button class="btn-save" bindtap="saveDraft" disabled="{{saving}}">💾 保存草稿</button>
+    <button class="btn-submit" bindtap="submitReview" disabled="{{saving}}">🚀 提交审核</button>
   </view>
 </view>

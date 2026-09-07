@@ -1,43 +1,46 @@
-<!-- 分享导入页 -->
+<!-- 分享/导入页（卡片化重设计） -->
 <view class="page-level-share">
   <view class="header">
-    <button class="btn-back" bindtap="goBack">‹ 返回</button>
-    <view class="header-title">{{mode === 'share' ? '分享关卡' : '导入关卡'}}</view>
+    <button class="back-pill" bindtap="goBack">‹ 返回</button>
+    <view class="header-title">{{mode === 'share' ? '🎁 分享关卡' : '📥 导入关卡'}}</view>
   </view>
 
   <!-- 分享模式：展示分享码 -->
-  <view class="share-section" wx:if="{{mode === 'share'}}">
+  <view class="card share-card" wx:if="{{mode === 'share'}}">
     <view class="share-icon">🎁</view>
     <view class="share-tip">把分享码发给好友，一起挑战吧</view>
     <view class="share-code">{{shareCode}}</view>
-    <button class="btn-copy" bindtap="copyShareCode">复制分享码</button>
+    <button class="btn-copy" bindtap="copyShareCode">📋 复制分享码</button>
   </view>
 
   <!-- 导入模式：输入分享码 -->
-  <view class="input-section" wx:else>
-    <text class="label">分享码</text>
+  <view class="card import-card" wx:else>
+    <view class="card-title">🔑 输入分享码</view>
     <view class="input-row">
-      <input class="input" value="{{shareCode}}" bindinput="onInput" placeholder="输入 6 位分享码" maxlength="6" />
+      <input class="code-input" value="{{shareCode}}" bindinput="onInput" placeholder="6 位分享码" maxlength="6" placeholder-class="field-placeholder" />
       <button class="btn-import" bindtap="importLevel" loading="{{loading}}">导入</button>
     </view>
+    <view class="input-hint">分享码不区分大小写，输入 6 位后点「导入」</view>
   </view>
 
-  <!-- 关卡信息 -->
-  <view class="level-info" wx:if="{{levelInfo}}">
+  <!-- 关卡信息卡 -->
+  <view class="card level-card" wx:if="{{levelInfo}}">
     <view class="level-title">{{levelInfo.title}}</view>
     <view class="level-meta">
-      <text class="meta-item">作者：{{levelInfo.authorName || '匿名'}}</text>
-      <text class="meta-item">学段：{{levelInfo.grade}}</text>
-      <text class="meta-item">题目：{{levelInfo.totalQ}} 题</text>
+      <view class="tag">👤 {{levelInfo.authorName || '匿名'}}</view>
+      <view class="tag">🎒 {{levelInfo.grade}}</view>
+      <view class="tag">📝 {{levelInfo.totalQ}} 题</view>
     </view>
     <view class="level-description" wx:if="{{levelInfo.description}}">{{levelInfo.description}}</view>
-    <button class="btn-start" bindtap="startGame">开始游戏</button>
+    <button class="btn-start" bindtap="startGame">▶ 开始游戏</button>
   </view>
 
-  <!-- 空状态（仅导入模式） -->
-  <view class="empty" wx:if="{{!levelInfo && mode === 'import'}}">
-    <view class="empty-icon">🔗</view>
-    <view class="empty-text">输入好友分享的 6 位码</view>
-    <view class="empty-text">即可导入自定义关卡</view>
+  <!-- 空状态（仅导入模式）：说明文案卡 -->
+  <view class="card--soft empty-card" wx:if="{{!levelInfo && mode === 'import'}}">
+    <view class="empty-state">
+      <text class="empty-emoji">🔗</text>
+      <view class="empty-text">输入好友分享的 6 位码</view>
+      <view class="empty-sub">即可导入自定义关卡</view>
+    </view>
   </view>
 </view>
