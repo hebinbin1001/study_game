@@ -41,7 +41,7 @@ const {
   meaningText, wordLevelGuide, isWordLevel
 } = require('./question');
 const { render, blankCenter, clamp } = require('./renderer');
-const { speakByItem } = require('./audio');
+const { speakByItem, playCorrect, playWrong, playCombo } = require('./audio');
 const { starsByRate } = require('../utils/constants');
 const { getWarriorSkin, getMonsterSkin } = require('../utils/skins');
 
@@ -316,6 +316,7 @@ const engine = {
     if (G.combo > G.maxCombo) G.maxCombo = G.combo;
     this._emitHud();
     speakByItem(G.question.item, G.question.w);
+    playCorrect(); // M6-H 答对音效
 
     // 爆炸粒子（绿色）
     this._burst(blank.x, blank.y, '#7bd389', CONFIG.burstCorrectN);
@@ -327,7 +328,10 @@ const engine = {
     this._spawnStars(blank.x, blank.y - 30);
 
     // 连击提示（连对 2/3/5 题时弹出，REQ-GAME-9）
-    if (G.combo >= 2) this._showCombo(G.combo);
+    if (G.combo >= 2) {
+      this._showCombo(G.combo);
+      playCombo(); // M6-H 连击音效
+    }
 
     G.state = DYING;
     G.dyingT = 0;
@@ -354,6 +358,7 @@ const engine = {
 
     this._burst(blank.x, blank.y, '#ff5d8f', CONFIG.burstWrongN);
     speakByItem(G.question.item, G.question.w);
+    playWrong(); // M6-H 答错音效
     this._emitTip('怪兽逼近！正确答案是 ' + this._answerFeedback());
     this._popup(W / 2, H - 220, '-1 命', '#ff5d8f');
   },
