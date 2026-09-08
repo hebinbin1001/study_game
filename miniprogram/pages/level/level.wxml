@@ -25,6 +25,18 @@
     </view>
   </scroll-view>
 
+  <!-- 题型分类 chips（综合/单词/填空/词语/成语/歇后语，横滑；不足一关的分类点击提示） -->
+  <scroll-view wx:if="{{typeGroups.length > 0}}" class="type-tabs" scroll-x="true" enable-flex="true">
+    <view
+      wx:for="{{typeGroups}}"
+      wx:key="key"
+      class="type-tab {{currentType === item.key ? 'on' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="pickType">
+      {{item.label}}<text wx:if="{{item.key !== 'all'}}" class="type-count">{{item.count}}</text>
+    </view>
+  </scroll-view>
+
   <!-- 本学段星星进度卡（js 预处理：gradeEarnedStars / gradeTotalStars / gradeStarPercent） -->
   <view class="progress-card">
     <view class="progress-head">
@@ -47,6 +59,8 @@
       class="level-card {{item.unlocked ? '' : 'locked'}} {{item.stars > 0 ? 'has-star' : ''}} {{item.shaking ? 'shake' : ''}}"
       data-index="{{index}}"
       bindtap="onLevelTap">
+      <!-- 题型分类徽标（非「综合」时显示，卡左上角） -->
+      <view wx:if="{{item.badge}}" class="type-badge">{{item.badge}}</view>
       <!-- 星级展示（已得星 ⭐，未得星灰 ☆，REQ-GAME-13） -->
       <view class="stars">
         <text

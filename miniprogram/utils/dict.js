@@ -126,6 +126,59 @@ function clearCache(grade) {
 // ============ 二、随机抽题 ============
 
 /**
+ * 内部：从候选池中按排除集随机取 1 条（元素 q 字段去重）。
+ * @param {Array<Object>} items 候选词条
+ * @param {Array<string|Object>} [exclude] 已出题目
+ * @returns {Object|null}
+ */
+function pickRandom(items, exclude) {
+  if (!items || items.length === 0) return null;
+  var excludeSet = {};
+  if (exclude && exclude.length > 0) {
+    for (var i = 0; i < exclude.length; i++) {
+      var ex = exclude[i];
+      var q = (typeof ex === 'string') ? ex : (ex && ex.q);
+      if (q) excludeSet[q] = true;
+    }
+  }
+  var available = [];
+  for (var j = 0; j < items.length; j++) {
+    var it = items[j];
+    var key = it && it.q;
+    if (!excludeSet[key]) available.push(it);
+  }
+  if (available.length === 0) return null;
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+/**
+ * 从指定学段按题型分类过滤词条（分类定义见 constants.TYPE_GROUPS）。
+ * @param {string} grade 学段 key
+ * @param {string} groupKey 分类 key；'all'/空 = 返回全量词条
+ * @returns {Array<Object>} 过滤后词条（无则空数组）
+ */
+function filterByGroup(grade, groupKey) {
+  var items = loadByGrade(grade);
+  if (!groupKey || groupKey === 'all') return items;
+  var out = [];
+  for (var i = 0; i < items.length; i++) {
+    if (constants.isItemInGroup(items[i], groupKey)) out.push(items[i]);
+  }
+  return out;
+}
+
+/**
+ * 从指定学段 + 题型分类随机抽取一条（带已出排重，签名对齐 randomItem）。
+ * @param {string} grade 学段 key
+ * @param {string} groupKey 分类 key（'all' 等价综合）
+ * @param {Array<string|Object>} [exclude] 已出题目
+ * @returns {Object|null}
+ */
+function randomItemByGroup(grade, groupKey, exclude) {
+  return pickRandom(filterByGroup(grade, groupKey), exclude);
+}
+
+/**
  * 从指定学段随机抽取一条题目，可选排除已出题目。
  *
  * 关联需求：REQ-DICT-3（统一结构）
@@ -134,40 +187,7 @@ function clearCache(grade) {
  * @returns {Object|null} WordItem，无可用题目返回 null
  */
 function randomItem(grade, exclude) {
-  var items = loadByGrade(grade);
-  if (items.length === 0) {
-    return null;
-  }
-
-  // 构建已出题目 q 集合
-  var excludeSet = {};
-  if (exclude && exclude.length > 0) {
-    for (var i = 0; i < exclude.length; i++) {
-      var ex = exclude[i];
-      var q = (typeof ex === 'string') ? ex : (ex && ex.q);
-      if (q) {
-        excludeSet[q] = true;
-      }
-    }
-  }
-
-  // 筛选可用题目
-  var available = [];
-  for (var j = 0; j < items.length; j++) {
-    var it = items[j];
-    var key = it && it.q;
-    if (!excludeSet[key]) {
-      available.push(it);
-    }
-  }
-
-  if (available.length === 0) {
-    return null; // 全部已出，由调用方决定是否重置
-  }
-
-  // 随机选一条
-  var idx = Math.floor(Math.random() * available.length);
-  return available[idx];
+  return pickRandom(loadByGrade(grade), exclude);
 }
 
 /**
@@ -201,6 +221,8 @@ module.exports = {
   loadByGrade: loadByGrade,
   randomItem: randomItem,
   randomItems: randomItems,
+  filterByGroup: filterByGroup,
+  randomItemByGroup: randomItemByGroup,
   preloadAll: preloadAll,
   clearCache: clearCache,
   findGradeConfig: findGradeConfig

@@ -38,6 +38,7 @@ Page({
     // ---- 本局配置 ----
     grade: 'kindergarten',   // 学段 key
     level: 1,                // 关卡序号
+    type: '',                // 题型分类 key（空串/'all' = 综合抽题）
 
     // ---- HUD 状态 ----
     livesText: '❤❤❤',       // 命数渲染为 ❤ 字符串
@@ -79,10 +80,12 @@ Page({
   onLoad(options) {
     var grade = options && options.grade ? options.grade : 'kindergarten';
     var level = options && options.level ? parseInt(options.level, 10) : 1;
+    var type = options && options.type ? options.type : '';
 
     this.setData({
       grade: grade,
       level: level,
+      type: type,
       totalQ: CONFIG.totalQ
     });
 
@@ -205,7 +208,11 @@ Page({
        */
       getNextItem: function () {
         var grade = self.data.grade;
-        var item = dict.randomItem(grade, self._usedItems);
+        var type = self.data.type;
+        // 分类关卡：限该类题库抽题；综合走原逻辑
+        var item = (type && type !== 'all')
+          ? dict.randomItemByGroup(grade, type, self._usedItems)
+          : dict.randomItem(grade, self._usedItems);
         if (item) {
           self._usedItems.push(item);
         }
@@ -213,10 +220,15 @@ Page({
       },
 
       /**
-       * 获取当前学段全量词条（词级题型干扰整词候选，H2-B）。
+       * 获取当前题库词条（词级题型干扰整词候选，H2-B）。
+       * 分类时返回该分类过滤后的词条（与出题同源）。
        * @returns {Array} WordItem[]，学段不存在返回 []
        */
       getBank: function () {
+        var type = self.data.type;
+        if (type && type !== 'all') {
+          return dict.filterByGroup(self.data.grade, type);
+        }
         return dict.loadByGrade(self.data.grade);
       },
 
@@ -428,10 +440,11 @@ Page({
     engine.stop();
     this._clearComboTimer();
 
-    // 拼接结算页查询参数
+    // 拼接结算页查询参数（type 分类随参数传递，结算页据此写分类存档）
     var query =
       'grade=' + this.data.grade +
       '&level=' + this.data.level +
+      '&type=' + (this.data.type || '') +
       '&win=' + (result.win ? 1 : 0) +
       '&score=' + result.score +
       '&correctCount=' + result.correctCount +

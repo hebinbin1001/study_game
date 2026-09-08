@@ -260,3 +260,52 @@ page {
   font-size: 24rpx;
   font-weight: 900;
 }
+
+/* ===== 题型分类 chips（题型分类关卡，2026-09-08） ===== */
+.type-tabs {
+  white-space: nowrap;
+  padding: 0 24rpx 24rpx;
+  box-sizing: border-box;
+}
+.type-tab {
+  display: inline-block;
+  height: 64rpx;
+  line-height: 64rpx;
+  padding: 0 28rpx;
+  margin-right: 16rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.72);
+  color: #5c7f9e;
+  font-size: 26rpx;
+  font-weight: 800;
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.12s;
+}
+.type-tab:active {
+  transform: translateY(3rpx);
+  box-shadow: 0 1rpx 0 rgba(0, 0, 0, 0.06);
+}
+.type-tab.on {
+  color: #ffffff;
+  background: #7bd389;
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08), 0 8rpx 16rpx rgba(123, 211, 137, 0.35);
+}
+.type-count {
+  font-size: 20rpx;
+  opacity: 0.85;
+  margin-left: 6rpx;
+}
+
+/* 关卡卡分类徽标（非综合时显示） */
+.type-badge {
+  position: absolute;
+  top: 14rpx;
+  left: 14rpx;
+  font-size: 20rpx;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(76, 201, 240, 0.92);
+  padding: 2rpx 12rpx;
+  border-radius: 14rpx;
+  line-height: 1.6;
+}

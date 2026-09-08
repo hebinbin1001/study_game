@@ -40,6 +40,8 @@ Page({
     var grade = options.grade || '';
     var level = parseInt(options.level || 1, 10) || 1;
     var maxCombo = parseInt(options.maxCombo || 0, 10) || 0;
+    // 题型分类（题型分类关卡，2026-09-08：空串/'all' = 综合）
+    this._type = options.type || '';
 
     // 计算正确率
     var rate = totalQ > 0 ? (correctCount / totalQ * 100) : 0;
@@ -84,9 +86,10 @@ Page({
       level: level
     });
 
-    // 通关写星级存档（按「学段+关卡」取历史最大值，REQ-GAME-13）
+    // 通关写星级存档（取历史最大值；分类关卡写 grade@type@level，综合沿用旧 key，REQ-GAME-13）
     if (grade && level >= 1) {
-      storage.saveStars(grade, level, stars);
+      var typeKey = (this._type && this._type !== 'all') ? this._type : undefined;
+      storage.saveStars(grade, level, stars, typeKey);
     }
 
     // 上报成绩（REQ-API-4）
@@ -152,6 +155,9 @@ Page({
     var url = '/pages/game/game';
     if (grade) {
       url += '?grade=' + grade + '&level=' + level;
+      if (this._type && this._type !== 'all') {
+        url += '&type=' + this._type;
+      }
     }
     wx.redirectTo({ url: url });
   },

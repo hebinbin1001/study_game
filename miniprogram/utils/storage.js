@@ -13,8 +13,9 @@
  * 存储 key 引用 constants.js 的 STORAGE_KEYS，不重复定义。
  *
  * 星级存储结构（ww_stars）：
- *   { "primary34_1": 2, "primary34_2": 3, "junior_1": 1, ... }
- *   key 格式为 "<grade>_<level>"，value 为历史最高星级（0~3）
+ *   { "primary34_1": 2, "primary34_2": 3, "junior_1": 1, "primary34@idiom@1": 2, ... }
+ *   key 格式为 "<grade>_<level>"（综合/历史存档）或 "<grade>@<typeKey>@<level>"（题型分类关卡，
+ *   2026-09-08 新增；value 为历史最高星级 0~3）。首页累计星星统计遍历全量即包含分类星。
  *
  * 待上报成绩队列（ww_pending_scores）：
  *   [ { grade, level, score, correctCount, totalQ, maxCombo, stars, ts }, ... ]
@@ -249,7 +250,12 @@ function getAllStars() {
  * @param {number} level 关卡序号
  * @returns {string} "<grade>_<level>"
  */
-function starKey(grade, level) {
+function starKey(grade, level, typeKey) {
+  // 分类关卡独立存档：grade@<type>@level（如 kindergarten@idiom@1）；
+  // 综合/旧调用沿用 grade_level（兼容历史存档）。
+  if (typeKey && typeKey !== 'all') {
+    return grade + '@' + typeKey + '@' + level;
+  }
   return grade + '_' + level;
 }
 
@@ -261,9 +267,9 @@ function starKey(grade, level) {
  * @param {number} level 关卡序号（1 起）
  * @returns {number} 星级 0~3，未记录返回 0
  */
-function getStars(grade, level) {
+function getStars(grade, level, typeKey) {
   var all = getAllStars();
-  var k = starKey(grade, level);
+  var k = starKey(grade, level, typeKey);
   var s = all[k];
   return (typeof s === 'number' && s >= 0) ? s : 0;
 }
@@ -277,9 +283,9 @@ function getStars(grade, level) {
  * @param {number} stars 本局星级 0~3
  * @returns {number} 写入后的实际星级（即历史最大值）
  */
-function saveStars(grade, level, stars) {
+function saveStars(grade, level, stars, typeKey) {
   var all = getAllStars();
-  var k = starKey(grade, level);
+  var k = starKey(grade, level, typeKey);
   var prev = (typeof all[k] === 'number') ? all[k] : 0;
   var next = Math.max(prev, stars);
   all[k] = next;
@@ -299,12 +305,12 @@ function saveStars(grade, level, stars) {
  * @param {number} level 关卡序号（1 起）
  * @returns {boolean} true 表示已解锁
  */
-function isLevelUnlocked(grade, level) {
+function isLevelUnlocked(grade, level, typeKey) {
   if (level <= 1) {
     return true; // 第 1 关默认解锁
   }
   // 第 N 关需第 N-1 关 ≥1 星
-  var prevStars = getStars(grade, level - 1);
+  var prevStars = getStars(grade, level - 1, typeKey);
   return prevStars >= 1;
 }
 

@@ -83,6 +83,44 @@ const GAME_CONFIG = {
   canvasH: 500         // 游戏画布逻辑高度（px）
 };
 
+// ============ 六、题型分类（关卡页按分类选择，2026-09-08 拍板） ============
+// 词条 type → 用户分类。c1/c2 按「完整词长」区分词语/成语（与出题 typeKind 口径一致：
+// 题面原文长度 >= 4 视为成语，如 守*待兔 长度为 5 → 成语）。
+function wordLenOf(item) {
+  if (!item) return 0;
+  return String(item.q || item.w || '').length;
+}
+function isIdiomLen(item) {
+  return wordLenOf(item) >= 4;
+}
+
+// match(t, item)：t 为词条 type；item 供 c1/c2 判成语等需长度的情形。
+// 兼容原型老类型码：en→单词、cn→词语、idiom→成语。
+const TYPE_GROUPS = [
+  { key: 'all',     label: '综合',   match: function () { return true; } },
+  { key: 'word',    label: '单词',   match: function (t) { return t === 'w1' || t === 'w2' || t === 'trans' || t === 'en'; } },
+  { key: 'fill',    label: '填空',   match: function (t) { return t === 'fill'; } },
+  { key: 'wordCn',  label: '词语',   match: function (t, it) { return t === 'zc' || t === 'cn' || ((t === 'c1' || t === 'c2') && !isIdiomLen(it)); } },
+  { key: 'idiom',   label: '成语',   match: function (t, it) { return t === 'idiom' || ((t === 'c1' || t === 'c2') && isIdiomLen(it)); } },
+  { key: 'xhy',     label: '歇后语', match: function (t) { return t === 'xhy'; } }
+];
+
+/**
+ * 判断词条是否属于某分类（groupKey='all' 恒真）。
+ * @param {Object} item 词条
+ * @param {string} groupKey 分类 key（TYPE_GROUPS[].key）
+ * @returns {boolean}
+ */
+function isItemInGroup(item, groupKey) {
+  if (!item) return false;
+  let grp = null;
+  for (let i = 0; i < TYPE_GROUPS.length; i++) {
+    if (TYPE_GROUPS[i].key === groupKey) { grp = TYPE_GROUPS[i]; break; }
+  }
+  if (!grp || grp.key === 'all') return true;
+  return !!grp.match(item.type, item);
+}
+
 module.exports = {
   GRADES,
   TYPES,
@@ -90,5 +128,7 @@ module.exports = {
   STAR_THRESHOLDS,
   starsByRate,
   STORAGE_KEYS,
-  GAME_CONFIG
+  GAME_CONFIG,
+  TYPE_GROUPS,
+  isItemInGroup
 };
