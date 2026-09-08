@@ -142,6 +142,30 @@
 10. **云托管配置**：开放接口服务白名单加 `/wxa/getwxacodeunlimit`；小程序码发布/体验版方可扫；env `NODE_TLS_REJECT_UNAUTHORIZED=0` 为临时项，正规化=关闭开放接口服务或信任其容器 CA。
 11. 低优先：关卡卡语义化（第 N 关·分类名）、game/level 深色补全、大字模式。
 
+---
+
+## 2026-09-08（收尾批：计分调整 · 数据链路修复 · M7 形态/地图）
+
+### 计分与数值
+- **每题得分 100→10**：每关 10 题满分 100；前端 `config.SCORE_PER_CORRECT` 与后端 `constants.SCORE_PER_QUESTION` 同步（服务端答对数×10 推导，防伪口径不变），新手引导文案同步（`07ae4f9`）。
+
+### 数据链路修复（实测缺漏）
+- **错题本空**：根因=前端从未调用 `/api/wrong/add`。修复：engine 答错触发 `onWrong` → game 注入 → 登录用户上报（`1952341`）；另后端 `wrong list/stats` 待复习口径改为「未掌握（含今日新错，当天可见）」。
+- **排行榜无人**：根因=前端从未调用 `/api/rank/sync`。修复：结算通关后（登录）自动同步胜场+1/星累加（`1952341`）。
+- **解锁条件提示**：avatar 页显示「累计 N 星 / 达到段位 X（还差…），达标变可解锁」，level 锁定卡显示「登录解锁 / 通关上一关解锁」（`80cd76f`）。
+
+### Demo 打磨
+- `demo/01-duolingo-style.html` 去半成品观感：顶栏真实统计（进度/今日通关/总星，跨天重置）、移除占位返回、加进度重置与 Demo2/3 切换（`edfe12c`）。
+
+### M7 玩法形态化 + 关卡地图（spec：`.codeartsdoer/specs/m7-gameplay-modes/`）
+- **Phase B 关卡蛇形路径地图**（`d443fd5`）：level 页网格→蛇形路径节点（金✔重玩 / 呼吸"继续" / 灰🔒+条件，连线随通关点亮）；学段/题型分类/游客/默认解锁3+逐关/分类存档/徽标全保留。
+- **Phase A 对局三形态·玩家自选**（`aa1437c`）：经典 / Boss 狂潮（10 格血条+受击顿帧+暴怒+击破）/ 极速竞技（每题 8s+惩罚锁）；**判定/计分/星级/上报零改动**（score 恒 答对数×10，表现不进分；超时与答错同走 `_failQuestion`）。
+
+### 接口体检（2026-09-08 线上网关）
+- `e2e/smoke-api.js`：12 组路由 **全部 PASS**（authed 走 x-wx-source 通道为 1003 属预期——真实小程序走 Bearer token 不受影响；若需 smoke source 通道通，检查云托管 env `WX_TRUSTED_SOURCES` 未被清空）。
+- 真实调用链探测（login 拿 token → Bearer 调 user/me、score、rank/sync、wrong/add·list、checkin/auto、report、ranklist/world、achievement、avatar）：**全部 code=0**。
+
+
 
 
 
