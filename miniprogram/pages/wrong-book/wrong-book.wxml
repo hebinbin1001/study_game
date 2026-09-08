@@ -43,33 +43,42 @@
     <view class="empty-text">点这里重试</view>
   </view>
 
-  <!-- 待复习列表 -->
+  <!-- 待复习列表（按到期分组 + 分批加载，错题多时更友好） -->
   <view class="list" wx:if="{{activeTab === 'pending'}}">
-    <block wx:for="{{pending}}" wx:key="recordId">
-      <view class="item-card">
+    <block wx:for="{{visible}}" wx:key="index">
+      <!-- 分组标题行（已到期 / 明天 / N天后） -->
+      <view wx:if="{{item.t === 'g'}}" style="padding:18rpx 12rpx 4rpx;font-size:24rpx;font-weight:800;color:#8a9bb5;">⏰ {{item.text}}</view>
+      <!-- 错题卡片 -->
+      <view wx:elif="{{item.t === 'c'}}" class="item-card">
         <view class="item-header">
-          <text class="item-type tag">{{item.question.type}}</text>
-          <text class="item-mastery">熟练度 {{item.mastery}}%</text>
+          <text class="item-type tag">{{item.it.question.type}}</text>
+          <text class="item-mastery">熟练度 {{item.it.mastery}}%</text>
         </view>
         <view class="item-question">
-          <text class="question-text">{{item.question.q}}</text>
-          <text class="question-answer">答案：{{item.question.a}}</text>
+          <text class="question-text">{{item.it.question.q}}</text>
+          <text class="question-answer">答案：{{item.it.question.a}}</text>
         </view>
         <view class="item-meta">
-          <text class="meta-text">错误 {{item.wrongCount}} 次</text>
-          <text class="meta-text">{{item.reviewStageText}}</text>
-          <text class="meta-text">{{item.nextReviewText}}</text>
+          <text class="meta-text">错误 {{item.it.wrongCount}} 次</text>
+          <text class="meta-text">{{item.it.reviewStageText}}</text>
+          <text class="meta-text">{{item.it.nextReviewText}}</text>
         </view>
         <view class="progress-bar">
-          <view class="progress-bar__fill" style="width: {{item.reviewProgress * 20}}%"></view>
+          <view class="progress-bar__fill" style="width: {{item.it.reviewProgress * 20}}%"></view>
         </view>
       </view>
     </block>
-    <view class="empty-state" wx:if="{{pending.length === 0}}">
+
+    <!-- 加载更多 -->
+    <view wx:if="{{hasMore}}" class="btn-review" style="background:#eef2f8;color:#5c7f9e;" bindtap="showMore">
+      ↓ 加载更多（剩余 {{renderList.length - visibleN}} 条）
+    </view>
+
+    <view class="empty-state" wx:if="{{pending.length === 0 && !loadError}}">
       <view class="empty-emoji">📝</view>
       <view class="empty-text">暂无待复习题目，太棒啦！</view>
     </view>
-    <button class="btn-review" wx:if="{{pending.length > 0}}" bindtap="startReview">✏️ 开始复习</button>
+    <button class="btn-review" wx:if="{{pending.length > 0 && !hasMore}}" bindtap="startReview">✏️ 开始复习</button>
   </view>
 
   <!-- 已掌握列表 -->
