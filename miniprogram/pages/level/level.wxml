@@ -71,8 +71,9 @@
       </view>
       <!-- 关卡编号 -->
       <view class="num">{{item.level}}</view>
-      <!-- 锁定标识（REQ-GAME-14） -->
+      <!-- 锁定标识 + 达成条件（REQ-GAME-14 / 默认解锁 3 关，产品 2026-09-08） -->
       <view wx:if="{{!item.unlocked}}" class="lock">🔒</view>
+      <view wx:if="{{!item.unlocked}}" style="position:absolute;left:0;right:0;bottom:8rpx;text-align:center;font-size:18rpx;line-height:1.3;color:#9aa7bc;font-weight:600;padding:0 6rpx;">{{item.needLogin ? '登录解锁' : '通关上一关解锁'}}</view>
     </view>
   </view>
 

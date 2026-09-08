@@ -29,8 +29,9 @@
               </block>
             </block>
             <block wx:else>
-              <text class="status-locked">未解锁</text>
-              <button class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">解锁</button>
+              <text class="status-locked">{{item.canUnlock ? '可解锁' : '未解锁'}}</text>
+              <text style="display:block;font-size:20rpx;line-height:1.35;color:{{item.canUnlock ? '#7bd389' : '#8a9bb5'}};font-weight:600;margin-top:4rpx;padding:0 8rpx;">{{item.unlockHint}}</text>
+              <button class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">{{item.canUnlock ? '立即解锁' : '解锁'}}</button>
             </block>
           </view>
         </view>
@@ -58,8 +59,9 @@
               </block>
             </block>
             <block wx:else>
-              <text class="status-locked">未解锁</text>
-              <button class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">解锁</button>
+              <text class="status-locked">{{item.canUnlock ? '可解锁' : '未解锁'}}</text>
+              <text style="display:block;font-size:20rpx;line-height:1.35;color:{{item.canUnlock ? '#7bd389' : '#8a9bb5'}};font-weight:600;margin-top:4rpx;padding:0 8rpx;">{{item.unlockHint}}</text>
+              <button class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">{{item.canUnlock ? '立即解锁' : '解锁'}}</button>
             </block>
           </view>
         </view>
