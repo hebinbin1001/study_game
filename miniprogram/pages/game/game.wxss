@@ -348,6 +348,38 @@
   color: #ffb703;
 }
 
+/* 极速形态大秒表（与经典拉开差异：醒目倒计时 + 低秒红闪） */
+.rush-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12rpx;
+  margin-top: 4rpx;
+}
+.rush-title {
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #5c7f9e;
+  letter-spacing: 2rpx;
+}
+.rush-seconds {
+  font-size: 92rpx;
+  font-weight: 900;
+  line-height: 1;
+  color: #4cc9f0;
+  font-variant-numeric: tabular-nums;
+  min-width: 110rpx;
+  text-align: center;
+}
+.rush-seconds.low {
+  color: #ff5a5a;
+  animation: hpPulse 0.5s ease-in-out infinite alternate;
+}
+.rush-head .rush-combo {
+  font-size: 32rpx;
+  margin-left: 0;
+}
+
 /* 形态飘字（命中/挥击/击破文案） */
 .mode-fx {
   position: absolute;

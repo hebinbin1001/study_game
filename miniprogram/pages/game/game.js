@@ -263,7 +263,14 @@ Page({
         a: item.a || '',
         hint: item.hint || ''
       }
-    }).catch(function () { /* 静默 */ });
+    }).then(function () {
+      // 诊断日志（真机 vConsole 可见）：便于确认错题是否上报成功
+      if (typeof console !== 'undefined' && console.log) console.log('[wrong] 错题已上报 ' + questionId);
+    }).catch(function (err) {
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('[wrong] 错题上报失败 code=' + (err && err.code) + ' msg=' + (err && err.message));
+      }
+    });
   },
 
   /**

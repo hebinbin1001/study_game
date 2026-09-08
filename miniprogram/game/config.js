@@ -73,10 +73,10 @@ const SCORE_PER_CORRECT = 10; // 答对一题得分
 const MODES = [
   { key: 'classic', label: '经典对战', icon: '⚔️', desc: '标准闯关 · 稳扎稳打' },
   { key: 'boss', label: 'Boss 狂潮', icon: '🐲', desc: '血量进度 · 连击命中更爽' },
-  { key: 'rush', label: '极速竞技', icon: '⚡', desc: '每题 8 秒 · 超时判错' }
+  { key: 'rush', label: '极速竞技', icon: '⚡', desc: '每题 6 秒 · 超时判错' }
 ];
 // 竞速形态表现参数（超时判错与选错同入口，计分零改动）
-const RUSH_SECONDS = 8;   // 每题倒计时秒数
+const RUSH_SECONDS = 6;   // 每题倒计时秒数
 const RUSH_DYING = 0.35;  // 竞速答对后切题间隔（经典 0.7s，竞速更快）
 const RUSH_PENALTY = 0.8; // 竞速答错后选项惩罚锁（秒，页面层）
 

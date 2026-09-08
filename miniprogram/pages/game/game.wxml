@@ -24,7 +24,11 @@
       </view>
     </block>
     <block wx:else>
-      <view class="mode-label">⚡ {{rushShow}}s<text wx:if="{{comboShow > 1}}" class="rush-combo">×{{comboShow}}</text></view>
+      <view class="rush-head">
+        <text class="rush-title">⚡ 极速</text>
+        <text class="rush-seconds {{rushLow ? 'low' : ''}}">{{rushShow}}</text>
+        <text class="rush-combo" wx:if="{{comboShow > 1}}">×{{comboShow}}</text>
+      </view>
       <view class="rush-track">
         <view class="rush-fill {{rushLow ? 'low' : ''}}" style="width: {{rushPct}}%;"></view>
       </view>
