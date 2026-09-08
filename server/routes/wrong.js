@@ -112,10 +112,8 @@ router.get("/list", async (req, res) => {
       order: [["nextReviewAt", "ASC"]],
     });
 
-    // 分组：待复习 / 已掌握
-    const pending = allRecords.filter(
-      (r) => r.nextReviewAt <= now && r.mastery < 100
-    );
+    // 分组：待复习 = 未掌握（含今日新错，当天即可见；按到期时间排序）/ 已掌握 = 熟练度 100
+    const pending = allRecords.filter((r) => r.mastery < 100);
     const mastered = allRecords.filter((r) => r.mastery >= 100);
 
     res.send({
@@ -208,8 +206,8 @@ router.get("/stats", async (req, res) => {
     const now = new Date();
     const all = await WrongRecord.findAll({ where: { openid } });
 
-    const pending = all.filter((r) => r.nextReviewAt <= now && r.mastery < 100)
-      .length;
+    // 待复习 = 未掌握（含今日新错）；已掌握 = 熟练度 100
+    const pending = all.filter((r) => r.mastery < 100).length;
     const mastered = all.filter((r) => r.mastery >= 100).length;
 
     res.send({

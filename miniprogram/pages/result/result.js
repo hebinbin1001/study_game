@@ -97,6 +97,16 @@ Page({
 
     // M6-E 每日目标：登录且通关 → 自动学习打卡（静默，失败不影响结算）
     this.autoCheckin();
+    // M6 bugfix：通关同步段位/胜场/星——排行榜与头像解锁数据来源（此前从未调用致排行榜空）
+    this.rankSync(stars);
+  },
+
+  // 通关同步段位：RankRecord.wins+1、stars 累加（世界榜/我的排名/段位皮肤解锁依赖）
+  rankSync: function (stars) {
+    if (!auth.isLoggedIn()) return;
+    request.post('/api/rank/sync', { stars: stars || 0 }).catch(function () {
+      // 静默：网络失败下次通关自动补
+    });
   },
 
   // 学习自动打卡（M6-E）：今日完成闯关即视为达成学习目标，后端自动签到

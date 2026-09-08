@@ -361,6 +361,10 @@ const engine = {
     playWrong(); // M6-H 答错音效
     this._emitTip('怪兽逼近！正确答案是 ' + this._answerFeedback());
     this._popup(W / 2, H - 220, '-1 命', '#ff5d8f');
+    // 通知页面层答错（供错题本上报；此前前端无上报致错题本为空——修复）
+    if (this._callbacks.onWrong) {
+      this._callbacks.onWrong(G.question.item);
+    }
   },
 
   /**

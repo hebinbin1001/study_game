@@ -23,6 +23,8 @@ var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
 var audio = require('../../game/audio');
+var auth = require('../../utils/auth');
+var request = require('../../utils/request');
 
 var CONFIG = config.CONFIG;
 
@@ -192,6 +194,21 @@ Page({
 
   // ============ 引擎启动与回调注入 ============
 
+  // 答错 → 上报错题本（登录用户；游客无账号不上报，静默失败不影响对局）
+  _reportWrong: function (item) {
+    if (!auth.isLoggedIn() || !item || !item.q) return;
+    var questionId = (item.type || '') + '|' + (item.q || '') + '|' + (item.a || '');
+    request.post('/api/wrong/add', {
+      questionId: questionId,
+      question: {
+        type: item.type || '',
+        q: item.q || '',
+        a: item.a || '',
+        hint: item.hint || ''
+      }
+    }).catch(function () { /* 静默 */ });
+  },
+
   /**
    * 启动引擎并注入页面层回调。
    * 回调签名以 game/engine.js 实际接口为准。
@@ -230,6 +247,14 @@ Page({
           return dict.filterByGroup(self.data.grade, type);
         }
         return dict.loadByGrade(self.data.grade);
+      },
+
+      /**
+       * 答错回调（错题本上报，engine 在 _failQuestion 时触发）。
+       * @param {Object} item 答错的词条 { type,q,a,hint }
+       */
+      onWrong: function (item) {
+        self._reportWrong(item);
       },
 
       /**
