@@ -99,9 +99,9 @@
   gap: 16rpx;
 }
 
-/* 提示文字：答对/答错/逼近时由 engine.onTip 回调驱动（token --text-sub） */
+/* 提示文字：答对/答错/逼近时由 engine.onTip 回调驱动（token --text-sub，M6-4 放大） */
 .tip {
-  font-size: 26rpx;
+  font-size: 30rpx;
   color: var(--text-sub, #5c7f9e);
   font-weight: 700;
   text-align: center;

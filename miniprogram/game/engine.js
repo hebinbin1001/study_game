@@ -38,7 +38,7 @@ const {
 } = require('./state');
 const {
   genQuestion, sourceWord, displayWord, displayAnswer, wordLevelFeedback,
-  meaningText, wordLevelGuide, isWordLevel
+  meaningText, wordLevelGuide, isWordLevel, titleCaseWord
 } = require('./question');
 const { render, blankCenter, clamp } = require('./renderer');
 const { speakByItem, playCorrect, playWrong, playCombo, playWin } = require('./audio');
@@ -457,10 +457,10 @@ const engine = {
       '一次机会！点错字母怪兽就赢，小心选！');
   },
 
-  // 词级选项按钮展示文本：英文词转大写（与题面槽内一致），中文原样
+  // 词级选项按钮展示文本：trans 整词首字母大写；fill 保持原始（句子语境）；中文原样
   _optionDisplay(item, letter) {
-    const isEn = item.type === 'fill' || item.type === 'trans';
-    return isEn ? String(letter).toUpperCase() : String(letter);
+    if (item.type === 'trans') return titleCaseWord(letter);
+    return String(letter);
   },
 
   // ============ 结算（平移原型 endLevel，第 713-724 行） ============

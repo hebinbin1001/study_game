@@ -348,9 +348,10 @@ s.test('genQuestion(zc 二字词语兼容)：仍走旧随机挖一格（非词�
 });
 
 // ---------- 7.6 displayAnswer / wordLevelFeedback / wordAnswer ----------
-s.test('displayAnswer：词级英文整词大写、zc 返回 q+a 完整组词', () => {
-  s.assert.equal(q.displayAnswer({ type: 'trans', q: '苹果', a: 'apple' }), 'APPLE');
-  s.assert.equal(q.displayAnswer({ type: 'fill', q: 'I __ it.', a: 'did', hint: '做了' }), 'DID');
+// 契约（M6-4）：英文整词首字母大写（Title Case），fill 保持原始大小写；zc 返回 q+a
+s.test('displayAnswer：词级英文整词首字母大写、fill 原样、zc 返回 q+a', () => {
+  s.assert.equal(q.displayAnswer({ type: 'trans', q: '苹果', a: 'apple' }), 'Apple');
+  s.assert.equal(q.displayAnswer({ type: 'fill', q: 'I __ it.', a: 'did', hint: '做了' }), 'did');
   s.assert.equal(q.displayAnswer({ type: 'xhy', q: '芝麻开花', a: '节节高' }), '节节高');
   s.assert.equal(q.displayAnswer({ type: 'zc', q: '明', a: '天' }), '明天');
   s.assert.equal(q.displayAnswer(null), '');
@@ -364,8 +365,8 @@ s.test('wordAnswer：返回整词答案原文', () => {
 s.test('wordLevelFeedback：词级完整回执文案（不剧透作答前，作答后揭示）', () => {
   s.assert.equal(q.wordLevelFeedback({ type: 'zc', q: '明', a: '天' }), '明+天=明天');
   s.assert.equal(q.wordLevelFeedback({ type: 'xhy', q: '芝麻开花', a: '节节高' }), '芝麻开花 → 节节高');
-  s.assert.equal(q.wordLevelFeedback({ type: 'trans', q: '苹果', a: 'apple' }), '苹果 = APPLE');
-  s.assert.equal(q.wordLevelFeedback({ type: 'fill', q: 'I __ it.', a: 'go', hint: '我做了它' }), 'GO（我做了它）');
+  s.assert.equal(q.wordLevelFeedback({ type: 'trans', q: '苹果', a: 'apple' }), '苹果 = Apple');
+  s.assert.equal(q.wordLevelFeedback({ type: 'fill', q: 'I __ it.', a: 'go', hint: '我做了它' }), 'go（我做了它）');
 });
 
 // ---------- 7.7 词级保证：整词题永不挖出 __ 或 * 或空串 ----------

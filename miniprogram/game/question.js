@@ -394,7 +394,9 @@ function displayAnswer(item) {
   if (!item) return '';
   if (item.type === 'zc') return String(item.q || '') + String(item.a || '');
   const a = item.a || '';
-  return typeKind(item) === 'en' ? a.toUpperCase() : a;
+  // fill（句子填空）保持原始大小写；其余英文整词首字母大写展示
+  if (item.type === 'fill') return a;
+  return typeKind(item) === 'en' ? titleCaseWord(a) : a;
 }
 
 /**
@@ -627,9 +629,23 @@ function ensureDistractors(item) {
   return options;
 }
 
-// ============ 八、显示辅助（英语转大写，汉字原样） ============
+// ============ 八、显示辅助（英文单词首字母大写展示，汉字原样） ============
+
 /**
- * 显示字符：英语转大写，汉字原样（平移原型 displayChar）。
+ * 英文单词友好展示：首字母大写、其余小写（Title Case）。
+ * 用于题面 / 选项词 / 回执等「整词」展示——比全大写更易读，便于区分词形。
+ * 注意：作答判定仍基于词库原始大小写，本函数只作用于展示层。
+ * @param {string} raw 原始词
+ * @returns {string} 空串原样；否则首字母大写、其余小写
+ */
+function titleCaseWord(raw) {
+  const s = String(raw || '');
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
+/**
+ * 显示字符：英语单字符转大写，汉字原样（用于选项字母按钮等单字符场景）。
  * @param {string} ch 字符
  * @param {Object} item 词条（用其 type 判断）
  * @returns {string} 显示用字符
@@ -639,14 +655,14 @@ function displayChar(ch, item) {
 }
 
 /**
- * 显示整词：英语转大写，汉字原样（平移原型 displayWord）。
+ * 显示整词：英文单词首字母大写（Title Case），汉字原样。
  * 基于 sourceWord(item)（完整词），w2/c2 展示完整答案而非带 * 模板。
  * @param {Object} item 词条
  * @returns {string} 显示用整词
  */
 function displayWord(item) {
   const w = sourceWord(item);
-  return typeKind(item) === 'en' ? w.toUpperCase() : w;
+  return typeKind(item) === 'en' ? titleCaseWord(w) : w;
 }
 
 /**
@@ -687,6 +703,7 @@ module.exports = {
   displayChar,
   displayWord,
   displayAnswer,
+  titleCaseWord,
   wordLevelFeedback,
   meaningText,
   // 形近字表（供外部扩展/测试）

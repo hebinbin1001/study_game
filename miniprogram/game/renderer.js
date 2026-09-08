@@ -28,7 +28,7 @@
  */
 
 const { CONFIG, W, H, MON_W, MON_H, CANNON_Y } = require('./config');
-const { displayChar, meaningText } = require('./question');
+const { displayChar, meaningText, titleCaseWord } = require('./question');
 const { DEFAULT_WARRIOR } = require('../utils/skins');
 
 // ============ 工具函数 ============
@@ -42,7 +42,7 @@ const WL_TOP = 52;       // 文本区顶部相对卡片顶（避开眼睛区 ~22
 const WL_BOTTOM = 92;    // 文本区底部（给卡片底部提示行留位）
 const WL_REGION_H = WL_BOTTOM - WL_TOP;
 const WL_FONT_STEPS = [20, 18, 16, 15, 14, 13, 12, 11]; // 候选字号（大到小）
-const WL_HINT_FS = 12;   // 词级底部提示行字号
+const WL_HINT_FS = 15;   // 词级底部提示行字号（M6-4 可读性调大）
 
 /** 中/日/韩全角字符判定（布局按全角 ≈ 1 字号估算宽度用） */
 function isCJKChar(ch) {
@@ -88,11 +88,9 @@ function textWidth(ctx, s, fs) {
   return w;
 }
 
-/** 词级空槽内展示文本：fill/trans 英文整词转大写，中文（xhy/zc）原样 */
+/** 词级空槽内展示文本：trans 整词首字母大写；fill/xhy/zc 保持原样（句子/中文语境） */
 function wlAnswerText(item, raw) {
-  if (item.type === 'fill' || item.type === 'trans') {
-    return String(raw || '').toUpperCase();
-  }
+  if (item.type === 'trans') return titleCaseWord(raw);
   return String(raw || '');
 }
 
@@ -377,6 +375,9 @@ function drawMonster(ctx, state, now) {
 
   // 题目字符（含挖空格闪烁+呼吸缩放动画，REQ-GAME-10）
   const w = q.w;
+  // 英文单词展示用首字母大写（Title Case）逐字，中文原样（M6-4 可读性）
+  const isEnWord = (item.type === 'w1' || item.type === 'w2' || item.type === 'en');
+  const titleW = isEnWord ? titleCaseWord(w) : w;
   const charW = clamp(34, 10, 170 / Math.max(4, w.length));
   const total = w.length * charW;
   const startX = (W - total) / 2 + charW / 2;
@@ -404,17 +405,17 @@ function drawMonster(ctx, state, now) {
         // 填充后显示正确/所选字符（绿色=答对，粉色=答错）
         ctx.fillStyle = q.filledColor || '#fff';
         ctx.font = 'bold 30px sans-serif';
-        ctx.fillText(displayChar(q.correct, item), bx, textY + 1);
+        ctx.fillText(titleW[q.blankIdx] || displayChar(q.correct, item), bx, textY + 1);
         ctx.font = 'bold ' + fontSize + 'px "PingFang SC","Microsoft YaHei",sans-serif';
       }
     } else {
       ctx.fillStyle = '#fff';
-      ctx.fillText(displayChar(w[i], item), startX + i * charW, textY + 1);
+      ctx.fillText(titleW[i] || displayChar(w[i], item), startX + i * charW, textY + 1);
     }
   }
 
   // 释义提示（用 hint 而非 a/zh：a 是完整答案词，直接展示会剧透待填字，见 meaningText）
-  ctx.font = 'bold 13px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.font = 'bold 15px "PingFang SC","Microsoft YaHei",sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,.9)';
   ctx.fillText('提示：' + meaningText(item), W / 2, y + MON_H - 16);
   ctx.restore();
