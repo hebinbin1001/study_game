@@ -65,7 +65,8 @@ const CHECKMARK_LIFE = 0.3;
 const POPUP_LIFE = 1.1;
 
 // ============ 七、计分参数 ============
-const SCORE_PER_CORRECT = 100; // 答对一题得分
+// 每题答对得分 10 分：每关 10 题，满分 100（前端 engine 累加 = 服务端答对数×每题分推导，两端一致）
+const SCORE_PER_CORRECT = 10; // 答对一题得分
 
 // ============ 八、CONFIG 聚合对象 ============
 // 汇总所有配置，供 state/question/renderer/engine 统一引用

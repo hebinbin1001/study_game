@@ -29,7 +29,7 @@ var CONFIG = config.CONFIG;
 // 新手引导步骤文案（M6-L，首次游玩展示；ww_tutorial_done 持久化）
 var TUTORIAL_STEPS = [
   { title: '欢迎，小战士！', desc: '怪兽身上是挖空的题目。点下方字母/词语，把它补全！' },
-  { title: '答对打跑怪兽', desc: '答对 +100 分、涨连击，还有爆炸星星特效 ✨' },
+  { title: '答对打跑怪兽', desc: '答对 +10 分、涨连击，还有爆炸星星特效 ✨' },
   { title: '小心 3 条命', desc: '答错会扣命，3 条命用完本局就输啦。准备好了吗？' }
 ];
 
