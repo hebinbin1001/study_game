@@ -10,14 +10,15 @@
 // 目标最低基础库版本（Canvas 2D 新接口要求，REQ-NFR-3）
 const MIN_SDK_VERSION = '2.9.0';
 
-// 云托管后端基础地址（REQ-API-5）。
-// 已接入真实云托管环境（联调收尾，任务 27），域名见下；健康检查：
-//   GET /api/health → { code:0, data:{ status:"ok", db:"connected" } }
-const API_BASE_URL = 'https://express-g0hk-309012-5-1304586666.sh.run.tcloudbase.com';
-
 var request = require('./utils/request');
 var storage = require('./utils/storage');
 var auth = require('./utils/auth');
+
+// 云托管连接方案（2026-09-08 迁移）：
+//   前端通过 wx.cloud.init + wx.cloud.callContainer 调用后端（envId/serviceName
+//   定义于 utils/request.js 的 CLOUD_CONFIG，唯一来源）。相比旧方案 wx.request +
+//   裸域名，callContainer 无需在公众平台配置「服务器域名」（根治 fail url not
+//   in domain list），且网关自动注入用户 openid，后端 /api/login 来源①直接可用。
 
 App({
   // 全局共享数据
@@ -34,8 +35,8 @@ App({
   _cloudInited: false,
 
   onLaunch() {
-    // 1. 接线后端地址（REQ-API-5，见文件头 TODO 替换真实域名）
-    request.setBaseUrl(API_BASE_URL);
+    // 1. 初始化云开发（callContainer 前置；env 必须为本小程序已关联的环境 ID）
+    this.initCloud();
 
     // 2. 恢复本地登录态（同步，立即生效，不发请求）
     auth.restore();
@@ -61,6 +62,20 @@ App({
     }).catch(function () {
       // 补发失败（网络未恢复等）：静默，下次 onShow 再试
     });
+  },
+
+  // 初始化云开发（wx.cloud.init，callContainer 前置；幂等，失败静默降级）
+  initCloud() {
+    try {
+      if (this._cloudInited) return;
+      if (typeof wx === 'undefined' || !wx.cloud || typeof wx.cloud.init !== 'function') {
+        return;
+      }
+      wx.cloud.init({ env: request.CLOUD_CONFIG.envId, traceUser: true });
+      this._cloudInited = true;
+    } catch (e) {
+      // 云开发不可用：静默降级，保证离线可玩不报错
+    }
   },
 
   // 检查基础库版本，低于阈值时提示用户升级微信
