@@ -33,7 +33,7 @@
         <view class="rush-fill {{rushLow ? 'low' : ''}}" style="width: {{rushPct}}%;"></view>
       </view>
     </block>
-    <view wx:if="{{modeFxText}}" class="mode-fx" key="{{modeFxKey}}">{{modeFxText}}</view>
+    <view wx:if="{{modeFxText}}" class="mode-fx">{{modeFxText}}</view>
   </view>
 
   <!--
