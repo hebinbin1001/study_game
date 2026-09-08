@@ -20,6 +20,65 @@ var LEVELS_PER_GRADE = 10;
 // 默认解锁关卡数：1~3 关（含游客）默认开放；第 4 关起需登录且逐关通关解锁
 var DEFAULT_UNLOCKED = 3;
 
+// ===== M7 Phase B：蛇形路径地图布局（rpx 坐标，2 列 5 行，节点直径 NODE_SIZE） =====
+var NODE_SIZE = 150;         // 节点圆直径
+var MAP_COL_X = [150, 548];  // 左右两列中心 x
+var MAP_TOP = 52;            // 首行节点中心 y
+var MAP_ROW = 216;           // 行距（中心间距）
+var MAP_HEIGHT = 1020;       // 地图容器高度（5 行 + 底部余量）
+
+/**
+ * 由关卡数据生成蛇形地图节点与连线（纯展示派生，不改 levels 语义）。
+ * 节点状态：done(已通关,金色✔)/cur(首个可挑战,呼吸“继续”)/lock(灰锁+条件小字)。
+ * 连线点亮 = 该段起点关卡已通关。
+ */
+function buildMapData(levels) {
+  var nodes = [];
+  var segs = [];
+  var curIdx = -1;
+  for (var i = 0; i < levels.length; i++) {
+    if (curIdx === -1 && levels[i].unlocked && !levels[i].stars) curIdx = i;
+  }
+  var half = NODE_SIZE / 2;
+  for (var i = 0; i < levels.length; i++) {
+    var it = levels[i];
+    var row = Math.floor(i / 2);
+    var col = i % 2;
+    var cx = MAP_COL_X[col];
+    var cy = MAP_TOP + row * MAP_ROW;
+    var state = (it.stars > 0) ? 'done' : ((i === curIdx) ? 'cur' : 'lock');
+    nodes.push({
+      index: i,
+      level: it.level,
+      left: Math.round(cx - half),
+      top: Math.round(cy - half),
+      size: NODE_SIZE,
+      state: state,
+      stars: it.stars || 0,
+      badge: it.badge || '',
+      lockTip: (state === 'lock') ? (it.needLogin ? '登录解锁' : '通关上一关解锁') : '',
+      shaking: false
+    });
+  }
+  for (var i = 0; i < levels.length - 1; i++) {
+    var a = nodes[i];
+    var b = nodes[i + 1];
+    var dx = b.left + half - (a.left + half);
+    var dy = b.top + half - (a.top + half);
+    var len = Math.sqrt(dx * dx + dy * dy);
+    var rot = Math.atan2(dy, dx) * 180 / Math.PI;
+    segs.push({
+      index: i,
+      x1: a.left + half,            // 线段左端（节点中心）
+      y1: a.top + half,
+      len: Math.round(len),
+      rot: rot.toFixed(1),
+      on: !!levels[i].stars         // 起点已通关 → 该段点亮
+    });
+  }
+  return { nodes: nodes, segs: segs };
+}
+
 Page({
   data: {
     grades: [],             // 学段列表（来自 GRADES，REQ-DICT-1）
@@ -128,11 +187,17 @@ Page({
       ? Math.round(gradeEarnedStars / gradeTotalStars * 100)
       : 0;
 
+    // ⑤ 蛇形路径地图派生数据（M7 Phase B）
+    var map = buildMapData(levels);
+
     this.setData({
       typeGroups: typeGroups,
       currentType: typeKey,
       currentTypeLabel: typeLabel,
       levels: levels,
+      mapNodes: map.nodes,
+      mapSegs: map.segs,
+      mapHeight: MAP_HEIGHT,
       loggedIn: loggedIn,
       gradeEarnedStars: gradeEarnedStars,
       gradeTotalStars: gradeTotalStars,
@@ -169,9 +234,9 @@ Page({
     wx.navigateTo({ url: url });
   },
 
-  // 触发卡片抖动动画（REQ-GAME-14）
+  // 触发节点抖动动画（REQ-GAME-14；锁定/登录引导时点击）
   shakeCard: function (index) {
-    var key = 'levels[' + index + '].shaking';
+    var key = 'mapNodes[' + index + '].shaking';
     var on = {};
     on[key] = true;
     this.setData(on);

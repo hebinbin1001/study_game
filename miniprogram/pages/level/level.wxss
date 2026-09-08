@@ -309,3 +309,138 @@ page {
   border-radius: 14rpx;
   line-height: 1.6;
 }
+
+/* ===== 蛇形路径地图（M7 Phase B） ===== */
+.level-map {
+  position: relative;
+  margin: 0 8rpx 8rpx;
+}
+
+/* 连线层（z 低于节点；节点白底会遮住线端点，视觉从圆边穿出） */
+.map-paths {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.map-seg {
+  position: absolute;
+  height: 8rpx;
+  border-radius: 4rpx;
+  margin-top: -4rpx;
+  background: rgba(255, 255, 255, 0.42);
+  transform-origin: left center;
+  transition: background 0.3s;
+}
+.map-seg.on {
+  background: #ffd166;
+  box-shadow: 0 0 10rpx rgba(255, 183, 3, 0.35);
+}
+
+/* 节点圆 */
+.map-node {
+  position: absolute;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 6rpx solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.05), 0 16rpx 32rpx rgba(0, 0, 0, 0.1);
+  z-index: 3;
+  transition: transform 0.12s;
+}
+.map-node:active {
+  transform: scale(0.96);
+}
+.map-node.shake {
+  animation: cardShake 0.4s;
+}
+
+/* 已通关：金色 ✔ + 星数（可重玩） */
+.map-node.done {
+  border-color: #ffd166;
+  background: linear-gradient(180deg, #fff8e2, #fff3cd);
+}
+.node-ok {
+  font-size: 62rpx;
+  line-height: 1;
+  font-weight: 900;
+  color: #ffb703;
+  text-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.07);
+}
+.node-stars {
+  margin-top: 6rpx;
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #e69a00;
+}
+
+/* 当前可挑战：关卡号 + 「继续」，呼吸光圈引导 */
+.map-node.cur {
+  border-color: #4cc9f0;
+  animation: nodeBreath 1.6s ease-in-out infinite;
+}
+.node-num {
+  font-size: 52rpx;
+  font-weight: 900;
+  color: #4cc9f0;
+  line-height: 1.1;
+}
+.node-go {
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  font-weight: 900;
+  color: #ffb703;
+  background: rgba(255, 183, 3, 0.14);
+  padding: 2rpx 14rpx;
+  border-radius: 16rpx;
+}
+@keyframes nodeBreath {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 183, 3, 0), 0 10rpx 0 rgba(0, 0, 0, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 0 14rpx rgba(255, 183, 3, 0.22), 0 10rpx 0 rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* 锁定：灰圆 + 🔒 + 条件小字（复用解锁/登录点击引导） */
+.map-node.lock {
+  background: #eef1f6;
+  border-color: #d7dde8;
+}
+.node-lock {
+  font-size: 44rpx;
+  opacity: 0.7;
+  line-height: 1;
+}
+.node-lock-tip {
+  margin-top: 6rpx;
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #9aa7bc;
+  line-height: 1.3;
+  text-align: center;
+  padding: 0 8rpx;
+}
+
+/* 分类徽标（非综合时，节点右上角） */
+.node-badge {
+  position: absolute;
+  top: -12rpx;
+  right: -4rpx;
+  font-size: 18rpx;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(76, 201, 240, 0.95);
+  padding: 2rpx 12rpx;
+  border-radius: 14rpx;
+  line-height: 1.6;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.12);
+}

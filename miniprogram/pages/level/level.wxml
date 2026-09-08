@@ -1,6 +1,8 @@
-<!-- 关卡选择页（T14 · UI 重设计）：
-     白色卡通卡片网格 + ⭐ 星级 + 锁定置灰 + 学段星星进度条
-     关联需求：REQ-DICT-1（学段枚举）、REQ-GAME-13（星级存档）、REQ-GAME-14（关卡解锁） -->
+<!-- 关卡选择页（T14 · M7 Phase B 蛇形路径地图）：
+     学段 tab + 题型分类 chips + 游客横幅 + 星星进度卡 + 蛇形路径关卡地图
+     节点状态：已通关(金色✔+星,可重玩) / 当前(呼吸光圈+继续) / 锁定(灰🔒+条件小字)
+     连线按已通关逐段点亮；点击/解锁/登录引导复用 onLevelTap
+     关联需求：REQ-DICT-1、REQ-GAME-13/14、REQ-GUEST-1 -->
 <view class="page-level">
   <!-- 标题 -->
   <view class="level-title">选择关卡</view>
@@ -51,29 +53,46 @@
     </view>
   </view>
 
-  <!-- 关卡卡片网格（wx:for 渲染，REQ-DICT-1） -->
-  <view class="level-grid">
+  <!-- 关卡蛇形路径地图（M7 Phase B）：连线点亮 + 节点（已通关✔/继续/锁定🔒） -->
+  <view class="level-map" style="height: {{mapHeight}}rpx;">
+    <!-- 连线层（z 低于节点；点亮段金色、未点亮灰色） -->
+    <view class="map-paths">
+      <view
+        wx:for="{{mapSegs}}"
+        wx:key="index"
+        class="map-seg {{item.on ? 'on' : ''}}"
+        style="left: {{item.x1}}rpx; top: {{item.y1}}rpx; width: {{item.len}}rpx; transform: rotate({{item.rot}}deg);"></view>
+    </view>
+
+    <!-- 节点层 -->
     <view
-      wx:for="{{levels}}"
+      wx:for="{{mapNodes}}"
       wx:key="level"
-      class="level-card {{item.unlocked ? '' : 'locked'}} {{item.stars > 0 ? 'has-star' : ''}} {{item.shaking ? 'shake' : ''}}"
-      data-index="{{index}}"
+      class="map-node {{item.state}} {{item.shaking ? 'shake' : ''}}"
+      style="left: {{item.left}}rpx; top: {{item.top}}rpx; width: {{item.size}}rpx; height: {{item.size}}rpx;"
+      data-index="{{item.index}}"
       bindtap="onLevelTap">
-      <!-- 题型分类徽标（非「综合」时显示，卡左上角） -->
-      <view wx:if="{{item.badge}}" class="type-badge">{{item.badge}}</view>
-      <!-- 星级展示（已得星 ⭐，未得星灰 ☆，REQ-GAME-13） -->
-      <view class="stars">
-        <text
-          wx:for="{{item.starArr}}"
-          wx:for-item="s"
-          wx:key="*this"
-          class="star {{s ? 'star-on' : 'star-off'}}">{{s ? '⭐' : '☆'}}</text>
-      </view>
-      <!-- 关卡编号 -->
-      <view class="num">{{item.level}}</view>
-      <!-- 锁定标识 + 达成条件（REQ-GAME-14 / 默认解锁 3 关，产品 2026-09-08） -->
-      <view wx:if="{{!item.unlocked}}" class="lock">🔒</view>
-      <view wx:if="{{!item.unlocked}}" style="position:absolute;left:0;right:0;bottom:8rpx;text-align:center;font-size:18rpx;line-height:1.3;color:#9aa7bc;font-weight:600;padding:0 6rpx;">{{item.needLogin ? '登录解锁' : '通关上一关解锁'}}</view>
+
+      <!-- 分类徽标（非「综合」时，节点右上角） -->
+      <view wx:if="{{item.badge}}" class="node-badge">{{item.badge}}</view>
+
+      <!-- 已通关：✔ + 星数（可重玩） -->
+      <block wx:if="{{item.state === 'done'}}">
+        <view class="node-ok">✔</view>
+        <view class="node-stars">★ {{item.stars}}</view>
+      </block>
+
+      <!-- 锁定：🔒 + 条件小字 -->
+      <block wx:elif="{{item.state === 'lock'}}">
+        <view class="node-lock">🔒</view>
+        <view class="node-lock-tip">{{item.lockTip}}</view>
+      </block>
+
+      <!-- 当前可挑战：关卡号 + 继续 -->
+      <block wx:else>
+        <view class="node-num">{{item.level}}</view>
+        <view class="node-go">继续 ▶</view>
+      </block>
     </view>
   </view>
 
