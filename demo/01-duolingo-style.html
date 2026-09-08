@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>词力战士 · 多邻国式闯关 Demo</title>
+<!--
+  词力战士（Word Warrior）—— 交互 Demo 第 1 版：多邻国式地图路径闯关
+  ─────────────────────────────────────────────────────────
+  背景：背「打怪学字词」世界观，但把单关流程升级为「地图节点闯关」，
+        用于向产品负责人展示一种“更火热的闯关交互”，供后续小程序改造参考。
+
+  玩法要点（手稿）：
+  1) 地图页：竖屏 8 个关卡节点沿蛇形路径排列；已通关=金色+✓、当前关=呼吸高亮、
+     未解锁=灰色🔒；节点间用虚线进度连线；顶部展示 连续天数/今日目标/总经验。
+  2) 点击节点进关：顶部 = 返回 + ❤生命(3) + 关名；大进度条（当关题进度，绿色圆滑动画）；
+     题目区大卡片，题型多样自动切换：
+       a. 看中文选英文整词（四选一）
+       b. 英文单词挖格，选正确字母补全
+       c. 看释义/拼音选汉字成语
+       d. 歇后语选后半句
+  3) 作答即时反馈：正确=选项绿+✓弹入、整卡上弹、进度前进、飞星粒子、+50 飘字；
+     错误=选项红+抖动、正确项绿闪提示、❤-1（掉心）、整卡横向抖；底部 tip 文案变化。
+  4) 过关结算：剩余 ❤ 折算 ★（3心=3星）逐个弹入 + 金光；❤ 归零失败 → 重试；
+     过关自动回地图并解锁下一节点。
+  5) 动效：CSS transition/keyframes + DOM 飞星粒子；卡通配色（天空蓝渐变、
+     白卡圆角硬阴影、橙/蓝主按钮）；适配 375 竖屏并桌面居中。
+  6) 连击提示：连续答对 3 次弹「3 连击 🔥」。
+
+  题库：内置英文词 / 成语（看释义选词）/ 歇后语（前半句→后半句）。
+  技术：单文件，内联 CSS/JS，零外部资源/网络请求/字体/CDN；进度存 localStorage 可选。
+-->
+<style>
+  :root{
+    --sky1:#7ec8ff; --sky2:#b9e3ff; --sky3:#e4f6ff;
+    --pink:#ff5d8f; --orange:#ffb703; --blue:#4cc9f0; --green:#7bd389;
+    --ink:#3a3a5c; --sub:#5c7f9e; --gold:#ffd166; --line:#e2edf7;
+    --card:#ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 55%,var(--sky3) 100%);
+    background-attachment:fixed;color:var(--ink);
+    display:flex;justify-content:center;align-items:flex-start;min-height:100%;
+    -webkit-user-select:none;user-select:none;
+  }
+  #app{
+    width:100%;max-width:430px;min-height:100vh;position:relative;
+    overflow:hidden;background:transparent;
+  }
+  .view{display:none;padding:12px 16px 28px;min-height:100vh;position:relative}
+  .view.on{display:block;animation:fadeUp .28s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---------- 通用卡片/按钮 ---------- */
+  .pill{background:rgba(255,255,255,.92);border-radius:999px;
+    box-shadow:0 4px 0 rgba(0,0,0,.06),0 10px 22px rgba(0,0,0,.08)}
+  .big-btn{display:inline-block;padding:14px 30px;border-radius:999px;border:none;
+    font-size:17px;font-weight:800;color:#fff;cursor:pointer;letter-spacing:1px;
+    box-shadow:0 5px 0 rgba(0,0,0,.14),0 10px 22px rgba(0,0,0,.12)}
+  .big-btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.14)}
+  .b-orange{background:var(--orange)} .b-blue{background:var(--blue)}
+  .b-green{background:var(--green)}
+
+  /* ---------- 顶部状态条（地图） ---------- */
+  .status-bar{display:flex;justify-content:space-between;gap:8px;margin:4px 0 10px}
+  .stat{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);
+    box-shadow:0 4px 0 rgba(0,0,0,.05),0 8px 18px rgba(0,0,0,.06);
+    font-size:12.5px;font-weight:700;color:var(--sub);display:flex;align-items:center;gap:4px}
+  .stat b{color:var(--ink);font-size:14px}
+  .stat .ico{font-size:15px}
+
+  /* ---------- 地图 ---------- */
+  .map-head{text-align:center;margin:6px 0 4px}
+  .map-head h1{font-size:24px;font-weight:900;color:#fff;letter-spacing:3px;
+    text-shadow:0 3px 0 rgba(0,0,0,.14)}
+  .map-head p{font-size:12.5px;color:#fff;opacity:.9;letter-spacing:2px}
+  .map-stage{position:relative;margin:8px auto 6px;width:100%;max-width:360px;height:470px}
+  .map-stage svg{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+  .node{position:absolute;width:86px;height:86px;margin:-43px 0 0 -43px;transform:translate(0,0);
+    border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;cursor:pointer;transition:transform .15s, box-shadow .15s;
+    box-shadow:0 6px 0 rgba(0,0,0,.08),0 12px 26px rgba(0,0,0,.1)}
+  .node .lv{font-size:30px;font-weight:900;color:var(--blue);line-height:1}
+  .node .nm{font-size:10px;color:var(--sub);font-weight:700;margin-top:3px}
+  .node:active{transform:scale(.94)}
+  .node.done{background:linear-gradient(160deg,#ffd166,#ffb703)}
+  .node.done .lv{color:#fff}
+  .node.done .chk{font-size:30px;line-height:1}
+  .node.done .nm{color:rgba(255,255,255,.95)}
+  .node.lock{background:#e7edf5;box-shadow:0 5px 0 rgba(0,0,0,.06)}
+  .node.lock .lv{color:#a8b6c8}
+  .node.cur{box-shadow:0 0 0 6px rgba(76,201,240,.35),0 6px 0 rgba(0,0,0,.08),0 14px 30px rgba(0,0,0,.14);
+    animation:breath 1.6s ease-in-out infinite}
+  @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+  .map-foot{text-align:center;margin-top:2px}
+  .map-foot .back-link{margin-top:14px}
+
+  /* ---------- 游戏页 ---------- */
+  .game-top{display:flex;align-items:center;gap:10px;margin:2px 0 8px}
+  .icon-btn{width:42px;height:42px;border-radius:16px;border:none;background:rgba(255,255,255,.92);
+    box-shadow:0 4px 0 rgba(0,0,0,.06),0 8px 18px rgba(0,0,0,.08);font-size:18px;cursor:pointer}
+  .icon-btn:active{transform:translateY(2px)}
+  .hearts{flex:1;font-size:22px;letter-spacing:2px;text-align:center;text-shadow:0 2px 0 #fff}
+  .hearts .lost{opacity:.25}
+  .lvl-name{font-size:15px;font-weight:900;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18);
+    min-width:86px;text-align:right;letter-spacing:1px}
+  .prog{height:14px;border-radius:8px;background:rgba(255,255,255,.6);overflow:hidden;
+    margin:0 2px 12px;box-shadow:inset 0 1px 3px rgba(0,0,0,.08)}
+  .prog i{display:block;height:100%;width:0%;border-radius:8px;
+    background:linear-gradient(90deg,#a5e8b8,var(--green));
+    transition:width .45s cubic-bezier(.22,1,.36,1)}
+  .q-wrap{position:relative}
+  .qcard{background:#fff;border-radius:26px;padding:30px 22px 26px;text-align:center;
+    box-shadow:0 8px 0 rgba(0,0,0,.07),0 18px 40px rgba(0,0,0,.12);min-height:186px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .qcard .q-kick{font-size:12px;font-weight:800;color:var(--sub);letter-spacing:2px;margin-bottom:14px}
+  .qcard .q-main{font-size:34px;font-weight:900;color:var(--ink);line-height:1.35;word-break:break-word}
+  .qcard .q-sub{font-size:15px;color:var(--sub);margin-top:10px;font-weight:600}
+  .qcard .blanks{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:3px}
+  .qcard .cell{display:inline-block;min-width:1em;text-align:center;font-size:34px;font-weight:900;
+    border-bottom:3px solid transparent;color:var(--ink);padding:0 1px}
+  .qcard .cell.blank{color:transparent;border-bottom-color:var(--sub)}
+  .qcard.pop{animation:cardPop .5s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes cardPop{0%{transform:scale(.94)}55%{transform:scale(1.02)}100%{transform:none}}
+  .qcard.shake{animation:shakeX .4s}
+  @keyframes shakeX{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+  .qcard.bump{animation:bumpY .45s cubic-bezier(.2,1.2,.4,1)}
+  @keyframes bumpY{0%{transform:translateY(0)}45%{transform:translateY(-14px)}100%{transform:none}}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .opt{background:#fff;border-radius:20px;padding:20px 8px;text-align:center;cursor:pointer;
+    font-size:22px;font-weight:800;color:var(--ink);
+    box-shadow:0 6px 0 rgba(0,0,0,.07),0 12px 26px rgba(0,0,0,.09);
+    transition:transform .1s, box-shadow .1s;border:none;min-height:64px;display:flex;
+    align-items:center;justify-content:center;word-break:break-word}
+  .opt:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.07)}
+  .opt.ok{background:var(--green);color:#fff;animation:optOk .45s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes optOk{0%{transform:scale(1)}45%{transform:scale(1.12)}100%{transform:scale(1)}}
+  .opt.no{background:var(--pink);color:#fff;animation:optNo .4s}
+  @keyframes optNo{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .opt.reveal{outline:4px solid rgba(123,211,137,.8);outline-offset:2px}
+  .opt.locked{pointer-events:none;opacity:.8}
+  .tip{text-align:center;font-size:14px;color:var(--sub);font-weight:700;min-height:20px;
+    margin:16px 4px 0;line-height:1.5;transition:color .2s}
+
+  /* ---------- 结算浮层 ---------- */
+  .overlay{position:absolute;inset:0;background:rgba(58,58,92,.35);border-radius:26px;
+    display:none;align-items:center;justify-content:center;z-index:20;backdrop-filter:blur(2px)}
+  .overlay.on{display:flex}
+  .over-box{background:#fff;border-radius:30px;padding:26px 24px 24px;text-align:center;
+    width:88%;box-shadow:0 10px 0 rgba(0,0,0,.1),0 26px 60px rgba(0,0,0,.25);
+    animation:popIn .4s cubic-bezier(.2,1.3,.4,1)}
+  @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+  .stars{margin:10px 0 8px}
+  .stars span{display:inline-block;font-size:52px;opacity:0;color:#c9d6e6;transform:scale(.2)}
+  .stars span.star-in{animation:starIn .5s cubic-bezier(.2,1.5,.4,1) forwards}
+  .stars span.on{color:var(--gold)}
+  @keyframes starIn{0%{opacity:0;transform:scale(.2) rotate(-30deg)}
+    60%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
+  .stars span.flare{animation:flare .9s ease}
+  @keyframes flare{0%{filter:drop-shadow(0 0 0 #fff)}50%{filter:drop-shadow(0 0 18px var(--gold))}100%{filter:none}}
+  .ov-title{font-size:24px;font-weight:900;color:var(--ink);letter-spacing:2px}
+  .ov-sub{font-size:14px;color:var(--sub);margin:6px 0 4px;font-weight:600}
+  .ov-actions{margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+  /* ---------- 粒子 / 飘字 / 连击 ---------- */
+  .fx-layer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:30}
+  .star{position:absolute;font-size:16px;color:var(--gold);pointer-events:none;
+    animation:rise .9s ease-out forwards}
+  @keyframes rise{from{opacity:1;transform:translateY(0) scale(.7)}to{opacity:0;transform:translateY(-70px) scale(1.25)}}
+  .float{position:absolute;font-weight:900;color:var(--green);pointer-events:none;z-index:32;
+    animation:floatUp .9s ease-out forwards;text-shadow:0 1px 0 #fff}
+  @keyframes floatUp{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-46px)}}
+  .combo-toast{position:absolute;top:26%;left:50%;transform:translateX(-50%);
+    background:rgba(58,58,92,.92);color:var(--gold);padding:8px 20px;border-radius:22px;
+    font-size:17px;font-weight:900;letter-spacing:2px;z-index:34;display:none;
+    box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  .combo-toast.on{display:block;animation:comboPop .85s ease both}
+  @keyframes comboPop{0%{opacity:0;transform:translateX(-50%) translateY(12px) scale(.8)}
+    25%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.12)}
+    45%{transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-26px)}}
+
+  .ghost{position:absolute;font-size:40px;pointer-events:none;z-index:2;opacity:.9}
+  .hud-note{font-size:11px;color:#fff;text-align:center;opacity:.8;margin-top:10px;letter-spacing:1px}
+
+  .back-link{display:inline-block;color:#fff;font-weight:800;background:rgba(255,255,255,.25);
+    padding:9px 20px;border-radius:999px;font-size:14px;cursor:pointer;letter-spacing:1px}
+  .back-link:active{transform:translateY(2px)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= 地图页 ================= -->
+  <section id="mapView" class="view on">
+    <div class="map-head">
+      <h1>⚔️ 词力战士</h1>
+      <p>打怪学字词 · 地图闯关</p>
+    </div>
+    <div class="status-bar">
+      <div class="stat"><span class="ico">🔥</span><b id="stStreak">3</b>&nbsp;连续</div>
+      <div class="stat"><span class="ico">🎯</span>今日 <b id="stGoal">2</b>/<span id="stGoalT">3</span></div>
+      <div class="stat"><span class="ico">⚡</span><b id="stXp">1860</b> XP</div>
+    </div>
+    <div class="map-stage" id="mapStage">
+      <svg id="mapSvg"><polyline id="mapLine"/></svg>
+      <div id="nodeLayer"></div>
+    </div>
+    <div class="map-foot">
+      <div class="hud-note">通关上一关 · 解锁下一关 · 每天 3 次目标达成有火焰加成</div>
+      <div><span class="back-link" onclick="alert('Demo 占位：返回首页')">🏠 返回</span></div>
+    </div>
+  </section>
+
+  <!-- ================= 游戏页 ================= -->
+  <section id="gameView" class="view">
+    <div class="game-top">
+      <button class="icon-btn" onclick="backToMap()">←</button>
+      <div class="hearts" id="hearts"></div>
+      <div class="lvl-name" id="lvlName"></div>
+    </div>
+    <div class="prog"><i id="progFill"></i></div>
+
+    <div class="q-wrap" id="qWrap">
+      <div class="fx-layer" id="fxLayer"></div>
+      <div class="combo-toast" id="comboToast">3 连击 🔥</div>
+
+      <div class="qcard" id="qcard">
+        <div class="q-kick" id="qKick"></div>
+        <div class="q-main" id="qMain"></div>
+        <div class="q-sub" id="qSub"></div>
+      </div>
+
+      <div class="opts" id="optsBox"></div>
+      <div class="tip" id="tip"></div>
+
+      <!-- 结算浮层 -->
+      <div class="overlay" id="overlay">
+        <div class="over-box">
+          <div class="stars" id="starsBox"></div>
+          <div class="ov-title" id="ovTitle"></div>
+          <div class="ov-sub" id="ovSub"></div>
+          <div class="ov-actions" id="ovBtns"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+"use strict";
+/* ============ 常量 ============ */
+var TOTAL_LV = 8;          // 地图节点数
+var Q_PER_LEVEL = 6;       // 每关题数（演示 5~8 之间取 6）
+var MAX_HEART = 3;
+var COMBO_BREAK = 3;       // 连击提示阈值
+var STORE_KEY = 'ww_demo_duolingo_v1';
+var PARTICLE_N = 9;
+
+/* ============ 词库（内置） ============ */
+var EN_WORDS = [
+  { w: 'apple',  cn: '苹果' },  { w: 'banana', cn: '香蕉' },
+  { w: 'school', cn: '学校' },  { w: 'book',   cn: '书' },
+  { w: 'cat',    cn: '猫' },    { w: 'moon',   cn: '月亮' },
+  { w: 'river',  cn: '河流' },  { w: 'happy',  cn: '开心' },
+  { w: 'sleep',  cn: '睡觉' },  { w: 'blue',   cn: '蓝色' },
+  { w: 'time',   cn: '时间' },  { w: 'sun',    cn: '太阳' }
+];
+var IDIOMS = [
+  { w: '守株待兔', m: '不努力却妄想不劳而获' },
+  { w: '画蛇添足', m: '做了多余的事，多此一举' },
+  { w: '狐假虎威', m: '依仗别人的势力欺压别人' },
+  { w: '亡羊补牢', m: '出了问题及时想办法补救' }
+];
+var XHY = [
+  { q: '竹篮打水',     a: '一场空' },
+  { q: '芝麻开花',     a: '节节高' },
+  { q: '泥菩萨过江',   a: '自身难保' },
+  { q: '打破砂锅',     a: '问到底' },
+  { q: '黄鼠狼给鸡拜年', a: '没安好心' }
+];
+var XHY_A = [];           // 去重后半句池
+XHY.forEach(function (it) { if (XHY_A.indexOf(it.a) === -1) XHY_A.push(it.a); });
+
+/* ============ 工具 ============ */
+function $(id){ return document.getElementById(id); }
+function rand(n){ return Math.floor(Math.random() * n); }
+function shuffle(arr){
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = rand(i + 1), t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function pickN(arr, n, excludeFn){
+  var pool = shuffle(arr), out = [];
+  for (var i = 0; i < pool.length && out.length < n; i++) {
+    if (excludeFn && excludeFn(pool[i])) continue;
+    out.push(pool[i]);
+  }
+  return out;
+}
+
+/* ============ 存档（localStorage 可选） ============ */
+function loadSave(){
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { done: {} }; }
+  catch (e) { return { done: {} }; }
+}
+function persist(s){ try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
+
+/* ============ 全局状态 ============ */
+var save = loadSave();      // { done: { 1:{stars:3}, ... } }
+var g = null;               // 当关运行时状态
+var heartsTotal = 0;        // 顶部统计占位展示用（可后续接真数据）
+
+/* ============ 地图：节点坐标（蛇形 2 列） ============ */
+var NODE_POS = [
+  { x: 92,  y: 66  },  // 1
+  { x: 268, y: 66  },  // 2
+  { x: 268, y: 176 },  // 3
+  { x: 92,  y: 176 },  // 4
+  { x: 92,  y: 286 },  // 5
+  { x: 268, y: 286 },  // 6
+  { x: 268, y: 396 },  // 7
+  { x: 92,  y: 396 }   // 8
+];
+var NODE_NAMES = ['元音','字母','单词','词语','成语','成语','歇后语','总决战'];
+var LEVEL_THEME = [
+  '初试锋芒 · 元音', '字母补全', '英语单词 · 看中选英',
+  '汉字词语 · 看释选词', '成语 · 看释选词', '成语 · 进阶',
+  '歇后语 · 接下半句', '最终挑战 · 混合'
+];
+
+function renderMap(){
+  var stage = $('mapStage');
+  var w = stage.clientWidth || 360;
+  var k = w / 360;                       // 按容器宽度缩放坐标
+  var nodeLayer = $('nodeLayer');
+  nodeLayer.innerHTML = '';
+
+  // 连线
+  var pts = [];
+  NODE_POS.forEach(function (p) { pts.push(((p.x) * k) + ',' + ((p.y) * k)); });
+  var line = $('mapLine');
+  line.setAttribute('points', pts.join(' '));
+  line.setAttribute('fill', 'none');
+  line.setAttribute('stroke', 'rgba(255,255,255,.55)');
+  line.setAttribute('stroke-width', 4);
+  line.setAttribute('stroke-linecap', 'round');
+  line.setAttribute('stroke-dasharray', '1 12');
+
+  // 节点
+  for (var i = 1; i <= TOTAL_LV; i++) {
+    var p = NODE_POS[i - 1];
+    var st = save.done[i] ? 'done' : (isOpen(i) ? 'cur' : 'lock');
+    var n = document.createElement('div');
+    n.className = 'node ' + st;
+    n.style.left = (p.x * k) + 'px';
+    n.style.top = (p.y * k) + 'px';
+    if (st === 'done') {
+      n.innerHTML = '<div class="chk">✔</div><div class="nm">' + (save.done[i].stars || 3) + '★</div>';
+    } else {
+      n.innerHTML = '<div class="lv">' + (st === 'lock' ? '🔒' : i) + '</div><div class="nm">' + NODE_NAMES[i - 1] + '</div>';
+    }
+    if (st !== 'lock') {
+      n.addEventListener('click', (function (lv) { return function () { enterLevel(lv); }; })(i));
+    }
+    nodeLayer.appendChild(n);
+  }
+}
+
+function isOpen(lv){
+  if (lv === 1) return true;
+  return !!save.done[lv - 1];
+}
+function nextLevelOf(lv){ return lv + 1; }
+
+/* ============ 出题 ============ */
+function buildQuestion(usedKeys){
+  // 随机选题型：英文两种(轮流) / 成语 / 歇后语
+  var roll = rand(10), q = null;
+  if (roll < 3) q = makeEnPick(usedKeys);
+  else if (roll < 5) q = makeEnBlank(usedKeys);
+  else if (roll < 8) q = makeIdiom(usedKeys);
+  else q = makeXhy(usedKeys);
+  return q;
+}
+
+function wordKey(w){ return String(w).toLowerCase().trim(); }
+
+// a) 看中文选英文整词
+function makeEnPick(used){
+  var pool = EN_WORDS.filter(function (it) { return used.indexOf('p:' + it.cn) === -1; });
+  if (!pool.length) pool = EN_WORDS;
+  var ans = pool[rand(pool.length)];
+  used.push('p:' + ans.cn);
+  var opts = pickN(EN_WORDS, 4, function (o) { return o.w === ans.w; });
+  // 补足 3 干扰后加正解
+  var words = opts.map(function (o) { return o.w; });
+  while (words.length < 3) { words.push(ans.w); }
+  words = shuffle(words.slice(0, 3).concat([ans.w]));
+  return { kind: 'enPick', kick: '看中文 · 选英文', main: ans.cn, a: ans.w, opts: words };
+}
+
+// b) 单词挖格补字母
+function makeEnBlank(used){
+  var pool = EN_WORDS.filter(function (it) { return used.indexOf('b:' + it.w) === -1; });
+  if (!pool.length) pool = EN_WORDS;
+  var it = pool[rand(pool.length)];
+  used.push('b:' + it.w);
+  var idx = rand(it.w.length);
+  var right = it.w[idx];
+  var letters = [right];
+  var guard = 0;
+  while (letters.length < 4 && guard++ < 80) {
+    var c = String.fromCharCode(97 + rand(26));
+    if (letters.indexOf(c) === -1) letters.push(c);
+  }
+  // 展示：除空格外其余字母可见，挖空显示透明占位（作答正确后回填）
+  var cells = [];
+  for (var i = 0; i < it.w.length; i++) {
+    cells.push(i === idx ? { ch: it.w[i], blank: true } : { ch: it.w[i], blank: false });
+  }
+  return {
+    kind: 'enBlank', kick: '补全单词 · 选正确字母', a: right,
+    word: it.w, blankIdx: idx, cells: cells, hint: it.cn, opts: shuffle(letters)
+  };
+}
+
+// c) 看释义选成语
+function makeIdiom(used){
+  var pool = IDIOMS.filter(function (it) { return used.indexOf('i:' + it.w) === -1; });
+  if (!pool.length) pool = IDIOMS;
+  var ans = pool[rand(pool.length)];
+  used.push('i:' + ans.w);
+  var others = IDIOMS.filter(function (it) { return it.w !== ans.w; });
+  var opts = shuffle(others).slice(0, 3).map(function (it) { return it.w; });
+  opts.push(ans.w);
+  return { kind: 'idiom', kick: '看释义 · 选成语', main: ans.m, a: ans.w, opts: shuffle(opts) };
+}
+
+// d) 歇后语接后半句
+function makeXhy(used){
+  var pool = XHY.filter(function (it) { return used.indexOf('x:' + it.q) === -1; });
+  if (!pool.length) pool = XHY;
+  var ans = pool[rand(pool.length)];
+  used.push('x:' + ans.q);
+  var others = XHY_A.filter(function (a) { return a !== ans.a; });
+  var opts = shuffle(others).slice(0, 3);
+  opts.push(ans.a);
+  return { kind: 'xhy', kick: '歇后语 · 选后半句', main: ans.q, a: ans.a, opts: shuffle(opts) };
+}
+
+/* ============ 渲染一题 ============ */
+function showQuestion(q){
+  var card = $('qcard'), main = $('qMain'), sub = $('qSub'), kick = $('qKick');
+  card.className = 'qcard pop';
+  kick.textContent = q.kick;
+  sub.textContent = '';
+
+  if (q.kind === 'enPick' || q.kind === 'idiom' || q.kind === 'xhy') {
+    main.textContent = q.main;
+  } else if (q.kind === 'enBlank') {
+    // 单词逐字 + 挖空透明框（空槽 .blank：透明字 + 底部占位线，答对回填显色）
+    main.innerHTML = '';
+    var wrap = document.createElement('span');
+    wrap.className = 'blanks';
+    q.cells.forEach(function (c) {
+      var s = document.createElement('span');
+      s.className = c.blank ? 'cell blank' : 'cell';
+      if (!c.blank) s.textContent = c.ch;
+      wrap.appendChild(s);
+    });
+    main.appendChild(wrap);
+    sub.textContent = '释义：' + q.hint;
+  }
+
+  // 选项
+  var box = $('optsBox');
+  box.innerHTML = '';
+  q.opts.forEach(function (opt) {
+    var b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = opt;
+    b.addEventListener('click', function () { onPick(b, opt); });
+    box.appendChild(b);
+  });
+  $('tip').textContent = randomTip(q.kind);
+  setTimeout(function () { card.classList.remove('pop'); }, 520);
+}
+
+var TIPS = {
+  enPick: ['从下方 4 个英文中选出正确翻译 ✨', '想想这个中文对应的单词～', '字母别拼错啦，选它！'],
+  enBlank: ['点选正确的字母把单词补全', '补全后单词就完整啦', '漏掉的字母是哪个呢？'],
+  idiom: ['选出与释义对应的成语', '读读释义再挑成语', '这个成语你见过吗？'],
+  xhy: ['选出让歇后语成立的后半句', '想想它背后的典故', '下半句最顺口的就是它']
+};
+function randomTip(kind){
+  var arr = TIPS[kind] || TIPS.enPick;
+  return arr[rand(arr.length)];
+}
+
+/* ============ 作答反馈 ============ */
+function onPick(el, val){
+  var q = g.q;
+  if (g.answered || !q) return;
+  var card = $('qcard');
+  if (val === q.a) {
+    rightPick(el, q);
+  } else {
+    wrongPick(el, q);
+  }
+}
+
+function rightPick(el, q){
+  g.answered = true;
+  g.correct++;
+  g.combo++;
+  el.classList.add('ok', 'locked');
+  el.textContent = '✔ ' + el.textContent;
+  cardFeedback(true, q);
+
+  // 进度前进
+  g.done++;
+  setProgress(g.done);
+  // 加分飘字 + 粒子
+  spawnFloat('+50', el);
+  burstStars(el);
+  // 连击
+  if (g.combo >= COMBO_BREAK) showCombo(g.combo);
+  $('tip').textContent = niceTip(q);
+  // 填空题回填正解
+  if (q.kind === 'enBlank') fillBlank(q);
+  setTimeout(nextQuestion, 620);
+}
+
+function wrongPick(el, q){
+  g.answered = true;
+  g.combo = 0;
+  el.classList.add('no', 'locked');
+  // 正确项绿闪
+  var btns = document.querySelectorAll('#optsBox .opt');
+  btns.forEach(function (b) {
+    if (b.textContent.indexOf('✔') === -1 && b.textContent === q.a) b.classList.add('reveal');
+  });
+  g.lives--;
+  renderHearts();
+  dropHeart();
+  cardFeedback(false, q);
+  // 断连击不重置进度：❤ 用尽才失败
+  $('tip').textContent = '答错了……正确答案是「' + q.a + '」';
+  setTimeout(function () {
+    if (g.lives <= 0) { endLevel(false); }
+    else { nextQuestion(); }
+  }, 760);
+}
+
+function cardFeedback(ok){
+  var card = $('qcard');
+  card.classList.remove('pop', 'shake', 'bump');
+  void card.offsetWidth; // 重启动画
+  card.classList.add(ok ? 'bump' : 'shake');
+  setTimeout(function () {
+    card.classList.remove(ok ? 'bump' : 'shake');
+    if (ok) card.classList.add('pop');
+  }, 460);
+}
+
+function fillBlank(q){
+  var cells = $('qMain').querySelectorAll('.cell');
+  if (!cells || !cells[q.blankIdx]) return;
+  var cell = cells[q.blankIdx];
+  cell.textContent = q.a;
+  cell.classList.remove('blank');
+}
+
+function niceTip(q){
+  if (q.kind === 'enPick') return '「' + q.a + '」 拼读 ' + q.a + '，太棒了！';
+  if (q.kind === 'enBlank') return '补全啦：' + q.word + ' = ' + (q.hint || '');
+  if (q.kind === 'idiom') return '「' + q.a + '」你答对了！';
+  if (q.kind === 'xhy') return q.main + ' → ' + q.a + '！';
+  return '太棒了！';
+}
+
+/* ============ 关卡流程 ============ */
+function enterLevel(lv){
+  switchView('gameView');
+  g = {
+    lv: lv, lives: MAX_HEART, done: 0, correct: 0, combo: 0, q: null, answered: false, keys: []
+  };
+  $('lvlName').textContent = (lv < TOTAL_LV ? '第 ' + lv + ' 关' : '终章') + ' · ' + LEVEL_THEME[lv - 1];
+  renderHearts();
+  setProgress(0);
+  $('qcard').className = 'qcard';
+  $('optsBox').innerHTML = '';
+  nextQuestion();
+}
+
+function nextQuestion(){
+  if (!g) return;
+  if (g.done >= Q_PER_LEVEL) { endLevel(true); return; }
+  g.answered = false;
+  var q = buildQuestion(g.keys);
+  g.q = q;
+  showQuestion(q);
+}
+
+function setProgress(done){
+  var p = Math.min(1, done / Q_PER_LEVEL) * 100;
+  $('progFill').style.width = p + '%';
+}
+
+function renderHearts(){
+  var h = '';
+  for (var i = 0; i < MAX_HEART; i++) h += '<span class="' + (i < g.lives ? '' : 'lost') + '">❤</span>';
+  $('hearts').innerHTML = h;
+}
+
+function dropHeart(){
+  var el = $('hearts').lastChild;
+  // 视觉上爱心掉落一次（re-render 已置灰），加一个短暂抖动提示即可
+  var c = $('qcard');
+  c.classList.add('shake'); setTimeout(function () { c.classList.remove('shake'); }, 420);
+}
+
+function showCombo(combo){
+  var t = $('comboToast');
+  t.textContent = combo + ' 连击' + (combo >= 5 ? ' 🎉' : ' 🔥');
+  t.classList.remove('on'); void t.offsetWidth;
+  t.classList.add('on');
+  setTimeout(function () { t.classList.remove('on'); }, 900);
+}
+
+/* ============ 结算 ============ */
+function endLevel(win){
+  g.answered = true;
+  var ov = $('overlay'), title = $('ovTitle'), sub = $('ovSub'), btns = $('ovBtns'), sb = $('starsBox');
+  ov.classList.add('on');
+  btns.innerHTML = '';
+  if (win) {
+    var stars = g.lives; // 3/2/1
+    if (!save.done[g.lv] || (save.done[g.lv].stars || 0) < stars) {
+      save.done[g.lv] = { stars: stars };
+      persist(save);
+    }
+    title.textContent = '关卡完成！';
+    sub.textContent = '答对 ' + g.correct + '/' + Q_PER_LEVEL + ' · 剩余 ' + g.lives + ' ❤';
+    // 星星逐个弹入 + 金光
+    sb.innerHTML = '';
+    for (var i = 0; i < 3; i++) {
+      (function (idx) {
+        var s = document.createElement('span');
+        s.className = 'off';
+        s.textContent = '★';
+        s.style.animationDelay = (idx * .28) + 's';
+        sb.appendChild(s);
+        setTimeout(function () {
+          s.classList.add('star-in', 'on');
+          setTimeout(function () { s.classList.add('flare'); setTimeout(function () { s.classList.remove('flare'); }, 950); }, 300);
+        }, idx * 300);
+      })(i);
+    }
+    // 完成关卡加号
+    setTimeout(function () {
+      sb.querySelectorAll('span').forEach(function (s, idx) {
+        if (idx >= stars) s.classList.remove('on');
+      });
+    }, 320 * 3);
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'big-btn b-orange';
+    nextBtn.textContent = g.lv < TOTAL_LV ? '下一关 →' : '全部通关 🎉';
+    nextBtn.addEventListener('click', function () { ov.classList.remove('on'); backToMap(); if (g.lv < TOTAL_LV) { setTimeout(function(){ enterLevel(g.lv + 1); }, 60); } });
+    btns.appendChild(nextBtn);
+  } else {
+    title.textContent = '再接再厉！';
+    sub.textContent = '❤ 用完了，再试一次把这一关打通吧';
+    sb.innerHTML = '';
+    for (var i = 0; i < 3; i++) { var s = document.createElement('span'); s.textContent = '☆'; sb.appendChild(s); }
+    var retry = document.createElement('button');
+    retry.className = 'big-btn b-blue';
+    retry.textContent = '重新挑战';
+    retry.addEventListener('click', function () { ov.classList.remove('on'); enterLevel(g.lv); });
+    btns.appendChild(retry);
+  }
+  var home = document.createElement('button');
+  home.className = 'big-btn';
+  home.style.background = '#8a9bb5';
+  home.textContent = '地图';
+  home.addEventListener('click', function () { ov.classList.remove('on'); backToMap(); });
+  btns.appendChild(home);
+}
+
+/* ============ 视图切换 ============ */
+function switchView(name){
+  document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('on'); });
+  $('mapView').classList.toggle('on', name === 'map');
+  $('gameView').classList.toggle('on', name === 'game');
+}
+function backToMap(){
+  if (g) { g.answered = true; g = null; }
+  $('overlay').classList.remove('on');
+  switchView('map');
+  renderMap();
+}
+
+/* ============ 粒子 / 飘字 ============ */
+function spawnFloat(text, el){
+  var fx = $('fxLayer');
+  var f = document.createElement('div');
+  f.className = 'float';
+  f.textContent = text;
+  var r = el.getBoundingClientRect(), box = fx.getBoundingClientRect();
+  f.style.left = (r.left - box.left + r.width / 2 - 14) + 'px';
+  f.style.top = (r.top - box.top - 6) + 'px';
+  fx.appendChild(f);
+  setTimeout(function () { f.remove(); }, 950);
+}
+function burstStars(el){
+  var fx = $('fxLayer');
+  var r = el.getBoundingClientRect(), box = fx.getBoundingClientRect();
+  var cx = r.left - box.left + r.width / 2, cy = r.top - box.top + r.height / 2;
+  for (var i = 0; i < PARTICLE_N; i++) {
+    var s = document.createElement('span');
+    s.className = 'star';
+    s.textContent = Math.random() < .5 ? '★' : '✨';
+    s.style.left = (cx + (Math.random() - .5) * 90) + 'px';
+    s.style.top = (cy + (Math.random() - .5) * 30) + 'px';
+    s.style.fontSize = (12 + Math.random() * 10) + 'px';
+    s.style.animationDuration = (.7 + Math.random() * .4) + 's';
+    fx.appendChild(s);
+    setTimeout(function (n) { n.remove(); }, 1200);
+  }
+}
+
+/* ============ 初始化 ============ */
+function boot(){
+  // 首次体验：解锁第 1 关并给一段引导提示
+  renderMap();
+}
+window.addEventListener('resize', renderMap);
+boot();
+</script>
+</body>
+</html>

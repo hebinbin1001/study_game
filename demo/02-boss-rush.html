@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>词力战士 · Demo 2：Boss 狂潮</title>
+<!--
+  词力战士 · Demo 2：Boss 狂潮（打怪爽感升级版）—— 单文件试玩原型
+  浏览器直接打开即玩；无外部资源、系统字体。
+
+  ── 玩法手稿 ─────────────────────────────────────────────
+  竖屏「答题 = 攻击」：每关击败一只 Boss（👾词语魔王 → 👹火焰巨兽 → 🐲龙王学霸）。
+  题目按关卡轮换题型池（单词挖格 / 看中文选词 / 成语选释义 / 歇后语后半句），
+  答对 → 炮台弹道命中 → Boss 扣血；答错 → Boss 前冲反击 → 玩家掉 ❤。
+  Boss 血空 → 大爆炸 → 「Boss 击破！」星级结算（按剩余 ❤ 换算 1~3 星）→ 下一关。
+
+  ── 爽感设计点（对照验证）─────────────────────────────
+  1) 弹道攻击：发光弹丸从炮台飞向 Boss 头部，命中回调才结算（视觉命中感）；
+  2) 顿帧 hitstop：命中瞬间画面冻结 90ms（body.hitstop），随后血条抖动；
+  3) 连击倍率：combo 越高伤害越高 = 基础 × (1+combo*0.1)，飘字带倍率（-x13 ×1.3）；
+  4) 伤害飘字 + Boss 头顶连击徽标（×N），命中爆炸彩色粒子/星星；
+  5) 错误反馈：Boss 前冲(爪击)+屏幕红闪+玩家条 shake+低频 beep(WebAudio 可选已注释，视觉优先)；
+  6) Boss 阶段：血条 25% 分段变色 绿→黄→橙→红；末段「暴怒」= 放大+红眼+血条怒气脉动，
+     并出现倒计时催促条（气氛紧张，答题时间保持宽松，不真正判负）；
+  7) 击破大爆炸：白屏闪光 + 大粒子爆 + 屏幕强震 + 「Boss 击破！」结算卡（★ 按剩余 ❤）；
+  8) 关间插曲小卡（如「第 2 关：火焰巨兽来了！」）。
+-->
+<style>
+  :root {
+    --sky1:#7ec8ff; --sky2:#e4f6ff; --ink:#3a3a5c; --sub:#5c7f9e;
+    --orange:#ffb703; --blue:#4cc9f0; --green:#7bd389; --pink:#ff5d8f; --red:#ff5a5a; --gold:#ffd166;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body {
+    font-family:"PingFang SC","Microsoft YaHei","PingFang","Helvetica Neue",sans-serif;
+    background:linear-gradient(180deg,#a8d8ff 0%, #cfeaff 55%, #eaf7ff 100%);
+    color:var(--ink);
+    overflow:hidden;
+  }
+  /* 桌面居中：视口横向居中，模拟竖屏比例 */
+  #stage {
+    position:relative;
+    width:100%;
+    max-width:420px;
+    height:100%;
+    margin:0 auto;
+    background:linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+    overflow:hidden;
+    box-shadow:0 0 60px rgba(0,0,0,.18);
+  }
+  /* ---------- 顶部标题 ---------- */
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px 4px;
+  }
+  header .brand { font-weight:900; font-size:16px; color:#fff; letter-spacing:1px;
+    text-shadow:0 2px 0 rgba(0,0,0,.15); }
+  header .brand small { font-weight:700; opacity:.9; }
+  header nav a { display:inline-block; font-size:11px; color:#3a3a5c; text-decoration:none;
+    background:rgba(255,255,255,.85); border-radius:12px; padding:3px 8px; margin-left:6px;
+    box-shadow:0 2px 0 rgba(0,0,0,.08); }
+  /* ---------- Boss 区 ---------- */
+  #bossZone { position:relative; padding:6px 16px 0; z-index:3; }
+  #bossName { font-size:13px; font-weight:900; color:var(--sub); text-align:center; letter-spacing:2px; }
+  #bossWrap { position:relative; height:128px; display:flex; align-items:center; justify-content:center; }
+  #boss {
+    font-size:96px; line-height:1; filter:drop-shadow(0 10px 14px rgba(0,0,0,.18));
+    transition:transform .15s;
+    user-select:none;
+  }
+  #boss.lunge { animation:bossLunge .55s cubic-bezier(.4,0,.6,1); }
+  #boss.angry { transform:scale(1.18); }
+  #boss.angry .eyeFlash { display:block; }
+  @keyframes bossLunge { 0%{transform:translateX(0) rotate(0)} 35%{transform:translateX(-46px) rotate(-8deg) scale(1.08)}
+    55%{transform:translateX(4px)} 70%{transform:translateX(0)} 100%{transform:translateX(0)} }
+  #bossTag { position:absolute; left:50%; bottom:2px; transform:translateX(-50%);
+    background:rgba(255,255,255,.9); border-radius:10px; padding:1px 10px; font-size:11px;
+    color:var(--sub); box-shadow:0 2px 0 rgba(0,0,0,.06); }
+  /* 血条 */
+  #hpOuter { height:16px; border-radius:10px; background:rgba(0,0,0,.14); overflow:hidden; position:relative; }
+  #hp { height:100%; border-radius:10px; background:linear-gradient(90deg,#8ce0a5,#4caf7d);
+    transition:width .18s ease; box-shadow:0 0 8px rgba(124,214,150,.8); }
+  #hp.shakeHp { animation:hpHit .35s; }
+  @keyframes hpHit { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 45%{transform:translateX(3px)} 70%{transform:translateX(-2px)} }
+  #hpText { position:absolute; right:6px; top:1px; font-size:10px; color:#fff; font-weight:900; }
+  /* Boss 怒气/催促条（纯气氛） */
+  #rageWrap { margin-top:6px; height:8px; border-radius:5px; background:rgba(255,255,255,.6); overflow:hidden; }
+  #rage { height:100%; width:100%; background:linear-gradient(90deg,#ffd166,#ff5a5a); display:none; }
+  #rage.on { display:block; animation:rageLoop 20s linear infinite; }
+  @keyframes rageLoop { from{width:100%} to{width:0%} }
+
+  /* ---------- 飘字 / 连击层 ---------- */
+  #fxLayer { position:absolute; inset:0; pointer-events:none; z-index:6; }
+  .float {
+    position:absolute; font-weight:900; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.25);
+    animation:floatUp 1s ease-out forwards; white-space:nowrap;
+  }
+  @keyframes floatUp { 0%{opacity:0; transform:translateY(6px) scale(.6)} 15%{opacity:1; transform:translateY(0) scale(1.15)}
+    100%{opacity:0; transform:translateY(-54px) scale(1)} }
+  #comboBadge {
+    position:absolute; left:50%; top:96px; transform:translateX(-50%);
+    background:rgba(40,40,80,.9); color:var(--gold); font-weight:900; font-size:15px;
+    padding:3px 12px; border-radius:14px; opacity:0; pointer-events:none;
+  }
+  #comboBadge.on { animation:comboPop .9s ease-out forwards; }
+  @keyframes comboPop { 0%{opacity:0; transform:translateX(-50%) scale(.5)} 30%{opacity:1; transform:translateX(-50%) scale(1.2)}
+    60%{opacity:1} 100%{opacity:0; transform:translateX(-50%) translateY(-10px) scale(1)} }
+
+  /* ---------- 题目卡 ---------- */
+  #quiz { position:relative; z-index:4; margin:4px 16px 0; background:#fff; border-radius:22px;
+    padding:16px 14px 12px; box-shadow:0 6px 0 rgba(0,0,0,.08), 0 12px 24px rgba(0,0,0,.1);
+    text-align:center; }
+  #qType { font-size:11px; color:#fff; background:var(--blue); border-radius:9px; padding:1px 9px; display:inline-block; font-weight:800; }
+  #qPrompt { margin-top:10px; min-height:44px; }
+  #qText { font-size:30px; font-weight:900; letter-spacing:2px; line-height:1.25; }
+  #qText .blank { color:transparent; background:rgba(76,201,240,.35); border-bottom:3px solid var(--blue);
+    border-radius:6px; padding:0 2px; }
+  #qHint { margin-top:6px; font-size:14px; color:var(--sub); }
+  #options { margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .opt { border:none; background:linear-gradient(180deg,#fff,#eef6ff); border-radius:16px; padding:11px 4px;
+    font-size:20px; font-weight:900; color:var(--ink); box-shadow:0 5px 0 rgba(0,0,0,.1);
+    cursor:pointer; transition:transform .06s; }
+  .opt.long { grid-column:span 2; font-size:17px; }
+  .opt:active { transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.1); }
+  .opt.used { opacity:.35; }
+  .opt.right { background:linear-gradient(180deg,#d7f7e2,#b7efcb); box-shadow:0 5px 0 rgba(0,0,0,.08); color:#2e7d45; }
+  .opt.wrongPicked { background:linear-gradient(180deg,#ffe3e0,#ffd0cb); }
+
+  /* ---------- 炮台 / 玩家 ---------- */
+  #dock { position:absolute; left:0; right:0; bottom:0; z-index:5; padding:8px 20px 14px;
+    display:flex; align-items:flex-end; justify-content:space-between; }
+  #cannon { font-size:54px; line-height:1; filter:drop-shadow(0 6px 6px rgba(0,0,0,.22)); }
+  #hearts { font-size:24px; letter-spacing:2px; }
+  #hearts .lost { opacity:.18; filter:grayscale(1); }
+  #dockMeta { text-align:right; }
+  #comboTxt { font-weight:900; color:var(--orange); font-size:13px; min-height:16px; }
+  #stageNo { font-size:12px; color:var(--sub); font-weight:800; }
+
+  /* ---------- 弹丸 ---------- */
+  .bullet { position:absolute; z-index:7; width:16px; height:16px; border-radius:50%;
+    background:radial-gradient(circle,#fff 0 30%,#ffd166 60%,#ffb703 100%);
+    box-shadow:0 0 12px 3px rgba(255,209,102,.9); pointer-events:none; }
+
+  /* ---------- 屏幕级反馈 ---------- */
+  #flash { position:absolute; inset:0; z-index:20; pointer-events:none; opacity:0; }
+  #flash.red { background:rgba(255,60,60,.35); }
+  #flash.white { background:#fff; }
+  #flash.on { animation:flashA .32s ease-out forwards; }
+  @keyframes flashA { 0%{opacity:1} 100%{opacity:0} }
+  #stage.shakeS { animation:shakeS .5s; }
+  @keyframes shakeS { 0%,100%{transform:translate(0,0)} 15%{transform:translate(-9px,2px)} 30%{transform:translate(8px,-2px)}
+    45%{transform:translate(-6px,2px)} 60%{transform:translate(5px,-1px)} 75%{transform:translate(-3px,1px)} }
+  body.hitstop * { animation-play-state:paused !important; transition:none !important; }
+  body.hitstop #stage { animation:hitstopJitter .09s steps(2,end); }
+  @keyframes hitstopJitter { 0%{transform:translate(1px,-1px)} 100%{transform:translate(-1px,1px)} }
+
+  /* ---------- 全屏叠层（插曲/击破/结算/失败） ---------- */
+  .modal { position:absolute; inset:0; z-index:30; display:none; align-items:center; justify-content:center;
+    background:rgba(30,40,70,.55); text-align:center; }
+  .modal.on { display:flex; }
+  .mcard { width:78%; background:#fff; border-radius:24px; padding:22px 18px;
+    box-shadow:0 10px 0 rgba(0,0,0,.12), 0 24px 60px rgba(0,0,0,.25);
+    animation:popIn .35s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes popIn { from{transform:scale(.5); opacity:0} to{transform:scale(1); opacity:1} }
+  .memoji { font-size:64px; line-height:1; }
+  .mtitle { font-size:24px; font-weight:900; margin-top:6px; color:var(--ink); }
+  .msub { font-size:14px; color:var(--sub); margin-top:8px; line-height:1.6; }
+  .mstars { font-size:30px; letter-spacing:6px; margin:8px 0; color:var(--gold); }
+  .mstars .off { opacity:.25; filter:grayscale(1); }
+  .mbtns { margin-top:12px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .mbtn { border:none; cursor:pointer; border-radius:999px; padding:10px 22px; font-size:15px; font-weight:900;
+    color:#fff; background:linear-gradient(180deg,#ffcf6b,#ffb703); box-shadow:0 4px 0 rgba(0,0,0,.15); }
+  .mbtn.blue { background:linear-gradient(180deg,#7bd9ff,#4cc9f0); }
+  .mbtn.ghost { background:rgba(90,127,158,.16); color:var(--sub); }
+  .mbtn:active { transform:translateY(2px); }
+
+  /* 粒子 canvas 覆盖全屏但不挡交互 */
+  #fxCanvas { position:absolute; inset:0; width:100%; height:100%; z-index:8; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <header>
+    <div class="brand">⚔️ 词力战士 <small>· Demo 2：Boss 狂潮</small></div>
+    <nav>
+      <a href="01-duolingo-style.html">01</a>
+      <a href="02-boss-rush.html" style="opacity:.55">02</a>
+      <a href="03-speed-arena.html">03</a>
+    </nav>
+  </header>
+
+  <section id="bossZone">
+    <div id="bossName">词语魔王</div>
+    <div id="bossWrap">
+      <div id="boss">👾</div>
+      <div id="bossTag">词语魔王</div>
+    </div>
+    <div id="hpOuter"><div id="hp"></div><span id="hpText"></span></div>
+    <div id="rageWrap"><div id="rage"></div></div>
+  </section>
+
+  <section id="quiz">
+    <span id="qType">单词挖格</span>
+    <div id="qPrompt">
+      <div id="qText">A P P _ E</div>
+      <div id="qHint">苹果</div>
+    </div>
+    <div id="options"></div>
+  </section>
+
+  <div id="fxLayer"></div>
+  <canvas id="fxCanvas"></canvas>
+
+  <div id="flash"></div>
+
+  <div id="dock">
+    <div id="cannon">🔫</div>
+    <div id="dockMeta">
+      <div id="comboTxt"></div>
+      <div id="hearts">❤️❤️❤️</div>
+      <div id="stageNo">第 1 关 · 词语魔王</div>
+    </div>
+  </div>
+
+  <!-- 叠层：插曲 / 击破 / 结算 / 失败 -->
+  <div id="overlay" class="modal">
+    <div class="mcard" id="overlayCard"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ================= 题库（内置，可循环复用） ================= */
+// 单词挖格（kind:'letter'）——自动挖一个元音字母
+var LETTER_WORDS = [
+  { word:'apple',  zh:'苹果' }, { word:'banana', zh:'香蕉' }, { word:'school', zh:'学校' },
+  { word:'cat',    zh:'猫' },   { word:'moon',   zh:'月亮' }, { word:'river',  zh:'河流' }
+];
+// 看中文选英文（kind:'word'）
+var WORD_EN = [
+  { prompt:'开心',   answer:'happy' },  { prompt:'睡觉',  answer:'sleep' },
+  { prompt:'朋友',   answer:'friend' }, { prompt:'水',    answer:'water' },
+  { prompt:'猫',     answer:'cat' },    { prompt:'苹果',  answer:'apple' }
+];
+// 成语选释义（kind:'idiom'）
+var IDIOMS = [
+  { prompt:'守株待兔', answer:'坐等收获' }, { prompt:'画蛇添足', answer:'多此一举' },
+  { prompt:'狐假虎威', answer:'仗势欺人' }, { prompt:'亡羊补牢', answer:'为时不晚' },
+  { prompt:'井底之蛙', answer:'见识短浅' }, { prompt:'对牛弹琴', answer:'白费口舌' }
+];
+// 歇后语后半句（kind:'xhy'）
+var XHY = [
+  { prompt:'竹篮打水', answer:'一场空' },     { prompt:'芝麻开花', answer:'节节高' },
+  { prompt:'哑巴吃黄连', answer:'有苦说不出' }, { prompt:'老虎屁股', answer:'摸不得' },
+  { prompt:'外甥打灯笼', answer:'照舅（旧）' },  { prompt:'十五个吊桶打水', answer:'七上八下' }
+];
+// 每关的题型轮换与 Boss
+var LEVELS = [
+  { name:'词语魔王', emoji:'👾',  hp:100, dmgBase:14, kinds:['letter','word','idiom'] },
+  { name:'火焰巨兽', emoji:'👹',  hp:120, dmgBase:15, kinds:['letter','word','idiom','xhy'] },
+  { name:'龙王学霸', emoji:'🐲',  hp:140, dmgBase:16, kinds:['word','idiom','xhy','letter'] }
+];
+var VOWELS = ['a','e','i','o','u'];
+var CONSONANTS = ['b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z'];
+
+/* ================= DOM 引用 ================= */
+var $ = function(id){ return document.getElementById(id); };
+var elStage=$('stage'), elBoss=$('boss'), elBossName=$('bossName'), elBossTag=$('bossTag'),
+    elHp=$('hp'), elHpText=$('hpText'), elRage=$('rage'),
+    elQType=$('qType'), elQText=$('qText'), elQHint=$('qHint'), elOpts=$('options'),
+    elFx=$('fxLayer'), elComboBadge=$('comboBadge'), elComboTxt=$('comboTxt'),
+    elHearts=$('hearts'), elStageNo=$('stageNo'), elFlash=$('flash'),
+    elCannon=$('cannon'), elOverlay=$('overlay'), elOverlayCard=$('overlayCard');
+var canvas=$('fxCanvas'), ctx=canvas.getContext('2d');
+function fitCanvas(){ canvas.width=elStage.clientWidth; canvas.height=elStage.clientHeight; }
+fitCanvas();
+window.addEventListener('resize', fitCanvas);
+
+/* ================= 粒子系统 ================= */
+var parts=[];
+function addPart(o){ if(parts.length<260) parts.push(o); }
+function burst(x,y,n,colors,star){
+  for(var i=0;i<n;i++){
+    var a=Math.random()*Math.PI*2, sp=60+Math.random()*200;
+    addPart({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-40,
+      life:1, max:1, size:2+Math.random()*4, star:!!star,
+      color:colors[(Math.random()*colors.length)|0]});
+  }
+}
+function loopParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(var i=parts.length-1;i>=0;i--){
+    var p=parts[i];
+    p.life-=0.025; p.x+=p.vx*0.016; p.y+=p.vy*0.016; p.vy+= (p.star?40:220)*0.016;
+    if(p.life<=0){ parts.splice(i,1); continue; }
+    ctx.globalAlpha=Math.max(0,Math.min(1,p.life/p.max));
+    ctx.fillStyle=p.color;
+    if(p.star){ ctx.font=(p.size*3)+'px sans-serif'; ctx.fillText('★',p.x,p.y); }
+    else{ ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); }
+  }
+  ctx.globalAlpha=1;
+  requestAnimationFrame(loopParticles);
+}
+loopParticles();
+
+/* ================= 状态 ================= */
+var S = {
+  level:0, bossHp:100, combo:0, maxCombo:0, hearts:3,
+  answered:0, busy:false, usedQ:null,
+  item:null, options:[], correctKey:''
+};
+function setHpPct(pct){ elHp.style.width=pct+'%'; }
+function hpColor(){
+  var pct=S.bossHp/S.levelCfg.hp;
+  if(pct>0.75) return ['#5bd07f','#3da86a'];
+  if(pct>0.5)  return ['#f4c542','#e0a93a'];
+  if(pct>0.25) return ['#f59a4b','#e07f2f'];
+  return ['#ff6b5e','#e0493a'];
+}
+function paintHp(){
+  var pct=Math.max(0,S.bossHp/S.levelCfg.hp*100);
+  var c=hpColor();
+  elHp.style.width=pct+'%';
+  elHp.style.background='linear-gradient(90deg,'+c[0]+','+c[1]+')';
+  elHpText.textContent=Math.max(0,S.bossHp|0)+'/'+S.levelCfg.hp;
+  // 暴怒：末段 25%
+  if(pct<=25){ elBoss.classList.add('angry'); elRage.classList.add('on'); }
+  else { elBoss.classList.remove('angry'); elRage.classList.remove('on'); }
+}
+function paintHearts(){
+  var html='';
+  for(var i=0;i<3;i++) html+='<span class="'+(i<S.hearts?'':'lost')+'">❤️</span>';
+  elHearts.innerHTML=html;
+}
+function stageLabel(){
+  var lv=LEVELS[S.level];
+  elBossName.textContent=lv.name; elBossTag.textContent=lv.name; elBoss.textContent=lv.emoji;
+  elStageNo.textContent='第 '+(S.level+1)+' 关 · '+lv.name;
+}
+
+/* ================= 题库抽题（按 kind 轮换 + 干扰自动构造） ================= */
+var KINDS=['letter','word','idiom','xhy'];
+function pickPool(kind){ return kind==='letter'?LETTER_WORDS:kind==='word'?WORD_EN:kind==='idiom'?IDIOMS:XHY; }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=(Math.random()*(i+1))|0,t=a[i];a[i]=a[j];a[j]=t;} return a; }
+function makeLetterQ(item){
+  var w=item.word.toLowerCase(), idx=-1;
+  for(var i=1;i<w.length;i++){ if(VOWELS.indexOf(w[i])>-1){ idx=i; break; } }
+  if(idx<0){ for(i=1;i<w.length;i++){ if(w[i]!==w[0]){idx=i;break;} } }
+  if(idx<0) idx=w.length-1;
+  var letter=w[idx];
+  var pool= VOWELS.indexOf(letter)>-1?VOWELS.slice():CONSONANTS.slice();
+  var opts=[letter];
+  while(opts.length<4 && pool.length){ var r=(Math.random()*pool.length)|0;
+    if(pool[r]!==letter){ opts.push(pool[r]); } pool.splice(r,1); }
+  var mask='';
+  for(var j=0;j<w.length;j++) mask+= (j===idx?'_':w[j]);
+  return { type:'单词挖格', text:mask.toUpperCase().replace(/_/g,'_'), hint:item.zh, correctKey:'k'+letter, opts:shuffle(opts), markRight:function(ch){ return ch===letter; }, display:function(ch){ return ch.toUpperCase(); } };
+}
+function makeChoiceQ(item,kind){
+  var pool=pickPool(kind).filter(function(it){ return it!==item && it.answer!==item.answer; });
+  var opts=[item.answer];
+  shuffle(pool);
+  for(var i=0;i<pool.length && opts.length<4;i++){ if(opts.indexOf(pool[i].answer)<0) opts.push(pool[i].answer); }
+  // 兜底
+  var fb=['待定','未知','不好说','再看看'];
+  for(i=0;i<fb.length && opts.length<4;i++){ if(opts.indexOf(fb[i])<0) opts.push(fb[i]); }
+  var t=kind==='word'?'看中文选英文':kind==='idiom'?'成语选释义':'歇后语后半句';
+  return { type:t, text:item.prompt, hint: kind==='word'?'选出对应的英文单词':'选出正确的选项',
+    correctKey:'k'+item.answer, opts:shuffle(opts), markRight:function(s){ return s===item.answer; }, display:function(s){ return s; } };
+}
+function nextQuestion(){
+  S.busy=false;
+  var cfg=S.levelCfg;
+  var kind=cfg.kinds[S.answered%cfg.kinds.length];
+  var pool=pickPool(kind);
+  var candidates=pool.filter(function(it){ return !S.usedQ || it!==S.usedQ; });
+  var item=candidates.length?candidates[(Math.random()*candidates.length)|0]:pool[(Math.random()*pool.length)|0];
+  S.usedQ=item;
+  var q= kind==='letter'?makeLetterQ(item):makeChoiceQ(item,kind);
+  S.item=q; S.q=q;
+  renderQuestion(q);
+}
+function renderQuestion(q){
+  elQType.textContent=q.type;
+  var spaced=q.text.toUpperCase().split('').join(' ');
+  elQText.innerHTML= spaced.split('').map(function(c){ return c===' '?c:(c==='_'?'<span class="blank">&nbsp;_&nbsp;</span>':c); }).join('');
+  elQHint.textContent='提示：'+q.hint;
+  elOpts.innerHTML='';
+  var long= q.text.length>8 && q.type!=='单词挖格';
+  q.opts.forEach(function(o){
+    var b=document.createElement('button');
+    b.className='opt'+(long?' long':'');
+    b.dataset.key='k'+o;
+    b.textContent=q.display(o);
+    b.addEventListener('click', function(){ pick(o,b); });
+    elOpts.appendChild(b);
+  });
+  elComboBadge.className=''; elComboBadge.textContent='';
+  elComboTxt.textContent= S.combo>1 ? ('连击 ×'+S.combo) : '';
+}
+function lockOptions(){ var bs=elOpts.children; for(var i=0;i<bs.length;i++) bs[i].classList.add('used'); }
+function markRightOption(){
+  var bs=elOpts.children;
+  for(var i=0;i<bs.length;i++){ if(bs[i].dataset.key===S.q.correctKey){ bs[i].classList.add('right'); break; } }
+}
+
+/* ================= 命中 / 反馈 ================= */
+function center(elm){
+  var r=elm.getBoundingClientRect(), s=elStage.getBoundingClientRect();
+  return { x:r.left+r.width/2-s.left, y:r.top+r.height/2-s.top };
+}
+function shoot(){
+  // 炮台弹道 → Boss 头部
+  var from=center(elCannon), to=center(elBoss);
+  to.y-=40;
+  var b=document.createElement('div'); b.className='bullet';
+  elStage.appendChild(b);
+  b.style.left=(from.x-8)+'px'; b.style.top=(from.y-8)+'px';
+  var dx=to.x-from.x, dy=to.y-from.y, dist=Math.hypot(dx,dy), v=700;
+  var t0=performance.now(), dur=dist/v*1000;
+  function step(t){
+    var k=Math.min(1,(t-t0)/dur);
+    b.style.left=(from.x-8+dx*k)+'px';
+    b.style.top=(from.y-8+dy*k)+'px';
+    b.style.transform='scale('+(1-k*0.3)+')';
+    if(k<1){ requestAnimationFrame(step); }
+    else { b.remove(); hitBoss(); }
+  }
+  requestAnimationFrame(step);
+}
+function floatText(x,y,txt,cls){
+  var d=document.createElement('div'); d.className='float'; d.style.cssText='left:'+x+'px;top:'+y+'px;font-size:'+((cls&&cls.fs)||20)+'px;color:'+((cls&&cls.color)||'#fff');
+  d.textContent=txt; elFx.appendChild(d); setTimeout(function(){ d.remove(); },1000);
+}
+function hitstop(ms){ document.body.classList.add('hitstop'); setTimeout(function(){ document.body.classList.remove('hitstop'); },ms); }
+function screenShake(){ elStage.classList.remove('shakeS'); void elStage.offsetWidth; elStage.classList.add('shakeS'); }
+function flash(kind){ elFlash.className=''; void elFlash.offsetWidth; elFlash.className=kind; elFlash.classList.add('on'); }
+function centerOfBoss(){
+  var c=center(elBoss); return { x:c.x, y:c.y-6 };
+}
+function hitBoss(){
+  hitstop(90);
+  var dmg=S.levelCfg.dmgBase * (1+S.combo*0.1);
+  dmg=Math.max(6,Math.round(dmg+((Math.random()*6)|0)));
+  S.bossHp-=dmg;
+  var c=centerOfBoss();
+  // 飘伤害字（带倍率）
+  var mult=(1+S.combo*0.1);
+  floatText(c.x, c.y-10, '-'+dmg+' '+(S.combo>0?('×'+(Math.round(mult*10)/10).toFixed(1)):''), {fs:22,color:'#ff6b3d'});
+  // 连击徽标
+  if(S.combo>=2){
+    elComboBadge.textContent='COMBO ×'+S.combo;
+    elComboBadge.className=''; void elComboBadge.offsetWidth; elComboBadge.classList.add('on');
+  }
+  paintHp();
+  elHp.classList.remove('shakeHp'); void elHp.offsetWidth; elHp.classList.add('shakeHp');
+  burst(c.x,c.y,22,['#ffd166','#ff8a5c','#8ce0a5','#7bd9ff'],false);
+  burst(c.x-6,c.y-8,5,['#ffd700'],true);
+  screenShake();
+  setTimeout(function(){
+    if(S.bossHp<=0){ bossDown(); return; }
+    nextQuestion();
+  }, 720);
+}
+function playerHit(){
+  S.hearts--; paintHearts();
+  flash('red'); screenShake();
+  elBoss.classList.remove('lunge'); void elBoss.offsetWidth; elBoss.classList.add('lunge');
+  elComboTxt.textContent='';
+  markRightOption();
+  if(S.hearts<=0){ setTimeout(function(){ showFail(); }, 900); return; }
+  setTimeout(function(){ nextQuestion(); }, 1500);
+}
+function pick(o,btn){
+  if(S.busy) return; S.busy=true; lockOptions();
+  var ok=S.q.markRight(o);
+  if(ok){
+    btn.classList.add('right');
+    S.combo++; if(S.combo>S.maxCombo) S.maxCombo=S.combo;
+    S.answered++;
+    shoot(); // 命中回调里结算
+  } else {
+    btn.classList.add('wrongPicked');
+    S.combo=0; S.answered++;
+    setTimeout(function(){ playerHit(); }, 260);
+  }
+}
+/* ================= Boss 击破 / 关卡 / 结算 ================= */
+function bossDown(){
+  var c=centerOfBoss();
+  hitstop(120);
+  flash('white'); screenShake();
+  burst(c.x,c.y,70,['#fff','#ffd166','#ff8a5c','#ff5d8f','#8ce0a5','#7bd9ff'],true);
+  burst(c.x,c.y,26,['#fff'],false);
+  var stars=Math.max(1,Math.min(3,S.hearts));
+  setTimeout(function(){ showWin(stars); }, 620);
+}
+function starHtml(n){ var s=''; for(var i=1;i<=3;i++) s+='<span class="'+(i<=n?'':'off')+'">★</span>'; return s; }
+function showWin(stars){
+  var last=S.level===LEVELS.length-1;
+  elOverlayCard.innerHTML=
+    '<div class="memoji">'+LEVELS[S.level].emoji+'</div>'+
+    '<div class="mtitle">Boss 击破！</div>'+
+    '<div class="mstars">'+starHtml(stars)+'</div>'+
+    '<div class="msub">'+LEVELS[S.level].name+' 被打败啦！'+
+    '（最高连击 ×'+S.maxCombo+'，剩余 ❤'+S.hearts+'）</div>'+
+    '<div class="mbtns">'+
+    (last?'<button class="mbtn blue" id="btnAgain">再来一轮</button>'
+          :'<button class="mbtn" id="btnNext">下一关 →</button>')+
+    '<button class="mbtn ghost" id="btnClose">稍后再说</button></div>';
+  showOverlay();
+  bind('btnNext', function(){ startLevel(S.level+1); });
+  bind('btnAgain', function(){ startLevel(0); });
+  bind('btnClose', function(){ hideOverlay(); });
+}
+function showFail(){
+  elOverlayCard.innerHTML=
+    '<div class="memoji">😵</div><div class="mtitle">被击败了…</div>'+
+    '<div class="msub">'+LEVELS[S.level].name+' 太强了，回复满血再战！</div>'+
+    '<div class="mbtns"><button class="mbtn blue" id="btnRetry">重整旗鼓</button></div>';
+  showOverlay();
+  bind('btnRetry', function(){ startLevel(S.level); });
+}
+function showInterlude(lv){
+  hideOverlay();
+  elOverlayCard.innerHTML=
+    '<div class="memoji">'+lv.emoji+'</div>'+
+    '<div class="mtitle">第 '+(S.level+1)+' 关</div>'+
+    '<div class="msub">'+lv.name+' 来了！击破它！</div>';
+  showOverlay();
+  setTimeout(function(){ hideOverlay(); startQuestion(); }, 1500);
+}
+function bind(id,fn){ var b=document.getElementById(id); if(b){ b.addEventListener('click',fn); } }
+function showOverlay(){ elOverlay.classList.add('on'); }
+function hideOverlay(){ elOverlay.classList.remove('on'); }
+function startLevel(lv){
+  if(lv>=LEVELS.length){ lv=0; }
+  S.level=lv;
+  var cfg=LEVELS[lv];
+  S.levelCfg={ hp:cfg.hp, dmgBase:cfg.dmgBase, kinds:cfg.kinds.slice() };
+  S.bossHp=cfg.hp; S.combo=0; S.maxCombo=0; S.hearts=3; S.answered=0; S.usedQ=null;
+  stageLabel(); paintHp(); paintHearts();
+  if(lv===0){ startQuestion(); } else { showInterlude(cfg); }
+}
+function startQuestion(){ hideOverlay(); paintHp(); nextQuestion(); }
+
+/* ================= 启动 ================= */
+elBoss.classList.add('angry'); elBoss.classList.remove('angry');
+startLevel(0);
+</script>
+</body>
+</html>
