@@ -25,7 +25,7 @@
 // envId：与本小程序已关联的云开发环境 ID（云开发控制台顶部可查）；
 // serviceName：云托管服务名（即服务默认域名首段，如 express-xxx）。
 var CLOUD_CONFIG = {
-  envId: 'cloud1-d5g2c02wdb088b2a0',
+  envId: 'prod-d6gnifjoe28cfd96f',
   serviceName: 'express-g0hk'
 };
 
