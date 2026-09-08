@@ -67,7 +67,8 @@ const STORAGE_KEYS = {
   stars: 'ww_stars',              // 星级存档（按「学段+关卡」维度）
   pendingScores: 'ww_pending_scores', // 待上报成绩队列（离线暂存）
   warriorSkin: 'ww_warrior_skin', // 当前使用的战士皮肤 avatarId
-  bossSkin: 'ww_boss_skin'        // 当前使用的怪兽皮肤 avatarId
+  bossSkin: 'ww_boss_skin',        // 当前使用的怪兽皮肤 avatarId
+  sound: 'ww_sound_on'            // 声音开关（'1'开/'0'关，默认开）
 };
 
 // ============ 五、游戏配置默认值（REQ-NFR-5、REQ-GAME-3） ============

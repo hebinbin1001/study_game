@@ -67,6 +67,14 @@
   min-width: 160rpx;
 }
 
+/* 声音开关：窄胶囊（喇叭切换，catchtap） */
+.hud-sound {
+  width: 76rpx;
+  padding: 0;
+  font-size: 36rpx;
+  flex-shrink: 0;
+}
+
 /* ============ 游戏画布 ============ */
 /* 逻辑尺寸 390×500（与 config.js W/H 一致），dpr 适配在 onReady 中处理 */
 .game-canvas {

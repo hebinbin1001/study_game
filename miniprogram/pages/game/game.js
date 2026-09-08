@@ -21,6 +21,8 @@ var engine = require('../../game/engine');
 var config = require('../../game/config');
 var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
+var constants = require('../../utils/constants');
+var audio = require('../../game/audio');
 
 var CONFIG = config.CONFIG;
 
@@ -49,6 +51,9 @@ Page({
 
     // ---- 连击提示 ----
     comboText: '',             // 连击浮层文字（空串时不显示）
+
+    // ---- 声音开关（M6 增补） ----
+    soundOn: true,              // 音效/朗读总开关（HUD 喇叭切换）
 
     // ---- 新手引导（M6-L） ----
     tutorialStep: 0,           // 0=不显示；1..3 引导步骤
@@ -91,6 +96,22 @@ Page({
     this._usedItems = [];
     this._lastHud = null;
     this._engineStarted = false;
+
+    // 声音开关：恢复本地偏好（默认开）并同步到 audio 模块
+    var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
+    audio.setSoundEnabled(soundOn);
+    this.setData({ soundOn: soundOn });
+  },
+
+  // 切换声音（HUD 喇叭）：写入本地偏好并同步 audio（音效 + 朗读）
+  onToggleSound: function () {
+    var next = !this.data.soundOn;
+    storage.set(constants.STORAGE_KEYS.sound, next ? '1' : '0');
+    audio.setSoundEnabled(next);
+    this.setData({ soundOn: next });
+    if (next) {
+      audio.playCorrect(); // 开启时给一个反馈音
+    }
   },
 
   /**

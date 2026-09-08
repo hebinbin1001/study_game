@@ -17,6 +17,14 @@
 // 英语类题型集合（用于 speakByItem 判断语言）
 const EN_TYPES = ['en', 'w1', 'w2', 'fill', 'trans'];
 
+// ============ 〇、声音总开关（游戏 HUD 喇叭切换，音效 + TTS 朗读统一受控） ============
+var _soundOn = true;
+
+/** 设置声音开关。@param {boolean} on */
+function setSoundEnabled(on) {
+  _soundOn = !!on;
+}
+
 // ============ 一、TTS 发音（微信同声传译插件） ============
 
 /** 获取 TTS 插件（未声明/不可用时返回 null，调用方静默降级） */
@@ -43,6 +51,7 @@ function mapLang(lang) {
  * @param {string} [lang='zh_CN'] 'en_US' 或 'zh_CN'（兼容 'en-US'/'zh-CN'）
  */
 function speak(text, lang) {
+  if (!_soundOn) return; // 声音总开关关闭时不发音
   if (!text) return;
   const tts = getTTS();
   if (!tts) return; // 插件未配置/不可用：静默降级
@@ -89,6 +98,7 @@ function audioCtx() {
 
 /** 播放一个短音：频率/时长/波形/音量/延迟 */
 function tone(freq, dur, type, vol, delay) {
+  if (!_soundOn) return; // 声音总开关关闭时不播放音效
   const ctx = audioCtx();
   if (!ctx) return;
   try {
@@ -139,5 +149,6 @@ module.exports = {
   playCorrect,
   playWrong,
   playCombo,
-  playWin
+  playWin,
+  setSoundEnabled
 };
