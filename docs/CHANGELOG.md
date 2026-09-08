@@ -144,6 +144,15 @@
 
 ---
 
+## 2026-09-08（会话收尾 · lazyCodeLoading 与终态）
+
+- **组件按需注入**：`miniprogram/app.json` 加 `"lazyCodeLoading":"requiredComponents"`（消除开发者工具告警、优化冷启动）（commit `de0b631`）。
+- 工作区与 `origin/main` 完全同步，无未提交改动；本会话全部功能与文档已归档。
+- 已知待办见上文 09-08「待办/上线前配置」与 `.codeartsdoer/specs/*/tasks.md`（接续会话从此处继续）。
+
+
+---
+
 ## 2026-09-08（收尾批：计分调整 · 数据链路修复 · M7 形态/地图）
 
 ### 计分与数值
