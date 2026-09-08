@@ -58,6 +58,24 @@ Page({
     // ---- 声音开关（M6 增补） ----
     soundOn: true,              // 音效/朗读总开关（HUD 喇叭切换）
 
+    // ---- 对局形态（M7 Phase A：classic/boss/rush，仅表现层，不影响计分） ----
+    mode: 'classic',           // 当前生效形态
+    modeOptions: [],           // config.MODES 元数据
+    pickedMode: 'classic',     // 形态选择层预选（记住上次 ww_mode）
+    modePickVisible: true,     // 进关前形态自选层
+    hpCells: [],               // boss 血条占位格 [1..totalQ]
+    bossRemain: 0,             // boss 剩余血量格（= 总题数进度）
+    bossFury: false,           // ≤25% 暴怒氛围
+    bossHit: false,            // 受击顿帧（canvas 抖动）
+    bossDefeat: false,         // BOSS 击破大闪层
+    modeFxText: '',            // 形态飘字（命中/挥击/击破）
+    modeFxKey: 0,              // 飘字重播 key
+    rushShow: '',              // 竞速倒计时文本（如 '5.6'）
+    rushPct: 100,              // 竞速倒计时条宽 %
+    rushLow: false,            // ≤2s 变红
+    penLock: false,            // 竞速惩罚锁（禁点）
+    comboShow: 0,              // 竞速连击徽标（>1 显示 ×N）
+
     // ---- 新手引导（M6-L） ----
     tutorialStep: 0,           // 0=不显示；1..3 引导步骤
     tutorialTitle: '',         // 当前步骤标题
@@ -105,7 +123,18 @@ Page({
     // 声音开关：恢复本地偏好（默认开）并同步到 audio 模块
     var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
     audio.setSoundEnabled(soundOn);
-    this.setData({ soundOn: soundOn });
+
+    // M7：形态记忆预选（上次 ww_mode，缺省 classic）+ 初始化 Boss 血条格
+    var picked = storage.getMode();
+    var hpCells = [];
+    for (var h = 0; h < CONFIG.totalQ; h++) hpCells.push(h + 1);
+    this.setData({
+      soundOn: soundOn,
+      pickedMode: picked,
+      modeOptions: CONFIG.modes || [],
+      bossRemain: CONFIG.totalQ,
+      hpCells: hpCells
+    });
   },
 
   // 切换声音（HUD 喇叭）：写入本地偏好并同步 audio（音效 + 朗读）
@@ -133,6 +162,8 @@ Page({
     var G = engine.getState();
     if (G && !G.over) {
       engine.resume();
+      // 竞速：回到前台且当前题仍待答 → 从剩余时间续走倒计时
+      this._rushResumeIfIdle();
     }
   },
 
@@ -169,8 +200,11 @@ Page({
         self._ctx = ctx;
         self._dpr = dpr;
 
-        // 启动引擎主循环
-        self._startEngine();
+        // M7：形态选择确认前不自动开打；若已在选择层点了“开始”（canvas 尚未就绪）则此处兜底启动
+        if (self._pendingStart) {
+          self._pendingStart = false;
+          self._startEngine();
+        }
       });
   },
 
@@ -181,6 +215,8 @@ Page({
   onHide() {
     engine.stop();
     this._clearComboTimer();
+    this._rushStop();
+    this._clearFxTimer();
   },
 
   /**
@@ -190,9 +226,30 @@ Page({
   onUnload() {
     engine.stop();
     this._clearComboTimer();
+    this._rushStop();
+    this._clearFxTimer();
+    if (this._penTimer) { clearTimeout(this._penTimer); this._penTimer = null; }
+    if (this._hitTimer) { clearTimeout(this._hitTimer); this._hitTimer = null; }
   },
 
   // ============ 引擎启动与回调注入 ============
+
+  // M7 形态选择层
+  onPickMode: function (e) {
+    this.setData({ pickedMode: e.currentTarget.dataset.mode || 'classic' });
+  },
+
+  // 确认形态并开始对局（记住选择；经典/Boss/竞速均经同一 engine.start）
+  startMode: function () {
+    var m = this.data.pickedMode || 'classic';
+    storage.setMode(m);
+    this.setData({ mode: m, modePickVisible: false, bossRemain: CONFIG.totalQ, bossDefeat: false, penLock: false, modeFxText: '' });
+    if (!this._canvasNode) {
+      this._pendingStart = true; // canvas 尚未就绪：onReady 兜底启动
+      return;
+    }
+    if (!this._engineStarted) this._startEngine();
+  },
 
   // 答错 → 上报错题本（登录用户；游客无账号不上报，静默失败不影响对局）
   _reportWrong: function (item) {
@@ -218,6 +275,9 @@ Page({
     engine.start(this._canvasNode, this._ctx, {
       // 皮肤选择（战士/boss avatarId），引擎解析为 emoji+主色渲染
       skins: this._skins,
+
+      // M7 对局形态（classic/boss/rush；仅表现层差异，判定/计分在引擎内共享）
+      mode: this.data.mode,
 
       /**
        * 获取下一个词条（词库抽题，REQ-DICT-3）。
@@ -255,6 +315,13 @@ Page({
        */
       onWrong: function (item) {
         self._reportWrong(item);
+      },
+
+      /**
+       * 形态阶段事件（M7，仅供表现层）：question/correct/wrong/over
+       */
+      onPhase: function (phase, payload) {
+        self._onPhase(phase, payload);
       },
 
       /**
@@ -309,6 +376,124 @@ Page({
   // ============ HUD 更新（差值比较，REQ-NFR-1） ============
 
   /**
+   * 形态阶段事件处理（M7，纯表现）：
+   *   question → 新题（rush 启动倒计时 / 清飘字）
+   *   correct  → 答对（boss 扣血格+命中特效；rush 停表并展示连击视觉）
+   *   wrong    → 答错/超时（boss 挥击文案；rush 惩罚锁）
+   *   over     → 结算（boss 胜出触发“击破”，由 _onGameOver 延迟跳转展示）
+   */
+  _onPhase: function (phase, payload) {
+    var mode = this.data.mode;
+    if (mode === 'classic') {
+      // 经典形态无额外表现，但仍需在结束时清理（防御）
+      if (phase === 'over') this._rushStop();
+      return;
+    }
+    if (phase === 'question') {
+      this._clearFxTimer();
+      this.setData({ modeFxText: '', penLock: false });
+      if (mode === 'rush') this._rushStart();
+      return;
+    }
+    if (phase === 'correct') {
+      this._rushStop();
+      var combo = payload && payload.combo ? payload.combo : 0;
+      if (mode === 'boss') {
+        this._bossHit();
+        this._showFx(combo > 1 ? '💥 ×' + combo + ' 连击！' : '💥 命中！');
+      } else {
+        this._showFx((combo > 1 ? '+10 ×' + combo : '+10') + ' ⚡');
+      }
+      return;
+    }
+    if (phase === 'wrong') {
+      this._rushStop();
+      if (mode === 'rush') this._penLock();
+      this._showFx(mode === 'boss' ? '👹 Boss 挥击！' : '⏱ 答错/超时！');
+      return;
+    }
+    if (phase === 'over') {
+      this._rushStop();
+      // Boss 胜出：over 事件在结算跳转前派发；击破文案由 _showFx 呈现、_onGameOver 延迟跳转
+      if (mode === 'boss' && payload && payload.win) {
+        this._showFx('💥 BOSS 击破！', 0); // life=0 不自动清除（由跳转前清除）
+      }
+    }
+  },
+
+  // Boss：答对扣 1 格血；≤3 格进入暴怒氛围；触发一次受击顿帧（canvas 抖动 class）
+  _bossHit: function () {
+    var remain = Math.max(0, this.data.bossRemain - 1);
+    var fury = remain > 0 && remain <= 3;
+    var self = this;
+    this.setData({ bossRemain: remain, bossFury: fury, bossHit: true });
+    if (this._hitTimer) clearTimeout(this._hitTimer);
+    this._hitTimer = setTimeout(function () { self.setData({ bossHit: false }); }, 140);
+  },
+
+  // 形态飘字（生命期后可自动清除；life=0 表示保持，由调用方清除）
+  _showFx: function (text, life) {
+    this._clearFxTimer();
+    var self = this;
+    this.setData({ modeFxText: text, modeFxKey: (this.data.modeFxKey || 0) + 1 });
+    if (life !== 0) {
+      this._fxTimer = setTimeout(function () { self.setData({ modeFxText: '' }); }, life > 0 ? life : 900);
+    }
+  },
+  _clearFxTimer: function () {
+    if (this._fxTimer) { clearTimeout(this._fxTimer); this._fxTimer = null; }
+  },
+
+  // 竞速（rush）表现：每题倒计时 / 超时判错（复用引擎失败入口） ============
+  _rushStart: function (fromMs) {
+    this._rushStop();
+    var self = this;
+    this._rushRemain = (fromMs && fromMs > 0) ? fromMs : (CONFIG.rushSeconds || 8) * 1000;
+    this.setData({ rushShow: (this._rushRemain / 1000).toFixed(1), rushPct: 100, rushLow: false });
+    this._rushTimer = setInterval(function () { self._rushTick(); }, 200);
+  },
+  // 切回前台时若竞速计时已停（后台 onHide 停表）且当前题待答 → 用剩余时间续走
+  _rushResumeIfIdle: function () {
+    if (this.data.mode !== 'rush') return;
+    if (this._rushTimer) return;
+    var st = engine.getState ? engine.getState() : null;
+    if (!st || st.over || st.state !== 'idle') return;
+    this._rushStart(this._rushRemain > 0 ? this._rushRemain : (CONFIG.rushSeconds || 8) * 1000);
+  },
+  _rushTick: function () {
+    var st = engine.getState ? engine.getState() : null;
+    if (!st || st.over) { this._rushStop(); return; }
+    // 非待答（作答/转场中）不计时；对局结束/不存在则停表
+    if (st.state !== 'idle') return;
+    this._rushRemain -= 200;
+    if (this._rushRemain <= 0) {
+      this._rushStop();
+      this._penLock();
+      // 超时判错：与玩家选错同入口（engine.forceFailCurrent → _failQuestion），计分/扣命零改动
+      engine.forceFailCurrent();
+      return;
+    }
+    var sec = this._rushRemain / 1000;
+    var pct = (this._rushRemain / ((CONFIG.rushSeconds || 8) * 1000)) * 100;
+    this.setData({ rushShow: sec.toFixed(1), rushPct: Math.max(0, Math.min(100, pct)), rushLow: sec <= 2 });
+  },
+  _rushStop: function () {
+    if (this._rushTimer) { clearInterval(this._rushTimer); this._rushTimer = null; }
+  },
+  // 竞速答错/超时后的惩罚锁：0.8s 内禁点选项（视觉置灰由 class penLock 承担）
+  _penLock: function () {
+    var self = this;
+    if (this._penTimer) clearTimeout(this._penTimer);
+    this.setData({ penLock: true });
+    this._penTimer = setTimeout(function () {
+      self.setData({ penLock: false });
+      self._penTimer = null;
+    }, (CONFIG.rushPenalty || 0.8) * 1000);
+  },
+
+  // ============ HUD 更新（差值比较，REQ-NFR-1） ============
+
+  /**
    * HUD 更新：比较 score/lives/answered 与上次快照，仅任一变化时 setData。
    * 避免引擎 _newQuestion 时冗余的全量 setData 触发渲染。
    * 关联 REQ-NFR-1
@@ -333,12 +518,18 @@ Page({
       diff.qIndex = data.answered + 1;
       changed = true;
     }
+    // 连击（rush 徽标展示用；classic 下不影响）
+    if (!last || last.combo !== data.combo) {
+      diff.comboShow = data.combo || 0;
+      changed = true;
+    }
 
     // 更新快照
     this._lastHud = {
       score: data.score,
       lives: data.lives,
-      answered: data.answered
+      answered: data.answered,
+      combo: data.combo
     };
 
     // 仅在数值实际变化时触发 setData
@@ -439,6 +630,7 @@ Page({
    * 关联 REQ-GAME-6/7（点选项触发答对/答错流程）
    */
   onOptionTap(e) {
+    if (this.data.penLock) return; // 竞速惩罚锁：0.8s 内禁点
     // M6-L：若引导蒙层仍显示（异常路径兜底），先关闭引导再继续作答
     if (this.data.tutorialStep > 0) {
       this.finishTutorial();
@@ -464,6 +656,8 @@ Page({
     // 先停止引擎主循环
     engine.stop();
     this._clearComboTimer();
+    this._rushStop();
+    this._clearFxTimer();
 
     // 拼接结算页查询参数（type 分类随参数传递，结算页据此写分类存档）
     var query =
@@ -478,7 +672,17 @@ Page({
       '&stars=' + result.stars +
       '&maxCombo=' + result.maxCombo;
 
-    // 跳转结算页（redirectTo 替换当前页，避免回退回已结束的本局）
-    wx.redirectTo({ url: '/pages/result/result?' + query });
+    var self = this;
+    var go = function () {
+      // 跳转结算页（redirectTo 替换当前页，避免回退回已结束的本局）
+      wx.redirectTo({ url: '/pages/result/result?' + query });
+    };
+    // M7 Boss 胜出：先短暂展示“击破”大闪层再跳结算（仅表现，不改变上报数据）
+    if (result.win && this.data.mode === 'boss' && this.data.bossRemain <= 0) {
+      this.setData({ modeFxText: '', bossDefeat: true });
+      setTimeout(go, 750);
+      return;
+    }
+    go();
   }
 });

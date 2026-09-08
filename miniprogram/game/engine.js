@@ -91,6 +91,9 @@ const engine = {
     this.G.warriorSkin = getWarriorSkin(skins.warrior);
     this.G.monsterSkin = getMonsterSkin(skins.monster);
 
+    // 对局形态注入（M7）：'classic' | 'boss' | 'rush' —— 仅表现层差异，判定/计分不受影响
+    this.G.mode = (options && options.mode) || 'classic';
+
     // 出第一题并启动主循环
     this._newQuestion();
     this._loop(canvasNode);
@@ -182,6 +185,17 @@ const engine = {
   },
 
   /**
+   * 竞速超时判错（M7 rush）：复用选错的同一失败入口 _failQuestion。
+   * 仅「待答题 IDLE」时有效；判定/计分/扣命与玩家选错完全一致，零新增判定路径。
+   */
+  forceFailCurrent() {
+    const G = this.G;
+    if (!G || G.over) return;
+    if (G.state !== IDLE) return;
+    this._failQuestion();
+  },
+
+  /**
    * 在引擎权威选项 G.options 中定位某 letter 对应的下标。
    * @param {string} letter 被点选项字母/字符
    * @returns {number} 下标，未找到返回 -1
@@ -269,10 +283,11 @@ const engine = {
       }
     }
 
-    // ---- DYING 计时（答对后怪兽死亡动画 ≈0.7s，然后下一题） ----
+    // ---- DYING 计时（答对后怪兽死亡动画：经典 ≈0.7s；竞速提速 0.35s；然后下一题） ----
     if (G.state === DYING) {
       G.dyingT = (G.dyingT || 0) + dt;
-      if (G.dyingT >= CONFIG.dyingTime) {
+      const dyingLimit = (G.mode === 'rush') ? CONFIG.rushDying : CONFIG.dyingTime;
+      if (G.dyingT >= dyingLimit) {
         this._nextQuestion();
         return;
       }
@@ -337,6 +352,8 @@ const engine = {
     G.dyingT = 0;
     // 回执文案：词级题展示整词/完整成果，避免把 q 模板（含 __）当展示词
     this._emitTip(this._answerFeedback() + ' ！太棒了！');
+    // 形态事件：答对（Boss 扣血 / 竞速停止计时与展示，仅表现）
+    this._emitPhase('correct', { combo: G.combo });
   },
 
   // ============ 答错（平移原型 failQuestion，第 656-682 行） ============
@@ -365,6 +382,8 @@ const engine = {
     if (this._callbacks.onWrong) {
       this._callbacks.onWrong(G.question.item);
     }
+    // 形态事件：答错/超时（Boss 挥击感 / 竞速惩罚锁，仅表现）
+    this._emitPhase('wrong');
   },
 
   /**
@@ -459,6 +478,8 @@ const engine = {
     this._emitHud();
     this._emitTip(wl ? (G.question.hintText || wordLevelGuide(item)) :
       '一次机会！点错字母怪兽就赢，小心选！');
+    // 形态事件：新题就绪（竞速开始倒计时，仅表现）
+    this._emitPhase('question');
   },
 
   // 词级选项按钮展示文本：trans 整词首字母大写；fill 保持原始（句子语境）；中文原样
@@ -474,6 +495,9 @@ const engine = {
     const stars = starsByRate(rate); // 用 constants.js 星级阈值 90/70/40
     G.over = true;
     if (win) playWin(); // M6-H 通关音效
+
+    // 形态事件：本局结束（结算前派发，页面可先展示 BOSS 击破等表现再跳结算）
+    this._emitPhase('over', { win: !!win, mode: G.mode });
 
     // 通知页面层结算
     if (this._callbacks.onGameOver) {
@@ -580,6 +604,10 @@ const engine = {
   },
   _emitTip(text) {
     if (this._callbacks.onTip) this._callbacks.onTip(text);
+  },
+  // 对局形态阶段事件（M7）：'question' | 'correct' | 'wrong' | 'over' —— 仅供表现层，不参与判定/计分
+  _emitPhase(phase, payload) {
+    if (this._callbacks.onPhase) this._callbacks.onPhase(phase, payload || {});
   }
 };
 

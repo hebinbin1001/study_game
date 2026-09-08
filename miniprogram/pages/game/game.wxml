@@ -15,12 +15,29 @@
     <view class="hud-chip hud-sound" catchtap="onToggleSound">{{soundOn ? '🔊' : '🔇'}}</view>
   </view>
 
+  <!-- 形态表现行（M7：boss 血条 / rush 倒计时；classic 不显示） -->
+  <view wx:if="{{mode !== 'classic'}}" class="mode-deco">
+    <block wx:if="{{mode === 'boss'}}">
+      <view class="mode-label">{{bossFury ? '🐲 BOSS 暴怒！' : '🐲 BOSS'}}</view>
+      <view class="hp-row {{bossFury ? 'fury' : ''}}">
+        <view wx:for="{{hpCells}}" wx:key="*this" class="hp-cell {{index < bossRemain ? 'on' : ''}}"></view>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="mode-label">⚡ {{rushShow}}s<text wx:if="{{comboShow > 1}}" class="rush-combo">×{{comboShow}}</text></view>
+      <view class="rush-track">
+        <view class="rush-fill {{rushLow ? 'low' : ''}}" style="width: {{rushPct}}%;"></view>
+      </view>
+    </block>
+    <view wx:if="{{modeFxText}}" class="mode-fx" key="{{modeFxKey}}">{{modeFxText}}</view>
+  </view>
+
   <!--
     游戏画布：Canvas 2D 新接口，逻辑尺寸 390×500（与 config.js W/H 一致）
     onReady 中经 createSelectorQuery 获取 node + ctx，dpr 适配后注入 engine
     关联 REQ-GAME-2、REQ-NFR-3
   -->
-  <canvas type="2d" id="game-canvas" class="game-canvas"></canvas>
+  <canvas type="2d" id="game-canvas" class="game-canvas {{bossHit ? 'hit' : ''}}"></canvas>
 
   <!-- 底部面板：提示文字 + 选项按钮（REQ-GAME-2 分层） -->
   <view class="bottom-panel">
@@ -39,7 +56,7 @@
       <view
         wx:for="{{options}}"
         wx:key="letter"
-        class="option {{item.colorClass}} {{item.used ? 'used' : ''}} {{item.wide ? 'wide' : ''}}"
+        class="option {{item.colorClass}} {{item.used ? 'used' : ''}} {{item.wide ? 'wide' : ''}} {{penLock ? 'pen' : ''}}"
         catchtap="onOptionTap"
         data-index="{{index}}"
       >{{item.display || item.letter}}</view>
@@ -63,5 +80,32 @@
       <view class="tutorial-btn">{{tutorialStep < 3 ? '下一步' : '开始闯关！'}}</view>
     </view>
   </view>
+
+  <!-- 形态选择层（M7：进关前自选，记住上次预选 ww_mode） -->
+  <view wx:if="{{modePickVisible}}" class="pick-mask">
+    <view class="pick-card">
+      <view class="pick-title">⚔️ 选择闯关形态</view>
+      <view class="pick-sub">第 {{level}} 关{{type && type !== 'all' ? ' · ' + type : ''}}</view>
+      <view class="pick-list">
+        <view
+          wx:for="{{modeOptions}}"
+          wx:key="key"
+          class="pick-item {{pickedMode === item.key ? 'on' : ''}}"
+          data-mode="{{item.key}}"
+          bindtap="onPickMode">
+          <view class="pick-icon">{{item.icon}}</view>
+          <view class="pick-body">
+            <view class="pick-name">{{item.label}}</view>
+            <view class="pick-desc">{{item.desc}}</view>
+          </view>
+          <view class="pick-check">{{pickedMode === item.key ? '✓' : ''}}</view>
+        </view>
+      </view>
+      <view class="pick-start" catchtap="startMode">开始挑战</view>
+    </view>
+  </view>
+
+  <!-- BOSS 击破大闪层（M7，结算跳转前短暂展示） -->
+  <view wx:if="{{bossDefeat}}" class="defeat-flash">💥 BOSS 击破！</view>
 
 </view>

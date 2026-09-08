@@ -68,6 +68,18 @@ const POPUP_LIFE = 1.1;
 // 每题答对得分 10 分：每关 10 题，满分 100（前端 engine 累加 = 服务端答对数×每题分推导，两端一致）
 const SCORE_PER_CORRECT = 10; // 答对一题得分
 
+// ============ 七点五、对局形态（M7 Phase A，仅表现层，不参与计分） ============
+// 玩家进关前自选；classic 默认保持现状渲染
+const MODES = [
+  { key: 'classic', label: '经典对战', icon: '⚔️', desc: '标准闯关 · 稳扎稳打' },
+  { key: 'boss', label: 'Boss 狂潮', icon: '🐲', desc: '血量进度 · 连击命中更爽' },
+  { key: 'rush', label: '极速竞技', icon: '⚡', desc: '每题 8 秒 · 超时判错' }
+];
+// 竞速形态表现参数（超时判错与选错同入口，计分零改动）
+const RUSH_SECONDS = 8;   // 每题倒计时秒数
+const RUSH_DYING = 0.35;  // 竞速答对后切题间隔（经典 0.7s，竞速更快）
+const RUSH_PENALTY = 0.8; // 竞速答错后选项惩罚锁（秒，页面层）
+
 // ============ 八、CONFIG 聚合对象 ============
 // 汇总所有配置，供 state/question/renderer/engine 统一引用
 const CONFIG = {
@@ -106,11 +118,19 @@ const CONFIG = {
   popupLife: POPUP_LIFE,
 
   // 计分
-  scorePerCorrect: SCORE_PER_CORRECT
+  scorePerCorrect: SCORE_PER_CORRECT,
+
+  // 对局形态（M7）
+  modes: MODES,
+  rushSeconds: RUSH_SECONDS,
+  rushDying: RUSH_DYING,
+  rushPenalty: RUSH_PENALTY
 };
 
 module.exports = {
   CONFIG,
+  // 形态元数据
+  MODES,
   // 同时导出常用几何常量别名，便于 renderer 直接解构
   W,
   H,

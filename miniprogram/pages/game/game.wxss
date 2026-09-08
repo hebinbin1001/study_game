@@ -265,3 +265,225 @@
   letter-spacing: 4rpx;
   box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.12);
 }
+
+/* ============ 对局形态表现行（M7：boss 血条 / rush 倒计时） ============ */
+.mode-deco {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 10rpx 0 0;
+  padding: 12rpx 20rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.05), 0 12rpx 24rpx rgba(0, 0, 0, 0.07);
+  position: relative;
+}
+.mode-label {
+  font-size: 22rpx;
+  font-weight: 900;
+  color: var(--ink, #3a3a5c);
+  letter-spacing: 2rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* boss 血条 */
+.hp-row {
+  display: flex;
+  gap: 6rpx;
+  margin-top: 10rpx;
+}
+.hp-cell {
+  flex: 1;
+  height: 18rpx;
+  border-radius: 8rpx;
+  background: rgba(0, 0, 0, 0.1);
+  transition: background 0.2s;
+}
+.hp-cell.on {
+  background: linear-gradient(180deg, #ff8fae, #ff5d8f);
+  box-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.15);
+}
+.hp-row.fury .hp-cell.on {
+  background: linear-gradient(180deg, #ff5a5a, #e62e2e);
+  animation: hpPulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes hpPulse {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(1.35); }
+}
+/* 受击顿帧：canvas 容器水平抖动（表现层） */
+.game-canvas.hit {
+  animation: bossHitShake 0.14s linear;
+}
+@keyframes bossHitShake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6rpx); }
+  50% { transform: translateX(4rpx); }
+  75% { transform: translateX(-3rpx); }
+  100% { transform: translateX(0); }
+}
+
+/* rush 倒计时条 */
+.rush-track {
+  height: 20rpx;
+  border-radius: 10rpx;
+  background: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-top: 10rpx;
+}
+.rush-fill {
+  height: 100%;
+  border-radius: 10rpx;
+  background: linear-gradient(90deg, #4cc9f0, #7bd389);
+  transition: width 0.18s linear;
+}
+.rush-fill.low {
+  background: linear-gradient(90deg, #ffb703, #ff5a5a);
+  animation: hpPulse 0.4s ease-in-out infinite alternate;
+}
+.rush-combo {
+  margin-left: 10rpx;
+  font-size: 26rpx;
+  color: #ffb703;
+}
+
+/* 形态飘字（命中/挥击/击破文案） */
+.mode-fx {
+  position: absolute;
+  right: 20rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #ff5d8f;
+  animation: fxIn 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  text-shadow: 0 2rpx 0 #ffffff;
+}
+@keyframes fxIn {
+  0% { opacity: 0; transform: translateY(8rpx) scale(0.7); }
+  60% { opacity: 1; transform: translateY(0) scale(1.15); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 竞速惩罚锁：选项禁点视觉 */
+.option.pen {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ============ 形态选择层（M7） ============ */
+.pick-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 400;
+  background: rgba(20, 34, 56, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pick-card {
+  width: 640rpx;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 40rpx;
+  padding: 36rpx 30rpx 30rpx;
+  box-shadow: 0 18rpx 0 rgba(0, 0, 0, 0.12), 0 34rpx 70rpx rgba(0, 0, 0, 0.25);
+}
+.pick-title {
+  font-size: 38rpx;
+  font-weight: 900;
+  color: var(--ink, #3a3a5c);
+  text-align: center;
+}
+.pick-sub {
+  font-size: 22rpx;
+  color: #8a9bb5;
+  text-align: center;
+  margin: 8rpx 0 22rpx;
+  font-weight: 600;
+}
+.pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+.pick-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 22rpx;
+  border-radius: 28rpx;
+  border: 4rpx solid #eef2f8;
+  background: #fafcff;
+  transition: border-color 0.15s, transform 0.12s;
+}
+.pick-item.on {
+  border-color: #ffb703;
+  background: #fff8e6;
+  transform: translateY(-2rpx);
+}
+.pick-icon {
+  font-size: 52rpx;
+  margin-right: 20rpx;
+}
+.pick-body {
+  flex: 1;
+}
+.pick-name {
+  font-size: 32rpx;
+  font-weight: 900;
+  color: var(--ink, #3a3a5c);
+}
+.pick-desc {
+  font-size: 22rpx;
+  color: #8a9bb5;
+  margin-top: 4rpx;
+}
+.pick-check {
+  font-size: 34rpx;
+  color: #7bd389;
+  font-weight: 900;
+}
+.pick-start {
+  margin-top: 28rpx;
+  height: 96rpx;
+  line-height: 96rpx;
+  text-align: center;
+  border-radius: 48rpx;
+  background: #ffb703;
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 900;
+  letter-spacing: 6rpx;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.12);
+}
+.pick-start:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 5rpx 0 rgba(0, 0, 0, 0.12);
+}
+
+/* BOSS 击破大闪层 */
+.defeat-flash {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56rpx;
+  font-weight: 900;
+  color: #ff5a5a;
+  letter-spacing: 4rpx;
+  animation: defeatIn 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes defeatIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
