@@ -15,6 +15,9 @@ var auth = require('../../utils/auth');
 // 每学段关卡数
 var LEVELS_PER_GRADE = 10;
 
+// 默认解锁关卡数：1~3 关（含游客）默认开放；第 4 关起需登录且逐关通关解锁
+var DEFAULT_UNLOCKED = 3;
+
 Page({
   data: {
     grades: [],             // 学段列表（来自 GRADES，REQ-DICT-1）
@@ -56,15 +59,18 @@ Page({
     for (var i = 1; i <= LEVELS_PER_GRADE; i++) {
       var stars = storage.getStars(key, i);
       gradeEarnedStars += stars;
-      var unlocked = loggedIn
-        ? storage.isLevelUnlocked(key, i)   // 登录：按本地星级推导（REQ-GAME-14）
-        : (i === 1);                        // 游客：仅第 1 关可玩（REQ-GUEST-1）
+      // 解锁规则（产品拍板 2026-09-08）：
+      //   - 1~DEFAULT_UNLOCKED 关默认开放（游客同享前 3 关）；
+      //   - 其后逐关解锁：登录用户需上一关 ≥1 星（过一关解锁下一关）；游客第 4 关起需登录。
+      var needLogin = !loggedIn && i > DEFAULT_UNLOCKED;
+      var unlocked = (i <= DEFAULT_UNLOCKED) ||
+        (loggedIn && storage.isLevelUnlocked(key, i));
       levels.push({
         level: i,
         stars: stars,
         starArr: [stars >= 1, stars >= 2, stars >= 3],  // 渲染用布尔数组
         unlocked: unlocked,                              // 解锁状态
-        needLogin: !loggedIn && i > 1,                   // 游客被锁的关卡（点击引导登录）
+        needLogin: needLogin,                            // 游客 4+ 关（点击引导登录）
         shaking: false                                    // 抖动动画标记
       });
     }
@@ -93,11 +99,11 @@ Page({
       this.shakeCard(index);
       if (card.needLogin) {
         var self = this;
-        auth.promptLogin('登录后可解锁全部关卡').then(function (user) {
+        auth.promptLogin('登录后可继续解锁更多关卡').then(function (user) {
           if (user) self.refreshLevels();
         });
       } else {
-        wx.showToast({ title: '请先通关前一关', icon: 'none', duration: 1200 });
+        wx.showToast({ title: '通关上一关即可解锁本关', icon: 'none', duration: 1200 });
       }
       return;
     }
@@ -126,7 +132,7 @@ Page({
   // 游客横幅点击：登录解锁全部关卡（M5 REQ-GUEST-1）
   guestLogin: function () {
     var self = this;
-    auth.promptLogin('登录后可解锁全部关卡').then(function (user) {
+    auth.promptLogin('登录后可继续解锁第 4 关及以后关卡').then(function (user) {
       if (user) self.refreshLevels();
     });
   },
