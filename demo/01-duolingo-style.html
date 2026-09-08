@@ -188,6 +188,10 @@
   .back-link{display:inline-block;color:#fff;font-weight:800;background:rgba(255,255,255,.25);
     padding:9px 20px;border-radius:999px;font-size:14px;cursor:pointer;letter-spacing:1px}
   .back-link:active{transform:translateY(2px)}
+  .foot-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .chip-link{display:inline-block;color:#fff;font-weight:800;background:rgba(255,255,255,.22);
+    padding:9px 16px;border-radius:999px;font-size:13px;text-decoration:none}
+  .chip-link:active{transform:translateY(2px)}
 </style>
 </head>
 <body>
@@ -200,17 +204,21 @@
       <p>打怪学字词 · 地图闯关</p>
     </div>
     <div class="status-bar">
-      <div class="stat"><span class="ico">🔥</span><b id="stStreak">3</b>&nbsp;连续</div>
-      <div class="stat"><span class="ico">🎯</span>今日 <b id="stGoal">2</b>/<span id="stGoalT">3</span></div>
-      <div class="stat"><span class="ico">⚡</span><b id="stXp">1860</b> XP</div>
+      <div class="stat"><span class="ico">🗺️</span>进度 <b id="stProg">0</b>/8</div>
+      <div class="stat"><span class="ico">🎯</span>今日通关 <b id="stGoal">0</b> 关</div>
+      <div class="stat"><span class="ico">⭐</span>星星 <b id="stStars">0</b></div>
     </div>
     <div class="map-stage" id="mapStage">
       <svg id="mapSvg"><polyline id="mapLine"/></svg>
       <div id="nodeLayer"></div>
     </div>
     <div class="map-foot">
-      <div class="hud-note">通关上一关 · 解锁下一关 · 每天 3 次目标达成有火焰加成</div>
-      <div><span class="back-link" onclick="alert('Demo 占位：返回首页')">🏠 返回</span></div>
+      <div class="hud-note">通关上一关解锁下一关 · 满 ❤ 通关得 3 星 🎯</div>
+      <div class="foot-row">
+        <span class="back-link" onclick="resetProgress()">🔄 重置进度</span>
+        <a class="chip-link" href="./02-boss-rush.html">Demo2 · Boss</a>
+        <a class="chip-link" href="./03-speed-arena.html">Demo3 · 竞速</a>
+      </div>
     </div>
   </section>
 
@@ -306,15 +314,33 @@ function pickN(arr, n, excludeFn){
 
 /* ============ 存档（localStorage 可选） ============ */
 function loadSave(){
-  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { done: {} }; }
-  catch (e) { return { done: {} }; }
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { done: {}, day: '', count: 0, stars: 0 }; }
+  catch (e) { return { done: {}, day: '', count: 0, stars: 0 }; }
 }
 function persist(s){ try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch (e) {} }
 
 /* ============ 全局状态 ============ */
-var save = loadSave();      // { done: { 1:{stars:3}, ... } }
+var save = loadSave();      // { done: { 1:{stars:3}, ... }, day, count, stars }
 var g = null;               // 当关运行时状态
-var heartsTotal = 0;        // 顶部统计占位展示用（可后续接真数据）
+
+// 顶栏真实统计：进度 x/8 · 今日通关 · 总星（替代初版写死的占位数字）
+function todayStr(){
+  var d = new Date();
+  return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+}
+function updateStats(){
+  var doneCnt = 0;
+  for (var i = 1; i <= TOTAL_LV; i++) { if (save.done[i]) doneCnt++; }
+  $('stProg').textContent = doneCnt;
+  $('stGoal').textContent = (save.day === todayStr()) ? (save.count || 0) : 0;
+  $('stStars').textContent = save.stars || 0;
+}
+function resetProgress(){
+  if (confirm('清空本地演示进度并重新开始？')) {
+    try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+    location.reload();
+  }
+}
 
 /* ============ 地图：节点坐标（蛇形 2 列） ============ */
 var NODE_POS = [
@@ -642,10 +668,16 @@ function endLevel(win){
   btns.innerHTML = '';
   if (win) {
     var stars = g.lives; // 3/2/1
-    if (!save.done[g.lv] || (save.done[g.lv].stars || 0) < stars) {
+    var prevStars = (save.done[g.lv] && save.done[g.lv].stars) || 0;
+    if (!save.done[g.lv] || prevStars < stars) {
       save.done[g.lv] = { stars: stars };
-      persist(save);
+      save.stars = (save.stars || 0) + Math.max(0, stars - prevStars);
     }
+    // 今日通关计数（跨天自动重置）
+    if (save.day !== todayStr()) { save.day = todayStr(); save.count = 0; }
+    save.count = (save.count || 0) + 1;
+    persist(save);
+    updateStats();
     title.textContent = '关卡完成！';
     sub.textContent = '答对 ' + g.correct + '/' + Q_PER_LEVEL + ' · 剩余 ' + g.lives + ' ❤';
     // 星星逐个弹入 + 金光
@@ -737,7 +769,7 @@ function burstStars(el){
 
 /* ============ 初始化 ============ */
 function boot(){
-  // 首次体验：解锁第 1 关并给一段引导提示
+  updateStats(); // 顶栏真实进度（已通关/今日通关/总星）
   renderMap();
 }
 window.addEventListener('resize', renderMap);
