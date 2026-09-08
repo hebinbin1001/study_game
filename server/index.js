@@ -9,6 +9,7 @@ const openid = require("./middlewares/openid");
 // 引入各业务路由
 const healthRouter = require("./routes/health");
 const loginRouter = require("./routes/login");
+const wxcodeRouter = require("./routes/wxcode");
 const userRouter = require("./routes/user");
 const nicknameRouter = require("./routes/nickname");
 const scoreRouter = require("./routes/score");
@@ -57,6 +58,8 @@ app.use(morgan("tiny"));
 app.use("/api/health", healthRouter);
 // 登录接口不需要鉴权（用 code 换 openid）
 app.use("/api/login", loginRouter);
+// 小程序码生成（不需要用户身份，供分享海报合成调用）
+app.use("/api/wxcode", wxcodeRouter);
 app.use("/api/user", openid, userRouter);
 app.use("/api/nickname", openid, nicknameRouter);
 app.use("/api/score", openid, scoreRouter);
