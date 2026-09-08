@@ -118,5 +118,30 @@
 - git：`main` 与 `origin/main` 同步，工作区干净。
 - 待办细节见 `.codeartsdoer/specs/m5-login-guest/tasks.md`、`m6-polish/tasks.md`（均已完成并勾选，TODO 已在文档内标注）。
 
+---
+
+## 2026-09-08（体验优化批 + 云托管通道切换）
+
+### 部署通道与登录链路（生产问题修复）
+- **callContainer 迁移**：前端从 `wx.request + 裸域名` 切到 `wx.cloud.callContainer`（`utils/request.js` + `app.js wx.cloud.init`），根治「request 合法域名」白名单报错；无需配服务器域名。
+- **envId 修正**：`CLOUD_CONFIG.envId = prod-d6gnifjoe28cfd96f`（原误填 cloud1-… 致 INVALID_HOST）；serviceName=`express-g0hk`。
+- **login 多来源**：`/api/login` 优先取云托管网关注入的 `x-wx-openid`（免 secret/免证书）；其次 `dev_` 测试码；再次 code2session（需 `WX_SECRET`）。日志曾出现 `4011` 与 `DEPTH_ZERO_SELF_SIGNED_CERT`（云托管开放接口服务容器内自签证书）——临时以 env `NODE_TLS_REJECT_UNAUTHORIZED=0` 打通，正规化方向见 TODO。
+
+### 用户体验优化（产品拍板，2026-09-08）
+- **① 默认解锁前 3 关**：1~3 关游客同享默认开放；第 4 关起逐关解锁（需上一关 ≥1 星），游客第 4 关起需登录（commit `3a84b19`）。
+- **⑤ 声音开关**：`audio.js` 增加总开关（音效+TTS 统一受控），游戏 HUD 🔊/🔇 切换并持久化（`7f87cb5`）。
+- **④ 排版可读性**：英文整词展示改「首字母大写」（题面/选项词/词级空槽/回执，判定仍用小写）；关键字号放大（怪兽/词级提示 13→15px、游戏提示 26→30rpx）（`1887951`，同步 question.test 断言）。
+- **② 题型分类关卡**：学段下加题型 chips（综合/单词/填空/词语/成语/歇后语），分类独立抽题与存档（`grade@type@level`，综合兼容旧 key）、空分类隐藏、1~9 题提示不可进（`237ef11`）。
+- **③ 小程序码（后端）**：`GET /api/wxcode` 生成 getwxacodeunlimit（云调用内网 http 免 token）→ base64 data-url（`1ce83da`）。前端分享卡叠加码待做。
+
+### 交互 Demo（三版 HTML，供挑选交互方向）
+- 子代理产出 `study_game/demo/01-duolingo-style.html / 02-boss-rush.html / 03-speed-arena.html`，见该目录；选定方向后再落地小程序。
+
+### 待办/上线前配置（承接上文，新增）
+9. **③ 前端**：`pages/share-card` 海报叠加小程序码（drawImage data-url）。
+10. **云托管配置**：开放接口服务白名单加 `/wxa/getwxacodeunlimit`；小程序码发布/体验版方可扫；env `NODE_TLS_REJECT_UNAUTHORIZED=0` 为临时项，正规化=关闭开放接口服务或信任其容器 CA。
+11. 低优先：关卡卡语义化（第 N 关·分类名）、game/level 深色补全、大字模式。
+
+
 
 
