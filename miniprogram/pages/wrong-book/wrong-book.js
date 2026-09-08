@@ -14,7 +14,8 @@ Page({
     mastered: [],
     stats: { total: 0, pending: 0, mastered: 0 },
     loading: false,
-    activeTab: 'pending'
+    activeTab: 'pending',
+    loadError: ''   // 加载失败原因（非空时展示错误条）
   },
 
   onShow: function () {
@@ -54,6 +55,13 @@ Page({
         };
       });
 
+      // 诊断日志：确认列表请求成功与数量（vConsole 可见）
+      if (typeof console !== 'undefined' && console.log) {
+        console.log('[wrong-book] 加载成功 total=' + (data.total || 0) +
+          ' pending=' + pending.length + ' mastered=' + mastered.length +
+          ' first=' + (pending[0] ? pending[0].questionId : '-'));
+      }
+
       self.setData({
         pending: pending,
         mastered: mastered,
@@ -62,10 +70,18 @@ Page({
           pending: pending.length,
           mastered: mastered.length
         },
+        loadError: '',
         loading: false
       });
-    }).catch(function () {
-      self.setData({ loading: false });
+    }).catch(function (err) {
+      // 诊断日志：失败不再静默（此前静默导致“看起来为空”难排查）
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('[wrong-book] 加载失败 code=' + (err && err.code) + ' msg=' + (err && err.message));
+      }
+      self.setData({
+        loading: false,
+        loadError: (err && err.message) || '加载失败，请重试'
+      });
     });
   },
 

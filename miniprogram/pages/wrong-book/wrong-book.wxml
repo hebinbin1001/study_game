@@ -36,6 +36,13 @@
     </view>
   </view>
 
+  <!-- 加载失败提示（点击重试） -->
+  <view wx:if="{{loadError}}" class="empty-state" bindtap="loadWrongBook" style="margin-top:16rpx;">
+    <view class="empty-emoji">📡</view>
+    <view class="empty-text">加载失败（{{loadError}}）</view>
+    <view class="empty-text">点这里重试</view>
+  </view>
+
   <!-- 待复习列表 -->
   <view class="list" wx:if="{{activeTab === 'pending'}}">
     <block wx:for="{{pending}}" wx:key="recordId">
