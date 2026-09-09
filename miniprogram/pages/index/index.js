@@ -131,14 +131,21 @@ Page({
   // 并发被 loginSilently 的 _loggingIn 兜底；失败弹窗给具体错误，避免“点了没反应”。
   _doLogin: function () {
     var self = this;
+    var step = function (s) {
+      try { if (typeof console !== 'undefined') console.log('[login-step]', s); } catch (e) {}
+    };
     // 1) 协议确认（未同意过才弹；已同意直接通过）
+    step('1-ensureAgreement 开始');
     auth.ensureAgreement().then(function (agreed) {
-      if (!agreed) return; // 暂不/拒绝 → 保持游客
-      // 2) 协议通过后才显示 loading + 真正调微信登录
+      step('2-ensureAgreement 返回 agreed=' + agreed);
+      if (!agreed) { step('2b-用户拒绝协议，保持游客'); return; }
+      // 2) 显示 loading 并真正调微信登录
       wx.showLoading({ title: '登录中...', mask: false });
+      step('3-调用 wx.login/loginSilently');
       return auth.loginSilently({ skipAgreement: true }).then(function (user) {
         wx.hideLoading();
-        if (!user) return; // 理论上 skipAgreement 后必有 user；防御
+        step('4-登录返回 user=' + !!(user));
+        if (!user) return;
         self.refresh();
         if (user.needProfile) {
           wx.showToast({ title: '登录成功 · 完善昵称后参与排行', icon: 'none', duration: 1500 });
@@ -150,28 +157,25 @@ Page({
         }
       }).catch(function (err) {
         wx.hideLoading();
+        step('5-登录失败 err=' + (err && (err.message || err.errMsg || JSON.stringify(err))));
         var msg = (err && (err.message || err.errMsg)) || '登录失败';
         var code = err && err.code;
         var detail = msg;
         try {
-          if (typeof console !== 'undefined') {
-            console.error('[login] 失败 code=' + code, err);
-          }
-          // 附带环境诊断，便于定位（开发工具无云环境/未登录/后端未部署等）
           var cloudOk = !!(wx.cloud && typeof wx.cloud.callContainer === 'function');
-          var diag = '前端云能力:' + (cloudOk ? '可用' : '不可用') + '; callContainer:' +
-            (cloudOk ? '可调' : '不可用(非微信/未开通云开发/基础库过低)');
-          detail = msg + '\n\n[诊断] ' + diag + (code !== undefined ? '; code=' + code : '');
-        } catch (e) { /* 忽略诊断异常 */ }
+          detail = msg + '\n\n[诊断] 云能力:' + (cloudOk ? '可用' : '不可用') +
+            (code !== undefined ? '; code=' + code : '') +
+            '\n环境提示：开发者工具请绑定云托管服务并登录；也可用「真机预览」测试（openid 由网关注入）。';
+        } catch (e) { /* 忽略 */ }
         wx.showModal({
           title: '登录失败',
-          content: detail + '\n\n若为环境问题：请在真机预览测试；开发者工具需绑定云托管服务并登录。',
+          content: detail,
           showCancel: false,
           confirmText: '知道了'
         });
       });
-    }).catch(function () {
-      // ensureAgreement 自身失败（wx 不可用等）：静默
+    }).catch(function (e) {
+      step('ensureAgreement 异常 ' + e);
     });
   },
 

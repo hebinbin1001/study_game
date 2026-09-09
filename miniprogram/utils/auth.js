@@ -134,6 +134,7 @@ function loginSilently(opts) {
       return Promise.reject({ code: -3, message: '登录请求进行中，请稍候', isNetwork: false });
     }
     _loggingIn = true;
+    try { if (typeof console !== 'undefined') console.log('[auth] wx.login 发起'); } catch (e) {}
     return new Promise(function (resolve, reject) {
       var settled = false;
       var timer = setTimeout(function () {
@@ -141,7 +142,7 @@ function loginSilently(opts) {
         settled = true;
         _loggingIn = false;
         reject({ code: -1, message: 'wx.login 超时，请重试', isNetwork: true });
-      }, 8000);
+      }, 5000);
 
       wx.login({
         success: function (res) {

@@ -163,7 +163,11 @@ function request(options) {
       },
       fail: function (err) {
         // 环境/服务异常或网络失败：明确 reject（REQ-NFR-2 由调用方 catch 后决定是否静默/入队）
-        reject(makeError(-1, (err && err.errMsg) || '网络请求失败', { isNetwork: true }));
+        var em = (err && (err.errMsg || err.message)) || '网络请求失败';
+        if (err && err.errCode !== undefined && err.errCode !== null) {
+          em += ' (errCode=' + err.errCode + ')';
+        }
+        reject(makeError(-1, em, { isNetwork: true }));
       }
     });
   });
