@@ -99,9 +99,9 @@
       <view class="g-s">挖空补词 · 打跑怪兽</view>
     </view>
     <view class="game" bindtap="goSudoku">
-      <view class="ic">🔢</view>
+      <view class="ic">🧩</view>
       <view class="g-b">数独</view>
-      <view class="g-s">4×4 推理填数 · 敬请期待</view>
+      <view class="g-s">4×4 → 9×9 · 推理闯关</view>
     </view>
   </view>
 

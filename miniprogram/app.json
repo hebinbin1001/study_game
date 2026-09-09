@@ -13,6 +13,7 @@
     "pages/rank/rank",
     "pages/wrong-book/wrong-book",
     "pages/wrong-review/wrong-review",
+    "pages/sudoku/sudoku",
     "pages/level-editor/level-editor",
     "pages/level-share/level-share",
     "pages/custom-levels/custom-levels",

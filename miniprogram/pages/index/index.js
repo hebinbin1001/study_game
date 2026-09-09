@@ -174,9 +174,9 @@ Page({
     wx.navigateTo({ url: '/pages/level/level' });
   },
 
-  // 推荐玩法：数独（B6 实现前占位）
+  // 推荐玩法：数独（B6 已实现）
   goSudoku: function () {
-    wx.showToast({ title: '数独 · 敬请期待', icon: 'none' });
+    wx.navigateTo({ url: '/pages/sudoku/sudoku' });
   },
 
   onShareAppMessage: function () {

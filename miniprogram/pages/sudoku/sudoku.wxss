@@ -1,0 +1,137 @@
+/* 数独页（B6 闯关模式） */
+.page-sudoku {
+  min-height: 100vh;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 16rpx 30rpx 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+}
+.sd-head { display: flex; align-items: center; gap: 20rpx; flex: 0 0 auto; }
+.back-pill {
+  width: 80rpx; height: 80rpx; padding: 0;
+  background: rgba(255,255,255,.9); border-radius: 50%;
+  font-size: 40rpx; color: #3a3a5c; font-weight: 900;
+  line-height: 80rpx; box-shadow: 0 6rpx 0 rgba(0,0,0,.06);
+}
+.back-pill::after { border: none; }
+.sd-title { font-size: 40rpx; font-weight: 900; color: #fff; text-shadow: 0 4rpx 0 rgba(0,0,0,.1); }
+.sd-stage { margin-left: auto; background: rgba(255,255,255,.85); color: #5c7f9e; font-weight: 800; font-size: 24rpx; padding: 8rpx 20rpx; border-radius: 999rpx; }
+
+/* 关卡列表 */
+.intro-card { margin: 20rpx 0; background: #fff; border-radius: 28rpx; padding: 26rpx; text-align: center; flex: 0 0 auto; }
+.intro-emoji { font-size: 64rpx; }
+.intro-t { font-size: 32rpx; font-weight: 900; color: #3a3a5c; margin-top: 8rpx; }
+.intro-s { font-size: 22rpx; color: #8a9bb5; margin-top: 8rpx; line-height: 1.6; }
+
+.level-grid {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18rpx;
+  padding: 8rpx 0 24rpx;
+}
+.lv-node {
+  position: relative;
+  aspect-ratio: 1/1;
+  background: #fff;
+  border-radius: 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 0 rgba(0,0,0,.05);
+}
+.lv-node.lock { opacity: .6; background: #eef2f8; }
+.lv-node.next { outline: 6rpx solid #ffb703; }
+.lv-no { font-size: 44rpx; font-weight: 900; color: #3a3a5c; }
+.lv-size { font-size: 20rpx; color: #8a9bb5; margin-top: 4rpx; }
+.lv-stars { position: absolute; top: 6rpx; right: 10rpx; font-size: 20rpx; color: #ffb703; font-weight: 900; }
+.lv-lock { position: absolute; font-size: 30rpx; }
+.lv-node.next .lv-size { color: #ff8f00; }
+
+.tip-note { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .9; margin: 0 0 8rpx; }
+
+/* HUD */
+.hud { display: flex; justify-content: center; gap: 18rpx; margin: 20rpx 0; flex: 0 0 auto; }
+.hud-chip {
+  background: rgba(255,255,255,.92); color: #3a3a5c;
+  border-radius: 999rpx; padding: 12rpx 30rpx;
+  font-size: 26rpx; font-weight: 800;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.05);
+}
+
+/* 棋盘：占剩余空间，居中自适应 */
+.board-wrap { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; min-height: 0; }
+.board {
+  display: grid;
+  gap: 8rpx;
+  width: 100%;
+  max-height: 100%;
+}
+/* 用 aspect 方块由 item 尺寸控制——WXML grid-template 已按 n 列，这里只需单元样式 */
+.cell {
+  aspect-ratio: 1/1;
+  background: #fff;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #3a3a5c;
+  box-shadow: 0 4rpx 0 rgba(0,0,0,.04);
+}
+.cell.given { background: #eaf0f7; color: #5c7f9e; }
+.cell.sel { outline: 6rpx solid #ffb703; }
+.cell.err { background: #ff8fae; color: #fff; animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
+
+/* 数字键盘 */
+.num-pad {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 14rpx;
+  margin: 18rpx 0 12rpx;
+}
+.num-btn {
+  aspect-ratio: 1/1;
+  background: #fff;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #4cc9f0;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.06);
+}
+.num-btn:active { transform: translateY(2rpx); }
+.board-tip { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .9; }
+
+/* 结算 */
+.settle-mask {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(20,34,56,.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.settle-card { width: 600rpx; background: #fff; border-radius: 40rpx; padding: 44rpx 36rpx; text-align: center; }
+.stars { font-size: 72rpx; letter-spacing: 10rpx; color: #ffb703; }
+.s-title { font-size: 44rpx; font-weight: 900; color: #2e8b57; margin-top: 10rpx; }
+.s-title.fail { color: #e62e2e; }
+.s-msg { font-size: 26rpx; color: #8a9bb5; margin-top: 10rpx; }
+.s-btns { display: flex; flex-direction: column; gap: 16rpx; margin-top: 28rpx; }
+.btn-main {
+  height: 92rpx; line-height: 92rpx; border-radius: 46rpx;
+  background: #ffb703; color: #fff; font-size: 32rpx; font-weight: 900;
+  box-shadow: 0 10rpx 0 rgba(0,0,0,.1);
+}
+.btn-ghost {
+  height: 88rpx; line-height: 88rpx; border-radius: 44rpx;
+  background: #eef2f8; color: #5c7f9e; font-size: 30rpx; font-weight: 800;
+}
+.btn-main::after, .btn-ghost::after { border: none; }
+
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }

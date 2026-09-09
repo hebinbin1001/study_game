@@ -1,0 +1,81 @@
+<!-- 数独页（B6 闯关模式：4×4→6×6→9×9 难度递增给定递减） -->
+<view class="page-sudoku">
+  <!-- 标题栏 -->
+  <view class="sd-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="sd-title">数独</view>
+    <view class="sd-stage">{{stageLabel}}</view>
+  </view>
+
+  <!-- ============ 关卡选择视图 ============ -->
+  <block wx:if="{{!playing}}">
+    <view class="intro-card">
+      <view class="intro-emoji">🧩</view>
+      <view class="intro-t">闯关模式 · 难度递增</view>
+      <view class="intro-s">4×4 入门 → 6×6 初级 → 9×9 进阶/大师，给定数字越给越少</view>
+    </view>
+    <view class="level-grid">
+      <view
+        wx:for="{{levels}}"
+        wx:key="no"
+        class="lv-node {{item.state}}"
+        data-no="{{item.no}}"
+        bindtap="pickLevel">
+        <view class="lv-no">{{item.no}}</view>
+        <view class="lv-size">{{item.label}}</view>
+        <view class="lv-stars" wx:if="{{item.stars > 0}}">★{{item.stars}}</view>
+        <view class="lv-lock" wx:elif="{{item.state === 'lock'}}">🔒</view>
+      </view>
+    </view>
+    <view class="tip-note">★ 星星来自通关成绩 · 通过上一关解锁下一关</view>
+  </block>
+
+  <!-- ============ 对局视图 ============ -->
+  <block wx:else>
+    <!-- HUD -->
+    <view class="hud">
+      <view class="hud-chip">❤{{lives}}</view>
+      <view class="hud-chip">{{curLevel}} 关 · 错 {{mistakes}}</view>
+      <view class="hud-chip" bindtap="backToLevels">↩</view>
+    </view>
+
+    <!-- 棋盘 -->
+    <view class="board-wrap">
+      <view class="board" style="grid-template-columns: repeat({{n}}, 1fr);">
+        <view
+          wx:for="{{grid}}"
+          wx:key="index"
+          class="cell {{item.given ? 'given' : ''}} {{item.sel ? 'sel' : ''}} {{item.err ? 'err' : ''}}"
+          data-idx="{{index}}"
+          bindtap="tapCell">{{item.v || ''}}</view>
+      </view>
+    </view>
+
+    <!-- 数字键盘 -->
+    <view class="num-pad" style="grid-template-columns: repeat({{n}}, 1fr);">
+      <view
+        wx:for="{{n}}"
+        wx:key="*this"
+        class="num-btn"
+        data-v="{{index + 1}}"
+        bindtap="pressNum">{{index + 1}}</view>
+    </view>
+    <view class="board-tip">先点空格，再点数字填入 · 每行/列/宫不重复</view>
+  </block>
+
+  <!-- ============ 结算遮罩 ============ -->
+  <view wx:if="{{settle}}" class="settle-mask">
+    <view class="settle-card">
+      <view class="stars">{{win ? starsText : '💔'}}</view>
+      <view class="s-title {{win ? '' : 'fail'}}">{{win ? '通关成功！' : '再接再厉！'}}</view>
+      <view class="s-msg">{{overMsg}}</view>
+      <view class="s-btns">
+        <button wx:if="{{win}}" class="btn-main" bindtap="goNext">下一关 ▶</button>
+        <button class="btn-ghost" bindtap="again">再玩一次</button>
+        <button class="btn-ghost" bindtap="backToLevels">关卡列表</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="safe-gap"></view>
+</view>

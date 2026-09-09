@@ -8,7 +8,7 @@
 var GAMES = [
   { key: 'shoot', name: '字母射击', icon: '🔫', desc: '挖空补词 · 打跑怪兽', cat: '射击', unlocked: true, url: '/pages/level/level' },
   { key: 'match', name: '词义消消乐', icon: '🃏', desc: '词↔义配对消除', cat: '配对', unlocked: false },
-  { key: 'sudoku', name: '数独', icon: '🔢', desc: '4×4 推理填数 · 数学', cat: '数学', math: true, unlocked: false },
+  { key: 'sudoku', name: '数独', icon: '🔢', desc: '数字推理 · 数学闯关', cat: '数学', math: true, unlocked: true, url: '/pages/sudoku/sudoku' },
   { key: 'link', name: '词语连连看', icon: '🔗', desc: '连线配对 · 双词匹配', cat: '连线', unlocked: false },
   { key: 'bounce', name: '单词弹弹球', icon: '🏐', desc: '义球击碎 · 快反应', cat: '反应', unlocked: false },
   { key: 'snake', name: '单词贪吃蛇', icon: '🐍', desc: '辨词进食 · 越长越强', cat: '反应', unlocked: false },
@@ -30,7 +30,7 @@ Page({
     games: GAMES,
     cats: CATS,
     curCat: 'all',
-    unlockedCount: 0,
+    unlockedCount: GAMES.filter(function (g) { return g.unlocked; }).length,
     totalCount: GAMES.length
   },
 
