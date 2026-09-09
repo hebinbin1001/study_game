@@ -22,3 +22,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.log
+
+# ===== 演示 / 草稿（不入仓库） =====
+demo/
+prototype/
