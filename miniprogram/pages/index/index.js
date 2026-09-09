@@ -177,6 +177,11 @@ Page({
 
   // 登录条/资料入口：游客→登录(协议前置)；已登录→我的(tab)
   onProfileTap: function () {
+    // [探针] 点击立即反馈，用于定位“无反应”
+    wx.showToast({ title: '准备登录…', icon: 'none', duration: 1200 });
+    try {
+      if (typeof console !== 'undefined') console.log('[login] onProfileTap 触发, loggedIn=' + auth.isLoggedIn());
+    } catch (e) {}
     if (auth.isLoggedIn()) { wx.switchTab({ url: '/pages/me/me' }); return; }
     this._doLogin();
   },
