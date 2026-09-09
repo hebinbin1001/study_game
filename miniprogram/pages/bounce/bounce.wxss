@@ -1,0 +1,112 @@
+/* 单词弹弹球（B6-7） */
+.page-bounce {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 16rpx 30rpx 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+}
+.bn-head { display: flex; align-items: center; gap: 20rpx; flex: 0 0 auto; }
+.back-pill {
+  width: 80rpx; height: 80rpx; padding: 0;
+  background: rgba(255,255,255,.9); border-radius: 50%;
+  font-size: 40rpx; color: #3a3a5c; font-weight: 900;
+  line-height: 80rpx; box-shadow: 0 6rpx 0 rgba(0,0,0,.06);
+}
+.back-pill::after { border: none; }
+.bn-title { font-size: 40rpx; font-weight: 900; color: #fff; text-shadow: 0 4rpx 0 rgba(0,0,0,.1); }
+.bn-grade { margin-left: auto; background: rgba(255,255,255,.85); color: #5c7f9e; font-weight: 800; font-size: 22rpx; padding: 8rpx 18rpx; border-radius: 999rpx; }
+
+.hud { display: flex; justify-content: center; gap: 18rpx; margin: 14rpx 0; flex: 0 0 auto; }
+.hud-chip {
+  background: rgba(255,255,255,.92); color: #3a3a5c;
+  border-radius: 999rpx; padding: 10rpx 26rpx;
+  font-size: 24rpx; font-weight: 800;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.05);
+}
+
+.word-card {
+  flex: 0 0 auto;
+  background: #fff; border-radius: 26rpx;
+  padding: 18rpx 24rpx; margin-bottom: 10rpx;
+  display: flex; align-items: center; gap: 16rpx;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.05);
+}
+.w-emoji { font-size: 48rpx; }
+.w-main { flex: 1; min-width: 0; }
+.w-tip { font-size: 20rpx; color: #8a9bb5; }
+.w-word { font-size: 40rpx; font-weight: 900; color: #2e8b57; letter-spacing: 2rpx; }
+
+/* 球场 */
+.court {
+  flex: 1 1 auto;
+  position: relative;
+  background: rgba(255,255,255,.28);
+  border-radius: 24rpx;
+  overflow: hidden;
+  min-height: 360rpx;
+  margin: 6rpx 0 8rpx;
+}
+/* 轨道分隔线（3 列） */
+.court::before {
+  content: "";
+  position: absolute; left: 33.3%; top: 0; bottom: 0; width: 2rpx;
+  background: rgba(255,255,255,.5);
+}
+.court::after {
+  content: "";
+  position: absolute; left: 66.6%; top: 0; bottom: 0; width: 2rpx;
+  background: rgba(255,255,255,.5);
+}
+.ball {
+  position: absolute;
+  transform: translateX(-50%);
+  width: 30%;
+  max-width: 200rpx;
+  padding: 14rpx 6rpx;
+  border-radius: 999rpx;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 800;
+  word-break: break-all;
+  box-sizing: border-box;
+}
+.ball.ok { background: #7bd389; color: #fff; box-shadow: 0 6rpx 0 rgba(0,0,0,.08); }
+.ball.bad { background: #ff8fae; color: #fff; box-shadow: 0 6rpx 0 rgba(0,0,0,.08); }
+.basket {
+  position: absolute;
+  bottom: 4rpx;
+  transform: translateX(-50%);
+  width: 30%;
+  text-align: center;
+  font-size: 56rpx;
+}
+
+.move-row { flex: 0 0 auto; display: flex; justify-content: center; gap: 40rpx; margin: 6rpx 0; }
+.m-btn {
+  width: 160rpx; height: 92rpx;
+  background: rgba(255,255,255,.92); color: #5c7f9e;
+  border-radius: 20rpx; display: flex; align-items: center; justify-content: center;
+  font-size: 40rpx; font-weight: 900;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.08);
+}
+.m-btn:active { transform: translateY(3rpx); }
+.foot-tip { flex: 0 0 auto; text-align: center; font-size: 20rpx; color: #fff; opacity: .9; }
+
+/* 结算 */
+.over-mask {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(20,34,56,.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.over-card { width: 600rpx; background: #fff; border-radius: 40rpx; padding: 44rpx 36rpx; text-align: center; }
+.o-stars { font-size: 72rpx; color: #ffb703; letter-spacing: 8rpx; }
+.o-title { font-size: 44rpx; font-weight: 900; color: #3a3a5c; margin-top: 10rpx; }
+.o-msg { font-size: 26rpx; color: #8a9bb5; margin-top: 10rpx; }
+.btn { margin-top: 18rpx; width: 100%; height: 92rpx; line-height: 92rpx; border-radius: 46rpx; font-size: 32rpx; font-weight: 900; }
+.btn.b1 { background: #ffb703; color: #fff; box-shadow: 0 10rpx 0 rgba(0,0,0,.1); }
+.btn.b2 { background: #eef2f8; color: #5c7f9e; }
+.btn::after { border: none; }
+
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }

@@ -1,0 +1,51 @@
+<!-- 单词弹弹球（B6-7）：接住释义球 -->
+<view class="page-bounce">
+  <view class="bn-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="bn-title">单词弹弹球</view>
+    <view class="bn-grade">◀ ▶ 移动篮子</view>
+  </view>
+
+  <view class="hud">
+    <view class="hud-chip">❤{{lives}}</view>
+    <view class="hud-chip">分 {{score}}</view>
+    <view class="hud-chip">最高 {{best}}</view>
+  </view>
+
+  <!-- 单词目标卡 -->
+  <view class="word-card">
+    <view class="w-emoji">🏐</view>
+    <view class="w-main">
+      <view class="w-tip">接住这个词对应的释义球</view>
+      <view class="w-word">{{word}}</view>
+    </view>
+  </view>
+
+  <!-- 球场 -->
+  <view class="court">
+    <!-- 三条轨道 + 落球 -->
+    <view wx:for="{{balls}}" wx:key="id" class="ball {{item.ok ? 'ok' : 'bad'}}"
+      style="left: {{item.col * 33.3 + 2}}%; top: {{item.y}}%;">{{item.text}}</view>
+    <!-- 篮子 -->
+    <view class="basket" style="left: {{basket * 33.3 + 2}}%;">🛒</view>
+  </view>
+
+  <view class="move-row">
+    <view class="m-btn" data-d="-1" bindtap="move">◀</view>
+    <view class="m-btn" data-d="1" bindtap="move">▶</view>
+  </view>
+  <view class="foot-tip">左右移动篮子接「正确释义」球(+10)，接错扣命</view>
+
+  <!-- 结算 -->
+  <view wx:if="{{over}}" class="over-mask">
+    <view class="over-card">
+      <view class="o-stars">{{starsText}}</view>
+      <view class="o-title">游戏结束</view>
+      <view class="o-msg">得分 {{score}} · 最高 {{best}}</view>
+      <button class="btn b1" bindtap="again">再来一局</button>
+      <button class="btn b2" bindtap="goBack">返回</button>
+    </view>
+  </view>
+
+  <view class="safe-gap"></view>
+</view>

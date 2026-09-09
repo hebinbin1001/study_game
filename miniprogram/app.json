@@ -19,6 +19,7 @@
     "pages/sudoku/sudoku",
     "pages/link/link",
     "pages/snake/snake",
+    "pages/bounce/bounce",
     "pages/level-editor/level-editor",
     "pages/level-share/level-share",
     "pages/custom-levels/custom-levels",
