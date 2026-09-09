@@ -131,7 +131,9 @@ Page({
   // 同意 → wx.login 建档 → 刷新；needProfile → 引导设昵称。拒绝/取消 → 保持游客。
   _doLogin: function () {
     var self = this;
+    wx.showLoading({ title: '登录中...', mask: true });
     auth.loginSilently().then(function (user) {
+      wx.hideLoading();
       if (!user) return; // 用户未同意协议 / 取消
       self.refresh();
       if (user.needProfile) {
@@ -142,6 +144,15 @@ Page({
       } else {
         wx.showToast({ title: '✅ 登录成功', icon: 'none' });
       }
+    }).catch(function (err) {
+      wx.hideLoading();
+      var msg = (err && err.message) || '登录失败';
+      wx.showModal({
+        title: '登录失败',
+        content: msg + '\n\n提示：开发者工具/测试环境需连接云托管后端（环境变量 WX_SECRET 或网关 openid），或先确认服务已部署。',
+        showCancel: false,
+        confirmText: '知道了'
+      });
     });
   },
 
