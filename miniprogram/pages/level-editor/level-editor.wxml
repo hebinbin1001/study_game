@@ -33,7 +33,7 @@
   <!-- 题目列表 -->
   <view class="items-section">
     <view class="section-header">
-      <text class="section-title">📝 题目列表（{{items.length}}）</text>
+      <text class="section-title">📝 题目列表（{{items.length}}/10 · 提交需凑满 10 题一组）</text>
       <button class="btn-add" bindtap="addItem">＋ 添加</button>
     </view>
 

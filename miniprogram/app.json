@@ -15,6 +15,7 @@
     "pages/wrong-review/wrong-review",
     "pages/level-editor/level-editor",
     "pages/level-share/level-share",
+    "pages/custom-levels/custom-levels",
     "pages/checkin/checkin",
     "pages/daily-question/daily-question",
     "pages/achievement/achievement",

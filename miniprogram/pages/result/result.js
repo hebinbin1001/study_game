@@ -42,6 +42,8 @@ Page({
     var maxCombo = parseInt(options.maxCombo || 0, 10) || 0;
     // 题型分类（题型分类关卡，2026-09-08：空串/'all' = 综合）
     this._type = options.type || '';
+    // B4：自定义关卡（10 个一组），不写系统星级存档、不入字词进度榜/总榜
+    this._custom = options.custom === '1';
 
     // 计算正确率
     var rate = totalQ > 0 ? (correctCount / totalQ * 100) : 0;
@@ -62,8 +64,10 @@ Page({
         grade: grade,
         level: level
       });
-      // 失败不计星、不写存档，但仍上报成绩（REQ-GAME-11）
-      this.reportScore(score, correctCount, totalQ, 0, maxCombo, grade, level);
+      // 失败不计星、不写存档，但仍上报成绩（REQ-GAME-11）；自定义关卡除外
+      if (!this._custom) {
+        this.reportScore(score, correctCount, totalQ, 0, maxCombo, grade, level);
+      }
       return;
     }
 
@@ -87,17 +91,22 @@ Page({
     });
 
     // 通关写星级存档（取历史最大值；分类关卡写 grade@type@level，综合沿用旧 key，REQ-GAME-13）
-    if (grade && level >= 1) {
+    // 自定义关卡跳过：不占系统星级/进度（B4）
+    if (!this._custom && grade && level >= 1) {
       var typeKey = (this._type && this._type !== 'all') ? this._type : undefined;
       storage.saveStars(grade, level, stars, typeKey);
     }
 
     // 上报成绩（REQ-API-4）
-    this.reportScore(score, correctCount, totalQ, stars, maxCombo, grade, level);
+    if (!this._custom) {
+      this.reportScore(score, correctCount, totalQ, stars, maxCombo, grade, level);
+    }
 
     // B2 拍板：移除「任意闯关自动打卡」——打卡唯一入口=每日一题（见 pages/daily-question）
-    // 通关仍同步段位/胜场/星（排行榜与头像解锁数据来源）
-    this.rankSync(stars);
+    // 通关仍同步段位/胜场/星（排行榜与头像解锁数据来源）；自定义关卡不参与
+    if (!this._custom) {
+      this.rankSync(stars);
+    }
   },
 
   // 通关同步段位：RankRecord.wins+1、stars 累加（世界榜/我的排名/段位皮肤解锁依赖）

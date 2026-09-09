@@ -166,6 +166,15 @@ router.post("/submit", async (req, res) => {
       });
     }
 
+    // B4 拍板：提交审核必须是「10 个一组」——不足/超出一律拒绝，并给出明确原因
+    if (!Array.isArray(level.items) || level.items.length !== 10) {
+      return res.send({
+        code: 4000,
+        data: null,
+        message: "提交审核需凑满 10 题一组（当前 " + ((level.items || []).length) + "/10）",
+      });
+    }
+
     level.status = "pending";
     await level.save();
 
@@ -278,6 +287,56 @@ router.get("/import", async (req, res) => {
     });
   } catch (err) {
     console.error("GET /api/level/import 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
+/**
+ * GET /api/level/public —— 公开关卡广场（B4：approved 全量，全网可见可玩）
+ * ?page=1&pageSize=20（含作者昵称与题数）
+ */
+router.get("/public", async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize) || 20));
+    const offset = (page - 1) * pageSize;
+
+    const { count, rows } = await CustomLevel.findAndCountAll({
+      where: { status: "approved" },
+      order: [["updatedAt", "DESC"]],
+      limit: pageSize,
+      offset,
+    });
+
+    const openids = rows.map((r) => r.authorOpenid);
+    const users = openids.length
+      ? await User.findAll({ where: { openid: openids }, attributes: ["openid", "nickname"] })
+      : [];
+    const nameMap = new Map(users.map((u) => [u.openid, u.nickname]));
+
+    const list = rows.map((r) => ({
+      levelId: r.levelId,
+      title: r.title,
+      description: r.description || "",
+      grade: r.grade,
+      totalQ: r.totalQ || 0,
+      shareCode: r.shareCode || "",
+      authorName: nameMap.get(r.authorOpenid) || "匿名",
+      updatedAt: r.updatedAt,
+    }));
+
+    res.send({
+      code: 0,
+      data: {
+        page,
+        pageSize,
+        total: count,
+        totalPages: Math.ceil(count / pageSize),
+        list,
+      },
+    });
+  } catch (err) {
+    console.error("GET /api/level/public 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
 });

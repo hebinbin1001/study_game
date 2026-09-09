@@ -73,9 +73,9 @@ Page({
     this._guard('/pages/checkin/checkin', '签到记录需登录查看');
   },
 
-  // 自定义题库（我的题库；B4 深化为列表+广场）
+  // 自定义题库（我的题库 + 公开广场中心；B4）
   goCustom: function () {
-    this._guard('/pages/level-editor/level-editor', '自定义题库需登录');
+    this._guard('/pages/custom-levels/custom-levels', '自定义题库需登录');
   },
 
   _guard: function (url, desc) {

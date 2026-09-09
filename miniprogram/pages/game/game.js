@@ -102,6 +102,21 @@ Page({
     var level = options && options.level ? parseInt(options.level, 10) : 1;
     var type = options && options.type ? options.type : '';
 
+    // B4：自定义关卡（10 个一组）——由 level-share / 公开广场带完整题目 JSON 进入
+    var custom = null;
+    if (options && options.customLevel) {
+      try {
+        custom = JSON.parse(decodeURIComponent(options.customLevel));
+      } catch (e) {
+        custom = null;
+      }
+    }
+    if (custom && Array.isArray(custom.items)) {
+      // 自定义关卡：学段沿用其声明，题源=固定 10 题
+      this._customLevel = custom;
+      grade = custom.grade || grade;
+    }
+
     this.setData({
       grade: grade,
       level: level,
@@ -298,6 +313,17 @@ Page({
        * @returns {Object|null} WordItem，无可用题目返回 null（引擎会触发结算）
        */
       getNextItem: function () {
+        // B4：自定义关卡 → 按序出固定 10 题（items 已由导入/公开广场带全）
+        if (self._customLevel && Array.isArray(self._customLevel.items)) {
+          var citems = self._customLevel.items;
+          var idx = self._usedItems.length;
+          if (idx < citems.length) {
+            var citem = citems[idx];
+            self._usedItems.push(citem);
+            return citem;
+          }
+          return null;
+        }
         var grade = self.data.grade;
         var type = self.data.type;
         // 分类关卡：限该类题库抽题；综合走原逻辑
@@ -316,6 +342,10 @@ Page({
        * @returns {Array} WordItem[]，学段不存在返回 []
        */
       getBank: function () {
+        // B4：自定义关卡 → 词库=本关固定 items（干扰项从同关内取）
+        if (self._customLevel && Array.isArray(self._customLevel.items)) {
+          return self._customLevel.items;
+        }
         var type = self.data.type;
         if (type && type !== 'all') {
           return dict.filterByGroup(self.data.grade, type);
@@ -673,11 +703,13 @@ Page({
     this._rushStop();
     this._clearFxTimer();
 
-    // 拼接结算页查询参数（type 分类随参数传递，结算页据此写分类存档）
+    // 拼接结算页查询参数（type 分类随参数传递，结算页据此写分类存档；
+    // B4：自定义关卡带 custom=1，结算页不写系统星级存档、不入字词进度）
     var query =
       'grade=' + this.data.grade +
       '&level=' + this.data.level +
       '&type=' + (this.data.type || '') +
+      '&custom=' + (this._customLevel ? '1' : '0') +
       '&win=' + (result.win ? 1 : 0) +
       '&score=' + result.score +
       '&correctCount=' + result.correctCount +

@@ -1,0 +1,62 @@
+<!-- 自定义题库中心（B4：我的题库 / 公开广场 / 新建 / 导入） -->
+<view class="page-custom">
+  <view class="hub-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="hub-title">🛠️ 自定义题库</view>
+    <view class="hub-new" bindtap="createNew">＋ 新建</view>
+  </view>
+
+  <!-- tab -->
+  <view class="tabs">
+    <view class="tab {{tab === 'mine' ? 'active' : ''}}" data-tab="mine" bindtap="switchTab">📁 我的题库</view>
+    <view class="tab {{tab === 'public' ? 'active' : ''}}" data-tab="public" bindtap="switchTab">🌐 公开广场</view>
+  </view>
+
+  <!-- 我的题库 -->
+  <scroll-view wx:if="{{tab === 'mine'}}" class="hub-scroll" scroll-y="true" show-scrollbar="{{false}}">
+    <view wx:if="{{!mine.length && !loading}}" class="empty">
+      <view class="e-emoji">🗂️</view>
+      <view class="e-t">还没有自建关卡</view>
+      <view class="e-s">点右上「＋新建」用模板做一关吧（10 题一组可提交审核）</view>
+    </view>
+
+    <view wx:for="{{mine}}" wx:key="levelId" class="lv-card">
+      <view class="lv-head">
+        <view class="lv-title">{{item.title}}</view>
+        <view class="lv-status {{item.statusCls}}">{{item.statusLabel}}</view>
+      </view>
+      <view class="lv-meta">{{item.gradeLabel}} · {{item.totalQ}} 题<text wx:if="{{item.shareCode}}"> · 码 {{item.shareCode}}</text></view>
+      <view class="lv-actions">
+        <view wx:if="{{item.statusLabel === '草稿'}}" class="act" data-id="{{item.levelId}}" bindtap="submitLevel">🚀 提交审核(需10题)</view>
+        <view class="act" data-id="{{item.levelId}}" bindtap="editLevel">✏️ 编辑</view>
+        <view wx:if="{{item.statusLabel === '已公开'}}" class="act act-ok" data-id="{{item.levelId}}" data-code="{{item.shareCode}}" bindtap="playLevel">▶ 试玩</view>
+        <view class="act" data-id="{{item.levelId}}" bindtap="shareLevel">🔗 分享码</view>
+      </view>
+    </view>
+    <view class="safe-gap"></view>
+  </scroll-view>
+
+  <!-- 公开广场 -->
+  <scroll-view wx:else class="hub-scroll" scroll-y="true" show-scrollbar="{{false}}">
+    <view class="public-hint">全网已审核公开关卡 · 点卡片即可玩</view>
+    <view wx:if="{{!publicList.length && !loading}}" class="empty">
+      <view class="e-emoji">🌐</view>
+      <view class="e-t">公开关卡广场还空着</view>
+      <view class="e-s">快来创建你的第一关，通过审核后全网可见！</view>
+    </view>
+
+    <view wx:for="{{publicList}}" wx:key="levelId" class="lv-card public"
+      data-id="{{item.levelId}}" data-code="{{item.shareCode}}" bindtap="playLevel">
+      <view class="lv-head">
+        <view class="lv-title">{{item.title}}</view>
+        <view class="lv-author">by {{item.authorName}}</view>
+      </view>
+      <view class="lv-meta">{{item.gradeLabel}} · {{item.totalQ}} 题 · 审核公开</view>
+      <view class="lv-actions">
+        <view class="act act-ok">▶ 开始挑战</view>
+      </view>
+    </view>
+    <view class="import-btn" bindtap="goImport">🔑 有分享码？输码导入</view>
+    <view class="safe-gap"></view>
+  </scroll-view>
+</view>

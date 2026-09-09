@@ -116,8 +116,20 @@ Page({
     this.saveLevel('draft');
   },
 
-  // 提交审核
+  // 提交审核（B4：必须 10 个一组且每题字段完整，前端先校验 + 后端强校验兜底）
   submitReview: function () {
+    var items = this.data.items;
+    if (items.length !== 10) {
+      wx.showToast({ title: '提交审核需凑满 10 题一组（当前 ' + items.length + '/10）', icon: 'none' });
+      return;
+    }
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      if (!it.q || !it.a) {
+        wx.showToast({ title: '第 ' + (i + 1) + ' 题缺题目/答案', icon: 'none' });
+        return;
+      }
+    }
     this.saveLevel('pending');
   },
 

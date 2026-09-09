@@ -1,0 +1,68 @@
+/* 自定义题库中心（B4） */
+.page-custom {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 16rpx 30rpx 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+}
+.hub-head { display: flex; align-items: center; gap: 20rpx; flex: 0 0 auto; }
+.back-pill {
+  width: 80rpx; height: 80rpx; padding: 0;
+  background: rgba(255,255,255,.9); border-radius: 50%;
+  font-size: 40rpx; color: #3a3a5c; font-weight: 900;
+  line-height: 80rpx; box-shadow: 0 6rpx 0 rgba(0,0,0,.06);
+}
+.back-pill::after { border: none; }
+.hub-title { flex: 1; font-size: 38rpx; font-weight: 900; color: #fff; text-shadow: 0 4rpx 0 rgba(0,0,0,.1); }
+.hub-new {
+  background: #ffb703; color: #fff;
+  border-radius: 999rpx; padding: 12rpx 28rpx;
+  font-size: 26rpx; font-weight: 900;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.1);
+}
+
+.tabs { display: flex; gap: 20rpx; margin: 24rpx 0 16rpx; flex: 0 0 auto; }
+.tab {
+  flex: 1; text-align: center;
+  background: rgba(255,255,255,.85); color: #5c7f9e;
+  border-radius: 999rpx; padding: 18rpx 0;
+  font-size: 28rpx; font-weight: 800;
+}
+.tab.active { background: #ffb703; color: #fff; }
+
+.hub-scroll { flex: 1 1 auto; min-height: 0; }
+.lv-card {
+  background: #fff; border-radius: 28rpx;
+  padding: 24rpx 26rpx; margin-bottom: 20rpx;
+  box-shadow: 0 8rpx 0 rgba(0,0,0,.05);
+}
+.lv-head { display: flex; align-items: center; gap: 14rpx; }
+.lv-title { flex: 1; font-size: 32rpx; font-weight: 900; color: #3a3a5c; }
+.lv-status { font-size: 20rpx; font-weight: 800; padding: 6rpx 18rpx; border-radius: 999rpx; background: #f0f4fa; color: #8a9bb5; }
+.lv-status.ok { background: #e6f6ea; color: #2e8b57; }
+.lv-status.pending { background: #fff3e0; color: #ff8f00; }
+.lv-status.no { background: #fde8e8; color: #e62e2e; }
+.lv-meta { font-size: 22rpx; color: #8a9bb5; margin-top: 8rpx; }
+.lv-actions { display: flex; flex-wrap: wrap; gap: 14rpx; margin-top: 18rpx; }
+.act {
+  background: #eef2f8; color: #5c7f9e;
+  border-radius: 999rpx; padding: 10rpx 22rpx;
+  font-size: 22rpx; font-weight: 800;
+}
+.act-ok { background: #e6f6ea; color: #2e8b57; }
+.act:active { opacity: .8; }
+
+.public-hint { font-size: 22rpx; color: #fff; opacity: .92; margin: 0 0 16rpx; }
+.lv-author { font-size: 22rpx; color: #8a9bb5; }
+.import-btn {
+  text-align: center; color: #3a3a5c; font-size: 26rpx; font-weight: 800;
+  background: rgba(255,255,255,.9); border-radius: 999rpx;
+  padding: 22rpx 0; margin-top: 8rpx;
+}
+.empty { text-align: center; padding: 80rpx 30rpx; color: #3a3a5c; }
+.e-emoji { font-size: 90rpx; }
+.e-t { font-size: 30rpx; font-weight: 900; margin-top: 16rpx; }
+.e-s { font-size: 22rpx; color: #8a9bb5; margin-top: 8rpx; line-height: 1.6; }
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); }
