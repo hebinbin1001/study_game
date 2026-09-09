@@ -205,13 +205,44 @@ Page({
     });
   },
 
-  // 改向（防 180 度反向）
-  onDir: function (e) {
-    var d = e.currentTarget.dataset.d;
-    d = parseInt(d, 10);
-    if ((this._dir + d) % 2 === 0) return; // 0-2 / 1-3 反向
+  // 触屏控制：滑动方向（主）；点按也可按相对中心方位转向
+  onTouchStart: function (e) {
+    var t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+    if (!t) return;
+    this._tx = t.clientX;
+    this._ty = t.clientY;
+  },
+
+  onTouchEnd: function (e) {
+    var t = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]);
+    if (!t || this._tx === undefined) return;
+    var dx = t.clientX - this._tx;
+    var dy = t.clientY - this._ty;
+    var adx = Math.abs(dx), ady = Math.abs(dy);
+
+    if (adx < 18 && ady < 18) {
+      // 视为点按：按相对按下位置方位转向（中心上下左右）
+      // 简化为点按不转向（避免误触），长提示由滑动承担
+      this._tx = this._ty = undefined;
+      return;
+    }
+    var d;
+    if (adx > ady) d = dx > 0 ? 1 : 3;   // 右/左
+    else d = dy > 0 ? 2 : 0;              // 下/上
+    this._tx = this._ty = undefined;
+    this._setDir(d);
+  },
+
+  _setDir: function (d) {
+    if ((this._dir + d) % 2 === 0) return; // 不允许 180° 反向
     this._dir = d;
     this.setData({ dir: d });
+  },
+
+  // 兼容旧入口（若保留按键可调用）
+  onDir: function (e) {
+    var d = parseInt(e.currentTarget.dataset.d, 10);
+    this._setDir(d);
   },
 
   again: function () { this.startGame(); },

@@ -25,12 +25,12 @@ Page({
     curLevel: 1,
     playing: false,
     // 对局状态
-    pool: [],        // [{id, text, ok}] 当前数字/合成结果卡
+    pool: [],        // [{id, text, isRes}] 当前数字/合成结果卡
     left: 0,
     lives: LIVES,
     tries: 0,        // 本关尝试次数（最终判定失败重来算一次）
-    op: '',          // 当前选中运算符
-    selA: -1,        // 选中第一张卡 index
+    selA: -1,        // 选中的第一张卡 index（-1 未选）
+    selB: -1,        // 选中的第二张卡 index（-1 未选）
     hint: '',        // 提示文案
     over: false,
     win: false,
@@ -48,50 +48,79 @@ Page({
     if (!lv) return;
     this._poolF = lv.nums.map(function (n) { return m24.frac(n, 1); });
     this._idSeq = 0;
+    this._history = [];   // 撤销栈：{poolF:[...], texts:[...]}
     this.setData({
       curLevel: no,
       playing: true,
-      pool: lv.nums.map(function (n) { return { id: ++this._idSeq, text: String(n) }; }, this),
+      pool: lv.nums.map(function (n) { return { id: ++this._idSeq, text: String(n), isRes: false }; }, this),
       left: lv.nums.length,
       lives: LIVES,
       tries: 0,
-      op: '',
-      selA: -1,
-      hint: '选两张数字，点运算符合成；4 张凑成 24 即过关',
+      selA: -1, selB: -1,
+      hint: '点两张数字卡高亮，再点运算符合成；4 张合成一张 24 即过关',
       over: false, win: false, stars: 0, starsText: ''
     });
   },
 
-  // —— 卡牌选择 ——
+  // —— 卡牌选择：支持两张同时选中（再点取消）——
   tapCard: function (e) {
     if (!this.data.playing || this.data.over) return;
-    var idx = e.currentTarget.dataset.idx;
-    if (idx === this.data.selA) {
-      // 再点取消
-      this.setData({ selA: -1, op: '' });
-      return;
-    }
-    if (this.data.selA === -1) {
-      this.setData({ selA: idx, op: '' });
-    } else {
-      // 已选 A，再点 B → 若已选运算符则直接合成
-      if (this.data.op) {
-        this._merge(this.data.selA, idx, this.data.op);
-      } else {
-        // 未选运算符：换选 B 为第一张
-        this.setData({ selA: idx });
-      }
-    }
+    var idx = parseInt(e.currentTarget.dataset.idx, 10);
+    var selA = this.data.selA, selB = this.data.selB;
+
+    // 已选中的卡再点 → 取消该卡
+    if (idx === selA) { this.setData({ selA: -1 }); return; }
+    if (idx === selB) { this.setData({ selB: -1 }); return; }
+
+    if (selA === -1) { this.setData({ selA: idx }); return; }
+    if (selB === -1) { this.setData({ selB: idx }); return; }
+    // 已选满两张还点第三张 → 用新卡替换第一张（保留第二张）
+    this.setData({ selA: selB, selB: idx });
   },
 
-  // —— 运算符 ——
+  // —— 运算符：有 2 张选中时合成（与点选顺序无关）——
   pickOp: function (e) {
-    if (this.data.selA === -1) { wx.showToast({ title: '先选第一张', icon: 'none' }); return; }
-    this.setData({ op: e.currentTarget.dataset.op });
+    if (!this.data.playing || this.data.over) return;
+    var selA = this.data.selA, selB = this.data.selB;
+    if (selA === -1 || selB === -1) {
+      wx.showToast({ title: '请先点选两张数字卡', icon: 'none' });
+      return;
+    }
+    this._merge(selA, selB, e.currentTarget.dataset.op);
+  },
+
+  // 撤销上一步合成（回到上一状态，不扣命）
+  undo: function () {
+    if (!this.data.playing || this.data.over) return;
+    var h = this._history;
+    if (!h || !h.length) { wx.showToast({ title: '没有可撤销的步骤', icon: 'none' }); return; }
+    var prev = h.pop();
+    this._poolF = prev.poolF;
+    this._pool = prev.pool.map(function (c) { return { id: c.id, text: c.text, isRes: c.isRes }; });
+    this.setData({ pool: this._pool, left: this._pool.length, selA: -1, selB: -1 });
+  },
+
+  // 重置本关（同题重排，不扣命）
+  resetRound: function () {
+    if (!this.data.playing || this.data.over) return;
+    this._history = [];
+    var lv = LEVELS[this.data.curLevel - 1];
+    this._poolF = lv.nums.map(function (n) { return m24.frac(n, 1); });
+    this._idSeq = 0;
+    this.setData({
+      pool: lv.nums.map(function (n) { return { id: ++this._idSeq, text: String(n), isRes: false }; }, this),
+      left: lv.nums.length, selA: -1, selB: -1
+    });
   },
 
   // 合成 selA 与 selB
   _merge: function (a, b, op) {
+    // 入撤销栈（当前状态快照）
+    this._history.push({
+      poolF: this._poolF.map(function (f) { return { n: f.n, d: f.d }; }),
+      pool: this._pool.map(function (c) { return { id: c.id, text: c.text, isRes: c.isRes }; })
+    });
+
     var f = this._poolF;
     var fa = f[a], fb = f[b];
     var r = null;
@@ -99,7 +128,11 @@ Page({
     else if (op === '-') r = m24.sub(fa, fb);
     else if (op === '×') r = m24.mul(fa, fb);
     else if (op === '÷') r = m24.div(fa, fb);
-    if (r === null) { wx.showToast({ title: '不能除以 0', icon: 'none' }); return; }
+    if (r === null) {
+      this._history.pop(); // 无效操作不入栈
+      wx.showToast({ title: '不能除以 0', icon: 'none' });
+      return;
+    }
 
     // 新 pool：删 a,b 加入 r
     var newPool = [];
@@ -115,7 +148,7 @@ Page({
     this._pool = newPool;
     this._poolF = newF;
 
-    this.setData({ pool: newPool, left: newPool.length, selA: -1, op: '' });
+    this.setData({ pool: newPool, left: newPool.length, selA: -1, selB: -1 });
 
     if (newPool.length === 1) {
       if (m24.eq24(r)) this._win();
@@ -140,7 +173,8 @@ Page({
     var lv = LEVELS[this.data.curLevel - 1];
     this._poolF = lv.nums.map(function (n) { return m24.frac(n, 1); });
     this._idSeq = 0;
-    this.setData({ pool: lv.nums.map(function (n) { return { id: ++this._idSeq, text: String(n) }; }, this), left: lv.nums.length, selA: -1, op: '', hint: '换个思路再试 · 试试括号式：先合成中间数' });
+    this._history = [];
+    this.setData({ pool: lv.nums.map(function (n) { return { id: ++this._idSeq, text: String(n), isRes: false }; }, this), left: lv.nums.length, selA: -1, selB: -1, hint: '换个思路再试 · 可用「撤销」回退上一步' });
   },
 
   _win: function () {

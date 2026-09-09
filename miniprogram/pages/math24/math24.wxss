@@ -51,14 +51,22 @@
 }
 .num-card {
   width: 200rpx; height: 200rpx;
+  position: relative;
   background: #fff;
   border-radius: 28rpx;
   display: flex; align-items: center; justify-content: center;
   font-size: 64rpx; font-weight: 900; color: #3a3a5c;
   box-shadow: 0 10rpx 0 rgba(0,0,0,.06);
+  box-sizing: border-box;
 }
-.num-card.res { background: #fff8e6; color: #b57900; font-size: 52rpx; }
+.nc-text { line-height: 1; word-break: break-all; }
+.nc-mark {
+  position: absolute; top: 6rpx; right: 12rpx;
+  font-size: 26rpx; color: #ffb703; font-weight: 900;
+}
+.num-card.res { background: #fff8e6; color: #b57900; font-size: 48rpx; }
 .num-card.sel { outline: 8rpx solid #ffb703; }
+.num-card.sel2 { outline: 8rpx solid #7bd389; }
 .num-card:active { opacity: .85; }
 
 /* 运算符 */
@@ -70,8 +78,17 @@
   font-size: 56rpx; font-weight: 900; color: #4cc9f0;
   box-shadow: 0 8rpx 0 rgba(0,0,0,.07);
 }
-.op.on { background: #ffb703; color: #fff; }
-.op:active { transform: translateY(3rpx); }
+.op:active { transform: translateY(3rpx); background: #e8f7ff; }
+
+/* 工具行：撤销 / 重置 */
+.tools { flex: 0 0 auto; display: flex; justify-content: center; gap: 24rpx; margin: 8rpx 0 2rpx; }
+.tool {
+  background: rgba(255,255,255,.9); color: #5c7f9e;
+  border-radius: 999rpx; padding: 12rpx 36rpx;
+  font-size: 26rpx; font-weight: 800;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.06);
+}
+.tool:active { opacity: .8; }
 .op-tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #fff; opacity: .95; min-height: 40rpx; }
 .goal { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #fff; font-weight: 800; opacity: .9; }
 

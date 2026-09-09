@@ -37,20 +37,31 @@
       <view
         wx:for="{{pool}}"
         wx:key="id"
-        class="num-card {{selA === index ? 'sel' : ''}} {{item.isRes ? 'res' : ''}}"
+        class="num-card {{selA === index ? 'sel' : ''}} {{selB === index ? 'sel2' : ''}} {{item.isRes ? 'res' : ''}}"
         data-idx="{{index}}"
-        bindtap="tapCard">{{item.text}}</view>
+        bindtap="tapCard">
+        <text class="nc-text">{{item.text}}</text>
+        <text wx:if="{{selA === index}}" class="nc-mark">①</text>
+        <text wx:elif="{{selB === index}}" class="nc-mark">②</text>
+      </view>
     </view>
 
-    <!-- 运算符 -->
+    <!-- 运算符：选好两张后再点 -->
     <view class="ops">
-      <view class="op {{op === '+' ? 'on' : ''}}" data-op="+" bindtap="pickOp">＋</view>
-      <view class="op {{op === '-' ? 'on' : ''}}" data-op="-" bindtap="pickOp">－</view>
-      <view class="op {{op === '×' ? 'on' : ''}}" data-op="×" bindtap="pickOp">×</view>
-      <view class="op {{op === '÷' ? 'on' : ''}}" data-op="÷" bindtap="pickOp">÷</view>
+      <view class="op" data-op="+" bindtap="pickOp">＋</view>
+      <view class="op" data-op="-" bindtap="pickOp">－</view>
+      <view class="op" data-op="×" bindtap="pickOp">×</view>
+      <view class="op" data-op="÷" bindtap="pickOp">÷</view>
     </view>
-    <view class="op-tip">{{op ? ('已选「' + op + '」→ 点另一张牌完成合成') : '先点第 1 张牌，再点运算符，再点第 2 张牌'}}</view>
-    <view class="goal">目标：把全部数字合成一张「24」</view>
+
+    <!-- 工具：撤销 / 重置 -->
+    <view class="tools">
+      <view class="tool" bindtap="undo">↩ 撤销</view>
+      <view class="tool" bindtap="resetRound">⟳ 重置</view>
+    </view>
+
+    <view class="op-tip">{{hint}}</view>
+    <view class="goal">目标：把全部数字合成一张「24」 · 剩 {{left}} 张</view>
   </block>
 
   <!-- 结算 -->
