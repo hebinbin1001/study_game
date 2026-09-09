@@ -1,0 +1,57 @@
+<!-- 单词贪吃蛇（B6-6）：辨词进食 -->
+<view class="page-snake">
+  <view class="sn-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="sn-title">单词贪吃蛇</view>
+    <view class="sn-grade">🔀 方向键控制</view>
+  </view>
+
+  <!-- 目标 + HUD -->
+  <view class="hud">
+    <view class="hud-chip">❤{{lives}}</view>
+    <view class="hud-chip">分 {{score}}</view>
+    <view class="hud-chip">最高 {{best}}</view>
+  </view>
+  <view class="target-bar">
+    <view class="t-emoji">🎯</view>
+    <view class="t-main">
+      <view class="t-tip">吃掉这个释义对应的单词</view>
+      <view class="t-word">{{target}}</view>
+    </view>
+  </view>
+
+  <!-- 网格 -->
+  <view class="grid">
+    <view
+      wx:for="{{cells}}"
+      wx:key="index"
+      class="cell {{item.cls}}"></view>
+  </view>
+
+  <view class="pad">
+    <view class="pad-row">
+      <view class="pad-gap"></view>
+      <view class="dir up" data-d="0" bindtap="onDir">▲</view>
+      <view class="pad-gap"></view>
+    </view>
+    <view class="pad-row">
+      <view class="dir" data-d="3" bindtap="onDir">◀</view>
+      <view class="dir" data-d="2" bindtap="onDir">▼</view>
+      <view class="dir" data-d="1" bindtap="onDir">▶</view>
+    </view>
+  </view>
+  <view class="foot-tip">🍏 绿色=目标词(可吃加分) · 🍅 红色=干扰词(吃了扣命)</view>
+
+  <!-- 结算 -->
+  <view wx:if="{{over}}" class="over-mask">
+    <view class="over-card">
+      <view class="o-stars">{{starsText2}}</view>
+      <view class="o-title">游戏结束</view>
+      <view class="o-msg">得分 {{score}} · 最高 {{best}}</view>
+      <button class="btn b1" bindtap="again">再来一局</button>
+      <button class="btn b2" bindtap="goBack">返回</button>
+    </view>
+  </view>
+
+  <view class="safe-gap"></view>
+</view>
