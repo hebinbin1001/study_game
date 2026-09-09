@@ -59,6 +59,8 @@
   .asset .num{font-size:22px;font-weight:900;color:var(--ink)}
   .asset .lab{font-size:12px;color:var(--sub);margin-top:2px}
   .sec{margin:18px 0 8px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:6px}
+  .game .ic{font-size:34px;display:block;margin-bottom:8px}
+  .game .pic{display:block;width:52px;height:52px;object-fit:cover;border-radius:14px;margin:0 auto 8px}
   .games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .game{border:none;background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px 12px;cursor:pointer;text-align:left}
   .game:active{transform:scale(.98)}
@@ -133,8 +135,9 @@
     <div class="hero">
       <div class="hi">欢迎回来，小战士</div>
       <div class="big">打怪学字词 · 六合一闯关</div>
-      <!-- 可替换插画：改 src 为 Downloads 中的豆包图（file:///… 或拷贝到本目录） -->
-      <img src="file:///C:/Users/Hbb/Downloads/豆包%20(10).png" alt="hero" onerror="this.style.display='none'">
+      <!-- 插画：demo/assets 下的 Q 版角色（下载自 Downloads）。如图缺失自动隐藏；可换 hero-fairy/star-toy/warrior-mage -->
+      <img id="heroImg" src="./assets/hero-fairy.png" alt="hero" onerror="this.style.display='none'" style="max-height:110px;border-radius:14px;margin-top:8px;box-shadow:var(--shadow)">
+      <div class="hi" style="margin-top:6px;font-size:12px">插画：精灵（换成 star-toy.png / warrior-mage.png 可看其它角色）</div>
     </div>
 
     <div class="asset">
@@ -173,7 +176,7 @@
       <button class="pause" onclick="openPause('play')">⏸</button>
     </div>
     <div class="stage">
-      <div class="boss"><div class="b" id="plBoss">👾</div>
+      <div class="boss"><img id="plBossImg" src="./assets/boss-rock.png" alt="boss" onerror="this.style.display='none'" style="width:110px;border-radius:18px;box-shadow:var(--shadow)">
         <div class="word" id="plWord"></div>
       </div>
       <div class="hint" id="plHint"></div>
