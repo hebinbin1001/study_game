@@ -6,12 +6,8 @@
     <view class="mm-grade">{{gradeLabel}}</view>
   </view>
 
-  <!-- HUD -->
-  <view class="hud">
-    <view class="hud-chip">❤{{lives}}</view>
-    <view class="hud-chip">{{gradeLabel}} · 剩 {{left}} 卡</view>
-    <view class="hud-chip" bindtap="changeGrade">换一局</view>
-  </view>
+  <!-- HUD（公共组件） -->
+  <game-hud lives="{{lives}}" extra="{{gradeLabel}} · 剩 {{left}} 卡" score="{{0}}" score-text="" />
 
   <!-- 棋盘 4×4 -->
   <view class="board">
@@ -25,16 +21,15 @@
 
   <view class="tip">{{tip}}</view>
 
-  <!-- 结算 -->
-  <view wx:if="{{over}}" class="over-mask">
-    <view class="over-card">
-      <view class="o-stars">{{win ? starsText : '💔'}}</view>
-      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '全部消除！' : '生命耗尽'}}</view>
-      <view class="o-msg">{{win ? '获得 ' + stars + ' 星 · 错 ' + mistakes + ' 次' : '再试一次一定能行！'}}</view>
-      <button class="btn-again" bindtap="again">再来一局</button>
-      <button class="btn-again ghost" bindtap="changeGrade">换学段</button>
+  <!-- 结算（公共组件 + 自定义操作） -->
+  <settle-pop visible="{{over}}" win="{{win}}" stars-text="{{starsText}}"
+    title="{{win ? '全部消除！' : '生命耗尽'}}" msg="{{win ? '获得 ' + stars + ' 星 · 错 ' + mistakes + ' 次' : '再试一次一定能行！'}}"
+    show-retry="{{!win}}">
+    <view class="s-btns">
+      <button class="btn-main" bindtap="again">再来一局</button>
+      <button class="btn-ghost" bindtap="changeGrade">换学段</button>
     </view>
-  </view>
+  </settle-pop>
 
   <view class="safe-gap"></view>
 </view>

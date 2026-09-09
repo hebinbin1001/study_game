@@ -1,5 +1,8 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "game-hud": "/components/game-hud/game-hud",
+    "settle-pop": "/components/settle-pop/settle-pop"
+  },
   "navigationBarTitleText": "数独",
   "navigationBarBackgroundColor": "#5aa9e6",
   "navigationBarTextStyle": "white"

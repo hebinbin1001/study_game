@@ -32,12 +32,9 @@
 
   <!-- ============ 对局视图 ============ -->
   <block wx:else>
-    <!-- HUD -->
-    <view class="hud">
-      <view class="hud-chip">❤{{lives}}</view>
-      <view class="hud-chip">{{curLevel}} 关 · 错 {{mistakes}}</view>
-      <view class="hud-chip" bindtap="backToLevels">↩</view>
-    </view>
+    <!-- HUD（公共组件） -->
+    <game-hud lives="{{lives}}" extra="{{curLevel}} 关 · 错 {{mistakes}}" />
+    <view class="hud-back" bindtap="backToLevels">↩ 关卡列表</view>
 
     <!-- 棋盘 -->
     <view class="board-wrap">
@@ -63,19 +60,16 @@
     <view class="board-tip">先点空格，再点数字填入 · 每行/列/宫不重复</view>
   </block>
 
-  <!-- ============ 结算遮罩 ============ -->
-  <view wx:if="{{settle}}" class="settle-mask">
-    <view class="settle-card">
-      <view class="stars">{{win ? starsText : '💔'}}</view>
-      <view class="s-title {{win ? '' : 'fail'}}">{{win ? '通关成功！' : '再接再厉！'}}</view>
-      <view class="s-msg">{{overMsg}}</view>
-      <view class="s-btns">
-        <button wx:if="{{win}}" class="btn-main" bindtap="goNext">下一关 ▶</button>
-        <button class="btn-ghost" bindtap="again">再玩一次</button>
-        <button class="btn-ghost" bindtap="backToLevels">关卡列表</button>
-      </view>
+  <!-- ============ 结算遮罩（公共组件 + 自定义操作） ============ -->
+  <settle-pop visible="{{settle}}" win="{{win}}" stars-text="{{starsText}}"
+    title="{{win ? '通关成功！' : '再接再厉！'}}" msg="{{overMsg}}" show-retry="{{!win}}"
+    bind:retry="again">
+    <view class="s-btns">
+      <button wx:if="{{win}}" class="btn-main" bindtap="goNext">下一关 ▶</button>
+      <button wx:if="{{win}}" class="btn-ghost" bindtap="again">再玩一次</button>
+      <button class="btn-ghost" bindtap="backToLevels">关卡列表</button>
     </view>
-  </view>
+  </settle-pop>
 
   <view class="safe-gap"></view>
 </view>

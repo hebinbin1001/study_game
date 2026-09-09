@@ -1,0 +1,25 @@
+.over-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(20, 34, 56, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.over-card {
+  width: 600rpx;
+  background: #fff;
+  border-radius: 40rpx;
+  padding: 44rpx 36rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+.o-stars { font-size: 72rpx; color: #ffb703; letter-spacing: 8rpx; }
+.o-title { font-size: 44rpx; font-weight: 900; color: #2e8b57; margin-top: 10rpx; }
+.o-title.fail { color: #e62e2e; }
+.o-msg { font-size: 26rpx; color: #8a9bb5; margin-top: 10rpx; line-height: 1.5; }
+.ops { margin-top: 6rpx; }
+.btn { margin-top: 18rpx; width: 100%; height: 92rpx; line-height: 92rpx; border-radius: 46rpx; font-size: 32rpx; font-weight: 900; }
+.btn.b1 { background: #ffb703; color: #fff; box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.1); }
+.btn::after { border: none; }

@@ -62,6 +62,17 @@
   font-size: 26rpx; font-weight: 800;
   box-shadow: 0 6rpx 0 rgba(0,0,0,.05);
 }
+.hud-back {
+  flex: 0 0 auto;
+  align-self: center;
+  background: rgba(255,255,255,.8);
+  color: #5c7f9e;
+  border-radius: 999rpx;
+  padding: 6rpx 26rpx;
+  font-size: 22rpx;
+  font-weight: 800;
+  margin-bottom: 4rpx;
+}
 
 /* 棋盘：占剩余空间，居中自适应 */
 .board-wrap { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; min-height: 0; }

@@ -1,0 +1,13 @@
+<view wx:if="{{visible}}" class="over-mask" catchtap="onTapBubble">
+  <view class="over-card">
+    <view wx:if="{{starsText}}" class="o-stars">{{starsText}}</view>
+    <view wx:else class="o-stars">💔</view>
+    <view class="o-title {{win ? '' : 'fail'}}">{{title || (win ? '通关成功！' : '再接再厉！')}}</view>
+    <view wx:if="{{msg}}" class="o-msg">{{msg}}</view>
+
+    <!-- 页面自定义操作区 -->
+    <view class="ops"><slot></slot></view>
+
+    <button wx:if="{{showRetry && !win}}" class="btn b1" catchtap="onRetry">再来一次</button>
+  </view>
+</view>

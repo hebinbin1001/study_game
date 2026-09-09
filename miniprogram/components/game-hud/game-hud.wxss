@@ -1,0 +1,21 @@
+.hud {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18rpx;
+  flex: 0 0 auto;
+  margin: 12rpx 0;
+}
+.chip {
+  background: rgba(255, 255, 255, 0.94);
+  color: #3a3a5c;
+  border-radius: 999rpx;
+  padding: 12rpx 30rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.05);
+  line-height: 1.4;
+}
+.chip-lives { color: #ff5d8f; min-width: 120rpx; text-align: center; }
+.chip-score { color: #4285F4; }
+.chip-extra { color: #ff8f00; }

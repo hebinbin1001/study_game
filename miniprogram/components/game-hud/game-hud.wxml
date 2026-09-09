@@ -1,0 +1,5 @@
+<view class="hud">
+  <view class="chip chip-lives">❤ {{lives}}</view>
+  <view wx:if="{{scoreText}}" class="chip chip-score">{{score}} {{scoreText}}</view>
+  <view wx:if="{{extra}}" class="chip chip-extra">{{extra}}</view>
+</view>
