@@ -1,0 +1,69 @@
+<!-- 算 24 点（B6-4）：选 2 张 + 运算符合成，4 张凑 24 -->
+<view class="page-24">
+  <view class="p-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="p-title">算 24 点</view>
+    <view class="p-grade" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + levelInfo.length + ' 关') : '选关'}}</view>
+  </view>
+
+  <!-- 选关 -->
+  <block wx:if="{{!playing}}">
+    <view class="intro">
+      <view class="i-t">🧮 用 + − × ÷ 把 4 张牌凑成 24</view>
+      <view class="i-s">每关固定 4 个数 · 点两张牌再选运算符逐步合成</view>
+    </view>
+    <view class="levels">
+      <view
+        wx:for="{{levelInfo}}"
+        wx:key="no"
+        class="lv {{curLevel === item.no ? 'on' : ''}}"
+        data-no="{{item.no}}"
+        bindtap="pickLevel">
+        <view class="lv-no">第 {{item.no}} 关</view>
+        <view class="lv-nums">{{item.nums.join('  ')}}</view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 对局 -->
+  <block wx:else>
+    <view class="hud">
+      <view class="hud-chip">❤{{lives}}</view>
+      <view class="hud-chip">第 {{curLevel}} 关</view>
+      <view class="hud-chip">尝试 {{tries + 1}}</view>
+    </view>
+
+    <view class="board">
+      <view
+        wx:for="{{pool}}"
+        wx:key="id"
+        class="num-card {{selA === index ? 'sel' : ''}} {{item.isRes ? 'res' : ''}}"
+        data-idx="{{index}}"
+        bindtap="tapCard">{{item.text}}</view>
+    </view>
+
+    <!-- 运算符 -->
+    <view class="ops">
+      <view class="op {{op === '+' ? 'on' : ''}}" data-op="+" bindtap="pickOp">＋</view>
+      <view class="op {{op === '-' ? 'on' : ''}}" data-op="-" bindtap="pickOp">－</view>
+      <view class="op {{op === '×' ? 'on' : ''}}" data-op="×" bindtap="pickOp">×</view>
+      <view class="op {{op === '÷' ? 'on' : ''}}" data-op="÷" bindtap="pickOp">÷</view>
+    </view>
+    <view class="op-tip">{{op ? ('已选「' + op + '」→ 点另一张牌完成合成') : '先点第 1 张牌，再点运算符，再点第 2 张牌'}}</view>
+    <view class="goal">目标：把全部数字合成一张「24」</view>
+  </block>
+
+  <!-- 结算 -->
+  <view wx:if="{{over}}" class="over-mask">
+    <view class="over-card">
+      <view class="o-stars">{{win ? starsText : '💔'}}</view>
+      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '凑出 24！' : '本关失败'}}</view>
+      <view class="o-msg">{{overMsg}}</view>
+      <button wx:if="{{win}}" class="btn b1" bindtap="goNext">下一关 ▶</button>
+      <button class="btn b1" bindtap="again">再试本关</button>
+      <button class="btn b2" bindtap="goLevels">关卡列表</button>
+    </view>
+  </view>
+
+  <view class="safe-gap"></view>
+</view>

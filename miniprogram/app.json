@@ -15,6 +15,7 @@
     "pages/wrong-review/wrong-review",
     "pages/match/match",
     "pages/g2048/g2048",
+    "pages/math24/math24",
     "pages/sudoku/sudoku",
     "pages/level-editor/level-editor",
     "pages/level-share/level-share",
