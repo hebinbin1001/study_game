@@ -18,8 +18,8 @@
     <view class="hero-sub">玩中学 · 学中记</view>
   </view>
 
-  <!-- 游客引导条（仅游客） -->
-  <view wx:if="{{!loggedIn}}" class="guestbar" bindtap="onProfileTap">
+  <!-- 游客引导条（仅游客）：点去登录 → 先弹协议再登录；条下提供协议全文阅读 -->
+  <view class="guestbar" bindtap="onProfileTap">
     <view class="gb-ic">👤</view>
     <view class="gb-t">
       <view class="gb-b">游客模式 · 数据仅存本机</view>
@@ -27,6 +27,7 @@
     </view>
     <view class="gb-btn">去登录</view>
   </view>
+  <view wx:if="{{!loggedIn}}" class="agree-link" bindtap="goAgreement">登录即代表同意《用户协议与隐私政策》· 点击阅读全文</view>
 
   <!-- 资产条 -->
   <view class="asset-row">

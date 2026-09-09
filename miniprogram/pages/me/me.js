@@ -16,7 +16,8 @@ Page({
       { emoji: '👗', name: '我的形象 · 皮肤', url: '/pages/avatar/avatar' },
       { emoji: '🏆', name: '排行榜', url: '/pages/rank/rank' },
       { emoji: '📖', name: '错题本', url: '/pages/wrong-book/wrong-book' },
-      { emoji: '🏅', name: '成就勋章', url: '/pages/achievement/achievement' }
+      { emoji: '🏅', name: '成就勋章', url: '/pages/achievement/achievement' },
+      { emoji: '📄', name: '用户协议与隐私政策', url: '/pages/agreement/agreement' }
     ]
   },
 

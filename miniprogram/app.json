@@ -9,6 +9,7 @@
     "pages/game/game",
     "pages/result/result",
     "pages/nickname/nickname",
+    "pages/agreement/agreement",
     "pages/avatar/avatar",
     "pages/rank/rank",
     "pages/wrong-book/wrong-book",

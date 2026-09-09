@@ -77,6 +77,13 @@
   font-weight: 800;
   flex: 0 0 auto;
 }
+.agree-link {
+  text-align: center;
+  font-size: 20rpx;
+  color: #9aa7bd;
+  padding: 12rpx 0 2rpx;
+}
+.agree-link:active { opacity: .7; }
 
 /* 资产条 */
 .asset-row { display: flex; gap: 20rpx; margin-top: 24rpx; }

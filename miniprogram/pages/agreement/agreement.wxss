@@ -1,0 +1,12 @@
+.page-agree {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 32rpx 36rpx calc(env(safe-area-inset-bottom) + 60rpx);
+  background: #fff;
+}
+.doc-title { font-size: 38rpx; font-weight: 900; color: #2c3e72; text-align: center; }
+.doc-meta { text-align: center; font-size: 22rpx; color: #8a94a6; margin: 10rpx 0 30rpx; }
+.sec-title { font-size: 30rpx; font-weight: 900; color: #4285F4; margin: 30rpx 0 12rpx; }
+.p { font-size: 26rpx; line-height: 1.75; color: #3a3a5c; margin-bottom: 16rpx; text-align: justify; }
+.foot { text-align: center; color: #a9b2c2; font-size: 22rpx; margin-top: 40rpx; }
+.safe-gap { height: 24rpx; }

@@ -34,6 +34,9 @@ Page({
     this.setData({ soundOn: soundOn });
     // 游客首屏不再自动弹协议；协议在用户点「登录/注册」后展示（O2）
     this.refresh();
+    var self = this;
+    // 等 refresh 的 setData 落库后再判断本地成绩 → 温和登录提醒
+    setTimeout(function () { self._maybeNudgeLogin(); }, 400);
   },
 
   // —— 数据刷新 ——
@@ -164,6 +167,30 @@ Page({
     auth.promptLogin('每日一题签到需登录').then(function (user) {
       self.refresh();
       if (user && !user.needProfile) wx.navigateTo({ url: '/pages/daily-question/daily-question' });
+    });
+  },
+
+  // 协议全文页
+  goAgreement: function () {
+    wx.navigateTo({ url: '/pages/agreement/agreement' });
+  },
+
+  // 游客温和登录提醒：已有本地进度（得过星）且未提示过 → 提醒一次「登录同步」
+  _maybeNudgeLogin: function () {
+    if (auth.isLoggedIn()) return;
+    if (storage.get('ww_login_nudge')) return;
+    var totalStars = this.data.totalStars || 0;
+    if (totalStars <= 0) return; // 尚无本地成绩，不打扰
+    storage.set('ww_login_nudge', '1');
+    var self = this;
+    wx.showModal({
+      title: '登录同步进度',
+      content: '你已有 ' + totalStars + ' ⭐ 本地进度。登录后可同步到云端、参与排行榜，且进度不怕换设备/清缓存。',
+      confirmText: '去登录',
+      cancelText: '暂不',
+      success: function (r) {
+        if (r.confirm) self._doLogin();
+      }
     });
   },
 
