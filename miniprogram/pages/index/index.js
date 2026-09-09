@@ -11,6 +11,10 @@ var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 
 Page({
+  // 实例级标志（不在 data，避免渲染）；登录/协议进行中置 true，防 nudge 弹窗互顶
+  _loginBusy: false,
+  _nudgeTimer: null,
+
   data: {
     loggedIn: false,
     nickname: '',
@@ -34,9 +38,15 @@ Page({
     this.setData({ soundOn: soundOn });
     // 游客首屏不再自动弹协议；协议在用户点「登录/注册」后展示（O2）
     this.refresh();
+    // 温和登录提醒延后触发（避开用户主动登录的弹窗时序，防 modal 互顶）
     var self = this;
-    // 等 refresh 的 setData 落库后再判断本地成绩 → 温和登录提醒
-    setTimeout(function () { self._maybeNudgeLogin(); }, 400);
+    if (this._nudgeTimer) clearTimeout(this._nudgeTimer);
+    this._nudgeTimer = setTimeout(function () { self._maybeNudgeLogin(); }, 900);
+  },
+
+  onHide: function () {
+    // 离开首页时取消挂起的 nudge 定时器，避免在其他页面意外弹窗
+    if (this._nudgeTimer) { clearTimeout(this._nudgeTimer); this._nudgeTimer = null; }
   },
 
   // —— 数据刷新 ——
@@ -140,6 +150,7 @@ Page({
       step('2-ensureAgreement 返回 agreed=' + agreed);
       if (!agreed) {
         step('2b-用户拒绝协议，保持游客');
+        self._loginBusy = false;
         wx.showToast({ title: '已保持游客模式 · 需要时再登录', icon: 'none', duration: 1800 });
         return;
       }
@@ -148,6 +159,7 @@ Page({
       step('3-调用 wx.login/loginSilently');
       return auth.loginSilently({ skipAgreement: true }).then(function (user) {
         wx.hideLoading();
+        self._loginBusy = false;
         step('4-登录返回 user=' + !!(user));
         if (!user) return;
         self.refresh();
@@ -161,6 +173,7 @@ Page({
         }
       }).catch(function (err) {
         wx.hideLoading();
+        self._loginBusy = false;
         step('5-登录失败 err=' + (err && (err.message || err.errMsg || JSON.stringify(err))));
         var msg = (err && (err.message || err.errMsg)) || '登录失败';
         var code = err && err.code;
@@ -179,12 +192,16 @@ Page({
         });
       });
     }).catch(function (e) {
+      self._loginBusy = false;
       step('ensureAgreement 异常 ' + e);
     });
   },
 
   // 登录条/资料入口：游客→登录(协议前置)；已登录→我的(tab)
   onProfileTap: function () {
+    // 登录流程进行中 → 取消可能撞窗的 nudge 弹窗，并置忙标志
+    if (this._nudgeTimer) { clearTimeout(this._nudgeTimer); this._nudgeTimer = null; }
+    this._loginBusy = true;
     // 提示引导：接下来会弹《用户协议》弹窗，需点【同意并登录】才继续
     wx.showToast({ title: '请阅读协议并点【同意并登录】', icon: 'none', duration: 2000 });
     try {
@@ -220,6 +237,8 @@ Page({
 
   // 游客温和登录提醒：已有本地进度（得过星）且未提示过 → 提醒一次「登录同步」
   _maybeNudgeLogin: function () {
+    // 登录/协议流程进行中 → 本次不弹（也不标记，留待下次 onShow），避免 modal 互顶
+    if (this._loginBusy) return;
     if (auth.isLoggedIn()) return;
     if (storage.get('ww_login_nudge')) return;
     var totalStars = this.data.totalStars || 0;
@@ -232,7 +251,11 @@ Page({
       confirmText: '去登录',
       cancelText: '暂不',
       success: function (r) {
-        if (r.confirm) self._doLogin();
+        if (r.confirm) {
+          self._loginBusy = true;
+          if (self._nudgeTimer) { clearTimeout(self._nudgeTimer); self._nudgeTimer = null; }
+          self._doLogin();
+        }
       }
     });
   },
