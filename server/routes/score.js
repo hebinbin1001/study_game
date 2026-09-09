@@ -39,6 +39,19 @@ function normalizeScoreBody(body) {
   const gradeTrimmed = grade.trim();
   if (!gradeTrimmed || gradeTrimmed.length > MAX_GRADE_LEN) return null;
 
+  // 题型分类 key（B3：'' 或 'all' 归一为综合；其余校验非空且短）
+  let typeKey = "";
+  if (typeof body.type === "string") {
+    const t = body.type.trim();
+    if (t && t !== "all") typeKey = t;
+    if (typeKey.length > 16) return null;
+  }
+  // 玩法维度（B3：默认字词玩法，白名单外忽略）
+  let gameType = "word_warrior";
+  if (typeof body.game_type === "string" && /^[a-z0-9_]{1,24}$/.test(body.game_type)) {
+    gameType = body.game_type;
+  }
+
   // level / totalQ / correctCount：非负整数
   if (!Number.isInteger(level) || level < 1) return null;
   if (!Number.isInteger(totalQ) || totalQ < 1 || totalQ > MAX_TOTAL_Q) return null;
@@ -60,6 +73,8 @@ function normalizeScoreBody(body) {
 
   return {
     grade: gradeTrimmed,
+    type_key: typeKey,
+    game_type: gameType,
     level,
     score,
     correct_count: correctCount,

@@ -123,7 +123,10 @@ Page({
       correctCount: correctCount,
       totalQ: totalQ,
       stars: stars,
-      maxCombo: maxCombo
+      maxCombo: maxCombo,
+      // B3：题型分类 + 玩法维度（后端进度分榜/统计聚合用）
+      type: this._type || '',
+      game_type: 'word_warrior'
     };
 
 

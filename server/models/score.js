@@ -25,6 +25,18 @@ module.exports = (sequelize) => {
         allowNull: false,
         comment: "学段标识",
       },
+      type_key: {
+        type: DataTypes.STRING(16),
+        allowNull: false,
+        defaultValue: "",
+        comment: "题型分类 key（''=综合；B3 用于字词玩法进度聚合）",
+      },
+      game_type: {
+        type: DataTypes.STRING(24),
+        allowNull: false,
+        defaultValue: "word_warrior",
+        comment: "玩法维度（word_warrior/sudoku/…；B3 起支持玩法进度分榜）",
+      },
       level: {
         type: DataTypes.INTEGER,
         allowNull: false,

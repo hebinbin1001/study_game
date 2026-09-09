@@ -1,64 +1,132 @@
-<!-- 排行榜页 -->
+<!-- 排行榜页（B3 双榜：总榜=星星 / 按玩法=闯关进度） -->
 <view class="page-rank">
-  <!-- 页面标题 -->
+  <!-- 标题 -->
   <view class="rank-title-bar">
-    <view class="rank-title-emoji">🏆</view>
-    <view class="rank-title">全服排行榜</view>
-    <view class="rank-title-sub">看看谁是词力小达人</view>
-  </view>
-
-  <!-- 全服榜标签（好友榜已下线，仅保留全服榜） -->
-  <view class="tabs">
-    <view class="tab active">🏅 全服榜</view>
-  </view>
-
-  <!-- 我的排名 -->
-  <view class="my-rank" wx:if="{{myRank}}">
-    <view class="my-rank-crown">👑</view>
-    <view class="my-rank-main">
-      <view class="my-rank-label">我的排名</view>
-      <view class="my-rank-value">第 {{myRank.rank || '-'}} 名</view>
-    </view>
-    <view class="my-info">
-      <image class="my-avatar" src="{{myRank.avatarUrl}}" mode="aspectFill"></image>
-      <view class="my-meta">
-        <view class="my-nickname">{{myRank.nickname || '未命名'}}</view>
-        <view class="my-stars">⭐ {{myRank.stars || 0}}</view>
-      </view>
+    <button class="back-pill" bindtap="goBack">‹ 返回</button>
+    <view class="rank-title-area">
+      <view class="rank-title">🏆 排行榜</view>
+      <view class="rank-title-sub">总榜按星星 · 玩法榜按闯关进度</view>
     </view>
   </view>
 
-  <!-- 排行榜列表 -->
-  <view class="rank-list" wx:if="{{hasList}}">
-    <view class="rank-item {{item.openid === myRank.openid ? 'me' : ''}}" wx:for="{{list}}" wx:key="openid">
-      <view class="rank-number {{item.rankClass}}">
-        {{item.rank <= 3 ? item.rankEmoji : item.rank}}
+  <!-- 双榜切换 -->
+  <view class="tabs rank-mode-tabs">
+    <view class="tab {{mode === 'total' ? 'active' : ''}}" data-mode="total" bindtap="switchMode">⭐ 总榜 · 星星</view>
+    <view class="tab {{mode === 'game' ? 'active' : ''}}" data-mode="game" bindtap="switchMode">🎮 玩法 · 进度</view>
+  </view>
+
+  <!-- ============ 玩法榜筛选 ============ -->
+  <block wx:if="{{mode === 'game'}}">
+    <view class="game-chips">
+      <view
+        wx:for="{{gameChips}}"
+        wx:key="key"
+        class="gchip {{item.on ? 'on' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="pickGame">{{item.label}}</view>
+    </view>
+
+    <!-- 字词榜：学段 + 题型（进度=该学段@题型最大通关关） -->
+    <block wx:if="{{curGame === 'word'}}">
+      <scroll-view class="row-scroll" scroll-x="true" enable-flex="true">
+        <view class="row-inner">
+          <view
+            wx:for="{{grades}}"
+            wx:key="key"
+            class="chip {{curGradeIndex === index ? 'on' : ''}}"
+            data-index="{{index}}"
+            bindtap="pickGrade">{{item.label}}</view>
+        </view>
+      </scroll-view>
+      <scroll-view class="row-scroll" scroll-x="true" enable-flex="true">
+        <view class="row-inner">
+          <view
+            wx:for="{{types}}"
+            wx:key="key"
+            class="chip {{curType === item.key ? 'on' : ''}}"
+            data-key="{{item.key}}"
+            bindtap="pickType">{{item.label}}</view>
+        </view>
+      </scroll-view>
+    </block>
+  </block>
+
+  <!-- ============ 榜单列表 ============ -->
+  <view class="board-label">{{mode === 'total' ? ('总榜 · 共 ' + totalCount + ' 人') : ('进度榜 · 第' + (curGradeIndex + 1) + '/' + grades.length + '学段 共 ' + gameCount + ' 人')}}</view>
+
+  <scroll-view class="board-scroll" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+    <!-- 总榜 -->
+    <block wx:if="{{mode === 'total'}}">
+      <view class="rank-list">
+        <view class="rank-item" wx:for="{{totalList}}" wx:key="openid">
+          <view class="rank-number {{getRankClass(item.rank)}}">{{getRankEmoji(item.rank)}}</view>
+          <image class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <view class="rank-info">
+            <view class="rank-nickname">{{item.nickname}}</view>
+            <view class="rank-rankname">{{item.rankName}}</view>
+          </view>
+          <view class="rank-val">⭐ {{item.stars}}</view>
+        </view>
       </view>
-      <image class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
-      <view class="rank-info">
-        <view class="rank-nickname">{{item.nickname || '未命名'}}</view>
-        <view class="rank-stars">⭐ 星数: {{item.stars || 0}}</view>
+      <view class="empty-state" wx:if="{{!totalList.length && !totalLoading}}">
+        <view class="empty-emoji">📭</view>
+        <view class="empty-text">榜单还空空的，快去闯关上榜吧！</view>
       </view>
-      <view class="rank-detail">
-        <view class="rank-rankName">{{item.rankName || '青铜'}}</view>
-        <view class="rank-score">{{item.score || 0}} 分</view>
+    </block>
+
+    <!-- 玩法榜 -->
+    <block wx:if="{{mode === 'game'}}">
+      <view class="rank-list">
+        <view class="rank-item" wx:for="{{gameList}}" wx:key="openid">
+          <view class="rank-number {{getRankClass(item.rank)}}">{{getRankEmoji(item.rank)}}</view>
+          <image class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <view class="rank-info">
+            <view class="rank-nickname">{{item.nickname}}</view>
+            <view class="rank-rankname">{{item.subText}}</view>
+          </view>
+          <view class="rank-val rank-val--p">{{item.valText}}</view>
+        </view>
+      </view>
+      <view class="empty-state" wx:if="{{!gameList.length && !gameLoading}}">
+        <view class="empty-emoji">🗺️</view>
+        <view class="empty-text">该学段暂无闯关记录 · 快去挑战吧！</view>
+      </view>
+    </block>
+
+    <view class="safe-gap"></view>
+  </scroll-view>
+
+  <!-- ============ 我的名次 ============ -->
+  <block wx:if="{{mode === 'total'}}">
+    <view wx:if="{{totalMe}}" class="my-rank">
+      <view class="my-rank-crown">👑</view>
+      <view class="my-rank-main">
+        <view class="my-rank-label">我的排名</view>
+        <view class="my-rank-value">第 {{totalMe.rank}} 名</view>
+      </view>
+      <view class="my-info">
+        <image class="my-avatar" src="{{totalMe.avatarUrl}}" mode="aspectFill"></image>
+        <view class="my-meta">
+          <view class="my-nickname">{{totalMe.nickname}}</view>
+          <view class="my-stars">⭐ {{totalMe.stars}}</view>
+        </view>
       </view>
     </view>
-  </view>
-
-  <!-- 空态 -->
-  <view class="empty-state" wx:if="{{!hasList}}">
-    <view class="empty-emoji">📭</view>
-    <view class="empty-text">榜单还空空的，快去闯关上榜吧！</view>
-  </view>
-
-  <!-- 分页 -->
-  <view class="pagination" wx:if="{{total > pageSize}}">
-    <button class="btn-page" bindtap="prevPage" disabled="{{page <= 1}}">‹ 上一页</button>
-    <text class="page-info">第 {{page}} / {{totalPages}} 页</text>
-    <button class="btn-page" bindtap="nextPage" disabled="{{page >= totalPages}}">下一页 ›</button>
-  </view>
-
-  <!-- 返回按钮 -->
-  <button class="btn-back" bindtap="goBack">返回</button>
+  </block>
+  <block wx:else>
+    <view wx:if="{{gameMe}}" class="my-rank">
+      <view class="my-rank-crown">🎖</view>
+      <view class="my-rank-main">
+        <view class="my-rank-label">我的进度</view>
+        <view class="my-rank-value">第 {{gameMe.rank}} 名</view>
+      </view>
+      <view class="my-info">
+        <image class="my-avatar" src="{{gameMe.avatarUrl}}" mode="aspectFill"></image>
+        <view class="my-meta">
+          <view class="my-nickname">{{gameMe.nickname}}</view>
+          <view class="my-stars">🎯 {{gameMe.valText}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
 </view>

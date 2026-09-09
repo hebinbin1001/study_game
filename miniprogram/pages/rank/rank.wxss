@@ -1,15 +1,47 @@
 /* 排行榜页（rank）—— 暖色天空卡通风（与 app.wxss 全局主题一致） */
 .page-rank {
-  padding: 20rpx 30rpx 60rpx;
-  min-height: 100vh;
+  padding: 16rpx 30rpx calc(env(safe-area-inset-bottom) + 20rpx);
+  height: 100vh;
   box-sizing: border-box;
   color: #3a3a5c;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
 }
 
 /* ============ 页面标题 ============ */
 .rank-title-bar {
-  text-align: center;
-  margin: 30rpx 0 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin: 6rpx 0 20rpx;
+  flex: 0 0 auto;
+}
+.back-pill {
+  width: 88rpx;
+  height: 88rpx;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  font-size: 40rpx;
+  color: #3a3a5c;
+  font-weight: 900;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.06);
+  line-height: 88rpx;
+}
+.back-pill::after { border: none; }
+.rank-title-area { flex: 1; }
+.rank-title {
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 4rpx;
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
+}
+.rank-title-sub {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.92);
+  margin-top: 4rpx;
 }
 
 .rank-title-emoji {
@@ -324,3 +356,78 @@ button.btn-page::after {
 button.btn-back::after {
   border: none;
 }
+
+/* ============ B3 双榜新增 ============ */
+/* 模式切换 tab 撑满 */
+.rank-mode-tabs { flex: 0 0 auto; margin-bottom: 16rpx; }
+.rank-mode-tabs .tab { flex: 1; text-align: center; }
+
+/* 玩法/学段/题型 chips */
+.game-chips, .row-inner { display: flex; gap: 14rpx; padding: 4rpx 0 8rpx; }
+.row-scroll { flex: 0 0 auto; width: 100%; white-space: nowrap; }
+.gchip, .chip {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, .92);
+  color: #5c7f9e;
+  border-radius: 999rpx;
+  padding: 12rpx 28rpx;
+  font-size: 24rpx;
+  font-weight: 800;
+  margin-right: 14rpx;
+  flex: 0 0 auto;
+}
+.gchip.on, .chip.on { background: #ffb703; color: #fff; }
+
+/* 榜题 */
+.board-label {
+  flex: 0 0 auto;
+  font-size: 22rpx;
+  color: #ffffff;
+  font-weight: 700;
+  margin: 8rpx 0 12rpx;
+  opacity: .95;
+}
+
+/* 榜单滚动区（占满剩余高度） */
+.board-scroll { flex: 1 1 auto; min-height: 0; width: 100%; }
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 22rpx;
+  margin-bottom: 14rpx;
+  background: #ffffff;
+  border-radius: 26rpx;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .05);
+}
+.rank-item.me { outline: 4rpx solid #ffb703; }
+.rank-number {
+  width: 56rpx; height: 56rpx;
+  flex: 0 0 56rpx;
+  border-radius: 16rpx;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28rpx; font-weight: 900;
+  color: #8a9bb5;
+}
+.rank-number.top1 { background: #ffe9c4; color: #d88a00; }
+.rank-number.top2 { background: #e8edf4; color: #8a94a6; }
+.rank-number.top3 { background: #f6ddc8; color: #c07a3a; }
+.rank-avatar {
+  width: 76rpx; height: 76rpx; flex: 0 0 76rpx;
+  border-radius: 50%; margin-left: 14rpx;
+  background: #e8f0fa;
+}
+.rank-info { flex: 1; min-width: 0; margin-left: 18rpx; }
+.rank-nickname { font-size: 28rpx; font-weight: 800; color: #3a3a5c; }
+.rank-rankname { font-size: 20rpx; color: #8a9bb5; margin-top: 4rpx; }
+.rank-val {
+  flex: 0 0 auto;
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+  margin-left: 12rpx;
+}
+.rank-val--p { color: #d88a00; }
+
+.safe-gap { height: 24rpx; }
