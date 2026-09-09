@@ -150,10 +150,22 @@ Page({
         }
       }).catch(function (err) {
         wx.hideLoading();
-        var msg = (err && err.message) || '登录失败';
+        var msg = (err && (err.message || err.errMsg)) || '登录失败';
+        var code = err && err.code;
+        var detail = msg;
+        try {
+          if (typeof console !== 'undefined') {
+            console.error('[login] 失败 code=' + code, err);
+          }
+          // 附带环境诊断，便于定位（开发工具无云环境/未登录/后端未部署等）
+          var cloudOk = !!(wx.cloud && typeof wx.cloud.callContainer === 'function');
+          var diag = '前端云能力:' + (cloudOk ? '可用' : '不可用') + '; callContainer:' +
+            (cloudOk ? '可调' : '不可用(非微信/未开通云开发/基础库过低)');
+          detail = msg + '\n\n[诊断] ' + diag + (code !== undefined ? '; code=' + code : '');
+        } catch (e) { /* 忽略诊断异常 */ }
         wx.showModal({
           title: '登录失败',
-          content: msg + (err && err.isNetwork ? '\n\n提示：开发者工具/测试环境需连接云托管后端（网关注入 openid 或配置 WX_SECRET），请确认服务已部署。' : ''),
+          content: detail + '\n\n若为环境问题：请在真机预览测试；开发者工具需绑定云托管服务并登录。',
           showCancel: false,
           confirmText: '知道了'
         });
