@@ -1,0 +1,36 @@
+<!-- 词语连连看（B6-5） -->
+<view class="page-link">
+  <view class="lk-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="lk-title">词语连连看</view>
+    <view class="lk-grade" bindtap="newRound">{{gradeLabel}} · 换局</view>
+  </view>
+
+  <view class="hud">
+    <view class="hud-chip">❤{{lives}}</view>
+    <view class="hud-chip">剩 {{left}} 牌</view>
+    <view class="hud-chip">连连看配对</view>
+  </view>
+
+  <view class="board">
+    <view
+      wx:for="{{cards}}"
+      wx:key="i"
+      class="tile {{item.t === 'w' ? 'word' : ''}} {{item.sel ? 'sel' : ''}} {{item.gone ? 'gone' : ''}} {{item.err ? 'err' : ''}}"
+      data-idx="{{index}}"
+      bindtap="tapCard">{{item.lab}}</view>
+  </view>
+
+  <view class="tip">{{tip}}</view>
+
+  <!-- 结算 -->
+  <view wx:if="{{over}}" class="over-mask">
+    <view class="over-card">
+      <view class="o-stars">{{win ? starsText : '💔'}}</view>
+      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '全部连上！' : '生命耗尽'}}</view>
+      <button class="btn b1" bindtap="newRound">再来一局</button>
+    </view>
+  </view>
+
+  <view class="safe-gap"></view>
+</view>

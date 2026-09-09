@@ -9,7 +9,7 @@ var GAMES = [
   { key: 'shoot', name: '字母射击', icon: '🔫', desc: '挖空补词 · 打跑怪兽', cat: '射击', unlocked: true, url: '/pages/level/level' },
   { key: 'match', name: '词义消消乐', icon: '🃏', desc: '词↔义配对消除', cat: '配对', unlocked: true, url: '/pages/match/match' },
   { key: 'sudoku', name: '数独', icon: '🔢', desc: '数字推理 · 数学闯关', cat: '数学', math: true, unlocked: true, url: '/pages/sudoku/sudoku' },
-  { key: 'link', name: '词语连连看', icon: '🔗', desc: '连线配对 · 双词匹配', cat: '连线', unlocked: false },
+  { key: 'link', name: '词语连连看', icon: '🔗', desc: '连线配对 · 双词匹配', cat: '连线', unlocked: true, url: '/pages/link/link' },
   { key: 'bounce', name: '单词弹弹球', icon: '🏐', desc: '义球击碎 · 快反应', cat: '反应', unlocked: false },
   { key: 'snake', name: '单词贪吃蛇', icon: '🐍', desc: '辨词进食 · 越长越强', cat: '反应', unlocked: false },
   { key: 'math24', name: '算 24 点', icon: '🧮', desc: '四数四则 · 脑力挑战', cat: '数学', math: true, unlocked: true, url: '/pages/math24/math24' },

@@ -17,6 +17,7 @@
     "pages/g2048/g2048",
     "pages/math24/math24",
     "pages/sudoku/sudoku",
+    "pages/link/link",
     "pages/level-editor/level-editor",
     "pages/level-share/level-share",
     "pages/custom-levels/custom-levels",
