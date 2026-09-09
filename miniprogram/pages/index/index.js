@@ -179,6 +179,11 @@ Page({
     wx.navigateTo({ url: '/pages/sudoku/sudoku' });
   },
 
+  // 推荐玩法：词义消消乐（B6 已实现）
+  goMatch: function () {
+    wx.navigateTo({ url: '/pages/match/match' });
+  },
+
   onShareAppMessage: function () {
     return { title: '词力战士 - 打怪学字词，闯关赢星星', path: '/pages/index/index' };
   }

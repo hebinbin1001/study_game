@@ -1,0 +1,82 @@
+/* 词义消消乐（B6-2） */
+.page-match {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 16rpx 30rpx 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+}
+.mm-head { display: flex; align-items: center; gap: 20rpx; flex: 0 0 auto; }
+.back-pill {
+  width: 80rpx; height: 80rpx; padding: 0;
+  background: rgba(255,255,255,.9); border-radius: 50%;
+  font-size: 40rpx; color: #3a3a5c; font-weight: 900;
+  line-height: 80rpx; box-shadow: 0 6rpx 0 rgba(0,0,0,.06);
+}
+.back-pill::after { border: none; }
+.mm-title { font-size: 40rpx; font-weight: 900; color: #fff; text-shadow: 0 4rpx 0 rgba(0,0,0,.1); }
+.mm-grade { margin-left: auto; background: rgba(255,255,255,.85); color: #5c7f9e; font-weight: 800; font-size: 24rpx; padding: 8rpx 20rpx; border-radius: 999rpx; }
+
+.hud { display: flex; justify-content: center; gap: 18rpx; margin: 20rpx 0; flex: 0 0 auto; }
+.hud-chip {
+  background: rgba(255,255,255,.92); color: #3a3a5c;
+  border-radius: 999rpx; padding: 12rpx 30rpx;
+  font-size: 26rpx; font-weight: 800;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.05);
+}
+
+/* 4×4 棋盘占剩余高度，居中 */
+.board {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+  align-content: center;
+}
+.tile {
+  aspect-ratio: 1/1;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rpx;
+  box-sizing: border-box;
+  background: #fff;
+  color: #3a3a5c;
+  font-size: 26rpx;
+  font-weight: 800;
+  text-align: center;
+  word-break: break-all;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.05);
+}
+.tile.word { color: #4285F4; font-size: 30rpx; }
+.tile.sel { outline: 6rpx solid #ffb703; }
+.tile.hit { background: #7bd389; color: #fff; opacity: 0; transition: opacity .4s; pointer-events: none; }
+.tile.gone { pointer-events: none; opacity: 0; }
+.tile.miss { background: #ff8fae; color: #fff; animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
+
+.tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #fff; opacity: .92; margin: 16rpx 0 6rpx; min-height: 36rpx; }
+
+/* 结算 */
+.over-mask {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(20,34,56,.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.over-card { width: 600rpx; background: #fff; border-radius: 40rpx; padding: 44rpx 36rpx; text-align: center; }
+.o-stars { font-size: 72rpx; color: #ffb703; letter-spacing: 8rpx; }
+.o-title { font-size: 44rpx; font-weight: 900; color: #2e8b57; margin-top: 10rpx; }
+.o-title.fail { color: #e62e2e; }
+.o-msg { font-size: 26rpx; color: #8a9bb5; margin-top: 10rpx; }
+.btn-again {
+  margin-top: 18rpx; width: 100%; height: 92rpx; line-height: 92rpx;
+  border-radius: 46rpx; background: #ffb703; color: #fff;
+  font-size: 32rpx; font-weight: 900;
+  box-shadow: 0 10rpx 0 rgba(0,0,0,.1);
+}
+.btn-again.ghost { background: #eef2f8; color: #5c7f9e; box-shadow: none; }
+.btn-again::after { border: none; }
+
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }

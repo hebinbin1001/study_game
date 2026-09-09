@@ -98,10 +98,10 @@
       <view class="g-b">字母射击</view>
       <view class="g-s">挖空补词 · 打跑怪兽</view>
     </view>
-    <view class="game" bindtap="goSudoku">
-      <view class="ic">🧩</view>
-      <view class="g-b">数独</view>
-      <view class="g-s">4×4 → 9×9 · 推理闯关</view>
+    <view class="game" bindtap="goMatch">
+      <view class="ic">🃏</view>
+      <view class="g-b">词义消消乐</view>
+      <view class="g-s">词↔义配对消除</view>
     </view>
   </view>
 

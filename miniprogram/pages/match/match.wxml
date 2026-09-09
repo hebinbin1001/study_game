@@ -1,0 +1,40 @@
+<!-- 词义消消乐（B6-2）：词↔义配对消除 -->
+<view class="page-match">
+  <view class="mm-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="mm-title">词义消消乐</view>
+    <view class="mm-grade">{{gradeLabel}}</view>
+  </view>
+
+  <!-- HUD -->
+  <view class="hud">
+    <view class="hud-chip">❤{{lives}}</view>
+    <view class="hud-chip">{{gradeLabel}} · 剩 {{left}} 卡</view>
+    <view class="hud-chip" bindtap="changeGrade">换一局</view>
+  </view>
+
+  <!-- 棋盘 4×4 -->
+  <view class="board">
+    <view
+      wx:for="{{cards}}"
+      wx:key="index"
+      class="tile {{item.t === 'w' ? 'word' : ''}} {{item.sel ? 'sel' : ''}} {{item.hit ? 'hit' : ''}} {{item.gone ? 'gone' : ''}} {{item.miss ? 'miss' : ''}}"
+      data-idx="{{index}}"
+      bindtap="tapCard">{{item.lab}}</view>
+  </view>
+
+  <view class="tip">{{tip}}</view>
+
+  <!-- 结算 -->
+  <view wx:if="{{over}}" class="over-mask">
+    <view class="over-card">
+      <view class="o-stars">{{win ? starsText : '💔'}}</view>
+      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '全部消除！' : '生命耗尽'}}</view>
+      <view class="o-msg">{{win ? '获得 ' + stars + ' 星 · 错 ' + mistakes + ' 次' : '再试一次一定能行！'}}</view>
+      <button class="btn-again" bindtap="again">再来一局</button>
+      <button class="btn-again ghost" bindtap="changeGrade">换学段</button>
+    </view>
+  </view>
+
+  <view class="safe-gap"></view>
+</view>
