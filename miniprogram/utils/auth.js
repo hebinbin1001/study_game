@@ -76,45 +76,95 @@ function restore() {
 }
 
 /**
+ * 隐私协议确认（O2：登录前必须先同意《用户协议与隐私政策》）。
+ * 已同意过（storage ww_agreed）直接 resolve(true)；否则弹 modal，
+ * 同意 → 落存储 resolve(true)；拒绝 → resolve(false)（保持游客，不登录）。
+ * @param {string} [content] 自定义文案（缺省用默认摘要）
+ * @returns {Promise<boolean>}
+ */
+function ensureAgreement(content) {
+  return new Promise(function (resolve) {
+    if (typeof wx === 'undefined' || !wx.showModal) {
+      resolve(storage.get('ww_agreed') === '1');
+      return;
+    }
+    if (storage.get('ww_agreed') === '1') {
+      resolve(true);
+      return;
+    }
+    wx.showModal({
+      title: '用户协议与隐私政策',
+      content: content || '欢迎使用「词力战士」。注册登录后，你的昵称、头像与游戏进度将用于排行榜等展示。我们仅收集为你提供服务所必需的信息，不会向第三方泄露。点击「同意并登录」即视为已阅读并同意《用户协议》与《隐私政策》；选择「暂不」可继续以游客身份游玩。',
+      confirmText: '同意并登录',
+      cancelText: '暂不',
+      success: function (r) {
+        if (r.confirm) {
+          storage.set('ww_agreed', '1');
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      },
+      fail: function () {
+        resolve(false);
+      }
+    });
+  });
+}
+
+/**
  * 静默登录：wx.login → /api/login → 存 token/user。
+ * O2：**先过隐私协议**——未同意协议不执行 wx.login（保持游客，不建档）。
  * 防并发：进行中的调用复用同一 Promise。
  * 失败 reject（调用方静默降级游客，不阻塞主流程）。
+ * @param {Object} [opts] { skipAgreement: true } 已确认过协议时可跳过重复弹窗
  * @returns {Promise<Object>} 用户资料
  */
-function loginSilently() {
+function loginSilently(opts) {
+  opts = opts || {};
   if (_loginPromise) return _loginPromise;
+
   if (typeof wx === 'undefined' || typeof wx.login !== 'function') {
     return Promise.reject({ code: -1, message: 'wx.login 不可用', isNetwork: true });
   }
 
-  _loginPromise = new Promise(function (resolve, reject) {
-    wx.login({
-      success: function (res) {
-        if (!res || !res.code) {
-          reject({ code: -1, message: 'wx.login 未返回 code', isNetwork: true });
-          return;
-        }
-        request.post('/api/login', { code: res.code }).then(function (data) {
-          if (!data || !data.token) {
-            reject({ code: -2, message: '登录响应缺少 token', isBusiness: true });
+  var run = function () {
+    _loginPromise = new Promise(function (resolve, reject) {
+      wx.login({
+        success: function (res) {
+          if (!res || !res.code) {
+            reject({ code: -1, message: 'wx.login 未返回 code', isNetwork: true });
             return;
           }
-          resolve(applyLogin(data));
-        }, reject);
-      },
-      fail: function () {
-        reject({ code: -1, message: 'wx.login 失败', isNetwork: true });
-      }
+          request.post('/api/login', { code: res.code }).then(function (data) {
+            if (!data || !data.token) {
+              reject({ code: -2, message: '登录响应缺少 token', isBusiness: true });
+              return;
+            }
+            resolve(applyLogin(data));
+          }, reject);
+        },
+        fail: function () {
+          reject({ code: -1, message: 'wx.login 失败', isNetwork: true });
+        }
+      });
+    }).then(function (user) {
+      _loginPromise = null;
+      return user;
+    }, function (err) {
+      _loginPromise = null;
+      throw err;
     });
-  }).then(function (user) {
-    _loginPromise = null;
-    return user;
-  }, function (err) {
-    _loginPromise = null;
-    throw err;
-  });
+    return _loginPromise;
+  };
 
-  return _loginPromise;
+  if (opts.skipAgreement) return run();
+
+  // 先协议，同意才登录；拒绝/未同意 → 视为「用户取消登录」返回 null 语义（resolve 空不建档）
+  return ensureAgreement().then(function (agreed) {
+    if (!agreed) return null;
+    return run();
+  });
 }
 
 /**
@@ -202,6 +252,7 @@ module.exports = {
   isLoggedIn: isLoggedIn,
   isProfileComplete: isProfileComplete,
   restore: restore,
+  ensureAgreement: ensureAgreement,
   loginSilently: loginSilently,
   refreshMe: refreshMe,
   promptLogin: promptLogin,

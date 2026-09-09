@@ -32,8 +32,8 @@ Page({
     var constants = require('../../utils/constants');
     var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
     this.setData({ soundOn: soundOn });
+    // 游客首屏不再自动弹协议；协议在用户点「登录/注册」后展示（O2）
     this.refresh();
-    this._ensureAgreement();
   },
 
   // —— 数据刷新 ——
@@ -112,20 +112,6 @@ Page({
     return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
   },
 
-  // —— 协议（沿用 M5）——
-  _ensureAgreement: function () {
-    if (storage.get('ww_agreed')) return;
-    wx.showModal({
-      title: '用户协议与隐私政策',
-      content: '欢迎使用「词力战士」。登录后，你的昵称、头像与游戏进度将用于排行榜展示；我们仅收集为你提供服务所必需的信息，不会向第三方泄露。点击「同意」即视为已阅读并同意《用户协议》与《隐私政策》。',
-      confirmText: '同意',
-      showCancel: false,
-      success: function () {
-        storage.set('ww_agreed', '1');
-      }
-    });
-  },
-
   // —— 声音开关（与 game HUD 同一存储键 + audio 模块同步）——
   toggleSound: function () {
     var constants = require('../../utils/constants');
@@ -138,11 +124,28 @@ Page({
   },
 
   // —— 入口 ——
-  // 登录条/资料入口：游客→登录；已登录→我的(tab)
-  onProfileTap: function () {
+  // 统一登录：游客点「登录/注册」→ 先弹《用户协议与隐私政策》（loginSilently 内）
+  // 同意 → wx.login 建档 → 刷新；needProfile → 引导设昵称。拒绝/取消 → 保持游客。
+  _doLogin: function () {
     var self = this;
+    auth.loginSilently().then(function (user) {
+      if (!user) return; // 用户未同意协议 / 取消
+      self.refresh();
+      if (user.needProfile) {
+        wx.showToast({ title: '登录成功 · 完善昵称后参与排行', icon: 'none', duration: 1500 });
+        setTimeout(function () {
+          wx.navigateTo({ url: '/pages/nickname/nickname' });
+        }, 900);
+      } else {
+        wx.showToast({ title: '✅ 登录成功', icon: 'none' });
+      }
+    });
+  },
+
+  // 登录条/资料入口：游客→登录(协议前置)；已登录→我的(tab)
+  onProfileTap: function () {
     if (auth.isLoggedIn()) { wx.switchTab({ url: '/pages/me/me' }); return; }
-    auth.promptLogin().then(function (user) { if (user) self.refresh(); });
+    this._doLogin();
   },
 
   goRank: function () {

@@ -39,18 +39,15 @@ App({
     this.initCloud();
 
     // 2. 恢复本地登录态（同步，立即生效，不发请求）
+    //    —— O2：首次进入默认「游客模式」，不做自动登录建档；
+    //       只有用户点「登录/注册」并经《用户协议与隐私政策》同意后才调微信登录。
     auth.restore();
 
-    // 3. openid 获取占位（M1 降级实现，见 initOpenid；M5 已由 auth 静默登录替代）
+    // 3. openid 获取占位（M1 降级实现，见 initOpenid；登录后由网关注入）
     this.initOpenid();
 
     // 4. 基础库版本兼容检测（低于 2.9.0 提示升级，REQ-NFR-3）
     this.checkSDKVersion();
-
-    // 5. M5 静默登录：刷新/获取登录态；失败（离线/未配置）静默降级游客，不阻塞主流程
-    auth.loginSilently().catch(function () {
-      // 游客模式：仅第 1 关可玩（关卡页按 isLoggedIn 判定）
-    });
   },
 
   onShow() {
