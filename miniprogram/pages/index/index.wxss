@@ -1,319 +1,228 @@
-/* 首页样式（T14 · UI 重设计）：
-   卡通可爱风：云朵 + 猫战士吉祥物 + 数据概览卡 + 主按钮 + 3×2 入口卡片网格
-   硬阴影 + :active 按压位移（与 avatar 页样板一致）
-   配色引用 app.wxss 设计 token */
-
-page {
-  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
-  min-height: 100vh;
-  color: #3a3a5c;
-  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-}
-
+/* 首页 Tab —— UI token 对齐 demo；O1 全机型自适应（rpx 宽自适应 + 长内容滚动 + 安全区） */
 .page-home {
-  position: relative;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 60rpx;
-  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
-  overflow: hidden;
+  padding: 16rpx 32rpx 0;
+  background: #F5F7FB;
 }
 
-/* ===== 云朵装饰 ===== */
-.cloud {
-  position: absolute;
+/* Header */
+.head {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
+}
+.head-t { flex: 1; font-size: 40rpx; font-weight: 900; color: #333A45; }
+.snd-btn {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 24rpx;
+  border: none;
   background: #fff;
-  border-radius: 60rpx;
-  opacity: 0.9;
-}
-.cloud::before,
-.cloud::after {
-  content: "";
-  position: absolute;
-  background: #fff;
-  border-radius: 50%;
-}
-.cloud-1 {
-  width: 180rpx;
-  height: 56rpx;
-  top: 180rpx;
-  left: -40rpx;
-}
-.cloud-1::before {
-  width: 120rpx;
-  height: 120rpx;
-  top: -56rpx;
-  left: 36rpx;
-}
-.cloud-1::after {
-  width: 84rpx;
-  height: 84rpx;
-  top: -36rpx;
-  left: 112rpx;
-}
-.cloud-2 {
-  width: 140rpx;
-  height: 48rpx;
-  top: 300rpx;
-  right: -28rpx;
-}
-.cloud-2::before {
-  width: 96rpx;
-  height: 96rpx;
-  top: -44rpx;
-  left: 24rpx;
-}
-.cloud-2::after {
-  width: 72rpx;
-  height: 72rpx;
-  top: -32rpx;
-  left: 80rpx;
-}
-
-/* ===== 吉祥物 + 标题区 ===== */
-.logo-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20rpx;
-}
-
-/* 猫战士吉祥物：大 emoji + 手持宝剑装饰 + 上下浮动 */
-.mascot-wrap {
-  position: relative;
-  width: 200rpx;
-  height: 200rpx;
-  animation: mascotFloat 2.4s ease-in-out infinite;
-}
-.mascot-main {
-  width: 200rpx;
-  height: 200rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 150rpx;
-  line-height: 1;
-  background: #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-}
-.mascot-sword {
-  position: absolute;
-  right: -24rpx;
-  bottom: 8rpx;
-  font-size: 60rpx;
-  line-height: 1;
-  transform: rotate(20deg);
-  text-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.15);
-}
-@keyframes mascotFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-16rpx); }
-}
-
-/* 大字重标题（保留 900） */
-.logo-title {
-  margin-top: 28rpx;
-  font-size: 60rpx;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 8rpx;
-  text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
-}
-.sub-title {
-  color: #ffffff;
-  opacity: 0.85;
-  font-size: 28rpx;
-  letter-spacing: 12rpx;
-  margin-top: 16rpx;
-  font-weight: 700;
-}
-
-/* ===== 数据概览卡 ===== */
-.stat-card {
-  display: flex;
-  align-items: stretch;
-  width: 640rpx;
-  margin-top: 44rpx;
-  padding: 28rpx 20rpx;
-  background: #ffffff;
-  border-radius: 32rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
-}
-.stat-item {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.stat-emoji {
-  font-size: 44rpx;
-  line-height: 1;
-  margin-bottom: 8rpx;
-}
-.stat-num {
-  max-width: 100%;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
   font-size: 36rpx;
-  font-weight: 900;
-  color: #3a3a5c;
-  line-height: 1.2;
+  line-height: 80rpx;
+  padding: 0;
+  margin: 0;
 }
-/* 昵称格：数字改文本，超长省略 */
-.stat-num--name {
-  font-size: 30rpx;
-  max-width: 180rpx;
+.snd-btn::after { border: none; }
+
+/* Hero */
+.hero {
+  margin-top: 16rpx;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(160deg, #4A90E2, #7BB8F5);
+  border-radius: 40rpx;
+  padding: 40rpx 32rpx 32rpx;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+}
+.hero-av {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  margin: 0 auto;
+  background: #fff;
+  border: 8rpx solid rgba(255, 255, 255, .72);
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .12);
   overflow: hidden;
+  box-sizing: border-box;
+}
+.hero-img { width: 100%; height: 100%; }
+.hero-emoji { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 72rpx; }
+.hero-title { font-size: 52rpx; font-weight: 900; margin-top: 20rpx; letter-spacing: 4rpx; }
+.hero-sub { font-size: 26rpx; opacity: .92; margin-top: 6rpx; }
+
+/* 游客引导条 */
+.guestbar {
+  margin-top: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: linear-gradient(135deg, #FFF6E6, #FFF0D6);
+  border: 2rpx solid #FFE3B3;
+  border-radius: 28rpx;
+  padding: 22rpx 24rpx;
+}
+.gb-ic { font-size: 40rpx; }
+.gb-t { flex: 1; min-width: 0; }
+.gb-b { font-size: 28rpx; font-weight: 800; color: #A66A00; }
+.gb-s { font-size: 22rpx; color: #C08B4A; margin-top: 2rpx; }
+.gb-btn {
+  background: #FF9800;
+  color: #fff;
+  border-radius: 999rpx;
+  padding: 12rpx 28rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+/* 资产条 */
+.asset-row { display: flex; gap: 20rpx; margin-top: 24rpx; }
+.asset-box {
+  flex: 1;
+  background: #fff;
+  border-radius: 28rpx;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  padding: 22rpx 8rpx;
+  text-align: center;
+  min-width: 0;
+}
+.a-num {
+  font-size: 38rpx;
+  font-weight: 900;
+  color: #333A45;
   white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
-.stat-label {
-  margin-top: 6rpx;
-  font-size: 22rpx;
-  color: #5c7f9e;
-}
-.stat-divider {
-  width: 2rpx;
-  border-radius: 2rpx;
-  background: rgba(0, 0, 0, 0.06);
-  margin: 6rpx 0;
-}
+.a-num--name { font-size: 32rpx; }
+.a-lab { font-size: 20rpx; color: #8A94A6; margin-top: 6rpx; }
 
-/* ===== 主操作区 ===== */
-.action-area {
+/* 通用链接行（排行/列表） */
+.link {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-top: 56rpx;
-  width: 100%;
-}
-
-/* 主按钮：使用全局 .btn.btn-primary（480×128 橙色大按钮），微调字号 */
-.btn-start {
-  font-size: 48rpx;
-}
-
-/* ===== 功能入口区（3×2 卡片网格） ===== */
-.entries {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 28rpx;
-  margin-top: 56rpx;
-  width: 640rpx;
-}
-
-.entry {
-  width: 194rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 26rpx 0 22rpx;
-  background: #ffffff;
+  gap: 20rpx;
+  margin-top: 24rpx;
+  background: #fff;
   border-radius: 28rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
-  transition: transform 0.12s, box-shadow 0.12s;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  padding: 24rpx 28rpx;
 }
-/* 按压位移（卡通「按压感」，与 avatar 页一致） */
-.entry:active {
-  transform: translateY(4rpx);
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08), 0 8rpx 16rpx rgba(0, 0, 0, 0.08);
+.link:active { opacity: .8; }
+.li {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+  background: #EEF3FD;
+  flex: 0 0 auto;
 }
+.lt { flex: 1; min-width: 0; }
+.l-b { font-size: 30rpx; font-weight: 800; color: #333A45; }
+.l-s { font-size: 22rpx; color: #8A94A6; margin-top: 4rpx; }
+.link-badge {
+  background: #EAF5FF;
+  color: #4285F4;
+  border-radius: 999rpx;
+  padding: 8rpx 20rpx;
+  font-size: 20rpx;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+.ar { color: #C3CCDA; font-size: 36rpx; font-weight: 700; flex: 0 0 auto; }
+.ar-green { color: #34A853; }
 
-/* 彩色圆底 emoji 图标 */
-.entry-icon {
+/* 今日目标卡 */
+.goal-card {
+  margin-top: 24rpx;
+  background: #fff;
+  border-radius: 28rpx;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  padding: 26rpx 28rpx;
+}
+.goal-head { display: flex; align-items: center; }
+.gt { font-size: 28rpx; font-weight: 800; color: #333A45; }
+.gsub { flex: 1; font-size: 22rpx; color: #8A94A6; text-align: right; }
+.goal-track {
+  height: 18rpx;
+  border-radius: 12rpx;
+  background: #EFF3FA;
+  margin-top: 20rpx;
+  overflow: hidden;
+}
+.goal-fill {
+  height: 100%;
+  border-radius: 12rpx;
+  background: linear-gradient(90deg, #34A853, #7BC96F);
+  min-width: 6rpx;
+  transition: width .3s;
+}
+.goal-foot { font-size: 22rpx; color: #8A94A6; margin-top: 14rpx; }
+
+/* 每日一题 */
+.daily {
+  margin-top: 24rpx;
+  background: #fff;
+  border-radius: 28rpx;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  padding: 24rpx 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.daily:active { opacity: .8; }
+.di { font-size: 44rpx; flex: 0 0 auto; }
+.dt { flex: 1; min-width: 0; }
+.d-b { font-size: 28rpx; font-weight: 800; color: #333A45; }
+.d-s { font-size: 22rpx; color: #8A94A6; margin-top: 4rpx; }
+
+/* 继续挑战大卡 */
+.cta {
+  margin-top: 24rpx;
+  background: linear-gradient(135deg, #4285F4, #6AA6F5);
+  border-radius: 36rpx;
+  box-shadow: 0 12rpx 28rpx rgba(66, 133, 244, .28);
+  color: #fff;
+  padding: 30rpx 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.cta:active { opacity: .9; }
+.ci {
   width: 88rpx;
   height: 88rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, .25);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 52rpx;
-  line-height: 1;
-  border-radius: 50%;
-  margin-bottom: 12rpx;
+  flex: 0 0 auto;
 }
-.entry-icon--pink   { background: rgba(255, 93, 143, 0.16); }
-.entry-icon--purple { background: rgba(179, 136, 255, 0.18); }
-.entry-icon--gold   { background: rgba(255, 209, 102, 0.25); }
-.entry-icon--blue   { background: rgba(76, 201, 240, 0.18); }
-.entry-icon--green  { background: rgba(123, 211, 137, 0.2); }
-.entry-icon--orange { background: rgba(255, 183, 3, 0.22); }
+.ct { flex: 1; min-width: 0; }
+.c-b { font-size: 34rpx; font-weight: 800; }
+.c-s { font-size: 24rpx; opacity: .92; margin-top: 6rpx; }
+.cta .ar { color: #fff; font-size: 44rpx; font-weight: 800; opacity: .9; }
 
-.entry-text {
-  font-size: 26rpx;
-  color: #3a3a5c;
-}
-
-/* ===== 登录状态条（M5） ===== */
-.login-bar {
-  width: 640rpx;
-  margin-top: 32rpx;
-  display: flex;
-  align-items: center;
-  padding: 18rpx 22rpx;
-  background: #ffffff;
+/* 推荐玩法 */
+.sec { margin: 36rpx 4rpx 20rpx; font-size: 30rpx; font-weight: 800; color: #333A45; }
+.rec { display: grid; grid-template-columns: 1fr 1fr; gap: 24rpx; }
+.game {
+  background: #fff;
   border-radius: 32rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.06), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  padding: 30rpx 24rpx;
 }
-.login-avatar {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #e8f0fa;
-  flex-shrink: 0;
-}
-.login-avatar--default {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 44rpx;
-}
-.login-text {
-  flex: 1;
-  margin-left: 20rpx;
-  overflow: hidden;
-}
-.login-name {
-  font-size: 30rpx;
-  font-weight: 800;
-  color: #3a3a5c;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.login-sub {
-  font-size: 22rpx;
-  color: #8a9bb5;
-  margin-top: 4rpx;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.login-btn {
-  flex-shrink: 0;
-  padding: 0 28rpx;
-  height: 56rpx;
-  line-height: 56rpx;
-  border-radius: 28rpx;
-  background: #ffb703;
-  color: #ffffff;
-  font-size: 26rpx;
-  font-weight: 900;
-}
-.login-bar.guest .login-btn {
-  background: #4cc9f0;
-}
+.game:active { opacity: .8; }
+.ic { font-size: 68rpx; }
+.g-b { font-size: 30rpx; font-weight: 800; color: #333A45; margin-top: 12rpx; }
+.g-s { font-size: 22rpx; color: #8A94A6; line-height: 1.45; margin-top: 6rpx; }
 
-/* ===== 深色模式（M6-O 基础）：门户页深色渐变；其余页面按需后续适配 ===== */
-@media (prefers-color-scheme: dark) {
-  page {
-    background: linear-gradient(180deg, #1b2735 0%, #22303f 60%, #12171f 100%);
-  }
-}
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 48rpx); }

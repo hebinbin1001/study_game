@@ -1,0 +1,61 @@
+<!-- 学习 Tab（B1 UI 对齐 demo 学习页；O1 自适应） -->
+<view class="page-study">
+  <!-- 本周概览 -->
+  <view class="week-card">
+    <view class="week-sub">本周学习</view>
+    <view class="week-big">{{streakDays}} 天 · {{totalStars}} ⭐</view>
+    <view class="week-sub">{{checkedToday ? '今日已签 ✓' : '今日未签'}} · 正确率稳步上升</view>
+  </view>
+
+  <!-- 学习报告 -->
+  <view class="link" bindtap="goReport">
+    <view class="li">📈</view>
+    <view class="lt">
+      <view class="l-b">学习报告</view>
+      <view class="l-s">答题量 / 正确率 / 薄弱题型</view>
+    </view>
+    <view class="ar">›</view>
+  </view>
+
+  <!-- 错题本 -->
+  <view class="link" bindtap="goWrongBook">
+    <view class="li">📕</view>
+    <view class="lt">
+      <view class="l-b">错题本</view>
+      <view class="l-s">待复习 {{wrongCount}} 道 · 艾宾浩斯复习</view>
+    </view>
+    <view class="ar">›</view>
+  </view>
+
+  <!-- 每日一题 · 签到（完成即今日签到；B2 接入真实每日一题） -->
+  <view class="link daily-link" bindtap="goDaily">
+    <view class="li li-green">📌</view>
+    <view class="lt">
+      <view class="l-b">每日一题 · 签到</view>
+      <view class="l-s">{{checkedToday ? '今日已签 ✓' : '完成每日一题即今日签到'}}</view>
+    </view>
+    <view class="state-chip {{checkedToday ? 'done' : ''}}">{{checkedToday ? '已签' : '去答题'}}</view>
+  </view>
+
+  <!-- 签到记录 / 里程碑日历 -->
+  <view class="link" bindtap="goCheckin">
+    <view class="li li-purple">📅</view>
+    <view class="lt">
+      <view class="l-b">签到日历</view>
+      <view class="l-s">连续 {{streakDays}} 天 · 里程碑奖励</view>
+    </view>
+    <view class="ar">›</view>
+  </view>
+
+  <!-- 自定义题库 -->
+  <view class="link" bindtap="goCustom">
+    <view class="li li-orange">🛠️</view>
+    <view class="lt">
+      <view class="l-b">自定义题库</view>
+      <view class="l-s">内置模板 · 10 个一组 · 可提交审核</view>
+    </view>
+    <view class="ar">›</view>
+  </view>
+
+  <view class="safe-gap"></view>
+</view>

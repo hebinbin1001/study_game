@@ -76,13 +76,14 @@
 }
 
 /* ============ 游戏画布 ============ */
-/* 逻辑尺寸 390×500（与 config.js W/H 一致），dpr 适配在 onReady 中处理 */
+/* O1 自适应：画布占「视口 - HUD - 形态行 - 底部面板」剩余高度（flex:1），
+   不再固定 900rpx → 矮屏机型也能一屏放下不滚动。
+   逻辑尺寸 390×500（config.W/H）由 onReady 取实际 CSS 尺寸后
+   等比缩放并居中（scale=min(宽比,高比)），画面不变形不裁切。 */
 .game-canvas {
-  /* 响应式：宽占满内容区（702rpx），高按 390:500 比例（702 × 500/390 ≈ 900rpx），
-     渲染坐标系仍为 390×500，由 game.js onReady 中 ctx.scale 等比缩放适配。
-     宽高比必须严格保持 390:500，否则与 ctx.scale 等比缩放不一致会导致画面变形 */
   width: 100%;
-  height: 900rpx;
+  flex: 1 1 auto;
+  min-height: 0;
   border-radius: 24rpx;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 70%, #eaf8ff 100%);
   box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.12);

@@ -2,11 +2,13 @@
   "lazyCodeLoading": "requiredComponents",
   "pages": [
     "pages/index/index",
+    "pages/playlist/playlist",
+    "pages/study/study",
+    "pages/me/me",
     "pages/level/level",
     "pages/game/game",
     "pages/result/result",
     "pages/nickname/nickname",
-    "pages/me/me",
     "pages/avatar/avatar",
     "pages/rank/rank",
     "pages/wrong-book/wrong-book",
@@ -25,6 +27,38 @@
     "backgroundColor": "#d8efff",
     "backgroundTextStyle": "light",
     "pageOrientation": "portrait"
+  },
+  "tabBar": {
+    "color": "#8A94A6",
+    "selectedColor": "#4285F4",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/tab/tab-home-off.png",
+        "selectedIconPath": "assets/tab/tab-home-on.png"
+      },
+      {
+        "pagePath": "pages/playlist/playlist",
+        "text": "玩法",
+        "iconPath": "assets/tab/tab-play-off.png",
+        "selectedIconPath": "assets/tab/tab-play-on.png"
+      },
+      {
+        "pagePath": "pages/study/study",
+        "text": "学习",
+        "iconPath": "assets/tab/tab-study-off.png",
+        "selectedIconPath": "assets/tab/tab-study-on.png"
+      },
+      {
+        "pagePath": "pages/me/me",
+        "text": "我的",
+        "iconPath": "assets/tab/tab-mine-off.png",
+        "selectedIconPath": "assets/tab/tab-mine-on.png"
+      }
+    ]
   },
   "darkmode": true,
   "themeLocation": "theme.json",

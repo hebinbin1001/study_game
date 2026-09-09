@@ -1,36 +1,54 @@
-<!-- 个人中心页（M6-N） -->
+<!-- 个人中心 Tab（B1 UI 对齐 demo 我的页；保留完整功能菜单） -->
 <view class="page-me">
-  <!-- 资料卡 -->
-  <view class="profile-card">
-    <block wx:if="{{loggedIn}}">
-      <image wx:if="{{avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
-      <view wx:else class="avatar avatar--default">😎</view>
-      <view class="info">
-        <view class="name">{{nickname || '未设置昵称'}}</view>
-        <view class="meta">
-          <text class="meta-chip">🏅 {{rankName || '青铜'}}</text>
+  <!-- 资料卡：头像 + 昵称 + 段位行 + 编辑/登录 -->
+  <view class="profile-card" bindtap="onProfileTap">
+    <image wx:if="{{loggedIn && avatarUrl}}" class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+    <view wx:elif="{{loggedIn}}" class="avatar avatar--default">😎</view>
+    <view wx:else class="avatar avatar--default">🕶️</view>
+    <view class="info">
+      <view class="name">{{loggedIn ? (nickname || '未设置昵称') : '游客'}}</view>
+      <view class="meta">
+        <block wx:if="{{loggedIn}}">
+          <text class="meta-chip">🎖 {{rankName || '青铜'}}</text>
           <text class="meta-chip">⭐ {{rankStars}}</text>
-          <text class="meta-chip">🏆 {{wins}} 胜</text>
-        </view>
+        </block>
+        <text wx:else class="meta-chip">游客模式 · 数据仅存本机</text>
       </view>
-      <view class="edit-hint" bindtap="goNickname">编辑</view>
-    </block>
-    <block wx:else>
-      <view class="avatar avatar--default">👤</view>
-      <view class="info">
-        <view class="name">未登录</view>
-        <view class="meta" style="color:#8a9bb5;">登录后同步资料与进度</view>
-      </view>
-      <view class="edit-hint" bindtap="goLogin">登录</view>
-    </block>
+    </view>
+    <view class="edit-hint {{loggedIn ? '' : 'hint-login'}}">{{loggedIn ? '📝 编辑' : '🔑 登录'}}</view>
+  </view>
+
+  <!-- 游客说明卡（仅游客） -->
+  <view wx:if="{{!loggedIn}}" class="guest-card">
+    <view class="gc-ic">🕶️</view>
+    <view class="gc-t">
+      <view class="gc-b">你正在以游客身份使用</view>
+      <view class="gc-s">进度只存在本机，退出/清缓存会丢失；排行榜不上榜。</view>
+    </view>
+  </view>
+
+  <!-- 统计三格 -->
+  <view class="stat-row">
+    <view class="stat-box">
+      <view class="stat-num">{{loggedIn ? rankStars : '-'}}</view>
+      <view class="stat-lab">⭐ 累计星星</view>
+    </view>
+    <view class="stat-box">
+      <view class="stat-num">{{loggedIn ? rankName || '-' : '-'}}</view>
+      <view class="stat-lab">🎖 段位</view>
+    </view>
+    <view class="stat-box">
+      <view class="stat-num">{{loggedIn ? wins : '-'}}</view>
+      <view class="stat-lab">🏅 胜场</view>
+    </view>
   </view>
 
   <!-- 功能菜单 -->
   <view class="menu-card">
     <view
-      class="menu-row"
       wx:for="{{menu}}"
       wx:key="name"
+      class="menu-row"
       data-url="{{item.url}}"
       bindtap="onMenuTap">
       <text class="menu-emoji">{{item.emoji}}</text>
@@ -45,5 +63,6 @@
     <view class="danger-row danger-row--red" bindtap="goDeleteAccount">注销账号</view>
   </view>
 
-  <view class="version">词力战士 · Word Warrior v1.0</view>
+  <view class="version">词力战士 · Word Warrior v2.0</view>
+  <view class="safe-gap"></view>
 </view>

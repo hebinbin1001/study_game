@@ -1,0 +1,47 @@
+<!-- 玩法 Tab（B1 UI 对齐 demo 玩法页；O1 自适应：flex 列 + 安全区） -->
+<view class="page-play">
+  <!-- 顶部信息条 -->
+  <view class="pgbar">
+    <view class="pg-ic">🎮</view>
+    <view class="pg-t">
+      <view class="pg-b">{{totalCount}} 款玩法合集</view>
+      <view class="pg-s">已解锁 {{unlockedCount}} · 持续上新中</view>
+    </view>
+    <view class="pg-num">{{totalCount}}/{{totalCount}}</view>
+  </view>
+
+  <!-- 分类筛选 -->
+  <scroll-view class="cat-scroll" scroll-x="true" enable-flex="true">
+    <view class="cat-row">
+      <view
+        wx:for="{{cats}}"
+        wx:key="key"
+        class="cat-chip {{curCat === item.key ? 'on' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="pickCat">{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <!-- 玩法网格：2 列自适应 -->
+  <scroll-view class="grid-scroll" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+    <view class="pgrid">
+      <view
+        wx:for="{{games}}"
+        wx:key="key"
+        class="pcard {{item.unlocked ? 'done' : 'new'}}"
+        data-key="{{item.key}}"
+        bindtap="onGameTap">
+        <view class="pic">{{item.icon}}</view>
+        <view class="pname">{{item.name}}</view>
+        <view class="pdesc">{{item.desc}}</view>
+        <view wx:if="{{item.math}}" class="cat-tag">数学</view>
+        <view class="pfoot">
+          <view class="tag {{item.unlocked ? '' : 'off'}}">{{item.unlocked ? '已解锁' : '未解锁'}}</view>
+          <view class="arr">›</view>
+        </view>
+      </view>
+    </view>
+    <view class="foot-note">更多玩法持续上新 · 敬请期待</view>
+    <view class="safe-gap"></view>
+  </scroll-view>
+</view>

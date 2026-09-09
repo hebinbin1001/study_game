@@ -20,39 +20,48 @@ var LEVELS_PER_GRADE = 10;
 // 默认解锁关卡数：1~3 关（含游客）默认开放；第 4 关起需登录且逐关通关解锁
 var DEFAULT_UNLOCKED = 3;
 
-// ===== M7 Phase B：蛇形路径地图布局（rpx 坐标，2 列 5 行，节点直径 NODE_SIZE） =====
-var NODE_SIZE = 150;         // 节点圆直径
+// ===== M7 Phase B：蛇形路径地图布局（2 列；O1 自适应，行距/节点随可用高度收缩） =====
+var NODE_SIZE_MAX = 150;     // 节点圆直径上限（rpx）
 var MAP_COL_X = [150, 548];  // 左右两列中心 x
-var MAP_TOP = 52;            // 首行节点中心 y
-var MAP_ROW = 216;           // 行距（中心间距）
-var MAP_HEIGHT = 1020;       // 地图容器高度（5 行 + 底部余量）
+var MAP_TOP = 52;            // 首行节点中心 y（兜底）
+var MAP_ROW = 216;           // 行距（中心间距，兜底）
+var MAP_HEIGHT = 1020;       // 地图容器高度（rpx，实际运行时动态传入）
 
 /**
  * 由关卡数据生成蛇形地图节点与连线（纯展示派生，不改 levels 语义）。
+ * @param {Array} levels 关卡列表
+ * @param {number} mapHeightRpx 地图可用高度(rpx)：行距/节点尺寸按可用高自适应（O1）
  * 节点状态：done(已通关,金色✔)/cur(首个可挑战,呼吸“继续”)/lock(灰锁+条件小字)。
  * 连线点亮 = 该段起点关卡已通关。
  */
-function buildMapData(levels) {
+function buildMapData(levels, mapHeightRpx) {
   var nodes = [];
   var segs = [];
   var curIdx = -1;
   for (var i = 0; i < levels.length; i++) {
     if (curIdx === -1 && levels[i].unlocked && !levels[i].stars) curIdx = i;
   }
-  var half = NODE_SIZE / 2;
+  var rows = Math.ceil(levels.length / 2);
+  // 可用高：优先传入值；兜底旧常量（行数×行距 + 顶部留白）
+  var availH = mapHeightRpx || (MAP_TOP + rows * MAP_ROW + 80);
+  // 行距均分可用高（首行留半个行距），节点直径随行距收缩（上限 NODE_SIZE_MAX、下限 96）
+  var rowGap = availH / rows;
+  var nodeSize = Math.min(NODE_SIZE_MAX, Math.max(96, Math.round(rowGap * 0.72)));
+  var half = nodeSize / 2;
+  var topStart = Math.round(rowGap / 2);
   for (var i = 0; i < levels.length; i++) {
     var it = levels[i];
     var row = Math.floor(i / 2);
     var col = i % 2;
     var cx = MAP_COL_X[col];
-    var cy = MAP_TOP + row * MAP_ROW;
+    var cy = topStart + row * rowGap;
     var state = (it.stars > 0) ? 'done' : ((i === curIdx) ? 'cur' : 'lock');
     nodes.push({
       index: i,
       level: it.level,
       left: Math.round(cx - half),
       top: Math.round(cy - half),
-      size: NODE_SIZE,
+      size: nodeSize,
       state: state,
       stars: it.stars || 0,
       badge: it.badge || '',
@@ -187,8 +196,9 @@ Page({
       ? Math.round(gradeEarnedStars / gradeTotalStars * 100)
       : 0;
 
-    // ⑤ 蛇形路径地图派生数据（M7 Phase B）
-    var map = buildMapData(levels);
+    // ⑤ 蛇形路径地图派生数据（M7 Phase B；O1：按可用高度自适应）
+    var mapH = this._calcMapHeightRpx();
+    var map = buildMapData(levels, mapH);
 
     this.setData({
       typeGroups: typeGroups,
@@ -197,12 +207,42 @@ Page({
       levels: levels,
       mapNodes: map.nodes,
       mapSegs: map.segs,
-      mapHeight: MAP_HEIGHT,
+      mapHeight: Math.round(mapH),
       loggedIn: loggedIn,
       gradeEarnedStars: gradeEarnedStars,
       gradeTotalStars: gradeTotalStars,
       gradeStarPercent: gradeStarPercent
     });
+  },
+
+  /**
+   * O1：计算关卡地图可用高度(rpx) = 视口高 - 页面上方固定块(标题/游客横幅/学段/题型/进度卡)
+   * - 页下方（自定义关卡入口）与安全区也扣除；结果夹在 [min, max]，
+   *   保证矮屏地图能一屏（行距收缩），超高屏不至于拉得过松。
+   */
+  _calcMapHeightRpx: function () {
+    if (!this._win) {
+      var win = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      this._win = win;
+    }
+    var winH = this._win.windowHeight;      // px
+    var winW = this._win.windowWidth;       // px
+    // 750rpx = 屏宽 → rpx/px = 750/winW
+    var rpp = 750 / winW;                    // rpx per px
+    var viewportRpx = winH * rpp;
+
+    var loggedIn = auth.isLoggedIn();
+    // 上方固定内容（rpx 估算，含各块间距）
+    var above = 30    // page padding
+      + 100           // 标题区（title+sub+间距）
+      + (loggedIn ? 0 : 100)  // 游客横幅
+      + 96            // 学段 tab
+      + 96            // 题型 chips
+      + 150;          // 星星进度卡
+    var below = 130   // 自定义关卡入口 + 底部
+      + 30;           // 底部安全余量
+    var h = viewportRpx - above - below;
+    return Math.max(560, Math.min(h, 1400));
   },
 
   // 点击关卡卡片

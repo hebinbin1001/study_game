@@ -13,11 +13,9 @@ Page({
     rankStars: 0,
     menu: [
       { emoji: '👤', name: '昵称与头像', url: '/pages/nickname/nickname' },
-      { emoji: '👗', name: '我的形象', url: '/pages/avatar/avatar' },
+      { emoji: '👗', name: '我的形象 · 皮肤', url: '/pages/avatar/avatar' },
       { emoji: '🏆', name: '排行榜', url: '/pages/rank/rank' },
-      { emoji: '📊', name: '学习报告', url: '/pages/report/report' },
       { emoji: '📖', name: '错题本', url: '/pages/wrong-book/wrong-book' },
-      { emoji: '✅', name: '每日签到', url: '/pages/checkin/checkin' },
       { emoji: '🏅', name: '成就勋章', url: '/pages/achievement/achievement' }
     ]
   },
@@ -58,6 +56,15 @@ Page({
     wx.navigateTo({ url: url });
   },
 
+  // 资料卡点击：游客 → 登录；已登录 → 编辑资料（昵称头像页）
+  onProfileTap: function () {
+    if (auth.isLoggedIn()) {
+      wx.navigateTo({ url: '/pages/nickname/nickname' });
+      return;
+    }
+    this.goLogin();
+  },
+
   // 资料卡「编辑」→ 昵称与头像页
   goNickname: function () {
     wx.navigateTo({ url: '/pages/nickname/nickname' });
@@ -84,7 +91,7 @@ Page({
         storage.setAvatar('');
         wx.showToast({ title: '已退出', icon: 'none' });
         setTimeout(function () {
-          wx.reLaunch({ url: '/pages/index/index' });
+          wx.switchTab({ url: '/pages/index/index' });
         }, 700);
       }
     });
@@ -127,7 +134,7 @@ Page({
       try { wx.clearStorageSync(); } catch (e) { /* 忽略 */ }
       wx.showToast({ title: '账号已注销', icon: 'none' });
       setTimeout(function () {
-        wx.reLaunch({ url: '/pages/index/index' });
+        wx.switchTab({ url: '/pages/index/index' });
       }, 900);
     }).catch(function (err) {
       wx.hideLoading();

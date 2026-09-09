@@ -73,6 +73,55 @@ page {
   font-size: 26rpx;
   font-weight: 900;
 }
+.edit-hint.hint-login {
+  background: #FF9800;
+}
+
+/* 游客说明卡 */
+.guest-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  margin-top: 28rpx;
+  background: #FFF7EC;
+  border: 2rpx solid #FFE3B3;
+  border-radius: 28rpx;
+  padding: 26rpx 28rpx;
+}
+.gc-ic { font-size: 44rpx; flex-shrink: 0; }
+.gc-t { flex: 1; min-width: 0; }
+.gc-b { font-size: 28rpx; font-weight: 800; color: #A66A00; }
+.gc-s { font-size: 22rpx; color: #C08B4A; line-height: 1.5; margin-top: 6rpx; }
+
+/* 统计三格 */
+.stat-row {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 28rpx;
+}
+.stat-box {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 22rpx 8rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  min-width: 0;
+}
+.stat-num {
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat-lab {
+  font-size: 20rpx;
+  color: #8A94A6;
+  margin-top: 6rpx;
+  white-space: nowrap;
+}
 
 /* 功能菜单 */
 .menu-card {
@@ -145,3 +194,4 @@ page {
   font-size: 22rpx;
   color: #8aa0b8;
 }
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); }

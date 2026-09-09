@@ -33,7 +33,11 @@ const AUTO_PORT = 3799;
 
 // 每个页面的关键元素选择器：取第一个能被 $() 取到非 null 的即视为「已渲染」。
 const PAGES = [
-  { path: 'pages/index/index', name: 'index', query: '', selectors: ['.page-home', '.logo-area', '.logo-emoji'] },
+  // 4 Tab 页（B1：index 重构为大厅、playlist/study 新增、me 对齐 demo）
+  { path: 'pages/index/index', name: 'index', query: '', selectors: ['.page-home', '.guestbar', '.asset-row', '.cta', '.daily'] },
+  { path: 'pages/playlist/playlist', name: 'playlist', query: '', selectors: ['.page-play', '.pgbar', '.pgrid', '.pcard'] },
+  { path: 'pages/study/study', name: 'study', query: '', selectors: ['.page-study', '.week-card', '.link'] },
+  { path: 'pages/me/me', name: 'me', query: '', selectors: ['.page-me', '.profile-card', '.stat-row', '.menu-card'] },
   { path: 'pages/level/level', name: 'level', query: '', selectors: ['.page-level', '.grade-tabs'] },
   // game 页带参数进入（onLoad 缺省也有容错，带参数更接近真实路径）
   { path: 'pages/game/game', name: 'game', query: '?grade=kindergarten&level=1', selectors: ['.game-page', '.hud', '.hud-lives'] },
@@ -46,7 +50,9 @@ const PAGES = [
   { path: 'pages/level-editor/level-editor', name: 'level-editor', query: '', selectors: ['.page-editor', '.editor-header', '.btn-save'] },
   { path: 'pages/level-share/level-share', name: 'level-share', query: '', selectors: ['.page-level-share', '.header', '.input-section'] },
   { path: 'pages/checkin/checkin', name: 'checkin', query: '', selectors: ['.page-checkin', '.checkin-card', '.btn-checkin'] },
-  { path: 'pages/achievement/achievement', name: 'achievement', query: '', selectors: ['.page-achievement', '.header', '.achievement-list'] }
+  { path: 'pages/achievement/achievement', name: 'achievement', query: '', selectors: ['.page-achievement', '.header', '.achievement-list'] },
+  { path: 'pages/report/report', name: 'report', query: '', selectors: ['.page-report', '.report-header'] },
+  { path: 'pages/share-card/share-card', name: 'share-card', query: '', selectors: ['.share-card', '.share-canvas'] }
 ];
 
 function sleep(ms) {

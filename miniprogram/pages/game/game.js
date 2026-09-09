@@ -184,16 +184,23 @@ Page({
         }
         var canvasNode = res[0].node;
         var ctx = canvasNode.getContext('2d');
-        var width = res[0].width;
-        var height = res[0].height;
+        var width = res[0].width;   // CSS 逻辑宽(px)
+        var height = res[0].height; // CSS 逻辑高(px)
 
-        // dpr + 尺寸适配：物理像素 = 逻辑像素 × dpr；
-        // 渲染坐标系固定 390×500（config.W/H），画布为响应式（CSS width:100%，
-        // height:900rpx），故按实际 CSS 宽度等比缩放 ctx，使画面填满画布且不变形（REQ-NFR-3）
+        // O1 自适应：画布 CSS 尺寸随视口伸缩（flex），渲染坐标系固定 390×500。
+        // 等比缩放并居中：scale = min(宽比, 高比)，避免固定 900rpx 在矮屏放不下、
+        // 也避免按宽等比导致高不足时裁切/超高留白。多余画布区域由画布背景色延伸。
         var dpr = wx.getSystemInfoSync().pixelRatio;
         canvasNode.width = width * dpr;
         canvasNode.height = height * dpr;
-        var scale = width / config.W;
+        var scale = Math.min(width / config.W, height / config.H);
+        // 变换顺序（后调用者先作用于绘制点，后乘语义）：
+        // 先 translate（设备像素偏移）再 scale → 点 p → T(S(p)) = scale·p + offset，
+        // 实现「逻辑 390×500 等比缩放后居中」，画布为任意尺寸均不变形不裁切
+        ctx.translate(
+          (width - config.W * scale) * dpr / 2,
+          (height - config.H * scale) * dpr / 2
+        );
         ctx.scale(dpr * scale, dpr * scale);
 
         self._canvasNode = canvasNode;

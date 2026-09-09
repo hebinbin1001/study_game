@@ -1,117 +1,109 @@
-<!-- 首页（T14 · UI 重设计）：
-     卡通可爱风：猫战士吉祥物 + 大字重标题 + 数据概览卡 + 「开始闯关」主按钮 + 功能入口卡片网格
-     关联需求：REQ-GAME-1（开始游戏入口）、REQ-NICK-4（昵称入口展示） -->
+<!-- 首页 Tab（B1 UI 对齐 demo 首页；去宫格 → 大厅化）
+     结构：Header / Hero / 游客引导条 / 资产条 / 排行榜行 / 今日目标 / 每日一题 / 继续挑战 / 推荐玩法 -->
 <view class="page-home">
-  <!-- 装饰云朵 -->
-  <view class="cloud cloud-1"></view>
-  <view class="cloud cloud-2"></view>
-
-  <!-- 吉祥物 + 标题区 -->
-  <view class="logo-area">
-    <view class="mascot-wrap">
-      <view class="mascot-main">🐱</view>
-      <view class="mascot-sword">⚔️</view>
-    </view>
-    <view class="logo-title">词力战士</view>
-    <view class="sub-title">玩中学 · 学中记</view>
+  <!-- Header -->
+  <view class="head">
+    <view class="head-t">⚔️ 词力战士</view>
+    <button class="snd-btn" bindtap="toggleSound" hover-class="none">{{soundOn ? '🔊' : '🔇'}}</button>
   </view>
 
-  <!-- 登录状态条（M5）：未登录引导微信登录；已登录点击进入昵称/资料页 -->
-  <view class="login-bar {{loggedIn ? '' : 'guest'}}" bindtap="onLoginTap">
-    <block wx:if="{{loggedIn}}">
-      <image wx:if="{{avatarUrl}}" class="login-avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
-      <view wx:else class="login-avatar login-avatar--default">😎</view>
-      <view class="login-text">
-        <view class="login-name">{{nickname || '已登录'}}</view>
-        <view class="login-sub">点击进入个人中心</view>
-      </view>
-      <view class="login-btn">我的</view>
-    </block>
-    <block wx:else>
-      <view class="login-avatar login-avatar--default">👤</view>
-      <view class="login-text">
-        <view class="login-name">游客模式</view>
-        <view class="login-sub">微信登录解锁全部关卡与功能</view>
-      </view>
-      <view class="login-btn">登录</view>
-    </block>
+  <!-- Hero 头图 -->
+  <view class="hero">
+    <view class="hero-av">
+      <image wx:if="{{avatarUrl}}" class="hero-img" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view wx:elif="{{loggedIn}}" class="hero-emoji">😎</view>
+      <view wx:else class="hero-emoji">⚔️</view>
+    </view>
+    <view class="hero-title">词力战士</view>
+    <view class="hero-sub">玩中学 · 学中记</view>
   </view>
 
-  <!-- 数据概览卡：累计星星 / 已过关卡 / 昵称（js 预处理 setData） -->
-  <view class="stat-card">
-    <view class="stat-item">
-      <view class="stat-emoji">⭐</view>
-      <view class="stat-num">{{totalStars}}</view>
-      <view class="stat-label">累计星星</view>
+  <!-- 游客引导条（仅游客） -->
+  <view wx:if="{{!loggedIn}}" class="guestbar" bindtap="onProfileTap">
+    <view class="gb-ic">👤</view>
+    <view class="gb-t">
+      <view class="gb-b">游客模式 · 数据仅存本机</view>
+      <view class="gb-s">登录后可同步进度、解锁全部功能</view>
     </view>
-    <view class="stat-divider"></view>
-    <view class="stat-item">
-      <view class="stat-emoji">🏅</view>
-      <view class="stat-num">{{passedLevels}}</view>
-      <view class="stat-label">已过关卡</view>
+    <view class="gb-btn">去登录</view>
+  </view>
+
+  <!-- 资产条 -->
+  <view class="asset-row">
+    <view class="asset-box">
+      <view class="a-num">{{totalStars}}</view>
+      <view class="a-lab">⭐ 累计星星</view>
     </view>
-    <view class="stat-divider"></view>
-    <view class="stat-item">
-      <view class="stat-emoji">😎</view>
-      <view class="stat-num stat-num--name">{{nicknameDisplay}}</view>
-      <view class="stat-label">我的昵称</view>
+    <view class="asset-box">
+      <view class="a-num a-num--name">{{loggedIn ? (rankName || '青铜') : '游客'}}</view>
+      <view class="a-lab">🎖 段位</view>
+    </view>
+    <view class="asset-box">
+      <view class="a-num">{{streakDays}} 天</view>
+      <view class="a-lab">🔥 连续</view>
     </view>
   </view>
 
-  <!-- 主操作区 -->
-  <view class="action-area">
-    <!-- 开始闯关：跳转关卡选择页（REQ-GAME-1） -->
-    <button class="btn btn-primary btn-start" bindtap="goLevel">⚔️ 开始闯关</button>
-
-    <!-- 功能入口区（3×2 卡片网格） -->
-    <view class="entries">
-      <!-- 昵称入口 -->
-      <view class="entry" bindtap="goNickname">
-        <view class="entry-icon entry-icon--pink">👤</view>
-        <view class="entry-text">昵称</view>
-      </view>
-
-      <!-- 形象入口（M2） -->
-      <view class="entry" bindtap="goAvatar">
-        <view class="entry-icon entry-icon--purple">👗</view>
-        <view class="entry-text">形象</view>
-      </view>
-
-      <!-- 排行榜入口（M2） -->
-      <view class="entry" bindtap="goRank">
-        <view class="entry-icon entry-icon--gold">🏆</view>
-        <view class="entry-text">排行</view>
-      </view>
-
-      <!-- 学习报告入口（M6-D：需登录） -->
-      <view wx:if="{{loggedIn}}" class="entry" bindtap="goReport">
-        <view class="entry-icon entry-icon--green">📊</view>
-        <view class="entry-text">报告</view>
-      </view>
-
-      <!-- 错题本入口（M3） -->
-      <view class="entry" bindtap="goWrongBook">
-        <view class="entry-icon entry-icon--blue">📖</view>
-        <view class="entry-text">错题</view>
-      </view>
-
-      <!-- 签到入口（M4） -->
-      <view class="entry" bindtap="goCheckin">
-        <view class="entry-icon entry-icon--green">✅</view>
-        <view class="entry-text">签到</view>
-      </view>
-
-      <!-- 成就入口（M4） -->
-      <view class="entry" bindtap="goAchievement">
-        <view class="entry-icon entry-icon--orange">🏅</view>
-        <view class="entry-text">成就</view>
-      </view>
-
-      <!-- 分享入口（M6-J：所有用户可见，引导分享） -->
-      <view class="entry" bindtap="goShare">
-        <view class="entry-icon entry-icon--gold">🎁</view>
-        <view class="entry-text">分享</view>
+  <!-- 排行榜行 -->
+  <view class="link" bindtap="goRank">
+    <view class="li">🏆</view>
+    <view class="lt">
+      <view class="l-b">排行榜</view>
+      <view class="l-s">
+        <block wx:if="{{loggedIn}}">{{myRank > 0 ? ('我的排名 第 ' + myRank + ' 名') : '全服榜单 · 登录即上榜'}}</block>
+        <block wx:else>全服榜单 · 登录后上榜</block>
       </view>
     </view>
+    <view class="link-badge">TOP 100</view>
+    <view class="ar">›</view>
   </view>
+
+  <!-- 今日目标 / 学习进度 -->
+  <view class="goal-card">
+    <view class="goal-head">
+      <view class="gt">🎯 今日目标</view>
+      <view class="gsub">{{loggedIn ? ('已答 ' + todayQ + ' 题' + (todayQ ? ' · 正确 ' + todayRate + '%' : '')) : '登录后查看'}}</view>
+    </view>
+    <view class="goal-track">
+      <view class="goal-fill" style="width: {{todayQ >= 10 ? 100 : (todayQ * 10)}}%;"></view>
+    </view>
+    <view class="goal-foot">{{dailyDone ? '每日一题已完成 · 今日已签 ✓' : '完成每日一题即签到 · 目标 10 题'}}</view>
+  </view>
+
+  <!-- 每日一题 · 签到 -->
+  <view class="daily" bindtap="goDaily">
+    <view class="di">📌</view>
+    <view class="dt">
+      <view class="d-b">每日一题</view>
+      <view class="d-s">{{dailyDone ? '今日已签 ✓ · 连续 ' + streakDays + ' 天' : '今日未答 · 答完即签到'}}</view>
+    </view>
+    <view class="ar ar-green">{{dailyDone ? '✓' : '›'}}</view>
+  </view>
+
+  <!-- 继续挑战 -->
+  <view class="cta" bindtap="goLevel">
+    <view class="ci">⚔️</view>
+    <view class="ct">
+      <view class="c-b">继续挑战</view>
+      <view class="c-s">选择学段 · 题型 · 开始闯关</view>
+    </view>
+    <view class="ar">›</view>
+  </view>
+
+  <!-- 推荐玩法 -->
+  <view class="sec">🔥 推荐玩法</view>
+  <view class="rec">
+    <view class="game" bindtap="goShoot">
+      <view class="ic">🔫</view>
+      <view class="g-b">字母射击</view>
+      <view class="g-s">挖空补词 · 打跑怪兽</view>
+    </view>
+    <view class="game" bindtap="goSudoku">
+      <view class="ic">🔢</view>
+      <view class="g-b">数独</view>
+      <view class="g-s">4×4 推理填数 · 敬请期待</view>
+    </view>
+  </view>
+
+  <view class="safe-gap"></view>
 </view>
