@@ -14,8 +14,8 @@
 var request = require('./request');
 var storage = require('./storage');
 
-// 防并发：进行中的静默登录 Promise（避免重复 wx.login）
-var _loginPromise = null;
+// 防重入：进行中的登录标记（不再缓存 Promise，避免卡死后“点击无反应”）
+var _loggingIn = false;
 
 /** 读取本地 token。@returns {string} */
 function getToken() {
@@ -115,52 +115,68 @@ function ensureAgreement(content) {
 /**
  * 静默登录：wx.login → /api/login → 存 token/user。
  * O2：**先过隐私协议**——未同意协议不执行 wx.login（保持游客，不建档）。
- * 防并发：进行中的调用复用同一 Promise。
- * 失败 reject（调用方静默降级游客，不阻塞主流程）。
+ * 并发控制：进行中用 _loggingIn 标记防重入（不再缓存卡死的 Promise，
+ * 每次点击都真正发起一次登录，避免“点了没反应”）。
+ * 失败 reject（调用方弹窗提示）；取消/拒绝协议 resolve(null)。
  * @param {Object} [opts] { skipAgreement: true } 已确认过协议时可跳过重复弹窗
- * @returns {Promise<Object>} 用户资料
+ * @returns {Promise<Object|null>} 登录成功返回 user；取消/拒绝返回 null；失败 reject
  */
 function loginSilently(opts) {
   opts = opts || {};
-  if (_loginPromise) return _loginPromise;
 
   if (typeof wx === 'undefined' || typeof wx.login !== 'function') {
     return Promise.reject({ code: -1, message: 'wx.login 不可用', isNetwork: true });
   }
 
+  // 真正发起登录（wx.login + 接口），带超时兜底避免永久悬挂
   var run = function () {
-    _loginPromise = new Promise(function (resolve, reject) {
+    if (_loggingIn) {
+      return Promise.reject({ code: -3, message: '登录请求进行中，请稍候', isNetwork: false });
+    }
+    _loggingIn = true;
+    return new Promise(function (resolve, reject) {
+      var settled = false;
+      var timer = setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        _loggingIn = false;
+        reject({ code: -1, message: 'wx.login 超时，请重试', isNetwork: true });
+      }, 8000);
+
       wx.login({
         success: function (res) {
           if (!res || !res.code) {
+            if (settled) return; settled = true;
+            clearTimeout(timer); _loggingIn = false;
             reject({ code: -1, message: 'wx.login 未返回 code', isNetwork: true });
             return;
           }
           request.post('/api/login', { code: res.code }).then(function (data) {
+            if (settled) return; settled = true;
+            clearTimeout(timer); _loggingIn = false;
             if (!data || !data.token) {
               reject({ code: -2, message: '登录响应缺少 token', isBusiness: true });
               return;
             }
             resolve(applyLogin(data));
-          }, reject);
+          }, function (err) {
+            if (settled) return; settled = true;
+            clearTimeout(timer); _loggingIn = false;
+            reject(err);
+          });
         },
         fail: function () {
+          if (settled) return; settled = true;
+          clearTimeout(timer); _loggingIn = false;
           reject({ code: -1, message: 'wx.login 失败', isNetwork: true });
         }
       });
-    }).then(function (user) {
-      _loginPromise = null;
-      return user;
-    }, function (err) {
-      _loginPromise = null;
-      throw err;
     });
-    return _loginPromise;
   };
 
   if (opts.skipAgreement) return run();
 
-  // 先协议，同意才登录；拒绝/未同意 → 视为「用户取消登录」返回 null 语义（resolve 空不建档）
+  // 先协议，同意才登录；拒绝/未同意 → 返回 null（不建档）
   return ensureAgreement().then(function (agreed) {
     if (!agreed) return null;
     return run();

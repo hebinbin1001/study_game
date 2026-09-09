@@ -127,32 +127,39 @@ Page({
   },
 
   // —— 入口 ——
-  // 统一登录：游客点「登录/注册」→ 先弹《用户协议与隐私政策》（loginSilently 内）
-  // 同意 → wx.login 建档 → 刷新；needProfile → 引导设昵称。拒绝/取消 → 保持游客。
+  // 统一登录：游客点「登录/注册」→ 先弹《用户协议与隐私政策》，同意后才显示“登录中”
+  // 并发被 loginSilently 的 _loggingIn 兜底；失败弹窗给具体错误，避免“点了没反应”。
   _doLogin: function () {
     var self = this;
-    wx.showLoading({ title: '登录中...', mask: true });
-    auth.loginSilently().then(function (user) {
-      wx.hideLoading();
-      if (!user) return; // 用户未同意协议 / 取消
-      self.refresh();
-      if (user.needProfile) {
-        wx.showToast({ title: '登录成功 · 完善昵称后参与排行', icon: 'none', duration: 1500 });
-        setTimeout(function () {
-          wx.navigateTo({ url: '/pages/nickname/nickname' });
-        }, 900);
-      } else {
-        wx.showToast({ title: '✅ 登录成功', icon: 'none' });
-      }
-    }).catch(function (err) {
-      wx.hideLoading();
-      var msg = (err && err.message) || '登录失败';
-      wx.showModal({
-        title: '登录失败',
-        content: msg + '\n\n提示：开发者工具/测试环境需连接云托管后端（环境变量 WX_SECRET 或网关 openid），或先确认服务已部署。',
-        showCancel: false,
-        confirmText: '知道了'
+    // 1) 协议确认（未同意过才弹；已同意直接通过）
+    auth.ensureAgreement().then(function (agreed) {
+      if (!agreed) return; // 暂不/拒绝 → 保持游客
+      // 2) 协议通过后才显示 loading + 真正调微信登录
+      wx.showLoading({ title: '登录中...', mask: false });
+      return auth.loginSilently({ skipAgreement: true }).then(function (user) {
+        wx.hideLoading();
+        if (!user) return; // 理论上 skipAgreement 后必有 user；防御
+        self.refresh();
+        if (user.needProfile) {
+          wx.showToast({ title: '登录成功 · 完善昵称后参与排行', icon: 'none', duration: 1500 });
+          setTimeout(function () {
+            wx.navigateTo({ url: '/pages/nickname/nickname' });
+          }, 900);
+        } else {
+          wx.showToast({ title: '✅ 登录成功', icon: 'none' });
+        }
+      }).catch(function (err) {
+        wx.hideLoading();
+        var msg = (err && err.message) || '登录失败';
+        wx.showModal({
+          title: '登录失败',
+          content: msg + (err && err.isNetwork ? '\n\n提示：开发者工具/测试环境需连接云托管后端（网关注入 openid 或配置 WX_SECRET），请确认服务已部署。' : ''),
+          showCancel: false,
+          confirmText: '知道了'
+        });
       });
+    }).catch(function () {
+      // ensureAgreement 自身失败（wx 不可用等）：静默
     });
   },
 
