@@ -95,7 +95,7 @@ function ensureAgreement(content) {
     wx.showModal({
       title: '用户协议与隐私政策',
       content: content || '欢迎使用「词力战士」。注册登录后，你的昵称、头像与游戏进度将用于排行榜等展示；我们仅收集提供服务所必需的信息，不会向第三方泄露。点击「同意并登录」即视为已阅读并同意《用户协议》与《隐私政策》（全文可在登录页或「我的」中随时查看）；选择「暂不」可继续以游客身份游玩。',
-      confirmText: '同意并登录',
+      confirmText: '同意登录',
       cancelText: '暂不',
       success: function (r) {
         if (r.confirm) {
@@ -105,7 +105,9 @@ function ensureAgreement(content) {
           resolve(false);
         }
       },
-      fail: function () {
+      fail: function (err) {
+        try { if (typeof console !== 'undefined') console.warn('[auth] 协议弹窗 fail:', err && err.errMsg); } catch (e) {}
+        try { wx.showToast({ title: '协议弹窗加载失败，请重试', icon: 'none' }); } catch (e) {}
         resolve(false);
       }
     });

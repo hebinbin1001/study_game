@@ -162,7 +162,14 @@ Page({
         self._loginBusy = false;
         step('4-登录返回 user=' + !!(user));
         if (!user) return;
+        try {
+          step('4a-登录后 isLoggedIn=' + auth.isLoggedIn() + ' needProfile=' + (user && user.needProfile) +
+            ' token=' + (storage.getToken ? (storage.getToken() ? '有' : '空') : '?'));
+        } catch (e) { step('4a-诊断异常 ' + e); }
         self.refresh();
+        try {
+          step('4b-refresh后 data.loggedIn=' + self.data.loggedIn);
+        } catch (e) {}
         if (user.needProfile) {
           wx.showToast({ title: '登录成功 · 完善昵称后参与排行', icon: 'none', duration: 1500 });
           setTimeout(function () {
@@ -202,8 +209,8 @@ Page({
     // 登录流程进行中 → 取消可能撞窗的 nudge 弹窗，并置忙标志
     if (this._nudgeTimer) { clearTimeout(this._nudgeTimer); this._nudgeTimer = null; }
     this._loginBusy = true;
-    // 提示引导：接下来会弹《用户协议》弹窗，需点【同意并登录】才继续
-    wx.showToast({ title: '请阅读协议并点【同意并登录】', icon: 'none', duration: 2000 });
+    // 注意：此处禁止在 showModal 前 wx.showToast —— toast 与 modal 共用原生弹窗层，
+    // 真机上会导致协议弹窗直接 fail，即「首次进入点击登录没反应」的根因
     try {
       if (typeof console !== 'undefined') console.log('[login] onProfileTap 触发, loggedIn=' + auth.isLoggedIn());
     } catch (e) {}
