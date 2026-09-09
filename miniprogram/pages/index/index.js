@@ -138,7 +138,11 @@ Page({
     step('1-ensureAgreement 开始');
     auth.ensureAgreement().then(function (agreed) {
       step('2-ensureAgreement 返回 agreed=' + agreed);
-      if (!agreed) { step('2b-用户拒绝协议，保持游客'); return; }
+      if (!agreed) {
+        step('2b-用户拒绝协议，保持游客');
+        wx.showToast({ title: '已保持游客模式 · 需要时再登录', icon: 'none', duration: 1800 });
+        return;
+      }
       // 2) 显示 loading 并真正调微信登录
       wx.showLoading({ title: '登录中...', mask: false });
       step('3-调用 wx.login/loginSilently');
@@ -181,8 +185,8 @@ Page({
 
   // 登录条/资料入口：游客→登录(协议前置)；已登录→我的(tab)
   onProfileTap: function () {
-    // [探针] 点击立即反馈，用于定位“无反应”
-    wx.showToast({ title: '准备登录…', icon: 'none', duration: 1200 });
+    // 提示引导：接下来会弹《用户协议》弹窗，需点【同意并登录】才继续
+    wx.showToast({ title: '请阅读协议并点【同意并登录】', icon: 'none', duration: 2000 });
     try {
       if (typeof console !== 'undefined') console.log('[login] onProfileTap 触发, loggedIn=' + auth.isLoggedIn());
     } catch (e) {}

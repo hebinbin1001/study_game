@@ -71,33 +71,35 @@ async function main() {
     await sleep(8000);
 
     console.log('=== [2] probing callContainer connectivity ===');
-    const probe = await miniProgram.evaluate(function () {
-      var request = require('/utils/request.js');
-      var out = {};
+    const probe = await miniProgram.evaluate(async () => {
+      const request = require('/utils/request.js');
+      const out = {};
 
       // 1) 连通性：/api/health（无鉴权）
-      var p1 = request.get('/api/health', { skipAuth: true }).then(
-        function (data) { out.health = { ok: true, data: data }; },
-        function (e) { out.health = { ok: false, message: (e && e.message) ? e.message : String(e) }; }
-      );
+      try {
+        const data = await request.get('/api/health', { skipAuth: true });
+        out.health = { ok: true, data: data };
+      } catch (e) {
+        out.health = { ok: false, message: e && e.message ? e.message : String(e) };
+      }
 
       // 2) 登录链路：dev_ 测试码（后端来源②，无需 WX_SECRET / 网关注入）
-      var p2 = request.post('/api/login', { code: 'dev_probe' }).then(
-        function (data) {
-          out.login = {
-            ok: true,
-            data: {
-              hasToken: !!(data && data.token),
-              isNew: !!(data && data.isNew),
-              needProfile: !!(data && data.needProfile),
-              openid: (data && data.openid) || ''
-            }
-          };
-        },
-        function (e) { out.login = { ok: false, message: (e && e.message) ? e.message : String(e) }; }
-      );
+      try {
+        const data = await request.post('/api/login', { code: 'dev_probe' });
+        out.login = {
+          ok: true,
+          data: {
+            hasToken: !!(data && data.token),
+            isNew: !!(data && data.isNew),
+            needProfile: !!(data && data.needProfile),
+            openid: (data && data.openid) || ''
+          }
+        };
+      } catch (e) {
+        out.login = { ok: false, message: e && e.message ? e.message : String(e) };
+      }
 
-      return Promise.all([p1, p2]).then(function () { return out; });
+      return out;
     });
 
     console.log('--- probe result ---');
