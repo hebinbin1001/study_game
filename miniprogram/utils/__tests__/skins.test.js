@@ -12,12 +12,13 @@ const s = suite('utils/skins.js');
 
 const skins = require('../skins');
 
-s.test('SKIN_RENDER：覆盖后端 8 个形象且均含 emoji/color', () => {
+s.test('SKIN_RENDER：覆盖后端全部形象（8 内置 + 5 里程碑）且均含 emoji/color', () => {
   const ids = [
     'warrior_01', 'warrior_02', 'warrior_03', 'warrior_04',
-    'monster_01', 'monster_02', 'monster_03', 'monster_04'
+    'monster_01', 'monster_02', 'monster_03', 'monster_04',
+    'milestone_30', 'milestone_60', 'milestone_100', 'milestone_250', 'milestone_365'
   ];
-  s.assert.equal(Object.keys(skins.SKIN_RENDER).length, 8);
+  s.assert.equal(Object.keys(skins.SKIN_RENDER).length, ids.length);
   for (const id of ids) {
     const r = skins.SKIN_RENDER[id];
     s.assert.ok(r !== undefined, '缺少 ' + id);
@@ -63,15 +64,14 @@ s.test('getRarity：已知/未知稀有度正确映射与回退', () => {
   s.assert.equal(skins.getRarity('nope').color, '#8a9bb5');
 });
 
-s.test('LOCAL_SKINS：8 条且与 SKIN_RENDER 的 avatarId 一一对应、字段齐全', () => {
-  s.assert.equal(skins.LOCAL_SKINS.length, 8);
+s.test('LOCAL_SKINS：与 SKIN_RENDER 的 avatarId 一一对应、字段齐全', () => {
   const ids = skins.LOCAL_SKINS.map((x) => x.avatarId).sort();
   s.assert.deepEqual(ids, Object.keys(skins.SKIN_RENDER).sort());
   for (const sk of skins.LOCAL_SKINS) {
     s.assert.ok(sk.name.length > 0, sk.avatarId + ' 缺名称');
     s.assert.ok(sk.type === 'warrior' || sk.type === 'monster', sk.avatarId + ' type 非法');
     s.assert.ok(sk.emoji.length > 0, sk.avatarId + ' 缺 emoji');
-    s.assert.ok(['free', 'stars', 'rank', 'level'].indexOf(sk.unlockType) >= 0, sk.avatarId + ' unlockType 非法');
+    s.assert.ok(['free', 'stars', 'rank', 'level', 'milestone'].indexOf(sk.unlockType) >= 0, sk.avatarId + ' unlockType 非法');
     s.assert.equal(sk.emoji, skins.SKIN_RENDER[sk.avatarId].emoji);
     s.assert.equal(sk.color, skins.SKIN_RENDER[sk.avatarId].color);
   }

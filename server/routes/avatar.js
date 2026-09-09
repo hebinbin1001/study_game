@@ -46,7 +46,6 @@ router.get("/list", async (req, res) => {
         unlocked: unlockedMap.has(avatar.avatarId) || avatar.unlockType === "free",
         currentUsed: unlockedMap.get(avatar.avatarId) || false,
       };
-
       if (avatar.type === "warrior") {
         warriors.push(item);
       } else {
@@ -106,6 +105,15 @@ router.post("/unlock", async (req, res) => {
       return res.send({
         code: 0,
         data: { unlocked: true, already: true },
+      });
+    }
+
+    // 里程碑皮肤（unlockType='milestone'）：仅由每日一题连续签到自动发放，禁止手动解锁
+    if (avatar.unlockType === "milestone") {
+      return res.send({
+        code: 4002,
+        data: null,
+        message: "该皮肤需每日一题连续签到达到天数后自动解锁",
       });
     }
 

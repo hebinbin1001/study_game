@@ -95,9 +95,8 @@ Page({
     // 上报成绩（REQ-API-4）
     this.reportScore(score, correctCount, totalQ, stars, maxCombo, grade, level);
 
-    // M6-E 每日目标：登录且通关 → 自动学习打卡（静默，失败不影响结算）
-    this.autoCheckin();
-    // M6 bugfix：通关同步段位/胜场/星——排行榜与头像解锁数据来源（此前从未调用致排行榜空）
+    // B2 拍板：移除「任意闯关自动打卡」——打卡唯一入口=每日一题（见 pages/daily-question）
+    // 通关仍同步段位/胜场/星（排行榜与头像解锁数据来源）
     this.rankSync(stars);
   },
 
@@ -106,19 +105,6 @@ Page({
     if (!auth.isLoggedIn()) return;
     request.post('/api/rank/sync', { stars: stars || 0 }).catch(function () {
       // 静默：网络失败下次通关自动补
-    });
-  },
-
-  // 学习自动打卡（M6-E）：今日完成闯关即视为达成学习目标，后端自动签到
-  autoCheckin: function () {
-    if (!auth.isLoggedIn()) return;
-    request.post('/api/checkin/auto').then(function (data) {
-      // 静默：仅首次达成可给用户轻提示（已签则不重复打扰）
-      if (data && data.checkedIn && !data.already) {
-        wx.showToast({ title: '已打卡，连续 ' + (data.streak || 1) + ' 天', icon: 'none', duration: 1500 });
-      }
-    }).catch(function () {
-      // 网络失败静默（下次通关自动再试）
     });
   },
 

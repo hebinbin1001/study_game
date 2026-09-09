@@ -34,10 +34,10 @@ module.exports = (sequelize) => {
         comment: "图标路径",
       },
       unlockType: {
-        type: DataTypes.ENUM("stars", "rank", "level", "free"),
+        type: DataTypes.ENUM("stars", "rank", "level", "free", "milestone"),
         allowNull: false,
         defaultValue: "free",
-        comment: "解锁类型：星数/段位/关卡/默认",
+        comment: "解锁类型：星数/段位/关卡/默认/签到里程碑",
       },
       unlockValue: {
         type: DataTypes.INTEGER,

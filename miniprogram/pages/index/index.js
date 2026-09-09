@@ -154,13 +154,13 @@ Page({
     });
   },
 
-  // 每日一题·签到（B1 过渡→checkin 页；B2 替换为每日一题轻量页+签到）
+  // 每日一题·签到（答对即今日签到；里程碑皮肤在 daily-question 页展示）
   goDaily: function () {
     var self = this;
-    if (auth.isLoggedIn()) { wx.navigateTo({ url: '/pages/checkin/checkin' }); return; }
+    if (auth.isLoggedIn()) { wx.navigateTo({ url: '/pages/daily-question/daily-question' }); return; }
     auth.promptLogin('每日一题签到需登录').then(function (user) {
       self.refresh();
-      if (user && !user.needProfile) wx.navigateTo({ url: '/pages/checkin/checkin' });
+      if (user && !user.needProfile) wx.navigateTo({ url: '/pages/daily-question/daily-question' });
     });
   },
 

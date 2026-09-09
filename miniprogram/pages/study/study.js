@@ -63,9 +63,9 @@ Page({
   goReport: function () { this._guard('/pages/report/report', '学习报告需登录查看'); },
   goWrongBook: function () { this._guard('/pages/wrong-book/wrong-book', '错题本需登录同步'); },
 
-  // 每日一题·签到（B1 占位 → checkin；B2 改为真实每日一题轻量页）
+  // 每日一题·签到（答对即签到；B2 已接入每日一题页）
   goDaily: function () {
-    this._guard('/pages/checkin/checkin', '每日一题签到需登录');
+    this._guard('/pages/daily-question/daily-question', '每日一题签到需登录');
   },
 
   // 签到记录 / 里程碑日历（B2 后 checkin 改造为只读日历）

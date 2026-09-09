@@ -29,6 +29,7 @@ const CustomLevel = require("./models/custom-level")(sequelize);
 const LevelReview = require("./models/level-review")(sequelize);
 const WrongRecord = require("./models/wrong-record")(sequelize);
 const CheckinRecord = require("./models/checkin-record")(sequelize);
+const MilestoneClaim = require("./models/milestone-claim")(sequelize);
 const Achievement = require("./models/achievement")(sequelize);
 const UserAchievement = require("./models/user-achievement")(sequelize);
 
@@ -123,6 +124,7 @@ module.exports = {
   LevelReview,
   WrongRecord,
   CheckinRecord,
+  MilestoneClaim,
   Achievement,
   UserAchievement,
 };

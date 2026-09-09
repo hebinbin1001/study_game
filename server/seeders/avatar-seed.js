@@ -77,6 +77,52 @@ const avatars = [
     unlockType: "rank",
     unlockValue: 6,
   },
+  // ===== 每日一题连续里程碑限定皮肤（B2，unlockType='milestone'，unlockValue=连续天数） =====
+  {
+    avatarId: "milestone_30",
+    name: "🐲 神龙 · 连续 30 天",
+    type: "warrior",
+    rarity: "legend",
+    icon: "/assets/avatars/milestone_30.png",
+    unlockType: "milestone",
+    unlockValue: 30,
+  },
+  {
+    avatarId: "milestone_60",
+    name: "🦄 独角兽 · 连续 60 天",
+    type: "warrior",
+    rarity: "legend",
+    icon: "/assets/avatars/milestone_60.png",
+    unlockType: "milestone",
+    unlockValue: 60,
+  },
+  {
+    avatarId: "milestone_100",
+    name: "👑 皇冠 · 连续 100 天",
+    type: "warrior",
+    rarity: "legend",
+    icon: "/assets/avatars/milestone_100.png",
+    unlockType: "milestone",
+    unlockValue: 100,
+  },
+  {
+    avatarId: "milestone_250",
+    name: "⚡ 闪电 · 连续 250 天",
+    type: "warrior",
+    rarity: "legend",
+    icon: "/assets/avatars/milestone_250.png",
+    unlockType: "milestone",
+    unlockValue: 250,
+  },
+  {
+    avatarId: "milestone_365",
+    name: "🎖 年度之星 · 连续 365 天",
+    type: "warrior",
+    rarity: "legend",
+    icon: "/assets/avatars/milestone_365.png",
+    unlockType: "milestone",
+    unlockValue: 365,
+  },
 ];
 
 /**

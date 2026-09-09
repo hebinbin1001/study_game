@@ -61,10 +61,14 @@ Page({
         : '达到「' + (RANK_NAMES[v] || ('段位' + v)) + '」解锁（当前' + (RANK_NAMES[curRank] || '未定阶') + '）';
     } else if (item.unlockType === 'level') {
       hint = '通关指定关卡后解锁';
+    } else if (item.unlockType === 'milestone') {
+      // 每日一题连续签到里程碑皮肤：不可手动解锁（后端由每日一题发放）
+      hint = '每日一题连续 ' + v + ' 天自动解锁';
     } else {
       hint = '';
     }
-    return Object.assign({}, item, { unlockHint: hint, canUnlock: can });
+    var milestone = item.unlockType === 'milestone';
+    return Object.assign({}, item, { unlockHint: hint, canUnlock: can, milestone: milestone });
   },
 
   // 重算当前列表的解锁条件提示（rankInfo 到达后调用）

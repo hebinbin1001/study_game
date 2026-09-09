@@ -20,6 +20,7 @@ const levelRouter = require("./routes/level");
 const levelReviewRouter = require("./routes/level-review");
 const wrongRouter = require("./routes/wrong");
 const checkinRouter = require("./routes/checkin");
+const dailyRouter = require("./routes/daily");
 const achievementRouter = require("./routes/achievement");
 const reportRouter = require("./routes/report");
 
@@ -70,6 +71,7 @@ app.use("/api/level", openid, levelRouter);
 app.use("/api/level/review", openid, levelReviewRouter);
 app.use("/api/wrong", openid, wrongRouter);
 app.use("/api/checkin", openid, checkinRouter);
+app.use("/api/daily", openid, dailyRouter);
 app.use("/api/achievement", openid, achievementRouter);
 app.use("/api/report", openid, reportRouter);
 

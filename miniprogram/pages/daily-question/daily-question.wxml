@@ -1,0 +1,57 @@
+<!-- 每日一题（B2）：完成=今日签到 -->
+<view class="page-daily">
+  <!-- 顶部：连续 + 今日状态 -->
+  <view class="top-card">
+    <view class="streak-big">{{streak}}<text class="streak-unit"> 天</text></view>
+    <view class="top-sub">
+      <view class="badge fire">🔥 连续学习</view>
+      <view class="badge {{answered ? 'done' : ''}}">{{answered ? '今日已签 ✓' : '今日未签'}}</view>
+    </view>
+  </view>
+
+  <!-- 已答对态 -->
+  <view wx:if="{{answered}}" class="done-card">
+    <view class="done-emoji">🎉</view>
+    <view class="done-title">今日签到成功！</view>
+    <view class="done-sub">每日一题已完成 · 明日再来，连续 {{streak}} 天</view>
+    <button class="btn-main" bindtap="goBack">返回首页</button>
+  </view>
+
+  <!-- 答题态 -->
+  <block wx:else>
+    <view class="question-card">
+      <view class="q-label">📌 每日一题 · 看词选义</view>
+      <view class="q-word">{{word}}</view>
+      <view class="q-sub">选出正确的释义</view>
+    </view>
+
+    <view class="opt-list">
+      <view
+        wx:for="{{options}}"
+        wx:key="key"
+        class="opt {{picked === item.key ? (correct ? 'ok' : 'no') : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onPick">{{item.text}}</view>
+    </view>
+
+    <view wx:if="{{triedWrong}}" class="tip-wrong">选错啦，再试一次；答对才算今日签到哦</view>
+    <button wx:if="{{triedWrong}}" class="btn-ghost" bindtap="retry">换一题试试</button>
+  </block>
+
+  <!-- 里程碑日历（轨道 B 皮肤档） -->
+  <view class="milestone-sec">
+    <view class="ms-title">🎖 连续里程碑（答对每日一题累计）</view>
+    <view class="ms-row">
+      <view
+        wx:for="{{milestones}}"
+        wx:key="day"
+        class="ms-item {{item.reached ? 'reached' : ''}} {{item.claimed ? 'claimed' : ''}}">
+        <view class="ms-emoji">{{item.emoji}}</view>
+        <view class="ms-day">{{item.day}} 天</view>
+        <view class="ms-state">{{item.claimed ? '已领取' : (item.reached ? '可领取' : '未达成')}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="foot-tip">每日一题答对即完成今日签到，连续达成里程碑可领限定皮肤</view>
+</view>

@@ -1,73 +1,79 @@
-<!-- 签到页面 -->
+<!-- 签到日历页（B2 只读：记录 + 里程碑；打卡唯一入口=每日一题） -->
 <view class="page-checkin">
   <view class="header">
     <button class="btn-back" bindtap="goBack">‹</button>
-    <view class="header-title">📅 每日签到</view>
+    <view class="header-title">📅 签到日历</view>
     <view class="header-side"></view>
   </view>
 
-  <!-- 签到状态卡 -->
-  <view class="checkin-card">
-
-    <view class="streak">
-      <view class="streak-badge badge">🔥 连续签到</view>
-      <text class="streak-number">{{currentStreak}}</text>
-      <text class="streak-label">连续签到天数</text>
+  <!-- 今日状态卡 -->
+  <view class="today-card">
+    <view class="tc-left">
+      <view class="tc-label">今日状态</view>
+      <view class="tc-state {{checkedIn ? 'done' : ''}}">{{checkedIn ? '今日已签 ✓' : '今日未签'}}</view>
+      <view class="tc-sub">{{checkedIn ? '已完成每日一题 · 连续 ' + currentStreak + ' 天' : '完成每日一题即签到'}}</view>
     </view>
-    <view class="card-divider"></view>
-    <view class="total">
-      <view class="total-badge badge badge--purple">⭐ 累计奖励</view>
-      <text class="total-number">{{totalCheckins}}</text>
-      <text class="total-label">累计签到次数</text>
+    <button wx:if="{{!checkedIn}}" class="tc-btn" bindtap="goDaily">去答题</button>
+  </view>
+
+  <!-- 统计卡 -->
+  <view class="stat-card">
+    <view class="stat-box">
+      <view class="s-num">🔥 {{currentStreak}}</view>
+      <view class="s-lab">连续签到</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-box">
+      <view class="s-num">📆 {{totalCheckins}}</view>
+      <view class="s-lab">累计签到</view>
     </view>
   </view>
 
-  <!-- 今日日期与状态 -->
-  <view class="today-card" wx:if="{{today}}">
-    <text class="today-emoji">📆</text>
-    <text class="today-text">{{today}}</text>
-    <text class="today-state {{checkedIn ? 'done' : ''}}">{{checkedIn ? '今日已签到 ✓' : '今日未签到'}}</text>
-  </view>
-
-  <!-- 签到按钮 -->
-  <button class="btn-checkin {{checkedIn ? 'checked' : ''}}" bindtap="doCheckin" loading="{{loading}}" disabled="{{checkedIn}}">
-    {{checkedIn ? '今日已签到 ✓' : '立即签到 ✋'}}
-  </button>
-
-  <!-- 奖励说明 -->
-  <view class="rewards">
-    <view class="reward-title">🎁 签到奖励</view>
-    <view class="reward-list">
-      <view class="reward-item {{currentStreak >= 1 ? 'active' : ''}}">
-        <text class="reward-icon">🌟</text>
-        <text class="reward-day">第1天</text>
-        <text class="reward-stars">+10 星</text>
-      </view>
-      <view class="reward-item {{currentStreak >= 3 ? 'active' : ''}}">
-        <text class="reward-icon">✨</text>
-        <text class="reward-day">第3天</text>
-        <text class="reward-stars">+30 星</text>
-      </view>
-      <view class="reward-item {{currentStreak >= 7 ? 'active' : ''}}">
-        <text class="reward-icon">🌈</text>
-        <text class="reward-day">第7天</text>
-        <text class="reward-stars">+100 星</text>
-      </view>
-      <view class="reward-item {{currentStreak >= 14 ? 'active' : ''}}">
-        <text class="reward-icon">🏆</text>
-        <text class="reward-day">第14天</text>
-        <text class="reward-stars">+200 星</text>
-      </view>
-      <view class="reward-item {{currentStreak >= 30 ? 'active' : ''}}">
-        <text class="reward-icon">👑</text>
-        <text class="reward-day">第30天</text>
-        <text class="reward-stars">+500 星</text>
+  <!-- 本月日历 -->
+  <view class="cal-card">
+    <view class="cal-title">本月签到</view>
+    <view class="cal-week">
+      <text wx:for="{{['日','一','二','三','四','五','六']}}" wx:key="*this" class="cal-w">{{item}}</text>
+    </view>
+    <view class="cal-grid">
+      <view
+        wx:for="{{calCells}}"
+        wx:key="d"
+        class="cal-cell {{item.on ? 'on' : ''}} {{item.isToday ? 'today' : ''}} {{item.future ? 'future' : ''}}">
+        {{item.d}}
       </view>
     </view>
   </view>
 
-  <!-- 签到提示 -->
-  <view class="tip" wx:if="{{rewardStars > 0}}">
-    🎉 签到成功！获得 {{rewardStars}} 星奖励
+  <!-- 轨道 A：签到日历送星阶梯说明 -->
+  <view class="ladder-card">
+    <view class="ladder-title">⭐ 连续签到送星</view>
+    <view class="ladder-row">
+      <view wx:for="{{starLadder}}" wx:key="day" class="ladder-item {{currentStreak >= item.day ? 'active' : ''}}">
+        <view class="l-day">{{item.day}}天</view>
+        <view class="l-stars">+{{item.stars}}⭐</view>
+      </view>
+    </view>
+    <view class="ladder-tip">连续签到随每日一题自动发放 · 中断从 1 重新累计</view>
   </view>
+
+  <!-- 轨道 B：里程碑皮肤 -->
+  <view class="milestone-card">
+    <view class="ladder-title">🎖 连续里程碑皮肤</view>
+    <view class="ms-list">
+      <view
+        wx:for="{{milestones}}"
+        wx:key="day"
+        class="ms-item {{item.reached ? 'reached' : ''}} {{item.claimed ? 'claimed' : ''}}">
+        <view class="ms-emoji">{{item.emoji}}</view>
+        <view class="ms-info">
+          <view class="ms-name">{{item.name}}</view>
+          <view class="ms-days">连续 {{item.day}} 天</view>
+        </view>
+        <view class="ms-state">{{item.claimed ? '已领取' : (item.reached ? '可领取' : '未达成')}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="tip">答对每日一题即完成当日签到 · 连续达成里程碑自动发放</view>
 </view>

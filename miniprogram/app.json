@@ -16,6 +16,7 @@
     "pages/level-editor/level-editor",
     "pages/level-share/level-share",
     "pages/checkin/checkin",
+    "pages/daily-question/daily-question",
     "pages/achievement/achievement",
     "pages/report/report",
     "pages/share-card/share-card"
