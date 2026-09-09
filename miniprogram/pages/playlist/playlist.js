@@ -13,7 +13,7 @@ var GAMES = [
   { key: 'bounce', name: '单词弹弹球', icon: '🏐', desc: '义球击碎 · 快反应', cat: '反应', unlocked: false },
   { key: 'snake', name: '单词贪吃蛇', icon: '🐍', desc: '辨词进食 · 越长越强', cat: '反应', unlocked: false },
   { key: 'math24', name: '算 24 点', icon: '🧮', desc: '四数四则 · 脑力挑战', cat: '数学', math: true, unlocked: false },
-  { key: 'g2048', name: '2048', icon: '🀄', desc: '数字合成 · 百玩不腻', cat: '数学', math: true, unlocked: false }
+  { key: 'g2048', name: '2048', icon: '🀄', desc: '数字合成 · 百玩不腻', cat: '数学', math: true, unlocked: true, url: '/pages/g2048/g2048' }
 ];
 
 var CATS = [

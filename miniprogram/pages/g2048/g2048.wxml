@@ -1,0 +1,72 @@
+<!-- 2048（B6-3 固定关卡） -->
+<view class="page-2048">
+  <view class="p-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="p-title">2048</view>
+    <view class="p-grade" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + levelInfo.length + ' 关') : '选关'}}</view>
+  </view>
+
+  <!-- 选关 -->
+  <block wx:if="{{!playing}}">
+    <view class="intro">
+      <view class="i-t">滑动合成目标数字</view>
+      <view class="i-s">关卡目标逐步提升：32 → 64 → … → 2048，步数限定</view>
+    </view>
+    <view class="levels">
+      <view
+        wx:for="{{levelInfo}}"
+        wx:key="no"
+        class="lv {{curLevel === item.no ? 'on' : ''}}"
+        data-no="{{item.no}}"
+        bindtap="pickLevel">
+        <view class="lv-target">{{item.target}}</view>
+        <view class="lv-steps">{{item.steps}} 步</view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 对局 -->
+  <block wx:else>
+    <view class="hud">
+      <view class="hud-box"><view class="h-num">{{target}}</view><view class="h-lab">目标</view></view>
+      <view class="hud-box"><view class="h-num">{{maxTile}}</view><view class="h-lab">最大块</view></view>
+      <view class="hud-box"><view class="h-num">{{score}}</view><view class="h-lab">得分</view></view>
+      <view class="hud-box"><view class="h-num">{{stepsLimit - usedSteps}}</view><view class="h-lab">剩余步</view></view>
+    </view>
+
+    <view class="board" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
+      <view
+        wx:for="{{cells}}"
+        wx:key="index"
+        class="cell c{{item.v}}">{{item.v || ''}}</view>
+    </view>
+
+    <view class="pad">
+      <view class="pad-row">
+        <view class="pad-gap"></view>
+        <view class="key up" data-d="0" bindtap="onDir">▲</view>
+        <view class="pad-gap"></view>
+      </view>
+      <view class="pad-row">
+        <view class="key" data-d="3" bindtap="onDir">◀</view>
+        <view class="key" data-d="2" bindtap="onDir">▼</view>
+        <view class="key" data-d="1" bindtap="onDir">▶</view>
+      </view>
+    </view>
+    <view class="tip">方向键或滑动棋盘 · 相同数字合体</view>
+  </block>
+
+  <!-- 结算 -->
+  <view wx:if="{{over}}" class="over-mask">
+    <view class="over-card">
+      <view class="o-stars">{{win ? starsText : '💔'}}</view>
+      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '过关！' : '未达成'}}</view>
+      <view class="o-msg">{{overMsg}}</view>
+      <button wx:if="{{win}}" class="btn b1" bindtap="goNext">下一关 ▶</button>
+      <button class="btn b2" bindtap="again">再试一次</button>
+      <button class="btn b2" bindtap="goLevels">关卡列表</button>
+    </view>
+  </view>
+
+  <view class="safe-gap"></view>
+</view>
