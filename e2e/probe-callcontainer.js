@@ -1,14 +1,17 @@
 /**
  * probe-callcontainer.js —— callContainer 连通性与登录链路探针
  *
- * 目的：验证前端迁移到 wx.cloud.callContainer 后：
+ * 目的：验证 2026-09-08 前端从 wx.request 迁移到 wx.cloud.callContainer 后：
  *   1. 后端接口可连通（envId / serviceName 配置正确）；
  *   2. 登录链路（POST /api/login）正常（网关注入 openid 或 dev_ 测试码）。
  *
  * 方法：miniprogram-automator 连接开发者工具 → evaluate 在小程序上下文里
  *   require('/utils/request.js') 直接发起请求并捕获结果。
- *   注意：evaluate 的函数体禁止 async/await（automator 序列化后 async 标记
- *   会丢失导致语法错误），一律用普通 function + Promise 链。
+ *
+ * 判定：
+ *   - health.ok === true → envId 与服务名正确，域名白名单问题已根治；
+ *   - login.ok === true → 登录/注册（登录即注册）链路正常；
+ *   - 否则按 message 定位（云环境不存在 / 服务不存在 / 4004 等）。
  *
  * 运行：node e2e/probe-callcontainer.js
  */
@@ -68,33 +71,35 @@ async function main() {
     await sleep(8000);
 
     console.log('=== [2] probing callContainer connectivity ===');
-    const probe = await miniProgram.evaluate(function () {
-      var request = require('/utils/request.js');
-      var out = {};
+    const probe = await miniProgram.evaluate(async () => {
+      const request = require('/utils/request.js');
+      const out = {};
 
       // 1) 连通性：/api/health（无鉴权）
-      var p1 = request.get('/api/health', { skipAuth: true }).then(
-        function (data) { out.health = { ok: true, data: data }; },
-        function (e) { out.health = { ok: false, message: (e && e.message) ? e.message : String(e) }; }
-      );
+      try {
+        const data = await request.get('/api/health', { skipAuth: true });
+        out.health = { ok: true, data: data };
+      } catch (e) {
+        out.health = { ok: false, message: e && e.message ? e.message : String(e) };
+      }
 
       // 2) 登录链路：dev_ 测试码（后端来源②，无需 WX_SECRET / 网关注入）
-      var p2 = request.post('/api/login', { code: 'dev_probe' }).then(
-        function (data) {
-          out.login = {
-            ok: true,
-            data: {
-              hasToken: !!(data && data.token),
-              isNew: !!(data && data.isNew),
-              needProfile: !!(data && data.needProfile),
-              openid: (data && data.openid) || ''
-            }
-          };
-        },
-        function (e) { out.login = { ok: false, message: (e && e.message) ? e.message : String(e) }; }
-      );
+      try {
+        const data = await request.post('/api/login', { code: 'dev_probe' });
+        out.login = {
+          ok: true,
+          data: {
+            hasToken: !!(data && data.token),
+            isNew: !!(data && data.isNew),
+            needProfile: !!(data && data.needProfile),
+            openid: (data && data.openid) || ''
+          }
+        };
+      } catch (e) {
+        out.login = { ok: false, message: e && e.message ? e.message : String(e) };
+      }
 
-      return Promise.all([p1, p2]).then(function () { return out; });
+      return out;
     });
 
     console.log('--- probe result ---');

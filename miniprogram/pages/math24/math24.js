@@ -1,10 +1,16 @@
-// 算 24 点页（B6-4）：固定关卡——4 数(1~13)用 +−×÷ 凑 24
-// 交互：逐步合成——点 2 张数字卡 + 选运算符 → 合成新卡（支持分数/负数）；
-// 集合 4→3→2→1，最后一张 =24 即过关；否则该次尝试失败扣命（3❤）。
+// 算 24 点页（重做 · 成熟玩法：直接构造带括号算式并校验）
+//
+// 规则（对齐经典 24 点）：
+//   从 4 张牌中各取一次、用一次 + − × ÷ 与括号组成算式，使结果 = 24。
+//   关卡固定（4 数有解），每关同题便于复玩/比较。
+// 交互（对齐主流 24 点 App）：
+//   数字牌点一下把该数字插入算式（该牌置灰表示已用）；
+//   运算符/括号按钮插入对应字符；「退格」删末尾；「清空」重来；
+//   「＝ 校验」用精确有理数求值，等于 24 且 4 个数都用上 → 过关。
 var m24 = require('../../game/math24');
 var storage = require('../../utils/storage');
 
-// 固定关卡（每关同题，便于复玩/比较）：由 generateLevels 筛出全部有解
+// 固定关卡（同题，逐关解锁；全部可解见 B6-4 校验）
 var LEVELS = [
   { no: 1, nums: [8, 9, 3, 13] },
   { no: 2, nums: [6, 5, 11, 13] },
@@ -23,15 +29,12 @@ Page({
   data: {
     levelInfo: LEVELS,
     curLevel: 1,
-    playing: false,
-    // 对局状态
-    pool: [],        // [{id, text, isRes}] 当前数字/合成结果卡
-    left: 0,
+    playing: true,
+    cards: [],         // [{num, used}]
+    expr: '',          // 当前构造的算式
     lives: LIVES,
-    tries: 0,        // 本关尝试次数（最终判定失败重来算一次）
-    selA: -1,        // 选中的第一张卡 index（-1 未选）
-    selB: -1,        // 选中的第二张卡 index（-1 未选）
-    hint: '',        // 提示文案
+    tries: 0,
+    hint: '',
     over: false,
     win: false,
     stars: 0,
@@ -46,135 +49,97 @@ Page({
   startLevel: function (no) {
     var lv = LEVELS[no - 1];
     if (!lv) return;
-    this._poolF = lv.nums.map(function (n) { return m24.frac(n, 1); });
-    this._idSeq = 0;
-    this._history = [];   // 撤销栈：{poolF:[...], texts:[...]}
     this.setData({
       curLevel: no,
       playing: true,
-      pool: lv.nums.map(function (n) { return { id: ++this._idSeq, text: String(n), isRes: false }; }, this),
-      left: lv.nums.length,
+      cards: lv.nums.map(function (n) { return { num: n, used: false }; }),
+      expr: '',
       lives: LIVES,
       tries: 0,
-      selA: -1, selB: -1,
-      hint: '点两张数字卡高亮，再点运算符合成；4 张合成一张 24 即过关',
+      hint: '把 4 张牌各用一次，用 + − × ÷ 和括号算出 24',
       over: false, win: false, stars: 0, starsText: ''
     });
   },
 
-  // —— 卡牌选择：支持两张同时选中（再点取消）——
+  // —— 点数字牌：追加到算式并标已用（同一张已用不可再插） ——
   tapCard: function (e) {
-    if (!this.data.playing || this.data.over) return;
     var idx = parseInt(e.currentTarget.dataset.idx, 10);
-    var selA = this.data.selA, selB = this.data.selB;
-
-    // 已选中的卡再点 → 取消该卡
-    if (idx === selA) { this.setData({ selA: -1 }); return; }
-    if (idx === selB) { this.setData({ selB: -1 }); return; }
-
-    if (selA === -1) { this.setData({ selA: idx }); return; }
-    if (selB === -1) { this.setData({ selB: idx }); return; }
-    // 已选满两张还点第三张 → 用新卡替换第一张（保留第二张）
-    this.setData({ selA: selB, selB: idx });
+    var cards = this.data.cards.slice();
+    if (cards[idx].used) { wx.showToast({ title: '这张已用过', icon: 'none' }); return; }
+    var v = cards[idx].num;
+    cards[idx].used = true;
+    this.setData({ cards: cards, expr: this.data.expr + v });
   },
 
-  // —— 运算符：有 2 张选中时合成（与点选顺序无关）——
-  pickOp: function (e) {
-    if (!this.data.playing || this.data.over) return;
-    var selA = this.data.selA, selB = this.data.selB;
-    if (selA === -1 || selB === -1) {
-      wx.showToast({ title: '请先点选两张数字卡', icon: 'none' });
+  // —— 运算符/括号/符号按钮 ——
+  addSym: function (e) {
+    this.setData({ expr: this.data.expr + e.currentTarget.dataset.s });
+  },
+
+  // 退格
+  backspace: function () {
+    var ex = this.data.expr;
+    if (!ex.length) return;
+    var cut = ex.slice(0, -1);
+    // 同步还原被删数字牌的 used（若删的是某张牌）
+    this.setData({ expr: cut, cards: this._syncUsed(cut) });
+  },
+
+  clearAll: function () {
+    this.setData({ expr: '', cards: this.data.cards.map(function (c) { return { num: c.num, used: false }; }) });
+  },
+
+  // 根据当前 expr 计算哪些牌仍被使用（还原误删）
+  _syncUsed: function (expr) {
+    var used = [false, false, false, false];
+    var rest = expr;
+    this.data.cards.forEach(function (c, i) {
+      var idx = rest.indexOf(String(c.num));
+      if (idx >= 0) { used[i] = true; rest = rest.slice(0, idx) + ' ' + rest.slice(idx + String(c.num).length); }
+    });
+    return this.data.cards.map(function (c, i) { return { num: c.num, used: used[i] }; });
+  },
+
+  // —— 校验 ——
+  check: function () {
+    if (this.data.over) return;
+    var expr = this.data.expr;
+    if (!expr) { wx.showToast({ title: '先构造算式', icon: 'none' }); return; }
+    // 1) 四张牌是否都用且各一次
+    var used = this.data.cards.filter(function (c) { return c.used; }).length;
+    if (used !== this.data.cards.length) {
+      var self = this;
+      wx.showModal({
+        title: '还差 ' + (this.data.cards.length - used) + ' 张牌没用',
+        content: '经典规则：4 张牌都要各用一次。继续补上吧。',
+        showCancel: false
+      });
       return;
     }
-    this._merge(selA, selB, e.currentTarget.dataset.op);
-  },
-
-  // 撤销上一步合成（回到上一状态，不扣命）
-  undo: function () {
-    if (!this.data.playing || this.data.over) return;
-    var h = this._history;
-    if (!h || !h.length) { wx.showToast({ title: '没有可撤销的步骤', icon: 'none' }); return; }
-    var prev = h.pop();
-    this._poolF = prev.poolF;
-    this._pool = prev.pool.map(function (c) { return { id: c.id, text: c.text, isRes: c.isRes }; });
-    this.setData({ pool: this._pool, left: this._pool.length, selA: -1, selB: -1 });
-  },
-
-  // 重置本关（同题重排，不扣命）
-  resetRound: function () {
-    if (!this.data.playing || this.data.over) return;
-    this._history = [];
-    var lv = LEVELS[this.data.curLevel - 1];
-    this._poolF = lv.nums.map(function (n) { return m24.frac(n, 1); });
-    this._idSeq = 0;
-    this.setData({
-      pool: lv.nums.map(function (n) { return { id: ++this._idSeq, text: String(n), isRes: false }; }, this),
-      left: lv.nums.length, selA: -1, selB: -1
-    });
-  },
-
-  // 合成 selA 与 selB
-  _merge: function (a, b, op) {
-    // 入撤销栈（当前状态快照）
-    this._history.push({
-      poolF: this._poolF.map(function (f) { return { n: f.n, d: f.d }; }),
-      pool: this._pool.map(function (c) { return { id: c.id, text: c.text, isRes: c.isRes }; })
-    });
-
-    var f = this._poolF;
-    var fa = f[a], fb = f[b];
-    var r = null;
-    if (op === '+') r = m24.add(fa, fb);
-    else if (op === '-') r = m24.sub(fa, fb);
-    else if (op === '×') r = m24.mul(fa, fb);
-    else if (op === '÷') r = m24.div(fa, fb);
-    if (r === null) {
-      this._history.pop(); // 无效操作不入栈
-      wx.showToast({ title: '不能除以 0', icon: 'none' });
+    var val = m24.evaluateExpr(expr);
+    if (val === null) {
+      wx.showToast({ title: '算式格式有误（括号不匹配/除零等）', icon: 'none' });
       return;
     }
-
-    // 新 pool：删 a,b 加入 r
-    var newPool = [];
-    var newF = [];
-    for (var i = 0; i < f.length; i++) {
-      if (i === a || i === b) continue;
-      newPool.push({ id: this._pool[i].id, text: this._pool[i].text, isRes: this._pool[i].isRes });
-      newF.push(f[i]);
-    }
-    this._idSeq++;
-    newPool.push({ id: this._idSeq, text: m24.fracText(r), isRes: true });
-    newF.push(r);
-    this._pool = newPool;
-    this._poolF = newF;
-
-    this.setData({ pool: newPool, left: newPool.length, selA: -1, selB: -1 });
-
-    if (newPool.length === 1) {
-      if (m24.eq24(r)) this._win();
-      else this._attemptFail();
-    }
+    if (m24.eq24(val)) { this._win(); }
+    else { this._wrong(val); }
   },
 
-  // 一次最终结果 ≠ 24 → 扣命重开本关（同题）
-  _attemptFail: function () {
+  _wrong: function (val) {
     var lives = this.data.lives - 1;
     var tries = this.data.tries + 1;
     this.setData({ lives: lives, tries: tries });
     if (lives <= 0) {
-      this.setData({ playing: false, over: true, win: false, stars: 0, starsText: '', overMsg: '本关挑战失败 · 共尝试 ' + tries + ' 次' });
+      this.setData({ over: true, win: false, stars: 0, starsText: '', overMsg: '等于 ' + m24.fracText(val) + '，不是 24 · 挑战失败' });
       return;
     }
-    wx.showToast({ title: '结果 ≠ 24，再试一次', icon: 'none' });
-    this._resetRound();
-  },
-
-  _resetRound: function () {
-    var lv = LEVELS[this.data.curLevel - 1];
-    this._poolF = lv.nums.map(function (n) { return m24.frac(n, 1); });
-    this._idSeq = 0;
-    this._history = [];
-    this.setData({ pool: lv.nums.map(function (n) { return { id: ++this._idSeq, text: String(n), isRes: false }; }, this), left: lv.nums.length, selA: -1, selB: -1, hint: '换个思路再试 · 可用「撤销」回退上一步' });
+    wx.showModal({
+      title: '结果 = ' + m24.fracText(val),
+      content: '不等于 24，再试一次（还剩 ' + lives + ' 次机会）。',
+      showCancel: false,
+      confirmText: '继续'
+    });
+    this.clearAll();
   },
 
   _win: function () {
@@ -183,21 +148,16 @@ Page({
     var next = Math.min(this.data.curLevel + 1, LEVELS.length);
     storage.set('ww_math24_cur', next);
     this.setData({
-      playing: false, over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars),
-      overMsg: '凑出 24！共尝试 ' + (this.data.tries + 1) + ' 次'
+      over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars),
+      overMsg: this.data.expr + ' = 24 · 用了 ' + (this.data.tries + 1) + ' 次'
     });
   },
 
-  // —— 结算按钮 ——
-  goNext: function () {
-    if (this.data.curLevel < LEVELS.length) this.startLevel(this.data.curLevel + 1);
-  },
+  // 结算按钮
+  goNext: function () { if (this.data.curLevel < LEVELS.length) this.startLevel(this.data.curLevel + 1); },
   again: function () { this.startLevel(this.data.curLevel); },
   goLevels: function () { this.setData({ playing: false, over: false }); },
-  pickLevel: function (e) {
-    var no = e.currentTarget.dataset.no;
-    this.startLevel(no);
-  },
+  pickLevel: function (e) { this.startLevel(parseInt(e.currentTarget.dataset.no, 10)); },
   goBack: function () { wx.navigateBack(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 算 24 点', path: '/pages/playlist/playlist' };

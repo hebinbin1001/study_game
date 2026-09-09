@@ -1,46 +1,53 @@
-<!-- 单词贪吃蛇（B6-6）：辨词进食 -->
+<!-- 单词贪吃蛇（B6-6 成熟玩法：按序吃字母拼词） -->
 <view class="page-snake">
   <view class="sn-head">
     <button class="back-pill" bindtap="goBack">‹</button>
     <view class="sn-title">单词贪吃蛇</view>
-    <view class="sn-grade">👆 滑动控制</view>
+    <view class="sn-grade">{{targetLabel}}</view>
   </view>
 
-  <!-- 目标 + HUD -->
+  <!-- HUD -->
   <view class="hud">
     <view class="hud-chip">❤{{lives}}</view>
     <view class="hud-chip">分 {{score}}</view>
     <view class="hud-chip">最高 {{best}}</view>
   </view>
-  <view class="target-bar">
-    <view class="t-emoji">🎯</view>
-    <view class="t-main">
-      <view class="t-tip">吃掉这个释义对应的单词</view>
-      <view class="t-word">{{target}}</view>
+
+  <!-- 目标词卡：英文 + 释义 + 拼写进度 -->
+  <view class="word-card">
+    <view class="wc-top">
+      <view class="wc-en">{{word}}</view>
+      <view class="wc-zh">{{meaning}}</view>
+    </view>
+    <view class="wc-progress">
+      <view
+        wx:for="{{progress}}"
+        wx:key="index"
+        class="wc-ch {{item.done ? 'on' : ''}}">{{item.ch}}</view>
     </view>
   </view>
 
-  <!-- 触屏方向盘（无实体按键）：滑动切换方向，或点网格四侧转向 -->
-  <view class="swipe-hint">👆 在网格上滑动改变方向（无需按键）</view>
+  <!-- 触屏提示 -->
+  <view class="swipe-hint">👆 在网格上滑动转向 · 吃掉「绿色字母」按顺序拼出上方单词</view>
 
-  <!-- 网格（承载触屏控制） -->
+  <!-- 网格（承载触屏） -->
   <view class="board-touch" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
     <view class="grid">
       <view
         wx:for="{{cells}}"
         wx:key="index"
-        class="cell {{item.cls}}"></view>
+        class="cell {{item.cls}}">{{item.ch || ''}}</view>
     </view>
   </view>
 
-  <view class="foot-tip">🍏 绿色=目标词(可吃加分) · 🍅 红色=干扰词(吃了扣命)</view>
+  <view class="foot-tip">🟢 应拼字母（吃它拼下一个） · 🔴 干扰字母（吃了扣命）</view>
 
   <!-- 结算 -->
   <view wx:if="{{over}}" class="over-mask">
     <view class="over-card">
-      <view class="o-stars">{{starsText2}}</view>
-      <view class="o-title">游戏结束</view>
-      <view class="o-msg">得分 {{score}} · 最高 {{best}}</view>
+      <view class="o-stars">{{starText}}</view>
+      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '单词全拼完！' : '游戏结束'}}</view>
+      <view class="o-msg">{{tip}}</view>
       <button class="btn b1" bindtap="again">再来一局</button>
       <button class="btn b2" bindtap="goBack">返回</button>
     </view>

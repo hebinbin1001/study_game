@@ -105,9 +105,76 @@ function fracText(f) {
   return whole + '又' + rem + '/' + f.d;
 }
 
+/**
+ * 解析并求值带括号的四则表达式（支持 + - * / 与 ()，空格忽略）。
+ * 返回精确有理数 {n,d}；语法错误/除零返回 null。
+ * @param {string} expr 如 "(10-4)*(2+2)"
+ * @returns {{n:number,d:number}|null}
+ */
+function evaluateExpr(expr) {
+  if (typeof expr !== 'string') return null;
+  var s = expr.replace(/\s+/g, '');
+  if (!s.length) return null;
+  var pos = 0;
+
+  function parseExpr() {
+    var v = parseTerm();
+    if (v === null) return null;
+    for (;;) {
+      var ch = s.charAt(pos);
+      if (ch === '+') { pos++; var r = parseTerm(); if (r === null) return null; v = add(v, r); }
+      else if (ch === '-') { pos++; var r2 = parseTerm(); if (r2 === null) return null; v = sub(v, r2); }
+      else break;
+    }
+    return v;
+  }
+  function parseTerm() {
+    var v = parseFactor();
+    if (v === null) return null;
+    for (;;) {
+      var ch = s.charAt(pos);
+      if (ch === '*') { pos++; var r = parseFactor(); if (r === null) return null; v = mul(v, r); }
+      else if (ch === '/' || ch === '÷') { pos++; var r2 = parseFactor(); if (r2 === null) return null; v = div(v, r2); if (v === null) return null; }
+      else break;
+    }
+    return v;
+  }
+  function parseFactor() {
+    var ch = s.charAt(pos);
+    if (ch === '(') {
+      pos++;
+      var v = parseExpr();
+      if (v === null) return null;
+      if (s.charAt(pos) !== ')') return null;
+      pos++;
+      return v;
+    }
+    if (ch === '-') { pos++; var neg = parseFactor(); return neg === null ? null : frac(-neg.n, neg.d); }
+    // 数字（整数或小数）
+    var m = /^(\d+(?:\.\d+)?)/.exec(s.slice(pos));
+    if (!m) return null;
+    pos += m[1].length;
+    var num = parseFloat(m[1]);
+    // 转分数（小数按 10^decimals）
+    var decPart = m[1].split('.')[1];
+    if (decPart) {
+      var den = Math.pow(10, decPart.length);
+      var num2 = Math.round(num * den);
+      return frac(num2, den);
+    }
+    return frac(num, 1);
+  }
+
+  var result = parseExpr();
+  if (result === null) return null;
+  if (pos !== s.length) return null; // 尾部有未消费字符（如多余括号）
+  return result;
+}
+
 module.exports = {
   hasSolution: hasSolution,
   generateLevels: generateLevels,
+  evaluateExpr: evaluateExpr,
   add: add, sub: sub, mul: mul, div: div,
   eq24: eq24,
   frac: frac,

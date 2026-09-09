@@ -1,4 +1,4 @@
-<!-- 算 24 点（B6-4）：选 2 张 + 运算符合成，4 张凑 24 -->
+<!-- 算 24 点（成熟玩法：直接构造算式） -->
 <view class="page-24">
   <view class="p-head">
     <button class="back-pill" bindtap="goBack">‹</button>
@@ -9,8 +9,8 @@
   <!-- 选关 -->
   <block wx:if="{{!playing}}">
     <view class="intro">
-      <view class="i-t">🧮 用 + − × ÷ 把 4 张牌凑成 24</view>
-      <view class="i-s">每关固定 4 个数 · 点两张牌再选运算符逐步合成</view>
+      <view class="i-t">🧮 四张牌 + − × ÷ 与括号凑成 24</view>
+      <view class="i-s">每张牌各用一次 · 每关固定 4 数，全部有解</view>
     </view>
     <view class="levels">
       <view
@@ -30,38 +30,38 @@
     <view class="hud">
       <view class="hud-chip">❤{{lives}}</view>
       <view class="hud-chip">第 {{curLevel}} 关</view>
-      <view class="hud-chip">尝试 {{tries + 1}}</view>
+      <view class="hud-chip">已试 {{tries}}</view>
     </view>
 
-    <view class="board">
+    <!-- 数字牌（点=插入算式） -->
+    <view class="cards">
       <view
-        wx:for="{{pool}}"
-        wx:key="id"
-        class="num-card {{selA === index ? 'sel' : ''}} {{selB === index ? 'sel2' : ''}} {{item.isRes ? 'res' : ''}}"
+        wx:for="{{cards}}"
+        wx:key="index"
+        class="card {{item.used ? 'used' : ''}}"
         data-idx="{{index}}"
-        bindtap="tapCard">
-        <text class="nc-text">{{item.text}}</text>
-        <text wx:if="{{selA === index}}" class="nc-mark">①</text>
-        <text wx:elif="{{selB === index}}" class="nc-mark">②</text>
-      </view>
+        bindtap="tapCard">{{item.num}}</view>
     </view>
 
-    <!-- 运算符：选好两张后再点 -->
-    <view class="ops">
-      <view class="op" data-op="+" bindtap="pickOp">＋</view>
-      <view class="op" data-op="-" bindtap="pickOp">－</view>
-      <view class="op" data-op="×" bindtap="pickOp">×</view>
-      <view class="op" data-op="÷" bindtap="pickOp">÷</view>
+    <!-- 算式显示 -->
+    <view class="expr-box">{{expr || '点上面的牌开始构造…'}}</view>
+
+    <!-- 按键区 -->
+    <view class="keys">
+      <view class="key k-sym" data-s="(" bindtap="addSym">(</view>
+      <view class="key k-sym" data-s=")" bindtap="addSym">)</view>
+      <view class="key k-op" data-s="+" bindtap="addSym">＋</view>
+      <view class="key k-op" data-s="-" bindtap="addSym">－</view>
+      <view class="key k-op" data-s="*" bindtap="addSym">×</view>
+      <view class="key k-op" data-s="/" bindtap="addSym">÷</view>
+      <view class="key k-del" bindtap="backspace">⌫</view>
+      <view class="key k-clr" bindtap="clearAll">清空</view>
     </view>
 
-    <!-- 工具：撤销 / 重置 -->
-    <view class="tools">
-      <view class="tool" bindtap="undo">↩ 撤销</view>
-      <view class="tool" bindtap="resetRound">⟳ 重置</view>
-    </view>
-
+    <!-- 校验 -->
+    <button class="check-btn" bindtap="check">＝ 校验 24</button>
     <view class="op-tip">{{hint}}</view>
-    <view class="goal">目标：把全部数字合成一张「24」 · 剩 {{left}} 张</view>
+    <view class="goal">四张牌各用一次 · 可加括号 · 结果须恰为 24</view>
   </block>
 
   <!-- 结算 -->
