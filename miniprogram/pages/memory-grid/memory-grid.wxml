@@ -1,0 +1,28 @@
+<!-- 记忆矩阵（玩法落地：demo g7）：亮格记忆 + 5×5 网格 -->
+<view class="page-memory">
+
+  <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />
+
+  <view class="banner {{phase === 'watch' ? 'watch' : ''}}">
+    <view class="main">{{mainText}}</view>
+    <view class="sub">{{subText}}</view>
+  </view>
+
+  <view class="grid {{locked ? 'noTap' : ''}}">
+    <view
+      wx:for="{{cells}}"
+      wx:key="index"
+      class="cell {{item.cls}}"
+      data-idx="{{index}}"
+      catchtap="tapCell"></view>
+  </view>
+
+  <view class="foot">
+    <view class="btn ghost" bindtap="goBack">返回</view>
+  </view>
+
+  <settle-pop
+    visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
+    title="{{win ? '本局结束' : '再接再厉'}}" msg="{{overMsg}}"
+    bind:retry="onRetry" />
+</view>

@@ -14,6 +14,7 @@ var GAMES = [
   { key: 'snake', name: '单词贪吃蛇', icon: '🐍', desc: '辨词进食 · 越长越强', cat: '反应', unlocked: true, url: '/pages/snake/snake' },
   { key: 'math24', name: '算 24 点', icon: '🧮', desc: '四数四则 · 脑力挑战', cat: '数学', math: true, unlocked: true, url: '/pages/math24/math24' },
   { key: 'sprint', name: '口算冲刺', icon: '⚡', desc: '60 秒限时 · 连击翻倍', cat: '数学', math: true, unlocked: true, url: '/pages/math-sprint/math-sprint' },
+  { key: 'memory', name: '记忆矩阵', icon: '🔲', desc: '记住亮起的格子', cat: '智力', unlocked: true, url: '/pages/memory-grid/memory-grid' },
   { key: 'g2048', name: '2048', icon: '🀄', desc: '数字合成 · 百玩不腻', cat: '数学', math: true, unlocked: true, url: '/pages/g2048/g2048' }
 ];
 
@@ -23,7 +24,8 @@ var CATS = [
   { key: '配对', label: '配对' },
   { key: '连线', label: '连线' },
   { key: '反应', label: '反应' },
-  { key: '数学', label: '数学' }
+  { key: '数学', label: '数学' },
+  { key: '智力', label: '智力' }
 ];
 
 Page({
