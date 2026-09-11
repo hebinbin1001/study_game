@@ -17,6 +17,7 @@
     "pages/match/match",
     "pages/g2048/g2048",
     "pages/math24/math24",
+    "pages/math-sprint/math-sprint",
     "pages/sudoku/sudoku",
     "pages/link/link",
     "pages/snake/snake",

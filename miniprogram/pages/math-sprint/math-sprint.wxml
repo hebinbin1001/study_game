@@ -1,0 +1,38 @@
+<!-- 口算冲刺（玩法落地：demo g6）：限时口算 + 连击倍率 -->
+<view class="page-sprint">
+
+  <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />
+
+  <!-- 倒计时条（≤10s 变红） -->
+  <view class="track">
+    <view class="fill {{low ? 'low' : ''}}" style="width: {{remainPct}}%;"></view>
+  </view>
+  <view class="timerow">
+    <text class="time {{low ? 'low' : ''}}">{{remainText}}s</text>
+    <text class="mult" wx:if="{{combo >= 3}}">连击 {{combo}} · ×{{mult}}</text>
+  </view>
+
+  <!-- 题目 -->
+  <view class="stage">
+    <view class="expr">{{expr}} <text class="qm">= {{q}}</text></view>
+  </view>
+
+  <!-- 四个答案 -->
+  <view class="answers">
+    <view
+      wx:for="{{options}}"
+      wx:key="*this"
+      class="ans {{picked === index ? (index === rightIdx ? 'ok' : 'bad') : ''}} {{picked >= 0 && index === rightIdx && picked !== index ? 'ok' : ''}}"
+      data-idx="{{index}}"
+      catchtap="tapOption">{{item}}</view>
+  </view>
+
+  <view class="foot">
+    <view class="btn ghost" bindtap="goBack">返回</view>
+  </view>
+
+  <settle-pop
+    visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
+    title="{{win ? '时间到！' : '再冲一次'}}" msg="{{overMsg}}"
+    bind:retry="onRetry" />
+</view>
