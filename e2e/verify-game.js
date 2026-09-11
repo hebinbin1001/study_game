@@ -148,6 +148,64 @@ H.runSuite('verify-game（单词闯关）', async function (miniProgram, ck) {
   ck.check('第 3 题仍出 ' + EXPECTED_OPTIONS + ' 个选项', !!options3,
     options3 ? ('实际 ' + options3.length) : '超时');
 
+  // B3. 答错反馈高亮（R3）：答错后正确项标绿、误选项标红，出新题时复位
+  console.log('[6.5/7] 答错反馈：选项高亮（R3）');
+  const d3 = await page.data();
+  const wrongIdx = (d3.options || []).findIndex(function (o) { return !o.correct; });
+  const opts3b = await page.$$('.option');
+  if (wrongIdx >= 0 && opts3b[wrongIdx]) {
+    await opts3b[wrongIdx].tap();
+    await page.waitFor(400);
+    const afterWrong = await page.data();
+    ck.check('答错后进入答案高亮态（data.showAnswer）', afterWrong.showAnswer === true,
+      '实际 = ' + afterWrong.showAnswer);
+    const okCount = (await page.$$('.option.ok') || []).length;
+    const badCount = (await page.$$('.option.bad') || []).length;
+    ck.check('正确项被标绿（.option.ok 恰好 1 个）', okCount === 1, '实际 ' + okCount);
+    ck.check('误选项被标红（.option.bad 恰好 1 个）', badCount === 1, '实际 ' + badCount);
+
+    // 反馈窗口由 GAME_CONFIG.approachTime 决定（R3 延长到 1.2s）：
+    // 步进 150 帧（2.5s 游戏时间）后才出新题，同时高亮复位
+    await page.callMethod('_testStep', 150);
+    await page.waitFor(400);
+    const afterNext = await page.data();
+    ck.check('出新题后高亮复位（showAnswer=false）', afterNext.showAnswer === false,
+      '实际 = ' + afterNext.showAnswer);
+  } else {
+    ck.check('找到可用于答错的选项', false, 'wrongIdx=' + wrongIdx);
+  }
+
+  // B4. 暂停与继续（R5）
+  console.log('[6.6/7] 暂停与继续（R5）');
+  const pauseBtn = await page.$('.hud-pause');
+  ck.check('HUD 存在暂停按钮 .hud-pause', !!pauseBtn);
+  if (pauseBtn) {
+    const beforePause = await page.data();
+    await pauseBtn.tap();
+    await page.waitFor(500);
+    const paused = await page.data();
+    ck.check('点击暂停后进入暂停态（data.paused）', paused.paused === true, '实际 = ' + paused.paused);
+    ck.check('暂停遮罩已渲染 .pause-mask', !!(await page.$('.pause-mask')));
+
+    // 暂停期间主循环已停：等 1.5s 题号不应推进（否则等于没暂停）
+    await page.waitFor(1500);
+    const stillPaused = await page.data();
+    ck.check('暂停期间题号不推进（主循环已停）',
+      stillPaused.qIndex === beforePause.qIndex,
+      beforePause.qIndex + ' → ' + stillPaused.qIndex);
+
+    const resumeBtn = await page.$('.pause-btn');
+    if (resumeBtn) {
+      await resumeBtn.tap();
+      await page.waitFor(500);
+      const resumed = await page.data();
+      ck.check('点击继续后退出暂停态', resumed.paused === false, '实际 = ' + resumed.paused);
+      ck.check('继续后 .pause-mask 已移除', !(await page.$('.pause-mask')));
+    } else {
+      ck.check('找到「继续」按钮', false);
+    }
+  }
+
   console.log('[7/7] 校验页面未跳转/未崩溃');
   cur = await miniProgram.currentPage();
   ck.check('全流程结束后仍在游戏页', cur.path === 'pages/game/game', '实际 = ' + cur.path);

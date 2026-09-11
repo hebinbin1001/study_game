@@ -13,6 +13,7 @@ var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var request = require('../../utils/request');
 var auth = require('../../utils/auth');
+var question = require('../../game/question');
 
 Page({
   data: {
@@ -26,10 +27,41 @@ Page({
     maxCombo: 0,            // 最高连击数（结算数据卡展示，REQ-GAME-15）
     ratePercent: 0,         // 正确率百分比
     grade: '',              // 学段 key
-    level: 1                // 关卡序号
+    level: 1,               // 关卡序号
+    wrongItems: [],         // R4：本局错题回顾 [{ word, hint, ex }]
+    hasWrong: false         // 是否有错题（无错题时整块不渲染，不留空白）
+  },
+
+  /**
+   * R4：读取并清空「本局错题」。
+   *
+   * 数据由 game 页经 storage 中转（URL 长度不够）。这里读到就立刻删除该键，
+   * 否则下次从别处进结算页会误显示上一局的错题。
+   * 渲染结构：完整词形 + 释义 + 可选例句（ex 字段词库已支持，这里顺手用上）。
+   */
+  _loadWrongItems: function () {
+    var raw = storage.get('ww_last_wrong');
+    storage.remove('ww_last_wrong');
+
+    var list = [];
+    if (raw && raw.length) {
+      for (var i = 0; i < raw.length; i++) {
+        var it = raw[i];
+        if (!it || !it.q) continue;
+        list.push({
+          word: question.sourceWord(it) || it.q,
+          hint: question.meaningText(it) || '',
+          ex: it.ex || ''
+        });
+      }
+    }
+    this.setData({ wrongItems: list, hasWrong: list.length > 0 });
   },
 
   onLoad: function (options) {
+    // R4：先取本局错题（与胜负无关，失败态同样可回顾）
+    this._loadWrongItems();
+
     // 解析游戏页传入的参数：
     //   win: '1'=通关，'0'=生命耗尽失败
     //   score / correctCount / totalQ / grade / level

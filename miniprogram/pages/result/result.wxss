@@ -152,3 +152,54 @@ page {
 .btn-orange {
   background: #ffb703;
 }
+
+/* ============ 本局错题回顾（R4） ============ */
+.wrong-card {
+  margin: 28rpx 0 8rpx;
+  padding: 22rpx 20rpx 18rpx;
+  border-radius: 28rpx;
+  background: #fff6f8;
+  text-align: left;
+}
+.wrong-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+.wrong-title {
+  font-size: 28rpx;
+  font-weight: 900;
+  color: #c53862;
+}
+.wrong-count {
+  font-size: 22rpx;
+  color: #b58a9a;
+}
+.wrong-item {
+  margin-top: 12rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 18rpx;
+  background: #ffffff;
+}
+.wrong-word {
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+}
+.wrong-hint {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #7b8494;
+}
+.wrong-ex {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: #9aa4b4;
+}
+.wrong-tip {
+  margin-top: 14rpx;
+  font-size: 21rpx;
+  color: #a68b98;
+  line-height: 1.5;
+}

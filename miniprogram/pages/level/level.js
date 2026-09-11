@@ -103,6 +103,7 @@ Page({
     mode: 'classic',        // 当前闯关形态（记忆上次选择：ww_mode）
     modeOptions: [],        // 形态元数据（config.MODES）
     modeDesc: '',           // 当前形态的说明文案
+    mapHeight: 620,         // 地图高度(rpx)：先给初值渲染，再由运行时实测校正
     gradeEarnedStars: 0,    // 进度卡：当前分类已得星星数
     gradeTotalStars: 30,    // 进度卡：星星总数（10 关 × 3 星）
     gradeStarPercent: 0     // 进度卡：星星进度百分比 0~100
@@ -225,7 +226,8 @@ Page({
       : 0;
 
     // ⑤ 蛇形路径地图派生数据（M7 Phase B；O1：按可用高度自适应）
-    var mapH = this._calcMapHeightRpx();
+    // 先用当前高度渲染一版（首屏不闪），渲染完成后再由 _syncMapHeight 实测校正
+    var mapH = this.data.mapHeight || 620;
     var map = buildMapData(levels, mapH);
 
     this.setData({
@@ -241,37 +243,59 @@ Page({
       gradeTotalStars: gradeTotalStars,
       gradeStarPercent: gradeStarPercent
     });
+
+    // 渲染完成后实测真实可用高度（onLoad 阶段量不到元素 rect）
+    if (typeof wx !== 'undefined' && wx.nextTick) {
+      wx.nextTick(function () { self._syncMapHeight(); });
+    }
+  },
+
+  // 首次渲染完成后也实测一次（refreshLevels 在 onLoad 里跑，那时还没有 rect）
+  onReady: function () {
+    this._syncMapHeight();
   },
 
   /**
-   * O1：计算关卡地图可用高度(rpx) = 视口高 - 页面上方固定块(标题/游客横幅/学段/题型/进度卡)
-   * - 页下方（自定义关卡入口）与安全区也扣除；结果夹在 [min, max]，
-   *   保证矮屏地图能一屏（行距收缩），超高屏不至于拉得过松。
+   * O1：同步关卡地图高度 —— **运行时实测，不做常量估算**。
+   *
+   * 为什么不用「累加各块 rpx 高度」的估算：那是猜。各块真实高度会随机型、系统字体缩放、
+   * 文案长度变化（实际就踩过：形态模式栏按 96rpx 估、实测 152rpx，直接把地图挤出屏幕）。
+   *
+   * 现在的算法：
+   *   地图可用高 = 视口高 - 地图上方实际内容底边 - 下方入口实际高度 - 间距余量
+   * 换机型 / 改文案 / 加一行筛选都不需要再调常量。
+   * 首帧（onLoad）量不到元素 rect，故由 refreshLevels 的 nextTick 与 onReady 各触发一次校正。
    */
-  _calcMapHeightRpx: function () {
+  _syncMapHeight: function () {
+    var self = this;
     if (!this._win) {
-      var win = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-      this._win = win;
+      this._win = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     }
-    var winH = this._win.windowHeight;      // px
-    var winW = this._win.windowWidth;       // px
-    // 750rpx = 屏宽 → rpx/px = 750/winW
-    var rpp = 750 / winW;                    // rpx per px
-    var viewportRpx = winH * rpp;
+    var win = this._win;
+    var rpp = 750 / win.windowWidth;   // rpx per px
+    var gapRpx = 40;                   // 地图与下方入口的间距 + 底部余量（rpx，随屏宽缩放）
+    var gapPx = gapRpx / rpp;
 
-    var loggedIn = auth.isLoggedIn();
-    // 上方固定内容（rpx 估算，含各块间距）
-    var above = 30    // page padding
-      + 100           // 标题区（title+sub+间距）
-      + (loggedIn ? 0 : 100)  // 游客横幅
-      + 96            // 学段 tab
-      + 96            // 题型 chips
-      + 152           // 形态模式栏（实测 76px = 152rpx，勿按 96 估）
-      + 150;          // 星星进度卡
-    var below = 130   // 自定义关卡入口 + 底部
-      + 30;           // 底部安全余量
-    var h = viewportRpx - above - below;
-    return Math.max(560, Math.min(h, 1400));
+    wx.createSelectorQuery().in(this)
+      .select('.progress-card').boundingClientRect()
+      .select('.custom-level-entry').boundingClientRect()
+      .exec(function (res) {
+        var card = res && res[0];
+        var entry = res && res[1];
+        // 还未渲染出上方内容（首帧）：跳过，等下一次触发
+        if (!card || !card.bottom) return;
+
+        var reservedPx = (entry && entry.height ? entry.height : 0) + gapPx;
+        var availPx = win.windowHeight - card.bottom - reservedPx;
+        var h = Math.round(availPx * rpp);
+        h = Math.max(520, Math.min(h, 1400));
+
+        // 变化不大就不重排，避免抖动
+        if (Math.abs(h - (self.data.mapHeight || 0)) < 4) return;
+
+        var map = buildMapData(self.data.levels || [], h);
+        self.setData({ mapHeight: h, mapNodes: map.nodes, mapSegs: map.segs });
+      });
   },
 
   // 点击关卡卡片

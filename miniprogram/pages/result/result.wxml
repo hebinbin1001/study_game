@@ -40,6 +40,20 @@
       </view>
     </view>
 
+    <!-- 本局错题回顾（R4）：答错的词条 + 释义（+ 可选例句） -->
+    <view wx:if="{{hasWrong}}" class="wrong-card">
+      <view class="wrong-head">
+        <text class="wrong-title">📕 本局错题</text>
+        <text class="wrong-count">{{wrongItems.length}} 题</text>
+      </view>
+      <view wx:for="{{wrongItems}}" wx:key="word" class="wrong-item">
+        <view class="wrong-word">{{item.word}}</view>
+        <view class="wrong-hint">{{item.hint}}</view>
+        <view wx:if="{{item.ex}}" class="wrong-ex">{{item.ex}}</view>
+      </view>
+      <view class="wrong-tip">答错的词会自动进入错题本（需登录），可随时复习</view>
+    </view>
+
     <!-- 操作按钮（REQ-GAME-15） -->
     <view class="res-btns">
       <button class="btn btn-res btn-blue" bindtap="playAgain">再玩一次</button>

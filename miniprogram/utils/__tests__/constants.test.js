@@ -67,7 +67,8 @@ s.test('GAME_CONFIG：核心配置数值与注释一致', () => {
   s.assert.equal(c.GAME_CONFIG.initLives, 5);
   s.assert.equal(c.GAME_CONFIG.sinkSpeed, 13);
   s.assert.equal(c.GAME_CONFIG.approach, 58);
-  s.assert.equal(c.GAME_CONFIG.approachTime, 0.6);
+  // R3：答错反馈窗口 0.6s → 1.2s（低龄玩家需要时间看清正确答案）
+  s.assert.equal(c.GAME_CONFIG.approachTime, 1.2);
   s.assert.equal(c.GAME_CONFIG.canvasW, 390);
   s.assert.equal(c.GAME_CONFIG.canvasH, 500);
 });

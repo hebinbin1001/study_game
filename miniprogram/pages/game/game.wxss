@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12rpx;
+  gap: 8rpx;              /* 收紧：HUD 新增暂停按钮后仍需单行放下 */
   padding: 0 4rpx;
   box-sizing: border-box;
 }
@@ -68,12 +68,72 @@
 }
 
 /* 声音开关：窄胶囊（喇叭切换，catchtap） */
-.hud-sound {
-  width: 76rpx;
+/* 图标型胶囊（声音 / 暂停）：定宽紧凑，排在 HUD 右侧 */
+.hud-icon {
+  width: 64rpx;
   padding: 0;
-  font-size: 36rpx;
+  font-size: 32rpx;
   flex-shrink: 0;
 }
+
+/* ============ 暂停遮罩（R5） ============
+   用不透明底遮住画布与选项：暂停时不能看到题目与计时（防止"暂停偷看"）。
+   极速形态同时停表（见 onPause → _rushStop）。 */
+.pause-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #5aa9e6 0%, #a8d8f5 42%, #d8efff 100%);
+}
+.pause-card {
+  width: 560rpx;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 40rpx;
+  padding: 40rpx 32rpx 32rpx;
+  text-align: center;
+  box-shadow: 0 16rpx 0 rgba(0, 0, 0, 0.12), 0 30rpx 60rpx rgba(0, 0, 0, 0.2);
+}
+.pause-emoji { font-size: 64rpx; line-height: 1; }
+.pause-title {
+  margin-top: 12rpx;
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+}
+.pause-tip {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8a9bb5;
+}
+.pause-btns {
+  margin-top: 30rpx;
+  display: flex;
+  gap: 20rpx;
+}
+.pause-btn {
+  flex: 1;
+  height: 92rpx;
+  line-height: 92rpx;
+  border-radius: 46rpx;
+  font-size: 32rpx;
+  font-weight: 900;
+  color: #ffffff;
+  background: #ffb703;
+  box-shadow: 0 8rpx 0 rgba(180, 120, 0, 0.3);
+}
+.pause-btn--ghost {
+  background: #eef2f8;
+  color: #5c7f9e;
+  box-shadow: 0 8rpx 0 rgba(35, 70, 110, 0.12);
+}
+.pause-btn:active { transform: translateY(3rpx); opacity: .92; }
 
 /* ============ 游戏画布 ============ */
 /* O1 自适应：画布占「视口 - HUD - 形态行 - 底部面板」剩余高度（flex:1），
@@ -158,6 +218,21 @@
 /* 已用（选错）的选项置灰禁用 */
 .option.used {
   opacity: 0.25;
+}
+
+/* ============ 答错反馈高亮（R3） ============
+   答错后有 1.2s 的反馈窗口（GAME_CONFIG.approachTime），在此期间：
+   正确项标绿、误选项标红 —— 低龄玩家往往先看按钮而不是看怪兽身上的空槽，
+   把答案同时标在按钮上，纠错才真正发生。 */
+.option.ok {
+  background: #2fbf71;
+  opacity: 1;
+  box-shadow: 0 12rpx 0 #1f8f53, 0 24rpx 44rpx rgba(0, 0, 0, 0.18);
+}
+.option.bad {
+  background: #e5484d;
+  opacity: 1;
+  box-shadow: 0 12rpx 0 #a52f33, 0 24rpx 44rpx rgba(0, 0, 0, 0.18);
 }
 
 /* 5 种配色循环（对应原型 .char-btn.c0~c4，统一引用设计系统 token） */

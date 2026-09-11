@@ -31,6 +31,7 @@ const STAGES = [
   { id: 'wxss', layer: '静态', title: 'WXSS 检查', script: 'e2e/check-wxss.js' },
   { id: 'unit', layer: '单元', title: '单元测试套件', script: 'miniprogram/utils/__tests__/run-all.js' },
   { id: 'game', layer: '端到端', title: '单词闯关（字母射击打怪）', script: 'e2e/verify-game.js' },
+  { id: 'result', layer: '端到端', title: '结算页（本局错题回顾）', script: 'e2e/verify-result.js' },
   { id: 'math24', layer: '端到端', title: '算 24 点', script: 'e2e/verify-math24.js' },
   { id: 'link', layer: '端到端', title: '词语连连看', script: 'e2e/verify-link.js' },
   { id: 'snake', layer: '端到端', title: '单词贪吃蛇', script: 'e2e/verify-snake.js' },

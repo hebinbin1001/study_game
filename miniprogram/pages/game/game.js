@@ -56,6 +56,12 @@ Page({
     // ---- 连击提示 ----
     comboText: '',             // 连击浮层文字（空串时不显示）
 
+    // ---- 答错反馈高亮（R3） ----
+    showAnswer: false,         // 答错后为真：选项区标绿正确项、标红误选项
+
+    // ---- 暂停（R5） ----
+    paused: false,             // 暂停遮罩是否显示
+
     // ---- 声音开关（M6 增补） ----
     soundOn: true,              // 音效/朗读总开关（HUD 喇叭切换）
 
@@ -138,6 +144,9 @@ Page({
     this._reviewPool = [];
     this._loadReviewPool(type);
 
+    // R4：本局错题（引擎 onWrong 回调逐条累积，结算时交给结算页回顾）
+    this._wrongItems = [];
+
     // 声音开关：恢复本地偏好（默认开）并同步到 audio 模块
     var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
     audio.setSoundEnabled(soundOn);
@@ -178,6 +187,8 @@ Page({
     if (!this._engineStarted) {
       return;
     }
+    // 暂停中不自动恢复（否则从后台切回会绕过暂停遮罩继续计时）
+    if (this.data.paused) return;
     var G = engine.getState();
     if (G && !G.over) {
       engine.resume();
@@ -394,6 +405,7 @@ Page({
        * @param {Object} item 答错的词条 { type,q,a,hint }
        */
       onWrong: function (item) {
+        self._wrongItems.push(item);   // R4：收集本局错题，供结算页回顾
         self._reportWrong(item);
       },
 
@@ -464,6 +476,12 @@ Page({
    */
   _onPhase: function (phase, payload) {
     var mode = this.data.mode;
+
+    // R3：答错反馈高亮 —— 与形态无关，所有形态都要处理
+    // wrong → 亮起（正确项标绿、误选项标红）；question → 出新题时复位
+    if (phase === 'wrong') this.setData({ showAnswer: true });
+    else if (phase === 'question') this.setData({ showAnswer: false });
+
     if (mode === 'classic') {
       // 经典形态无额外表现，但仍需在结束时清理（防御）
       if (phase === 'over') this._rushStop();
@@ -726,6 +744,40 @@ Page({
     }
   },
 
+  // ============ 暂停 / 继续 / 退出（R5） ============
+
+  /**
+   * 暂停：停主循环 + 停竞速计时，并显示不透明遮罩（盖住题目与计时，防"暂停偷看"）。
+   * 主循环停掉后不会再推进状态，故暂停期间怪兽不下沉、倒计时不走。
+   */
+  onPause: function () {
+    if (this.data.paused) return;
+    engine.stop();
+    this._rushStop();
+    this._clearFxTimer();
+    this.setData({ paused: true });
+  },
+
+  /** 继续：关掉遮罩并恢复主循环；极速形态用剩余时间续走倒计时。 */
+  onResume: function () {
+    if (!this.data.paused) return;
+    this.setData({ paused: false });
+    var G = engine.getState();
+    if (G && !G.over) {
+      engine.resume();
+      this._rushResumeIfIdle();
+    }
+  },
+
+  /** 暂停后返回：直接退出本局，不结算、不上报成绩。 */
+  onQuit: function () {
+    engine.stop();
+    this._rushStop();
+    this._clearFxTimer();
+    this.setData({ paused: false });
+    wx.navigateBack();
+  },
+
   /**
    * 选项按钮点击：转发给 engine.fire(opt)。
    * catchtap 阻止冒泡，避免与父容器事件冲突。
@@ -760,6 +812,11 @@ Page({
     this._clearComboTimer();
     this._rushStop();
     this._clearFxTimer();
+
+    // R4：把本局错题交给结算页回顾。
+    // 经 storage 中转而不是塞进 URL —— 查询串长度有限，错题多时会截断。
+    // 结算页读取后会立即清除该键（见 result.js），避免下次误显示上一局的题。
+    storage.set('ww_last_wrong', (this._wrongItems || []).slice(0, 20));
 
     // 拼接结算页查询参数（type 分类随参数传递，结算页据此写分类存档；
     // B4：自定义关卡带 custom=1，结算页不写系统星级存档、不入字词进度）

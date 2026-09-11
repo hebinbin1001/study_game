@@ -12,7 +12,8 @@
     <view class="hud-chip hud-lives">{{livesText}}</view>
     <view class="hud-chip hud-score">得分 {{score}}</view>
     <view class="hud-chip hud-qnum">第 {{qIndex}}/{{totalQ}} 题</view>
-    <view class="hud-chip hud-sound" catchtap="onToggleSound">{{soundOn ? '🔊' : '🔇'}}</view>
+    <view class="hud-chip hud-icon" catchtap="onToggleSound">{{soundOn ? '🔊' : '🔇'}}</view>
+    <view class="hud-chip hud-icon hud-pause" catchtap="onPause">⏸</view>
   </view>
 
   <!-- 形态表现行（M7：boss 血条 / rush 倒计时；classic 不显示） -->
@@ -60,7 +61,7 @@
       <view
         wx:for="{{options}}"
         wx:key="letter"
-        class="option {{item.colorClass}} {{item.used ? 'used' : ''}} {{item.wide ? 'wide' : ''}} {{penLock ? 'pen' : ''}}"
+        class="option {{item.colorClass}} {{item.used ? 'used' : ''}} {{item.wide ? 'wide' : ''}} {{penLock ? 'pen' : ''}} {{showAnswer && item.correct ? 'ok' : ''}} {{showAnswer && item.used ? 'bad' : ''}}"
         catchtap="onOptionTap"
         data-index="{{index}}"
       >{{item.display || item.letter}}</view>
@@ -69,6 +70,19 @@
 
   <!-- 连击提示浮层（REQ-GAME-9，连对 2/3/5 题时由 engine.onCombo 触发） -->
   <view wx:if="{{comboText}}" class="combo-toast">{{comboText}}</view>
+
+  <!-- 暂停遮罩（R5）：不透明底盖住画面，暂停期间看不到题目与计时 -->
+  <view wx:if="{{paused}}" class="pause-mask">
+    <view class="pause-card">
+      <view class="pause-emoji">⏸</view>
+      <view class="pause-title">已暂停</view>
+      <view class="pause-tip">题目与计时已隐藏</view>
+      <view class="pause-btns">
+        <view class="pause-btn pause-btn--ghost" catchtap="onQuit">返回</view>
+        <view class="pause-btn" catchtap="onResume">继续</view>
+      </view>
+    </view>
+  </view>
 
   <!-- 新手引导蒙层（M6-L：首次进入 3 步，点击任意处下一步/开始） -->
   <view wx:if="{{tutorialStep > 0}}" class="tutorial-mask" catchtap="onTutorialTap">
