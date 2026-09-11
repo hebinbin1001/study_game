@@ -73,6 +73,48 @@ function hasSolution(vals, target) {
 }
 
 /**
+ * 能否「只用整数中间结果」凑出 target —— 难度分档的判据。
+ *
+ * 与 hasSolution 同构，但要求每一步的中间结果都是整数：
+ * 像 3 3 8 8 必须借助分数（8 ÷ (3 − 8÷3) = 24）才能解出，这里会判为 false，
+ * 因此「有解但整数解不出」= 需要分数的高难题。
+ *
+ * @param {Array<number>} vals 整数数组（长度 1..4）
+ * @param {number} [target=24] 目标整数
+ * @returns {boolean}
+ */
+function hasIntegerSolution(vals, target) {
+  var goal = typeof target === 'number' ? target : 24;
+
+  function walk(list) {
+    if (list.length === 1) return list[0].n === goal && list[0].d === 1;
+    for (var i = 0; i < list.length; i++) {
+      for (var j = 0; j < list.length; j++) {
+        if (i === j) continue;
+        var rest = [];
+        for (var k = 0; k < list.length; k++) {
+          if (k !== i && k !== j) rest.push(list[k]);
+        }
+        var cands = [
+          add(list[i], list[j]),
+          sub(list[i], list[j]),
+          mul(list[i], list[j]),
+          div(list[i], list[j])
+        ];
+        for (var o = 0; o < cands.length; o++) {
+          var c = cands[o];
+          if (!c || c.d !== 1) continue;   // 只接受整数中间结果
+          if (walk(rest.concat([c]))) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  return walk(vals.map(function (v) { return { n: v, d: 1 }; }));
+}
+
+/**
  * 生成有解关卡（4 数 1~13，确保可达 24）。
  * @param {number} count 关卡数
  * @param {number} maxN 数字上限（早期简单用小值）
@@ -174,6 +216,8 @@ function evaluateExpr(expr) {
 module.exports = {
   hasSolution: hasSolution,
   generateLevels: generateLevels,
+  hasSolution: hasSolution,
+  hasIntegerSolution: hasIntegerSolution,
   evaluateExpr: evaluateExpr,
   add: add, sub: sub, mul: mul, div: div,
   eq24: eq24,

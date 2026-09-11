@@ -10,19 +10,10 @@
 var m24 = require('../../game/math24');
 var storage = require('../../utils/storage');
 
-// 固定关卡（同题，逐关解锁；全部可解见 B6-4 校验）
-var LEVELS = [
-  { no: 1, nums: [8, 9, 3, 13] },
-  { no: 2, nums: [6, 5, 11, 13] },
-  { no: 3, nums: [10, 9, 1, 3] },
-  { no: 4, nums: [7, 6, 12, 2] },
-  { no: 5, nums: [6, 7, 7, 5] },
-  { no: 6, nums: [8, 7, 10, 6] },
-  { no: 7, nums: [9, 1, 4, 13] },
-  { no: 8, nums: [12, 7, 8, 6] },
-  { no: 9, nums: [5, 8, 9, 1] },
-  { no: 10, nums: [9, 13, 3, 12] }
-];
+// 固定关卡库（60 关）：data/math24-levels.js，自动生成、每关保证有解。
+// 生成与重新生成：node e2e/gen-math24-levels.js（用精确有理数求解器逐关校验）；
+// 关卡库校验：node miniprogram/utils/__tests__/math24-levels.test.js
+var LEVELS = require('../../data/math24-levels').levels;
 var LIVES = 3;
 
 Page({

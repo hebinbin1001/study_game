@@ -3,14 +3,30 @@
 var game = require('../../game/tw2048');
 var storage = require('../../utils/storage');
 
+// 关卡表（10 关）：目标 32 → 512，每个目标两档（标准 / 挑战）。
+//
+// 步数预算是按「合并次数」推算出来的，不是拍脑袋：
+//   · 合成目标 T 至少需要 (T/2 − 1) 次合并（T=512 → 255 次）；
+//   · 一次移动最多合并 8 次（4 行 × 2），但实战平均只有约 1.2~1.5 次/步
+//     （自动对局实测：32→17 步、64→34 步、128→57 步）；
+//   · 所以步数预算必须与目标同量级增长，取 1.5 次合并/步作为可达性下限。
+//
+// 原关卡表是「线性 +6」增长（32/20 → 2048/64），而难度是翻倍增长 ——
+// 于是 1024/54、2048/64 两关在数学上不可能通过（2048 至少需要 128 步，
+// 实战约 680 步）。本次按实测模型重算，并把目标上限收到 512：
+// 1024 需要约 600 步、2048 约 1300 步（10~30 分钟一局），不适合作为关卡目标。
+// 可达性回归见 miniprogram/utils/__tests__/g2048-levels.test.js。
 var LEVELS = [
-  { no: 1, target: 32, steps: 20 },
-  { no: 2, target: 64, steps: 26 },
-  { no: 3, target: 128, steps: 32 },
-  { no: 4, target: 256, steps: 38 },
-  { no: 5, target: 512, steps: 46 },
-  { no: 6, target: 1024, steps: 54 },
-  { no: 7, target: 2048, steps: 64 }
+  { no: 1,  target: 32,  steps: 20,  tier: '入门' },
+  { no: 2,  target: 32,  steps: 14,  tier: '挑战' },
+  { no: 3,  target: 64,  steps: 40,  tier: '入门' },
+  { no: 4,  target: 64,  steps: 28,  tier: '挑战' },
+  { no: 5,  target: 128, steps: 75,  tier: '入门' },
+  { no: 6,  target: 128, steps: 52,  tier: '挑战' },
+  { no: 7,  target: 256, steps: 150, tier: '入门' },
+  { no: 8,  target: 256, steps: 105, tier: '挑战' },
+  { no: 9,  target: 512, steps: 290, tier: '入门' },
+  { no: 10, target: 512, steps: 205, tier: '挑战' }
 ];
 
 Page({

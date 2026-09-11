@@ -5,15 +5,22 @@
 var sudoku = require('../../game/sudoku');
 var storage = require('../../utils/storage');
 
-// 关卡 → (阶数, 给定数)：难度递增、给定递减
+// 关卡 → (阶数, 给定数)：难度递增、给定递减。
+// 题库不需要外部素材：game/sudoku.js 已是「生成终盘 + 按唯一解校验挖洞」的生成器，
+// givens 是期望保留的给定数，dig() 会在保持唯一解的前提下尽量挖到该数量
+// （挖不动就停，所以实际给定数只会 ≥ givens，不会出现多解）。
+// 扩关卡只需在这里加档位 —— 单测 sudoku-stages.test.js 会逐档校验唯一解。
 var STAGES = [
-  { from: 1, to: 4, n: 4, givens: 10 },   // 4×4 入门
-  { from: 5, to: 8, n: 6, givens: 20 },   // 6×6 初级
-  { from: 9, to: 12, n: 9, givens: 38 },  // 9×9 中级
-  { from: 13, to: 16, n: 9, givens: 32 }, // 9×9 高级
-  { from: 17, to: 20, n: 9, givens: 27 }  // 9×9 大师
+  { from: 1,  to: 6,  n: 4, givens: 10 },  // 4×4 入门
+  { from: 7,  to: 12, n: 4, givens: 7 },   // 4×4 挑战
+  { from: 13, to: 20, n: 6, givens: 22 },  // 6×6 入门
+  { from: 21, to: 28, n: 6, givens: 17 },  // 6×6 挑战
+  { from: 29, to: 38, n: 9, givens: 40 },  // 9×9 初级
+  { from: 39, to: 48, n: 9, givens: 34 },  // 9×9 中级
+  { from: 49, to: 55, n: 9, givens: 29 },  // 9×9 高级
+  { from: 56, to: 60, n: 9, givens: 25 }   // 9×9 大师
 ];
-var TOTAL_LEVELS = 20;
+var TOTAL_LEVELS = 60;
 var LIVES = 3;
 
 function stageOf(level) {
