@@ -1,6 +1,7 @@
-/* 关卡选择页样式（T14 · UI 重设计）：
-   学段卡通胶囊 tab + 星星进度卡 + 白色大圆角关卡卡片网格 + 自定义关卡入口
-   硬阴影 + :active 按压位移（与 avatar 页样板一致） */
+/* 关卡选择页样式（一期重做：蛇形地图 → 竖排关卡列表）
+   结构：标题 / 游客横幅 / 学段胶囊 tab / 题型 chips / 星星进度卡 / 关卡列表 / 自定义关卡入口
+   硬阴影 + :active 按压位移（与 avatar 页样板一致）
+   一期同时删除了「闯关形态」模式栏与蛇形地图（节点定位/连线）两段样式。 */
 
 page {
   background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
@@ -35,57 +36,6 @@ page {
 }
 
 /* ===== 学段 tab（卡通胶囊） ===== */
-/* ===== 闯关形态模式栏（一期：由每关弹层改为常驻设置） ===== */
-.mode-bar {
-  margin: 0 24rpx 28rpx;
-  padding: 18rpx 20rpx 20rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.72);
-  box-sizing: border-box;
-}
-.mode-bar__head {
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 14rpx;
-}
-.mode-bar__label {
-  font-size: 24rpx;
-  font-weight: 800;
-  color: #3b6f9e;
-  flex-shrink: 0;
-  margin-right: 12rpx;
-}
-.mode-bar__desc {
-  font-size: 22rpx;
-  color: #6f8ba3;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.mode-bar__list {
-  display: flex;
-}
-.mode-chip {
-  flex: 1;
-  height: 68rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 34rpx;
-  background: #ffffff;
-  color: #5c7f9e;
-  font-size: 26rpx;
-  font-weight: 800;
-  box-shadow: 0 4rpx 0 rgba(35, 70, 110, 0.12);
-}
-.mode-chip:not(:last-child) { margin-right: 14rpx; }
-.mode-chip__icon { font-size: 28rpx; margin-right: 6rpx; }
-.mode-chip.on {
-  background: linear-gradient(180deg, #ffc46b, #ff9800);
-  color: #ffffff;
-  box-shadow: 0 4rpx 0 rgba(180, 100, 0, 0.28);
-}
-
 .grade-tabs {
   white-space: nowrap;
   padding: 0 24rpx 32rpx;
@@ -118,7 +68,7 @@ page {
 
 /* ===== 本学段星星进度卡 ===== */
 .progress-card {
-  margin: 0 32rpx 32rpx;
+  margin: 0 32rpx 28rpx;
   padding: 26rpx 32rpx;
   background: #ffffff;
   border-radius: 28rpx;
@@ -150,50 +100,45 @@ page {
   font-weight: 900;
   color: #ffb703;
 }
-/* 星星进度填充：金色渐变 */
+/* 星星进度填充：金色渐变（容器 .progress-bar 为全局样式） */
 .progress-bar__fill--gold {
   background: linear-gradient(90deg, #ffd166, #ffb703);
 }
 
-/* ===== 关卡卡片网格 ===== */
-.level-grid {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0 32rpx;
+/* ===== 关卡列表（一期：一行一关） =====
+   纵向列表天然自适应：不依赖可用高度估算，关卡数变化也只是多几行。 */
+.level-list {
+  margin: 0 32rpx;
 }
-.level-card {
-  width: 208rpx;
-  height: 260rpx;
-  background: #fff;
-  border-radius: 32rpx;
+.lvrow {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  padding: 22rpx 24rpx;
+  margin-bottom: 18rpx;
+  border-radius: 28rpx;
+  background: #ffffff;
   box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-  border: 4rpx solid transparent;
   transition: transform 0.12s, box-shadow 0.12s;
-  position: relative;
-  margin-right: 32rpx;
-  margin-bottom: 32rpx;
-  box-sizing: border-box;
 }
-/* 已解锁卡片按压位移 */
-.level-card:active {
+.lvrow:active {
   transform: translateY(4rpx);
   box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08), 0 8rpx 16rpx rgba(0, 0, 0, 0.08);
 }
-/* 已得 1 星及以上：金色描边强化进度感 */
-.level-card.has-star {
-  border-color: #ffd166;
-  background: #fffdf4;
+/* 已通关：淡绿底（星级由右侧展示） */
+.lvrow.done {
+  background: #f4fbf6;
 }
-.level-card.locked {
-  filter: grayscale(0.9);
-  opacity: 0.65;
-  background: #f0f3f8;
+/* 当前可挑战：金色描边 + 呼吸引导 */
+.lvrow.cur {
+  background: #fff8e6;
+  box-shadow: 0 8rpx 0 rgba(255, 183, 3, 0.32), 0 0 0 4rpx #ffd166;
 }
-.level-card.shake {
+/* 锁定：灰底降饱和 */
+.lvrow.lock {
+  background: #f2f5f9;
+  opacity: 0.82;
+}
+.lvrow.shake {
   animation: cardShake 0.4s;
 }
 @keyframes cardShake {
@@ -202,43 +147,97 @@ page {
   75% { transform: translateX(12rpx); }
 }
 
-/* 星级（⭐ emoji / 灰 ☆） */
-.stars {
-  font-size: 34rpx;
-  letter-spacing: 2rpx;
-  height: 44rpx;
-  line-height: 44rpx;
-  margin-bottom: 4rpx;
+/* 左：关卡号方块 */
+.lv-no {
+  flex: 0 0 auto;
+  width: 76rpx;
+  height: 76rpx;
+  margin-right: 20rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #ffffff;
+  background: #cfe0f2;
 }
-.star-on {
+.lvrow.done .lv-no { background: #34A853; }
+.lvrow.cur .lv-no { background: #ff9800; }
+.lvrow.lock .lv-no { background: #cfd8e3; font-size: 32rpx; }
+
+/* 中：题型标签 + 第 N 关 / 副说明 */
+.lv-mid {
+  flex: 1;
+  min-width: 0;
+}
+.lv-t1 {
+  display: flex;
+  align-items: center;
+}
+.lv-kind {
+  flex: 0 0 auto;
+  margin-right: 12rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 10rpx;
+  font-size: 20rpx;
+  font-weight: 800;
+  color: #2f6fd0;
+  background: #e8f2ff;
+}
+.lv-name {
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+}
+.lv-t2 {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #8a9bb5;
+}
+
+/* 右：星级 / 继续挑战 / 解锁条件 */
+.lv-rt {
+  flex: 0 0 auto;
+  margin-left: 16rpx;
+  text-align: right;
+}
+.lv-stars {
+  font-size: 26rpx;
+  letter-spacing: 2rpx;
+}
+.lv-star {
+  color: #d5dde8;
+}
+.lv-star.on {
   color: #ffb703;
 }
-.star-off {
-  color: #d5dde8;
-  font-size: 28rpx;
-}
-
-/* 关卡编号 */
-.num {
-  font-size: 72rpx;
-  font-weight: 900;
-  color: #4cc9f0;
-  line-height: 1.2;
-  text-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.06);
-}
-.level-card.locked .num {
-  color: #9aa7bc;
-}
-
-/* 锁定标识 */
-.lock {
-  font-size: 48rpx;
+.lv-go {
   margin-top: 4rpx;
+  font-size: 22rpx;
+  font-weight: 900;
+  color: #8a9bb5;
+}
+.lv-go--cur {
+  font-size: 24rpx;
+  color: #ff8f00;
+}
+/* 已解锁但还没轮到：可直接开打（与「锁定」明确区分） */
+.lv-go--open {
+  font-size: 24rpx;
+  color: #4cc9f0;
+}
+.lv-locktip {
+  max-width: 190rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #9aa7bc;
+  line-height: 1.35;
 }
 
 /* ===== 自定义关卡入口（M3） ===== */
 .custom-level-entry {
-  margin: 16rpx 32rpx 0;
+  margin: 8rpx 32rpx 0;
   height: 120rpx;
   border-radius: 32rpx;
   background: #fff;
@@ -280,7 +279,7 @@ page {
 
 /* ===== 游客横幅（M5 REQ-GUEST-1） ===== */
 .guest-banner {
-  margin: 8rpx 32rpx 0;
+  margin: 8rpx 32rpx 24rpx;
   height: 88rpx;
   border-radius: 24rpx;
   background: rgba(255, 255, 255, 0.92);
@@ -345,153 +344,4 @@ page {
   font-size: 20rpx;
   opacity: 0.85;
   margin-left: 6rpx;
-}
-
-/* 关卡卡分类徽标（非综合时显示） */
-.type-badge {
-  position: absolute;
-  top: 14rpx;
-  left: 14rpx;
-  font-size: 20rpx;
-  font-weight: 800;
-  color: #ffffff;
-  background: rgba(76, 201, 240, 0.92);
-  padding: 2rpx 12rpx;
-  border-radius: 14rpx;
-  line-height: 1.6;
-}
-
-/* ===== 蛇形路径地图（M7 Phase B） ===== */
-.level-map {
-  position: relative;
-  margin: 0 8rpx 8rpx;
-}
-
-/* 连线层（z 低于节点；节点白底会遮住线端点，视觉从圆边穿出） */
-.map-paths {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-.map-seg {
-  position: absolute;
-  height: 8rpx;
-  border-radius: 4rpx;
-  margin-top: -4rpx;
-  background: rgba(255, 255, 255, 0.42);
-  transform-origin: left center;
-  transition: background 0.3s;
-}
-.map-seg.on {
-  background: #ffd166;
-  box-shadow: 0 0 10rpx rgba(255, 183, 3, 0.35);
-}
-
-/* 节点圆 */
-.map-node {
-  position: absolute;
-  box-sizing: border-box;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 6rpx solid transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.05), 0 16rpx 32rpx rgba(0, 0, 0, 0.1);
-  z-index: 3;
-  transition: transform 0.12s;
-}
-.map-node:active {
-  transform: scale(0.96);
-}
-.map-node.shake {
-  animation: cardShake 0.4s;
-}
-
-/* 已通关：金色 ✔ + 星数（可重玩） */
-.map-node.done {
-  border-color: #ffd166;
-  background: linear-gradient(180deg, #fff8e2, #fff3cd);
-}
-.node-ok {
-  font-size: 62rpx;
-  line-height: 1;
-  font-weight: 900;
-  color: #ffb703;
-  text-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.07);
-}
-.node-stars {
-  margin-top: 6rpx;
-  font-size: 26rpx;
-  font-weight: 900;
-  color: #e69a00;
-}
-
-/* 当前可挑战：关卡号 + 「继续」，呼吸光圈引导 */
-.map-node.cur {
-  border-color: #4cc9f0;
-  animation: nodeBreath 1.6s ease-in-out infinite;
-}
-.node-num {
-  font-size: 52rpx;
-  font-weight: 900;
-  color: #4cc9f0;
-  line-height: 1.1;
-}
-.node-go {
-  margin-top: 6rpx;
-  font-size: 20rpx;
-  font-weight: 900;
-  color: #ffb703;
-  background: rgba(255, 183, 3, 0.14);
-  padding: 2rpx 14rpx;
-  border-radius: 16rpx;
-}
-@keyframes nodeBreath {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(255, 183, 3, 0), 0 10rpx 0 rgba(0, 0, 0, 0.05);
-  }
-  50% {
-    box-shadow: 0 0 0 14rpx rgba(255, 183, 3, 0.22), 0 10rpx 0 rgba(0, 0, 0, 0.05);
-  }
-}
-
-/* 锁定：灰圆 + 🔒 + 条件小字（复用解锁/登录点击引导） */
-.map-node.lock {
-  background: #eef1f6;
-  border-color: #d7dde8;
-}
-.node-lock {
-  font-size: 44rpx;
-  opacity: 0.7;
-  line-height: 1;
-}
-.node-lock-tip {
-  margin-top: 6rpx;
-  font-size: 18rpx;
-  font-weight: 700;
-  color: #9aa7bc;
-  line-height: 1.3;
-  text-align: center;
-  padding: 0 8rpx;
-}
-
-/* 分类徽标（非综合时，节点右上角） */
-.node-badge {
-  position: absolute;
-  top: -12rpx;
-  right: -4rpx;
-  font-size: 18rpx;
-  font-weight: 800;
-  color: #ffffff;
-  background: rgba(76, 201, 240, 0.95);
-  padding: 2rpx 12rpx;
-  border-radius: 14rpx;
-  line-height: 1.6;
-  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.12);
 }

@@ -1,40 +1,21 @@
-<!-- 关卡选择页（T14 · M7 Phase B 蛇形路径地图）：
-     学段 tab + 题型分类 chips + 游客横幅 + 星星进度卡 + 蛇形路径关卡地图
-     节点状态：已通关(金色✔+星,可重玩) / 当前(呼吸光圈+继续) / 锁定(灰🔒+条件小字)
-     连线按已通关逐段点亮；点击/解锁/登录引导复用 onLevelTap
+<!-- 关卡选择页（一期重做：蛇形地图 → 竖排关卡列表）
+     结构：标题 / 游客横幅 / 学段 tab / 题型 chips / 星星进度卡 / 关卡列表 / 自定义关卡入口
+     关卡行状态：done(已通关·绿色+星·可重玩) / cur(当前·橙色+继续挑战) / lock(灰锁+解锁条件)
+     一期同时删除了「闯关形态」模式栏（三种形态判定与计分一致，属换皮）。
      关联需求：REQ-DICT-1、REQ-GAME-13/14、REQ-GUEST-1 -->
 <view class="page-level">
   <!-- 标题 -->
   <view class="level-title">选择关卡</view>
   <view class="level-sub">收集星星 · 解锁新关卡</view>
 
-  <!-- 游客横幅（M5 REQ-GUEST-1：未登录仅第 1 关可玩） -->
+  <!-- 游客横幅（M5 REQ-GUEST-1：未登录仅前 3 关可玩） -->
   <view wx:if="{{!loggedIn}}" class="guest-banner" bindtap="guestLogin">
     <text class="guest-banner-icon">🔒</text>
     <text class="guest-banner-text">游客模式 · 登录解锁全部关卡</text>
     <text class="guest-banner-btn">去登录</text>
   </view>
 
-  <!-- 闯关形态模式栏（一期：由「每关弹层」改为常驻设置，记忆上次选择 ww_mode） -->
-  <view wx:if="{{modeOptions.length > 0}}" class="mode-bar">
-    <view class="mode-bar__head">
-      <text class="mode-bar__label">闯关形态</text>
-      <text class="mode-bar__desc">{{modeDesc}}</text>
-    </view>
-    <view class="mode-bar__list">
-      <view
-        wx:for="{{modeOptions}}"
-        wx:key="key"
-        class="mode-chip {{mode === item.key ? 'on' : ''}}"
-        data-mode="{{item.key}}"
-        bindtap="pickMode">
-        <text class="mode-chip__icon">{{item.icon}}</text>
-        <text class="mode-chip__name">{{item.short || item.label}}</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 学段 tab（7 个学段，REQ-DICT-1，交互保留） -->
+  <!-- 学段 tab（7 个学段，REQ-DICT-1） -->
   <scroll-view class="grade-tabs" scroll-x="true" enable-flex="true">
     <view
       wx:for="{{grades}}"
@@ -72,46 +53,48 @@
     </view>
   </view>
 
-  <!-- 关卡蛇形路径地图（M7 Phase B）：连线点亮 + 节点（已通关✔/继续/锁定🔒） -->
-  <view class="level-map" style="height: {{mapHeight}}rpx;">
-    <!-- 连线层（z 低于节点；点亮段金色、未点亮灰色） -->
-    <view class="map-paths">
-      <view
-        wx:for="{{mapSegs}}"
-        wx:key="index"
-        class="map-seg {{item.on ? 'on' : ''}}"
-        style="left: {{item.x1}}rpx; top: {{item.y1}}rpx; width: {{item.len}}rpx; transform: rotate({{item.rot}}deg);"></view>
-    </view>
-
-    <!-- 节点层 -->
+  <!-- 关卡列表（一期：竖排，一行一关）
+       布局天然自适应：纵向滚动列表，不需要按可用高度估算节点尺寸 -->
+  <view class="level-list">
     <view
-      wx:for="{{mapNodes}}"
+      wx:for="{{levels}}"
       wx:key="level"
-      class="map-node {{item.state}} {{item.shaking ? 'shake' : ''}}"
-      style="left: {{item.left}}rpx; top: {{item.top}}rpx; width: {{item.size}}rpx; height: {{item.size}}rpx;"
-      data-index="{{item.index}}"
+      class="lvrow {{item.state}} {{item.shaking ? 'shake' : ''}}"
+      data-index="{{index}}"
       bindtap="onLevelTap">
 
-      <!-- 分类徽标（非「综合」时，节点右上角） -->
-      <view wx:if="{{item.badge}}" class="node-badge">{{item.badge}}</view>
+      <!-- 左：关卡号（锁定显示锁） -->
+      <view class="lv-no">{{item.state === 'lock' ? '🔒' : item.level}}</view>
 
-      <!-- 已通关：✔ + 星数（可重玩） -->
-      <block wx:if="{{item.state === 'done'}}">
-        <view class="node-ok">✔</view>
-        <view class="node-stars">★ {{item.stars}}</view>
-      </block>
+      <!-- 中：题型标签 + 第 N 关 / 副说明 -->
+      <view class="lv-mid">
+        <view class="lv-t1">
+          <text class="lv-kind">{{item.kindLabel}}</text>
+          <text class="lv-name">第 {{item.level}} 关</text>
+        </view>
+        <view class="lv-t2">{{item.sub}}</view>
+      </view>
 
-      <!-- 锁定：🔒 + 条件小字 -->
-      <block wx:elif="{{item.state === 'lock'}}">
-        <view class="node-lock">🔒</view>
-        <view class="node-lock-tip">{{item.lockTip}}</view>
-      </block>
-
-      <!-- 当前可挑战：关卡号 + 继续 -->
-      <block wx:else>
-        <view class="node-num">{{item.level}}</view>
-        <view class="node-go">继续 ▶</view>
-      </block>
+      <!-- 右：星级 / 继续挑战 / 解锁条件 -->
+      <view class="lv-rt">
+        <block wx:if="{{item.state === 'done'}}">
+          <view class="lv-stars">
+            <text class="lv-star {{item.starArr[0] ? 'on' : ''}}">★</text>
+            <text class="lv-star {{item.starArr[1] ? 'on' : ''}}">★</text>
+            <text class="lv-star {{item.starArr[2] ? 'on' : ''}}">★</text>
+          </view>
+          <view class="lv-go">重玩 ›</view>
+        </block>
+        <block wx:elif="{{item.state === 'cur'}}">
+          <view class="lv-go lv-go--cur">继续挑战 ›</view>
+        </block>
+        <block wx:elif="{{item.state === 'open'}}">
+          <view class="lv-go lv-go--open">开始挑战 ›</view>
+        </block>
+        <block wx:else>
+          <view class="lv-locktip">{{item.lockTip}}</view>
+        </block>
+      </view>
     </view>
   </view>
 

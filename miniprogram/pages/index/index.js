@@ -299,8 +299,7 @@ Page({
       return;
     }
     var url = '/pages/game/game?grade=' + this.data.continueGrade
-      + '&level=' + this.data.continueLevel
-      + '&mode=' + storage.getMode();
+      + '&level=' + this.data.continueLevel;
     var t = storage.get(constants.STORAGE_KEYS.lastType);
     if (t && t !== 'all') url += '&type=' + t;
     wx.navigateTo({ url: url });

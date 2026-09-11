@@ -91,18 +91,24 @@ const engine = {
     this.G.warriorSkin = getWarriorSkin(skins.warrior);
     this.G.monsterSkin = getMonsterSkin(skins.monster);
 
-    // 对局形态注入（M7）：'classic' | 'boss' | 'rush' —— 仅表现层差异，判定/计分不受影响
-    this.G.mode = (options && options.mode) || 'classic';
-
     // 出第一题
     this._newQuestion();
-    // 先同步画一帧再启动主循环：
-    // 主循环的首帧要等下一次 requestAnimationFrame 回调，若渲染循环被节流
-    // （开发者工具窗口不在前台、页面刚切换等），画布会长时间空白 ——
+    // 先同步画一帧再启动主循环：主循环的首帧要等下一次 requestAnimationFrame 回调，
+    // 若渲染循环被节流（开发者工具窗口不在前台、页面刚切换等），画布会长时间空白 ——
     // 玩家看到的就是「进关了但没有题目」。同步补一帧即可消除这段空白。
-    render(this._ctx, this.G, 0);
+    this.renderOnce();
     // 启动主循环
     this._loop(canvasNode);
+  },
+
+  /**
+   * 手动绘制一帧（不推进状态、不注册 rAF）。
+   * 用途：① start() 补首帧，避免等 rAF 造成的空白；② e2e 步进后重绘，使截图可复现。
+   */
+  renderOnce() {
+    if (this._ctx && this.G) {
+      render(this._ctx, this.G, this._now || 0);
+    }
   },
 
   /**
@@ -188,17 +194,6 @@ const engine = {
       correct: true,
       letter: opt.letter
     };
-  },
-
-  /**
-   * 竞速超时判错（M7 rush）：复用选错的同一失败入口 _failQuestion。
-   * 仅「待答题 IDLE」时有效；判定/计分/扣命与玩家选错完全一致，零新增判定路径。
-   */
-  forceFailCurrent() {
-    const G = this.G;
-    if (!G || G.over) return;
-    if (G.state !== IDLE) return;
-    this._failQuestion();
   },
 
   /**
@@ -289,11 +284,10 @@ const engine = {
       }
     }
 
-    // ---- DYING 计时（答对后怪兽死亡动画：经典 ≈0.7s；竞速提速 0.35s；然后下一题） ----
+    // ---- DYING 计时（答对后怪兽死亡动画 ≈0.7s，然后下一题） ----
     if (G.state === DYING) {
       G.dyingT = (G.dyingT || 0) + dt;
-      const dyingLimit = (G.mode === 'rush') ? CONFIG.rushDying : CONFIG.dyingTime;
-      if (G.dyingT >= dyingLimit) {
+      if (G.dyingT >= CONFIG.dyingTime) {
         this._nextQuestion();
         return;
       }

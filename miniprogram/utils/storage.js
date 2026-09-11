@@ -189,27 +189,7 @@ function clearUser() {
   remove(STORAGE_KEYS.user);
 }
 
-// ============ 二点四、对局形态记忆（M7：ww_mode，默认 classic） ============
-// 玩家进关前自选经典/Boss/竞速，记住上次选择以便下次预选。
-
-/**
- * 读取上次对局形态。
- * @returns {string} 'classic' | 'boss' | 'rush'，非法/缺省回退 'classic'
- */
-function getMode() {
-  var v = get('ww_mode');
-  return (v === 'boss' || v === 'rush') ? v : 'classic';
-}
-
-/**
- * 保存对局形态记忆。
- * @param {string} mode 'classic' | 'boss' | 'rush'
- * @returns {boolean} true 写入成功
- */
-function setMode(mode) {
-  return set('ww_mode', (mode === 'boss' || mode === 'rush') ? mode : 'classic');
-}
-
+// 说明：原「对局形态记忆（ww_mode）」已随三种形态一并删除（一期）。
 // ============ 二点五、皮肤选择（战士/boss 皮肤） ============
 // 说明：皮肤列表与解锁状态由后端 /api/avatar/* 管理；此处仅缓存
 //   「当前使用」的皮肤 avatarId，供游戏页离线渲染（离线时回退默认皮肤）。
@@ -549,9 +529,6 @@ module.exports = {
   getUser: getUser,
   setUser: setUser,
   clearUser: clearUser,
-  // 对局形态记忆（M7）
-  getMode: getMode,
-  setMode: setMode,
   // 皮肤选择
   getWarriorSkin: getWarriorSkin,
   setWarriorSkin: setWarriorSkin,
