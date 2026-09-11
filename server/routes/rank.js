@@ -1,5 +1,7 @@
 const express = require("express");
-const { Rank, RankRecord, User } = require("../db");
+const { RankRecord, User } = require("../db");
+// 段位阶梯（8 大段 × 9 小级 = 72 级，按累计星数晋升）—— 唯一口径，见 rank-ladder.js
+const ladder = require("../rank-ladder");
 
 const router = express.Router();
 
@@ -17,24 +19,27 @@ router.get("/info", async (req, res) => {
       });
     }
 
-    // 获取段位记录
-    const rankRecord = await RankRecord.findOne({
-      where: { openid },
-    });
-
-    const rankId = rankRecord ? rankRecord.rankId : 1;
+    const rankRecord = await RankRecord.findOne({ where: { openid } });
     const wins = rankRecord ? rankRecord.wins : 0;
     const stars = rankRecord ? rankRecord.stars : 0;
 
-    // 获取段位信息
-    const rank = await Rank.findOne({ where: { rankId } });
+    // 段位由累计星数现算（无需改表：rankId 仍是大段位 1~8，与皮肤解锁口径兼容）
+    const cur = ladder.rankOf(stars);
+    const prog = ladder.progressOf(stars);
 
     res.send({
       code: 0,
       data: {
-        rankId,
-        rankName: rank ? rank.rankName : "青铜",
-        icon: rank ? rank.icon : "/assets/ranks/bronze.png",
+        rankId: cur.rankId,
+        rankLevel: cur.rankLevel,
+        rankCell: cur.cell,
+        rankName: cur.rankName,
+        icon: cur.icon,
+        nextRankName: prog.nextRankName,
+        starsForNext: prog.starsForNext,
+        starsNeeded: prog.starsNeeded,
+        progressPercent: prog.progressPercent,
+        isMaxRank: prog.isMaxRank,
         wins,
         stars,
       },
@@ -59,60 +64,29 @@ router.get("/progress", async (req, res) => {
       });
     }
 
-    // 获取段位记录
-    const rankRecord = await RankRecord.findOne({
-      where: { openid },
-    });
-
-    const currentRankId = rankRecord ? rankRecord.rankId : 1;
-    const currentWins = rankRecord ? rankRecord.wins : 0;
-
-    // 获取当前段位
-    const currentRank = await Rank.findOne({
-      where: { rankId: currentRankId },
-    });
-
-    // 获取下一段位
-    const nextRank = await Rank.findOne({
-      where: { rankId: currentRankId + 1 },
-    });
-
-    if (!nextRank) {
-      // 已达最高段位
-      return res.send({
-        code: 0,
-        data: {
-          currentRank: {
-            rankId: currentRankId,
-            rankName: currentRank ? currentRank.rankName : "荣耀王者",
-          },
-          nextRank: null,
-          currentWins,
-          winsNeeded: 0,
-          progressPercent: 100,
-          isMaxRank: true,
-        },
-      });
-    }
-
-    const winsNeeded = nextRank.minWins - (currentRank ? currentRank.minWins : 0);
-    const progressPercent = winsNeeded > 0 ? Math.min(100, Math.round((currentWins - (currentRank ? currentRank.minWins : 0)) / winsNeeded * 100)) : 100;
+    const rankRecord = await RankRecord.findOne({ where: { openid } });
+    const stars = rankRecord ? rankRecord.stars : 0;
+    const wins = rankRecord ? rankRecord.wins : 0;
+    const cur = ladder.rankOf(stars);
+    const prog = ladder.progressOf(stars);
 
     res.send({
       code: 0,
       data: {
         currentRank: {
-          rankId: currentRankId,
-          rankName: currentRank ? currentRank.rankName : "青铜",
+          rankId: cur.rankId,
+          rankLevel: cur.rankLevel,
+          rankCell: cur.cell,
+          rankName: cur.rankName,
+          icon: cur.icon,
         },
-        nextRank: {
-          rankId: nextRank.rankId,
-          rankName: nextRank.rankName,
-        },
-        currentWins,
-        winsNeeded,
-        progressPercent,
-        isMaxRank: false,
+        nextRank: prog.nextRankName ? { rankName: prog.nextRankName } : null,
+        stars,
+        wins,
+        starsForNext: prog.starsForNext,
+        starsNeeded: prog.starsNeeded,
+        progressPercent: prog.progressPercent,
+        isMaxRank: prog.isMaxRank,
       },
     });
   } catch (err) {
@@ -169,17 +143,10 @@ router.post("/sync", async (req, res) => {
     const newWins = rankRecord.wins + 1;
     const newStars = rankRecord.stars + stars;
 
-    // 计算新段位
-    let newRankId = rankRecord.rankId;
-    const allRanks = await Rank.findAll({ order: [["rankId", "ASC"]] });
-
-    for (const r of allRanks) {
-      if (newWins >= r.minWins) {
-        newRankId = r.rankId;
-      } else {
-        break;
-      }
-    }
+    // 计算新段位：按累计星数落在阶梯的哪一级（8 大段 × 9 小级）
+    const oldCell = ladder.rankOf(rankRecord.stars).cell;
+    const nextRank = ladder.rankOf(newStars);
+    const newRankId = nextRank.rankId;
 
     // 更新记录
     await rankRecord.update({
@@ -188,17 +155,17 @@ router.post("/sync", async (req, res) => {
       rankId: newRankId,
     });
 
-    // 获取新段位信息
-    const newRank = await Rank.findOne({ where: { rankId: newRankId } });
-
     res.send({
       code: 0,
       data: {
         rankId: newRankId,
-        rankName: newRank ? newRank.rankName : "青铜",
+        rankLevel: nextRank.rankLevel,
+        rankCell: nextRank.cell,
+        rankName: nextRank.rankName,
+        icon: nextRank.icon,
         wins: newWins,
         stars: newStars,
-        rankUp: newRankId > rankRecord.rankId,
+        rankUp: nextRank.cell > oldCell,
       },
     });
   } catch (err) {

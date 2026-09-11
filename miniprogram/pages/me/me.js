@@ -12,7 +12,8 @@ Page({
     wins: 0,
     rankStars: 0,
     menu: [
-      { emoji: '👤', name: '昵称与头像', url: '/pages/nickname/nickname' },
+      // 注：原先这里还有一条「昵称与头像」，但它与资料卡上的「编辑」指向同一个页面，
+      // 属于重复入口（需求 ③），已移除 —— 改资料统一走资料卡的「编辑」。
       { emoji: '👗', name: '我的形象 · 皮肤', url: '/pages/avatar/avatar' },
       { emoji: '🏆', name: '排行榜', url: '/pages/rank/rank' },
       { emoji: '📖', name: '错题本', url: '/pages/wrong-book/wrong-book' },
