@@ -11,6 +11,7 @@
     "verify": "node e2e/run-all.js",
     "verify:fast": "node e2e/run-all.js --no-e2e",
     "e2e": "node e2e/run-all.js --e2e-only",
+    "verify:api": "node e2e/smoke-api.js",
     "e2e:verify": "node e2e/verify-game.js"
   },
   "repository": {

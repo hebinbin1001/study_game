@@ -11,6 +11,7 @@ cd study_game
 npm run verify          # 全量：静态 → 单元 → 端到端
 npm run verify:fast     # 只跑静态 + 单元（秒级，不需要开发者工具）
 npm run e2e             # 只跑端到端（需要开发者工具）
+npm run verify:api      # 线上接口冒烟（需要网络 + 已部署的服务，验证的是线上而不是本地）
 npm test                # 只跑单元测试
 
 node e2e/run-all.js --only=game    # 只跑某一段，便于单点排障
@@ -18,6 +19,11 @@ node e2e/run-all.js --only=link
 ```
 
 任一层失败则整体以非 0 退出，可直接当作提交门禁。
+
+> `verify` 是**本地自洽**的门禁（不依赖网络），所以不含线上接口冒烟。
+> 部署之后要确认线上真的健康，再单独跑 `npm run verify:api`：
+> 它按业务码判定（authed 必须 `code=0`，anon 必须 `code=1001`），
+> 能发现「HTTP 200 但业务失败」这类只在线上暴露的问题。
 
 ---
 

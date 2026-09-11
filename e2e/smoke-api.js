@@ -115,7 +115,8 @@ const CASES = [
   { group: "ranklist",     method: "GET",  path: "/api/ranklist/me", needUser: true },
   { group: "level",        method: "GET",  path: "/api/level/list", needUser: true },
   { group: "level",        method: "POST", path: "/api/level", body: { title: "Smoke Level", grade: "primary", items: [{ q: "1+1", a: "2" }] }, needUser: true },
-  { group: "level/review", method: "GET",  path: "/api/level/review/reviews", needUser: true },
+  // 普通用户查审核队列返回 4003 NO_PERMISSION 属预期业务响应，故放宽该用例的业务码
+  { group: "level/review", method: "GET",  path: "/api/level/review/reviews", needUser: true, acceptCodes: [0, 4003] },
   { group: "wrong",        method: "GET",  path: "/api/wrong/list", needUser: true },
   { group: "wrong",        method: "GET",  path: "/api/wrong/stats", needUser: true },
   { group: "checkin",      method: "GET",  path: "/api/checkin", needUser: true },
@@ -139,6 +140,13 @@ function describe(r) {
 /**
  * Judge a single case against the smoke criteria.
  * Returns an array of problem strings (empty = PASS).
+ *
+ * 业务码断言（踩坑记录 · 假绿灯修复）：
+ *   旧版只校验「HTTP 200 + JSON 里有 code 字段」，于是 /api/score 返回
+ *   5000 INTERNAL_ERROR 也被判成 PASS —— 线上「成绩上报整条链路失效」被冒烟长期漏报。
+ *   现按用例期望业务码判定：
+ *     · needUser 用例：authed 必须为 0（或在 acceptCodes 显式放宽），anon 必须为 1001；
+ *     · 1001 出现在 authed 一律判失败（openid 链路断了）。
  */
 function judgeCase(c, anon, auth) {
   const problems = [];
@@ -176,8 +184,17 @@ function judgeCase(c, anon, auth) {
   }
 
   if (c.needUser) {
-    if (auth.json && auth.json.code === 1001) {
+    const j = auth.json;
+    if (j && j.code === 1001) {
       problems.push("authed still 1001 (openid chain broken)");
+    } else if (j && typeof j.code !== "undefined" && (c.acceptCodes || [0]).indexOf(j.code) === -1) {
+      problems.push("authed code=" + j.code + " 非预期（期望 " + (c.acceptCodes || [0]).join("/") + "）"
+        + " " + codeNote(j));
+    }
+    const a = anon.json;
+    if (a && typeof a.code !== "undefined" && (c.acceptAnonCodes || [1001]).indexOf(a.code) === -1) {
+      problems.push("anon code=" + a.code + " 非预期（期望 "
+        + (c.acceptAnonCodes || [1001]).join("/") + "） " + codeNote(a));
     }
   }
 
