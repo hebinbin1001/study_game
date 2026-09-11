@@ -16,6 +16,7 @@
  */
 
 const { GAME_CONFIG } = require('../utils/constants');
+const { DEFAULT_REVIEW_RATE } = require('../utils/review');
 
 // ============ 一、画布几何（逻辑像素，与原型 W/H 完全一致） ============
 // 小程序经 dpr 适配 + ctx.scale(dpr,dpr) 后，绘制坐标系仍以逻辑像素为准
@@ -68,6 +69,11 @@ const POPUP_LIFE = 1.1;
 // 每题答对得分 10 分：每关 10 题，满分 100（前端 engine 累加 = 服务端答对数×每题分推导，两端一致）
 const SCORE_PER_CORRECT = 10; // 答对一题得分
 
+// ============ 七点二、错题回流概率（R2） ============
+// 每局抽题时以该概率优先出「待复习错题」，让主玩法本身承担自动复习。
+// 数值唯一来源在 utils/review.js（需求约定 20%~30%，取中值 25%）。
+const REVIEW_RATE = DEFAULT_REVIEW_RATE;
+
 // ============ 七点五、对局形态（M7 Phase A，仅表现层，不参与计分） ============
 // 玩家进关前自选；classic 默认保持现状渲染
 const MODES = [
@@ -119,6 +125,9 @@ const CONFIG = {
 
   // 计分
   scorePerCorrect: SCORE_PER_CORRECT,
+
+  // 错题回流概率（R2）
+  reviewRate: REVIEW_RATE,
 
   // 对局形态（M7）
   modes: MODES,

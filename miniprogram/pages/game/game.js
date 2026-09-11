@@ -25,6 +25,7 @@ var constants = require('../../utils/constants');
 var audio = require('../../game/audio');
 var auth = require('../../utils/auth');
 var request = require('../../utils/request');
+var review = require('../../utils/review');
 
 var CONFIG = config.CONFIG;
 
@@ -134,6 +135,10 @@ Page({
     this._usedItems = [];
     this._lastHud = null;
     this._engineStarted = false;
+
+    // R2：错题回流池（异步拉取；未就绪时本局按纯随机出题，不阻塞对局）
+    this._reviewPool = [];
+    this._loadReviewPool(type);
 
     // 声音开关：恢复本地偏好（默认开）并同步到 audio 模块
     var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
@@ -296,6 +301,32 @@ Page({
   },
 
   /**
+   * 拉取「待复习错题」构建本局错题池（R2）。
+   *
+   * 未登录 / 接口失败 / 离线 → 静默保持空池，本局照常纯随机出题（离线可玩是底线）。
+   * 分类关卡只在同类题型里取错题，避免综合题混进「成语」这类分类关。
+   *
+   * @param {string} type 题型分类 key（空 或 'all' 表示不限）
+   */
+  _loadReviewPool: function (type) {
+    var self = this;
+    if (!auth.isLoggedIn()) return;
+    request.get('/api/wrong/list').then(function (data) {
+      var pending = (data && data.pending) || [];
+      self._reviewPool = review.buildPool(pending, { typeKey: type });
+      if (typeof console !== 'undefined' && console.log) {
+        console.log('[review] 待复习错题池 ' + self._reviewPool.length + ' 条（pending ' + pending.length + ' 条）');
+      }
+    }).catch(function (err) {
+      // 静默降级：错题拿不到不影响对局
+      self._reviewPool = [];
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('[review] 错题池拉取失败，本局走纯随机：code=' + (err && err.code));
+      }
+    });
+  },
+
+  /**
    * 启动引擎并注入页面层回调。
    * 回调签名以 game/engine.js 实际接口为准。
    */
@@ -326,6 +357,18 @@ Page({
         }
         var grade = self.data.grade;
         var type = self.data.type;
+
+        // R2：以 reviewRate 概率优先出「待复习错题」，让主玩法承担自动复习。
+        // 池为空（游客 / 未登录 / 拉取失败 / 本局已出完）时自然回退到下面的随机抽题。
+        if (self._reviewPool && self._reviewPool.length &&
+            review.shouldUseReview(CONFIG.reviewRate)) {
+          var hit = review.pickFromPool(self._reviewPool, review.usedMapOf(self._usedItems));
+          if (hit) {
+            self._usedItems.push(hit.item);
+            return hit.item;
+          }
+        }
+
         // 分类关卡：限该类题库抽题；综合走原逻辑
         var item = (type && type !== 'all')
           ? dict.randomItemByGroup(grade, type, self._usedItems)
