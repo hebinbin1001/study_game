@@ -29,3 +29,6 @@ prototype/
 
 # ===== 测试生成物（每次运行都会重写，不入仓库） =====
 e2e/reports/
+
+# ===== 部署 CLI 产物（cloudbase cloudrun deploy 会生成） =====
+cloudbaserc.json
