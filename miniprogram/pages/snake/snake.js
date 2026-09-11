@@ -19,6 +19,15 @@ var LIVES = 3;
 var FOOD_N = 4;             // 场上字母食物数（含应拼字母+干扰）
 var WORDS_PER_ROUND = 5;    // 每局拼 5 个词即通关
 
+/**
+ * 目标词是否可直接按字母逐个拼写。
+ * w2 的 q 含挖空占位符（'g*v*r*m*nt'）、fill 的 q 是整句、换行/空格等都不能拼，
+ * 这些条目一旦成为目标词，就会出现「要求吃掉 * 这个字母」的荒谬局面。
+ */
+function isSpellableWord(w) {
+  return !!w && /^[A-Za-z]+$/.test(String(w.q || ''));
+}
+
 Page({
   data: {
     cells: [],           // [{cls}]
@@ -61,8 +70,23 @@ Page({
 
   _loadWords: function () {
     var grade = GRADES[Math.floor(Math.random() * GRADES.length)];
-    var all = dict.filterByGroup(grade.key, 'w1');
-    if (all.length < WORDS_PER_ROUND) all = dict.loadByGrade(grade.key).filter(function (w) { return w.type === 'w1'; });
+    // 目标词必须能「按字母逐个拼写」，故只保留 q 为纯英文单词的条目。
+    //
+    // 踩坑记录（下面两种写法都不能用）：
+    //   1. filterByGroup(grade, 'w1')：'w1' 是【类型码】不是【分组 key】。
+    //      TYPE_GROUPS 的合法 key 只有 all/word/fill/wordCn/idiom/xhy，
+    //      传未知 key 会命中 isItemInGroup 的「未知分组 → return true」兜底，
+    //      静默放行整个学段词库，目标词会变成汉字/成语。
+    //   2. filterByGroup(grade, 'word')：该分组含 w1+w2+trans+en，
+    //      其中 w2 的 q 形如 'g*v*r*m*nt'（挖空占位符）、fill 的 q 是整句，
+    //      都不是可逐字母拼写的目标词，会出现「要求吃掉 * 这个字母」的荒谬局面。
+    // 因此按【类型】精确取 w1，并用纯英文字母串兜底校验。
+    var all = dict.loadByGrade(grade.key).filter(function (w) {
+      return w.type === 'w1' && isSpellableWord(w);
+    });
+    if (all.length < WORDS_PER_ROUND) {
+      all = dict.filterByGroup(grade.key, 'word').filter(isSpellableWord);
+    }
     return all;
   },
 

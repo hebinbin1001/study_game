@@ -123,7 +123,9 @@ Page({
       ok['cards[' + ia + '].sel'] = false;
       ok.left = this.data.left - 2;
       this.setData(ok);
-      if (this.data.left - 2 <= 0) {
+      // 注意：setData 会同步更新 this.data.left，此处不能再减 2，
+      // 否则剩最后 2 张牌（1 对未消）就会提前判过关。
+      if (this.data.left <= 0) {
         var stars = this.data.lives === 3 ? 3 : (this.data.lives === 2 ? 2 : 1);
         this.setData({ over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), tip: '全部连上！' });
       }
