@@ -9,6 +9,7 @@
 
 var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
+var constants = require('../../utils/constants');
 
 Page({
   // 实例级标志（不在 data，避免渲染）；登录/协议进行中置 true，防 nudge 弹窗互顶
@@ -25,6 +26,12 @@ Page({
     streakDays: 0,     // 连续天数（checkin）
     // 排行榜行
     myRank: 0,         // 我的总榜名次（0=未上榜/游客）
+    // 继续挑战（一期：显示真实进度并直达对局）
+    continueGrade: 'kindergarten',  // 目标学段 key
+    continueLevel: 1,               // 目标关卡
+    continueStars: 0,               // 该关历史最佳星级
+    continueHint: '',               // 副标题：玩法 · 学段 · 第 N 关
+    continuePlayable: false,        // 是否可直接开打（游客第 4 关起走关卡页登录）
     // 今日目标
     todayQ: 0,
     todayRate: 0,      // 百分比
@@ -33,7 +40,6 @@ Page({
   },
 
   onShow: function () {
-    var constants = require('../../utils/constants');
     var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
     this.setData({ soundOn: soundOn });
     // 游客首屏不再自动弹协议；协议在用户点「登录/注册」后展示（O2）
@@ -67,6 +73,20 @@ Page({
     }
     var rankName = storage.get('ww_rank_name') || '';
     var streakDays = storage.get('ww_streak') || 0;
+
+    // 继续挑战：按「最近一次进入的学段/题型」推导下一关（与关卡页同一口径）
+    var lastGrade = storage.get(constants.STORAGE_KEYS.lastGrade) || constants.GRADES[0].key;
+    var lastType = storage.get(constants.STORAGE_KEYS.lastType) || '';
+    var gradeLabel = lastGrade;
+    for (var gi = 0; gi < constants.GRADES.length; gi++) {
+      if (constants.GRADES[gi].key === lastGrade) { gradeLabel = constants.GRADES[gi].label; break; }
+    }
+    var cont = storage.findContinueLevel(lastGrade, lastType || undefined);
+    // 游客第 4 关起需登录：卡片改为引导去关卡页（那里会弹登录引导）
+    var continuePlayable = loggedIn || cont.level <= constants.DEFAULT_UNLOCKED_LEVELS;
+    var continueHint = '字母射击 · ' + gradeLabel + ' · 第 ' + cont.level + ' 关'
+      + (cont.allPassed ? '（已通关，可刷星）' : '');
+
     var dailyDone = false;
     var todayKey = this._todayKey();
     var records = storage.get('ww_checkin_cache') || [];
@@ -79,6 +99,11 @@ Page({
       totalStars: totalStars,
       rankName: rankName,
       streakDays: streakDays,
+      continueGrade: lastGrade,
+      continueLevel: cont.level,
+      continueStars: cont.stars,
+      continueHint: continueHint,
+      continuePlayable: continuePlayable,
       dailyDone: dailyDone
     });
 
@@ -127,7 +152,6 @@ Page({
 
   // —— 声音开关（与 game HUD 同一存储键 + audio 模块同步）——
   toggleSound: function () {
-    var constants = require('../../utils/constants');
     var audio = require('../../game/audio');
     var next = storage.get(constants.STORAGE_KEYS.sound) === '0';
     storage.set(constants.STORAGE_KEYS.sound, next ? '1' : '0');
@@ -267,7 +291,22 @@ Page({
     });
   },
 
-  // 继续挑战 → 关卡选择
+  // 继续挑战：可直接开打则直达对局（一期改造），否则去关卡页
+  // （游客第 4 关起需登录，关卡页会弹登录引导；已通关则回到最后一关刷星）
+  goContinue: function () {
+    if (!this.data.continuePlayable) {
+      wx.navigateTo({ url: '/pages/level/level' });
+      return;
+    }
+    var url = '/pages/game/game?grade=' + this.data.continueGrade
+      + '&level=' + this.data.continueLevel
+      + '&mode=' + storage.getMode();
+    var t = storage.get(constants.STORAGE_KEYS.lastType);
+    if (t && t !== 'all') url += '&type=' + t;
+    wx.navigateTo({ url: url });
+  },
+
+  // 换关卡 → 关卡选择页
   goLevel: function () {
     wx.navigateTo({ url: '/pages/level/level' });
   },

@@ -85,8 +85,14 @@ async function goto(miniProgram, url, settleMs) {
 }
 
 /**
- * 清掉「进关前遮罩」。游戏页有 M7 形态选择层与 M6-L 新手引导两层，
- * 不先过这两层，引擎不会启动、选项永远是 0（这是 verify-game 早期失败的原因）。
+ * 清掉「进关前遮罩」。
+ *
+ * 演变：一期改造前，游戏页有 M7 形态选择层（.pick-mask/.pick-start）与
+ * M6-L 新手引导（.tutorial-mask）两层，不先过这两层引擎不启动、选项恒为 0
+ * （这是 verify-game 早期失败的原因）。
+ * 一期改造后形态层已下线（形态改由关卡页模式栏选定），这里保留对 .pick-start 的
+ * 兼容处理：出现就点掉，不出现视为正常。
+ *
  * 返回实际执行过的步骤，便于在断言里留证。
  */
 async function clearGameGates(page, options) {
@@ -99,7 +105,7 @@ async function clearGameGates(page, options) {
     await page.waitFor(600);
     steps.push('形态选择层：已点 .pick-start');
   } else if (!opts.optionalPick) {
-    steps.push('形态选择层：未出现（可能已选过）');
+    steps.push('形态选择层：未出现（一期改造后该层已下线，属预期）');
   }
 
   for (let i = 0; i < 5; i++) {

@@ -13,12 +13,15 @@ var constants = require('../../utils/constants');
 var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
+var config = require('../../game/config');
 
-// 每学段关卡数
-var LEVELS_PER_GRADE = 10;
+// 关卡规模与默认解锁数：取自 utils/constants.js（与首页「继续挑战」共用同一口径，避免漂移）
+var LEVELS_PER_GRADE = constants.LEVELS_PER_GRADE;
+var DEFAULT_UNLOCKED = constants.DEFAULT_UNLOCKED_LEVELS;
 
-// 默认解锁关卡数：1~3 关（含游客）默认开放；第 4 关起需登录且逐关通关解锁
-var DEFAULT_UNLOCKED = 3;
+// 闯关形态（经典/Boss/极速）：由「每关弹层」改为本页的模式栏 ——
+// 形态本质是玩法的难度/节奏档，属于设置项，不该每关点一次。
+var MODES = config.MODES;
 
 // ===== M7 Phase B：蛇形路径地图布局（2 列；O1 自适应，行距/节点随可用高度收缩） =====
 var NODE_SIZE_MAX = 150;     // 节点圆直径上限（rpx）
@@ -97,6 +100,9 @@ Page({
     currentTypeLabel: '',   // 当前分类 label（供卡片徽标/进度文案，综合为空）
     levels: [],             // 当前学段的关卡卡片数据
     loggedIn: false,        // 登录态（未登录可玩前 3 关）
+    mode: 'classic',        // 当前闯关形态（记忆上次选择：ww_mode）
+    modeOptions: [],        // 形态元数据（config.MODES）
+    modeDesc: '',           // 当前形态的说明文案
     gradeEarnedStars: 0,    // 进度卡：当前分类已得星星数
     gradeTotalStars: 30,    // 进度卡：星星总数（10 关 × 3 星）
     gradeStarPercent: 0     // 进度卡：星星进度百分比 0~100
@@ -104,8 +110,30 @@ Page({
 
   onLoad: function () {
     // 初始化学段列表（7 个学段，REQ-DICT-1）
-    this.setData({ grades: constants.GRADES });
+    var mode = storage.getMode();
+    this.setData({
+      grades: constants.GRADES,
+      mode: mode,
+      modeOptions: MODES,
+      modeDesc: this._modeDesc(mode)
+    });
     this.refreshLevels();
+  },
+
+  // 取指定形态的说明文案（渲染在当前模式栏下方，帮助理解三种形态的差别）
+  _modeDesc: function (key) {
+    for (var i = 0; i < MODES.length; i++) {
+      if (MODES[i].key === key) return MODES[i].desc || '';
+    }
+    return '';
+  },
+
+  // 切换闯关形态：写入本地（下次沿用），点关卡时随参数带进对局
+  pickMode: function (e) {
+    var key = e.currentTarget.dataset.mode;
+    if (!key || key === this.data.mode) return;
+    storage.setMode(key);
+    this.setData({ mode: key, modeDesc: this._modeDesc(key) });
   },
 
   onShow: function () {
@@ -238,6 +266,7 @@ Page({
       + (loggedIn ? 0 : 100)  // 游客横幅
       + 96            // 学段 tab
       + 96            // 题型 chips
+      + 152           // 形态模式栏（实测 76px = 152rpx，勿按 96 估）
       + 150;          // 星星进度卡
     var below = 130   // 自定义关卡入口 + 底部
       + 30;           // 底部安全余量
@@ -265,9 +294,13 @@ Page({
       return;
     }
 
-    // 已解锁：携带学段 + 关卡（+ 分类）参数进入游戏页
+    // 已解锁：携带学段 + 关卡（+ 分类 + 形态）参数进入游戏页
     var grade = this.data.grades[this.data.currentGradeIndex];
-    var url = '/pages/game/game?grade=' + grade.key + '&level=' + card.level;
+    // 记下本次选择，供首页「继续挑战」定位到真正要继续的关卡
+    storage.set(constants.STORAGE_KEYS.lastGrade, grade.key);
+    storage.set(constants.STORAGE_KEYS.lastType, this.data.currentType || '');
+    var url = '/pages/game/game?grade=' + grade.key + '&level=' + card.level
+      + '&mode=' + (this.data.mode || 'classic');
     if (this.data.currentType && this.data.currentType !== 'all') {
       url += '&type=' + this.data.currentType;
     }

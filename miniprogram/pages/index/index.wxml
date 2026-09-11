@@ -81,14 +81,15 @@
     <view class="ar ar-green">{{dailyDone ? '✓' : '›'}}</view>
   </view>
 
-  <!-- 继续挑战 -->
-  <view class="cta" bindtap="goLevel">
+  <!-- 继续挑战（一期：显示真实进度，点击直达该关对局；右上角「换关卡」进关卡页） -->
+  <view class="cta">
     <view class="ci">⚔️</view>
-    <view class="ct">
+    <view class="ct" bindtap="goContinue">
       <view class="c-b">继续挑战</view>
-      <view class="c-s">选择学段 · 题型 · 开始闯关</view>
+      <view class="c-s">{{continueHint}}</view>
     </view>
-    <view class="ar">›</view>
+    <view wx:if="{{continueStars > 0}}" class="c-stars">★{{continueStars}}</view>
+    <view class="c-switch" catchtap="goLevel">换关卡 ›</view>
   </view>
 
   <!-- 推荐玩法 -->

@@ -53,14 +53,18 @@ H.runSuite('verify-game（单词闯关）', async function (miniProgram, ck) {
 
   ck.check('游戏页根容器 .game-page 已渲染', !!(await H.waitForSelector(page, '.game-page', 8000)));
 
-  // A2. 进关前置遮罩存在（证明现在确实有形态自选这一层）
+  // A2. 一期改造后形态弹层已下线：形态改由关卡页的模式栏选定并随 URL 传入，
+  //     进入对局应直接出题，不再有进关遮罩。
   const pickMask = await page.$('.pick-mask');
-  ck.check('进关前展示形态选择层 .pick-mask', !!pickMask);
+  ck.check('对局页不再出现形态弹层 .pick-mask（一期改造）', !pickMask,
+    pickMask ? '仍存在形态弹层' : '已下线');
 
-  console.log('[2/7] 经过进关前置：形态选择 + 新手引导');
+  console.log('[2/7] 处理进关前置（新手引导；形态弹层已下线）');
   const steps = await H.clearGameGates(page);
   steps.forEach(function (s) { console.log('        · ' + s); });
-  ck.check('已走出进关前置（形态选择 + 新手引导）', steps.length > 0, steps.join(' / '));
+  const gateData = await page.data();
+  ck.check('新手引导遮罩已处理（tutorialStep=0）', !gateData.tutorialStep,
+    '实际 tutorialStep = ' + gateData.tutorialStep);
 
   // A3. 出题：恰好 4 个选项
   console.log('[3/7] 等待出题（4 个选项）');

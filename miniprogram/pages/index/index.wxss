@@ -215,7 +215,30 @@
 }
 .ct { flex: 1; min-width: 0; }
 .c-b { font-size: 34rpx; font-weight: 800; }
-.c-s { font-size: 24rpx; opacity: .92; margin-top: 6rpx; }
+.c-s {
+  font-size: 24rpx;
+  opacity: .92;
+  margin-top: 6rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cta .c-stars {
+  flex: 0 0 auto;
+  color: #ffe08a;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.cta .c-switch {
+  flex: 0 0 auto;
+  font-size: 22rpx;
+  font-weight: 800;
+  color: #fff;
+  opacity: .92;
+  border: 2rpx solid rgba(255, 255, 255, .6);
+  border-radius: 999rpx;
+  padding: 6rpx 16rpx;
+}
 .cta .ar { color: #fff; font-size: 44rpx; font-weight: 800; opacity: .9; }
 
 /* 推荐玩法 */

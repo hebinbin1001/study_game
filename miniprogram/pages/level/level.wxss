@@ -35,6 +35,57 @@ page {
 }
 
 /* ===== 学段 tab（卡通胶囊） ===== */
+/* ===== 闯关形态模式栏（一期：由每关弹层改为常驻设置） ===== */
+.mode-bar {
+  margin: 0 24rpx 28rpx;
+  padding: 18rpx 20rpx 20rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.72);
+  box-sizing: border-box;
+}
+.mode-bar__head {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 14rpx;
+}
+.mode-bar__label {
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #3b6f9e;
+  flex-shrink: 0;
+  margin-right: 12rpx;
+}
+.mode-bar__desc {
+  font-size: 22rpx;
+  color: #6f8ba3;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.mode-bar__list {
+  display: flex;
+}
+.mode-chip {
+  flex: 1;
+  height: 68rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 34rpx;
+  background: #ffffff;
+  color: #5c7f9e;
+  font-size: 26rpx;
+  font-weight: 800;
+  box-shadow: 0 4rpx 0 rgba(35, 70, 110, 0.12);
+}
+.mode-chip:not(:last-child) { margin-right: 14rpx; }
+.mode-chip__icon { font-size: 28rpx; margin-right: 6rpx; }
+.mode-chip.on {
+  background: linear-gradient(180deg, #ffc46b, #ff9800);
+  color: #ffffff;
+  box-shadow: 0 4rpx 0 rgba(180, 100, 0, 0.28);
+}
+
 .grade-tabs {
   white-space: nowrap;
   padding: 0 24rpx 32rpx;

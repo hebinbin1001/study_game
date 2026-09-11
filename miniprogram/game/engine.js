@@ -94,8 +94,14 @@ const engine = {
     // 对局形态注入（M7）：'classic' | 'boss' | 'rush' —— 仅表现层差异，判定/计分不受影响
     this.G.mode = (options && options.mode) || 'classic';
 
-    // 出第一题并启动主循环
+    // 出第一题
     this._newQuestion();
+    // 先同步画一帧再启动主循环：
+    // 主循环的首帧要等下一次 requestAnimationFrame 回调，若渲染循环被节流
+    // （开发者工具窗口不在前台、页面刚切换等），画布会长时间空白 ——
+    // 玩家看到的就是「进关了但没有题目」。同步补一帧即可消除这段空白。
+    render(this._ctx, this.G, 0);
+    // 启动主循环
     this._loop(canvasNode);
   },
 

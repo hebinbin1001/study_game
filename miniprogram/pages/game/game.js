@@ -59,11 +59,9 @@ Page({
     // ---- 声音开关（M6 增补） ----
     soundOn: true,              // 音效/朗读总开关（HUD 喇叭切换）
 
-    // ---- 对局形态（M7 Phase A：classic/boss/rush，仅表现层，不影响计分） ----
+    // ---- 对局形态（M7：classic/boss/rush，仅表现层，不影响计分） ----
+    // 一期改造：形态改由关卡页的模式栏选定并随 URL 传入，本页不再弹层
     mode: 'classic',           // 当前生效形态
-    modeOptions: [],           // config.MODES 元数据
-    pickedMode: 'classic',     // 形态选择层预选（记住上次 ww_mode）
-    modePickVisible: true,     // 进关前形态自选层
     hpCells: [],               // boss 血条占位格 [1..totalQ]
     bossRemain: 0,             // boss 剩余血量格（= 总题数进度）
     bossFury: false,           // ≤25% 暴怒氛围
@@ -144,14 +142,15 @@ Page({
     var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
     audio.setSoundEnabled(soundOn);
 
-    // M7：形态记忆预选（上次 ww_mode，缺省 classic）+ 初始化 Boss 血条格
-    var picked = storage.getMode();
+    // 形态：优先取关卡页传入的 mode（一期改造），否则沿用本地记忆
+    // （「再玩一次」、从结算页重进等入口不带 mode，走记忆值）
+    var mode = this._resolveMode(options && options.mode);
+    storage.setMode(mode);   // 与记忆保持一致（关卡页已写入，这里兜底）
     var hpCells = [];
     for (var h = 0; h < CONFIG.totalQ; h++) hpCells.push(h + 1);
     this.setData({
       soundOn: soundOn,
-      pickedMode: picked,
-      modeOptions: CONFIG.modes || [],
+      mode: mode,
       bossRemain: CONFIG.totalQ,
       hpCells: hpCells
     });
@@ -227,11 +226,8 @@ Page({
         self._ctx = ctx;
         self._dpr = dpr;
 
-        // M7：形态选择确认前不自动开打；若已在选择层点了“开始”（canvas 尚未就绪）则此处兜底启动
-        if (self._pendingStart) {
-          self._pendingStart = false;
-          self._startEngine();
-        }
+        // canvas 就绪即开打：形态已在关卡页的模式栏选定（一期改造），本页不再有进关弹层
+        if (!self._engineStarted) self._startEngine();
       });
   },
 
@@ -261,21 +257,18 @@ Page({
 
   // ============ 引擎启动与回调注入 ============
 
-  // M7 形态选择层
-  onPickMode: function (e) {
-    this.setData({ pickedMode: e.currentTarget.dataset.mode || 'classic' });
-  },
-
-  // 确认形态并开始对局（记住选择；经典/Boss/竞速均经同一 engine.start）
-  startMode: function () {
-    var m = this.data.pickedMode || 'classic';
-    storage.setMode(m);
-    this.setData({ mode: m, modePickVisible: false, bossRemain: CONFIG.totalQ, bossDefeat: false, penLock: false, modeFxText: '' });
-    if (!this._canvasNode) {
-      this._pendingStart = true; // canvas 尚未就绪：onReady 兜底启动
-      return;
+  /**
+   * 校验形态 key：命令行传入非法值时回退到本地记忆（ww_mode）。
+   * 形态来源优先级：URL 参数（关卡页模式栏）> 本地记忆（再玩一次等入口）> classic。
+   * @param {string} raw URL 上的 mode 参数
+   * @returns {string} 合法形态 key
+   */
+  _resolveMode: function (raw) {
+    var modes = CONFIG.modes || [];
+    for (var i = 0; i < modes.length; i++) {
+      if (modes[i].key === raw) return raw;
     }
-    if (!this._engineStarted) this._startEngine();
+    return storage.getMode();
   },
 
   // 答错 → 上报错题本（登录用户；游客无账号不上报，静默失败不影响对局）

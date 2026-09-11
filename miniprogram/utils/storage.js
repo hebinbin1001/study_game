@@ -335,6 +335,43 @@ function isLevelUnlocked(grade, level, typeKey) {
   return prevStars >= 1;
 }
 
+/**
+ * 计算「继续挑战」的目标关卡（首页卡片与关卡页的"继续"节点共用同一口径）。
+ *
+ * 规则（与关卡页 refreshLevels 保持一致）：
+ *   1. 前 DEFAULT_UNLOCKED_LEVELS 关默认解锁（游客同享）；
+ *   2. 第 N 关需第 N-1 关 ≥1 星；
+ *   3. 取第一个「已解锁但还没拿到星」的关卡作为继续目标；
+ *   4. 已解锁的关卡都通关了，就取最后一个已解锁关卡（可重玩刷星）。
+ *
+ * 注意：本函数只依据本地存档推导，**不含登录门槛**（第 4 关起需登录）。
+ * 调用方需自行判断游客是否该被引导去登录页。
+ *
+ * @param {string} grade 学段 key
+ * @param {string} [typeKey] 题型分类 key
+ * @returns {{level:number, stars:number, allPassed:boolean}}
+ */
+function findContinueLevel(grade, typeKey) {
+  var levelCount = constants.LEVELS_PER_GRADE;
+  var defaultUnlocked = constants.DEFAULT_UNLOCKED_LEVELS;
+  var lastUnlocked = 1;
+
+  for (var i = 1; i <= levelCount; i++) {
+    var unlocked = (i <= defaultUnlocked) || (getStars(grade, i - 1, typeKey) >= 1);
+    if (!unlocked) break;
+    lastUnlocked = i;
+    if (getStars(grade, i, typeKey) === 0) {
+      return { level: i, stars: 0, allPassed: false };
+    }
+  }
+
+  return {
+    level: lastUnlocked,
+    stars: getStars(grade, lastUnlocked, typeKey),
+    allPassed: true
+  };
+}
+
 // ============ 五、待上报成绩队列（REQ-NFR-2） ============
 
 /**
@@ -526,6 +563,7 @@ module.exports = {
   saveStars: saveStars,
   // 关卡解锁
   isLevelUnlocked: isLevelUnlocked,
+  findContinueLevel: findContinueLevel,
   // 待上报成绩队列
   MAX_PENDING_SCORES: MAX_PENDING_SCORES,
   getPendingScores: getPendingScores,

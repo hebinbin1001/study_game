@@ -15,6 +15,25 @@
     <text class="guest-banner-btn">去登录</text>
   </view>
 
+  <!-- 闯关形态模式栏（一期：由「每关弹层」改为常驻设置，记忆上次选择 ww_mode） -->
+  <view wx:if="{{modeOptions.length > 0}}" class="mode-bar">
+    <view class="mode-bar__head">
+      <text class="mode-bar__label">闯关形态</text>
+      <text class="mode-bar__desc">{{modeDesc}}</text>
+    </view>
+    <view class="mode-bar__list">
+      <view
+        wx:for="{{modeOptions}}"
+        wx:key="key"
+        class="mode-chip {{mode === item.key ? 'on' : ''}}"
+        data-mode="{{item.key}}"
+        bindtap="pickMode">
+        <text class="mode-chip__icon">{{item.icon}}</text>
+        <text class="mode-chip__name">{{item.short || item.label}}</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 学段 tab（7 个学段，REQ-DICT-1，交互保留） -->
   <scroll-view class="grade-tabs" scroll-x="true" enable-flex="true">
     <view

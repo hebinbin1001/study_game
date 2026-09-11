@@ -77,9 +77,9 @@ const REVIEW_RATE = DEFAULT_REVIEW_RATE;
 // ============ 七点五、对局形态（M7 Phase A，仅表现层，不参与计分） ============
 // 玩家进关前自选；classic 默认保持现状渲染
 const MODES = [
-  { key: 'classic', label: '经典对战', icon: '⚔️', desc: '标准闯关 · 稳扎稳打' },
-  { key: 'boss', label: 'Boss 狂潮', icon: '🐲', desc: '血量进度 · 连击命中更爽' },
-  { key: 'rush', label: '极速竞技', icon: '⚡', desc: '每题 6 秒 · 超时判错' }
+  { key: 'classic', label: '经典对战', short: '经典', icon: '⚔️', desc: '标准闯关 · 稳扎稳打' },
+  { key: 'boss', label: 'Boss 狂潮', short: 'Boss', icon: '🐲', desc: '血量进度 · 连击命中更爽' },
+  { key: 'rush', label: '极速竞技', short: '极速', icon: '⚡', desc: '每题 6 秒 · 超时判错' }
 ];
 // 竞速形态表现参数（超时判错与选错同入口，计分零改动）
 const RUSH_SECONDS = 6;   // 每题倒计时秒数

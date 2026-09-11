@@ -78,7 +78,9 @@ const STORAGE_KEYS = {
   pendingScores: 'ww_pending_scores', // 待上报成绩队列（离线暂存）
   warriorSkin: 'ww_warrior_skin', // 当前使用的战士皮肤 avatarId
   bossSkin: 'ww_boss_skin',        // 当前使用的怪兽皮肤 avatarId
-  sound: 'ww_sound_on'            // 声音开关（'1'开/'0'关，默认开）
+  sound: 'ww_sound_on',            // 声音开关（'1'开/'0'关，默认开）
+  lastGrade: 'ww_last_grade',      // 最近一次进入的学段（首页「继续挑战」定位用）
+  lastType: 'ww_last_type'         // 最近一次进入的题型分类（空 = 综合）
 };
 
 // ============ 五、游戏配置默认值（REQ-NFR-5、REQ-GAME-3） ============
@@ -94,6 +96,10 @@ const GAME_CONFIG = {
 };
 
 // ============ 六、题型分类（关卡页按分类选择，2026-09-08 拍板） ============
+// 关卡规模（关卡页与首页「继续挑战」共用，避免两处漂移）
+const LEVELS_PER_GRADE = 10;        // 每学段关卡数
+const DEFAULT_UNLOCKED_LEVELS = 3;  // 默认解锁前 3 关（含游客）；第 4 关起需登录且逐关解锁
+
 // 词条 type → 用户分类。c1/c2 按「完整词长」区分词语/成语（与出题 typeKind 口径一致：
 // 题面原文长度 >= 4 视为成语，如 守*待兔 长度为 5 → 成语）。
 function wordLenOf(item) {
@@ -139,6 +145,8 @@ module.exports = {
   starsByRate,
   STORAGE_KEYS,
   GAME_CONFIG,
+  LEVELS_PER_GRADE,
+  DEFAULT_UNLOCKED_LEVELS,
   TYPE_GROUPS,
   isItemInGroup
 };
