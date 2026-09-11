@@ -121,8 +121,35 @@ await H.waitForCount(page, '.option', 4, 20000);
 
 ### 4. 涉及定时器/主循环的玩法，先冻结再手动步进
 
-贪吃蛇这类「定时器驱动 + 有竞态」的玩法，用例应冻结主循环、手动步进到确定态再断言
-（见 `verify-snake.js`），把随机竞态变成确定性状态机。
+**这是本仓最容易踩的坑**：开发者工具窗口不处于前台时，模拟器会对 canvas 的
+`requestAnimationFrame` 做节流甚至停摆，于是出现
+「选项点对了，但炮弹永远飞不到、得分永远不加」「答错后永远不进入逼近扣命」——
+代码没问题，是用例在等一个不会到来的帧。这类失败还会随窗口焦点随机出现。
+
+**统一对策：点击用真实操作，时间用固定步进。** 各玩法页面都提供冻结 + 步进的测试钩子：
+
+| 玩法 | 冻结 | 步进 | 用例 |
+|---|---|---|---|
+| 单词闯关 | `_testStep` 内部先 `engine.stop()` | `callMethod('_testStep', frames)`，每帧 1/60s 游戏时间 | `verify-game.js` |
+| 单词贪吃蛇 | `callMethod('_stopLoop')` | `callMethod('_tick')` | `verify-snake.js` |
+
+以单词闯关为例（`_testStep` 一次推进 150 帧 ≈ 2.5s 游戏时间，足够覆盖
+炮弹飞行 → 命中加分 → 死亡动画 → 出新题）：
+
+```js
+const options = await H.waitForCount(page, '.option', 4, 20000);
+const d = await page.data();
+const ci = (d.options || []).findIndex(function (o) { return o.correct; });
+
+await options[ci].tap();              // 真实点击：模拟用户操作
+await page.callMethod('_testStep', 150);   // 固定步进：不依赖模拟器帧率
+await page.waitFor(400);              // 等 setData 落地
+const after = await page.data();
+ck.check('答对后得分 +10', after.score - d.score === 10);
+```
+
+注意：钩子名带下划线前缀并标注「仅供端到端测试」，是明确的测试专用入口；
+新增玩法若也走主循环驱动，请照此提供同款钩子，而不是让用例去 sleep 等帧。
 
 ### 5. 判定连通性/可解性时，复用产品自身规则
 

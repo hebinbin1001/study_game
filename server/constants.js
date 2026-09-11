@@ -32,11 +32,16 @@ const OPENID_RE = /^[A-Za-z0-9_-]{8,64}$/;
 // 每题答对得分 10（前端 engine.js 每题 +10，每关 10 题满分 100；分高无法脱离答对数伪造）
 const SCORE_PER_QUESTION = 10;
 
-// 星级阈值：正确率(百分比) >= 90 → 3 星；>= 70 → 2 星；>= 40 → 1 星；否则 0 星
+// 星级阈值：正确率(百分比) >= 90 → 3 星；>= 70 → 2 星；>= 60 → 1 星；否则 0 星
+//
+// ⚠️ 必须与前端 miniprogram/utils/constants.js 的 STAR_THRESHOLDS 保持完全一致：
+//   前端负责结算页展示与本地星级存档，服务端负责落库与排行榜统计；
+//   两侧口径不一致会导致「结算显示 3 星、云端统计成 2 星」这类数据打架。
+//   改动阈值时请一并修改两处（R1：90/70/40 → 90/70/60，命数 3 → 5）。
 const STAR_THRESHOLDS = [
   { minRate: 90, stars: 3 },
   { minRate: 70, stars: 2 },
-  { minRate: 40, stars: 1 },
+  { minRate: 60, stars: 1 },
 ];
 
 /**

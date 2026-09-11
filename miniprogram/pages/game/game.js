@@ -32,7 +32,7 @@ var CONFIG = config.CONFIG;
 var TUTORIAL_STEPS = [
   { title: '欢迎，小战士！', desc: '怪兽身上是挖空的题目。点下方字母/词语，把它补全！' },
   { title: '答对打跑怪兽', desc: '答对 +10 分、涨连击，还有爆炸星星特效 ✨' },
-  { title: '小心 3 条命', desc: '答错会扣命，3 条命用完本局就输啦。准备好了吗？' }
+  { title: '小心 ' + CONFIG.initLives + ' 条命', desc: '答错会扣命，' + CONFIG.initLives + ' 条命用完本局就输啦。准备好了吗？' }
 ];
 
 Page({
@@ -43,7 +43,7 @@ Page({
     type: '',                // 题型分类 key（空串/'all' = 综合抽题）
 
     // ---- HUD 状态 ----
-    livesText: '❤❤❤',       // 命数渲染为 ❤ 字符串
+    livesText: '❤'.repeat(CONFIG.initLives),  // 命数渲染为 ❤ 字符串（初值随配置联动）
     score: 0,                 // 得分
     qIndex: 1,                // 当前题号（1 起，引擎 answered+1）
     totalQ: CONFIG.totalQ,    // 总题数（10）
@@ -585,7 +585,7 @@ Page({
   /**
    * 命数渲染为 ❤ 字符串。
    * @param {number} lives 当前命数
-   * @returns {string} 如 '❤❤❤'
+   * @returns {string} 如 '❤❤❤❤❤'
    */
   _renderLives(lives) {
     var n = Math.max(0, lives);
@@ -667,6 +667,28 @@ Page({
   },
 
   // ============ 玩家操作 ============
+
+  /**
+   * 【仅供端到端测试】冻结真实主循环并确定性推进指定帧数。
+   *
+   * 为什么存在：开发者工具的模拟器在窗口不处于前台时，会对 canvas 的
+   * requestAnimationFrame 做节流甚至停摆 —— 于是出现「选项点对了，但炮弹永远
+   * 飞不到、得分永远不加」「答错后永远不进入逼近扣命」这类与代码无关的偶发假失败。
+   *
+   * e2e 用法：先真实点击选项（模拟用户操作），再调用本方法把游戏时钟按固定步长
+   * 推进，把对局变成可复现的确定性状态机 —— 与 verify-snake「冻结 _stopLoop +
+   * 手动 _tick」的做法一致。
+   *
+   * @param {number} frames 推进帧数（每帧 1/60 秒游戏时间）
+   */
+  _testStep(frames) {
+    engine.stop();                                  // 冻结真实主循环，避免与手动步进叠加
+    var n = Math.max(1, parseInt(frames, 10) || 1);
+    for (var i = 0; i < n; i++) {
+      if (engine.G && engine.G.over) break;
+      engine._update(1 / 60);
+    }
+  },
 
   /**
    * 选项按钮点击：转发给 engine.fire(opt)。

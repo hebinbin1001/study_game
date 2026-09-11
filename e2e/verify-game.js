@@ -11,6 +11,12 @@
  *   形态选择层 .pick-start → 新手引导 .tutorial-mask ×3 → 出题
  *   （历史失败根因：本脚本写于形态自选上线前，未过这两层遮罩。）
  *
+ * 时钟驱动（关键）：选项用【真实点击】模拟用户操作，但点击后的推进不用真实主循环，
+ *   而是调用页面测试钩子 _testStep 按固定帧步进。
+ *   原因：开发者工具窗口不处于前台时，canvas 的 requestAnimationFrame 会被节流甚至
+ *   停摆，导致「点对了选项却永远不加分」「答错后永远不扣命」这类与代码无关的偶发假失败。
+ *   固定帧步进把对局变成确定性状态机（与 verify-snake 的 _stopLoop + _tick 同一思路）。
+ *
  * 关于连击字段（踩坑记录）：页面 data 里没有 `combo` 字段。
  *   引擎的连击经 onHudChange 映射为 `comboShow`（数字），
  *   用户可见的浮层文字是 `comboText`（连击 ≥2 才出现，800ms 后自动清除）。
@@ -21,11 +27,15 @@
  */
 
 const H = require('./lib/harness');
+// 直接从产品常量取命数，避免用例把「3 颗心」写死（R1：命数 3 → 5）
+const C = require('../miniprogram/utils/constants');
 
 const GAME_URL = '/pages/game/game?grade=kindergarten&level=1';
 const EXPECTED_OPTIONS = 4;
 const EXPECTED_TOTAL_Q = 10;
 const SCORE_PER_CORRECT = 10;
+const INIT_LIVES = C.GAME_CONFIG.initLives;
+const LIVES_TEXT = '❤'.repeat(INIT_LIVES);
 
 /** 读出当前题的正确答案下标（从 page.data().options 里找 correct=true） */
 function correctIndexOf(data) {
@@ -64,6 +74,7 @@ H.runSuite('verify-game（单词闯关）', async function (miniProgram, ck) {
   console.log('        HUD 题号 = ' + qnum + ' · 命数 = ' + lives);
   ck.check('HUD 题号为第 1/' + EXPECTED_TOTAL_Q + ' 题', qnum === '第 1/' + EXPECTED_TOTAL_Q + ' 题', '实际 = ' + qnum);
   ck.check('HUD 命数非空', !!lives, '实际 = ' + lives);
+  ck.check('HUD 命数为 ' + INIT_LIVES + ' 颗心（与 GAME_CONFIG.initLives 一致）', lives === LIVES_TEXT, '实际 = ' + lives);
 
   const before = await page.data();
   ck.check('页面 data.totalQ = ' + EXPECTED_TOTAL_Q, before.totalQ === EXPECTED_TOTAL_Q, '实际 = ' + before.totalQ);
@@ -77,13 +88,10 @@ H.runSuite('verify-game（单词闯关）', async function (miniProgram, ck) {
   if (ci1 < 0) return;
 
   await options[ci1].tap();
-  // 等「题号推进」这个状态信号，而不是等固定时长。
-  // 引擎主循环把 dt 钳制在 0.05s/帧（REQ-NFR-1），模拟器帧率偏低时游戏内 0.7s
-  // 的死亡动画会明显慢于墙上时间，固定 waitFor(2200) 会随负载偶发假失败。
-  // 引擎 _newQuestion() 先置 state=IDLE 再 emitHud，故题号推进即可安全作答下一题。
-  const after1 = await H.waitForData(page, function (d) {
-    return (d.qIndex || 0) > (before.qIndex || 0);
-  }, 20000, '第 1 题答对后题号推进') || await page.data();
+  // 确定性推进 150 帧（2.5s 游戏时间）：覆盖炮弹飞行 → 命中加分 → 死亡动画 → 出新题
+  await page.callMethod('_testStep', 150);
+  await page.waitFor(400);
+  const after1 = await page.data();
   console.log('        得分 ' + (before.score || 0) + ' → ' + (after1.score || 0)
     + ' · 连击 ' + (before.comboShow || 0) + ' → ' + (after1.comboShow || 0)
     + ' · 题号 ' + before.qIndex + ' → ' + after1.qIndex);
@@ -92,8 +100,8 @@ H.runSuite('verify-game（单词闯关）', async function (miniProgram, ck) {
     (before.score || 0) + ' → ' + (after1.score || 0));
   ck.check('答对后连击累积到 1', (after1.comboShow || 0) === 1, '实际 comboShow = ' + after1.comboShow);
   ck.check('答对后题号推进', after1.qIndex === before.qIndex + 1, before.qIndex + ' → ' + after1.qIndex);
-  ck.check('答对后 life 未扣（HUD 仍为 ❤❤❤）', (await H.textOf(page, '.hud-lives')) === '❤❤❤',
-    '实际 = ' + (await H.textOf(page, '.hud-lives')));
+  const livesAfter = await H.textOf(page, '.hud-lives');
+  ck.check('答对后 life 未扣（HUD 仍为 ' + LIVES_TEXT + '）', livesAfter === LIVES_TEXT, '实际 = ' + livesAfter);
 
   // B2. 连答第 2 题：验证连击累积 + 用户可见连击浮层 [5/7]
   console.log('[5/7] 连答第 2 题，验证连击累积与连击浮层');
@@ -108,17 +116,17 @@ H.runSuite('verify-game（单词闯关）', async function (miniProgram, ck) {
   if (ci2 < 0) return;
 
   await options2[ci2].tap();
-  // comboText 由页面在 800ms 后自动清除（墙上时间），须在窗口内高频轮询抓取
+  await page.callMethod('_testStep', 150);
+  // comboText 在命中瞬间写入，并由页面在 800ms（墙上时间）后自动清除 ——
+  // 步进是同步完成的，故紧接着高频抓取即可稳定拿到
   let toast = null;
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 10; i++) {
     const d = await page.data();
     if (d.comboText) { toast = d.comboText; break; }
-    await page.waitFor(60);
+    await page.waitFor(50);
   }
-  // 同样按状态等待：得分真正增加才算第 2 题作答被引擎接受
-  const after2 = await H.waitForData(page, function (d) {
-    return (d.score || 0) > (d2.score || 0);
-  }, 20000, '第 2 题答对后得分增加') || await page.data();
+  await page.waitFor(300);
+  const after2 = await page.data();
 
   console.log('        得分 ' + (d2.score || 0) + ' → ' + (after2.score || 0)
     + ' · 连击 ' + (d2.comboShow || 0) + ' → ' + (after2.comboShow || 0)

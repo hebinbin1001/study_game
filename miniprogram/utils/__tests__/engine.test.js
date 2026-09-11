@@ -19,6 +19,8 @@ const { suite } = require('./_runner');
 const s = suite('game/engine.js');
 
 const engine = require('../../game/engine');
+// 命数从配置读取，避免用例把「答错后剩 2 命」写死（R1：命数 3 → 5）
+const CONFIG = require('../../game/config').CONFIG;
 
 // ---- mock canvas 2D context：Proxy 兜底，measureText 返回 {width: 长度×10} ----
 function makeCtx() {
@@ -122,7 +124,7 @@ s.test('maxCombo：连对 3 题累积到 3，答错 1 题 combo 归 0 但 maxCom
   s.assert.ok(answerWrong(env), '答错应在帧数限制内完成');
   s.assert.equal(G.combo, 0, '答错后 combo 应归 0');
   s.assert.equal(G.maxCombo, 3, '答错后 maxCombo 应保持历史最高 3');
-  s.assert.equal(G.lives, 2, '答错后命数应减为 2');
+  s.assert.equal(G.lives, CONFIG.initLives - 1, '答错后命数应减 1');
 
   s.assert.ok(answerCorrect(env), '第 4 题答对应在帧数限制内完成');
   s.assert.ok(answerCorrect(env), '第 5 题答对应在帧数限制内完成');
@@ -138,7 +140,7 @@ s.test('_endLevel：主循环走完全局，result 含 maxCombo 且为历史最�
   const G = env.engine.G;
 
   // 3 对 + 1 错 + 2 对 + 1 错 + 3 对 = 10 题，走完结算
-  // 答错 2 次：lives 3→2→1（不失败），combo 中途两次断到 0，历史最高稳定在 3
+  // 答错 2 次：命数逐次 -1（远未耗尽，不失败），combo 中途两次断到 0，历史最高稳定在 3
   for (let i = 0; i < 3; i++) s.assert.ok(answerCorrect(env), '答对 ' + (i + 1) + ' 题超时');
   s.assert.ok(answerWrong(env), '第 1 次答错超时');
   for (let i = 0; i < 2; i++) s.assert.ok(answerCorrect(env), '连对 2 题超时');

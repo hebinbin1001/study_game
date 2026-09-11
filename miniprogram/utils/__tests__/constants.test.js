@@ -1,7 +1,7 @@
 /**
  * constants.test.js —— utils/constants.js 全局常量与计分单测
  *
- * 覆盖：7 学段枚举、8 类型码、starsByRate 星级阈值（90/70/40/0）、存储 key、游戏配置。
+ * 覆盖：7 学段枚举、8 类型码、starsByRate 星级阈值（90/70/60/0）、存储 key、游戏配置。
  *
  * 运行：node miniprogram/utils/__tests__/constants.test.js
  */
@@ -33,16 +33,16 @@ s.test('TYPES/TYPE_CODES：8 类型码覆盖 w1/w2/c1/c2/xhy/zc/fill/trans', () 
   s.assert.deepEqual(c.TYPE_CODES, Object.keys(c.TYPES));
 });
 
-s.test('starsByRate：星级阈值 90/70/40/0 边界', () => {
+s.test('starsByRate：星级阈值 90/70/60/0 边界', () => {
   s.assert.equal(c.starsByRate(100), 3);
   s.assert.equal(c.starsByRate(90), 3);
   s.assert.equal(c.starsByRate(89), 2);   // 89 未到 90 → 2 星
   s.assert.equal(c.starsByRate(89.9), 2);
   s.assert.equal(c.starsByRate(70), 2);
-  s.assert.equal(c.starsByRate(69.9), 1);
+  s.assert.equal(c.starsByRate(69.9), 1);   // 69.9 未到 70 → 1 星
   s.assert.equal(c.starsByRate(69), 1);
-  s.assert.equal(c.starsByRate(40), 1);
-  s.assert.equal(c.starsByRate(39.9), 0);
+  s.assert.equal(c.starsByRate(60), 1);
+  s.assert.equal(c.starsByRate(59.9), 0);
   s.assert.equal(c.starsByRate(0), 0);
   s.assert.equal(c.starsByRate(-1), 0);
 });
@@ -51,7 +51,7 @@ s.test('STAR_THRESHOLDS：阈值单调递减、星数单调递减', () => {
   s.assert.deepEqual(c.STAR_THRESHOLDS, [
     { minRate: 90, stars: 3 },
     { minRate: 70, stars: 2 },
-    { minRate: 40, stars: 1 }
+    { minRate: 60, stars: 1 }
   ]);
 });
 
@@ -63,7 +63,8 @@ s.test('STORAGE_KEYS：昵称/头像/星级/待上报 key 均非空', () => {
 
 s.test('GAME_CONFIG：核心配置数值与注释一致', () => {
   s.assert.equal(c.GAME_CONFIG.totalQ, 10);
-  s.assert.equal(c.GAME_CONFIG.initLives, 3);
+  // R1：命数 3 → 5，与星级阈值 90/80/60 联动，保证三档星级全部可达
+  s.assert.equal(c.GAME_CONFIG.initLives, 5);
   s.assert.equal(c.GAME_CONFIG.sinkSpeed, 13);
   s.assert.equal(c.GAME_CONFIG.approach, 58);
   s.assert.equal(c.GAME_CONFIG.approachTime, 0.6);

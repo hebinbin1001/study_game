@@ -13,7 +13,7 @@
  *   - REQ-GAME-6（答对状态流转 IDLE→FLYING→DYING）
  *   - REQ-GAME-7（答错状态流转 IDLE→APPROACHING）
  *   - REQ-GAME-8（怪兽下沉判负视同答错）
- *   - REQ-GAME-3（initLives=3、计分从 0 开始）
+ *   - REQ-GAME-3（initLives 见 utils/constants.js、计分从 0 开始）
  */
 
 const { CONFIG } = require('./config');
@@ -44,7 +44,7 @@ function createInitialState() {
 
     // ---- 计分 ----
     score: 0,             // 当前得分
-    lives: CONFIG.initLives, // 剩余命数（初始 3）
+    lives: CONFIG.initLives, // 剩余命数（初值取自 constants.GAME_CONFIG.initLives）
     answered: 0,          // 已作答题数（含对错）
     correctCount: 0,      // 答对题数
     combo: 0,             // 当前连击数

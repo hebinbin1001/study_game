@@ -41,11 +41,21 @@ const TYPES = {
 const TYPE_CODES = Object.keys(TYPES);
 
 // ============ 三、星级阈值（正确率 → 星数，REQ-GAME-12） ============
-// 正确率 >= 90% 得 3 星，>= 70% 得 2 星，>= 40% 得 1 星，< 40% 得 0 星
+// 正确率 >= 90% 得 3 星，>= 70% 得 2 星，>= 60% 得 1 星，< 60% 得 0 星
+//
+// ⚠️ 阈值必须落在「通关可达的正确率区间」内，否则会出现永远拿不到的星级档：
+//   · 通关条件是答满 totalQ 题；命数为 initLives，扣到 0 立即判负且不写星级档；
+//   · 因此通关最多只能错 (initLives - 1) 题，最低正确率 = (totalQ - (initLives-1)) / totalQ；
+//   · 当前 totalQ=10、initLives=5 → 最低 60%，恰好落在 1 星档（60%），三档全部可达。
+//
+// 历史缺陷（R1）：旧值 initLives=3 + 阈值 90/70/40 时，通关最多错 2 题 →
+//   正确率恒 ≥ 80% → 结算只可能是 3 星或 2 星，**1 星档（40%~69%）在数学上不可达**，
+//   关卡解锁条件「上一关 ≥1 星」也因此等价于「通关过」，形同虚设。
+//   回归护栏见 utils/__tests__/stars-reachable.test.js。
 const STAR_THRESHOLDS = [
   { minRate: 90, stars: 3 },
   { minRate: 70, stars: 2 },
-  { minRate: 40, stars: 1 }
+  { minRate: 60, stars: 1 }
 ];
 
 // 由正确率计算星级（正确率百分比数值，如 85 表示 85%）
@@ -75,7 +85,7 @@ const STORAGE_KEYS = {
 // 与 HTML 原型 CONFIG（prototype/index.html）保持一致
 const GAME_CONFIG = {
   totalQ: 10,          // 每关题数
-  initLives: 3,        // 初始生命值
+  initLives: 5,        // 初始生命值（与阈值联动：通关最低正确率 = (10-(5-1))/10 = 60%）
   sinkSpeed: 13,       // 怪兽自然下沉速度（像素/秒）
   approach: 58,        // 答错时怪兽逼近距离
   approachTime: 0.6,   // 答错逼近/抖动/红闪动画时长（秒）

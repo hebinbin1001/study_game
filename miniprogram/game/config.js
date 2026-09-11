@@ -85,7 +85,7 @@ const RUSH_PENALTY = 0.8; // 竞速答错后选项惩罚锁（秒，页面层）
 const CONFIG = {
   // 基础玩法（来自 GAME_CONFIG）
   totalQ: GAME_CONFIG.totalQ,           // 每关题数 10
-  initLives: GAME_CONFIG.initLives,     // 初始命数 3
+  initLives: GAME_CONFIG.initLives,     // 初始命数 5（与星级阈值联动，见 utils/constants.js 注释）
   sinkSpeed: GAME_CONFIG.sinkSpeed,     // 怪兽自然下沉速度 13 px/秒
   approach: GAME_CONFIG.approach,       // 答错逼近距离 58 px
   approachTime: APPROACH_TIME,          // 答错逼近动画时长 0.6 秒
