@@ -29,6 +29,10 @@ s.test('尺寸下限：战士与底座不能被改小到看不见', () => {
   s.assert.ok(WARRIOR.baseW >= MON_W * 0.35,
     '底座宽应 ≥ 怪兽卡片宽的 35%（' + (MON_W * 0.35).toFixed(0) + 'px），实际 ' + WARRIOR.baseW);
   s.assert.ok(WARRIOR.baseH >= 18, '底座不能太薄，实际 ' + WARRIOR.baseH);
+  // 真图展示区（美术到货后走图片分支）应比 emoji 更大，且不越出画布
+  s.assert.ok(WARRIOR.image > WARRIOR.glyph,
+    '真图展示高度应大于 emoji 字号，实际 ' + WARRIOR.image + ' vs ' + WARRIOR.glyph);
+  s.assert.ok(WARRIOR.image < H * 0.33, '真图不应高到挤占战场，实际 ' + WARRIOR.image);
 });
 
 s.test('站位：战士踩在底座顶面，整体不越出画布', () => {

@@ -14,7 +14,7 @@ var request = require('../../utils/request');
 var storage = require('../../utils/storage');
 var skins = require('../../utils/skins');
 
-// 段位名（rankId 1~8，与 server/seeders/rank-seed.js 对应，用于解锁条件文案）
+// 段位名（rankId 1~8，与 server/rank-ladder.js 的大段位对应，用于解锁条件文案）
 var RANK_NAMES = ['', '青铜', '白银', '黄金', '铂金', '钻石', '星耀', '王者', '荣耀王者'];
 
 Page({
@@ -32,12 +32,31 @@ Page({
     this.loadRankInfo();
   },
 
-  // 给后端返回的形象项附加 emoji 与稀有度中文标签
+  // 给后端返回的形象项附加「图片 + emoji 兜底 + 稀有度中文标签」
+  // 图片优先（美术已交付 24 套战士皮肤）；缺图/加载失败时由 onIconError 回退到 emoji。
   _decorate: function (item) {
+    var render = skins.getSkinRender(item.avatarId);
     return Object.assign({}, item, {
-      emoji: skins.getSkinRender(item.avatarId).emoji,
+      emoji: render.emoji,
+      image: render.image || '',
+      iconErr: false,
       rarityLabel: skins.getRarity(item.rarity).label
     });
+  },
+
+  /** 皮肤图加载失败（图没进包/路径写错）→ 该卡片回退 emoji，不出现白块 */
+  onIconError: function (e) {
+    var id = e.currentTarget.dataset.id;
+    if (!id) return;
+    var list = this.data.warriors || [];
+    var patch = {};
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].avatarId === id) { patch['warriors[' + i + '].iconErr'] = true; break; }
+    }
+    for (var j = 0; j < (this.data.monsters || []).length; j++) {
+      if (this.data.monsters[j].avatarId === id) { patch['monsters[' + j + '].iconErr'] = true; break; }
+    }
+    if (Object.keys(patch).length) this.setData(patch);
   },
 
   // 给未解锁形象附加「达成条件」文案与是否达标（基于 /api/rank/info，与后端判定同口径）
@@ -128,6 +147,8 @@ Page({
         rarity: s.rarity,
         rarityLabel: skins.getRarity(s.rarity).label,
         emoji: s.emoji,
+        image: s.image || '',
+        iconErr: false,
         unlockType: s.unlockType,
         unlockValue: s.unlockValue,
         unlocked: s.unlockType === 'free',

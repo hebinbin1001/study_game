@@ -440,7 +440,8 @@ function drawEye(ctx, cx, cy, angry) {
  * 改这几个数就能整体调大小；站位由 warriorLayout() 统一算，保证「战士踩在底座上、不越界」。
  */
 const WARRIOR = {
-  glyph: 56,       // emoji 字号（战士本体视觉高度）
+  glyph: 56,       // emoji 字号（战士本体视觉高度；没有真图时用它）
+  image: 96,       // 真图展示高度（有图时画这个尺寸，比 emoji 更大更精致）
   baseW: 104,      // 底座宽
   baseH: 22,       // 底座高
   baseGap: 6,      // 底座顶面相对 CANNON_Y 的上移量
@@ -492,11 +493,24 @@ function drawCannon(ctx, state, now) {
   roundRect(ctx, L.baseX, L.baseY + 5, L.baseW, L.baseH, 11); ctx.fill();   // 硬阴影层
   ctx.fillStyle = '#5c7f9e';
   roundRect(ctx, L.baseX, L.baseY, L.baseW, L.baseH, 11); ctx.fill();       // 台面
-  // 皮肤角色：emoji 占位（战士本体）
-  ctx.font = L.glyph + 'px "PingFang SC","Microsoft YaHei",sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(skin.emoji, L.cx, L.cy);
+  // 皮肤角色：有真图就画图（美术已交付 24 套），否则回退 emoji
+  const ready = state && state.skinImages && state.skinImages.warrior && state.skinImages.warrior.ready;
+  if (ready) {
+    const img = state.skinImages.warrior.img;
+    const box = WARRIOR.image;
+    // 等比缩放进 box×box 的方框，脚底仍落在底座顶面（与 emoji 版共用同一站位基准）
+    const iw = img.width || box;
+    const ih = img.height || box;
+    const scale = Math.min(box / iw, box / ih);
+    const dw = iw * scale;
+    const dh = ih * scale;
+    ctx.drawImage(img, L.cx - dw / 2, L.baseY - dh + L.bob, dw, dh);
+  } else {
+    ctx.font = L.glyph + 'px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(skin.emoji, L.cx, L.cy);
+  }
   ctx.restore();
 }
 

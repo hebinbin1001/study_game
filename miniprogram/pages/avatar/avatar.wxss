@@ -86,6 +86,14 @@
   margin-bottom: 14rpx;
 }
 
+/* 真实皮肤图（战士 24 套）：与 emoji 占位同高，保持卡片版式一致 */
+.avatar-img {
+  display: block;
+  width: 168rpx;
+  height: 168rpx;
+  margin: 0 auto 14rpx;
+}
+
 .avatar-name {
   font-size: 26rpx;
   color: #3a3a5c;

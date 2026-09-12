@@ -16,7 +16,15 @@
       <block wx:for="{{warriors}}" wx:key="avatarId">
         <view class="avatar-item {{item.currentUsed ? 'active' : ''}}" data-avatar-id="{{item.avatarId}}">
           <view class="avatar-rarity {{item.rarity}}">{{item.rarityLabel}}</view>
-          <text class="avatar-emoji">{{item.emoji}}</text>
+          <!-- 皮肤图优先（24 套战士美术已到货）；加载失败/缺图时回退 emoji，不出现白块 -->
+          <image
+            wx:if="{{item.image && !item.iconErr}}"
+            class="avatar-img"
+            src="{{item.image}}"
+            mode="aspectFit"
+            data-id="{{item.avatarId}}"
+            binderror="onIconError" />
+          <text wx:else class="avatar-emoji">{{item.emoji}}</text>
           <view class="avatar-name">{{item.name}}</view>
           <view class="avatar-status">
             <block wx:if="{{item.unlocked}}">
@@ -46,7 +54,15 @@
       <block wx:for="{{monsters}}" wx:key="avatarId">
         <view class="avatar-item {{item.currentUsed ? 'active' : ''}}" data-avatar-id="{{item.avatarId}}">
           <view class="avatar-rarity {{item.rarity}}">{{item.rarityLabel}}</view>
-          <text class="avatar-emoji">{{item.emoji}}</text>
+          <!-- 怪兽美术未交付，这里始终走 emoji 兜底分支；保留同样的图片分支便于后续直接接图 -->
+          <image
+            wx:if="{{item.image && !item.iconErr}}"
+            class="avatar-img"
+            src="{{item.image}}"
+            mode="aspectFit"
+            data-id="{{item.avatarId}}"
+            binderror="onIconError" />
+          <text wx:else class="avatar-emoji">{{item.emoji}}</text>
           <view class="avatar-name">{{item.name}}</view>
           <view class="avatar-status">
             <block wx:if="{{item.unlocked}}">

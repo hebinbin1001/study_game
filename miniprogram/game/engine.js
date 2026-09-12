@@ -90,6 +90,10 @@ const engine = {
     const skins = (options && options.skins) || {};
     this.G.warriorSkin = getWarriorSkin(skins.warrior);
     this.G.monsterSkin = getMonsterSkin(skins.monster);
+    // 皮肤**真图**预加载（2026-09-12 美术到货）：Canvas 2D 用 canvas.createImage() 加载，
+    // 加载完成前/失败时渲染层自动回退 emoji（renderer.drawCannon 里判 skinImage.ready）。
+    this.G.skinImages = {};
+    this._preloadSkinImages(canvasNode);
 
     // 出第一题
     this._newQuestion();
@@ -99,6 +103,40 @@ const engine = {
     this.renderOnce();
     // 启动主循环
     this._loop(canvasNode);
+  },
+
+  /**
+   * 皮肤真图预加载（战士/怪兽）。
+   *
+   * 小程序 Canvas 2D 没有 new Image()，要用 `canvas.createImage()` 得到图片对象再设 src；
+   * 加载是异步的，所以这里只负责「挂上去」：
+   *   - 加载成功 → G.skinImages.<kind> = img，渲染层画真图；
+   *   - 加载失败/未完成 → 渲染层回退 emoji（不会白块、不会报错）。
+   * 另外补一帧：图加载完时如果主循环正好被节流，玩家会一直看着 emoji，
+   * 所以 onload 里主动 renderOnce() 刷一下。
+   */
+  _preloadSkinImages(canvasNode) {
+    const G = this.G;
+    if (!canvasNode || typeof canvasNode.createImage !== 'function') return;
+    const load = (kind, src, skin) => {
+      if (!src) return;
+      try {
+        const img = canvasNode.createImage();
+        img.onload = () => {
+          G.skinImages[kind] = { img, ready: true, w: img.width, h: img.height };
+          this.renderOnce();
+        };
+        img.onerror = () => {
+          G.skinImages[kind] = { img: null, ready: false };
+          // 加载失败静默回退 emoji（不打断对局）
+        };
+        img.src = src;
+      } catch (e) {
+        // createImage 不可用（老版本基础库）→ 保持 emoji 兜底
+      }
+    };
+    load('warrior', G.warriorSkin && G.warriorSkin.image, G.warriorSkin);
+    load('monster', G.monsterSkin && G.monsterSkin.image, G.monsterSkin);
   },
 
   /**

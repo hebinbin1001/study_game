@@ -77,13 +77,22 @@ async function connect() {
   await ensureDatabase();
   if (NODE_ENV === "production") {
     await sequelize.authenticate();
+    // 生产也把「形象/皮肤目录」补一遍：seedAvatars 是幂等 upsert，只写 avatars 表、
+    // 不动结构、不碰用户数据 —— 这样以后上架新皮肤（改 seeders 文件）部署后自动生效，
+    // 不需要人工执行 SQL。失败只告警不阻断启动（皮肤缺失不影响其它功能）。
+    try {
+      const { seedAvatars } = require("./seeders/avatar-seed");
+      await seedAvatars(sequelize);
+    } catch (err) {
+      console.error("[db] 形象数据同步失败（不影响启动）：", err.message);
+    }
   } else {
     await sequelize.sync({ alter: true });
-    // 非生产环境：初始化内置数据（形象 + 段位）
+    // 非生产环境：初始化内置数据（形象/皮肤目录）
+    // 注：段位自 2026-09 起改为「按星星现算」（server/rank-ladder.js 是唯一口径），
+    //     ranks 表与 rank-seed 已不再参与判定，故这里不再 seed（表结构保留，数据不动）。
     const { seedAvatars } = require("./seeders/avatar-seed");
-    const { seedRanks } = require("./seeders/rank-seed");
     await seedAvatars(sequelize);
-    await seedRanks(sequelize);
   }
 }
 
