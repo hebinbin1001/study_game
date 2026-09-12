@@ -209,7 +209,7 @@ router.get("/me", async (req, res) => {
     // 旧式别名 $gt / $ne 在 v6 已被移除：不会被识别成操作符，而是当作普通对象键
     // 参与序列化，生成 `stars = '[object Object]'` 这样的错误 SQL，
     // MySQL 侧报错 → 接口 5000。这正是线上 /api/ranklist/me 长期 5000 的根因。
-    // 回归护栏见 miniprogram/utils/__tests__/sequelize-operators.test.js。
+    // 回归护栏见 tests/unit/sequelize-operators.test.js。
     const higherCount = await RankRecord.count({
       where: {
         stars: { [Op.gt]: myRecord.stars },

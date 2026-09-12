@@ -4,7 +4,7 @@
  * 玩法：5×4 棋盘标准 10 子，把「曹操」移到下方 2×2 出口；**一次连续滑动算 1 步**。
  * 生成与重新生成：node e2e/gen-klotski-levels.js
  *   （来源 ../huarongdao/tools/levels.json；生成时用本仓库引擎重算最优解并交叉校验）
- * 关卡库校验：node miniprogram/utils/__tests__/klotski-levels.test.js
+ * 关卡库校验：node tests/unit/klotski-levels.test.js
  *
  * 难度分档：入门 8 关 / 进阶 10 关 / 困难 6 关 / 经典 1 关 / 炼狱 5 关；最少步数 8 → 100 步
  * solution：最优解，走法 = [棋子左上角格位, dx, dy, 格数]（一次连续滑动算 1 步）

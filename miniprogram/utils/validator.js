@@ -89,7 +89,7 @@ function checkNotEmpty(fields) {
  * 校验 3：w2/c2 星位自洽
  * 关联需求：REQ-IMP-4
  *
- * 语义（产品统一语义，与词库权威形态一致，参考 utils/__tests__/data.test.js
+ * 语义（产品统一语义，与词库权威形态一致，参考 tests/unit/data.test.js
  * alignIssue）：q 为「带 * 挖空模板」，* 表示 a 中对应位置被挖空，即：
  *   1. q.length === a.length（模板与完整答案等长）；
  *   2. q 中非 '*' 字符必须与 a 同位字符完全一致；

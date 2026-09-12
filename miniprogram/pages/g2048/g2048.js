@@ -16,7 +16,7 @@ var storage = require('../../utils/storage');
 // 于是 1024/54、2048/64 两关在数学上不可能通过（2048 至少需要 128 步，
 // 实战约 680 步）。本次按实测模型重算，并把目标上限收到 512：
 // 1024 需要约 600 步、2048 约 1300 步（10~30 分钟一局），不适合作为关卡目标。
-// 可达性回归见 miniprogram/utils/__tests__/g2048-levels.test.js。
+// 可达性回归见 miniprogram/tests/unit/g2048-levels.test.js。
 var LEVELS = [
   { no: 1,  target: 32,  steps: 24,  tier: '入门' },
   { no: 2,  target: 32,  steps: 16,  tier: '挑战' },

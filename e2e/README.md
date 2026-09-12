@@ -36,7 +36,7 @@ node e2e/run-all.js --only=link
 | 静态 | `syntax` | 全量 JS 语法检查 | 否 |
 | 静态 | `structure` | app.json / 组件 / tabBar / 玩法一致性 | 否 |
 | 静态 | `wxss` | WXSS 检查 | 否 |
-| 单元 | `unit` | `miniprogram/utils/__tests__/` 全套 | 否 |
+| 单元 | `unit` | `tests/unit/` 全套 | 否 |
 | 端到端 | `game` | 单词闯关（字母射击打怪） | 是 |
 | 端到端 | `math24` | 算 24 点 | 是 |
 | 端到端 | `link` | 词语连连看 | 是 |
@@ -78,6 +78,10 @@ node e2e/run-all.js --only=link
 | `prepare-monsters.py` | 怪兽美术处理：切图 / 抠白底 / 裁头肩 / 压缩 |
 | `compress-assets.py` | 美术素材压缩（原图放 `assets-src/`，端上只留展示尺寸） |
 | `reports/` | 运行产物（已 gitignore，每次运行覆盖） |
+
+> **单测不在这个目录**：单元测试统一放在仓库根的 `tests/unit/`（`node tests/unit/run-all.js`）。
+> 它原先在 `miniprogram/utils/__tests__/`，而 `miniprogram/` 是**打包目录**、只该放会被打进包的
+> 运行时代码 —— 2026-09-12 整体迁出，并由 `check-assets.js` 的「打包目录纯净度」护栏守着。
 
 ---
 

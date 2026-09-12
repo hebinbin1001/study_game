@@ -68,7 +68,23 @@ cloudbase cloudrun list -e prod-d6gnifjoe28cfd96f   # 看服务状态与更新�
 - 微信开发者工具：`D:\Program Files (x86)\Tencent\微信web开发者工具`；模拟器截图在窗口不在前台时 rAF 被节流 → 画布空白，属正常现象不是 bug。
 - 子代理：本环境 `spawn_agent/followup_task` 的任务正文有时送不到子代理，默认**串行推进**；用户明确要求并行时再试。
 
-## 6. 资源与包体上限（硬性，用户 2026-09-12 明确要求）
+## 6. 打包目录的边界（硬性，用户 2026-09-12 明确要求）
+
+**`miniprogram/` 是小程序的打包目录，只放会被打进包的运行时代码。**
+测试、工具脚本、美术原图、演示页面一律放在打包路径**以外**（仓库根）：
+
+| 放什么 | 放哪里 | 不要放 |
+|---|---|---|
+| 单元测试 | `tests/unit/`（跑法：`node tests/unit/run-all.js`） | `miniprogram/utils/__tests__/`（2026-09-12 已整体迁出） |
+| E2E / 校验脚本 / 出图压缩工具 | `e2e/` | `miniprogram/` |
+| 美术原图（大图，不打包） | `assets-src/`（已 gitignore） | `miniprogram/assets-src/` |
+| 玩法 demo / 可视稿 | `demo/` | `miniprogram/` |
+
+护栏：`e2e/check-assets.js` 每次全量验证都会检查**打包目录纯净度** ——
+发现 `__tests__`、`*.test.js`、`assets-src`、`e2e`、`demo` 混进去就直接判红（退出码 1），
+不靠 `packOptions.ignore` 掩盖（ignore 已清空）。
+
+## 7. 资源与包体上限（硬性，用户 2026-09-12 明确要求）
 
 **图片和音频，单个文件都不能超过 200KB。** 这是平台侧的单文件硬限，和「整包 ≤2MB」是两件事，必须分别满足。
 
@@ -77,6 +93,6 @@ cloudbase cloudrun list -e prod-d6gnifjoe28cfd96f   # 看服务状态与更新�
 - 压缩走现成脚本：`python e2e/compress-assets.py`。
 - 项目自留的更严目标：**图片压到 60KB 以内**（只提醒不阻断，但超了整包很快会顶到 1.8MB 告警线）。
 - 校验：`node e2e/check-assets.js`（已接入全量验证的静态层，超标直接失败、退出码 1）；
-  `miniprogram/utils/__tests__/assets-limit.test.js` 守着这两个阈值不被改宽。
+  `tests/unit/assets-limit.test.js` 守着这两个阈值不被改宽。
 - 音频现状：包内**没有任何音频文件** —— 音效是 `game/audio.js` 用 WebAudio 现场合成的，发音走 TTS 插件。
   将来要加音频资源，同样受 200KB 限制。

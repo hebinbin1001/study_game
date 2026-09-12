@@ -37,11 +37,19 @@ const SOFT_IMAGE_KB = 60;
 const MAX_PACKAGE_MB = 1.8;
 const IMG_EXT = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
 const AUDIO_EXT = ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.wma', '.flac', '.amr'];
-const SKIP_DIRS = ['assets-src', 'node_modules', 'miniprogram_npm'];
+// 只跳过工具自己生成的依赖目录；其余一律按「会被打进包」来算。
+// 单测已搬到仓库根 tests/unit（2026-09-12），打包目录里不该再有 __tests__ / assets-src，
+// 真出现了会被下面的「打包目录纯净度」护栏直接判红，不再靠 ignore 规则掩盖。
+const SKIP_DIRS = ['node_modules', 'miniprogram_npm'];
 // 不参与打包的文件（与微信开发者工具的忽略规则对齐）
 const SKIP_FILES = ['.gitignore', 'project.private.config.json', 'project.config.json'];
-// 与 project.config.json 的 packOptions.ignore 对齐：单测目录不进包
-const SKIP_FILES_IN = ['utils/__tests__'];
+// 打包目录里不该出现的开发物（约定：测试/工具/原图一律放打包路径以外）
+const FORBIDDEN_IN_PACKAGE = [
+  { re: /(^|\/)__tests__(\/|$)/, why: '测试目录（单测已统一放在仓库根 tests/unit）' },
+  { re: /\.test\.js$/, why: '测试文件' },
+  { re: /(^|\/)assets-src(\/|$)/, why: '美术原图目录（应放仓库根 assets-src/，不参与打包）' },
+  { re: /(^|\/)(e2e|demo|tools)(\/|$)/, why: '工具/演示目录（应放打包路径以外）' }
+];
 
 function walk(dir, out) {
   fs.readdirSync(dir, { withFileTypes: true }).forEach((ent) => {
@@ -51,11 +59,8 @@ function walk(dir, out) {
       walk(p, out);
       return;
     }
-    if (SKIP_FILES.indexOf(ent.name) !== -1) return;
     const rel = path.relative(MINIPROGRAM, p).split(path.sep).join('/');
-    for (const pat of SKIP_FILES_IN) {
-      if (rel === pat || rel.indexOf(pat + '/') === 0) return;
-    }
+    if (SKIP_FILES.indexOf(ent.name) !== -1) return;
     out.push({
       file: rel,
       size: fs.statSync(p).size,
@@ -102,6 +107,15 @@ function main() {
   if (oversized.length) {
     problems.push('单个文件超过 ' + MAX_FILE_KB + 'KB 的有 ' + oversized.length + ' 个（图片/音频都不能超），例如：'
       + oversized.slice(0, 3).map((f) => f.file + '(' + (f.size / 1024).toFixed(0) + 'KB)').join('、'));
+  }
+  // 打包目录纯净度（2026-09-12 用户要求）：miniprogram/ 只放会被打进包的运行时代码，
+  // 测试/工具/原图/演示一律放打包路径以外 —— 靠 ignore 规则「眼不见为净」不算数。
+  const forbidden = list.filter(function (f) {
+    return FORBIDDEN_IN_PACKAGE.some(function (r) { return r.re.test(f.file); });
+  });
+  if (forbidden.length) {
+    problems.push('打包目录里混入了 ' + forbidden.length + ' 个开发文件（应放打包路径以外），例如：'
+      + forbidden.slice(0, 4).map(function (f) { return f.file; }).join('、'));
   }
 
   if (soft.length) {

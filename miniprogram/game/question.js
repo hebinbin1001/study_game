@@ -32,7 +32,7 @@
  *   - genDistractors() 第 483-550 行（干扰项生成）
  *   - CN_CONFUSE_MAP 第 288-320 行（形近字表）
  *
- * 词库 * 语义（权威，见 utils/__tests__/data.test.js alignIssue）：
+ * 词库 * 语义（权威，见 tests/unit/data.test.js alignIssue）：
  *   w2/c2 的 q 为「带 * 挖空模板」，q.length === a.length，q 中 '*' 表示 a 对应
  *   位置被挖空、非 '*' 字符与 a 同位完全一致；a 永远是完整答案词。
  *   因此含 '*' 词条出题时须以 a 为挖空源词，不得把模板里的 '*' 占位符当作

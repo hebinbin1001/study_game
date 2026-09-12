@@ -51,7 +51,7 @@ const TYPE_CODES = Object.keys(TYPES);
 // 历史缺陷（R1）：旧值 initLives=3 + 阈值 90/70/40 时，通关最多错 2 题 →
 //   正确率恒 ≥ 80% → 结算只可能是 3 星或 2 星，**1 星档（40%~69%）在数学上不可达**，
 //   关卡解锁条件「上一关 ≥1 星」也因此等价于「通关过」，形同虚设。
-//   回归护栏见 utils/__tests__/stars-reachable.test.js。
+//   回归护栏见 tests/unit/stars-reachable.test.js。
 const STAR_THRESHOLDS = [
   { minRate: 90, stars: 3 },
   { minRate: 70, stars: 2 },

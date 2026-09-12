@@ -35,7 +35,7 @@ const STAGES = [
   { id: 'wxss', layer: '静态', title: 'WXSS 检查', script: 'e2e/check-wxss.js' },
   // 包体检查（微信主包 2MB 硬限）：素材已按展示尺寸压缩（原图移出包），这里恢复成**阻断**
   { id: 'assets', layer: '静态', title: '包体资源检查（整包 ≤1.8MB）', script: 'e2e/check-assets.js' },
-  { id: 'unit', layer: '单元', title: '单元测试套件', script: 'miniprogram/utils/__tests__/run-all.js' },
+  { id: 'unit', layer: '单元', title: '单元测试套件', script: 'tests/unit/run-all.js' },
   { id: 'game', layer: '端到端', title: '单词闯关（字母射击打怪）', script: 'e2e/verify-game.js' },
   { id: 'result', layer: '端到端', title: '结算页（本局错题回顾）', script: 'e2e/verify-result.js' },
   { id: 'math24', layer: '端到端', title: '算 24 点', script: 'e2e/verify-math24.js' },

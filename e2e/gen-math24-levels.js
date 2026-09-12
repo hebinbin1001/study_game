@@ -22,7 +22,7 @@
  *
  * 用法：node e2e/gen-math24-levels.js
  *      产物：miniprogram/data/math24-levels.js（覆盖写入，勿手改）
- *      校验：node miniprogram/utils/__tests__/math24-levels.test.js
+ *      校验：node tests/unit/math24-levels.test.js
  */
 
 const fs = require('fs');
@@ -120,7 +120,7 @@ lines.push(' * data/math24-levels.js —— 算 24 点固定关卡库（' + leve
 lines.push(' *');
 lines.push(' * 为什么固定而不是每次随机：固定关卡才能「同题复玩、比步数与星级」。');
 lines.push(' * 生成与重新生成：node e2e/gen-math24-levels.js（穷举 1~13 全部四数组合并用精确求解器校验）');
-lines.push(' * 关卡库校验：node miniprogram/utils/__tests__/math24-levels.test.js');
+lines.push(' * 关卡库校验：node tests/unit/math24-levels.test.js');
 lines.push(' *');
 lines.push(' * 难度分档：');
 lines.push(' *   入门 —— 数字 1~9，整数中间结果即可解（心算友好）');

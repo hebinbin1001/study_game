@@ -3,7 +3,7 @@
  *
  * 为什么固定而不是每次随机：固定关卡才能「同题复玩、比步数与星级」。
  * 生成与重新生成：node e2e/gen-math24-levels.js（穷举 1~13 全部四数组合并用精确求解器校验）
- * 关卡库校验：node miniprogram/utils/__tests__/math24-levels.test.js
+ * 关卡库校验：node tests/unit/math24-levels.test.js
  *
  * 难度分档：
  *   入门 —— 数字 1~9，整数中间结果即可解（心算友好）
