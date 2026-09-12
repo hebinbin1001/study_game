@@ -73,6 +73,86 @@ function hasSolution(vals, target) {
 }
 
 /**
+ * 一组「分数」能否通过两两合并凑出 target —— 合并式玩法的可达性判定。
+ *
+ * 与 hasSolution 同一套枚举（任取两数、四种运算递归合并），但入参是分数对象数组，
+ * 因此可以直接拿**棋盘当前剩下的牌**来判「还走不走得通」，进而驱动：
+ *   · 死路提示（走不通了就提示撤销/重来）
+ *   · 提示一步（找出能让局面继续可解的那一次合并）
+ *
+ * @param {Array<{n:number,d:number}>} fracs 当前牌面（分数）
+ * @param {number} [target=24]
+ * @returns {boolean}
+ */
+function canReachTarget(fracs, target) {
+  var goal = typeof target === 'number' ? target : 24;
+
+  function solve(list) {
+    if (list.length === 1) return list[0].n === goal && list[0].d === 1;
+    for (var i = 0; i < list.length; i++) {
+      for (var j = 0; j < list.length; j++) {
+        if (i === j) continue;
+        var rest = [];
+        for (var k = 0; k < list.length; k++) {
+          if (k !== i && k !== j) rest.push(list[k]);
+        }
+        var ops = [
+          add(list[i], list[j]),
+          sub(list[i], list[j]),
+          mul(list[i], list[j]),
+          div(list[i], list[j])
+        ];
+        for (var o = 0; o < ops.length; o++) {
+          if (ops[o] === null) continue;
+          if (solve(rest.concat([ops[o]]))) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  if (!fracs || !fracs.length) return false;
+  return solve(fracs.map(function (f) { return { n: f.n, d: f.d }; }));
+}
+
+// 合并式玩法的四种运算（供页面按钮直接调用）
+var OPS = [
+  { key: '+', label: '＋', fn: add },
+  { key: '-', label: '−', fn: sub },
+  { key: '*', label: '×', fn: mul },
+  { key: '/', label: '÷', fn: div }
+];
+
+/**
+ * 给出「提示一步」：找出一次合并，使得合并后的牌面仍然可解。
+ * @param {Array<{n:number,d:number}>} fracs 当前牌面
+ * @param {number} [target=24]
+ * @returns {{i:number, j:number, op:string, value:Object}|null} 找不到返回 null
+ */
+function findHint(fracs, target) {
+  var goal = typeof target === 'number' ? target : 24;
+  if (!fracs || fracs.length < 2) return null;
+  for (var i = 0; i < fracs.length; i++) {
+    for (var j = 0; j < fracs.length; j++) {
+      if (i === j) continue;
+      for (var o = 0; o < OPS.length; o++) {
+        var v = OPS[o].fn(fracs[i], fracs[j]);
+        if (v === null) continue;
+        var rest = [];
+        for (var k = 0; k < fracs.length; k++) {
+          if (k !== i && k !== j) rest.push(fracs[k]);
+        }
+        var next = rest.concat([v]);
+        if (next.length === 1 ? (v.n === goal && v.d === 1) : canReachTarget(next, goal)) {
+          return { i: i, j: j, op: OPS[o].key, value: v };
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * 能否「只用整数中间结果」凑出 target —— 难度分档的判据。
  *
  * 与 hasSolution 同构，但要求每一步的中间结果都是整数：
@@ -218,6 +298,9 @@ module.exports = {
   generateLevels: generateLevels,
   hasSolution: hasSolution,
   hasIntegerSolution: hasIntegerSolution,
+  canReachTarget: canReachTarget,
+  findHint: findHint,
+  OPS: OPS,
   evaluateExpr: evaluateExpr,
   add: add, sub: sub, mul: mul, div: div,
   eq24: eq24,

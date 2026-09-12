@@ -116,3 +116,16 @@
 .btn::after { border: none; }
 
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
+/* ===== 合并式交互（2026-09-12 改版）新增状态 ===== */
+/* 选中态：金色描边 + 轻微上浮，明确「这两张会被合并」 */
+.card.sel {
+  border-color: #ffb703;
+  background: #fff8e6;
+  transform: translateY(-6rpx);
+  box-shadow: 0 10rpx 0 rgba(180, 120, 0, 0.25);
+}
+/* 刚合并出来的结果牌：绿色描边提示「这是新的牌，已帮你选中」 */
+.card.merged {
+  border-color: #7bd389;
+  background: #eefaf0;
+}
