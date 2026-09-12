@@ -12,11 +12,11 @@
     <view class="hud-chip">连连看配对</view>
   </view>
 
-  <view class="board">
+  <view class="board b-tray b-in">
     <view
       wx:for="{{cards}}"
       wx:key="i"
-      class="tile {{item.t === 'w' ? 'word' : ''}} {{item.sel ? 'sel' : ''}} {{item.gone ? 'gone' : ''}} {{item.err ? 'err' : ''}}"
+      class="tile b-face b-press {{item.t === 'w' ? 'word' : ''}} {{item.sel ? 'b-sel' : ''}} {{item.gone ? 'gone' : ''}} {{item.err ? 'err' : ''}}"
       data-idx="{{index}}"
       bindtap="tapCard">{{item.lab}}</view>
   </view>

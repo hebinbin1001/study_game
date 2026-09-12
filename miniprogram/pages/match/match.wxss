@@ -32,19 +32,25 @@
   justify-content: center;
   padding: 6rpx;
   box-sizing: border-box;
-  background: #fff;
   color: #3a3a5c;
   font-size: 26rpx;
   font-weight: 800;
   text-align: center;
   word-break: break-all;
-  box-shadow: 0 6rpx 0 rgba(0,0,0,.05);
 }
 .tile.word { color: #4285F4; font-size: 30rpx; }
-.tile.sel { outline: 6rpx solid #ffb703; }
-.tile.hit { background: #7bd389; color: #fff; opacity: 0; transition: opacity .4s; pointer-events: none; }
+.tile.word.b-sel { background: linear-gradient(180deg, #fffdf6 0%, #eaf3ff 100%); }
+/* 命中：先亮绿再缩没（原来只有淡出，看不出"消掉了"） */
+.tile.hit {
+  background: linear-gradient(180deg, #8fe0a0 0%, #6ccb84 100%);
+  color: #fff;
+  transform: scale(0.72);
+  opacity: 0;
+  transition: opacity .4s ease, transform .4s ease;
+  pointer-events: none;
+}
 .tile.gone { pointer-events: none; opacity: 0; }
-.tile.miss { background: #ff8fae; color: #fff; animation: shake .3s; }
+.tile.miss { background: linear-gradient(180deg, #ff9cbc 0%, #ff7ba4 100%); color: #fff; animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
 
 .tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #fff; opacity: .92; margin: 16rpx 0 6rpx; min-height: 36rpx; }

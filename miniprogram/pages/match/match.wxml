@@ -10,11 +10,11 @@
   <game-hud lives="{{lives}}" extra="{{gradeLabel}} · 剩 {{left}} 卡" score="{{0}}" score-text="" />
 
   <!-- 棋盘 4×4 -->
-  <view class="board">
+  <view class="board b-tray b-in">
     <view
       wx:for="{{cards}}"
       wx:key="index"
-      class="tile {{item.t === 'w' ? 'word' : ''}} {{item.sel ? 'sel' : ''}} {{item.hit ? 'hit' : ''}} {{item.gone ? 'gone' : ''}} {{item.miss ? 'miss' : ''}}"
+      class="tile b-face b-press {{item.t === 'w' ? 'word' : ''}} {{item.sel ? 'b-sel' : ''}} {{item.hit ? 'hit' : ''}} {{item.gone ? 'gone' : ''}} {{item.miss ? 'miss' : ''}}"
       data-idx="{{index}}"
       bindtap="tapCard">{{item.lab}}</view>
   </view>

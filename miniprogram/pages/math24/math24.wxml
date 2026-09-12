@@ -39,7 +39,7 @@
       <view
         wx:for="{{tiles}}"
         wx:key="id"
-        class="card {{item.sel ? 'sel' : ''}} {{item.justMerged ? 'merged' : ''}}"
+        class="card b-face b-press {{item.sel ? 'b-sel' : ''}} {{item.justMerged ? 'merged' : ''}}"
         data-idx="{{index}}"
         bindtap="tapTile">{{item.text}}</view>
     </view>

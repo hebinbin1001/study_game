@@ -35,10 +35,9 @@
 .cards { flex: 0 0 auto; display: flex; justify-content: center; gap: 22rpx; margin: 6rpx 0; }
 .card {
   width: 160rpx; height: 160rpx;
-  background: #fff; border-radius: 26rpx;
+  border-radius: 26rpx;
   display: flex; align-items: center; justify-content: center;
   font-size: 64rpx; font-weight: 900; color: #3a3a5c;
-  box-shadow: 0 10rpx 0 rgba(0,0,0,.06);
 }
 .card.used { opacity: .35; box-shadow: none; }
 
@@ -109,15 +108,13 @@
 
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
 /* ===== 合并式交互（2026-09-12 改版）新增状态 ===== */
-/* 选中态：金色描边 + 轻微上浮，明确「这两张会被合并」 */
-.card.sel {
-  border-color: #ffb703;
-  background: #fff8e6;
-  transform: translateY(-6rpx);
-  box-shadow: 0 10rpx 0 rgba(180, 120, 0, 0.25);
-}
-/* 刚合并出来的结果牌：绿色描边提示「这是新的牌，已帮你选中」 */
+/* 选中态：金色环 + 上浮（用 app.wxss 的 .b-sel，原写法只设了 border-color
+   却从没声明过 border，所以在真机上一直看不出来） */
+.card.b-sel { background: linear-gradient(180deg, #fffdf6 0%, #fff4d9 100%); }
+/* 刚合并出来的结果牌：绿色环提示「这是新的牌」（原写法同样只设了 border-color
+   而没有 border，真机上只剩一层淡淡的绿底） */
 .card.merged {
-  border-color: #7bd389;
-  background: #eefaf0;
+  background: linear-gradient(180deg, #f4fdf6 0%, #e4f7e9 100%);
+  box-shadow: 0 0 0 5rpx #7bd389, 0 6rpx 0 rgba(30, 120, 60, 0.22),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
 }

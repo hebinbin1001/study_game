@@ -32,7 +32,7 @@
 
   <!-- 网格（承载触屏） -->
   <view class="board-touch">
-    <view class="grid">
+    <view class="grid b-tray b-in">
       <view
         wx:for="{{cells}}"
         wx:key="index"

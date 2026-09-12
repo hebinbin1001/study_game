@@ -72,6 +72,9 @@ node e2e/run-all.js --only=link
 | `verify-all-pages.js` / `verify-m2m4.js` | 页面渲染回归 |
 | `syntax-check-all.js` / `structure-check.js` / `check-wxss.js` | 静态检查 |
 | `smoke-api.js` / `probe-callcontainer.js` | 后端接口冒烟（需网络） |
+| `preview-boards.js` | **棋盘/卡牌视觉预览**：把真实 wxss 转成浏览器 CSS 渲染 6 个棋盘（见第六节末），产物在 `reports/preview/` |
+| `prepare-monsters.py` | 怪兽美术处理：切图 / 抠白底 / 裁头肩 / 压缩 |
+| `compress-assets.py` | 美术素材压缩（原图放 `assets-src/`，端上只留展示尺寸） |
 | `reports/` | 运行产物（已 gitignore，每次运行覆盖） |
 
 ---
@@ -183,6 +186,23 @@ ck.check('答对后得分 +10', after.score - d.score === 10);
    - 产品缺陷 → 改产品代码，并补一条能覆盖该缺陷的回归断言；
    - 用例假设错误（如上面第五节第 2 条） → 把正确的等待/驱动方式下沉到 `harness.js`，避免下次再踩；
 4. 修完重跑全套。
+
+---
+
+## 六·补、棋盘 / 卡牌的视觉改版怎么「看得见」
+
+本机开发者工具的截图接口会超时（多次实测），棋盘类页面的视觉改动没法靠模拟器看效果。
+`node e2e/preview-boards.js` 换个路子解决：
+
+1. 读**真实的** `app.wxss` + 6 个页面的 wxss（rpx → px 按 750rpx = 375px 换算）；
+2. 给每个页面的样式加上 `.pg-<页面>` 作用域前缀 —— 这一步不能省：
+   小程序里页面 wxss 是**页面级隔离**的，而预览是把 6 份 css 拼到一张 HTML 上，
+   `.cell`/`.tile` 这类同名类会互相串（曾因此得出「选中态没生效」的错误结论）；
+3. 用与真实 wxml 同结构的标记渲染成 6 个 375×667 画框，写到 `e2e/reports/preview/boards.html`；
+4. 用浏览器打开（或接 `agent-browser screenshot`）就能看到与真机同一套样式的结果。
+
+> 注意：预览里的标记是**手写的镜像**，改了页面结构要同步更新 `preview-boards.js` 里对应的片段，
+> 否则预览会与真机出现偏差（改样式类名时尤其容易漏）。
 
 ---
 

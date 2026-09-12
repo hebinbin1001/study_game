@@ -72,10 +72,10 @@
   width: 100%;
   max-height: 100%;
 }
-/* 用 aspect 方块由 item 尺寸控制——WXML grid-template 已按 n 列，这里只需单元样式 */
+/* 用 aspect 方块由 item 尺寸控制——WXML grid-template 已按 n 列，这里只需单元样式。
+   棋盘底槽 / 白面材质 / 选中金环来自 app.wxss 的 .b-tray/.b-face/.b-sel（二期统一） */
 .cell {
   aspect-ratio: 1/1;
-  background: #fff;
   border-radius: 12rpx;
   display: flex;
   align-items: center;
@@ -83,11 +83,19 @@
   font-size: 40rpx;
   font-weight: 800;
   color: #3a3a5c;
-  box-shadow: 0 4rpx 0 rgba(0,0,0,.04);
 }
-.cell.given { background: #eaf0f7; color: #5c7f9e; }
-.cell.sel { outline: 6rpx solid #ffb703; }
-.cell.err { background: #ff8fae; color: #fff; animation: shake .3s; }
+/* 题面给定的数字：压成「印在板上」的凹面，与玩家填的区别开 */
+.cell.given {
+  background: linear-gradient(180deg, #dde8f4 0%, #cfdcec 100%);
+  color: #4a6b8a;
+  box-shadow: inset 0 3rpx 6rpx rgba(18, 44, 78, 0.18);
+}
+/* 选中 / 填错由 .b-sel 与下面的 .err 负责 */
+.cell.err {
+  background: linear-gradient(180deg, #ff9cbc 0%, #ff7ba4 100%);
+  color: #fff;
+  animation: shake .3s;
+}
 @keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
 
 /* 数字键盘 */
@@ -99,7 +107,6 @@
 }
 .num-btn {
   aspect-ratio: 1/1;
-  background: #fff;
   border-radius: 18rpx;
   display: flex;
   align-items: center;
@@ -107,9 +114,7 @@
   font-size: 40rpx;
   font-weight: 900;
   color: #4cc9f0;
-  box-shadow: 0 6rpx 0 rgba(0,0,0,.06);
 }
-.num-btn:active { transform: translateY(2rpx); }
 .board-tip { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .9; }
 
 /* 结算 */

@@ -43,11 +43,11 @@
       <view class="hud-box"><view class="h-num">{{stepsLimit - usedSteps}}</view><view class="h-lab">剩余步</view></view>
     </view>
 
-    <view class="board" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
+    <view class="board b-tray b-in" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
       <view
         wx:for="{{cells}}"
         wx:key="index"
-        class="cell c{{item.v}}">{{item.v || ''}}</view>
+        class="cell c{{item.v}} b-face">{{item.v || ''}}</view>
     </view>
 
     <view class="pad">

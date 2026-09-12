@@ -38,11 +38,11 @@
 
     <!-- 棋盘 -->
     <view class="board-wrap">
-      <view class="board" style="grid-template-columns: repeat({{n}}, 1fr);">
+      <view class="board b-tray b-in" style="grid-template-columns: repeat({{n}}, 1fr);">
         <view
           wx:for="{{grid}}"
           wx:key="index"
-          class="cell {{item.given ? 'given' : ''}} {{item.sel ? 'sel' : ''}} {{item.err ? 'err' : ''}}"
+          class="cell b-face {{item.given ? 'given' : ''}} {{item.sel ? 'b-sel' : ''}} {{item.err ? 'err' : ''}}"
           data-idx="{{index}}"
           bindtap="tapCell">{{item.v || ''}}</view>
       </view>
@@ -53,7 +53,7 @@
       <view
         wx:for="{{n}}"
         wx:key="*this"
-        class="num-btn"
+        class="num-btn b-face b-press"
         data-v="{{index + 1}}"
         bindtap="pressNum">{{index + 1}}</view>
     </view>

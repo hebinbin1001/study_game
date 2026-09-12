@@ -28,15 +28,21 @@
   border-radius: 18rpx;
   display: flex; align-items: center; justify-content: center;
   padding: 6rpx; box-sizing: border-box;
-  background: #fff; color: #3a3a5c;
+  color: #3a3a5c;
   font-size: 26rpx; font-weight: 800; text-align: center;
   word-break: break-all;
-  box-shadow: 0 6rpx 0 rgba(0,0,0,.05);
 }
 .tile.word { color: #4285F4; font-size: 30rpx; }
-.tile.sel { outline: 6rpx solid #ffb703; }
-.tile.gone { opacity: 0; pointer-events: none; }
-.tile.err { background: #ff8fae; color: #fff; animation: shake .3s; }
+/* 词卡选中：金色环（.b-sel）+ 微暖底，和义卡区分得更清楚 */
+.tile.word.b-sel { background: linear-gradient(180deg, #fffdf6 0%, #eaf3ff 100%); }
+/* 消掉：淡出 + 缩小，别"啪"地消失 */
+.tile.gone {
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity .28s ease, transform .28s ease;
+  pointer-events: none;
+}
+.tile.err { background: linear-gradient(180deg, #ff9cbc 0%, #ff7ba4 100%); color: #fff; animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
 
 .tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #fff; opacity: .95; margin: 14rpx 0 6rpx; }

@@ -317,6 +317,48 @@ button.btn {
   transition: width 0.3s ease;
 }
 
+/* ============ 棋盘 / 卡牌材质（需求⑥ 第二期，6 个棋盘类玩法共用） ============
+   一期把头部与 HUD 统一了，二期统一「棋盘本身」的质感：原来各页的格子都是一块纯色方块
+   加一层几乎看不见的阴影，整块棋盘像浮在页面背景上。这里定四个共用类：
+
+     .b-tray  棋盘底槽 —— 让棋子「嵌」在板上
+     .b-face  棋子/卡牌面 —— 白面渐变 + 底部硬阴影 + 顶部内高光（卡通塑料片质感）
+     .b-press 按下反馈 —— 下沉并收起投影，与 app.wxss 的 .btn:active 同一套手感
+     .b-sel   选中态 —— 金色环 + 上浮（用 box-shadow 画环，不依赖 border，
+                        因为各页原来有的写了 outline、有的只写了 border-color 而没声明 border）
+
+   注意：数字类玩法（2048 的 .cell.c8 等）用「两个类」的选择器设背景，特异性高于单类名
+   的 .b-face，所以叠上去不会把颜色冲掉 —— 这正是把材质做成独立类而不是写进 .cell 的原因。 */
+.b-tray {
+  background: rgba(255, 255, 255, 0.17);
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 26rpx;
+  padding: 16rpx;
+  box-sizing: border-box;
+  box-shadow: inset 0 8rpx 18rpx rgba(16, 44, 78, 0.16);
+}
+.b-face {
+  background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
+  box-shadow: 0 6rpx 0 rgba(18, 44, 78, 0.16), 0 8rpx 16rpx rgba(18, 44, 78, 0.12),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+}
+.b-press:active {
+  transform: translateY(3rpx);
+  box-shadow: 0 3rpx 0 rgba(18, 44, 78, 0.16), 0 4rpx 8rpx rgba(18, 44, 78, 0.1),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+}
+.b-sel {
+  transform: translateY(-4rpx);
+  box-shadow: 0 0 0 6rpx #ffb703, 0 6rpx 0 rgba(180, 120, 0, 0.3),
+    0 8rpx 16rpx rgba(180, 120, 0, 0.2), inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+}
+/* 入场：整块棋盘轻微铺开（一次性，不打扰对局节奏） */
+@keyframes bBoardIn {
+  from { opacity: 0; transform: translateY(-10rpx) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.b-in { animation: bBoardIn 0.26s ease-out both; }
+
 /* ============ 深色模式（M6-O 基础） ============
    说明：多数页面在自身 wxss 定义了浅色渐变背景（会覆盖此处 page 背景），
    故此处只做全局文字/默认背景/通用组件的深色兜底；各页面按需自行追加深色覆盖。 */
