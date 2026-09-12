@@ -210,7 +210,13 @@ function judgeCase(c, anon, auth) {
     if (!Array.isArray(w) || !Array.isArray(m)) {
       problems.push("avatar list missing warriors/monsters arrays");
     } else {
-      if (w.length < 24) problems.push("expected >=24 warrior skins, got " + w.length);
+      // 代码里共 24 套战士皮肤 = 4 旧 id + 15 新增 + 5 里程碑。
+      // 里程碑那 5 套依赖生产库 avatars.unlockType 的 ENUM 补上 'milestone'
+      // （见 docs/项目进展与待办.md「待执行线上 DDL」），补之前线上是 19 套 —— 这里取 19 作为下限。
+      if (w.length < 19) {
+        problems.push("expected >=19 warrior skins, got " + w.length
+          + " (5 milestone ones also need the unlockType ENUM DDL)");
+      }
       if (m.length < 4) problems.push("expected >=4 monster skins, got " + m.length);
       if (!w.some((a) => a.avatarId === "skin-fox-scout")) {
         problems.push("new skin missing on server (skin-fox-scout)");
