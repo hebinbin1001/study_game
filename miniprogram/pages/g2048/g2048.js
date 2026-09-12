@@ -97,18 +97,14 @@ Page({
     return b.reduce(function (acc, row) { return acc.concat(row.map(function (v) { return { v: v }; })); }, []);
   },
 
-  // 方向键
-  onDir: function (e) {
-    var d = e.currentTarget.dataset.d;
-    this._move(parseInt(d, 10));
-  },
-
-  // 触摸滑动
+  // 触摸滑动（2026-09-12：方向键按钮已去掉，滑动成为唯一操作）
   _startX: 0, _startY: 0,
   onTouchStart: function (e) {
     var t = e.touches && e.touches[0];
     if (t) { this._startX = t.clientX; this._startY = t.clientY; }
   },
+  // 空实现：配合 wxml 的 catchtouchmove 阻止页面跟着手指滚（竖滑才不会丢手感）
+  onTouchMove: function () {},
   onTouchEnd: function (e) {
     var ch = e.changedTouches && e.changedTouches[0];
     if (!ch) return;

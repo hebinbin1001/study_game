@@ -85,19 +85,10 @@
 .cell.c1024 { background: #edc53f; color: #fff; font-size: 26rpx; }
 .cell.c2048 { background: #edc22e; color: #fff; font-size: 26rpx; }
 
-/* 方向键 */
-.pad { flex: 0 0 auto; margin: 14rpx 0 6rpx; }
-.pad-row { display: flex; justify-content: center; gap: 16rpx; margin: 8rpx 0; }
-.key {
-  width: 132rpx; height: 88rpx;
-  background: rgba(255,255,255,.92); color: #5c7f9e;
-  border-radius: 20rpx; display: flex; align-items: center; justify-content: center;
-  font-size: 36rpx; font-weight: 900;
-  box-shadow: 0 6rpx 0 rgba(0,0,0,.08);
-}
-.pad-gap { width: 132rpx; }
-.key:active { transform: translateY(3rpx); }
-.tip { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .9; }
+/* 方向键已去掉（2026-09-12）：手机上滑动才是 2048 的标准操作，
+   三排按键白占屏幕 22% 的高度；改为底部一行提示。滑动手感由
+   wxml 的 catchtouchmove 保证（阻止页面跟着手指滚）。 */
+.tip { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .92; margin: 18rpx 0 8rpx; }
 
 /* 结算 */
 .over-mask {

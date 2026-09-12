@@ -130,8 +130,7 @@ function g2048Frame() {
   return '<view class="page-2048">' + head('2048', '第 3 关')
     + hud(['目标 128', '步数 12', '最佳 100'])
     + '<view class="board b-tray b-in">' + cells + '</view>'
-    + '<view class="pad"><view class="pad-row"><view class="pad-gap"></view>'
-    + '<view class="key">▲</view><view class="pad-gap"></view></view></view>'
+    + '<view class="tip">👆 朝上下左右滑动棋盘 · 相同数字合体</view>'
     + '</view>';
 }
 

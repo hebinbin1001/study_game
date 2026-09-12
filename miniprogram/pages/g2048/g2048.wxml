@@ -43,26 +43,18 @@
       <view class="hud-box"><view class="h-num">{{stepsLimit - usedSteps}}</view><view class="h-lab">剩余步</view></view>
     </view>
 
-    <view class="board b-tray b-in" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
+    <!-- 滑动操作：catchtouchmove 阻止页面跟着滚，否则竖滑可能被页面滚动吃掉手感 -->
+    <view class="board b-tray b-in"
+      bindtouchstart="onTouchStart"
+      catchtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd">
       <view
         wx:for="{{cells}}"
         wx:key="index"
         class="cell c{{item.v}} b-face">{{item.v || ''}}</view>
     </view>
 
-    <view class="pad">
-      <view class="pad-row">
-        <view class="pad-gap"></view>
-        <view class="key up" data-d="0" bindtap="onDir">▲</view>
-        <view class="pad-gap"></view>
-      </view>
-      <view class="pad-row">
-        <view class="key" data-d="3" bindtap="onDir">◀</view>
-        <view class="key" data-d="2" bindtap="onDir">▼</view>
-        <view class="key" data-d="1" bindtap="onDir">▶</view>
-      </view>
-    </view>
-    <view class="tip">方向键或滑动棋盘 · 相同数字合体</view>
+    <view class="tip">👆 朝上下左右滑动棋盘 · 相同数字合体</view>
   </block>
 
   <!-- 结算 -->
