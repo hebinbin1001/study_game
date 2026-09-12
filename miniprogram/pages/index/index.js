@@ -22,6 +22,8 @@ Page({
     avatarUrl: '',
     // 资产条
     totalStars: 0,
+    localStars: 0,     // 本机存档星数合计（游客展示用，也用于"登录同步"提醒）
+    starsLabel: '累计星星',  // 登录=累计星星（云端口径）；游客=本机星星
     rankName: '',      // 段位名（登录后云端）
     streakDays: 0,     // 连续天数（checkin）
     // 排行榜行
@@ -97,6 +99,11 @@ Page({
       nickname: nickname,
       avatarUrl: avatarUrl,
       totalStars: totalStars,
+      localStars: totalStars,
+      // 口径统一（用户拍板）：首页与我的页都展示同一个数 ——
+      // 登录后取云端累计星（与「我的」页的 /api/rank/info 同源，两页不再打架）；
+      // 游客没有云端数据，退回本机存档星并明确标注，避免被误当成全服资产。
+      starsLabel: loggedIn ? '累计星星' : '本机星星',
       rankName: rankName,
       streakDays: streakDays,
       continueGrade: lastGrade,
@@ -116,7 +123,9 @@ Page({
     // 段位信息
     request.get('/api/rank/info').then(function (d) {
       if (!d) return;
+      // 星星口径与「我的」页同源：都用云端累计星（登录态下两页数字必须一致）
       self.setData({ rankName: d.rankName || '' });
+      if (typeof d.stars === 'number') self.setData({ totalStars: d.stars });
       try { storage.set('ww_rank_name', d.rankName || ''); } catch (e) {}
     }).catch(function () {});
     // 我的排名（总榜）

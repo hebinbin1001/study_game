@@ -33,7 +33,7 @@
   <view class="asset-row">
     <view class="asset-box">
       <view class="a-num">{{totalStars}}</view>
-      <view class="a-lab">⭐ 累计星星</view>
+      <view class="a-lab">⭐ {{starsLabel}}</view>
     </view>
     <view class="asset-box">
       <view class="a-num a-num--name">{{loggedIn ? (rankName || '青铜') : '游客'}}</view>
