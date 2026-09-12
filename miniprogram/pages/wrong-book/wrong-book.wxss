@@ -181,6 +181,17 @@
   border-radius: 20rpx;
 }
 
+/* 单条「移除」入口：靠右轻样式，避免抢走卡片主体的注意力 */
+.meta-del {
+  margin-left: auto;
+  font-size: 22rpx;
+  color: #e2664f;
+  background: #fdeeea;
+  padding: 6rpx 18rpx;
+  border-radius: 20rpx;
+  font-weight: 800;
+}
+
 /* 熟练度进度条：复用全局 .progress-bar / .progress-bar__fill */
 .item-card .progress-bar {
   margin-top: 4rpx;

@@ -37,7 +37,7 @@
   </view>
 
   <!-- 加载失败提示（点击重试） -->
-  <view wx:if="{{loadError}}" class="empty-state" bindtap="loadWrongBook" style="margin-top:16rpx;">
+  <view wx:if="{{loadError}}" class="empty-state" bindtap="loadWrongBook" data-reset="1" style="margin-top:16rpx;">
     <view class="empty-emoji">📡</view>
     <view class="empty-text">加载失败（{{loadError}}）</view>
     <view class="empty-text">点这里重试</view>
@@ -62,6 +62,7 @@
           <text class="meta-text">错误 {{item.it.wrongCount}} 次</text>
           <text class="meta-text">{{item.it.reviewStageText}}</text>
           <text class="meta-text">{{item.it.nextReviewText}}</text>
+          <text class="meta-del" catchtap="removeItem" data-id="{{item.it.recordId}}">移除</text>
         </view>
         <view class="progress-bar">
           <view class="progress-bar__fill" style="width: {{item.it.reviewProgress * 20}}%"></view>
@@ -71,7 +72,7 @@
 
     <!-- 加载更多 -->
     <view wx:if="{{hasMore}}" class="btn-review" style="background:#eef2f8;color:#5c7f9e;" bindtap="showMore">
-      ↓ 加载更多（剩余 {{renderList.length - visibleN}} 条）
+      {{loadingMore ? '加载中…' : '↓ 加载更多（还有 ' + moreCount + ' 条）'}}
     </view>
 
     <view class="empty-state" wx:if="{{pending.length === 0 && !loadError}}">
@@ -95,9 +96,13 @@
         </view>
         <view class="item-meta">
           <text class="meta-text">错误 {{item.wrongCount}} 次</text>
+          <text class="meta-del" catchtap="removeItem" data-id="{{item.recordId}}">移除</text>
         </view>
       </view>
     </block>
+    <view wx:if="{{hasMore}}" class="btn-review" style="background:#eef2f8;color:#5c7f9e;" bindtap="showMore">
+      {{loadingMore ? '加载中…' : '↓ 加载更多（还有 ' + moreCount + ' 条）'}}
+    </view>
     <view class="empty-state" wx:if="{{mastered.length === 0}}">
       <view class="empty-emoji">🌱</view>
       <view class="empty-text">暂无已掌握题目，继续加油！</view>

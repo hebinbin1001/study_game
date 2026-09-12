@@ -234,10 +234,58 @@ Page({
       // 上报失败静默降级，不影响本地作答流程
     });
 
-    // 1.5 秒后进入下一题
-    setTimeout(function () {
-      self.nextQuestion();
-    }, 1500);
+    // 答对 → 给用户一次「移出错题本 / 先保留」的选择（2026-09-12 需求②）；
+    // 答错 → 看 1.5 秒正确答案后自动进入下一题。
+    if (correct) {
+      setTimeout(function () { self._askRemoveAfterCorrect(currentItem); }, 500);
+    } else {
+      setTimeout(function () {
+        self.nextQuestion();
+      }, 1500);
+    }
+  },
+
+  /**
+   * 答对后询问是否移出错题本。
+   *
+   * 两种选择都算「本局推进」，所以无论确认还是取消都会进入下一题：
+   *   · 移出错题本 → POST /api/wrong/remove（幂等），并从本地 items 里剔除；
+   *   · 先保留     → 什么都不做，题目继续留在错题本按艾宾浩斯间隔复习。
+   * 说明：这道题的熟练度已由 /api/wrong/review 提高，选「保留」时下次复习时间会顺延。
+   */
+  _askRemoveAfterCorrect: function (item) {
+    var self = this;
+    if (!item || !item.recordId) { this.nextQuestion(); return; }
+
+    wx.showModal({
+      title: '答对了！',
+      content: '要把它移出错题本吗？移除后不再复习；也可以先保留，过段时间再练一次。',
+      confirmText: '移出错题本',
+      cancelText: '先保留',
+      success: function (res) {
+        if (!res.confirm) {
+          wx.showToast({ title: '已保留，之后还会提醒复习', icon: 'none' });
+          self.nextQuestion();
+          return;
+        }
+        request.post('/api/wrong/remove', { recordId: item.recordId }).then(function () {
+          // 本地剔除，避免同一次复习里再遇到它。
+          // ⚠️ 列表少了一项，当前下标必须回退一格，否则 nextQuestion() 会跳过下一题。
+          self.setData({
+            items: (self.data.items || []).filter(function (it) { return it.recordId !== item.recordId; }),
+            currentIndex: Math.max(-1, self.data.currentIndex - 1),
+            totalCount: Math.max(0, self.data.totalCount - 1)
+          });
+          wx.showToast({ title: '已移出错题本', icon: 'none' });
+          self.nextQuestion();
+        }).catch(function (err) {
+          wx.showToast({ title: (err && err.message) || '移除失败，已保留', icon: 'none' });
+          self.nextQuestion();
+        });
+      },
+      // 弹窗被系统异常打断时不能让流程卡住
+      fail: function () { self.nextQuestion(); }
+    });
   },
 
   // 下一题

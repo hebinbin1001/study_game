@@ -5,6 +5,52 @@
 
 ---
 
+## 2026-09-12（需求② 错题本优化：分页 + 复习答对后可删除/保留）
+
+> 用户原始需求：「错题本的展示可以优化下，比如分页展示，错题再次做完正确就可以删除，也可以选择继续保留错题」。
+
+### 服务端
+
+- 新增 `server/wrong-book.js`（纯逻辑，不依赖 Sequelize/express，可单测）：
+  艾宾浩斯算法（与前端 `utils/ebbinghaus.js` 同一实现）、分页参数校验、scope 切分、分页切片、返回体组装。
+- `GET /api/wrong/list` 支持 **`scope` + `page` + `pageSize`**：
+  - **不传任何参数 → 完全保持改造前的返回形状** `{ pending, mastered, total }`（老客户端不受影响）；
+  - 传参 → `{ items, page, pageSize, total, hasMore, scope, counts:{total,pending,mastered} }`
+    （`total` 是该 scope 的总数，`counts` 供统计卡与 tab 角标）；
+  - 参数非法（page<1、pageSize 不在 1~100、scope 非枚举）→ `4000` 参数错误，**不悄悄纠正**；
+  - 越界页返回空 `items` + 正确 `total`，让端上自行纠正页码。
+- 新增 `POST /api/wrong/remove`（删除错题，**幂等**）：校验记录属于当前 openid；记录不存在也返回 `code=0, removed=0`；
+  删除成功返回 `removed=1`。已掌握但选择「保留」的题目也能用它清掉（否则错题本永远清不干净）。
+- 路由里的算法与分页逻辑改为调用 `server/wrong-book.js`，删除 `routes/wrong.js` 里重复的 `calculateNextReview`。
+
+### 小程序端
+
+- 新增 `miniprogram/utils/wrong-book-view.js`（列表页纯逻辑）：请求地址拼装、展示字段装饰、
+  分组行生成（相同到期文案只插一个标题）、分页合并、老协议兼容、移除后的计数调整。
+- `pages/wrong-book`：改为**服务端分页**（每页 20 条，「加载更多」取下一页并追加），
+  待复习/已掌握两个 tab 各自分页；顶部统计与 tab 角标用服务端 `counts`；
+  每条错题新增「移除」入口（二次确认，走幂等删除接口）；
+  兼容老服务端（拿到旧的 `{pending,mastered,total}` 形状时自动退回全量渲染）。
+- `pages/wrong-review`：**答对后弹出选择**「移出错题本 / 先保留」——
+  移出则调用删除接口并把该项从本局列表剔除；保留则继续按艾宾浩斯间隔复习（熟练度已提升）。
+  答错仍是看 1.5 秒正确答案后自动进入下一题。
+  ⚠️ 剔除当前项时下标要回退一格，否则会跳过下一题（已修 + 用例盯住）。
+
+### 测试
+
+- `miniprogram/utils/__tests__/wrong-book.test.js`（15 用例 / 102 断言）：分页参数边界、
+  切片与越界、scope 99/100 边界、新旧返回形状、**前后端艾宾浩斯算法一致性**。
+- `miniprogram/utils/__tests__/wrong-book-view.test.js`（11 用例 / 58 断言）：分页追加不重复分组标题、
+  reset 替换而非拼接、老协议兼容、移除后计数不为负。
+- `e2e/smoke-api.js` 新增 **错题本完整链路**（对真实部署跑）：新增 → 分页列表（含结构校验）→
+  复习上报 → `page=0` 应 4000 → 删除 `removed=1` → 重复删除 `removed=0` → 老协议里已不存在。
+
+> 说明：小程序模拟器是游客态（没有 openid），UI 层拿不到真实错题数据，
+> 且 `miniprogram-automator` 不支持 mock `wx.cloud.callContainer`（已实测报 `not exists`），
+> 因此错题本的端到端放在冒烟脚本里对着真实部署跑；页面渲染由 `verify-m2m4` 覆盖。
+
+---
+
 ## 2026-09-12（挑战主线 P1 落地：题库类玩法纳入「继续挑战」）
 
 > 用户拍板「按你建议的来」→ 见 `docs/挑战关卡规划-待确认.md` 第 3/4 节。
@@ -317,5 +363,4 @@
 ### 接口体检（2026-09-08 线上网关）
 - `e2e/smoke-api.js`：12 组路由 **全部 PASS**（authed 走 x-wx-source 通道为 1003 属预期——真实小程序走 Bearer token 不受影响；若需 smoke source 通道通，检查云托管 env `WX_TRUSTED_SOURCES` 未被清空）。
 - 真实调用链探测（login 拿 token → Bearer 调 user/me、score、rank/sync、wrong/add·list、checkin/auto、report、ranklist/world、achievement、avatar）：**全部 code=0**。
-
 

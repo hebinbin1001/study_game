@@ -118,7 +118,11 @@ const CASES = [
   // 普通用户查审核队列返回 4003 NO_PERMISSION 属预期业务响应，故放宽该用例的业务码
   { group: "level/review", method: "GET",  path: "/api/level/review/reviews", needUser: true, acceptCodes: [0, 4003] },
   { group: "wrong",        method: "GET",  path: "/api/wrong/list", needUser: true },
+  // 需求② 错题本优化：分页协议（带参数时返回 items/page/pageSize/total/hasMore/scope/counts）
+  { group: "wrong",        method: "GET",  path: "/api/wrong/list?scope=pending&page=1&pageSize=5", needUser: true },
   { group: "wrong",        method: "GET",  path: "/api/wrong/stats", needUser: true },
+  // 删除接口（幂等：不存在的 recordId 也返回 code=0 + removed=0）
+  { group: "wrong",        method: "POST", path: "/api/wrong/remove", body: { recordId: "00000000-0000-0000-0000-000000000000" }, needUser: true },
   { group: "checkin",      method: "GET",  path: "/api/checkin", needUser: true },
   { group: "achievement",  method: "GET",  path: "/api/achievement/list", needUser: true },
 ];
@@ -237,6 +241,80 @@ function judgeCase(c, anon, auth) {
       groupResults[c.group].problems.push(c.method + " " + c.path + " -> " + problems.join("; "));
     }
   }
+
+  console.log("");
+  // ===== 错题本完整链路（需求②）：新增 → 分页列表 → 复习 → 删除 → 幂等删除 → 老协议 =====
+  // 说明：小程序模拟器是游客态（没有 openid），UI 层拿不到错题数据，
+  // 所以错题本的端到端放在这里对着真实部署跑（与 CASES 用同一个测试 openid）。
+  const wb = { pass: true, problems: [] };
+  const wbProblem = (msg) => { wb.pass = false; wb.problems.push(msg); };
+  const wbPost = (path, body) => doRequest("POST", path, body, OPENID_HEADERS);
+  const wbGet = (path) => doRequest("GET", path, null, OPENID_HEADERS);
+  const qid = "smoke_wrong_" + Date.now();
+  const recIdOf = (r) => (r && r.json && r.json.data ? r.json.data.recordId : null);
+
+  console.log("");
+  console.log("=== Wrong-book Flow (add -> list(page) -> review -> remove -> legacy) ===");
+
+  const addRes = await wbPost("/api/wrong/add", {
+    questionId: qid,
+    question: { type: "w1", q: "smoke", a: "smoke", hint: "smoke" },
+  });
+  const recordId = recIdOf(addRes);
+  console.log("[flow] add          : " + describe(addRes) + " recordId=" + (recordId || "-"));
+  if (!recordId) wbProblem("add did not return recordId");
+
+  if (recordId) {
+    const paged = await wbGet("/api/wrong/list?scope=pending&page=1&pageSize=50");
+    const pd = paged.json && paged.json.data;
+    const pagedOk = paged.json && paged.json.code === 0 && pd && Array.isArray(pd.items);
+    console.log("[flow] list(page)   : " + describe(paged));
+    if (!pagedOk) {
+      wbProblem("paged list shape invalid (expect items/page/pageSize/total/hasMore/scope/counts)");
+    } else {
+      console.log("[flow] page data    : page=" + pd.page + " size=" + pd.pageSize
+        + " total=" + pd.total + " hasMore=" + pd.hasMore + " counts=" + JSON.stringify(pd.counts));
+      if (pd.page !== 1 || pd.pageSize !== 50) wbProblem("page/pageSize echo wrong");
+      if (typeof pd.total !== "number" || !pd.counts || typeof pd.counts.pending !== "number") {
+        wbProblem("total / counts missing");
+      }
+      if (!pd.items.some((it) => it.recordId === recordId)) wbProblem("new record missing from pending list");
+      if (pd.items.some((it) => (it.mastery || 0) >= 100)) wbProblem("pending scope leaked mastered records");
+      if (pd.scope !== "pending") wbProblem("scope echo wrong");
+    }
+
+    const reviewRes = await wbPost("/api/wrong/review", { recordId, correct: true });
+    console.log("[flow] review ok    : " + describe(reviewRes));
+    if (!reviewRes.json || reviewRes.json.code !== 0) wbProblem("review failed");
+
+    const badPage = await wbGet("/api/wrong/list?scope=pending&page=0&pageSize=5");
+    console.log("[flow] page=0 (4000): " + describe(badPage));
+    if (!badPage.json || badPage.json.code !== 4000) wbProblem("page=0 should be rejected with code 4000");
+
+    const rm1 = await wbPost("/api/wrong/remove", { recordId });
+    const rm1Removed = rm1.json && rm1.json.data ? rm1.json.data.removed : null;
+    console.log("[flow] remove #1    : " + describe(rm1) + " removed=" + rm1Removed);
+    if (!rm1.json || rm1.json.code !== 0 || rm1Removed !== 1) wbProblem("first remove should return removed=1");
+
+    const rm2 = await wbPost("/api/wrong/remove", { recordId });
+    const rm2Removed = rm2.json && rm2.json.data ? rm2.json.data.removed : null;
+    console.log("[flow] remove #2    : " + describe(rm2) + " removed=" + rm2Removed);
+    if (!rm2.json || rm2.json.code !== 0 || rm2Removed !== 0) {
+      wbProblem("second remove should be idempotent (code=0, removed=0)");
+    }
+
+    const legacy = await wbGet("/api/wrong/list");
+    const ld = legacy.json && legacy.json.data;
+    const legacyOk = legacy.json && legacy.json.code === 0 && ld
+      && Array.isArray(ld.pending) && Array.isArray(ld.mastered);
+    console.log("[flow] list(legacy)  : " + describe(legacy));
+    if (!legacyOk) {
+      wbProblem("legacy list (no params) should return { pending, mastered, total }");
+    } else if (ld.pending.some((it) => it.recordId === recordId)) {
+      wbProblem("removed record still present in legacy list");
+    }
+  }
+  groupResults["wrong-book-flow"] = wb;
 
   console.log("");
   console.log("=== Per-Group Summary ===");

@@ -1,40 +1,11 @@
 const express = require("express");
 const { WrongRecord } = require("../db");
+const book = require("../wrong-book");
 
 const router = express.Router();
 
-// 艾宾浩斯复习间隔（天）
-const EBBINGHAUS_INTERVALS = [1, 2, 4, 7, 15, 30];
-
-/**
- * 计算下次复习时间
- */
-function calculateNextReview(reviewCount, mastery, isCorrect) {
-  const now = new Date();
-
-  if (!isCorrect) {
-    // 答错：重置复习次数，降低熟练度，明天再复习
-    return {
-      mastery: Math.max(0, mastery - 10),
-      reviewCount: 0,
-      nextReviewAt: new Date(now.getTime() + 24 * 60 * 60 * 1000),
-    };
-  }
-
-  // 答对：增加熟练度，按间隔计算下次复习时间
-  const newMastery = Math.min(100, mastery + 20);
-  const intervalIdx = Math.min(reviewCount, EBBINGHAUS_INTERVALS.length - 1);
-  const intervalDays = EBBINGHAUS_INTERVALS[intervalIdx];
-  const nextReviewAt = new Date(
-    now.getTime() + intervalDays * 24 * 60 * 60 * 1000
-  );
-
-  return {
-    mastery: newMastery,
-    reviewCount: reviewCount + 1,
-    nextReviewAt,
-  };
-}
+// 艾宾浩斯算法与分页口径统一放在 server/wrong-book.js（纯逻辑、可单测）
+const calculateNextReview = book.calculateNextReview;
 
 /**
  * POST /api/wrong/add —— 添加错题记录
@@ -94,6 +65,13 @@ router.post("/add", async (req, res) => {
 
 /**
  * GET /api/wrong/list —— 获取错题列表
+ *
+ * 兼容两种协议（2026-09-12 需求②）：
+ *   1. 不带分页参数（老客户端）→ { pending, mastered, total }，与改造前完全一致；
+ *   2. 带 page / pageSize / scope（新客户端）→
+ *      { items, page, pageSize, total, hasMore, scope, counts:{total,pending,mastered} }
+ *      · total 是该 scope 的总数（分页用），counts 是三个口径的数量（统计卡/tab 角标用）；
+ *      · 参数非法 → 4000（越界一律报错，不悄悄纠正客户端）。
  */
 router.get("/list", async (req, res) => {
   try {
@@ -106,26 +84,66 @@ router.get("/list", async (req, res) => {
       });
     }
 
-    const now = new Date();
+    // 说明：这里仍然一次性取出该用户的全部错题再切片。
+    // 错题本是「按用户」的私有数据，量级可控（单用户几百条），内存切片能让
+    // 分页、分组、统计共用同一份数据、同一套纯函数逻辑（可单测）。
+    // 若将来单用户错题量级明显变大，再改成 SQL limit/offset + count 聚合。
     const allRecords = await WrongRecord.findAll({
       where: { openid },
       order: [["nextReviewAt", "ASC"]],
     });
 
-    // 分组：待复习 = 未掌握（含今日新错，当天即可见；按到期时间排序）/ 已掌握 = 熟练度 100
-    const pending = allRecords.filter((r) => r.mastery < 100);
-    const mastered = allRecords.filter((r) => r.mastery >= 100);
+    const data = book.buildListResponse(allRecords, req.query || {});
+    if (data.error) {
+      return res.send({ code: 4000, data: null, message: data.error });
+    }
 
-    res.send({
-      code: 0,
-      data: {
-        pending,
-        mastered,
-        total: allRecords.length,
-      },
-    });
+    res.send({ code: 0, data });
   } catch (err) {
     console.error("GET /api/wrong/list 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
+/**
+ * POST /api/wrong/remove —— 把一道错题移出错题本（幂等）
+ *
+ * 需求②：错题复习答对后可以「删除（已掌握）」也可以「保留」；已掌握但被保留的题目
+ * 也能在错题本里手动移除，所以需要一个独立删除接口。
+ *
+ * 契约：
+ *   · 入参 { recordId }，缺失 → 4000；
+ *   · 只允许删除**属于当前 openid** 的记录（查不到就是别人的或已删除）；
+ *   · 幂等：记录不存在也返回 code 0，data.removed = 0（重复点击、并发重复调用都安全）。
+ */
+router.post("/remove", async (req, res) => {
+  try {
+    const openid = req.openid;
+    if (!openid) {
+      return res.send({
+        code: 1001,
+        data: null,
+        message: "未识别用户（openid 缺失）",
+      });
+    }
+
+    const recordId = req.body && req.body.recordId;
+    if (!recordId) {
+      return res.send({ code: 4000, data: null, message: "参数缺失" });
+    }
+
+    const record = await WrongRecord.findOne({
+      where: { openid, recordId },
+    });
+    if (!record) {
+      // 幂等：不存在（已删/非本人/不存在）也算成功
+      return res.send({ code: 0, data: { recordId, removed: 0 } });
+    }
+
+    await record.destroy();
+    res.send({ code: 0, data: { recordId, removed: 1 } });
+  } catch (err) {
+    console.error("POST /api/wrong/remove 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
 });
