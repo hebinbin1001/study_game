@@ -241,8 +241,25 @@ function promptLogin(desc) {
             wx.showToast({ title: '登录成功', icon: 'success' });
           }
           resolve(user || null);
-        }).catch(function () {
-          wx.showToast({ title: '登录失败，请检查网络后重试', icon: 'none' });
+        }).catch(function (err) {
+          // 真机排查（2026-09-12 用户反馈「真机上排行榜等都进不去」）：
+          // 原来这里只弹一句「请检查网络后重试」，真实原因（errMsg / errCode）被丢掉，
+          // 线上只能靠猜。现在把原始错误直接显示出来，并把完整对象打到 console。
+          var detail = (err && (err.message || err.errMsg)) || '未知错误';
+          try { if (typeof console !== 'undefined') console.warn('[auth] 登录失败：', err); } catch (e) {}
+          if (typeof wx !== 'undefined' && wx.showModal) {
+            wx.showModal({
+              title: '登录失败',
+              content: '原因：' + detail
+                + '\n\n常见两种情况：'
+                + '\n1) 提示 env / 环境相关 → 云开发环境没有关联到本小程序；'
+                + '\n2) 提示 -501000 / 服务不存在 → 云托管服务名或环境 ID 不对。',
+              showCancel: false,
+              confirmText: '知道了'
+            });
+          } else {
+            wx.showToast({ title: '登录失败，请检查网络后重试', icon: 'none' });
+          }
           resolve(null);
         });
       },
