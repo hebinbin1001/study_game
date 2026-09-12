@@ -94,7 +94,9 @@ Page({
     var contMode = contLv ? contLv.mode : 'shoot';
     // 游客第 4 关起需登录：卡片改为引导去关卡页（那里会弹登录引导）
     var continuePlayable = loggedIn || cont.level <= constants.DEFAULT_UNLOCKED_LEVELS;
-    var continueHint = (contLv ? contLv.modeLabel : '字母射击') + ' · ' + gradeLabel
+    // 终关 Boss：卡片前缀加标记，玩家一眼看出「接下来是打 Boss」
+    var continueHint = (contLv && contLv.isBoss ? '👑 BOSS · ' : '')
+      + (contLv ? contLv.modeLabel : '字母射击') + ' · ' + gradeLabel
       + ' · 第 ' + cont.level + '/' + challenge.LEVELS_PER_GRADE + ' 关'
       + (cont.allPassed ? '（已通关，可刷星）' : '');
 

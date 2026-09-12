@@ -179,7 +179,9 @@ Page({
         needLogin: needLogin,
         shaking: false,
         kindLabel: row.modeEmoji + ' ' + row.modeLabel,
-        sub: row.sub
+        sub: row.sub,
+        // 终关 Boss（第 30 关）：行上加徽标、整行换成金色描边（见 level.wxss 的 .lvrow.boss）
+        isBoss: !!row.isBoss
       });
     }
     // 两遍定 state：先知道「首个已解锁但没满星」的位置，才能标出「继续挑战」

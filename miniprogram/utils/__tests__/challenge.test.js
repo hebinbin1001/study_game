@@ -32,17 +32,22 @@ s.test('关卡规模：每学段 30 关', () => {
   });
 });
 
-s.test('编排：三款玩法各 10 关，第 1 关固定字母射击', () => {
+s.test('编排：6 款玩法轮换 + 终关 Boss，第 1 关固定字母射击', () => {
   GRADES.forEach(function (g) {
     const rows = challenge.levelsOf(g);
     const count = {};
     rows.forEach(function (r) { count[r.mode] = (count[r.mode] || 0) + 1; });
-    // P2：6 款玩法轮换，30 关 → 每款各 5 关
-    ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'].forEach(function (m) {
+    // P2：6 款玩法轮换，30 关 → 每款各 5 关；
+    // 终关 Boss（第 30 关）固定字母射击 → shoot 6 关、snake 4 关，其余仍是各 5 关
+    s.assert.equal(count.shoot, 6, g + ' 字母射击应 6 关（第 1 关新手关 + 第 30 关 Boss 关）');
+    ['match', 'wordBuild', 'link', 'idiom'].forEach(function (m) {
       s.assert.equal(count[m], 5, g + ' 玩法「' + m + '」应 5 关');
     });
+    s.assert.equal(count.snake, 4, g + ' 贪吃蛇应 4 关（第 30 关被 Boss 关占用）');
     s.assert.equal(Object.keys(count).length, 6, g + ' 主线应恰好 6 款玩法');
     s.assert.equal(rows[0].mode, 'shoot', g + ' 第 1 关应为字母射击（新手关）');
+    s.assert.equal(rows[challenge.BOSS_LEVEL - 1].mode, 'shoot',
+      g + ' 第 ' + challenge.BOSS_LEVEL + ' 关应为字母射击（Boss 关）');
   });
 });
 
@@ -154,6 +159,7 @@ s.test('星级可达性：每个学段的字母拼词题量都让三档可达', 
 });
 
 s.test('星级折算：答对率 90/70/60 与剩余命 3/2/1', () => {
+  // 这个用例的标题里两套口径都要成立，Boss 相关的护栏在下方单独成组
   s.assert.equal(challenge.starsByRightRate(10, 10), 3);
   s.assert.equal(challenge.starsByRightRate(7, 10), 2);
   s.assert.equal(challenge.starsByRightRate(6, 10), 1);
@@ -163,6 +169,49 @@ s.test('星级折算：答对率 90/70/60 与剩余命 3/2/1', () => {
   s.assert.equal(challenge.starsByLives(2), 2);
   s.assert.equal(challenge.starsByLives(1), 1);
   s.assert.equal(challenge.starsByLives(0), 0);
+});
+
+// ============ 4.5 终关 Boss（方案 A：题量 ×1.5 + 命数同比例放大） ============
+s.test('Boss 关：第 30 关标记 + 参数为 15 题 7 命', () => {
+  GRADES.forEach(function (g) {
+    const lv = challenge.levelAt(g, challenge.BOSS_LEVEL);
+    s.assert.ok(lv && lv.isBoss, g + ' 第 ' + challenge.BOSS_LEVEL + ' 关应标记 isBoss');
+    s.assert.equal(lv.mode, 'shoot', g + ' Boss 关应为字母射击');
+    const p = challenge.paramsOf(g, 'shoot', challenge.BOSS_LEVEL);
+    s.assert.equal(p.totalQ, 15, g + ' Boss 题量应为 15（10 ×1.5）');
+    s.assert.equal(p.lives, 7, g + ' Boss 命数应为 7（否则 1 星档不可达）');
+    s.assert.ok(lv.sub.indexOf('BOSS') === 0, 'Boss 关副标题应以 BOSS 开头，实际 = ' + lv.sub);
+  });
+  // 普通关不受影响
+  const normal = challenge.paramsOf('primary34', 'shoot', 25);
+  s.assert.equal(normal.totalQ, 10, '普通字母射击关仍是 10 题');
+  s.assert.equal(normal.lives, 5, '普通关仍是 5 命');
+  // 不传 level 时保持旧行为（老调用方向后兼容）
+  s.assert.equal(challenge.paramsOf('primary34', 'shoot').totalQ, 10, '不传 level 应按普通关参数');
+});
+
+s.test('Boss 关星级可达性：三档都拿得到（方案 A 的核心不变量）', () => {
+  const r = challenge.starReachability(challenge.BOSS_PARAMS.totalQ, challenge.BOSS_PARAMS.lives);
+  s.assert.deepEqual(r.reachable, [1, 2, 3], 'Boss 关 1/2/3 星都应可达');
+  s.assert.equal(Math.round(r.minRate), 60, 'Boss 通关最低正确率应与普通关一致（60%）');
+
+  // 回归护栏：把「不可行的老方案」钉在这里 —— 一旦有人改回只加题量/只减命数就会红
+  const onlyMoreQ = challenge.starReachability(15, 5);
+  s.assert.deepEqual(onlyMoreQ.reachable, [2, 3], '15 题 5 命只有 2/3 星可达（说明护栏确实有效）');
+  s.assert.equal(Math.round(onlyMoreQ.minRate), 73, '15 题 5 命的通关最低正确率是 73%');
+  const fewerLives = challenge.starReachability(10, 4);
+  s.assert.deepEqual(fewerLives.reachable, [2, 3], '10 题 4 命同样会丢 1 星（减命也不可行）');
+});
+
+s.test('Boss 关：题量真的从题库里取到 15 题，且同关可复现', () => {
+  GRADES.forEach(function (g) {
+    const items = challenge.pickItems(g, challenge.BOSS_LEVEL, challenge.BOSS_PARAMS.totalQ);
+    s.assert.equal(items.length, challenge.BOSS_PARAMS.totalQ,
+      g + ' Boss 关应能取到 ' + challenge.BOSS_PARAMS.totalQ + ' 题，实际 ' + items.length);
+    const again = challenge.pickItems(g, challenge.BOSS_LEVEL, challenge.BOSS_PARAMS.totalQ);
+    s.assert.equal(again.map(function (x) { return x.q; }).join('|'),
+      items.map(function (x) { return x.q; }).join('|'), g + ' Boss 关题目应可复现（重玩刷星公平）');
+  });
 });
 
 // ============ 5. 老存档迁移 ============

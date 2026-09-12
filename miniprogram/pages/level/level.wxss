@@ -190,6 +190,30 @@ page {
   font-weight: 900;
   color: #3a3a5c;
 }
+/* 终关 Boss 徽标（第 30 关）：金色小牌，和普通关一眼区分开 */
+.lv-boss {
+  flex: 0 0 auto;
+  margin-left: 12rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 10rpx;
+  font-size: 20rpx;
+  font-weight: 900;
+  letter-spacing: 1rpx;
+  color: #6b3d00;
+  background: linear-gradient(180deg, #ffe08a, #ffb703);
+  box-shadow: 0 2rpx 0 rgba(139, 87, 0, 0.35);
+}
+/* Boss 行：金色描边（与「继续挑战」的呼吸金边同色系，但更沉稳） */
+.lvrow.boss {
+  box-shadow: 0 8rpx 0 rgba(255, 183, 3, 0.28), 0 0 0 3rpx #f0b429;
+}
+.lvrow.boss .lv-no {
+  background: linear-gradient(180deg, #ffb703, #e08b00);
+}
+/* 未解锁的 Boss 关不要用金色方块（会误以为已开放） */
+.lvrow.lock.boss .lv-no {
+  background: #cfd8e3;
+}
 .lv-t2 {
   margin-top: 6rpx;
   font-size: 22rpx;

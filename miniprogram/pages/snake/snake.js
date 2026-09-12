@@ -65,7 +65,7 @@ Page({
     this._challengeKey = '';
     if (this._challenge) {
       var lv = challenge.levelAt(this._gradeKey, this._level);
-      if (lv) this._roundWordCount = challenge.paramsOf(this._gradeKey, lv.mode).words || WORDS_PER_ROUND;
+    if (lv) this._roundWordCount = challenge.paramsOf(this._gradeKey, lv.mode, this._level).words || WORDS_PER_ROUND;
       this._rng = rng.makeRng(parseInt(opt.seed, 10) || challenge.seedOf(this._gradeKey, this._level));
       this._challengeKey = this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level;
     }

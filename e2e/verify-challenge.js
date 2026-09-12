@@ -184,6 +184,21 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     '实际 = ' + JSON.stringify((lvData.typeGroups[0] || {}).label));
   ck.check('关卡列表渲染出 30 行', !!(await H.waitForCount(lvPage, '.lvrow', 30, 8000)));
 
+  // 终关 Boss（方案 A，2026-09-12）：第 30 关固定字母射击，题量 15 + 命数 7
+  const bossRow = rows[challenge.BOSS_LEVEL - 1] || {};
+  ck.check('第 30 关是终关 Boss（字母射击）', bossRow.mode === 'shoot' && bossRow.isBoss === true,
+    '实际 = ' + JSON.stringify({ mode: bossRow.mode, isBoss: bossRow.isBoss }));
+  ck.check('Boss 关副标题含 BOSS 与 15 题 7 命', bossRow.sub === 'BOSS · 15 题 · 7 命',
+    '实际 = ' + bossRow.sub);
+  ck.check('Boss 关在页面上有 BOSS 徽标（.lv-boss 恰好 1 个）',
+    (await lvPage.$$('.lv-boss')).length === 1,
+    '实际 = ' + (await lvPage.$$('.lv-boss')).length);
+  ck.check('Boss 关整行带金色高亮类 .lvrow.boss',
+    (await lvPage.$$('.lvrow.boss')).length === 1);
+  ck.check('Boss 关参数来自 challenge.BOSS_PARAMS（题量 15 / 命数 7）',
+    challenge.paramsOf(GRADE, 'shoot', challenge.BOSS_LEVEL).totalQ === 15 &&
+    challenge.paramsOf(GRADE, 'shoot', challenge.BOSS_LEVEL).lives === 7);
+
   console.log('[3/8] 固定题面：字母拼词挑战关两次进入一致，且等于独立复算值');
   const expWb = expectWordBuild(GRADE, WB_LEVEL);
   const wbUrl = '/pages/word-build/word-build?challenge=1&grade=' + GRADE
@@ -364,25 +379,50 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('迁移后首页继续挑战推进到下一关', home2Data.continueLevel >= 1,
     '实际 = ' + home2Data.continueLevel);
 
-  // ===== 最后一段：点「继续挑战」进对局 =====
-  // 放在整个用例的最后，是因为开发者工具在「对局页 Canvas rAF 还开着时 reLaunch 走」会偶发挂死
-  // （表现为后续 reLaunch timeout / page destroyed，实测可复现）。这里跑完就收工，不再切路由。
-  console.log('[8/8] 点「继续挑战」→ 落到该关对应的玩法页');
-  await miniProgram.callWxMethod('setStorageSync', 'ww_stars', {});
+  // ===== 最后一段：继续挑战 → 终关 Boss 对局 =====
+  // 编排约束（踩过两次）：开发者工具在「对局页 Canvas rAF 还开着时 reLaunch 走」会偶发挂死
+  // （表现为 timeout / page destroyed）。所以整条用例**只允许加载一次对局页**，且必须是最后一步。
+  // 这里用真实用户路径进入 Boss：把前 29 关点满 3 星（并模拟已登录，游客第 4 关起会被拦），
+  // 首页「继续挑战」自然落到第 30 关 Boss。
+  console.log('[8/9] 首页「继续挑战」在通关前 29 关后指向终关 Boss');
+  await miniProgram.callWxMethod('setStorageSync', 'ww_token', 'e2e-token');
+  await miniProgram.callWxMethod('setStorageSync', 'ww_user', { openid: 'e2e_openid', nickname: 'E2E' });
+  const bossStars = {};
+  for (let i = 1; i < challenge.BOSS_LEVEL; i++) bossStars['kindergarten@challenge@' + i] = 3;
+  await miniProgram.callWxMethod('setStorageSync', 'ww_stars', bossStars);
   await miniProgram.callWxMethod('removeStorageSync', 'ww_challenge_migrated');
   const home3 = await H.goto(miniProgram, HOME_URL, 1800);
+  const h3 = await home3.data();
+  ck.check('前 29 关满星后「继续挑战」指向第 ' + challenge.BOSS_LEVEL + ' 关',
+    h3.continueLevel === challenge.BOSS_LEVEL, '实际 = ' + h3.continueLevel);
+  ck.check('继续挑战指向 Boss 关的玩法（字母射击）', h3.continueMode === 'shoot', '实际 = ' + h3.continueMode);
+  ck.check('卡片文案带 BOSS 标记', /BOSS/.test(h3.continueHint || ''), '实际 = ' + h3.continueHint);
+  ck.check('卡片文案带第 30/30 关', /第 30\/30 关/.test(h3.continueHint || ''), '实际 = ' + h3.continueHint);
+
+  console.log('[9/9] 点「继续挑战」→ 终关 Boss 对局（15 题 + 7 命）');
   const ct = await home3.$('.cta .ct');
   ck.check('找到继续挑战按钮 .cta .ct', !!ct);
   if (ct) {
     await ct.tap();
-    await home3.waitFor(2000);
-    const cur3 = await miniProgram.currentPage();
-    ck.check('跳到第 1 关的玩法页 pages/game/game', cur3.path === 'pages/game/game', '实际 = ' + cur3.path);
-    const gd = await cur3.data();
-    ck.check('玩法页收到 challenge=1（挑战模式）', gd.challenge === true, '实际 = ' + gd.challenge);
-    ck.check('玩法页关卡号为 1', gd.level === 1, '实际 = ' + gd.level);
-    ck.check('玩法页题量 = 该关参数（10 题）', gd.totalQ === challenge.paramsOf(GRADE, 'shoot').totalQ,
-      '实际 = ' + gd.totalQ);
-    ck.check('全程未崩溃（停在玩法页）', cur3.path === 'pages/game/game', '实际 = ' + cur3.path);
+    await home3.waitFor(2200);
+    const cur4 = await miniProgram.currentPage();
+    ck.check('落到 Boss 玩法页 pages/game/game', cur4.path === 'pages/game/game', '实际 = ' + cur4.path);
+    const bossData = await cur4.data();
+    ck.check('Boss 关玩法页收到 challenge=1（挑战模式）', bossData.challenge === true,
+      '实际 = ' + bossData.challenge);
+    ck.check('Boss 关关卡号为 ' + challenge.BOSS_LEVEL, bossData.level === challenge.BOSS_LEVEL,
+      '实际 = ' + bossData.level);
+    ck.check('Boss 关题量为 15（普通关是 10）', bossData.totalQ === challenge.BOSS_PARAMS.totalQ,
+      '实际 = ' + bossData.totalQ);
+    ck.check('Boss 关命数为 7（data.livesText 为 7 颗心）', bossData.livesText === '❤'.repeat(7),
+      '实际 = ' + JSON.stringify(bossData.livesText) + '（长度 ' + String(bossData.livesText || '').length + '）');
+    const bossHud = await H.textOf(cur4, '.hud-lives');
+    ck.check('Boss 关 HUD 命数文案 = 7 颗心', bossHud === '❤'.repeat(7), '实际 = ' + JSON.stringify(bossHud));
+    const bossQ = await H.textOf(cur4, '.hud-qnum');
+    ck.check('Boss 关题号显示为第 1/15 题', /1\s*\/\s*15/.test(bossQ || ''), '实际 = ' + JSON.stringify(bossQ));
+    ck.check('Boss 关出满 4 个选项（对局正常开始）',
+      !!(await H.waitForCount(cur4, '.option', 4, 15000)));
+    ck.check('全程未崩溃（停在 Boss 玩法页）',
+      (await miniProgram.currentPage()).path === 'pages/game/game');
   }
 });

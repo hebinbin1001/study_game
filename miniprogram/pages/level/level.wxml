@@ -78,7 +78,7 @@
     <view
       wx:for="{{levels}}"
       wx:key="level"
-      class="lvrow {{item.state}} {{item.shaking ? 'shake' : ''}}"
+      class="lvrow {{item.state}} {{item.shaking ? 'shake' : ''}} {{item.isBoss ? 'boss' : ''}}"
       data-index="{{index}}"
       bindtap="onLevelTap">
 
@@ -90,6 +90,7 @@
         <view class="lv-t1">
           <text class="lv-kind">{{item.kindLabel}}</text>
           <text class="lv-name">第 {{item.level}} 关</text>
+          <text wx:if="{{item.isBoss}}" class="lv-boss">BOSS</text>
         </view>
         <view class="lv-t2">{{item.sub}}</view>
       </view>

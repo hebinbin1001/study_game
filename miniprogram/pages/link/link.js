@@ -60,7 +60,7 @@ Page({
     if (this._challenge) {
       // 挑战关卡：学段取关卡参数，对数按关卡参数，取词用关卡种子（题不变）
       var lv = challenge.levelAt(this._gradeKey, this._level);
-      pairCount = (lv ? challenge.paramsOf(this._gradeKey, lv.mode).pairs : PAIR) || PAIR;
+    pairCount = (lv ? challenge.paramsOf(this._gradeKey, lv.mode, this._level).pairs : PAIR) || PAIR;
       grade = this._gradeByKey(this._gradeKey) || GRADES[0];
       this._roundTick = this._roundTick || 0;
       // 词集只取一次（由关卡种子决定）；「换局」只重排牌面，不换题

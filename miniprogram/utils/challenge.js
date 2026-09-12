@@ -17,10 +17,18 @@
  *   ⚠️ 未支持参数的玩法**不能**先写进模板，否则该关点了要么随机开局、要么不记星，
  *      玩家会卡在关卡中间（新增玩法时请同步扩 MODES 与模板，并补单测）。
  *
- * ⚠️ 关于「终关 Boss 难度」：靠“加题量/减命数”做难度会破坏星级可达性
- *   （例：字母射击 15 题 5 命 → 通关最低正确率 73%，1 星档（<70%）数学上不可达，
- *   与 R1 修掉的老缺陷同类）。所以要加 Boss 参数，必须同时重算该玩法的星级阈值，
- *   留到 P2 与「统一星级折算表」一起做。当前 30 关只区分玩法与题库，不改题量/命数。
+ * ★ 终关 Boss（2026-09-12 用户拍板方案 A）：每学段**第 30 关**固定为「字母射击」Boss 关，
+ *   参数 = 题量 ×1.5（10 → 15）、命数同比例放大（5 → 7），**星级阈值不动**。
+ *
+ *   为什么命数必须跟着放大（当初正是这个原因把 Boss 推迟到 P2 之后做）：
+ *   通关要求答对 `总题数 −（命数 − 1）` 题，所以「加题量」会把通关最低正确率顶上去 ——
+ *     10 题 5 命 → 最低 60%（恰好压在 1 星线上）
+ *     15 题 5 命 → 最低 73% → **1 星档（阈值 60%）数学上不可达**
+ *     15 题 7 命 → 最低 60% → 三档重新可达 ✓
+ *   单测 `challenge.test.js` 用 starReachability 把这条不变量钉死了（Boss 关也要三档可达）。
+ *
+ *   为什么不给连连看/消消乐做 Boss：它们棋盘固定 4×4 = 8 对，加不了题量；
+ *   而它们按「剩余命 3/2/1」给星，减命会让 3 星档直接消失（详见交接单的方案 B/C）。
  */
 
 'use strict';
@@ -40,7 +48,7 @@ var MODES = {
     label: '字母射击',
     emoji: '🎯',
     page: '/pages/game/game',
-    starBasis: '正确率 90/70/60（5 命）'
+    starBasis: '正确率 90/70/60（命数见关卡参数：普通关 5 命、Boss 关 7 命）'
   },
   wordBuild: {
     key: 'wordBuild',
@@ -48,7 +56,7 @@ var MODES = {
     label: '字母拼词',
     emoji: '🔤',
     page: '/pages/word-build/word-build',
-    starBasis: '答对率 90/70/60（5 命）'
+    starBasis: '答对率 90/70/60'
   },
   link: {
     key: 'link',
@@ -87,6 +95,20 @@ var MODES = {
 // 玩法轮换节奏（P2）：6 款顺序轮换，每学段 30 关 → 每款各 5 关
 var CYCLE = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'];
 
+// ============ 终关 Boss（方案 A：题量 ×1.5 + 命数同比例放大） ============
+/** Boss 关号：每学段的最后一关 */
+var BOSS_LEVEL = 30;
+/** Boss 关固定玩法：用最有代表性的主玩法，与第 1 关「新手关」首尾呼应 */
+var BOSS_MODE = 'shoot';
+/**
+ * Boss 参数。数值来源：
+ *   totalQ = GAME_CONFIG.totalQ(10) × 1.5 = 15；
+ *   lives  按「最低星档仍可达」反推：需要 (t −(l−1))/t ≤ 60%，即 l ≥ 0.4t + 1，
+ *          15 题 → l ≥ 7，与「5 × 1.5 = 7.5 向下取整」一致。
+ * 两者都不随学段变化（字母射击本来就是全学段同一套参数）。
+ */
+var BOSS_PARAMS = { totalQ: 15, lives: 7 };
+
 /**
  * 生成关卡模板（30 关）。
  * @returns {Array<{level:number, mode:string}>}
@@ -94,12 +116,23 @@ var CYCLE = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'];
 function buildTemplate() {
   var out = [];
   for (var lv = 1; lv <= LEVELS_PER_GRADE; lv++) {
-    out.push({ level: lv, mode: CYCLE[(lv - 1) % CYCLE.length] });
+    // 第 30 关覆盖轮换、固定为 Boss 玩法（其余照常轮换）
+    var mode = (lv === BOSS_LEVEL) ? BOSS_MODE : CYCLE[(lv - 1) % CYCLE.length];
+    out.push({ level: lv, mode: mode });
   }
   return out;
 }
 
 var TEMPLATE = buildTemplate();
+
+/**
+ * 是否 Boss 关。
+ * @param {number} level 关卡号
+ * @returns {boolean}
+ */
+function isBossLevel(level) {
+  return (parseInt(level, 10) || 0) === BOSS_LEVEL;
+}
 
 // ============ 二、按学段实例化参数（题量等） ============
 // 约束：题量与命数必须让 1/2/3 星三档都可达（单测 challenge.test.js 有护栏）。
@@ -152,22 +185,34 @@ function gameTypeOf(mode) {
 
 /**
  * 取某学段某关的玩法参数（已与默认值合并）。
+ *
+ * 注意：**Boss 关的参数必须传 level 才会生效**（Boss 关题量/命数与普通关不同）。
+ * 玩法页调这个函数时要把当前关卡号一起传进来，否则 Boss 关会按普通关参数开局。
+ *
  * @param {string} gradeKey 学段 key
  * @param {string} mode 玩法 key（MODES 的 key）
+ * @param {number} [level] 关卡号（挑战主线用；不传 = 普通关参数）
  * @returns {Object} 合并后的参数
  */
-function paramsOf(gradeKey, mode) {
+function paramsOf(gradeKey, mode, level) {
   var base = DEFAULT_PARAMS[mode] || {};
   var over = (GRADE_PARAMS[gradeKeyOf(gradeKey)] || {})[mode] || {};
   var out = {};
   for (var k in base) { if (base.hasOwnProperty(k)) out[k] = base[k]; }
   for (var j in over) { if (over.hasOwnProperty(j)) out[j] = over[j]; }
+  // Boss 关：覆盖成 Boss 参数（题量 ×1.5 + 命数同比例放大）
+  if (mode === BOSS_MODE && isBossLevel(level)) {
+    for (var b in BOSS_PARAMS) { if (BOSS_PARAMS.hasOwnProperty(b)) out[b] = BOSS_PARAMS[b]; }
+  }
   return out;
 }
 
 /** 关卡副标题（关卡页/首页卡片展示用，说明这一关是什么玩法、多少题） */
-function subOf(gradeKey, mode) {
-  var p = paramsOf(gradeKey, mode);
+function subOf(gradeKey, mode, level) {
+  var p = paramsOf(gradeKey, mode, level);
+  if (isBossLevel(level)) {
+    return 'BOSS · ' + p.totalQ + ' 题 · ' + p.lives + ' 命';
+  }
   if (mode === 'shoot') return p.totalQ + ' 题 · ' + p.lives + ' 命';
   if (mode === 'wordBuild') return p.count + ' 题 · 拼字母';
   if (mode === 'link') return p.pairs + ' 对 · ' + p.pairs * 2 + ' 张牌';
@@ -203,7 +248,7 @@ function rngFor(gradeKey, level) {
  * 取某学段某一关的完整描述。
  * @param {string} gradeKey
  * @param {number} level 1 ~ LEVELS_PER_GRADE
- * @returns {Object|null} { level, mode, modeLabel, modeEmoji, page, sub, seed }
+ * @returns {Object|null} { level, mode, modeLabel, modeEmoji, page, sub, seed, isBoss }
  */
 function levelAt(gradeKey, level) {
   var n = parseInt(level, 10);
@@ -217,7 +262,8 @@ function levelAt(gradeKey, level) {
     modeEmoji: meta.emoji,
     page: meta.page,
     starBasis: meta.starBasis,
-    sub: subOf(gradeKey, row.mode),
+    sub: subOf(gradeKey, row.mode, n),
+    isBoss: n === BOSS_LEVEL,
     seed: seedOf(gradeKey, n)
   };
 }
@@ -372,6 +418,10 @@ module.exports = {
   MODES: MODES,
   TEMPLATE: TEMPLATE,
   GRADE_PARAMS: GRADE_PARAMS,
+  BOSS_LEVEL: BOSS_LEVEL,
+  BOSS_MODE: BOSS_MODE,
+  BOSS_PARAMS: BOSS_PARAMS,
+  isBossLevel: isBossLevel,
   levelAt: levelAt,
   levelsOf: levelsOf,
   levelsOfMode: levelsOfMode,

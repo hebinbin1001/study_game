@@ -62,7 +62,7 @@ Page({
     if (this._challenge) {
       var lv = challenge.levelAt(this._gradeKey, this._level);
       if (lv) {
-        this._roundQ = challenge.paramsOf(this._gradeKey, lv.mode).count || lib.ROUND_Q;
+      this._roundQ = challenge.paramsOf(this._gradeKey, lv.mode, this._level).count || lib.ROUND_Q;
         this._challengeLabel = challenge.labelOf(this._gradeKey) + ' · 挑战第 ' + this._level + '/' + challenge.LEVELS_PER_GRADE + ' 关';
       }
       this._rng = rng.makeRng(parseInt(opt.seed, 10) || challenge.seedOf(this._gradeKey, this._level));

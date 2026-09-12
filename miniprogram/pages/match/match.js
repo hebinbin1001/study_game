@@ -44,7 +44,7 @@ Page({
     this._challengeKey = '';
     if (this._challenge) {
       var lv = challenge.levelAt(this._gradeKey, this._level);
-      this._pairs = (lv ? challenge.paramsOf(this._gradeKey, lv.mode).pairs : PAIR_COUNT) || PAIR_COUNT;
+    this._pairs = (lv ? challenge.paramsOf(this._gradeKey, lv.mode, this._level).pairs : PAIR_COUNT) || PAIR_COUNT;
       var seed = parseInt(opt.seed, 10) || challenge.seedOf(this._gradeKey, this._level);
       this._rng = rng.makeRng(seed);
       this._challengeKey = this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level;

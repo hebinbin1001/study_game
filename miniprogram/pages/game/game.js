@@ -120,22 +120,31 @@ Page({
     var isChallenge = !!(options && String(options.challenge) === '1');
     this._challenge = isChallenge;
     this._challengeItems = null;
+    this._lives = CONFIG.initLives;       // 本局命数（挑战 Boss 关会被参数覆盖为 7）
+    this._totalQ = CONFIG.totalQ;         // 本局题量（同上，Boss 关为 15）
     question.setRandom();                 // 先复位，避免上一局挑战的种子泄漏到本局
     if (isChallenge) {
       var lvInfo = challenge.levelAt(grade, level);
       var seed = (options && options.seed) ? parseInt(options.seed, 10) : challenge.seedOf(grade, level);
       if (!seed) seed = challenge.seedOf(grade, level);
       question.setRandom(rng.makeRng(seed));
+      // Boss 关（第 30 关）的题量/命数与普通关不同，必须把 level 一起传进去才拿得到
+      var lvParams = lvInfo ? challenge.paramsOf(grade, lvInfo.mode, level) : null;
+      if (lvParams && lvParams.lives > 0) this._lives = lvParams.lives;
       this._challengeItems = challenge.pickItems(
-        grade, level, (lvInfo ? challenge.paramsOf(grade, lvInfo.mode).totalQ : CONFIG.totalQ) || CONFIG.totalQ, type
+        grade, level, (lvParams ? lvParams.totalQ : CONFIG.totalQ) || CONFIG.totalQ, type
       );
     }
+    // 实际开局题量以「真正取到的题目数」为准（题库不足时可能少于请求值，避免提前结算）
+    this._totalQ = (this._challengeItems && this._challengeItems.length)
+      ? this._challengeItems.length : CONFIG.totalQ;
 
     this.setData({
       grade: grade,
       level: level,
       type: type,
-      totalQ: (this._challengeItems && this._challengeItems.length) ? this._challengeItems.length : CONFIG.totalQ,
+      totalQ: this._totalQ,
+      livesText: '❤'.repeat(this._lives),
       challenge: isChallenge
     });
 
@@ -317,6 +326,9 @@ Page({
     engine.start(this._canvasNode, this._ctx, {
       // 皮肤选择（战士/boss avatarId），引擎解析为 emoji+主色渲染
       skins: this._skins,
+      // 本局题量 / 命数（挑战 Boss 关 = 15 题 + 7 命；其余为默认 10 题 + 5 命）
+      totalQ: this._totalQ,
+      lives: this._lives,
 
       /**
        * 获取下一个词条（词库抽题，REQ-DICT-3）。

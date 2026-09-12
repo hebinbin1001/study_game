@@ -81,7 +81,19 @@ const engine = {
     this._canvasNode = canvasNode;
     this._ctx = ctx;
     this._callbacks = options || {};
+
+    // 本局「题量 / 命数」可由关卡注入（挑战主线终关 Boss = 15 题 + 7 命）。
+    // 不传则沿用 CONFIG 默认（10 题 5 命）—— 老调用方零影响。
+    // 为什么要能注入：Boss 只加题量会导致 1 星档不可达（15 题 5 命 → 最低正确率 73% > 阈值 60%），
+    // 所以命数必须跟着放大，见 utils/challenge.js 的 BOSS_PARAMS 推导。
+    const opt = options || {};
+    const q = parseInt(opt.totalQ, 10);
+    const lv = parseInt(opt.lives, 10);
+    this._totalQ = (q > 0) ? q : CONFIG.totalQ;
+    this._maxLives = (lv > 0) ? lv : CONFIG.initLives;
+
     this.G = createInitialState();
+    this.G.lives = this._maxLives;
     this._last = 0;
     this._now = 0;
 
@@ -189,6 +201,9 @@ const engine = {
     } else {
       this.G = createInitialState();
     }
+    // resetGame 会把命数恢复到 CONFIG.initLives；Boss 关（7 命）在这里要复位回本局命数，
+    // 否则「再玩一次」会悄悄退回 5 命，与关卡参数对不上。
+    if (this._maxLives > 0) this.G.lives = this._maxLives;
   },
 
   /**
@@ -443,7 +458,7 @@ const engine = {
   _nextQuestion() {
     const G = this.G;
     G.answered++;
-    if (G.answered >= CONFIG.totalQ) {
+    if (G.answered >= this._totalQ) {
       this._endLevel(true);
       return;
     }
@@ -529,8 +544,8 @@ const engine = {
   // ============ 结算（平移原型 endLevel，第 713-724 行） ============
   _endLevel(win) {
     const G = this.G;
-    const rate = Math.round(G.correctCount / CONFIG.totalQ * 100);
-    const stars = starsByRate(rate); // 用 constants.js 星级阈值 90/70/40
+    const rate = Math.round(G.correctCount / this._totalQ * 100);
+    const stars = starsByRate(rate); // 用 constants.js 星级阈值 90/70/60（R1 修档后）
     G.over = true;
     if (win) playWin(); // M6-H 通关音效
 
@@ -543,7 +558,7 @@ const engine = {
         win,
         score: G.score,
         correctCount: G.correctCount,
-        totalQ: CONFIG.totalQ,
+        totalQ: this._totalQ,
         rate,
         stars,
         maxCombo: G.maxCombo
@@ -621,7 +636,7 @@ const engine = {
         score: this.G.score,
         lives: this.G.lives,
         answered: this.G.answered,
-        totalQ: CONFIG.totalQ,
+        totalQ: this._totalQ,
         combo: this.G.combo
       });
     }
