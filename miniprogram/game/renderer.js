@@ -327,7 +327,19 @@ function drawSky(ctx) {
  * 上方只剩 22px，图越大越会被 topMin 顶住、露出来的部分反而越少。
  * 取 170 宽时，下沉约 2 秒后怪兽头肩完整露出（约 70px 高），观感与战斗节奏都合适。
  */
-const MON_ART = { w: 170, overlap: 46, topMin: 2 };
+const MON_ART = {
+  // 怪兽图高度：底边贴卡片底边，因此头会探到卡片上方。
+  // 158 是「尽量大」与「开局（卡片贴顶，上方只剩 22px）别把脑袋切掉」的折中：
+  // 顶边夹到 0 之后整图下移，被切掉的是下缘 —— 那块本来就被名牌挡着，不影响观感。
+  h: 158,
+  topMin: 0,
+  plateTop: 40,    // 「名牌」顶部相对卡片顶（覆盖题目文字 y+52~92 与底部提示行 y+102）
+  plateH: 68,      // 名牌高度
+  plateAlpha: 0.88, // 名牌不透明度：留一点透明度让兽肚透出来，避免像一块"贴上去的卡片"
+  platePad: 16,    // 名牌比文字宽出多少（收窄：原来 30 会让名牌几乎和怪兽一样宽）
+  plateMinW: 132,  // 名牌最小宽度（短词也别太小）
+  plateMaxW: 186   // 名牌最大宽度（必须明显窄于怪兽，否则又把怪兽挡住了）
+};
 
 /**
  * 怪兽真图的绘制矩形（纯函数，可单测）：**只位移、不缩放**。
@@ -339,9 +351,9 @@ const MON_ART = { w: 170, overlap: 46, topMin: 2 };
  * @returns {{x:number, y:number, w:number, h:number, bottom:number}} 绘制矩形（bottom = 底边 y）
  */
 function monsterArtLayout(iw, ih, mx, my) {
-  const w = MON_ART.w;
-  const h = (iw > 0 && ih > 0) ? (w * ih / iw) : w;
-  const bottom = my + MON_ART.overlap;
+  const h = MON_ART.h;
+  const w = (iw > 0 && ih > 0) ? (h * iw / ih) : h;
+  const bottom = my + MON_H;                      // 底边贴卡片底边
   return {
     x: mx + (MON_W - w) / 2,
     y: Math.max(MON_ART.topMin, bottom - h),
@@ -349,6 +361,46 @@ function monsterArtLayout(iw, ih, mx, my) {
     h: h,
     bottom: bottom
   };
+}
+
+/**
+ * 「名牌」矩形（纯函数，可单测）：题目文字画在这块牌子上，牌子挂在怪兽肚子上。
+ *
+ * 为什么要名牌：怪兽真图当主体后，题目文字直接落在兽身上会看不清（兽肚是浅色，
+ * 而文字是白色）。名牌宽度跟着文字走，窄于怪兽 —— 这样怪兽的轮廓、头、手臂
+ * 都能在牌子四周露出来，而不是「被一块大卡片盖住」（这正是用户反馈的问题）。
+ *
+ * @param {number} textW 题目文字宽度
+ * @param {number} mx 卡片左边界（几何锚点，布局语义不变）
+ * @param {number} my 卡片顶
+ */
+function monsterPlateLayout(textW, mx, my) {
+  const w = Math.max(MON_ART.plateMinW,
+    Math.min(MON_ART.plateMaxW, (textW || 0) + MON_ART.platePad));
+  return {
+    x: mx + (MON_W - w) / 2,
+    y: my + MON_ART.plateTop,
+    w: w,
+    h: MON_ART.plateH
+  };
+}
+
+/**
+ * 当前题目的文字宽度（名牌要多宽）：
+ *   · 字符级题目：每字宽度 × 字数（与 drawMonster 的排版口径一致）
+ *   · 词级题目：取最长一行
+ * @param {Object} state 引擎状态
+ * @param {CanvasRenderingContext2D} [ctx] 词级需要 ctx 量文字
+ */
+function questionTextWidth(state, ctx) {
+  const q = state && state.question;
+  if (!q) return 0;
+  if (q.wordLevel) {
+    const layout = getWordLayout(q, state.monster, ctx || null);
+    return Math.max.apply(null, layout.lineTotal.concat([0]));
+  }
+  const w = q.w || '';
+  return w.length * clamp(34, 10, 170 / Math.max(4, w.length));
 }
 
 function drawMonster(ctx, state, now) {
@@ -361,13 +413,14 @@ function drawMonster(ctx, state, now) {
   const scale = 1 + angry * 0.08;
   const x = m.x + sx, y = m.y;
 
-  // 怪兽真图（美术到货）：画在题目卡片**之前**，被卡片挡住下半身。
-  // 与卡片共用同一套变换（震屏 / 暴怒缩放一起动），裁剪边界用未变换坐标系的卡片底边，
-  // 保证无论怎么缩放都不会有腿露在卡片外面。
+  // 怪兽真图（美术到货）：**怪兽是主体**，题目文字改成挂在它肚子上的小名牌。
+  // 与名牌共用同一套变换（震屏 / 暴怒缩放一起动），裁剪边界用未变换坐标系的卡片底边。
   const artReady = state && state.skinImages && state.skinImages.monster && state.skinImages.monster.ready;
+  let plate = null;
   if (artReady) {
     const img = state.skinImages.monster.img;
-    const M = monsterArtLayout(img.width || MON_ART.w, img.height || MON_ART.w, x, y);
+    const M = monsterArtLayout(img.width || MON_ART.h, img.height || MON_ART.h, x, y);
+    plate = monsterPlateLayout(questionTextWidth(state, ctx), x, y);
     ctx.save();
     ctx.beginPath();
     ctx.rect(0, 0, W, y + MON_H);
@@ -376,6 +429,20 @@ function drawMonster(ctx, state, now) {
     ctx.scale(scale, scale);
     ctx.translate(-W / 2, -(y + MON_H / 2));
     ctx.drawImage(img, M.x, M.y, M.w, M.h);
+    // 名牌：画在怪兽之后、题目文字之前；宽度跟着文字走，保证怪兽四周露得出来
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.24)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 5;
+    // 用带透明度的肤色填充：让怪兽肚子透一点出来（"名牌贴在怪兽身上"而不是另贴一张卡）
+    ctx.globalAlpha = MON_ART.plateAlpha;
+    ctx.fillStyle = m.color;
+    roundRect(ctx, plate.x, plate.y, plate.w, plate.h, 20); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = angry ? '#ff3b30' : '#fff';
+    roundRect(ctx, plate.x, plate.y, plate.w, plate.h, 20); ctx.stroke();
     ctx.restore();
   }
 
@@ -384,18 +451,20 @@ function drawMonster(ctx, state, now) {
   ctx.scale(scale, scale);
   ctx.translate(-W / 2, -(y + MON_H / 2));
 
-  // 身体（题目卡片）
-  ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,.22)';
-  ctx.shadowBlur = 12;
-  ctx.shadowOffsetY = 6;
-  ctx.fillStyle = m.color;
-  roundRect(ctx, x, y, MON_W, MON_H, 26); ctx.fill();
-  ctx.restore();
-  // 描边：答错时红色闪光（REQ-GAME-7）
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = angry ? '#ff3b30' : '#fff';
-  roundRect(ctx, x, y, MON_W, MON_H, 26); ctx.stroke();
+  // 没有真图时才画「整块题目卡片」当身体；有真图时怪兽自己就是身体，名牌上面已经画过了。
+  if (!artReady) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.22)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 6;
+    ctx.fillStyle = m.color;
+    roundRect(ctx, x, y, MON_W, MON_H, 26); ctx.fill();
+    ctx.restore();
+    // 描边：答错时红色闪光（REQ-GAME-7）
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = angry ? '#ff3b30' : '#fff';
+    roundRect(ctx, x, y, MON_W, MON_H, 26); ctx.stroke();
+  }
 
   // 卡片上的「角 + 眼睛 + emoji」是**没有真图时的兜底造型**（美术未到货时用的）。
   // 有真图时必须跳过：否则头顶的怪兽本身有脸、卡片上又画一对眼睛，会变成四只眼。
@@ -732,6 +801,9 @@ module.exports = {
   // 怪兽真图叠放（导出供单测：只位移不缩放、不顶出画布）
   MON_ART,
   monsterArtLayout,
+  // 题目名牌（导出供单测：跟着文字走、窄于怪兽、盖住文字与提示行）
+  monsterPlateLayout,
+  questionTextWidth,
   // 导出工具函数供 engine 复用
   roundRect,
   clamp

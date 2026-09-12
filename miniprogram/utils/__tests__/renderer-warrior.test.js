@@ -143,15 +143,15 @@ s.test('后坐力：只压战士本体，底座不动且不越出画布', () => 
 const { MON_START_Y, DANGER_Y } = require('../../game/config');
 const MON_ART = renderer.MON_ART;
 
-s.test('怪兽真图：宽度固定、高度按原图比例（绝不拉伸变形）', () => {
-  s.assert.ok(MON_ART.w > 100 && MON_ART.w < MON_W,
-    '图片宽度应介于 100 与卡片宽 ' + MON_W + ' 之间，实际 ' + MON_ART.w);
-  const wide = renderer.monsterArtLayout(340, 170, 70, 100);
-  s.assert.equal(wide.w, MON_ART.w, '宽度应取固定值');
-  s.assert.ok(Math.abs(wide.h - MON_ART.w * 170 / 340) < 1e-9,
-    '高度应按原图比例算，实际 ' + wide.h);
-  const tall = renderer.monsterArtLayout(340, 340, 70, 100);
-  s.assert.ok(Math.abs(tall.h - MON_ART.w) < 1e-9, '正方形原图高度应等于宽度');
+s.test('怪兽真图：高度固定、宽度按原图比例（绝不拉伸变形）', () => {
+  s.assert.ok(MON_ART.h > MON_H,
+    '怪兽图应比卡片高（头要探到卡片上方），实际 ' + MON_ART.h + ' vs 卡片 ' + MON_H);
+  const wide = renderer.monsterArtLayout(340, 170, 70, 300);
+  s.assert.equal(wide.h, MON_ART.h, '高度应取固定值');
+  s.assert.ok(Math.abs(wide.w - MON_ART.h * 340 / 170) < 1e-9,
+    '宽度应按原图比例算，实际 ' + wide.w);
+  const square = renderer.monsterArtLayout(340, 340, 70, 300);
+  s.assert.ok(Math.abs(square.w - MON_ART.h) < 1e-9, '正方形原图宽度应等于高度');
   // 坏数据不能算出 NaN（NaN 会让整帧 canvas 失效）
   [renderer.monsterArtLayout(0, 0, 70, 100),
     renderer.monsterArtLayout(undefined, undefined, 70, 100)].forEach((r) => {
@@ -169,29 +169,62 @@ s.test('怪兽真图：左右与卡片同心', () => {
   s.assert.ok(Math.abs((shaken.x - r.x) - (-7)) < 1e-9, '震屏偏移应 1:1 传递');
 });
 
-s.test('怪兽真图：底边压在卡片顶部下方，且不顶出画布上沿', () => {
-  // 开局位置：画布上方只剩 22px，最容易顶出去
+s.test('怪兽真图：底边对齐卡片底边、顶边不越出画布', () => {
+  // 开局位置（卡片贴顶）最容易顶出画布上沿
   const atStart = renderer.monsterArtLayout(340, 235, 70, MON_START_Y);
-  s.assert.equal(atStart.bottom, MON_START_Y + MON_ART.overlap, '底边应压在卡片顶部下方固定距离');
+  s.assert.equal(atStart.bottom, MON_START_Y + MON_H, '图片底边应对齐卡片底边');
   s.assert.ok(atStart.y >= MON_ART.topMin - 1e-9,
-    '图片顶边不得超出画布上沿，实际 y = ' + atStart.y);
-  s.assert.ok(atStart.y + atStart.h >= atStart.bottom - 1e-9,
-    '图片应完整覆盖到底边（不能因为夹取而下移出缝）');
+    '顶边不得超出画布上沿，实际 y = ' + atStart.y);
   // 一路下沉到底都不越界、不形变
   for (let y = MON_START_Y; y <= DANGER_Y; y += 20) {
     const r = renderer.monsterArtLayout(340, 235, 70, y);
     s.assert.ok(r.y >= MON_ART.topMin - 1e-9, 'y=' + y + ' 处顶边越界：' + r.y);
-    s.assert.ok(Math.abs(r.h - MON_ART.w * 235 / 340) < 1e-9, 'y=' + y + ' 处高度被改（会变形）');
+    s.assert.equal(r.h, MON_ART.h, 'y=' + y + ' 处高度被改（会变形）');
+    s.assert.equal(r.bottom, y + MON_H, 'y=' + y + ' 处底边没跟上卡片');
   }
 });
 
-s.test('怪兽真图：高度参数与卡片尺寸相称（观感护栏）', () => {
-  s.assert.ok(MON_ART.overlap > 0 && MON_ART.overlap < MON_H,
-    '叠入卡片的深度应在卡片高度以内，实际 ' + MON_ART.overlap);
-  // 下沉稳定后能露出的高度 = 图片高 - 叠入深度，太矮就白接了美术
-  const r = renderer.monsterArtLayout(340, 235, 70, 200);
-  const visible = r.h - MON_ART.overlap;
-  s.assert.ok(visible >= 50, '稳定后露出的怪兽高度应 ≥50px，实际 ' + visible.toFixed(1));
+// ============ 题目名牌（2026-09-12 用户反馈「单词挡住怪兽」后改版） ============
+// 改版前：题目画在 250×118 的整张卡片上，怪兽只在卡片上方露个小脑袋 →「被单词挡住」。
+// 改版后：怪兽当主体（h 比卡片高），题目改成挂在兽肚上的小名牌 —— 名牌必须
+// **明显窄于怪兽**、**盖住题目文字与底部提示行**，否则又会被挡住或看不清。
+
+s.test('题目名牌：宽度跟着文字走，且明显窄于怪兽', () => {
+  const short = renderer.monsterPlateLayout(100, 70, 100);
+  const long = renderer.monsterPlateLayout(200, 70, 100);
+  s.assert.ok(short.w < long.w, '文字越长名牌越宽');
+  s.assert.equal(short.w, MON_ART.plateMinW, '极短文字时取最小宽度');
+  s.assert.equal(long.w, MON_ART.plateMaxW, '超长文字时封顶（不能再宽下去）');
+  s.assert.ok(MON_ART.plateMaxW <= MON_W - 40,
+    '名牌最大宽度要比卡片明显窄，实际 ' + MON_ART.plateMaxW);
+  // 名牌必须比「最窄的那只怪兽」还窄，否则侧边一点都露不出来
+  const narrowest = renderer.monsterArtLayout(340, 235, 70, 200).w;   // 目前最窄的一只（约 1.45 宽高比）
+  s.assert.ok(MON_ART.plateMaxW < narrowest,
+    '名牌(' + MON_ART.plateMaxW + ') 必须窄于最窄的怪兽(' + narrowest.toFixed(0) + ')，否则又把怪兽盖住了');
+  // 坏数据兜底
+  const bad = renderer.monsterPlateLayout(undefined, 70, 100);
+  s.assert.ok(isFinite(bad.x) && isFinite(bad.y) && isFinite(bad.w) && isFinite(bad.h), '坏输入不能产生 NaN');
+});
+
+s.test('题目名牌：位置盖住题目文字与底部提示行', () => {
+  const my = 100;
+  const p = renderer.monsterPlateLayout(160, 70, my);
+  s.assert.equal(p.y, my + MON_ART.plateTop, '名牌顶部相对卡片顶固定');
+  // 字符级题目文字在 m.y + MON_H*0.62，底部提示行在 m.y + MON_H - 16
+  const charTextY = my + MON_H * 0.62;
+  const hintY = my + MON_H - 16;
+  s.assert.ok(p.y <= charTextY - 20, '名牌顶部要留出题目文字的高度');
+  s.assert.ok(p.y + p.h >= hintY + 6, '名牌底部要盖住底部提示行（否则白字落在兽身上看不清）');
+  s.assert.ok(p.y + p.h <= my + MON_H, '名牌不能超出卡片底边（会挡住战士）');
+  s.assert.ok(p.x >= 70 && p.x + p.w <= 70 + MON_W, '名牌不能超出卡片左右边界');
+});
+
+s.test('题目名牌：水平居中且跟卡片同心（含震屏）', () => {
+  const mx = 70;
+  const p = renderer.monsterPlateLayout(160, mx, 120);
+  s.assert.ok(Math.abs((p.x - mx) - (MON_W - p.w) / 2) < 1e-9, '应在卡片内水平居中');
+  const shaken = renderer.monsterPlateLayout(160, mx - 7, 120);
+  s.assert.ok(Math.abs((shaken.x - p.x) - (-7)) < 1e-9, '震屏偏移应 1:1 传递');
 });
 
 s.done();
