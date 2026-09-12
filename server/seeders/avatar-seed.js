@@ -152,18 +152,30 @@ async function seedAvatars(sequelize) {
   // 幂等写入：已存在的行会被更新（upsert），这样「上架新皮肤 / 改名字改图标」只需改本文件，
   // 部署后自动生效；不会影响用户的解锁记录（user_avatars 只存 avatarId）。
   let created = 0;
+  const failed = [];
   for (const avatar of avatars) {
     // 用 findOrCreate（而不是 upsert）：MySQL 上 upsert 依赖 ON DUPLICATE KEY UPDATE，
     // 在某些托管环境的权限/引擎组合下会抛错；这里只保证「缺的补上」，已有行不动 —— 对新上架皮肤足够。
-    const [row, isNew] = await Avatar.findOrCreate({
-      where: { avatarId: avatar.avatarId },
-      defaults: avatar,
-    });
-    if (isNew) created++;
+    //
+    // 逐行容错（踩坑记录）：生产库的 avatars.unlockType 是**早期版本的 ENUM**，
+    // 只含 stars/rank/free，缺 level/milestone → 插入这些行会报
+    // "Data truncated for column 'unlockType'"，而原来一处抛错就整批中断，
+    // 表现成「上架 24 套皮肤，线上一套都没进来」。现在改成失败记录 + 继续，
+    // 并把失败原因回传（健康检查里可见），需要的那条 ALTER 写在发布清单里。
+    try {
+      const [row, isNew] = await Avatar.findOrCreate({
+        where: { avatarId: avatar.avatarId },
+        defaults: avatar,
+      });
+      if (isNew) created++;
+    } catch (err) {
+      failed.push(avatar.avatarId + ': ' + String((err && err.message) || err).slice(0, 80));
+    }
   }
 
-  console.log(`[seed] 形象数据初始化完成：清单 ${avatars.length} 条，本次新增 ${created} 条`);
-  return { total: avatars.length, created };
+  console.log(`[seed] 形象数据初始化：清单 ${avatars.length} 条，本次新增 ${created} 条`
+    + (failed.length ? `，失败 ${failed.length} 条` : ""));
+  return { total: avatars.length, created, failed };
 }
 
 /**
@@ -174,14 +186,14 @@ async function seedAvatars(sequelize) {
  * 下次再出问题，本地一句 health 就能看到原因。
  *
  * @param {import('sequelize').Sequelize} sequelize
- * @returns {Promise<{ok:boolean, total?:number, created?:number, error?:string}>}
+ * @returns {Promise<{ok:boolean, total?:number, created?:number, failed?:string[], error?:string}>}
  */
 let rosterDone = null;
 async function ensureAvatarRoster(sequelize) {
   if (rosterDone) return rosterDone;
   try {
     const r = await seedAvatars(sequelize);
-    rosterDone = { ok: true, total: r.total, created: r.created };
+    rosterDone = { ok: true, total: r.total, created: r.created, failed: r.failed };
   } catch (err) {
     // 不缓存失败：下次请求会重试（并再次记录错误）
     return { ok: false, error: String((err && err.message) || err).slice(0, 200) };
