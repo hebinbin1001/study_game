@@ -107,7 +107,7 @@ const CASES = [
   { group: "nickname",     method: "POST", path: "/api/nickname", body: { nickname: "SmokeTester" }, needUser: true },
   { group: "score",        method: "POST", path: "/api/score", body: { grade: "primary", level: 1, correctCount: 3, totalQ: 5 }, needUser: true },
   { group: "score",        method: "GET",  path: "/api/score/best?grade=primary&level=1", needUser: true },
-  { group: "avatar",       method: "GET",  path: "/api/avatar/list", needUser: true },
+  { group: "avatar",       method: "GET",  path: "/api/avatar/list", needUser: true, special: "roster" },
   { group: "rank",         method: "GET",  path: "/api/rank/info", needUser: true },
   { group: "rank",         method: "GET",  path: "/api/rank/progress", needUser: true },
   { group: "rank",         method: "POST", path: "/api/rank/sync", body: { stars: 3 }, needUser: true },
@@ -199,6 +199,25 @@ function judgeCase(c, anon, auth) {
     if (a && typeof a.code !== "undefined" && (c.acceptAnonCodes || [1001]).indexOf(a.code) === -1) {
       problems.push("anon code=" + a.code + " 非预期（期望 "
         + (c.acceptAnonCodes || [1001]).join("/") + "） " + codeNote(a));
+    }
+  }
+
+  // 皮肤目录：代码里上架了 24 套战士皮肤，线上列表就必须有 —— 防「代码上架、线上还是老 8 套」
+  if (c.special === "roster") {
+    const j = auth.json;
+    const w = j && j.data ? j.data.warriors : null;
+    const m = j && j.data ? j.data.monsters : null;
+    if (!Array.isArray(w) || !Array.isArray(m)) {
+      problems.push("avatar list missing warriors/monsters arrays");
+    } else {
+      if (w.length < 24) problems.push("expected >=24 warrior skins, got " + w.length);
+      if (m.length < 4) problems.push("expected >=4 monster skins, got " + m.length);
+      if (!w.some((a) => a.avatarId === "skin-fox-scout")) {
+        problems.push("new skin missing on server (skin-fox-scout)");
+      }
+      if (!w.some((a) => a.icon && a.icon.indexOf("/assets/skins/") === 0)) {
+        problems.push("warrior skins should point at /assets/skins/*.png");
+      }
     }
   }
 

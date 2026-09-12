@@ -1,9 +1,9 @@
 <!-- 词语连连看（B6-5） -->
 <view class="page-link">
-  <view class="lk-head">
+  <view class="g-head">
     <button class="back-pill" bindtap="goBack">‹</button>
-    <view class="lk-title">词语连连看</view>
-    <view class="lk-grade" bindtap="newRound">{{gradeLabel}} · 换局</view>
+    <view class="g-title">词语连连看</view>
+    <view class="g-chip" bindtap="newRound">{{gradeLabel}} · 换局</view>
   </view>
 
   <view class="hud">

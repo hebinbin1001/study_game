@@ -1,10 +1,10 @@
 <!-- 算 24 点（合并式 · 2026-09-12 改版）：
      点两张牌 → 点运算符 → 立即合并成一张结果牌（结果自动选中）→ 最后剩一张等于 24 过关 -->
 <view class="page-24">
-  <view class="p-head">
+  <view class="g-head">
     <button class="back-pill" bindtap="goBack">‹</button>
-    <view class="p-title">算 24 点</view>
-    <view class="p-grade" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + levelInfo.length + ' 关') : '选关'}}</view>
+    <view class="g-title">算 24 点</view>
+    <view class="g-chip" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + levelInfo.length + ' 关') : '选关'}}</view>
   </view>
 
   <!-- 选关 -->

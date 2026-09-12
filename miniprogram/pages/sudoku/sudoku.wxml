@@ -1,10 +1,10 @@
 <!-- 数独页（B6 闯关模式：4×4→6×6→9×9 难度递增给定递减） -->
 <view class="page-sudoku">
   <!-- 标题栏 -->
-  <view class="sd-head">
+  <view class="g-head">
     <button class="back-pill" bindtap="goBack">‹</button>
-    <view class="sd-title">数独</view>
-    <view class="sd-stage">{{stageLabel}}</view>
+    <view class="g-title">数独</view>
+    <view class="g-chip">{{stageLabel}}</view>
   </view>
 
   <!-- ============ 关卡选择视图 ============ -->

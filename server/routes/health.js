@@ -1,5 +1,5 @@
 const express = require("express");
-const { sequelize } = require("../db");
+const { sequelize, Avatar } = require("../db");
 const { CODE } = require("../constants");
 
 const router = express.Router();
@@ -17,7 +17,15 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     await sequelize.authenticate(); // 执行 SELECT 1，抛错即连接异常
-    res.send({ code: CODE.OK, data: { status: "ok", db: "connected" } });
+    // 顺带回报「皮肤目录条数」：上架新皮肤后本地就能用健康检查确认线上是否已生效
+    // （曾经出现过「代码上架 24 套、线上仍是 8 套」但容器日志看不到的情况）。
+    let avatars = null;
+    try {
+      avatars = await Avatar.count();
+    } catch (e) {
+      avatars = -1; // 表不存在/查询失败时给出 -1，不把健康检查拖挂
+    }
+    res.send({ code: CODE.OK, data: { status: "ok", db: "connected", avatars } });
   } catch (err) {
     console.error("健康检查：数据库连接异常：", err);
     res.status(503).send({

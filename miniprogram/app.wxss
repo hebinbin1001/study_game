@@ -60,6 +60,76 @@ page {
 }
 
 /* ============ 通用按钮（卡通硬阴影风格） ============ */
+/**
+ * ============ 通用「游戏页外壳」（2026-09-12 需求⑥ 视觉统一） ============
+ *
+ * 老玩法页（数独/2048/24 点/连连看/贪吃蛇/消消乐）此前各写各的头部与 HUD，
+ * 字号、圆角、留白、胶囊配色都不一致，看起来像不同游戏。这里把「头部 + HUD」抽成一套共享类：
+ *   .g-head / .g-title / .g-chip      顶部栏（返回胶囊 + 标题 + 右侧信息胶囊）
+ *   .g-hud / .g-hud-box / .g-hud-num / .g-hud-lab   两到四个指标盒
+ * 各页只需在 wxml 上套这些类，删掉各自重复的样式即可保持一致。
+ */
+.g-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 0 0 auto;
+}
+
+.g-title {
+  font-size: 38rpx;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, .12);
+}
+
+.g-chip {
+  margin-left: auto;
+  background: rgba(255, 255, 255, .92);
+  color: #5c7f9e;
+  font-size: 24rpx;
+  font-weight: 800;
+  padding: 10rpx 22rpx;
+  border-radius: 999rpx;
+}
+
+.g-hud {
+  display: flex;
+  gap: 14rpx;
+  margin: 18rpx 0 12rpx;
+  flex: 0 0 auto;
+}
+
+.g-hud-box {
+  flex: 1;
+  background: rgba(255, 255, 255, .94);
+  border-radius: 20rpx;
+  padding: 12rpx 8rpx;
+  text-align: center;
+}
+
+.g-hud-num { font-size: 32rpx; font-weight: 900; color: #3a3a5c; }
+.g-hud-lab { font-size: 20rpx; color: #8a9bb5; margin-top: 4rpx; }
+
+/* 胶囊型 HUD（数独/24 点/连连看/贪吃蛇/消消乐共用；原来 5 个页面各写一份，只有 padding 和字号差 1~2rpx） */
+.hud {
+  display: flex;
+  justify-content: center;
+  gap: 18rpx;
+  margin: 18rpx 0 14rpx;
+  flex: 0 0 auto;
+}
+
+.hud-chip {
+  background: rgba(255, 255, 255, .92);
+  color: #3a3a5c;
+  border-radius: 999rpx;
+  padding: 12rpx 30rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .05);
+}
+
 .btn {
   border: none;
   border-radius: 44rpx;

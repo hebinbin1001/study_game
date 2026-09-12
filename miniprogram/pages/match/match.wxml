@@ -1,9 +1,9 @@
 <!-- 词义消消乐（B6-2）：词↔义配对消除 -->
 <view class="page-match">
-  <view class="mm-head">
+  <view class="g-head">
     <button class="back-pill" bindtap="goBack">‹</button>
-    <view class="mm-title">词义消消乐</view>
-    <view class="mm-grade">{{gradeLabel}}</view>
+    <view class="g-title">词义消消乐</view>
+    <view class="g-chip">{{gradeLabel}}</view>
   </view>
 
   <!-- HUD（公共组件） -->

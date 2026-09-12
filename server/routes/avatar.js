@@ -4,6 +4,27 @@ const { Avatar, UserAvatar, RankRecord } = require("../db");
 const router = express.Router();
 
 /**
+ * 皮肤目录自愈（2026-09-12 战士皮肤上架时加）。
+ *
+ * 为什么不能只靠启动时 seed：生产环境启动路径（db.init）里的 seed 出问题时**看不见**，
+ * 表现就是「代码里明明上架了 24 套皮肤，线上列表还是老的 8 套」——
+ * 本地无法观察容器日志，排查成本很高。这里在列表接口上做一次**幂等自愈**：
+ * 每个容器进程只跑一次（seededOnce），失败下次请求自动重试，且**不影响接口返回**。
+ */
+let seededOnce = false;
+async function ensureRoster() {
+  if (seededOnce) return;
+  try {
+    const { seedAvatars } = require("../seeders/avatar-seed");
+    const { sequelize } = require("../db");
+    await seedAvatars(sequelize);
+    seededOnce = true;
+  } catch (err) {
+    console.error("[avatar] 皮肤目录自愈失败（下次请求会重试）：", err.message);
+  }
+}
+
+/**
  * GET /api/avatar/list —— 获取可用形象列表 + 已解锁状态
  */
 router.get("/list", async (req, res) => {
@@ -16,6 +37,9 @@ router.get("/list", async (req, res) => {
         message: "未识别用户（openid 缺失）",
       });
     }
+
+    // 自愈：确保皮肤目录与代码里的清单一致（幂等，进程内只跑一次）
+    await ensureRoster();
 
     // 获取所有形象
     const allAvatars = await Avatar.findAll();
