@@ -157,6 +157,18 @@ router.post("/unlock", async (req, res) => {
       canUnlock = currentRank >= avatar.unlockValue;
     }
 
+    // 关卡解锁（unlockType='level'）—— 2026-09-12 补：原来服务端只处理了
+    // free/stars/rank，'level' 没有分支，导致「学者之王」这类皮肤永远解锁不了（返回 4002）。
+    // 判定口径：用 RankRecord.wins（累计通关次数）≥ unlockValue。
+    if (!canUnlock && avatar.unlockType === "level") {
+      const rankRecord = await RankRecord.findOne({
+        where: { openid },
+        attributes: ["wins"],
+      });
+      const wins = rankRecord ? rankRecord.wins : 0;
+      canUnlock = wins >= avatar.unlockValue;
+    }
+
     if (!canUnlock) {
       return res.send({
         code: 4002,

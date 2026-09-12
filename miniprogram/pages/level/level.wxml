@@ -54,6 +54,24 @@
     </view>
   </view>
 
+  <!-- 挑战主线里程碑宝箱（P3）：每通 10 关一个宝箱，奖励星星 -->
+  <view wx:if="{{isChallengeView && chests.length > 0}}" class="chest-row">
+    <view
+      wx:for="{{chests}}"
+      wx:key="at"
+      class="chest {{item.claimed ? 'done' : (item.claimable ? 'ready' : 'lock')}}"
+      data-at="{{item.at}}"
+      bindtap="claimChest">
+      <view class="chest-icon">{{item.claimed ? '📦' : (item.claimable ? '🎁' : '🔒')}}</view>
+      <view class="chest-label">{{item.label}}</view>
+      <view class="chest-sub">
+        <block wx:if="{{item.claimed}}">已领取</block>
+        <block wx:elif="{{item.claimable}}">点击领取 +{{item.stars}} 星</block>
+        <block wx:else>通 {{item.at}} 关解锁</block>
+      </view>
+    </view>
+  </view>
+
   <!-- 关卡列表（一期：竖排，一行一关）
        布局天然自适应：纵向滚动列表，不需要按可用高度估算节点尺寸 -->
   <view class="level-list">

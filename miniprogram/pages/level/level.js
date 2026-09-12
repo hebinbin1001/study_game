@@ -19,6 +19,8 @@ var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 var challenge = require('../../utils/challenge');
+var rewards = require('../../utils/challenge-rewards');
+var request = require('../../utils/request');
 
 // 关卡规模与默认解锁数：取自 utils/constants.js（与首页「继续挑战」共用同一口径，避免漂移）
 var LEVELS_PER_GRADE = constants.LEVELS_PER_GRADE;
@@ -39,7 +41,8 @@ Page({
     gradeEarnedStars: 0,    // 进度卡：当前分类已得星星数
     gradeTotalStars: 30,    // 进度卡：星星总数（10 关 × 3 星）
     gradeStarPercent: 0,    // 进度卡：星星进度百分比 0~100
-    isChallengeView: true   // 当前是否「挑战主线」视图（综合 = 主线，具体分类 = 自由练）
+    isChallengeView: true,  // 当前是否「挑战主线」视图（综合 = 主线，具体分类 = 自由练）
+    chests: []              // 挑战主线里程碑宝箱（P3）
   },
 
   onLoad: function () {
@@ -121,6 +124,8 @@ Page({
     var built = (typeKey === 'all')
       ? this._buildChallengeRows(key, loggedIn)
       : this._buildPracticeRows(key, typeArg, loggedIn, typeLabel);
+    // 里程碑宝箱只在「挑战主线」视图展示（自由练没有主线进度）
+    var chests = (typeKey === 'all') ? rewards.chestState(key) : [];
     var levels = built.levels;
     var gradeEarnedStars = built.earnedStars;
     var gradeTotalStars = built.totalStars;
@@ -137,7 +142,8 @@ Page({
       gradeEarnedStars: gradeEarnedStars,
       gradeTotalStars: gradeTotalStars,
       gradeStarPercent: gradeStarPercent,
-      isChallengeView: typeKey === 'all'
+      isChallengeView: typeKey === 'all',
+      chests: chests
     });
   },
 
@@ -247,6 +253,36 @@ Page({
   },
 
   // 点击关卡行
+  /**
+   * 领取挑战主线里程碑宝箱（每通 10 关一个，奖励星星）。
+   * 奖励去向：本地记录（幂等）+ 登录玩家同步段位（星星是段位货币）。
+   */
+  claimChest: function (e) {
+    var at = parseInt(e.currentTarget.dataset.at, 10);
+    var grade = this.data.grades[this.data.currentGradeIndex];
+    if (!grade) return;
+    var r = rewards.claim(grade.key, at);
+    if (!r.ok) {
+      wx.showToast({ title: r.reason || '还不能领取', icon: 'none' });
+      return;
+    }
+    if (r.already) {
+      wx.showToast({ title: '这个宝箱已经领过啦', icon: 'none' });
+      return;
+    }
+    if (auth.isLoggedIn()) {
+      // 计入段位（累计星）；失败静默，下次领取/通关会再同步
+      request.post('/api/rank/sync', { stars: r.stars }).catch(function () {});
+    }
+    wx.showModal({
+      title: '🎁 宝箱已开',
+      content: '+' + r.stars + ' 星' + (auth.isLoggedIn() ? '（已计入段位）' : '（登录后计入段位）'),
+      showCancel: false,
+      confirmText: '太好了'
+    });
+    this.refreshLevels();
+  },
+
   onLevelTap: function (e) {
     var index = e.currentTarget.dataset.index;
     var card = this.data.levels[index];

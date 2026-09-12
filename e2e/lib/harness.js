@@ -18,19 +18,19 @@
  * 前置条件：微信开发者工具已安装且已登录（服务端口由 cli auto 自行拉起）。
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
 const automator = require('miniprogram-automator');
 
-const DEVTOOLS_DIR = 'D:\\Program Files (x86)\\Tencent\\微信web开发者工具';
-const NODE_EXE = path.join(DEVTOOLS_DIR, 'node.exe');
-const CLI_JS = path.join(DEVTOOLS_DIR, 'cli.js');
-const PROJECT_PATH = path.resolve(__dirname, '..', '..', 'miniprogram');
-const AUTO_PORT = 3799;
+// 工具路径 / cli 调用 / 端口收敛到 devtools.js（唯一实现），
+// run-all.js 开跑前的「重启工具」复用同一份定义。
+const devtools = require('./devtools');
 
-function sleep(ms) {
-  return new Promise(function (resolve) { setTimeout(resolve, ms); });
-}
+const DEVTOOLS_DIR = devtools.DEVTOOLS_DIR;
+const NODE_EXE = devtools.NODE_EXE;
+const CLI_JS = devtools.CLI_JS;
+const PROJECT_PATH = devtools.PROJECT_PATH;
+const AUTO_PORT = devtools.AUTO_PORT;
+const sleep = devtools.sleep;
+const runCli = devtools.runCli;
 
 /** 给无超时保护的 automator 调用加超时，防止永久挂起 */
 function withTimeout(promise, ms, label) {
@@ -39,14 +39,6 @@ function withTimeout(promise, ms, label) {
     timer = setTimeout(function () { reject(new Error('timeout(' + label + ')')); }, ms);
   });
   return Promise.race([promise, timeout]).finally(function () { clearTimeout(timer); });
-}
-
-function runCli(args) {
-  return new Promise(function (resolve) {
-    const child = spawn(NODE_EXE, [CLI_JS].concat(args), { stdio: 'ignore' });
-    child.on('error', function () { resolve(-1); });
-    child.on('exit', function (code) { resolve(code); });
-  });
 }
 
 async function connectWithRetry(retries) {
@@ -63,7 +55,13 @@ async function connectWithRetry(retries) {
   throw lastErr || new Error('automation connect failed after ' + max + ' retries');
 }
 
-/** 连接自动化端口；未就绪则执行 cli auto 拉起后重连 */
+/**
+ * 连接自动化端口；未就绪则执行 cli auto 拉起后重连。
+ *
+ * cli auto 失败重试：工具刚被 quit / 上一次运行刚结束的瞬间，IDE 服务端口
+ * （14809）可能还在收尾，此时 auto 会静默失败 —— 重拉一次即可，避免整轮
+ * 验证因为「工具没起来」这种环境原因判失败（踩过）。
+ */
 async function ensureAutomation(options) {
   const opts = options || {};
   try {
@@ -71,8 +69,21 @@ async function ensureAutomation(options) {
   } catch (e) {
     if (!opts.quiet) console.log('  [harness] 自动化端口未就绪，执行 cli auto ...');
   }
-  await runCli(['auto', '--project', PROJECT_PATH, '--auto-port', String(AUTO_PORT)]);
-  const miniProgram = await connectWithRetry();
+  let miniProgram = null;
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 2 && !miniProgram; attempt++) {
+    await runCli(['auto', '--project', PROJECT_PATH, '--auto-port', String(AUTO_PORT)]);
+    try {
+      miniProgram = await connectWithRetry(attempt === 1 ? 30 : 15);
+    } catch (e) {
+      lastErr = e;
+      if (!opts.quiet) {
+        console.log('  [harness] cli auto 第 ' + attempt + ' 次未拉起工具，重试 ...');
+      }
+      await sleep(3000);
+    }
+  }
+  if (!miniProgram) throw lastErr || new Error('cli auto 连续两次未拉起开发者工具');
   await sleep(opts.compileWaitMs == null ? 4000 : opts.compileWaitMs);
   return miniProgram;
 }

@@ -79,7 +79,12 @@ Page({
         ? '条件已满足，可直接解锁'
         : '达到「' + (RANK_NAMES[v] || ('段位' + v)) + '」解锁（当前' + (RANK_NAMES[curRank] || '未定阶') + '）';
     } else if (item.unlockType === 'level') {
-      hint = '通关指定关卡后解锁';
+      // 与服务端同口径：累计通关次数（RankRecord.wins）≥ unlockValue
+      var curWins = info.wins || 0;
+      can = curWins >= v;
+      hint = can
+        ? '条件已满足，可直接解锁'
+        : '累计通关 ' + v + ' 次解锁（当前 ' + curWins + ' 次）';
     } else if (item.unlockType === 'milestone') {
       // 每日一题连续签到里程碑皮肤：不可手动解锁（后端由每日一题发放）
       hint = '每日一题连续 ' + v + ' 天自动解锁';

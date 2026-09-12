@@ -317,6 +317,35 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('两个命名空间互不覆盖（挑战键仍是 3）',
     starsStore && starsStore[GRADE + '@challenge@' + WB_LEVEL] === 3);
 
+  console.log('[7.5/8] P3 里程碑宝箱：通 10 关可领 +10 星（幂等）');
+  // 造「幼儿园已通 10 关」的存档（关卡页默认学段是幼儿园）
+  const seedStars = {};
+  for (let i = 1; i <= 10; i++) seedStars['kindergarten@challenge@' + i] = 1;
+  await miniProgram.callWxMethod('setStorageSync', 'ww_stars', seedStars);
+  await miniProgram.callWxMethod('removeStorageSync', 'ww_chest_claimed');
+  const chestPage = await H.goto(miniProgram, LEVEL_URL, 1800);
+  let chestData = await chestPage.data();
+  ck.check('关卡页渲染 3 个里程碑宝箱', (chestData.chests || []).length === 3,
+    '实际 = ' + (chestData.chests || []).length);
+  ck.check('通 10 关后 10 关宝箱可领取', chestData.chests[0].claimable === true,
+    '实际 = ' + JSON.stringify(chestData.chests[0]));
+  ck.check('20 关宝箱仍锁着（只通了 10 关）', chestData.chests[1].claimable === false,
+    '实际 = ' + JSON.stringify(chestData.chests[1]));
+  ck.check('可领取的宝箱在页面上有高亮状态', !!(await chestPage.$('.chest.ready')));
+
+  await chestPage.callMethod('claimChest', { currentTarget: { dataset: { at: 10 } } });
+  await chestPage.waitFor(700);
+  chestData = await chestPage.data();
+  ck.check('领取后宝箱标记为已领取', chestData.chests[0].claimed === true && chestData.chests[0].claimable === false,
+    '实际 = ' + JSON.stringify(chestData.chests[0]));
+  const claimed = await miniProgram.callWxMethod('getStorageSync', 'ww_chest_claimed');
+  ck.check('领取记录落本地（幂等键 学段:关数）', !!(claimed && claimed['kindergarten:10']),
+    '实际 = ' + JSON.stringify(claimed));
+
+  await chestPage.callMethod('claimChest', { currentTarget: { dataset: { at: 10 } } });
+  await chestPage.waitFor(500);
+  ck.check('重复领取不报错且状态不变（幂等）', (await chestPage.data()).chests[0].claimed === true);
+
   console.log('[7/8] 老存档迁移：旧字母射击星级 → 主线对应关（幂等）');
   const shootSlots = challenge.levelsOfMode('kindergarten', 'shoot');
   await miniProgram.callWxMethod('setStorageSync', 'ww_stars', { 'kindergarten_1': 3, 'kindergarten_2': 2 });

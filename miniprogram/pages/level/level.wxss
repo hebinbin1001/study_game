@@ -345,3 +345,35 @@ page {
   opacity: 0.85;
   margin-left: 6rpx;
 }
+
+/* ============ 挑战主线里程碑宝箱（P3） ============ */
+.chest-row {
+  display: flex;
+  gap: 14rpx;
+  margin: 16rpx 0 4rpx;
+  flex: 0 0 auto;
+}
+
+.chest {
+  flex: 1;
+  text-align: center;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 18rpx 8rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .05);
+}
+
+.chest.lock { opacity: .55; }
+
+.chest.ready {
+  background: linear-gradient(135deg, #fff3d6 0%, #ffe4a8 100%);
+  outline: 6rpx solid #ffb703;
+  outline-offset: -6rpx;
+}
+
+.chest.done { background: #eef7ef; }
+
+.chest-icon { font-size: 44rpx; line-height: 1; }
+.chest-label { font-size: 24rpx; font-weight: 900; color: #3a3a5c; margin-top: 8rpx; }
+.chest-sub { font-size: 20rpx; color: #8a9bb5; margin-top: 4rpx; }
+.chest.ready .chest-sub { color: #b57900; font-weight: 800; }

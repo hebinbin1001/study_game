@@ -14,6 +14,7 @@
  *   node e2e/run-all.js --no-e2e     # 只跑静态 + 单元（不需要开发者工具，秒级）
  *   node e2e/run-all.js --e2e-only   # 只跑 E2E
  *   node e2e/run-all.js --only=snake # 只跑指定阶段（便于单点排障）
+ *   node e2e/run-all.js --no-reset   # 跳过「开跑前重启开发者工具」（默认会重启）
  *
  * 报告：每次运行都会写 e2e/reports/last-run.txt（全量输出）与 latest.json（摘要）。
  */
@@ -21,6 +22,9 @@
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+
+// 开发者工具路径与 quit 收敛在 lib/devtools.js（harness.js 用同一份）
+const devtools = require('./lib/devtools');
 
 const ROOT = path.resolve(__dirname, '..');
 const REPORT_DIR = path.join(__dirname, 'reports');
@@ -45,10 +49,11 @@ const STAGES = [
 ];
 
 function parseArgs(argv) {
-  const opts = { noE2e: false, e2eOnly: false, only: null };
+  const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false };
   argv.forEach(function (a) {
     if (a === '--no-e2e') opts.noE2e = true;
     else if (a === '--e2e-only') opts.e2eOnly = true;
+    else if (a === '--no-reset') opts.noReset = true;
     else if (a.indexOf('--only=') === 0) opts.only = a.slice('--only='.length);
   });
   return opts;
@@ -87,7 +92,26 @@ function main() {
   console.log(' 阶段 ' + stages.length + ' 个：' + stages.map(function (s) { return s.id; }).join(' → '));
   console.log('=========================================================');
 
+  // 整轮 E2E 开跑前先关掉可能残留的开发者工具：
+  // 上一轮被中断时工具会停在中途页面，cli auto 只是复用已开着的工具、
+  // 不会重开项目，于是首个阶段读到遗留页面报假失败（详见 lib/devtools.js）。
+  let devtoolsReset = false;
+
   stages.forEach(function (stage, i) {
+    if (stage.layer === '端到端' && !opts.noReset && !devtoolsReset) {
+      devtoolsReset = true;
+      if (devtools.isAvailable()) {
+        console.log('');
+        console.log('  [reset] 关闭可能残留的开发者工具（本轮首个 E2E 阶段开跑前）...');
+        devtools.quitSync();
+        // quit 是异步落地的：IDE 进程与 14809 服务端口还要再退出几秒，
+        // 立刻 cli auto 会撞上「上一个实例还在收尾」而拉不起来。
+        devtools.sleepSync(opts.resetCoolDownMs == null ? 5000 : opts.resetCoolDownMs);
+      } else {
+        console.log('');
+        console.log('  [reset] 未找到微信开发者工具，跳过重启（可用 WX_DEVTOOLS_DIR 指定安装路径）');
+      }
+    }
     const t0 = Date.now();
     console.log('');
     console.log('---------------------------------------------------------');
