@@ -1,5 +1,6 @@
 {
   "usingComponents": {},
+  "disableScroll": true,
   "navigationBarTitleText": "单词贪吃蛇",
   "navigationBarBackgroundColor": "#5aa9e6",
   "navigationBarTextStyle": "white"

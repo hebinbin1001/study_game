@@ -14,7 +14,11 @@ var storage = require('../../utils/storage');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var SIZE = 10;
-var TICK = 300;
+// 移动节奏（毫秒/步）：原来 300ms（每秒 3.3 步）对玩家太快——还没反应过来就撞了。
+// 用户反馈后放慢到 450ms（每秒约 2.2 步），并加一个开局缓冲（见 _startLoop）留出反应时间。
+var TICK = 450;
+// 开局缓冲：进入对局后先静止这么久再开始移动，避免"一开局就被推着走"
+var START_GRACE = 900;
 var LIVES = 3;
 var FOOD_N = 4;             // 场上字母食物数（含应拼字母+干扰）
 var WORDS_PER_ROUND = 5;    // 每局拼 5 个词即通关
@@ -61,6 +65,7 @@ Page({
     this.setData({ best: best, score: 0, lives: LIVES, over: false, win: false, round: 0, starText: '' });
     this._nextWord();
     this._render();
+    this._graceUntil = Date.now() + START_GRACE;   // 开局缓冲：先给玩家反应时间再起步
     this._startLoop();
   },
 
@@ -157,10 +162,16 @@ Page({
   _startLoop: function () {
     var self = this;
     if (this._timer) clearInterval(this._timer);
-    this._timer = setInterval(function () { self._tick(); }, TICK);
+    // 开局缓冲：先静静等一拍再起步（_graceUntil 由 startGame/重开设置）
+    var now = Date.now();
+    var wait = (this._graceUntil && this._graceUntil > now) ? (this._graceUntil - now) : 0;
+    this._timer = setTimeout(function () {
+      self._timer = setInterval(function () { self._tick(); }, TICK);
+    }, wait);
   },
   _stopLoop: function () {
-    if (this._timer) { clearInterval(this._timer); this._timer = null; }
+    // _timer 可能是 interval（正常步进）也可能是 timeout（开局缓冲等待中），两个都清
+    if (this._timer) { clearInterval(this._timer); clearTimeout(this._timer); this._timer = null; }
   },
   onUnload: function () { this._stopLoop(); },
   onHide: function () { this._stopLoop(); },
@@ -178,7 +189,9 @@ Page({
     else if (d === 2) nr++;
     else nc--;
 
-    if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) { this._hurt('撞墙'); return; }
+    // 撞墙改为「穿到对面」（用户反馈：撞墙直接扣命太挫败，穿墙更友好也更好操作）
+    nr = (nr + SIZE) % SIZE;
+    nc = (nc + SIZE) % SIZE;
     var nkey = nr * SIZE + nc;
     var bodyHit = this._snake.some(function (s) { return s.r === nr && s.c === nc; });
     if (bodyHit) { this._hurt('撞到自己'); return; }
@@ -245,7 +258,14 @@ Page({
     this.setData({ lives: this._lives });
     wx.showToast({ title: why + ' · 命-1', icon: 'none' });
     if (this._lives <= 0) this._end();
-    else { this._stopLoop(); this._snake = this._newSnake(); this._dir = 1; this._spawnFoods(true); this._startLoop(); }
+    else {
+      this._stopLoop();
+      this._snake = this._newSnake();
+      this._dir = 1;
+      this._spawnFoods(true);
+      this._graceUntil = Date.now() + START_GRACE;
+      this._startLoop();
+    }
   },
 
   _render: function () {
