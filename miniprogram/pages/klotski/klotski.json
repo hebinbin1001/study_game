@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "settle-pop": "/components/settle-pop/settle-pop"
+  },
+  "navigationBarTitleText": "华容道",
+  "navigationBarBackgroundColor": "#3a3a5c",
+  "navigationBarTextStyle": "white",
+  "disableScroll": true
+}

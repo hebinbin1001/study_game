@@ -19,7 +19,8 @@ var GAMES = [
   { key: 'idiombuild', name: '成语拼字', icon: '🀄️', desc: '看释义拼四字成语', cat: '拼写', unlocked: true, url: '/pages/idiom-build/idiom-build' },
   { key: 'balance', name: '算式天平', icon: '⚖️', desc: '挑个数字让天平平衡', cat: '数学', math: true, unlocked: true, url: '/pages/math-balance/math-balance' },
   { key: 'onestroke', name: '一笔画', icon: '✏️', desc: '每条线只走一次', cat: '智力', unlocked: true, url: '/pages/one-stroke/one-stroke' },
-  { key: 'g2048', name: '2048', icon: '🎲', desc: '数字合成 · 百玩不腻', cat: '数学', math: true, unlocked: true, url: '/pages/g2048/g2048' }
+  { key: 'g2048', name: '2048', icon: '🎲', desc: '数字合成 · 百玩不腻', cat: '数学', math: true, unlocked: true, url: '/pages/g2048/g2048' },
+  { key: 'klotski', name: '华容道', icon: '🧩', desc: '滑动突围 · 30 关经典', cat: '智力', unlocked: true, url: '/pages/klotski/klotski' }
 ];
 
 var CATS = [

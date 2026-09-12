@@ -28,20 +28,22 @@ check(iconOk, 'tabBar 图标文件存在');
   check(ok, `组件 ${c} 四件套齐全`);
 });
 
-// 3) 玩法 tab：8 款，跳转 URL 存在，弹弹球为未解锁占位
+// 3) 玩法 tab：14 款（含华容道），跳转 URL 存在，弹弹球为未解锁占位
 const src = fs.readFileSync('miniprogram/pages/playlist/playlist.js', 'utf8');
 const urls = [...src.matchAll(/url: '(\/pages\/[^']+)'/g)].map((m) => m[1]);
 const missing = urls.filter((u) => !fs.existsSync(`miniprogram${u}.js`));
 check(missing.length === 0, `玩法跳转 ${urls.length} 个 URL 均存在` + (missing.length ? ' 缺:' + missing : ''));
 const unlocked = (src.match(/unlocked: true/g) || []).length;
-check(unlocked >= 6, `已解锁玩法 ${unlocked} 款`);
+check(unlocked >= 13, `已解锁玩法 ${unlocked} 款`);
+check(/key: 'klotski'[^}]*url: '\/pages\/klotski\/klotski'/.test(src.replace(/\s+/g, ' ')),
+  '玩法 tab 含华容道且指向 pages/klotski');
 const bounceUnlocked = /key: 'bounce',[^}]*unlocked: false/.test(src.replace(/\s+/g, ' '));
 check(bounceUnlocked, '弹弹球为未解锁占位(维持现状)');
 const bounceGoesToPage = src.includes("'/pages/bounce/bounce'");
 check(!bounceGoesToPage || !/key: 'bounce'[^}]*url:/.test(src), '弹弹球无 url(不可进入)');
 
 // 4) 每日一题 / checkin / 排行榜 / 自定义 关键页存在
-['daily-question', 'checkin', 'rank', 'custom-levels', 'sudoku', 'match', 'link', 'snake', 'math24', 'g2048', 'agreement'].forEach((pg) => {
+['daily-question', 'checkin', 'rank', 'custom-levels', 'sudoku', 'match', 'link', 'snake', 'math24', 'g2048', 'klotski', 'agreement'].forEach((pg) => {
   check(fs.existsSync(`miniprogram/pages/${pg}/${pg}.js`), `关键页 pages/${pg} 存在`);
 });
 

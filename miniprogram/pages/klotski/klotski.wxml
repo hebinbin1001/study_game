@@ -1,0 +1,128 @@
+<!-- 华容道（数字智力玩法 · A 类固定关卡；纯 CSS 方块，无图片素材） -->
+<view class="page-klotski">
+  <view class="k-head">
+    <button class="back-pill" bindtap="goBack">‹</button>
+    <view class="k-title">🧩 华容道</view>
+    <view class="k-chip" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + totalLevels + ' 关') : '选关'}}</view>
+  </view>
+
+  <!-- ============ 选关（按档位分组） ============ -->
+  <block wx:if="{{!playing}}">
+    <view class="k-intro">
+      <view class="ki-t">把「曹操」移到下方出口</view>
+      <view class="ki-s">拖动棋子滑到尽头 · 一次连续滑动算 1 步 · 越接近最少步数星级越高</view>
+    </view>
+
+    <view class="k-group" wx:for="{{levelGroups}}" wx:key="tier">
+      <view class="kg-head">
+        <text class="kg-title">{{item.tier}}</text>
+        <text class="kg-count">{{item.done}}/{{item.levels.length}}</text>
+      </view>
+      <view class="kg-list">
+        <view
+          wx:for="{{item.levels}}"
+          wx:for-item="lv"
+          wx:key="no"
+          class="kg-item {{lv.locked ? 'locked' : ''}} {{lv.classic ? 'classic' : ''}}"
+          data-no="{{lv.no}}"
+          bindtap="pickLevel">
+          <view class="kg-no">{{lv.locked ? '🔒' : lv.no}}</view>
+          <view class="kg-name">{{lv.name}}</view>
+          <view class="kg-meta">{{lv.minMoves}} 步</view>
+          <view class="kg-stars">
+            <text class="ks {{lv.starArr[0] ? 'on' : ''}}">★</text>
+            <text class="ks {{lv.starArr[1] ? 'on' : ''}}">★</text>
+            <text class="ks {{lv.starArr[2] ? 'on' : ''}}">★</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="safe-gap"></view>
+  </block>
+
+  <!-- ============ 对局 ============ -->
+  <block wx:else>
+    <view class="k-hud">
+      <view class="kh-box">
+        <view class="kh-num">{{moves}}</view>
+        <view class="kh-lab">步数</view>
+      </view>
+      <view class="kh-box">
+        <view class="kh-num">{{minMoves}}</view>
+        <view class="kh-lab">最少步</view>
+      </view>
+      <view class="kh-box">
+        <view class="kh-num">{{levelName}}</view>
+        <view class="kh-lab">{{tier}} · 第 {{curLevel}} 关</view>
+      </view>
+    </view>
+
+    <!-- 棋盘：5×4；棋子用百分比定位，天然适配任意屏宽 -->
+    <view class="k-board">
+      <!-- 底格（出口高亮） -->
+      <view
+        wx:for="{{cells}}"
+        wx:key="i"
+        class="k-cell {{item.gate ? 'gate' : ''}}"
+        style="{{item.style}}">
+        <text wx:if="{{item.gate}}" class="k-gate-text">出</text>
+      </view>
+
+      <!-- 棋子 -->
+      <view
+        wx:for="{{pieces}}"
+        wx:key="i"
+        class="k-piece {{item.cls}} {{selected === item.i ? 'on' : ''}}"
+        style="{{item.style}}"
+        data-i="{{item.i}}"
+        catchtouchstart="onTouchStart"
+        catchtouchmove="onTouchMove"
+        catchtouchend="onTouchEnd">
+        <view class="kp-face">
+          <text class="kp-glyph">{{item.glyph}}</text>
+          <text class="kp-name">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提示条 -->
+    <view class="k-tip" wx:if="{{hint}}">
+      💡 把高亮的棋子向 {{hint.dx > 0 ? '右' : (hint.dx < 0 ? '左' : (hint.dy > 0 ? '下' : '上'))}} 滑 {{hint.dist}} 格（整体最少还需 {{hint.left}} 步）
+    </view>
+    <view class="k-tip dim" wx:else>拖动棋子滑到尽头 · 也可点棋子后用方向键滑 1 格</view>
+
+    <!-- 操作区 -->
+    <view class="k-ops">
+      <view class="op" bindtap="hint"><text class="op-i">💡</text><text class="op-t">提示</text></view>
+      <view class="op {{canUndo ? '' : 'off'}}" bindtap="undo"><text class="op-i">↩️</text><text class="op-t">撤销</text></view>
+      <view class="op" bindtap="restart"><text class="op-i">🔄</text><text class="op-t">重来</text></view>
+      <view class="op" bindtap="demo"><text class="op-i">▶️</text><text class="op-t">演示</text></view>
+    </view>
+
+    <!-- 方向键（点选棋子后滑 1 格） -->
+    <view class="k-pad">
+      <view class="pad-btn up" data-dir="up" bindtap="nudge">▲</view>
+      <view class="pad-btn left" data-dir="left" bindtap="nudge">◀</view>
+      <view class="pad-btn down" data-dir="down" bindtap="nudge">▼</view>
+      <view class="pad-btn right" data-dir="right" bindtap="nudge">▶</view>
+    </view>
+    <view class="safe-gap"></view>
+
+    <!-- 结算（公共弹层；外面裹一层页面级容器，便于端到端断言"弹层已挂载"） -->
+    <view class="k-settle" wx:if="{{over}}">
+      <settle-pop
+        visible="{{over}}"
+        win="{{win}}"
+        stars-text="{{starsText}}"
+        title="{{settleTitle}}"
+        msg="{{settleMsg}}"
+        show-retry="{{false}}">
+        <view class="s-btns">
+          <button class="s-btn primary" bindtap="goNext" wx:if="{{curLevel < totalLevels}}">下一关 ▶</button>
+          <button class="s-btn" bindtap="again">重玩本关</button>
+          <button class="s-btn ghost" bindtap="goLevels">关卡列表</button>
+        </view>
+      </settle-pop>
+    </view>
+  </block>
+</view>

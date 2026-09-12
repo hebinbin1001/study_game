@@ -16,6 +16,7 @@
     "pages/wrong-review/wrong-review",
     "pages/match/match",
     "pages/g2048/g2048",
+    "pages/klotski/klotski",
     "pages/math24/math24",
     "pages/math-sprint/math-sprint",
     "pages/memory-grid/memory-grid",
