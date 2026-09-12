@@ -28,10 +28,10 @@
   </view>
 
   <!-- 触屏提示 -->
-  <view class="swipe-hint">👆 在网格上滑动转向 · 吃掉「绿色字母」按顺序拼出上方单词</view>
+  <view class="tap-hint">👆 点蛇头四周的格子转向 · 吃掉「绿色字母」按顺序拼出上方单词</view>
 
   <!-- 网格（承载触屏） -->
-  <view class="board-touch" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
+  <view class="board-touch">
     <view class="grid">
       <view
         wx:for="{{cells}}"
@@ -42,7 +42,7 @@
     </view>
   </view>
 
-  <view class="foot-tip">👆 点蛇头的上/下/左/右，蛇就往那边走（也可滑动） · 🟢 应拼字母 · 🔴 干扰字母</view>
+  <view class="foot-tip">👆 点蛇头的上/下/左/右，蛇就往那边走 · 🟢 应拼字母 · 🔴 干扰字母</view>
 
   <!-- 结算 -->
   <view wx:if="{{over}}" class="over-mask">

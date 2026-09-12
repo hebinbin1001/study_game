@@ -9,15 +9,17 @@
  *      —— 锁住「filterByGroup 传类型码 w1 静默放行全库」与「分组 word 混入 w2 挖空词」两类缺陷
  *   C. 食物生成规则：场上 4 个字母食物 = 1 个「应拼字母」(food-ok) + 3 个干扰字母(food-bad)，
  *      且 food-ok 的字母 === 进度条里下一个待拼字母（按序吃字母的核心规则）
- *   D. 移动与转向：冻结主循环后逐步推进，蛇头按当前方向前进 1 格；
- *      用真实触摸处理器注入下滑 → 方向变为「下」，推进后行号 +1；180° 反向被拒绝
+ *   D. 移动与点方向：冻结主循环后逐步推进，蛇头按当前方向前进 1 格；
+ *      走真实 onCellTap 点蛇头四周格子 → 方向变为点的那一侧；180° 反向被拒绝；点蛇头自己忽略
  *   E. 吃食物规则：吃到干扰字母 → 生命 -1；吃到应拼字母 → 得分 +5 且拼写进度推进
+ *   F. 撞墙穿到对面（用户 2026-09-12 反馈「撞墙即死太挫败」→ 改为穿墙）：越过边界后蛇头从对面穿出且不扣命
  *
  * 设计要点（踩坑记录，改这个脚本前务必先读）：
- *   1. 本页 setInterval(_tick, 300)，蛇从 (5,3) 向右直行，约 1.8s 撞墙扣命。
+ *   1. 本页 _tick 定时步进（450ms/步，另有 900ms 开局缓冲），蛇从 (5,3) 向右直行。
  *      纯等待式断言必然竞态 → 统一 callMethod('_stopLoop') 冻结主循环，
  *      再用 callMethod('_tick') 手动步进，把游戏变成确定性状态机；
- *      转向仍走真实 onTouchStart/onTouchEnd（|位移| 需 ≥18px）。
+ *      转向走真实 onCellTap（点蛇头四周的格子）。滑动转向已按用户反馈移除，
+ *      本脚本不再注入任何 touchstart/touchend 手势。
  *   2. startGame 只设置内部 _dir = 1【不走 setData】，data.dir 会残留上一局的值。
  *      按 data.dir 推理朝向会错 → 归位后必须用一次「垂直转向」把方向同步成已知值。
  *   3. 不要用「反复重掷食物直到命中」的纯概率做法：蛇头位置越靠边，
@@ -54,14 +56,59 @@ async function step(page, n) {
   }
 }
 
-/** 用真实触摸处理器注入一次滑动手势（|位移| 需 ≥18 才转向） */
-async function swipe(page, dir) {
-  const d = { 0: [0, -80], 1: [80, 0], 2: [0, 80], 3: [-80, 0] }[dir];
-  await page.callMethod('onTouchStart', { touches: [{ clientX: 200, clientY: 200 }] });
-  await page.callMethod('onTouchEnd', {
-    changedTouches: [{ clientX: 200 + d[0], clientY: 200 + d[1] }]
-  });
+/** 点某一格：走真实 onCellTap，data-i 为格子下标 */
+async function tapCell(page, idx) {
+  await page.callMethod('onCellTap', { currentTarget: { dataset: { i: idx } } });
   await page.waitFor(120);
+}
+
+/**
+ * 朝 dir 方向点一格（供「归位 / 瞄准」这类流程使用）。
+ * 取蛇头同排/同列上较远的格子，保证主轴方向明确；
+ * 蛇头已贴边时该方向没有可点的格子，直接抛错（调用点都在归位后的固定起点上）。
+ */
+async function tapDir(page, dir) {
+  const data = await page.data();
+  const head = headIndexOf(data.cells || []);
+  if (head < 0) throw new Error('tapDir: 找不到蛇头');
+  const hr = Math.floor(head / SIZE);
+  const hc = head % SIZE;
+  const SPAN = 4;
+  let tr = hr, tc = hc;
+  if (dir === DIR.UP) tr = Math.max(0, hr - SPAN);
+  else if (dir === DIR.DOWN) tr = Math.min(SIZE - 1, hr + SPAN);
+  else if (dir === DIR.LEFT) tc = Math.max(0, hc - SPAN);
+  else tc = Math.min(SIZE - 1, hc + SPAN);
+  if (tr === hr && tc === hc) {
+    throw new Error('tapDir: 蛇头贴边，无法构造「' + dir + '」方向的点击');
+  }
+  await tapCell(page, tr * SIZE + tc);
+}
+
+/**
+ * 反复重掷食物，直到「蛇头向右 n 格」的路径上没有食物。
+ * 穿墙用例要断言「命数不变」，必须先把路径上的食物清掉，
+ * 否则半路吃到干扰字母会扣命，断言被噪声污染。
+ */
+async function clearRightRunway(page, n, attempts) {
+  for (let a = 0; a < attempts; a++) {
+    const data = await page.data();
+    const cells = data.cells || [];
+    const head = headIndexOf(cells);
+    if (head < 0) return false;
+    const hr = Math.floor(head / SIZE);
+    let hc = head % SIZE;
+    let blocked = false;
+    for (let k = 0; k < n; k++) {
+      hc = (hc + 1) % SIZE;
+      const cls = clsOf(cells, hr * SIZE + hc);
+      if (cls === 'food-ok' || cls === 'food-bad') { blocked = true; break; }
+    }
+    if (!blocked) return true;
+    await page.callMethod('_spawnFoods', true);
+    await page.waitFor(60);
+  }
+  return false;
 }
 
 /**
@@ -73,7 +120,7 @@ async function resetAndFreeze(page) {
   await page.callMethod('startGame');
   await page.waitFor(200);
   await freeze(page);
-  await swipe(page, DIR.DOWN); // 从内部 _dir=1(右) 转到 2(下)：允许且会 setData
+  await tapDir(page, DIR.DOWN); // 点蛇头正下方：从内部 _dir=1(右) 转到 2(下)，允许且会 setData
 }
 
 function headIndexOf(cells) {
@@ -133,7 +180,7 @@ async function aimFoodAhead(page, wantKind, maxAttempts) {
     for (let i = 0; i < perp.length; i++) {
       hit = aheadOfKind(data, perp[i], wantKind);
       if (hit) {
-        await swipe(page, perp[i]);
+        await tapDir(page, perp[i]);
         const after = await page.data();
         if (after.dir === perp[i]) {
           const h2 = aheadOfKind(after, perp[i], wantKind);
@@ -156,7 +203,7 @@ async function letterAt(page, idx) {
 }
 
 H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck) {
-  console.log('[1/8] 进入 ' + PAGE_URL);
+  console.log('[1/10] 进入 ' + PAGE_URL);
   const page = await H.goto(miniProgram, PAGE_URL, 400);
 
   const cur = await miniProgram.currentPage();
@@ -182,7 +229,7 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
   ck.check('归位后朝向同步为已知值「下」(2)', data.dir === DIR.DOWN, '实际 dir = ' + data.dir);
 
   // A. 初始态与目标词卡
-  console.log('[2/8] 校验初始态与目标词卡');
+  console.log('[2/10] 校验初始态与目标词卡');
   ck.check('初始生命为 ' + LIVES, data.lives === LIVES, '实际 = ' + data.lives);
   ck.check('初始得分为 0', data.score === 0, '实际 = ' + data.score);
   ck.check('初始未结算', data.over === false, '实际 over = ' + data.over);
@@ -201,7 +248,7 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
   ck.check('.wc-zh 渲染出释义', !!(await H.textOf(page, '.wc-zh')), '实际 = ' + (await H.textOf(page, '.wc-zh')));
 
   // B. 词库来源：必须可直接逐字母拼写
-  console.log('[3/8] 校验目标词可逐字母拼写（B 词库来源）');
+  console.log('[3/10] 校验目标词可逐字母拼写（B 词库来源）');
   ck.check('目标词是纯英文单词（可逐字母拼写）', /^[A-Za-z]+$/.test(word),
     '实际词 = ' + JSON.stringify(word)
     + '（汉字/成语说明分组 key 传成了类型码 w1；含 * 或空格说明混入了 w2 挖空词或 fill 整句）');
@@ -210,7 +257,7 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
     '实际 = ' + JSON.stringify((data.progress || []).map(function (p) { return p.ch; })));
 
   // C. 食物生成规则
-  console.log('[4/8] 校验食物生成规则');
+  console.log('[4/10] 校验食物生成规则');
   const okIdx = (data.cells || []).findIndex(function (c) { return c.cls === 'food-ok'; });
   const badCount = (data.cells || []).filter(function (c) { return c.cls === 'food-bad'; }).length;
   ck.check('恰好 1 个应拼字母食物（food-ok）', okIdx >= 0, '下标 = ' + okIdx);
@@ -226,28 +273,59 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
   ck.check('food-ok 字母 === 进度条下一个待拼字母', (okLetter || '').toUpperCase() === needCh,
     '格子字母 ' + okLetter + ' vs 待拼 ' + needCh);
 
-  // D. 移动与转向（朝向已归位为「下」，全程按已知朝向断言，不假设初始为右）
-  console.log('[5/8] 校验移动与真实触摸转向');
-  const headBefore = headIndexOf((await page.data()).cells);
+  // D. 移动与点方向（朝向已归位为「下」，蛇头固定在 (5,3)=下标 53）
+  console.log('[5/10] 校验移动：沿当前朝向前进 1 格');
+  const HEAD_START = 5 * SIZE + 3;                  // _newSnake 起点 (5,3)
+  const at = function (r, c) { return r * SIZE + c; };
+  let dMove = await page.data();
+  ck.check('起点蛇头固定在 (5,3)（下标 ' + HEAD_START + '）',
+    headIndexOf(dMove.cells) === HEAD_START, '实际 = ' + headIndexOf(dMove.cells));
+  ck.check('起点朝向为「下」(2)', dMove.dir === DIR.DOWN, '实际 dir = ' + dMove.dir);
   await step(page, 1);
-  const headAfter = headIndexOf((await page.data()).cells);
+  dMove = await page.data();
   ck.check('推进 1 步蛇头沿当前朝向「下」前进 1 格（下标 +' + SIZE + '）',
-    headAfter === headBefore + SIZE, headBefore + ' → ' + headAfter);
+    headIndexOf(dMove.cells) === HEAD_START + SIZE,
+    HEAD_START + ' → ' + headIndexOf(dMove.cells));
 
-  await swipe(page, DIR.RIGHT); // 从「下」转「右」：允许
-  let d2 = await page.data();
-  ck.check('右滑手势后方向变为「右」(1)', d2.dir === DIR.RIGHT, '实际 dir = ' + d2.dir);
+  // 回到 (5,3)：下面的用例把格子下标写死，避免蛇头贴边时没有「正前方」格子
+  await resetAndFreeze(page);
+  ck.check('再次归位后蛇头回到 (5,3)（下标 ' + HEAD_START + '）',
+    headIndexOf((await page.data()).cells) === HEAD_START,
+    '实际 = ' + headIndexOf((await page.data()).cells));
 
-  const headBeforeRight = headIndexOf(d2.cells);
-  await step(page, 1);
-  d2 = await page.data();
-  ck.check('沿「右」推进 1 步蛇头下标 +1',
-    headIndexOf(d2.cells) === headBeforeRight + 1,
-    headBeforeRight + ' → ' + headIndexOf(d2.cells));
-
-  await swipe(page, DIR.LEFT); // 当前朝右，180° 反向应被拒绝
-  ck.check('180° 反向（右→左）被拒绝，方向仍为右', (await page.data()).dir === DIR.RIGHT,
+  // D2. 点方向操控（用户 2026-09-12：以蛇头为中心，点哪一侧就往哪边走）
+  //     滑动转向已移除，本段只用 onCellTap；下标全部写死，改 SIZE 时需同步复核
+  console.log('[6/10] 校验点方向操控（点蛇头哪一侧就往哪边走）');
+  await tapCell(page, at(5, 8));                    // 点蛇头正右方
+  ck.check('点蛇头正右方 → 朝向变「右」(1)', (await page.data()).dir === DIR.RIGHT,
     '实际 dir = ' + (await page.data()).dir);
+
+  await tapCell(page, at(5, 0));                    // 点正左方 = 当前朝向的反方向
+  ck.check('点蛇头正后方（180° 反向）被拒绝，方向仍为「右」',
+    (await page.data()).dir === DIR.RIGHT, '实际 dir = ' + (await page.data()).dir);
+
+  await tapCell(page, at(9, 0));                    // 竖向距离 4 > 横向距离 3 → 主轴取竖向 = 下
+  ck.check('点蛇头左下方（竖向更远）→ 主轴取竖向，朝向变「下」(2)',
+    (await page.data()).dir === DIR.DOWN, '实际 dir = ' + (await page.data()).dir);
+
+  await tapCell(page, at(5, 8));                    // 横向距离 5 > 竖向距离 0 → 主轴取横向 = 右
+  ck.check('点蛇头正右方（横向更远）→ 主轴取横向，朝向变「右」(1)',
+    (await page.data()).dir === DIR.RIGHT, '实际 dir = ' + (await page.data()).dir);
+
+  await tapCell(page, HEAD_START);                  // 点蛇头自己
+  ck.check('点蛇头自己 → 朝向不变（忽略）', (await page.data()).dir === DIR.RIGHT,
+    '实际 dir = ' + (await page.data()).dir);
+
+  await tapCell(page, at(2, 3));                    // 点蛇头正上方
+  ck.check('点蛇头正上方 → 朝向变「上」(0)', (await page.data()).dir === DIR.UP,
+    '实际 dir = ' + (await page.data()).dir);
+
+  // 沿点出来的新朝向（上）推进 1 步，确认「点方向」和真实移动接得上
+  const headBeforeTapMove = headIndexOf((await page.data()).cells);
+  await step(page, 1);
+  ck.check('按点出来的朝向「上」推进 1 步，蛇头下标 -' + SIZE,
+    headIndexOf((await page.data()).cells) === headBeforeTapMove - SIZE,
+    headBeforeTapMove + ' → ' + headIndexOf((await page.data()).cells));
 
   // 再归位一次：吃食物用例需要「前方有跑道」的确定起点，避免蛇头贴边导致无格可吃
   console.log('        → 再次归位，保证吃食物用例从确定起点开始');
@@ -256,7 +334,7 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
     '实际 = ' + (await page.data()).lives);
 
   // E1. 吃到干扰字母 → 扣命
-  console.log('[6/8] 校验吃到干扰字母扣命');
+  console.log('[7/10] 校验吃到干扰字母扣命');
   const aBad = await aimFoodAhead(page, 'food-bad', 60);
   ck.check('已瞄准蛇头正前方的干扰字母食物', !!aBad,
     aBad ? ('朝向 ' + aBad.dir + ' · 前方 ' + aBad.steps + ' 格') : '瞄准 60 轮仍未命中');
@@ -271,7 +349,7 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
   }
 
   // E2. 吃到应拼字母 → 加分 + 进度推进
-  console.log('[7/8] 校验吃到应拼字母得分与进度推进');
+  console.log('[8/10] 校验吃到应拼字母得分与进度推进');
   const aOk = await aimFoodAhead(page, 'food-ok', 90);
   ck.check('已瞄准蛇头正前方的应拼字母食物', !!aOk,
     aOk ? ('朝向 ' + aOk.dir + ' · 前方 ' + aOk.steps + ' 格') : '瞄准 90 轮仍未命中');
@@ -290,8 +368,41 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
       '实际 = ' + (await H.textOf(page, '.hud .hud-chip:nth-child(2)')));
   }
 
+  // F. 撞墙穿到对面（用户反馈「撞墙即死太挫败」→ 2026-09-12 改为穿墙，撞自己仍扣命）
+  console.log('[9/10] 校验撞墙穿到对面（穿墙不扣命）');
+  await resetAndFreeze(page);
+  await tapCell(page, at(5, 8)); // 先朝右
+  ck.check('穿墙用例起点朝向为「右」(1)', (await page.data()).dir === DIR.RIGHT,
+    '实际 dir = ' + (await page.data()).dir);
+
+  const runwayOk = await clearRightRunway(page, 10, 40);
+  ck.check('已清空蛇头向右 10 格的跑道（排除吃食物干扰）', runwayOk,
+    runwayOk ? '' : '重掷 40 轮路径上仍有食物');
+  if (runwayOk) {
+    const beforeWrap = await page.data();
+    const livesBeforeWrap = beforeWrap.lives;
+    const headBeforeWrap = headIndexOf(beforeWrap.cells);
+    // (5,3) 向右 6 步到 (5,9)，第 7 步越界列 10 → 应穿回同排最左侧 (5,0)=下标 50
+    await step(page, 7);
+    const afterWrap = await page.data();
+    const headAfterWrap = headIndexOf(afterWrap.cells);
+    console.log('        蛇头 ' + headBeforeWrap + ' → ' + headAfterWrap
+      + ' · 生命 ' + livesBeforeWrap + ' → ' + afterWrap.lives);
+    ck.check('越过右边界后蛇头从同排最左侧穿出（下标 ' + (5 * SIZE) + '）',
+      headAfterWrap === 5 * SIZE, headBeforeWrap + ' → ' + headAfterWrap);
+    ck.check('穿墙不扣命', afterWrap.lives === livesBeforeWrap,
+      livesBeforeWrap + ' → ' + afterWrap.lives);
+    ck.check('穿墙后未结算', afterWrap.over === false, '实际 over = ' + afterWrap.over);
+
+    await step(page, 1);
+    const afterWrap2 = await page.data();
+    ck.check('穿墙后继续沿原朝向前进（下标 ' + (5 * SIZE + 1) + '）',
+      headIndexOf(afterWrap2.cells) === 5 * SIZE + 1,
+      headAfterWrap + ' → ' + headIndexOf(afterWrap2.cells));
+  }
+
   // 收尾
-  console.log('[8/8] 校验页面未跳转/未崩溃');
+  console.log('[10/10] 校验页面未跳转/未崩溃');
   const end = await miniProgram.currentPage();
   ck.check('流程结束后仍在贪吃蛇页', end.path === 'pages/snake/snake', '实际 = ' + end.path);
   const finalData = await page.data();

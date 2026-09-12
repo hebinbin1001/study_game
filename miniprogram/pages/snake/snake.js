@@ -7,7 +7,7 @@
 //   - 蛇吃到干扰字母 → 扣 1 命（该食物作废）；撞墙/撞身 → 扣 1 命
 //   - 拼完当前词 → 换下一个目标词；共拼完 WORDS_PER_ROUND 个词即通关
 //   - 3 命用尽则结束；按正确命中率/剩余命给 1-3 星
-// 触屏：网格上滑动改变方向（无实体方向键）。
+// 触屏：点蛇头四周的格子转向 —— 以蛇头为中心，点哪一侧就往哪边走（无实体方向键，也不支持滑动）。
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
@@ -327,20 +327,8 @@ Page({
     }
   },
 
-  onTouchStart: function (e) {
-    var t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
-    if (!t) return;
-    this._tx = t.clientX; this._ty = t.clientY;
-  },
-  onTouchEnd: function (e) {
-    var t = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]);
-    if (!t || this._tx === undefined) return;
-    var dx = t.clientX - this._tx, dy = t.clientY - this._ty;
-    var adx = Math.abs(dx), ady = Math.abs(dy);
-    this._tx = this._ty = undefined;
-    if (adx < 18 && ady < 18) return; // 点按不转向
-    this._setDir(adx > ady ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0));
-  },
+  // 说明：原滑动转向（onTouchStart/onTouchEnd）已按用户反馈移除 ——
+  // 有了「点蛇头哪一侧就往哪边走」之后，滑动既多余又容易误触，只保留点击操控。
   _setDir: function (d) {
     if ((this._dir + d) % 2 === 0) return;
     this._dir = d;

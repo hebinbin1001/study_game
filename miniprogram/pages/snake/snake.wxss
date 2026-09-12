@@ -59,7 +59,7 @@
 .wc-ch.on { background: #7bd389; color: #fff; }
 
 /* 触屏控制提示 */
-.swipe-hint { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .95; margin: 8rpx 0 6rpx; }
+.tap-hint { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .95; margin: 8rpx 0 6rpx; }
 
 /* 触屏容器：占剩余高度，网格填满 */
 .board-touch {

@@ -1,7 +1,73 @@
 # 变更日志（CHANGELOG）
 
 > 记录项目迭代过程中的关键修复与功能进展，便于回顾与追溯。
-> 关联文档：`README.md`、`.codeartsdoer/specs/`。
+> 关联文档：`README.md`、`.codeartsdoer/specs/`、`docs/需求对齐-6合1.md`、`docs/规划-UI对齐与落地草案.md`。
+
+---
+
+## 2026-09-12（贪吃蛇操控收敛：去掉滑动转向，只留「点方向」）
+
+> 用户反馈：滑动没啥用就去掉（上一轮同时保留了点击与滑动两套操控）。
+
+- **移除滑动转向**：删掉 `onTouchStart/onTouchEnd` 与 wxml 上的 `bindtouchstart/bindtouchend`，网格只保留 `catchtap="onCellTap"`。
+  - 理由：有了「点蛇头上/下/左/右哪一侧就往哪边走」之后，滑动既多余又容易误触（点一下不小心划到就转向）。
+  - 文案同步：网格上方提示改为「点蛇头四周的格子转向」，页脚去掉「也可滑动」。
+  - 样式类 `.swipe-hint` 顺带改名 `.tap-hint`，避免名字与行为不符。
+- **E2E 用例同步重写**（`e2e/verify-snake.js`，33 条 → 50 条断言）：
+  - 删除全部 touchstart/touchend 注入，转向改走真实 `onCellTap`。
+  - 新增点方向断言 6 条：点正右方 → 右；点正后方（180° 反向）被拒绝；竖向更远取竖向；横向更远取横向；点蛇头自己忽略；点出来的朝向能真实驱动移动。
+  - 新增**穿墙回归** 5 条：清空蛇头向右的跑道后连走 7 步，断言蛇头从同排最左侧穿出（53 → 50）、**不扣命**、不结算、且能继续沿原朝向前进。
+
+验证：`node e2e/run-all.js --no-e2e` 全绿；`node e2e/run-all.js` 全量 **11/11 通过**（含贪吃蛇 50/50、24 点 29/29、连连看 26/26、18 页 + 8 页渲染回归），总耗时 297s。
+
+---
+
+## 2026-09-10（总体规划落地 B1–B6 + 登录/合规/玩法成熟化 + 回归）
+
+> 本轮把拍板后的「8+ 款玩法合集」规划分批全部落地真实小程序（详见 `docs/规划-UI对齐与落地草案.md`）。
+> 全部代码已推送 `origin/main`；`docs/*` 按约定仅本地更新不入 git。
+
+### B1 · 4 Tab 架构 + O1 全机型自适应（commit 4fa2074）
+- app.json 加 tabBar（🏠首页 / 🎮玩法 / 📊学习 / 👤我的），4 组纯色占位 PNG 图标（`e2e/gen-tab-icons.js` 生成）。
+- 首页去「功能宫格」→ demo 大厅：Hero / 游客引导条 / 资产条 / 排行榜行 / 今日目标 / 每日一题 / 继续挑战 / 推荐玩法。
+- 新增玩法 tab（8 款合集 + 分类筛选）、学习 tab（周概览+报告+错题+每日一题·签到+签到日历+自定义题库）。
+- me 页对齐 demo（资料卡两态/游客说明卡/统计/菜单/危险区，注销/退出改 switchTab）。
+- O1：对局 Canvas `flex:1` 占剩余高 + `scale=min(宽比,高比)` 居中缩放（先 translate 后 scale）；关卡地图行距/节点按可用高动态收缩。
+
+### B2 · 每日一题 = 签到（双轨）（2e66b0a）
+- 后端：`milestone_claims` 表 + avatars 支持 `unlockType='milestone'` + 5 里程碑皮肤种子（30/60/100/250/365 天）；`routes/daily.js`（status/answer 幂等：答对→轨道A签到送星 + 轨道B皮肤发放）。
+- 前端：每日一题页（看词选义，每人随机 1 题，本地词库）；移除 result 任意闯关自动打卡；checkin 页改**只读签到日历**；avatar 里程碑皮肤禁手动解锁。
+
+### B3 · 排行榜双榜真实（97d4bdb）
+- scores 加 `game_type`/`type_key`；`/api/ranklist/progress` 玩法进度榜（按玩法/学段/题型聚合 MAX 进度）；rank 页重做 demo 双榜 UI（⭐总榜·星星 / 🎮按玩法·进度，学段+题型筛选 + 我的名次）。
+
+### B4 · 自定义题库 10 个一组 + 打通游玩 + 公开广场（8d81810）
+- `/api/level/submit` 服务端强校验 totalQ===10；`/api/level/public` approved 全量列表；game 消费 `customLevel`（断链修复，固定 items 出题）；result 自定义关不写系统星级/不入字词榜；custom-levels 中心页（我的题库/公开广场/新建/输码导入）。
+
+### B6 · demo 8 款玩法全覆盖（83ccd5c / e183686 / b17c8d3 / bcbf0ab / 0994415 / 2107e54 / 344e311）
+- 新增独立玩法页：数独（20 关 4×4→9×9）、词义消消乐、2048（7 关目标递增）、算24点、词语连连看、单词贪吃蛇、单词弹弹球；引擎模块 `game/{sudoku,tw2048,math24,link}.js`。玩法 tab 逐一点亮「已解锁」。
+
+### B5 · 公共对局外壳抽取（31f1868）
+- 组件 `components/game-hud`（生命/分数/附加）、`components/settle-pop`（结算弹层+插槽+retry 事件）；数独/消消乐试点迁移。
+
+### 登录 / 合规 / 体验收尾（06e47e8 / 8f9e59a / 0b76732 / 2d7fb00 / 02bdc3d 等）
+- O2 登录规范化：**首次=游客主页不弹协议**；点「登录/注册」才先弹《用户协议》，同意后 wx.login 建档；拒绝保持游客（`auth.ensureAgreement`、app.js 移除 onLaunch 自动登录）。
+- 完整《用户协议与隐私政策》文本页 `pages/agreement`（首页/我的可进）。
+- 游客有本地成绩 → 温和提醒一次「登录同步」。
+- 修复登录无反应/卡死：登录 Promise 卡死（_loginPromise 悬挂）改 `_loggingIn` 防重入 + wx.login 5s 超时；loading 后置防遮弹窗；nudge 弹窗顶掉协议弹窗（modal 互顶 → agreed=false）已修（点击登录先取消 nudge + busy 标志 + 延时 900ms + onHide 清理）。
+- 首页「游客引导条」加 `wx:if !loggedIn`——登录后不再残留游客条（4b loggedIn=true 仍见游客的根因）。
+
+### 玩法成熟化重做（699dabf / 355679d）
+- 单词贪吃蛇 → 成熟玩法（对齐《单词贪吃蛇》）：给目标词+释义，蛇按顺序吃到字母拼完该词过关换词；触屏滑动控制（去方向键）。
+- 算 24 点 → 成熟交互（对齐经典）：点数字牌+运算符/括号构造带括号算式，`＝校验24`；引擎新增 `evaluateExpr`（递归下降、精确分数）；四张牌各用一次校验。
+- 单词弹弹球：无成熟先例，玩法页下线为占位（代码保留）。
+
+### 回归工具（4edc712）
+- `e2e/syntax-check-all.js`（全量 JS 语法）、`e2e/structure-check.js`（app.json/组件/tabBar/玩法一致性/登录链痕迹 50+ 断言）。本次全绿：npm test、check-wxss 29/29、103 js 0 失败、结构 50+ 全过。
+
+### 生产环境需人工执行（部署注意）
+- 新增表 `milestone_claims`；`scores` 加列 `game_type`、`type_key`；`avatars` 插 5 条里程碑皮肤（非生产 sync({alter:true}) 自动完成，生产需手动 SQL/seed）。
+- O1 机型矩阵（320×568→430×932）逐机型人工验收待真机执行。
 
 ---
 
@@ -173,7 +239,6 @@
 ### 接口体检（2026-09-08 线上网关）
 - `e2e/smoke-api.js`：12 组路由 **全部 PASS**（authed 走 x-wx-source 通道为 1003 属预期——真实小程序走 Bearer token 不受影响；若需 smoke source 通道通，检查云托管 env `WX_TRUSTED_SOURCES` 未被清空）。
 - 真实调用链探测（login 拿 token → Bearer 调 user/me、score、rank/sync、wrong/add·list、checkin/auto、report、ranklist/world、achievement、avatar）：**全部 code=0**。
-
 
 
 
