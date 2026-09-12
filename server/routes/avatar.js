@@ -11,17 +11,10 @@ const router = express.Router();
  * 本地无法观察容器日志，排查成本很高。这里在列表接口上做一次**幂等自愈**：
  * 每个容器进程只跑一次（seededOnce），失败下次请求自动重试，且**不影响接口返回**。
  */
-let seededOnce = false;
 async function ensureRoster() {
-  if (seededOnce) return;
-  try {
-    const { seedAvatars } = require("../seeders/avatar-seed");
-    const { sequelize } = require("../db");
-    await seedAvatars(sequelize);
-    seededOnce = true;
-  } catch (err) {
-    console.error("[avatar] 皮肤目录自愈失败（下次请求会重试）：", err.message);
-  }
+  const { ensureAvatarRoster } = require("../seeders/avatar-seed");
+  const { sequelize } = require("../db");
+  return ensureAvatarRoster(sequelize);
 }
 
 /**

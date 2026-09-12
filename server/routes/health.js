@@ -17,15 +17,18 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     await sequelize.authenticate(); // 执行 SELECT 1，抛错即连接异常
-    // 顺带回报「皮肤目录条数」：上架新皮肤后本地就能用健康检查确认线上是否已生效
-    // （曾经出现过「代码上架 24 套、线上仍是 8 套」但容器日志看不到的情况）。
+    // 顺带做「皮肤目录自检」并回报结果：上架新皮肤后本地就能确认线上是否已生效
+    // （曾经出现过「代码上架 24 套、线上仍是 8 套」，而容器日志本地看不到，排查成本很高）。
+    // roster: { ok, total, created } 或 { ok:false, error } —— 不影响健康检查本身的状态码。
+    const { ensureAvatarRoster } = require("../seeders/avatar-seed");
+    const roster = await ensureAvatarRoster(sequelize).catch((e) => ({ ok: false, error: String(e.message || e) }));
     let avatars = null;
     try {
       avatars = await Avatar.count();
     } catch (e) {
       avatars = -1; // 表不存在/查询失败时给出 -1，不把健康检查拖挂
     }
-    res.send({ code: CODE.OK, data: { status: "ok", db: "connected", avatars } });
+    res.send({ code: CODE.OK, data: { status: "ok", db: "connected", avatars, roster } });
   } catch (err) {
     console.error("健康检查：数据库连接异常：", err);
     res.status(503).send({

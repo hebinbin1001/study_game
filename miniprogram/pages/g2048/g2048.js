@@ -30,6 +30,12 @@ var LEVELS = [
   { no: 10, target: 512, steps: 272, tier: '挑战' }
 ];
 
+// 挑战模式（2026-09-12 用户认可「保留打到 2048 的成就感」）：
+//   · 目标 2048、**不限步数**（只有「无路可走」才会失败）；
+//   · 不写星级存档（关卡体系只到 512），只记录**最少步数**，越少越强。
+var CHALLENGE = { target: 2048, stepsLimit: 999999 };
+var CHALLENGE_BEST_KEY = 'ww_g2048_challenge_best';
+
 Page({
   data: {
     curLevel: 1,
@@ -43,6 +49,8 @@ Page({
     maxTile: 2,
     over: false,
     win: false,
+    challenge: false,        // 是否挑战模式（不限步数冲 2048）
+    challengeBest: 0,        // 挑战模式最佳步数（0 = 还没通关过）
     stars: 0,
     starsText: '',
     overMsg: ''
@@ -50,6 +58,7 @@ Page({
 
   onLoad: function () {
     this.setData({ levelInfo: LEVELS });
+    this.setData({ challengeBest: storage.get(CHALLENGE_BEST_KEY) || 0 });
     var cur = storage.get('ww_g2048_cur') || 1;
     if (cur > LEVELS.length) cur = LEVELS.length;
     this.loadLevel(cur);
@@ -59,11 +68,24 @@ Page({
     var lv = LEVELS[no - 1];
     this._board = game.newBoard();
     this.setData({
-      curLevel: no, target: lv.target, stepsLimit: lv.steps,
+      curLevel: no, target: lv.target, stepsLimit: lv.steps, challenge: false,
       playing: true, over: false, win: false,
       cells: this._flatten(this._board),
       score: 0, usedSteps: 0, maxTile: 2, stars: 0, starsText: ''
     });
+  },
+
+  /** 挑战模式：目标 2048、不限步数，只比最少步数 */
+  startChallenge: function () {
+    this._board = game.newBoard();
+    this.setData({
+      curLevel: 0, target: CHALLENGE.target, stepsLimit: CHALLENGE.stepsLimit, challenge: true,
+      playing: true, over: false, win: false,
+      cells: this._flatten(this._board),
+      score: 0, usedSteps: 0, maxTile: 2, stars: 0, starsText: '',
+      challengeBest: storage.get(CHALLENGE_BEST_KEY) || 0
+    });
+    wx.showToast({ title: '挑战模式：不限步数冲到 2048', icon: 'none', duration: 1800 });
   },
 
   loadLevel: function (no) {
@@ -113,6 +135,19 @@ Page({
   },
 
   _win: function () {
+    // 挑战模式：不写星级存档（关卡体系只到 512），只记「最少步数」
+    if (this.data.challenge) {
+      var used = this.data.usedSteps;
+      var prevBest = storage.get(CHALLENGE_BEST_KEY) || 0;
+      var best = (prevBest > 0 && prevBest < used) ? prevBest : used;
+      storage.set(CHALLENGE_BEST_KEY, best);
+      this.setData({
+        playing: false, over: true, win: true, stars: 0, starsText: '🏆',
+        challengeBest: best,
+        overMsg: '冲到 2048 用了 ' + used + ' 步 · 最佳 ' + best + ' 步'
+      });
+      return;
+    }
     // 星级：≤50%步 3 星 / ≤80% 2 星 / 其余 1 星
     var ratio = this.data.usedSteps / this.data.stepsLimit;
     var stars = ratio <= 0.5 ? 3 : (ratio <= 0.8 ? 2 : 1);
@@ -131,11 +166,18 @@ Page({
 
   again: function () { this.loadLevel(this.data.curLevel); },
   goNext: function () {
+    // 挑战模式没有「下一关」，重开一次挑战即可
+    if (this.data.challenge) { this.startChallenge(); return; }
     var n = Math.min(this.data.curLevel + 1, LEVELS.length);
     storage.set('ww_g2048_cur', n);
     this.loadLevel(n);
   },
-  goLevels: function () { this.setData({ playing: false, over: false }); },
+  goLevels: function () {
+    this.setData({
+      playing: false, over: false,
+      challengeBest: storage.get(CHALLENGE_BEST_KEY) || 0
+    });
+  },
   pickLevel: function (e) {
     var no = e.currentTarget.dataset.no;
     if (no > (storage.get('ww_g2048_cur') || 1) && no > this.data.curLevel && this.data.curLevel < no - 1) {

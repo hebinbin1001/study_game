@@ -23,6 +23,15 @@
         <view class="lv-steps">{{item.steps}} 步</view>
       </view>
     </view>
+
+    <!-- 挑战模式（不限步数冲到 2048，只比最少步数） -->
+    <view class="challenge-card" bindtap="startChallenge">
+      <view class="cc-left">
+        <view class="cc-title">🏆 挑战模式</view>
+        <view class="cc-sub">不限步数冲到 2048 · 只比谁用得更少</view>
+      </view>
+      <view class="cc-best">{{challengeBest > 0 ? ('最佳 ' + challengeBest + ' 步') : '来试试'}}</view>
+    </view>
   </block>
 
   <!-- 对局 -->

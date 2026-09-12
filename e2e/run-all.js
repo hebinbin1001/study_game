@@ -38,6 +38,7 @@ const STAGES = [
   { id: 'link', layer: '端到端', title: '词语连连看', script: 'e2e/verify-link.js' },
   { id: 'snake', layer: '端到端', title: '单词贪吃蛇', script: 'e2e/verify-snake.js' },
   { id: 'klotski', layer: '端到端', title: '华容道（数字智力）', script: 'e2e/verify-klotski.js' },
+  { id: 'g2048', layer: '端到端', title: '2048（挑战模式）', script: 'e2e/verify-g2048.js' },
   { id: 'challenge', layer: '端到端', title: '挑战主线（首页继续挑战/关卡页/三款玩法/存档）', script: 'e2e/verify-challenge.js' },
   { id: 'pages', layer: '端到端', title: '全页面渲染回归（18 页）', script: 'e2e/verify-all-pages.js' },
   { id: 'm2m4', layer: '端到端', title: 'M2~M4 页面回归（8 页）', script: 'e2e/verify-m2m4.js' }

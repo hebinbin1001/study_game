@@ -151,11 +151,42 @@ async function seedAvatars(sequelize) {
 
   // 幂等写入：已存在的行会被更新（upsert），这样「上架新皮肤 / 改名字改图标」只需改本文件，
   // 部署后自动生效；不会影响用户的解锁记录（user_avatars 只存 avatarId）。
+  let created = 0;
   for (const avatar of avatars) {
-    await Avatar.upsert(avatar);
+    // 用 findOrCreate（而不是 upsert）：MySQL 上 upsert 依赖 ON DUPLICATE KEY UPDATE，
+    // 在某些托管环境的权限/引擎组合下会抛错；这里只保证「缺的补上」，已有行不动 —— 对新上架皮肤足够。
+    const [row, isNew] = await Avatar.findOrCreate({
+      where: { avatarId: avatar.avatarId },
+      defaults: avatar,
+    });
+    if (isNew) created++;
   }
 
-  console.log(`[seed] 形象数据初始化完成，共 ${avatars.length} 条`);
+  console.log(`[seed] 形象数据初始化完成：清单 ${avatars.length} 条，本次新增 ${created} 条`);
+  return { total: avatars.length, created };
 }
 
-module.exports = { avatars, seedAvatars };
+/**
+ * 皮肤目录自检（幂等，进程内只跑一次）。
+ *
+ * 为什么需要：生产启动路径里的 seed 出过「代码上架 24 套、线上仍 8 套」的问题，
+ * 而容器日志本地看不到。这里把结果**返回出来**（供健康检查暴露），
+ * 下次再出问题，本地一句 health 就能看到原因。
+ *
+ * @param {import('sequelize').Sequelize} sequelize
+ * @returns {Promise<{ok:boolean, total?:number, created?:number, error?:string}>}
+ */
+let rosterDone = null;
+async function ensureAvatarRoster(sequelize) {
+  if (rosterDone) return rosterDone;
+  try {
+    const r = await seedAvatars(sequelize);
+    rosterDone = { ok: true, total: r.total, created: r.created };
+  } catch (err) {
+    // 不缓存失败：下次请求会重试（并再次记录错误）
+    return { ok: false, error: String((err && err.message) || err).slice(0, 200) };
+  }
+  return rosterDone;
+}
+
+module.exports = { avatars, seedAvatars, ensureAvatarRoster };

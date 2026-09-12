@@ -29,6 +29,24 @@
 .lv-target { font-size: 40rpx; font-weight: 900; color: #b57900; }
 .lv-steps { font-size: 22rpx; color: #8a9bb5; margin-top: 6rpx; }
 
+/* 挑战模式入口（不限步数冲 2048） */
+.challenge-card {
+  display: flex; align-items: center; gap: 16rpx;
+  margin-top: 20rpx;
+  background: linear-gradient(135deg, #fff3d6 0%, #ffe4a8 100%);
+  border-radius: 24rpx; padding: 22rpx 26rpx;
+  box-shadow: 0 8rpx 0 rgba(0,0,0,.06);
+}
+.cc-left { flex: 1; }
+.cc-title { font-size: 30rpx; font-weight: 900; color: #8a5a00; }
+.cc-sub { font-size: 22rpx; color: #a98232; margin-top: 6rpx; }
+.cc-best {
+  flex: 0 0 auto;
+  background: #fff; color: #b57900;
+  font-size: 24rpx; font-weight: 800;
+  padding: 10rpx 20rpx; border-radius: 999rpx;
+}
+
 /* HUD */
 .hud-box { flex: 1; background: #fff; border-radius: 20rpx; padding: 16rpx 4rpx; text-align: center; box-shadow: 0 6rpx 0 rgba(0,0,0,.05); }
 .h-num { font-size: 34rpx; font-weight: 900; color: #b57900; }
