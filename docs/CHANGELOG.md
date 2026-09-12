@@ -32,6 +32,24 @@
 
 ### 修真机「点进去是黑屏」：移除半成品的深色模式兜底
 
+### ⭐ 真机黑屏的真正主因：`lazyCodeLoading: requiredComponents`（按需注入）
+
+- 用户抓来的真机日志给出了决定性证据：
+  ```
+  App route: pages/rank/rank (navigateTo)
+  MiniProgramError  Component is not found in path "wx://not-found".
+  Page "pages/rank/rank" has not been registered yet.
+  （随后才 onLoad / onShow / onRouteDone）
+  ```
+  —— 路由开始时，**页面的代码还没被注入**，于是这一帧被解析成 `wx://not-found` 占位页
+  （真机上看到的就是那块**黑屏**），之后页面才注册成功。
+- 根因：`app.json` 开了 `"lazyCodeLoading": "requiredComponents"`（按需注入）。
+  它按页面/组件依赖延迟注入代码，在真机（启动更慢、时序更紧）上容易出现
+  「先路由、后注册」的竞态；开发者工具的模拟器启动快，几乎复现不出来 ——
+  这正是「工具正常、真机黑屏」的原因。
+- 修复：移除 `lazyCodeLoading`（本项目只有 35 个页面 / 720KB 包体，按需注入的收益很小，
+  远不及它带来的稳定性风险）。
+
 （**最终定位**：不只是 WXSS 那段，`app.json` 里的 `"darkmode": true` + `theme.json` 才是主因 ——
 微信会据此把导航栏与页面底色按系统深色模式切换（dark 变体 `#1f2933` / `#12171f`），
 而页面内容全是浅色设计。两处一起移除后才彻底修好；`e2e/check-wxss.js` 现在同时守着

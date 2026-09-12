@@ -140,6 +140,16 @@ for (const file of files) {
     console.log('[FAIL] app.json: themeLocation 仅用于深色主题，本项目不用；请一并移除。');
     bad++;
   }
+
+  // lazyCodeLoading（按需注入）：真机上会出现「先路由、后注册」的竞态 ——
+  // 页面被解析成 wx://not-found 占位（**黑屏**），报「Component is not found」+
+  // 「Page ... has not been registered yet」；开发者工具启动快，几乎复现不出来。
+  // 2026-09-12 真机踩坑，已移除。本项目 35 页 / 720KB，按需注入收益很小，不要重开。
+  if (appJson.lazyCodeLoading) {
+    console.log('[FAIL] app.json: 不要开启 lazyCodeLoading —— 真机上会出现「页面还没注册就路由」的竞态，'
+      + '表现为点进页面整片黑屏（wx://not-found 占位），而开发者工具里正常。');
+    bad++;
+  }
 }
 
 console.log(bad === 0 ? '全部 ' + files.length + ' 个 wxss 检查通过。' : '共发现 ' + bad + ' 处问题。');

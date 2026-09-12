@@ -1,5 +1,4 @@
 {
-  "lazyCodeLoading": "requiredComponents",
   "pages": [
     "pages/index/index",
     "pages/playlist/playlist",
