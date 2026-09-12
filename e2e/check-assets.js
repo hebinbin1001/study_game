@@ -76,10 +76,65 @@ function walk(dir, out) {
   });
 }
 
+/**
+ * 找出打包目录里「没有任何文件引用」的 JS（开发者工具会静默跳过它们）。
+ *
+ * 入口来源：app.js + app.json 的 pages + 各 json 的 usingComponents；其余按
+ * `require('相对路径')` 建立引用关系。只认静态相对路径 require —— 动态拼接的
+ * require 会漏判（那种情况本次也没出现），所以结果是**提示**而不是失败。
+ */
+function findUnreferencedJs(list) {
+  const jsFiles = list.filter((f) => /\.js$/.test(f.file));
+  const srcOf = {};
+  jsFiles.forEach((f) => { srcOf[f.file] = fs.readFileSync(path.join(MINIPROGRAM, f.file), 'utf8'); });
+
+  const entry = { 'app.js': true };
+  try {
+    const appJson = JSON.parse(fs.readFileSync(path.join(MINIPROGRAM, 'app.json'), 'utf8'));
+    (appJson.pages || []).forEach((p) => { entry[p + '.js'] = true; });
+  } catch (e) { /* app.json 读不到就算了 */ }
+  list.filter((f) => /\.json$/.test(f.file)).forEach((f) => {
+    try {
+      const j = JSON.parse(fs.readFileSync(path.join(MINIPROGRAM, f.file), 'utf8'));
+      const uc = j.usingComponents || {};
+      const base = path.posix.dirname(f.file);
+      Object.keys(uc).forEach((k) => {
+        let p = uc[k];
+        if (p.charAt(0) !== '/') p = path.posix.normalize(path.posix.join(base, p));
+        entry[p.replace(/^\//, '') + '.js'] = true;
+      });
+    } catch (e) { /* 非 JSON 或解析失败：忽略 */ }
+  });
+
+  const referenced = {};
+  jsFiles.forEach((f) => {
+    const re = /require\(\s*['"]([^'"]+)['"]\s*\)/g;
+    let m;
+    while ((m = re.exec(srcOf[f.file]))) {
+      const spec = m[1];
+      if (spec.charAt(0) !== '.') continue;                       // 只认相对路径
+      let target = path.posix.normalize(path.posix.join(path.posix.dirname(f.file), spec));
+      if (!/\.js$/.test(target)) target += '.js';
+      referenced[target] = true;
+    }
+  });
+
+  return jsFiles
+    .filter((f) => !entry[f.file] && !referenced[f.file])
+    .map((f) => f.file)
+    .sort();
+}
+
 function main() {
   const list = [];
   walk(MINIPROGRAM, list);
   list.sort((a, b) => b.size - a.size);
+
+  // 打包目录里的「没人引用的 JS」提示（只提示、不阻断）
+  // 为什么需要：开发者工具会把这类文件**静默跳过**（上传提示「以下 N 文件没有被打包上传」），
+  // 于是死代码/构建工具长期躺在打包目录里没人清理（2026-09-12 就撞上过：parser/validator/sensitive
+  // 只被单测引用，运行时一次都没用到，已挪到 tools/dict/）。
+  const deadJs = findUnreferencedJs(list);
 
   const images = list.filter((f) => f.isImage);
   const audios = list.filter((f) => f.isAudio);
@@ -138,6 +193,14 @@ function main() {
     soft.slice(0, 5).forEach((f) => {
       console.log('  ' + (f.size / 1024).toFixed(1).padStart(8) + ' KB  ' + f.file);
     });
+  }
+
+  if (deadJs.length) {
+    console.log('');
+    console.log('提示：打包目录里有 ' + deadJs.length + ' 个 JS 没有被任何代码引用'
+      + '（开发者工具会静默跳过它们，按约定这类文件应放到打包路径以外）：');
+    deadJs.slice(0, 8).forEach((f) => console.log('  ' + f));
+    if (deadJs.length > 8) console.log('  …还有 ' + (deadJs.length - 8) + ' 个');
   }
 
   if (problems.length) {

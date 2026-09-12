@@ -82,12 +82,17 @@ cloudbase cloudrun list -e prod-d6gnifjoe28cfd96f   # 看服务状态与更新�
 |---|---|---|
 | 单元测试 | `tests/unit/`（跑法：`node tests/unit/run-all.js`） | `miniprogram/utils/__tests__/`（2026-09-12 已整体迁出） |
 | E2E / 校验脚本 / 出图压缩工具 | `e2e/` | `miniprogram/` |
+| 词库构建工具（解析/校验/敏感词） | `tools/dict/` | `miniprogram/utils/` |
 | 美术原图（大图，不打包） | `assets-src/`（已 gitignore） | `miniprogram/assets-src/` |
 | 玩法 demo / 可视稿 | `demo/` | `miniprogram/` |
 
 护栏：`e2e/check-assets.js` 每次全量验证都会检查**打包目录纯净度** ——
 发现 `__tests__`、`*.test.js`、`assets-src`、`e2e`、`demo` 混进去就直接判红（退出码 1），
 不靠 `packOptions.ignore` 掩盖（ignore 已清空）。
+
+另外它会**提示「没有任何代码引用的 JS」**：开发者工具对这类文件是**静默跳过**的
+（上传时只显示「以下 N 文件没有被打包上传」），因此死代码/构建工具很容易长期躺在打包目录里。
+2026-09-12 就撞上过：`parser/validator/sensitive` 只被单测引用，运行时一次都没用到，已挪到 `tools/dict/`。
 
 ## 7. 资源与包体上限（硬性，用户 2026-09-12 明确要求）
 

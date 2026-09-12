@@ -13,7 +13,7 @@
 const { suite } = require('./_runner');
 const s = suite('utils/validator.js');
 
-const v = require('../../miniprogram/utils/validator');
+const v = require('../../tools/dict/validator');
 const constants = require('../../miniprogram/utils/constants');
 
 s.test('TYPE_CODES 共 8 种', () => {
@@ -254,7 +254,7 @@ s.test('validateAll：批量通过/失败聚合且保留解析期错误', () => 
 
 // ---------- parser + validator 端到端 ----------
 s.test('端到端：parseText + validateAll 串联校验导入文本', () => {
-  const parser = require('../../miniprogram/utils/parser');
+  const parser = require('../../tools/dict/parser');
   const text = [
     'w1|cat|a|猫|e,o,i',   // 合法
     'c2|天*|天空云|释义',     // q/a 长度不等 → 报长度不一致

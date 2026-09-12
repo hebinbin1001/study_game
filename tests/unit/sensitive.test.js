@@ -10,7 +10,7 @@
 const { suite } = require('./_runner');
 const s = suite('utils/sensitive.js');
 
-const sv = require('../../miniprogram/utils/sensitive');
+const sv = require('../../tools/dict/sensitive');
 
 s.test('containsSensitive：常见敏感词命中返回 true', () => {
   const hits = ['反动', '台独', '法轮', '色情', '淫秽', '裸聊', '暴力', '杀人',

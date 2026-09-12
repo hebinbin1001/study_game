@@ -10,7 +10,7 @@
 const { suite } = require('./_runner');
 const s = suite('utils/parser.js');
 
-const p = require('../../miniprogram/utils/parser');
+const p = require('../../tools/dict/parser');
 
 s.test('splitLines：全角｜ 转半角 |，统一 \\r\\n / \\r / \\n', () => {
   const lines = p.splitLines('w1|cat|a|猫\r\nc1｜大｜大｜大\r\nw1|dog|d|狗');

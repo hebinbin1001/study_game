@@ -20,7 +20,8 @@
  *   - 有任何错误：item 为 null，errors 含全部错误（REQ-IMP-9 全量汇聚）
  */
 
-var constants = require('./constants');
+// 类型码表放在小程序端（运行时也用它），构建工具直接复用同一份，避免两处定义漂移
+var constants = require('../../miniprogram/utils/constants');
 var sensitive = require('./sensitive');
 
 var TYPE_CODES = constants.TYPE_CODES;
