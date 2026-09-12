@@ -4,11 +4,11 @@
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var link = require('../../game/link');
-var auth = require('../../utils/auth');
 var storage = require('../../utils/storage');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
 var request = require('../../utils/request');
+var playReport = require('../../utils/play-report');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var COLS = 4, PAIR = 8;
@@ -228,11 +228,16 @@ Page({
   _saveChallengeStars: function (stars) {
     if (!this._challenge || !this._gradeKey || !this._level) return;
     storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
-    if (stars > 0 && auth.isLoggedIn()) {
-      request.post('/api/rank/sync', { stars: stars }).catch(function () {
-        // 静默：网络失败下次通关自动补
-      });
-    }
+    // 统一上报（成绩 + 段位）：game_type=link，供玩法进度榜与玩法类成就使用
+    playReport.reportPlay({
+      gameType: challenge.gameTypeOf('link'),
+      grade: this._gradeKey,
+      level: this._level,
+      score: stars * 10,
+      correct: this.pairsUsed || 0,
+      total: this.pairsUsed || 0,
+      stars: stars
+    });
   },
 
   _buildGrid: function () {

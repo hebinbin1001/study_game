@@ -1,9 +1,11 @@
 // 数独页（B6）—— 闯关模式：4×4 → 6×6 → 9×9，给定数字递减
 // 玩法：点空格 → 点数字键盘填入；与答案不符扣命（3❤）；
 // 全填对过关 → 结算（星级按错次数）+ 本地存档 sudoku@level（不影响字词进度）。
-// 本地纯逻辑（game/sudoku.js），不上报成绩/错题（属固定关卡玩法，进度记录在本机）。
+// 本地纯逻辑（game/sudoku.js）。星级存本机（固定关卡玩法），但**会上报一局成绩**
+// （game_type=sudoku），供「玩法进度榜」与玩法类成就使用（2026-09-12 P2 起）。
 var sudoku = require('../../game/sudoku');
 var storage = require('../../utils/storage');
+var playReport = require('../../utils/play-report');
 
 // 关卡 → (阶数, 给定数)：难度递增、给定递减。
 // 题库不需要外部素材：game/sudoku.js 已是「生成终盘 + 按唯一解校验挖洞」的生成器，
@@ -196,6 +198,13 @@ Page({
     var m = this.data.mistakes;
     var stars = m === 0 ? 3 : (m <= 2 ? 2 : 1);
     storage.saveStars('sudoku', this.data.curLevel, stars);
+    // 上报本局成绩（game_type=sudoku）：供「玩法进度榜」与玩法类成就使用
+    playReport.reportPlay({
+      gameType: 'sudoku',
+      grade: 'all',
+      level: this.data.curLevel,
+      stars: stars
+    });
     var max = Math.max(this.data.unlockedMax, Math.min(this.data.curLevel + 1, TOTAL_LEVELS));
     storage.set('ww_sudoku_max', max);
     this.setData({

@@ -57,6 +57,7 @@ async function loadStats(openid) {
       grade: s.grade,
       level: s.level,
       score: s.score,
+      game_type: s.game_type,
       correct_count: s.correct_count,
       total_q: s.total_q,
       max_combo: s.max_combo,

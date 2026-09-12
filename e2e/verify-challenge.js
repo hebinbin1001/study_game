@@ -35,8 +35,12 @@ const rng = require('../miniprogram/utils/rng');
 const HOME_URL = '/pages/index/index';
 const LEVEL_URL = '/pages/level/level';
 const GRADE = 'primary34';          // 用例固定用一个学段，期望值可复算
-const WB_LEVEL = 2;                 // 模板第 2 关 = 字母拼词
-const LINK_LEVEL = 3;               // 模板第 3 关 = 词语连连看
+// P2 后模板（6 款轮换，每款 5 关）：1 字母射击 → 2 消消乐 → 3 字母拼词 → 4 连连看 → 5 成语 → 6 贪吃蛇
+const WB_LEVEL = 3;                 // 字母拼词
+const LINK_LEVEL = 4;               // 词语连连看
+const MATCH_LEVEL = 2;              // 词义消消乐
+const IDIOM_LEVEL = 5;              // 成语拼字
+const SNAKE_LEVEL = 6;              // 单词贪吃蛇
 
 /** Node 侧复算字母拼词的题面（与 pages/word-build 的 _buildPool/start 同一步骤） */
 function expectWordBuild(gradeKey, level) {
@@ -74,6 +78,55 @@ function expectLink(gradeKey, level, tick) {
   return rng.shuffle(cards, r).map(function (c) { return c.lab; });
 }
 
+/** Node 侧复算消消乐的牌面（与 pages/match 的 newRound 同一步骤） */
+function expectMatch(gradeKey, level) {
+  const pairs = challenge.paramsOf(gradeKey, 'match').pairs;
+  const r = challenge.rngFor(gradeKey, level);
+  const pickWords = (k) => dict.loadByGrade(k)
+    .filter((w) => w.type === 'w1' && /^[A-Za-z]+$/.test(String(w.q || '')));
+  let words = pickWords(gradeKey);
+  if (words.length < pairs) words = pickWords('kindergarten');
+  const pool = rng.shuffle(words, r).slice(0, pairs);
+  const cards = [];
+  pool.forEach((w) => {
+    const key = w.q + '|' + w.a;
+    cards.push({ t: 'w', key, lab: (w.q || w.a).toUpperCase() });
+    cards.push({ t: 'c', key, lab: w.hint || w.a });
+  });
+  return rng.shuffle(cards, r).map((c) => c.lab);
+}
+
+/** Node 侧复算成语拼字的第一题与字块（与 pages/idiom-build 同一步骤） */
+function expectIdiom(gradeKey, level) {
+  const count = challenge.paramsOf(gradeKey, 'idiom').count;
+  const primary = dict.loadByGrade(gradeKey);
+  let others = [];
+  constants.GRADES.forEach((g) => {
+    if (g.key === gradeKey) return;
+    others = others.concat(dict.loadByGrade(g.key));
+  });
+  const pool = wbLib.mergePools(primary, others, 'idiom', count);
+  const r = challenge.rngFor(gradeKey, level);
+  const queue = wbLib.pickQuestions(pool, count, r);
+  const first = queue[0];
+  const answer = String(first.a);
+  return {
+    count,
+    prompt: wbLib.promptOf(first, 'idiom'),
+    tiles: wbLib.makeTiles(answer, wbLib.noiseChars(pool, answer, wbLib.EXTRA_TILES, r), r)
+      .map((t) => t.ch).join('')
+  };
+}
+
+/** Node 侧复算贪吃蛇的目标词（与 pages/snake 同一步骤） */
+function expectSnake(gradeKey, level) {
+  const need = challenge.paramsOf(gradeKey, 'snake').words;
+  const pool = dict.loadByGrade(gradeKey).filter((w) => w.type === 'w1' && /^[A-Za-z]+$/.test(String(w.q || '')));
+  const r = challenge.rngFor(gradeKey, level);
+  const picked = rng.shuffle(pool, r).slice(0, Math.min(need, pool.length));
+  return { count: need, first: picked[0], all: picked };
+}
+
 H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck) {
   // 清存档：保证「继续挑战 = 第 1 关」等断言不受历史数据影响
   await miniProgram.callWxMethod('removeStorageSync', 'ww_stars');
@@ -103,13 +156,25 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('默认进入「挑战主线」视图', lvData.isChallengeView === true, '实际 = ' + lvData.isChallengeView);
   ck.check('第 1 关是新手关（字母射击）', rows[0] && rows[0].mode === 'shoot',
     '实际 = ' + (rows[0] && rows[0].kindLabel));
-  ck.check('第 2 关是字母拼词', rows[1] && rows[1].mode === 'wordBuild',
+  ck.check('第 2 关是词义消消乐', rows[1] && rows[1].mode === 'match',
     '实际 = ' + (rows[1] && rows[1].kindLabel));
-  ck.check('第 3 关是词语连连看', rows[2] && rows[2].mode === 'link',
+  ck.check('第 3 关是字母拼词', rows[2] && rows[2].mode === 'wordBuild',
     '实际 = ' + (rows[2] && rows[2].kindLabel));
+  ck.check('第 4 关是词语连连看', rows[3] && rows[3].mode === 'link',
+    '实际 = ' + (rows[3] && rows[3].kindLabel));
+  ck.check('第 5 关是成语拼字', rows[4] && rows[4].mode === 'idiom',
+    '实际 = ' + (rows[4] && rows[4].kindLabel));
+  ck.check('第 6 关是单词贪吃蛇', rows[5] && rows[5].mode === 'snake',
+    '实际 = ' + (rows[5] && rows[5].kindLabel));
+  ck.check('主线恰好 6 款玩法轮换', new Set(rows.map(function (r) { return r.mode; })).size === 6,
+    '实际 = ' + Array.from(new Set(rows.map(function (r) { return r.mode; }))).join(','));
   ck.check('关卡行显示玩法标签', /字母射击/.test((rows[0] || {}).kindLabel || ''),
     '实际 = ' + (rows[0] || {}).kindLabel);
-  ck.check('关卡行副标题带参数', /题/.test((rows[1] || {}).sub || ''), '实际 = ' + (rows[1] || {}).sub);
+  ck.check('关卡行副标题带该关参数（每行都要有）',
+    rows.every(function (r) { return r.sub && r.sub.length > 0; }),
+    '空副标题的关 = ' + JSON.stringify(rows.filter(function (r) { return !r.sub; }).map(function (r) { return r.level; })));
+  ck.check('字母拼词那关的副标题含题量', /题/.test((rows[2] || {}).sub || ''), '实际 = ' + (rows[2] || {}).sub);
+  ck.check('消消乐那关的副标题含对数', /对/.test((rows[1] || {}).sub || ''), '实际 = ' + (rows[1] || {}).sub);
   ck.check('全新存档下第 1 关为「继续挑战」态', rows[0] && rows[0].state === 'cur',
     '实际 = ' + (rows[0] && rows[0].state));
   ck.check('星星进度以 30 关为分母（总星 90）', lvData.gradeTotalStars === 90,
@@ -151,6 +216,50 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     expWb.queue.slice(0, 3).join(',') + ' vs ' + expWb5.queue.slice(0, 3).join(','));
   ck.check('不同关的种子不同',
     challenge.seedOf(GRADE, WB_LEVEL) !== challenge.seedOf(GRADE, WB_LEVEL + 3));
+
+  console.log('[4.5/8] P2 新玩法接入：消消乐 / 成语拼字 / 单词贪吃蛇（种子可复现）');
+  // 消消乐：牌面与 Node 侧复算一致，两次进入一致，且词卡都是纯英文
+  const expMatch = expectMatch(GRADE, MATCH_LEVEL);
+  const matchUrl = challenge.pageUrl(challenge.levelAt(GRADE, MATCH_LEVEL), GRADE);
+  const m1 = await H.goto(miniProgram, matchUrl, 1800);
+  const mD1 = await m1.data();
+  ck.check('消消乐进入挑战模式', mD1.challenge === true, '实际 = ' + mD1.challenge);
+  ck.check('消消乐牌数 = 关卡参数（' + expMatch.length + ' 张）',
+    (mD1.cards || []).length === expMatch.length, '实际 = ' + (mD1.cards || []).length);
+  ck.check('消消乐牌面与独立复算一致（同种子同牌面）',
+    JSON.stringify((mD1.cards || []).map(function (c) { return c.lab; })) === JSON.stringify(expMatch),
+    '页面 = ' + JSON.stringify((mD1.cards || []).slice(0, 3).map(function (c) { return c.lab; })));
+  const m2 = await H.goto(miniProgram, matchUrl, 1500);
+  ck.check('消消乐同一关再次进入：牌面一致',
+    JSON.stringify(((await m2.data()).cards || []).map(function (c) { return c.lab; })) === JSON.stringify(expMatch));
+  const badWordCards = (mD1.cards || []).filter(function (c) { return c.t === 'w' && !/^[A-Z]+$/.test(c.lab); });
+  ck.check('消消乐词卡都是纯英文（修掉「分组 key 传成类型码」导致的带 * 词卡）',
+    badWordCards.length === 0, '异常词卡 = ' + JSON.stringify(badWordCards.map(function (c) { return c.lab; })));
+
+  // 成语拼字：题面与字块与 Node 侧复算一致
+  const expIdiom = expectIdiom(GRADE, IDIOM_LEVEL);
+  const idiomUrl = challenge.pageUrl(challenge.levelAt(GRADE, IDIOM_LEVEL), GRADE);
+  const i1 = await H.goto(miniProgram, idiomUrl, 1800);
+  const iD1 = await i1.data();
+  ck.check('成语拼字进入挑战模式', iD1.challenge === true, '实际 = ' + iD1.challenge);
+  ck.check('成语题量 = 该学段挑战参数（' + expIdiom.count + ' 题）',
+    String(iD1.meta || '').indexOf('/' + expIdiom.count + ' 题') !== -1, '实际 = ' + iD1.meta);
+  ck.check('成语第一题题面与独立复算一致',
+    iD1.prompt === expIdiom.prompt, '页面 = ' + iD1.prompt + ' / 期望 = ' + expIdiom.prompt);
+  ck.check('成语字块排列与独立复算一致',
+    (iD1.tiles || []).map(function (t) { return t.ch; }).join('') === expIdiom.tiles,
+    '页面 = ' + (iD1.tiles || []).map(function (t) { return t.ch; }).join('') + ' / 期望 = ' + expIdiom.tiles);
+
+  // 贪吃蛇：目标词由关卡种子决定
+  const expSnake = expectSnake(GRADE, SNAKE_LEVEL);
+  const snakeUrl = challenge.pageUrl(challenge.levelAt(GRADE, SNAKE_LEVEL), GRADE);
+  const s1 = await H.goto(miniProgram, snakeUrl, 1800);
+  const sD1 = await s1.data();
+  ck.check('贪吃蛇进入挑战模式', sD1.challenge === true, '实际 = ' + sD1.challenge);
+  ck.check('贪吃蛇目标词与独立复算一致（同种子同词）', sD1.word === expSnake.first.q,
+    '页面 = ' + sD1.word + ' / 期望 = ' + expSnake.first.q);
+  const s2 = await H.goto(miniProgram, snakeUrl, 1500);
+  ck.check('贪吃蛇同一关再次进入：目标词一致', (await s2.data()).word === sD1.word);
 
   console.log('[5/8] 连连看挑战关：种子牌面 + 换局重排');
   const expLink0 = expectLink(GRADE, LINK_LEVEL, 0);
@@ -214,12 +323,11 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   await miniProgram.callWxMethod('removeStorageSync', 'ww_challenge_migrated');
   const home2 = await H.goto(miniProgram, HOME_URL, 1800);   // 首页 refresh 里执行迁移
   starsStore = await miniProgram.callWxMethod('getStorageSync', 'ww_stars');
-  ck.check('旧第 1 关星级迁移到主线第 ' + shootSlots[0] + ' 关',
-    starsStore['kindergarten@challenge@' + shootSlots[0]] === 3,
-    '实际 = ' + JSON.stringify(starsStore['kindergarten@challenge@' + shootSlots[0]]));
-  ck.check('旧第 2 关星级迁移到主线第 ' + shootSlots[1] + ' 关',
-    starsStore['kindergarten@challenge@' + shootSlots[1]] === 2,
-    '实际 = ' + JSON.stringify(starsStore['kindergarten@challenge@' + shootSlots[1]]));
+  ck.check('旧第 1 关星级迁移到主线第 1 关', starsStore['kindergarten@challenge@1'] === 3,
+    '实际 = ' + JSON.stringify(starsStore['kindergarten@challenge@1']));
+  ck.check('旧第 2 关星级迁移到主线第 2 关（按序号平移）',
+    starsStore['kindergarten@challenge@2'] === 2,
+    '实际 = ' + JSON.stringify(starsStore['kindergarten@challenge@2']));
   const migratedFlag = await miniProgram.callWxMethod('getStorageSync', 'ww_challenge_migrated');
   ck.check('迁移标记已写入（不会重复迁移）', !!migratedFlag, '实际 = ' + JSON.stringify(migratedFlag));
 

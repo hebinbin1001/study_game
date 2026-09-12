@@ -11,6 +11,9 @@
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
+var challenge = require('../../utils/challenge');
+var rng = require('../../utils/rng');
+var playReport = require('../../utils/play-report');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var SIZE = 10;
@@ -46,10 +49,27 @@ Page({
     best: 0,
     starText: '',
     round: 0,            // 已拼完词数
-    targetLabel: ''      // 第 x/y 词
+    targetLabel: '',     // 第 x/y 词
+    challenge: false,    // 是否挑战主线关卡
+    challengeKey: ''     // 挑战存档键（调试/测试可见）
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
+    var opt = options || {};
+    // 挑战主线（P2）：学段与词数按关卡参数固定，取词用关卡种子（同一关每次同一套词）
+    this._challenge = String(opt.challenge) === '1';
+    this._gradeKey = opt.grade || '';
+    this._level = parseInt(opt.level, 10) || 0;
+    this._roundWordCount = WORDS_PER_ROUND;
+    this._rng = null;
+    this._challengeKey = '';
+    if (this._challenge) {
+      var lv = challenge.levelAt(this._gradeKey, this._level);
+      if (lv) this._roundWordCount = challenge.paramsOf(this._gradeKey, lv.mode).words || WORDS_PER_ROUND;
+      this._rng = rng.makeRng(parseInt(opt.seed, 10) || challenge.seedOf(this._gradeKey, this._level));
+      this._challengeKey = this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level;
+    }
+    this.setData({ challenge: this._challenge, challengeKey: this._challengeKey });
     this.startGame();
   },
 
@@ -74,7 +94,9 @@ Page({
   },
 
   _loadWords: function () {
-    var grade = GRADES[Math.floor(Math.random() * GRADES.length)];
+    // 挑战关卡：学段由关卡参数固定；自由玩：随机学段
+    var grade = this._challenge ? this._gradeByKey(this._gradeKey) : null;
+    if (!grade) grade = GRADES[Math.floor(Math.random() * GRADES.length)];
     // 目标词必须能「按字母逐个拼写」，故只保留 q 为纯英文单词的条目。
     //
     // 踩坑记录（下面两种写法都不能用）：
@@ -95,9 +117,18 @@ Page({
     return all;
   },
 
+  /** 学段 key → 学段对象（挑战模式用） */
+  _gradeByKey: function (key) {
+    for (var i = 0; i < constants.GRADES.length; i++) {
+      if (constants.GRADES[i].key === key) return constants.GRADES[i];
+    }
+    return null;
+  },
+
   _pickRoundWords: function () {
-    var pool = this._shuffle(this._words);
-    var need = Math.min(WORDS_PER_ROUND, pool.length);
+    // 挑战关卡：打乱走关卡种子（同一关词序一致）
+    var pool = this._challenge ? rng.shuffle(this._words, this._rng) : this._shuffle(this._words);
+    var need = Math.min(this._roundWordCount || WORDS_PER_ROUND, pool.length);
     var out = [];
     for (var i = 0; i < need; i++) out.push({ en: (pool[i].q || pool[i].a), zh: pool[i].hint || pool[i].q || '' });
     return out;
@@ -285,13 +316,27 @@ Page({
 
   _win: function () {
     this._stopLoop();
-    var stars = this._lives === 3 ? 3 : (this._lives === 2 ? 2 : 1);
+    var stars = challenge.starsByLives(this._lives);
     if (this._score > this.data.best) storage.set('ww_snake_best', this._score);
     var best = Math.max(this.data.best, this._score);
     this.setData({
       over: true, win: true, starText: '⭐'.repeat(stars),
       score: this._score, best: best,
       tip: '拼完 ' + this._roundWords.length + ' 词 · 得分 ' + this._score
+    });
+    // 挑战关卡：写挑战星级（自由玩不写进度）
+    if (this._challenge && this._gradeKey && this._level) {
+      storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
+    }
+    // 上报本局成绩（game_type=snake）：挑战与自由玩都报，玩法进度榜/玩法成就都按它统计
+    playReport.reportPlay({
+      gameType: challenge.gameTypeOf('snake'),
+      grade: (this._challenge && this._gradeKey) ? this._gradeKey : 'all',
+      level: (this._challenge && this._level) ? this._level : this._roundWords.length,
+      score: this._score,
+      correct: this._roundWords.length,
+      total: this._roundWords.length,
+      stars: stars
     });
   },
 

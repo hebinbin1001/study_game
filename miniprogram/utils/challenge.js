@@ -10,9 +10,10 @@
  *     解锁规则与关卡页一致（前 3 关默认解锁，之后上一关 ≥1 星，游客第 4 关起需登录）。
  *
  * 分期（见 docs/挑战关卡规划-待确认.md）：
- *   P1（本文件当前形态）：只编排**已支持按关卡参数开局**的 3 款玩法 ——
- *       字母射击 / 字母拼词 / 词语连连看，各 10 关；
- *   P2：把消消乐 / 成语拼字 / 单词贪吃蛇接进来（那 3 款还需先支持参数与固定种子）。
+ *   P1：字母射击 / 字母拼词 / 词语连连看三款，各 10 关；
+ *   **P2（本文件当前形态）：再接入词义消消乐 / 成语拼字 / 单词贪吃蛇 ——
+ *       6 款轮换，每学段 30 关 = 6 款 × 5 关**，且各玩法在挑战模式下会把自己的成绩
+ *       上报到 `scores`（game_type = 玩法 key），供「玩法进度榜」与玩法类成就使用。
  *   ⚠️ 未支持参数的玩法**不能**先写进模板，否则该关点了要么随机开局、要么不记星，
  *      玩家会卡在关卡中间（新增玩法时请同步扩 MODES 与模板，并补单测）。
  *
@@ -35,6 +36,7 @@ var STAR_KEY = constants.CHALLENGE_STAR_KEY;                 // 'challenge'
 var MODES = {
   shoot: {
     key: 'shoot',
+    gameType: 'word_warrior',        // 成绩表 game_type（小写，服务端正则只收 [a-z0-9_]）
     label: '字母射击',
     emoji: '🎯',
     page: '/pages/game/game',
@@ -42,6 +44,7 @@ var MODES = {
   },
   wordBuild: {
     key: 'wordBuild',
+    gameType: 'word_build',
     label: '字母拼词',
     emoji: '🔤',
     page: '/pages/word-build/word-build',
@@ -49,15 +52,40 @@ var MODES = {
   },
   link: {
     key: 'link',
+    gameType: 'link',
     label: '词语连连看',
     emoji: '🔗',
     page: '/pages/link/link',
     starBasis: '剩余命 3/2/1'
+  },
+  match: {
+    key: 'match',
+    gameType: 'match',
+    label: '词义消消乐',
+    emoji: '🃏',
+    page: '/pages/match/match',
+    starBasis: '剩余命 3/2/1'
+  },
+  idiom: {
+    key: 'idiom',
+    gameType: 'idiom',
+    label: '成语拼字',
+    emoji: '🀄',
+    page: '/pages/idiom-build/idiom-build',
+    starBasis: '答对率 90/70/60（5 命）'
+  },
+  snake: {
+    key: 'snake',
+    gameType: 'snake',
+    label: '单词贪吃蛇',
+    emoji: '🐍',
+    page: '/pages/snake/snake',
+    starBasis: '剩余命 3/2/1'
   }
 };
 
-// 玩法轮换节奏：字母射击 → 字母拼词 → 词语连连看（各 10 关，共 30 关）
-var CYCLE = ['shoot', 'wordBuild', 'link'];
+// 玩法轮换节奏（P2）：6 款顺序轮换，每学段 30 关 → 每款各 5 关
+var CYCLE = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'];
 
 /**
  * 生成关卡模板（30 关）。
@@ -79,19 +107,22 @@ var TEMPLATE = buildTemplate();
 //   · 字母拼词：题量按学段 6~10 + 5 命 → 6 题时最低 67%、10 题时最低 60%，三档都可达
 //   · 词语连连看：按剩余命 3/2/1 给星，天然三档可达
 var GRADE_PARAMS = {
-  kindergarten: { wordBuild: { count: 6 } },
-  primary12:    { wordBuild: { count: 8 } },
-  primary34:    { wordBuild: { count: 8 } },
-  primary56:    { wordBuild: { count: 8 } },
-  junior:       { wordBuild: { count: 10 } },
-  senior:       { wordBuild: { count: 10 } },
-  college:      { wordBuild: { count: 10 } }
+  kindergarten: { wordBuild: { count: 6 }, idiom: { count: 5 }, match: { pairs: 6 }, snake: { words: 4 } },
+  primary12:    { wordBuild: { count: 8 }, idiom: { count: 6 }, match: { pairs: 6 }, snake: { words: 4 } },
+  primary34:    { wordBuild: { count: 8 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } },
+  primary56:    { wordBuild: { count: 8 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } },
+  junior:       { wordBuild: { count: 10 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } },
+  senior:       { wordBuild: { count: 10 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } },
+  college:      { wordBuild: { count: 10 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } }
 };
 
 var DEFAULT_PARAMS = {
   shoot: { totalQ: constants.GAME_CONFIG.totalQ, lives: constants.GAME_CONFIG.initLives },
   wordBuild: { count: 8 },
-  link: { pairs: 8 }
+  link: { pairs: 8 },
+  match: { pairs: 8 },
+  idiom: { count: 8 },
+  snake: { words: 5 }
 };
 
 function gradeKeyOf(gradeKey) {
@@ -108,6 +139,15 @@ function labelOf(gradeKey) {
     if (constants.GRADES[i].key === gradeKey) return constants.GRADES[i].label;
   }
   return gradeKey;
+}
+
+/**
+ * 取某玩法的「成绩表 game_type」（小写 snake_case；服务端只接受 [a-z0-9_]）。
+ * 玩法进度榜（/api/ranklist/progress）与玩法类成就都按这个字段聚合。
+ */
+function gameTypeOf(mode) {
+  const m = MODES[mode];
+  return (m && m.gameType) || 'word_warrior';
 }
 
 /**
@@ -131,6 +171,9 @@ function subOf(gradeKey, mode) {
   if (mode === 'shoot') return p.totalQ + ' 题 · ' + p.lives + ' 命';
   if (mode === 'wordBuild') return p.count + ' 题 · 拼字母';
   if (mode === 'link') return p.pairs + ' 对 · ' + p.pairs * 2 + ' 张牌';
+  if (mode === 'match') return p.pairs + ' 对 · ' + p.pairs * 2 + ' 张牌';
+  if (mode === 'idiom') return p.count + ' 题 · 拼成语';
+  if (mode === 'snake') return p.words + ' 词 · 吃字母';
   return '';
 }
 
@@ -293,7 +336,13 @@ function starReachability(total, lives) {
 /**
  * 把旧的「字母射击 10 关」星级迁移到挑战主线的对应字母射击关。
  *
- * 迁移规则：旧 key `<grade>_<k>`（综合自由练第 k 关）→ 主线第 k 个字母射击关。
+ * 迁移规则：旧 key `<grade>_<k>`（综合自由练第 k 关，k=1..10）→ **主线第 k 关**。
+ *
+ * 为什么按「第 k 关」而不是「第 k 个字母射击关」：旧体系的 10 关就是该学段的整条进度线，
+ * 玩家记的是「我打到第 8 关」；而 P2 之后主线每款玩法只有 5 关，字母射击关分散在 1/7/13/19/25，
+ * 按玩法槽位映射会让旧第 6~10 关无处安放（早期版本确实这么写过，单测当场抓到）。
+ * 因此按序号平移，玩家的推进位置与解锁进度都不变（其中几关是别的玩法，属于一次性小礼包）。
+ *
  * 幂等：迁移一次后写标记位，之后调用直接返回 false。
  *
  * @param {Object} storage utils/storage 模块（注入以便单测）
@@ -305,11 +354,11 @@ function migrateStars(storage) {
   var all = (typeof storage.getAllStars === 'function' ? storage.getAllStars() : {}) || {};
   for (var g = 0; g < constants.GRADES.length; g++) {
     var grade = constants.GRADES[g].key;
-    var slots = levelsOfMode(grade, 'shoot');
-    for (var k = 1; k <= slots.length; k++) {
+    // 旧体系固定 10 关；`LEVELS_PER_GRADE` 保留这一口径（不要用新的 30 关）
+    for (var k = 1; k <= constants.LEVELS_PER_GRADE; k++) {
       var oldStars = all[grade + '_' + k];
       if (typeof oldStars === 'number' && oldStars > 0) {
-        storage.saveStars(grade, slots[k - 1], oldStars, STAR_KEY);
+        storage.saveStars(grade, k, oldStars, STAR_KEY);
       }
     }
   }
@@ -333,6 +382,7 @@ module.exports = {
   pageUrl: pageUrl,
   pickItems: pickItems,
   labelOf: labelOf,
+  gameTypeOf: gameTypeOf,
   starsByRightRate: starsByRightRate,
   starsByLives: starsByLives,
   starReachability: starReachability,

@@ -48,6 +48,11 @@ const METRICS = {
   reviewedItems: (s) => s.reviewedItems,       // 复习过的错题条数
   rankId: (s) => s.rankId,                     // 段位（大段位 1~8，0=还没记录）
   customLevels: (s) => s.customLevels,         // 提交过的自定义关卡数
+  // —— 玩法深度（按 scores.game_type 统计通关次数；见 statsFrom）——
+  snakeClears: (s) => s.snakeClears,           // 单词贪吃蛇通关次数
+  math24Clears: (s) => s.math24Clears,         // 算 24 点通关次数
+  sudokuClears: (s) => s.sudokuClears,         // 数独通关次数
+  memoryClears: (s) => s.memoryClears          // 记忆矩阵通过次数
 };
 
 // ============ 三、成就定义（36 条） ============
@@ -109,6 +114,12 @@ const DEFINITIONS = [
   // —— 自定义题库 ——
   { achievementId: "custom_level_1", name: "出题人", description: "提交 1 个自定义关卡", category: "custom", metric: "customLevels", threshold: 1 },
   { achievementId: "custom_level_5", name: "题库作者", description: "提交 5 个自定义关卡", category: "custom", metric: "customLevels", threshold: 5 },
+
+  // —— 玩法深度（美术已交付这 4 张图标；2026-09-12 P2 打通各玩法成绩上报后启用）——
+  { achievementId: "snake_master", name: "贪吃蛇大师", description: "单词贪吃蛇通关 3 次", category: "play", metric: "snakeClears", threshold: 3 },
+  { achievementId: "math24_master", name: "24 点高手", description: "算 24 点通关 3 次", category: "play", metric: "math24Clears", threshold: 3 },
+  { achievementId: "sudoku_master", name: "数独行家", description: "数独通关 3 次", category: "play", metric: "sudokuClears", threshold: 3 },
+  { achievementId: "memory_master", name: "记忆大师", description: "记忆矩阵通过 3 次", category: "play", metric: "memoryClears", threshold: 3 },
 ];
 
 /** 成就图标路径（图未到位时前端用 emoji 兜底） */
@@ -168,6 +179,10 @@ function statsFrom(input) {
   const wrongMastered = wrongs.filter((w) => (Number(w.mastery) || 0) >= 100).length;
   const reviewedItems = wrongs.filter((w) => (Number(w.reviewCount) || 0) >= 1).length;
 
+  // 玩法深度：按 scores.game_type 统计「通关次数」（stars>=1）。
+  // 2026-09-12（挑战主线 P2）起各玩法都会上报成绩，这 4 项才有意义。
+  const clearsOf = (gt) => scores.filter((s) => String(s.game_type) === gt && Number(s.stars) >= 1).length;
+
   return {
     totalCorrect: totalCorrect,
     maxCombo: maxCombo,
@@ -189,6 +204,10 @@ function statsFrom(input) {
     reviewedItems: reviewedItems,
     rankId: Number(rank.rankId) || 0,
     customLevels: Number(src.customLevelCount) || 0,
+    snakeClears: clearsOf('snake'),
+    math24Clears: clearsOf('math24'),
+    sudokuClears: clearsOf('sudoku'),
+    memoryClears: clearsOf('memory')
   };
 }
 

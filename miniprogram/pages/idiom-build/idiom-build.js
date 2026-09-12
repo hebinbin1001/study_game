@@ -6,6 +6,9 @@ var lib = require('../../game/word-build');
 var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var CONST = require('../../utils/constants');
+var challenge = require('../../utils/challenge');
+var rng = require('../../utils/rng');
+var playReport = require('../../utils/play-report');
 
 var MODE = 'idiom';
 var BEST_KEY = 'ww_idiom_build_best';
@@ -27,7 +30,10 @@ Page({
     win: false,
     starsText: '',
     overMsg: '',
-    best: 0
+    best: 0,
+    challenge: false,
+    challengeKey: '',
+    challengeLabel: ''
   },
 
   _pool: [],
@@ -43,8 +49,31 @@ Page({
   _locked: false,
   _timers: [],
 
-  onLoad: function () {
-    this.setData({ best: storage.get(BEST_KEY) || 0 });
+  onLoad: function (options) {
+    var opt = options || {};
+    // 挑战主线（P2）：学段/题量按关卡参数，出题与字块用关卡种子（同一关每次一样）
+    this._challenge = String(opt.challenge) === '1';
+    this._gradeKey = (this._challenge && opt.grade) ? opt.grade : (storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34');
+    this._level = parseInt(opt.level, 10) || 0;
+    this._roundQ = lib.ROUND_Q;
+    this._rng = null;
+    this._challengeKey = '';
+    this._challengeLabel = '';
+    if (this._challenge) {
+      var lv = challenge.levelAt(this._gradeKey, this._level);
+      if (lv) {
+        this._roundQ = challenge.paramsOf(this._gradeKey, lv.mode).count || lib.ROUND_Q;
+        this._challengeLabel = challenge.labelOf(this._gradeKey) + ' · 挑战第 ' + this._level + '/' + challenge.LEVELS_PER_GRADE + ' 关';
+      }
+      this._rng = rng.makeRng(parseInt(opt.seed, 10) || challenge.seedOf(this._gradeKey, this._level));
+      this._challengeKey = this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level;
+    }
+    this.setData({
+      best: storage.get(BEST_KEY) || 0,
+      challenge: this._challenge,
+      challengeKey: this._challengeKey,
+      challengeLabel: this._challengeLabel
+    });
     this._buildPool();
     this.start();
   },
@@ -59,19 +88,20 @@ Page({
 
   // 幼儿园/小学低年级没成语词条，靠 mergePools 自动并入其他学段
   _buildPool: function () {
-    var last = storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34';
+    var last = this._gradeKey || storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34';
     var primary = dict.loadByGrade(last);
     var others = [];
     CONST.GRADES.forEach(function (gr) {
       if (gr.key === last) return;
       others = others.concat(dict.loadByGrade(gr.key));
     });
-    this._pool = lib.mergePools(primary, others, MODE, lib.ROUND_Q);
+    this._pool = lib.mergePools(primary, others, MODE, this._roundQ || lib.ROUND_Q);
   },
 
   start: function () {
     this._clearTimers();
-    this._queue = lib.pickQuestions(this._pool, lib.ROUND_Q);
+    // 挑战关卡：题量按学段参数、出题用关卡种子；自由玩：引擎默认 + 真随机
+    this._queue = lib.pickQuestions(this._pool, this._roundQ || lib.ROUND_Q, this._rng || undefined);
     this._qi = 0;
     this._lives = lib.LIVES;
     this._score = 0;
@@ -89,7 +119,9 @@ Page({
     var item = this._queue[this._qi];
     var answer = String(item.a);
     this._cur = item;
-    this._tiles = lib.makeTiles(answer, lib.noiseChars(this._pool, answer, lib.EXTRA_TILES));
+    // 挑战关卡：干扰字与字块打乱也走关卡种子（同一关题面完全一致）
+    this._tiles = lib.makeTiles(answer, lib.noiseChars(this._pool, answer, lib.EXTRA_TILES, this._rng || undefined),
+      this._rng || undefined);
     this._slots = lib.makeSlots(answer.length);
     this._locked = false;
     this.setData({
@@ -201,19 +233,42 @@ Page({
   _finish: function (cleared) {
     this._clearTimers();
     var total = this._queue.length;
-    var stars = lib.starsFor(this._right, total);
+    // 只有答完全部题目才计星；命耗尽判负不发星（与字母射击一致）
+    var stars = cleared ? lib.starsFor(this._right, total) : 0;
     var best = this.data.best;
     if (this._score > best) {
       best = this._score;
       storage.set(BEST_KEY, best);
     }
     var msg = lib.resultText(this._right, total, this._score, this._hintLeft) + '\n最高分 ' + best;
+    if (this._challenge) {
+      msg = this._challengeLabel + '\n' + msg + (cleared ? '' : '\n（生命耗尽，本关不计星）');
+      this._saveChallenge(stars, total);
+    }
     this.setData({
       settle: true,
       win: stars >= 1,
       starsText: stars > 0 ? '⭐'.repeat(stars) : '',
       overMsg: msg,
       best: best
+    });
+  },
+
+  /**
+   * 挑战关卡结算：写挑战星级（取历史最大值）+ 上报本局成绩（game_type=idiom，
+   * 供「玩法进度榜」与玩法类成就使用）。自由玩不写进度。
+   */
+  _saveChallenge: function (stars, total) {
+    if (!this._challenge || !this._gradeKey || !this._level) return;
+    storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
+    playReport.reportPlay({
+      gameType: challenge.gameTypeOf('idiom'),
+      grade: this._gradeKey,
+      level: this._level,
+      score: this._score,
+      correct: this._right,
+      total: total,
+      stars: stars
     });
   },
 

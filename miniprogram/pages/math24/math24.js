@@ -15,6 +15,7 @@
 // —— 像 8 ÷ (3 − 8 ÷ 3) 这种题必须靠分数中间结果才算得对。
 var m24 = require('../../game/math24');
 var storage = require('../../utils/storage');
+var playReport = require('../../utils/play-report');
 
 // 固定关卡库（60 关）：data/math24-levels.js，自动生成、每关保证有解
 var LEVELS = require('../../data/math24-levels').levels;
@@ -224,6 +225,16 @@ Page({
     var s = this.data.steps;
     var stars = s <= 4 ? 3 : (s <= 6 ? 2 : 1);
     storage.saveStars('math24', this.data.curLevel, stars);
+    // 上报本局成绩（game_type=math24）：供「玩法进度榜」与玩法类成就使用
+    playReport.reportPlay({
+      gameType: 'math24',
+      grade: 'all',
+      level: this.data.curLevel,
+      score: Math.max(0, 100 - this.data.steps * 10),
+      correct: 1,
+      total: 1,
+      stars: stars
+    });
     var next = Math.min(this.data.curLevel + 1, LEVELS.length);
     storage.set('ww_math24_cur', next);
     this.setData({

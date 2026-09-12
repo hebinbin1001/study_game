@@ -34,6 +34,8 @@ function fullStats() {
       grade: 'g' + (i % 6),
       level: (i % 10) + 1,
       score: 100,
+      // 轮换玩法维度：覆盖「各玩法通关次数」类成就（P2 新增的 4 张图）
+      game_type: ['word_warrior', 'snake', 'math24', 'sudoku', 'memory'][i % 5],
       correct_count: 10,
       total_q: 10,
       max_combo: 10,
@@ -196,6 +198,24 @@ s.test('statsFrom：错题/签到/段位/自定义关卡口径', () => {
   s.assert.equal(st.streakMax, 3, '取最长连续天数');
   s.assert.equal(st.checkinTotal, 2);
   s.assert.equal(st.customLevels, 2);
+});
+
+s.test('statsFrom：按 game_type 统计各玩法通关次数（P2 玩法类成就的口径）', () => {
+  const st = achievements.statsFrom({
+    scores: [
+      { game_type: 'snake', stars: 2 },
+      { game_type: 'snake', stars: 3 },
+      { game_type: 'snake', stars: 0 },   // 没通关（0 星）不算
+      { game_type: 'sudoku', stars: 1 },
+      { game_type: 'math24', stars: 3 },
+      { game_type: 'memory', stars: 1 },
+      { game_type: 'word_warrior', stars: 3 },
+    ],
+  });
+  s.assert.equal(st.snakeClears, 2, '贪吃蛇通关 2 次（0 星那局不算）');
+  s.assert.equal(st.sudokuClears, 1);
+  s.assert.equal(st.math24Clears, 1);
+  s.assert.equal(st.memoryClears, 1);
 });
 
 // ============ 5. evaluate ============

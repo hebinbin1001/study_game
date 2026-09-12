@@ -3,6 +3,7 @@
 // 全对过关，逐关多亮一格、展示更短。进度本地存档（固定玩法不计入字词进度）。
 var lib = require('../../game/memory-grid');
 var storage = require('../../utils/storage');
+var playReport = require('../../utils/play-report');
 
 Page({
   data: {
@@ -142,6 +143,18 @@ Page({
     var stars = lib.starsFor(cleared);
     var best = storage.get('ww_memory_best') || 0;
     if (cleared > best) { best = cleared; storage.set('ww_memory_best', best); }
+    // 上报本局成绩（game_type=memory）：供「玩法进度榜」与玩法类成就使用
+    if (stars > 0) {
+      playReport.reportPlay({
+        gameType: 'memory',
+        grade: 'all',
+        level: Math.max(1, cleared),
+        score: this._score || 0,
+        correct: Math.max(0, cleared),
+        total: cleared,
+        stars: stars
+      });
+    }
     this.setData({
       locked: true,
       settle: true,

@@ -37,9 +37,11 @@ s.test('编排：三款玩法各 10 关，第 1 关固定字母射击', () => {
     const rows = challenge.levelsOf(g);
     const count = {};
     rows.forEach(function (r) { count[r.mode] = (count[r.mode] || 0) + 1; });
-    s.assert.equal(count.shoot, 10, g + ' 字母射击应 10 关');
-    s.assert.equal(count.wordBuild, 10, g + ' 字母拼词应 10 关');
-    s.assert.equal(count.link, 10, g + ' 词语连连看应 10 关');
+    // P2：6 款玩法轮换，30 关 → 每款各 5 关
+    ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'].forEach(function (m) {
+      s.assert.equal(count[m], 5, g + ' 玩法「' + m + '」应 5 关');
+    });
+    s.assert.equal(Object.keys(count).length, 6, g + ' 主线应恰好 6 款玩法');
     s.assert.equal(rows[0].mode, 'shoot', g + ' 第 1 关应为字母射击（新手关）');
   });
 });
@@ -52,7 +54,8 @@ s.test('编排：相邻两关不重复同一玩法（节奏轮换）', () => {
 });
 
 s.test('模板只使用已支持挑战参数的玩法（防止半成品玩法进主线卡关）', () => {
-  const supported = ['shoot', 'wordBuild', 'link'];   // P1 已接入的三款
+  // P2 已接入 6 款：字母射击 / 消消乐 / 字母拼词 / 连连看 / 成语拼字 / 贪吃蛇
+  const supported = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'];
   challenge.TEMPLATE.forEach(function (row) {
     s.assert.ok(supported.indexOf(row.mode) !== -1,
       '第 ' + row.level + ' 关的玩法「' + row.mode + '」还没支持按关卡参数开局，不能进主线');
@@ -63,9 +66,10 @@ s.test('模板只使用已支持挑战参数的玩法（防止半成品玩法进
 
 // ============ 2. 按年级生成不同关卡 ============
 s.test('按学段实例化：玩法相同、题量随学段变化', () => {
-  const k = challenge.levelAt('kindergarten', 2);
-  const j = challenge.levelAt('junior', 2);
+  const k = challenge.levelAt('kindergarten', 3);   // 第 3 关 = 字母拼词
+  const j = challenge.levelAt('junior', 3);
   s.assert.equal(k.mode, j.mode, '同一关卡号玩法应一致');
+  s.assert.equal(k.mode, 'wordBuild');
   s.assert.equal(challenge.paramsOf('kindergarten', 'wordBuild').count, 6);
   s.assert.equal(challenge.paramsOf('junior', 'wordBuild').count, 10);
   s.assert.notEqual(k.sub, j.sub, '副标题应体现学段差异');
@@ -82,12 +86,12 @@ s.test('关卡描述字段齐备且越界返回 null', () => {
 });
 
 s.test('跳转 URL 带齐 challenge/grade/level/seed', () => {
-  const lv = challenge.levelAt('primary12', 3);
+  const lv = challenge.levelAt('primary12', 4);      // 第 4 关 = 词语连连看
   const url = challenge.pageUrl(lv, 'primary12');
   s.assert.contains(url, '/pages/link/link?');
   s.assert.contains(url, 'challenge=1');
   s.assert.contains(url, 'grade=primary12');
-  s.assert.contains(url, 'level=3');
+  s.assert.contains(url, 'level=4');
   s.assert.contains(url, 'seed=' + lv.seed);
 });
 
@@ -124,7 +128,7 @@ s.test('取题：题量按需、超出题库时返回实际数量', () => {
 });
 
 s.test('取题：分类限定只出该类题', () => {
-  const items = challenge.pickItems('primary34', 4, 8, 'idiom');
+  const items = challenge.pickItems('primary34', 5, 8, 'idiom');
   s.assert.ok(items.length > 0, '该学段应有成语题');
   items.forEach(function (it) {
     s.assert.ok(constants.isItemInGroup(it, 'idiom'), '应只出成语：' + it.q);
@@ -177,11 +181,10 @@ s.test('迁移：旧字母射击星级搬到主线对应关，且幂等', () => 
   mem.__stars = { 'kindergarten_1': 3, 'kindergarten_2': 2, 'junior_10': 1 };
 
   s.assert.equal(challenge.migrateStars(fake), true, '首次应执行迁移');
-  const slots = challenge.levelsOfMode('kindergarten', 'shoot');
-  s.assert.equal(mem.__stars['kindergarten@challenge@' + slots[0]], 3, '旧第 1 关 → 主线第 1 个字母射击关');
-  s.assert.equal(mem.__stars['kindergarten@challenge@' + slots[1]], 2, '旧第 2 关 → 主线第 2 个字母射击关');
-  const jSlots = challenge.levelsOfMode('junior', 'shoot');
-  s.assert.equal(mem.__stars['junior@challenge@' + jSlots[9]], 1, '旧第 10 关 → 主线第 10 个字母射击关');
+  // 旧 10 关按序号平移到主线第 1~10 关（P2 后每款玩法只有 5 关，按玩法槽位映射会丢 6~10 关）
+  s.assert.equal(mem.__stars['kindergarten@challenge@1'], 3, '旧第 1 关 → 主线第 1 关');
+  s.assert.equal(mem.__stars['kindergarten@challenge@2'], 2, '旧第 2 关 → 主线第 2 关');
+  s.assert.equal(mem.__stars['junior@challenge@10'], 1, '旧第 10 关 → 主线第 10 关');
   s.assert.equal(challenge.migrateStars(fake), false, '第二次调用应跳过（幂等）');
 });
 

@@ -249,7 +249,9 @@ H.runSuite('verify-link（词语连连看）', async function (miniProgram, ck) 
       }
       reshuffles++;
       console.log('        [info] 当前牌面无解 → 点「换局」重排（第 ' + reshuffles + ' 次）');
-      const reshuffle = await page.$('.lk-grade');
+      // 注意：头部右侧的「换局」胶囊在 2026-09-12 视觉统一后类名由 .lk-grade 改为共享类 .g-chip；
+      // 这里两个都试，避免以后换类名再让用例时好时坏（只在无解牌面时才走到这一步，很容易被忽略）。
+      const reshuffle = (await page.$('.g-chip')) || (await page.$('.lk-grade'));
       if (!reshuffle) break;
       await reshuffle.tap();
       await page.waitFor(900);

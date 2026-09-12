@@ -8,8 +8,7 @@ var storage = require('../../utils/storage');
 var CONST = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
-var auth = require('../../utils/auth');
-var request = require('../../utils/request');
+var playReport = require('../../utils/play-report');
 
 var MODE = 'letter';
 var BEST_KEY = 'ww_word_build_best';
@@ -261,11 +260,16 @@ Page({
   _saveChallengeStars: function (stars) {
     if (!this._challenge || !this._gradeKey || !this._level) return;
     storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
-    if (stars > 0 && auth.isLoggedIn()) {
-      request.post('/api/rank/sync', { stars: stars }).catch(function () {
-        // 静默：网络失败下次通关自动补
-      });
-    }
+    // 统一上报（成绩 + 段位）：game_type=word_build，供玩法进度榜与玩法类成就使用
+    playReport.reportPlay({
+      gameType: challenge.gameTypeOf('wordBuild'),
+      grade: this._gradeKey,
+      level: this._level,
+      score: this._score,
+      correct: this._right,
+      total: this._queue.length,
+      stars: stars
+    });
   },
 
   onRetry: function () { this.start(); },
