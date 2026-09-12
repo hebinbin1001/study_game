@@ -26,6 +26,9 @@ const DEVTOOLS_DIR = process.env.WX_DEVTOOLS_DIR
   || 'D:\\Program Files (x86)\\Tencent\\微信web开发者工具';
 const NODE_EXE = path.join(DEVTOOLS_DIR, 'node.exe');
 const CLI_JS = path.join(DEVTOOLS_DIR, 'cli.js');
+// 2026-09 工具更新后：安装目录里不再自带 node.exe，改由 cli.bat 用 Electron 以 Node 模式跑 CLI。
+// 两种布局都支持，老机器（有 node.exe + cli.js）继续走老路。
+const CLI_BAT = path.join(DEVTOOLS_DIR, 'cli.bat');
 const PROJECT_PATH = path.resolve(__dirname, '..', '..', 'miniprogram');
 const AUTO_PORT = 3799;
 
@@ -38,16 +41,39 @@ function sleepSync(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 }
 
+/** 老布局：node.exe + cli.js */
+function hasLegacyCli() {
+  return fs.existsSync(NODE_EXE) && fs.existsSync(CLI_JS);
+}
+
+/** 新布局：cli.bat（Electron 当 Node 跑） */
+function hasBatCli() {
+  return fs.existsSync(CLI_BAT);
+}
+
 /** 判断工具是否装在本机（缺了就让调用方自己决定报错还是跳过） */
 function isAvailable() {
-  return fs.existsSync(NODE_EXE) && fs.existsSync(CLI_JS);
+  return hasLegacyCli() || hasBatCli();
+}
+
+/**
+ * 拼出执行 CLI 的命令行。
+ *
+ * 为什么不直接 spawn cli.bat：Windows 上 Node 22 spawn .bat 会报 EINVAL（踩过），
+ * 走 `cmd.exe /c cli.bat` 最稳；老布局则继续用自带 node.exe 直接跑 cli.js。
+ */
+function cliCommand(args) {
+  if (hasLegacyCli()) return { cmd: NODE_EXE, argv: [CLI_JS].concat(args) };
+  if (hasBatCli()) return { cmd: process.env.ComSpec || 'cmd.exe', argv: ['/c', CLI_BAT].concat(args) };
+  return null;
 }
 
 /** 执行 cli 子命令（异步，返回退出码；工具缺失/异常一律返回 -1） */
 function runCli(args) {
   return new Promise(function (resolve) {
-    if (!isAvailable()) return resolve(-1);
-    const child = spawn(NODE_EXE, [CLI_JS].concat(args), { stdio: 'ignore' });
+    const c = cliCommand(args);
+    if (!c) return resolve(-1);
+    const child = spawn(c.cmd, c.argv, { stdio: 'ignore' });
     child.on('error', function () { resolve(-1); });
     child.on('exit', function (code) { resolve(code); });
   });
@@ -55,9 +81,10 @@ function runCli(args) {
 
 /** 关闭开发者工具（同步、尽力而为：没开着也算成功） */
 function quitSync(timeoutMs) {
-  if (!isAvailable()) return false;
+  const c = cliCommand(['quit']);
+  if (!c) return false;
   try {
-    spawnSync(NODE_EXE, [CLI_JS, 'quit'], {
+    spawnSync(c.cmd, c.argv, {
       stdio: 'ignore',
       timeout: timeoutMs == null ? 60000 : timeoutMs
     });
@@ -71,9 +98,13 @@ module.exports = {
   DEVTOOLS_DIR: DEVTOOLS_DIR,
   NODE_EXE: NODE_EXE,
   CLI_JS: CLI_JS,
+  CLI_BAT: CLI_BAT,
   PROJECT_PATH: PROJECT_PATH,
   AUTO_PORT: AUTO_PORT,
   isAvailable: isAvailable,
+  hasLegacyCli: hasLegacyCli,
+  hasBatCli: hasBatCli,
+  cliCommand: cliCommand,
   runCli: runCli,
   quitSync: quitSync,
   sleep: sleep,

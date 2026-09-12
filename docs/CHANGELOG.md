@@ -30,6 +30,17 @@
   ① 服务端为每个可手动解锁类型都有判定分支；② 前端文案覆盖同一套类型；③ 皮肤目录里出现的 unlockType 必须都被支持
   （否则就是「解锁不了的死皮肤」）。
 
+### 适配开发者工具新版（node.exe 消失 / 服务端口被重置）
+
+- 用户更新工具后，安装目录里**不再有 `node.exe`**：CLI 入口改成 `cli.bat`
+  （内部 `ELECTRON_RUN_AS_NODE=1` 用 Electron 当 Node 跑 `resources/.../cli/index.js`）。
+  之前 `e2e/lib/devtools.js`、`e2e/probe-callcontainer.js` 都硬编码 `node.exe` + `cli.js`，
+  更新后直接失效。
+- 修法：`devtools.js` 同时兼容两种布局（有 `node.exe` 走老路；否则 `cmd.exe /c cli.bat`，
+  避开 Node 22 spawn `.bat` 的 EINVAL），`probe-callcontainer.js` 改为复用该模块。
+- 另一个坑：更新会**重置「服务端口」开关**，CLI 报「工具的服务端口已关闭」→
+  需手动到 工具 → 设置 → 安全设置 打开（已写进 `AGENTS.md` 第 5 节）。
+
 ### 打包目录清理：单测整体搬出 `miniprogram/`（用户要求「打包目录不要随便放东西」）
 
 - 约定（已写进 `AGENTS.md` 第 6 节）：**`miniprogram/` 只放会被打进包的运行时代码**，

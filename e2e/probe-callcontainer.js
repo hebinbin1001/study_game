@@ -20,23 +20,20 @@
 const { spawn } = require('child_process');
 const automator = require('miniprogram-automator');
 
-const NODE_EXE = 'D:\\Program Files (x86)\\Tencent\\微信web开发者工具\\node.exe';
-const CLI_JS = 'D:\\Program Files (x86)\\Tencent\\微信web开发者工具\\cli.js';
-const PROJECT_PATH = 'E:\\Code\\小程序\\study_game\\miniprogram';
-const AUTO_PORT = 3799;
+// 工具路径与 cli 调用统一走 lib/devtools（2026-09 工具更新后 node.exe 没了，
+// 改成 cli.bat + Electron；这里跟着换，别再硬编码）
+const devtools = require('./lib/devtools');
+const PROJECT_PATH = devtools.PROJECT_PATH;
+const AUTO_PORT = devtools.AUTO_PORT;
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
 function runCli(args) {
-  return new Promise((resolve) => {
-    const child = spawn(NODE_EXE, [CLI_JS, ...args], { stdio: 'ignore' });
-    child.on('error', (e) => {
-      console.error('spawn cli error:', e.message);
-      resolve(-1);
-    });
-    child.on('exit', (code) => resolve(code));
+  return devtools.runCli(args).then((code) => {
+    if (code === -1) console.error('spawn cli error（检查 WX_DEVTOOLS_DIR / cli.bat）');
+    return code;
   });
 }
 
