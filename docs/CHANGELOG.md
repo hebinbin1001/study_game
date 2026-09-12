@@ -5,6 +5,39 @@
 
 ---
 
+## 2026-09-12（修 UI：按钮里的文字贴顶）
+
+> 用户反馈：「发现一个 UI 界面按钮里面的字展示问题，很多都靠上」。
+
+**根因（两件事叠加）**
+
+1. 小程序原生 `<button>` 自带 `line-height: 2.55555556`（≈46px），比多数按钮的 height 还高；
+2. `app.wxss` 里那条重置写的是 `button.btn { line-height: inherit }` —— 父容器没设行高时它会退化成 `normal`。
+
+于是**凡是「设了 height 但没写 line-height」的按钮**就会文字贴顶，涉及各页的
+`.btn-back`（checkin / wrong-review / avatar）、`.btn-use` / `.btn-unlock`（avatar）、
+`.check-pill`（achievement）、`.btn-save` / `.btn-submit`（level-editor）、`.btn-copy` / `.btn-import` / `.btn-start`（level-share）等。
+
+**修复**
+
+- `app.wxss` 增加全局按钮重置：`button { display:flex; align-items:center; justify-content:center; line-height:1.2; }`
+  —— 不论按钮多高、字号多大，文字都在正中；页面里已经写了 `line-height = height` 的按钮不受影响（两者等效）。
+- 去掉 `button.btn` 的 `line-height: inherit`；`::after` 边框一次性全局去掉（原来每个页面各写一遍）。
+
+**回归护栏**（`e2e/check-wxss.js` 新增两项，属于静态阶段）
+
+1. 任何 `button` 规则里出现 `line-height: inherit|normal` → 直接失败（已用旧写法验证过「会被拦下」）；
+2. `app.wxss` 必须保留全局按钮居中规则（缺 `display:flex` 或 `align-items:center` 即失败）。
+
+另用脚本全量扫过一遍「圆角 + 居中文字 + 固定高度但没垂直居中」的规则：修复后**0 处**。
+
+> 说明：本机的模拟器截图接口会挂（多次尝试都超时），所以这次没能附上前后对比图；
+> 请你在开发者工具里过一眼确认观感（重点看：各页返回按钮、头像页的「使用/解锁」、成就页「检查」、关卡编辑器底部两个按钮）。
+
+验证：`node e2e/run-all.js` 全量 13/13 通过（409.3s）。
+
+---
+
 ## 2026-09-12（素材方案①落地：展示尺寸压缩 + 原图移出包，整包 32.5MB → 1.47MB）
 
 > 用户拍板选方案①：端上只留展示尺寸，原图移出包不参与打包。

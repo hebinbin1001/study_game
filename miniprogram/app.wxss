@@ -71,15 +71,31 @@ page {
   transition: transform 0.12s;
 }
 
-/* 重置小程序 button 默认样式（对齐自定义 .btn 风格） */
+/**
+ * 重置小程序原生 <button> —— 关键修复（2026-09-12 用户反馈「很多按钮里的字靠上」）：
+ *
+ * 原生 button 自带 `line-height: 2.55555556`（≈46px）；而这里原来写的是 `line-height: inherit`，
+ * 父容器没设行高时它会退化成 `normal`。两种情况都会让「设了 height 但没写 line-height」的按钮
+ * 里文字贴顶（各页的 .btn-back / .btn-use / .check-pill 等都是这一类）。
+ *
+ * 统一改成 flex 垂直居中：不论按钮多高、字号多大，文字都在正中。
+ * 页面里已经写了 `line-height: <height>` 的按钮不受影响（两者效果一致）。
+ */
+button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+button::after {
+  border: none;
+}
+
+/* 自定义 .btn 风格（去掉原生内边距/外边距，颜色由 .btn-xxx 决定） */
 button.btn {
   padding: 0;
   margin: 0;
-  line-height: inherit;
   background: #ffb703;
-}
-button.btn::after {
-  border: none;
 }
 .btn:active {
   transform: translateY(6rpx);

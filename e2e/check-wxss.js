@@ -69,5 +69,42 @@ for (const file of files) {
   }
 }
 
+// ============ 3) 按钮文字垂直居中护栏（2026-09-12 用户反馈「按钮里的字靠上」） ============
+//
+// 根因：小程序原生 <button> 默认 line-height: 2.55555556（≈46px），而 app.wxss 里曾写
+// `button.btn { line-height: inherit }` —— 父容器没设行高时会退化成 normal。
+// 两者都会让「设了 height 但没写 line-height」的按钮文字贴顶。
+// 这里守两条：① 不许再出现 line-height: inherit/normal 的 button 规则；
+//            ② app.wxss 必须保留全局 button 居中规则（display:flex + align-items:center）。
+{
+  const appSrc = fs.readFileSync(path.join(ROOT, 'app.wxss'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const globalRule = /(^|\n)\s*button\s*\{([^}]*)\}/.exec(appSrc);
+  if (!globalRule) {
+    console.log('[FAIL] app.wxss: 缺少全局 button 居中规则（button { display:flex; align-items:center; }）');
+    bad++;
+  } else {
+    const body = globalRule[2];
+    if (!/display:\s*flex/.test(body) || !/align-items:\s*center/.test(body)) {
+      console.log('[FAIL] app.wxss: 全局 button 规则必须同时有 display:flex 与 align-items:center（否则按钮文字会贴顶）');
+      bad++;
+    }
+  }
+
+  for (const file of files) {
+    const src = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const rel = path.relative(ROOT, file);
+    const re = /([^{}]*button[^{}]*)\{([^{}]*)\}/gi;
+    let m;
+    while ((m = re.exec(src))) {
+      const body = m[2];
+      if (/line-height:\s*(inherit|normal)/.test(body)) {
+        console.log('[FAIL] ' + rel + ': button 规则里不能用 line-height: inherit/normal'
+          + '（父级没设行高/正常行高会让按钮文字贴顶），请改用 display:flex + align-items:center 或 line-height 等于 height');
+        bad++;
+      }
+    }
+  }
+}
+
 console.log(bad === 0 ? '全部 ' + files.length + ' 个 wxss 检查通过。' : '共发现 ' + bad + ' 处问题。');
 process.exit(bad === 0 ? 0 : 1);
