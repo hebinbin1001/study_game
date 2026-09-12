@@ -30,6 +30,19 @@
   ① 服务端为每个可手动解锁类型都有判定分支；② 前端文案覆盖同一套类型；③ 皮肤目录里出现的 unlockType 必须都被支持
   （否则就是「解锁不了的死皮肤」）。
 
+### 线上 DDL 执行完毕：皮肤目录 23 → 28 全部上架
+
+- 用户执行 `ALTER TABLE avatars MODIFY COLUMN unlockType ENUM(...,'milestone')` 后，
+  服务端自愈（`ensureAvatarRoster`）自动补入缺的 5 行：`/api/health` 报
+  `avatars: 28 / roster: {ok:true, total:28, created:5, failed:[]}`（此前是 23 + 5 条 `Data truncated`）。
+- `GET /api/avatar/list` 实测 **战士 24 + 怪兽 4 = 28**，5 套 `milestone_*` 都在列表里且仍**禁止手动解锁**
+  （返回「该皮肤需每日一题连续签到达到天数后自动解锁」，符合设计）。
+- 冒烟护栏收紧：`e2e/smoke-api.js` 的战士皮肤下限从 19 → **24**，
+  并新增「`milestone_30`/`milestone_365` 必须在列表里」，14/14 通过 —— 再掉回去就说明 ENUM 或自愈又坏了。
+- 记录一个容易误判的历史遗留：seed 里 12 条的 `icon` 指向包内不存在的 `/assets/avatars/*.png`，
+  但端上从不读这个字段（`pages/avatar` 用 `utils/skins.js` 的本地图），故无空图问题；
+  且 `ensureAvatarRoster` 是 `findOrCreate`，改 seed 不会更新线上已有行，别贸然去「修」。
+
 ### 资源包体：图片/音频单文件不超过 200KB（用户 2026-09-12 明确要求）
 
 - `e2e/check-assets.js` 补齐音频扫描（`.mp3/.wav/.m4a/.aac/.ogg/.wma/.flac/.amr`），

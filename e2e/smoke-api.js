@@ -211,12 +211,19 @@ function judgeCase(c, anon, auth) {
       problems.push("avatar list missing warriors/monsters arrays");
     } else {
       // 代码里共 24 套战士皮肤 = 4 旧 id + 15 新增 + 5 里程碑。
-      // 里程碑那 5 套依赖生产库 avatars.unlockType 的 ENUM 补上 'milestone'
-      // （见 docs/项目进展与待办.md「待执行线上 DDL」），补之前线上是 19 套 —— 这里取 19 作为下限。
-      if (w.length < 19) {
-        problems.push("expected >=19 warrior skins, got " + w.length
-          + " (5 milestone ones also need the unlockType ENUM DDL)");
+      // 里程碑那 5 套曾因生产库 avatars.unlockType 的 ENUM 缺 'milestone' 插不进去，
+      // 2026-09-12 用户执行 DDL 后已全部上架（线上 24 战士 + 4 怪兽 = 28 条），
+      // 所以下限直接按 24 卡死 —— 再掉回去就说明 ENUM 或自愈又坏了。
+      if (w.length < 24) {
+        problems.push("expected >=24 warrior skins, got " + w.length
+          + " (check the avatars.unlockType ENUM: stars/rank/level/free/milestone)");
       }
+      // 里程碑皮肤必须在列表里（它们是「每日一题连续签到」的奖励，缺了玩家看不到）
+      ["milestone_30", "milestone_365"].forEach(function (id) {
+        if (!w.some(function (a) { return a.avatarId === id; })) {
+          problems.push("milestone skin missing on server (" + id + ")");
+        }
+      });
       if (m.length < 4) problems.push("expected >=4 monster skins, got " + m.length);
       if (!w.some((a) => a.avatarId === "skin-fox-scout")) {
         problems.push("new skin missing on server (skin-fox-scout)");
