@@ -118,6 +118,21 @@ s.test('getMonsterSkin：正确返回怪兽皮肤', () => {
   s.assert.ok(!!skins.getWarriorSkin('warrior_01').image, 'getWarriorSkin 必须带上 image');
 });
 
+s.test('默认皮肤回退：没选过皮肤时也必须带 image（否则对局里只剩 emoji）', () => {
+  // 玩家从没主动选过皮肤时，storage.getBossSkin() 返回空串 → 走这里的默认回退。
+  // 2026-09-12 真机 bug：DEFAULT_MONSTER 手写漏了 image，于是**默认情况下怪兽立绘永远不显示**，
+  // 只有玩家去形象页选过一次才有图（由 verify-game 的「怪兽真图已被 canvas 解码」断言抓到）。
+  ['', undefined, null].forEach(function (bad) {
+    const m = skins.getMonsterSkin(bad);
+    s.assert.ok(!!m.image, '默认怪兽（入参 ' + JSON.stringify(bad) + '）必须带 image');
+    s.assert.equal(m.id, 'monster_01');
+    const w = skins.getWarriorSkin(bad);
+    s.assert.ok(!!w.image, '默认战士（入参 ' + JSON.stringify(bad) + '）必须带 image');
+  });
+  // 未知 id 走的也是同一个默认回退
+  s.assert.ok(!!skins.getMonsterSkin('not-exist').image, '未知 id 回退的默认怪兽也要带 image');
+});
+
 s.test('getWarriorSkin：未知 id / 怪兽 id 回退默认战士', () => {
   s.assert.equal(skins.getWarriorSkin('nope').id, 'warrior_01');
   s.assert.equal(skins.getWarriorSkin('monster_02').id, 'warrior_01');

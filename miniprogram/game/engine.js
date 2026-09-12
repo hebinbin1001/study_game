@@ -139,8 +139,9 @@ const engine = {
           this.renderOnce();
         };
         img.onerror = () => {
-          G.skinImages[kind] = { img: null, ready: false };
-          // 加载失败静默回退 emoji（不打断对局）
+          // 加载失败回退 emoji（不打断对局），但把失败信息留着 —— 排障时能直接看到
+          // 是「路径不对」还是「图坏了」（对外仍是静默回退，只是多了可观测字段）
+          G.skinImages[kind] = { img: null, ready: false, src: src, error: 'decode-failed' };
         };
         img.src = src;
       } catch (e) {

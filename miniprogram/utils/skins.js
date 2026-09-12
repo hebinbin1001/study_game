@@ -64,12 +64,22 @@ const SKIN_RENDER = {
   monster_04: { emoji: '⚡', color: '#ffc24d', image: '/assets/skins/monster_04.png' }   // 雷霆巨兽
 };
 
-// 默认（classic）皮肤：离线 / 未选择 / 未知 id 时的回退
+// 默认（classic）皮肤：离线 / 未选择 / 未知 id 时的回退。
+// ⚠️ 必须从 SKIN_RENDER 取字段（含 image）—— 曾经这里手写漏了 monster 的 image，
+// 导致「玩家没主动选过怪兽皮肤时」（storage 返回空串 → 走这个默认）对局里永远只有 emoji、
+// 真图加载不出来（2026-09-12 由 verify-game 的「怪兽真图已被 canvas 解码」断言抓到）。
 const DEFAULT_WARRIOR = {
-  id: 'warrior_01', emoji: '🔫', color: '#8D9AA5',
-  image: '/assets/skins/skin-recruit.png'
+  id: 'warrior_01',
+  emoji: SKIN_RENDER.warrior_01.emoji,
+  color: SKIN_RENDER.warrior_01.color,
+  image: SKIN_RENDER.warrior_01.image
 };
-const DEFAULT_MONSTER = { id: 'monster_01', emoji: '👾', color: '#ff8fae' };
+const DEFAULT_MONSTER = {
+  id: 'monster_01',
+  emoji: SKIN_RENDER.monster_01.emoji,
+  color: SKIN_RENDER.monster_01.color,
+  image: SKIN_RENDER.monster_01.image
+};
 
 // ============ 本地皮肤全量清单（离线兜底） ============
 // 与 server/seeders/avatar-seed.js 一一对应；后端不可达（离线/无 openid）时，

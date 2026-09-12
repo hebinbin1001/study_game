@@ -106,5 +106,41 @@ for (const file of files) {
   }
 }
 
+// ============ 护栏：不许出现「半成品深色模式」================
+//
+// 踩过的坑（2026-09-12 真机实测）：app.wxss 里曾有一段 @media (prefers-color-scheme: dark)，
+// 只把 page 底色改成近黑、文字改浅色，而各页面的卡片/渐变/按钮全是浅色主题 ——
+// 结果 18 个「没自带背景色、依赖 page 底」的页面在深色模式手机上整片发黑，内容看不清。
+// 开发者工具默认浅色，本地完全复现不出来，只能靠真机发现。
+//
+// 规则：要么**不做**深色模式（当前选择：卡通教育游戏统一浅色主题），
+//       要么**逐页做完整深色配色**并补深色截图回归 —— 不允许只改 page 底的半成品。
+{
+  for (const file of files) {
+    // 先剥掉注释：说明文字里会出现这句话（比如 app.wxss 里解释「为什么移除」的那段），不能误判
+    const src = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const rel = path.relative(ROOT, file);
+    if (/@media[^{]*prefers-color-scheme\s*:\s*dark/.test(src)) {
+      console.log('[FAIL] ' + rel + ': 检测到 prefers-color-scheme: dark —— 不允许再出现「只改 page 底」的'
+        + '半成品深色模式（真机上会让没有自带背景的页面整片发黑）。'
+        + '要支持深色模式请逐页做完整配色 + 深色截图回归；否则请移除该媒体查询。');
+      bad++;
+    }
+  }
+
+  // app.json 的 darkmode/themeLocation 同样是大杀器：一旦打开，微信会把导航栏与页面底
+  // 按系统深色模式切换（theme.json 的 dark 变体），而页面内容是浅色的 → 真机整片发黑。
+  const appJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'app.json'), 'utf8'));
+  if (appJson.darkmode) {
+    console.log('[FAIL] app.json: 不允许开启 darkmode —— 本项目统一浅色主题，'
+      + '开启后系统深色模式会让没有自带背景的页面整片发黑（2026-09-12 真机踩坑）。');
+    bad++;
+  }
+  if (appJson.themeLocation) {
+    console.log('[FAIL] app.json: themeLocation 仅用于深色主题，本项目不用；请一并移除。');
+    bad++;
+  }
+}
+
 console.log(bad === 0 ? '全部 ' + files.length + ' 个 wxss 检查通过。' : '共发现 ' + bad + ' 处问题。');
 process.exit(bad === 0 ? 0 : 1);

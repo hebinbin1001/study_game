@@ -68,45 +68,56 @@ async function main() {
     await sleep(8000);
 
     console.log('=== [2] probing callContainer connectivity ===');
-    const probe = await miniProgram.evaluate(async () => {
-      const request = require('/utils/request.js');
-      const out = {};
+    // 直接在小程序运行时里调 wx.cloud.callContainer（与 utils/request.js 同一条链路），
+    // 不用 require 模块、也不用 async/await —— 小程序的 evaluate 环境对 async 支持不稳
+    // （实测报错：await is only valid in async functions），这里统一用 Promise 链。
+    const probe = await miniProgram.evaluate(function () {
+      var ENV = 'prod-d6gnifjoe28cfd96f';
+      var SERVICE = 'express-g0hk';
 
-      // 1) 连通性：/api/health（无鉴权）
-      try {
-        const data = await request.get('/api/health', { skipAuth: true });
-        out.health = { ok: true, data: data };
-      } catch (e) {
-        out.health = { ok: false, message: e && e.message ? e.message : String(e) };
+      function call(path, method, data, extraHeader) {
+        return new Promise(function (resolve) {
+          var header = Object.assign({ 'X-WX-SERVICE': SERVICE, 'Content-Type': 'application/json' },
+            extraHeader || {});
+          wx.cloud.callContainer({
+            config: { env: ENV },
+            path: path,
+            method: method || 'GET',
+            header: header,
+            data: data || {},
+            timeout: 10000,
+            success: function (res) { resolve({ ok: true, statusCode: res.statusCode, body: res.data }); },
+            fail: function (err) {
+              resolve({ ok: false, errMsg: (err && err.errMsg) || '', errCode: (err && err.errCode) });
+            }
+          });
+        });
       }
 
-      // 2) 登录链路：dev_ 测试码（后端来源②，无需 WX_SECRET / 网关注入）
-      try {
-        const data = await request.post('/api/login', { code: 'dev_probe' });
-        out.login = {
-          ok: true,
-          data: {
-            hasToken: !!(data && data.token),
-            isNew: !!(data && data.isNew),
-            needProfile: !!(data && data.needProfile),
-            openid: (data && data.openid) || ''
-          }
-        };
-      } catch (e) {
-        out.login = { ok: false, message: e && e.message ? e.message : String(e) };
-      }
-
-      return out;
+      return call('/api/health').then(function (h) {
+        // dev_ 测试码走「后端来源②」，不依赖网关注入 openid —— 单独验证后端逻辑
+        return call('/api/login', 'POST', { code: 'dev_probe' }).then(function (l) {
+          // 真实登录链路：不带 code，靠云托管网关注入 x-wx-openid（真机走的就是这条）
+          return call('/api/login', 'POST', {}).then(function (g) {
+            return { health: h, login: l, gatewayLogin: g };
+          });
+        });
+      });
     });
 
     console.log('--- probe result ---');
     console.log(JSON.stringify(probe, null, 2));
 
-    const healthOk = probe && probe.health && probe.health.ok;
-    const loginOk = probe && probe.login && probe.login.ok;
+    const okOf = function (r) {
+      return !!(r && r.ok && r.body && r.body.code === 0);
+    };
+    const healthOk = okOf(probe && probe.health);
+    const loginOk = okOf(probe && probe.login);
+    const gatewayOk = okOf(probe && probe.gatewayLogin);
     console.log('--- verdict ---');
-    console.log('  callContainer 连通: ' + (healthOk ? 'PASS' : 'FAIL'));
-    console.log('  登录链路: ' + (loginOk ? 'PASS' : 'FAIL'));
+    console.log('  callContainer 连通（/api/health）: ' + (healthOk ? 'PASS' : 'FAIL'));
+    console.log('  登录链路（dev_ 测试码）: ' + (loginOk ? 'PASS' : 'FAIL'));
+    console.log('  登录链路（网关注入 openid，真机走这条）: ' + (gatewayOk ? 'PASS' : 'FAIL'));
 
     if (healthOk && loginOk) {
       console.log('VERDICT: PASS');

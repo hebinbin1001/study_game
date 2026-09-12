@@ -665,7 +665,13 @@ Page({
   _testSkinImage(kind) {
     var G = engine.getState() || {};
     var it = (G.skinImages || {})[kind || 'monster'];
-    return { ready: !!(it && it.ready), w: (it && it.w) || 0, h: (it && it.h) || 0 };
+    return {
+      ready: !!(it && it.ready),
+      w: (it && it.w) || 0,
+      h: (it && it.h) || 0,
+      src: (it && it.src) || '',           // 加载失败时记录/回显用（正常加载时为空）
+      error: (it && it.error) || ''
+    };
   },
 
   // ============ 暂停 / 继续 / 退出（R5） ============
