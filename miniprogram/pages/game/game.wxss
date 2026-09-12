@@ -26,7 +26,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8rpx;              /* 收紧：HUD 新增暂停按钮后仍需单行放下 */
+  /* 收紧：终关 Boss 是 **7 颗心 + 两位得分 + 第 12/15 题**，
+     实测 8rpx 间距 + 原字号会被挤到换行（命数胶囊裂成两行，见 e2e/preview-game.js 的 Boss 场景）。 */
+  gap: 6rpx;
   padding: 0 4rpx;
   box-sizing: border-box;
 }
@@ -36,11 +38,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 76rpx;
-  padding: 0 18rpx;   /* 一期：HUD 新增暂停按钮后需收紧，否则 5 颗心时整行放不下会换行 */
+  height: 72rpx;
+  padding: 0 14rpx;   /* 收紧：7 颗心 + 两位得分 + 第 12/15 题要能挤在一行 */
   border-radius: 38rpx;
   background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.08), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, 0.95),
+    0 6rpx 0 rgba(0, 0, 0, 0.08), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
 }
 
 /* 命数：粉色 ❤ 字符（token --pink） */
@@ -48,31 +51,36 @@
   font-size: 30rpx;
   font-weight: 900;
   color: var(--pink, #ff5d8f);
-  letter-spacing: 2rpx;
-  min-width: 100rpx;
+  letter-spacing: 0;
+  min-width: 88rpx;
+  /* 命数是关键信息：不许被压缩、不许换行（7 颗心时必须保持一行） */
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 /* 得分：墨色粗体（token --ink，白底上用深色保证对比度） */
 .hud-score {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 900;
   color: var(--ink, #3a3a5c);
+  white-space: nowrap;
 }
 
 /* 题号：次级灰蓝粗体（token --text-sub） */
 .hud-qnum {
-  font-size: 24rpx;
+  font-size: 22rpx;
   font-weight: 800;
   color: var(--text-sub, #5c7f9e);
-  min-width: 150rpx;
+  min-width: 120rpx;
+  white-space: nowrap;
 }
 
 /* 声音开关：窄胶囊（喇叭切换，catchtap） */
 /* 图标型胶囊（声音 / 暂停）：定宽紧凑，排在 HUD 右侧 */
 .hud-icon {
-  width: 64rpx;
+  width: 60rpx;
   padding: 0;
-  font-size: 32rpx;
+  font-size: 28rpx;
   flex-shrink: 0;
 }
 
@@ -193,7 +201,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.18), 0 24rpx 44rpx rgba(0, 0, 0, 0.14);
+  /* 与棋盘/卡牌同一套材质（需求⑥ 二期）：顶部内高光 + 底部硬阴影 + 环境投影，
+     底色由下面的 .cN 用渐变给（两类的选择器，特异性高于本行，不会被覆盖） */
+  box-shadow: inset 0 3rpx 0 rgba(255, 255, 255, 0.5),
+    0 12rpx 0 rgba(0, 0, 0, 0.18), 0 24rpx 44rpx rgba(0, 0, 0, 0.14);
+  text-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.16);
   transition: transform 0.06s, box-shadow 0.06s, opacity 0.15s;
 }
 
@@ -212,7 +224,7 @@
 /* 按下效果：下沉 + 阴影收缩 */
 .option:active {
   transform: translateY(6rpx);
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 3rpx 0 rgba(255, 255, 255, 0.5), 0 4rpx 0 rgba(0, 0, 0, 0.18);
 }
 
 /* 已用（选错）的选项置灰禁用 */
@@ -235,12 +247,13 @@
   box-shadow: 0 12rpx 0 #a52f33, 0 24rpx 44rpx rgba(0, 0, 0, 0.18);
 }
 
-/* 5 种配色循环（对应原型 .char-btn.c0~c4，统一引用设计系统 token） */
-.option.c0 { background: var(--pink, #ff5d8f); }    /* 粉 */
-.option.c1 { background: var(--blue, #4cc9f0); }    /* 蓝 */
-.option.c2 { background: var(--orange, #ffb703); }  /* 橙 */
-.option.c3 { background: var(--green, #7bd389); }   /* 绿 */
-.option.c4 { background: var(--purple, #b388ff); }  /* 紫 */
+/* 5 种配色循环（对应原型 .char-btn.c0~c4）。
+   二期改成「上浅下深」两段渐变 = 糖果按钮的立体感，纯色块看上去太平。 */
+.option.c0 { background: linear-gradient(180deg, #ff86ad 0%, var(--pink, #ff5d8f) 62%); }    /* 粉 */
+.option.c1 { background: linear-gradient(180deg, #6fd8ff 0%, var(--blue, #4cc9f0) 62%); }    /* 蓝 */
+.option.c2 { background: linear-gradient(180deg, #ffc93d 0%, var(--orange, #ffb703) 62%); }  /* 橙 */
+.option.c3 { background: linear-gradient(180deg, #9ee2aa 0%, var(--green, #7bd389) 62%); }   /* 绿 */
+.option.c4 { background: linear-gradient(180deg, #c8a6ff 0%, var(--purple, #b388ff) 62%); }  /* 紫 */
 
 /* ============ 连击提示浮层 ============ */
 /* 连对 2/3/5 题时由 engine.onCombo 触发，800ms 自动消失（墨底金字，token --ink/--gold） */

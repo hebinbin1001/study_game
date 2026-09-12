@@ -74,6 +74,7 @@ node e2e/run-all.js --only=link
 | `smoke-api.js` / `probe-callcontainer.js` | 后端接口冒烟（需网络） |
 | `preview-boards.js` | **棋盘/卡牌视觉预览**：把真实 wxss 转成浏览器 CSS 渲染 6 个棋盘（见第六节末），产物在 `reports/preview/` |
 | `preview-monster.js` | **对局画面预览**：怪兽主体 + 题目名牌（4 只 × 4 状态），几何直接取自渲染层纯函数，不会与真机漂移 |
+| `preview-game.js` | **整屏预览**：HUD + 画布 + 提示 + 选项（含 Boss 7 命这种边界场景），用于对局界面视觉验收 |
 | `prepare-monsters.py` | 怪兽美术处理：切图 / 抠白底 / 裁头肩 / 压缩 |
 | `compress-assets.py` | 美术素材压缩（原图放 `assets-src/`，端上只留展示尺寸） |
 | `reports/` | 运行产物（已 gitignore，每次运行覆盖） |
