@@ -303,6 +303,30 @@ Page({
   },
 
   // ===== 触屏控制 =====
+  /**
+   * 点格子转向（用户 2026-09-12 提出：点蛇头的哪个方向就往那边走）。
+   *
+   * 取「蛇头 → 被点格子」的主轴方向作为目标方向（横竖谁的距离大听谁的），
+   * 再交给 _setDir —— 它会拦下 180° 反向，避免蛇直接撞进自己身体。
+   * 点蛇头所在格子不产生方向，忽略。
+   */
+  onCellTap: function (e) {
+    if (this.data.over) return;
+    var idx = parseInt(e.currentTarget.dataset.i, 10);
+    if (isNaN(idx) || !this._snake || !this._snake.length) return;
+    var head = this._snake[0];
+    var tr = Math.floor(idx / SIZE);
+    var tc = idx % SIZE;
+    var dr = tr - head.r;
+    var dc = tc - head.c;
+    if (dr === 0 && dc === 0) return;              // 点的是蛇头自己
+    if (Math.abs(dc) >= Math.abs(dr)) {
+      this._setDir(dc > 0 ? 1 : 3);                // 右 / 左
+    } else {
+      this._setDir(dr > 0 ? 2 : 0);                // 下 / 上
+    }
+  },
+
   onTouchStart: function (e) {
     var t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
     if (!t) return;

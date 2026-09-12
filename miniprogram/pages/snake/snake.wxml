@@ -36,11 +36,13 @@
       <view
         wx:for="{{cells}}"
         wx:key="index"
-        class="cell {{item.cls}}">{{item.ch || ''}}</view>
+        class="cell {{item.cls}}"
+        data-i="{{index}}"
+        catchtap="onCellTap">{{item.ch || ''}}</view>
     </view>
   </view>
 
-  <view class="foot-tip">🟢 应拼字母（吃它拼下一个） · 🔴 干扰字母（吃了扣命）</view>
+  <view class="foot-tip">👆 点蛇头的上/下/左/右，蛇就往那边走（也可滑动） · 🟢 应拼字母 · 🔴 干扰字母</view>
 
   <!-- 结算 -->
   <view wx:if="{{over}}" class="over-mask">
