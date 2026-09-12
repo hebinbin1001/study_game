@@ -34,6 +34,9 @@ const MINIPROGRAM = path.join(ROOT, 'miniprogram');
 const MAX_FILE_KB = 200;
 // 项目自留的更严目标：图片压到 60KB 以内，整包才留得住余量（只提醒，不阻断）
 const SOFT_IMAGE_KB = 60;
+// 微信上传检测项「图片和音频资源大小超过 200K」判的是**包内图片/音频的总量**，
+// 官方建议超过 200K 就把资源放 CDN、用 URL 引入 —— 这里把它做成硬校验。
+const MAX_MEDIA_TOTAL_KB = 200;
 const MAX_PACKAGE_MB = 1.8;
 const IMG_EXT = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
 const AUDIO_EXT = ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.wma', '.flac', '.amr'];
@@ -48,7 +51,10 @@ const FORBIDDEN_IN_PACKAGE = [
   { re: /(^|\/)__tests__(\/|$)/, why: '测试目录（单测已统一放在仓库根 tests/unit）' },
   { re: /\.test\.js$/, why: '测试文件' },
   { re: /(^|\/)assets-src(\/|$)/, why: '美术原图目录（应放仓库根 assets-src/，不参与打包）' },
-  { re: /(^|\/)(e2e|demo|tools)(\/|$)/, why: '工具/演示目录（应放打包路径以外）' }
+  { re: /(^|\/)(e2e|demo|tools)(\/|$)/, why: '工具/演示目录（应放打包路径以外）' },
+  // 微信的「图片和音频资源大小超过 200K」判的是**包内图片/音频总量**：
+  // 这两批图合计 ~429KB 占了大头，已移到仓库根 art/ 由云托管静态托管（端上按 URL 加载）。
+  { re: /(^|\/)assets\/(achievements|ranks)(\/|$)/, why: '成就图标/段位徽章（应放 art/，由云托管托管、URL 引入）' }
 ];
 
 function walk(dir, out) {
@@ -90,7 +96,7 @@ function main() {
     + '（其中图片 ' + images.length + ' 张 / ' + imageMB.toFixed(2) + ' MB'
     + '、音频 ' + audios.length + ' 个 / ' + audioMB.toFixed(2) + ' MB）');
   console.log('阈值：单个图片/音频 ≤ ' + MAX_FILE_KB + 'KB（硬限）、整包 ≤ ' + MAX_PACKAGE_MB + 'MB'
-    + '（微信主包 2MB 硬限）、图片建议 ≤ ' + SOFT_IMAGE_KB + 'KB');
+    + '（微信主包 2MB 硬限）、**包内图片/音频总量 ≤ ' + MAX_MEDIA_TOTAL_KB + 'KB**（微信上传检测项）');
 
   if (process.argv.indexOf('--list') !== -1) {
     console.log('');
@@ -103,6 +109,14 @@ function main() {
   const problems = [];
   if (totalMB > MAX_PACKAGE_MB) {
     problems.push('整包 ' + totalMB.toFixed(2) + ' MB，超过 ' + MAX_PACKAGE_MB + 'MB');
+  }
+  // 图片来源：mediaKB 在下方统计（图片 + 音频），这里先算总量
+  const mediaKB = list.filter((f) => f.isImage || f.isAudio)
+    .reduce((n, f) => n + f.size, 0) / 1024;
+  if (mediaKB > MAX_MEDIA_TOTAL_KB) {
+    problems.push('包内图片/音频总量 ' + mediaKB.toFixed(0) + 'KB，超过微信建议上限 '
+      + MAX_MEDIA_TOTAL_KB + 'KB（上传时会报「图片和音频资源大小超过 200K」）'
+      + '；该类资源请放 CDN/静态托管后用 URL 引入（见 utils/art.js 的做法）');
   }
   if (oversized.length) {
     problems.push('单个文件超过 ' + MAX_FILE_KB + 'KB 的有 ' + oversized.length + ' 个（图片/音频都不能超），例如：'

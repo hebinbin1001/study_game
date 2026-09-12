@@ -12,6 +12,7 @@
 var request = require('../../utils/request');
 var auth = require('../../utils/auth');
 var view = require('../../utils/achievement-view');
+var art = require('../../utils/art');
 
 Page({
   data: {
@@ -36,7 +37,12 @@ Page({
     self.setData({ loading: true });
 
     request.get('/api/achievement/list').then(function (data) {
-      var all = view.decorate(data || []);
+      // 成就图标不再打进代码包（微信的 200K 判定看的是包内图片总量），
+      // 后端给的是 /assets/achievements/<id>.png，这里统一转成云托管 URL 再渲染
+      var all = view.decorate(data || []).map(function (it) {
+        it.icon = art.artUrl(it.icon);
+        return it;
+      });
       var categories = view.buildCategories(all);
       var summary = view.summaryOf(all);
       var active = self.data.activeCategory || 'all';

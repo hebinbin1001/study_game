@@ -2,6 +2,7 @@
 var storage = require('../../utils/storage');
 var request = require('../../utils/request');
 var auth = require('../../utils/auth');
+var art = require('../../utils/art');
 
 Page({
   data: {
@@ -9,7 +10,7 @@ Page({
     nickname: '',
     avatarUrl: '',
     rankName: '',     // 段位（/api/rank/info，失败静默占位）
-    rankIcon: '',     // 段位徽章图（assets/ranks/rank-<段>-<级>-256.png，后端按当前小级返回）
+    rankIcon: '',     // 段位徽章图 URL（后端返回 /assets/ranks/...，这里转成云托管地址加载）
     rankIconBig: '',  // 大段位图兜底（小级图缺失时 onerror 切到这张）
     wins: 0,
     rankStars: 0,
@@ -47,8 +48,9 @@ Page({
       if (!d) return;
       self.setData({
         rankName: d.rankName || '',
-        rankIcon: d.icon || '',
-        rankIconBig: d.iconBig || '',
+        // 段位徽章不再打进代码包（微信按「包内图片总量」判定），改走云托管 URL
+        rankIcon: art.artUrl(d.icon),
+        rankIconBig: art.artUrl(d.iconBig),
         wins: d.wins || 0,
         rankStars: d.stars || 0
       });

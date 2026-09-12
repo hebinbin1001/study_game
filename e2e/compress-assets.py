@@ -40,11 +40,19 @@ SRC_ROOT = os.path.join(ROOT, "assets-src")
 OUT_ROOT = os.path.join(ROOT, "miniprogram", "assets")
 
 # kind -> (源目录, 目标目录, 展示尺寸, 是否用调色板量化)
+# 输出位置说明（2026-09-12 改）：
+#   微信的「图片和音频资源大小超过 200K」判的是**代码包内图片/音频的总量**，
+#   官方建议把非必要静态资源放 CDN、用 URL 引入。所以成就图标与段位徽章**不再进包**，
+#   改输出到仓库根 `art/`（由云托管静态托管，端上按 URL 加载）；
+#   代码包里只留「对局立绘 + tabbar 图标」这几样必要资源。
+ART_ROOT = os.path.join(ROOT, "art")
 KINDS = {
-    "achievements": (os.path.join(SRC_ROOT, "achievements"), os.path.join(OUT_ROOT, "achievements"), 128, 96),
-    "skins": (os.path.join(SRC_ROOT, "skins"), os.path.join(OUT_ROOT, "skins"), 256, 128),
+    "achievements": (os.path.join(SRC_ROOT, "achievements"), os.path.join(ART_ROOT, "achievements"), 128, 96),
+    # 皮肤仍在包内（对局里 canvas 直接绘制，走网络会有加载/失败风险），但要压到 192px
+    # 才能让「包内图片总量」稳在 200KB 以内。
+    "skins": (os.path.join(SRC_ROOT, "skins"), os.path.join(OUT_ROOT, "skins"), 192, 96),
     # 段位：端上用 -256 命名的文件，这里统一从 512 原图重采样到 128 覆盖同名文件
-    "ranks": (os.path.join(SRC_ROOT, "ranks"), os.path.join(OUT_ROOT, "ranks"), 128, 96),
+    "ranks": (os.path.join(SRC_ROOT, "ranks"), os.path.join(ART_ROOT, "ranks"), 128, 96),
 }
 
 

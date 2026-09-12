@@ -91,13 +91,23 @@ cloudbase cloudrun list -e prod-d6gnifjoe28cfd96f   # 看服务状态与更新�
 
 ## 7. 资源与包体上限（硬性，用户 2026-09-12 明确要求）
 
-**图片和音频，单个文件都不能超过 200KB。** 这是平台侧的单文件硬限，和「整包 ≤2MB」是两件事，必须分别满足。
+**微信上传检测项「图片和音频资源大小超过 200K」判的是「包内图片/音频的总量」，不是单个文件**
+（用户 2026-09-12 贴来的原文：「图片、音频等静态资源体积大小超过 200K 时，将它们上传到 CDN，
+用 URL 引入会是个更好的选择」）。踩过的坑：一开始只按「单文件 ≤200KB」自检，
+结果是包内每张图都不超标、上传照样报错 —— 因为总量 689KB 早就超了。
 
-- 新增任何图片/音频（美术皮肤、成就图标、段位徽章、音效、关卡素材）前先看体积；
-  超标就往 `miniprogram/assets-src/` 放原图（**该目录不参与打包**），端上只放压缩后的展示尺寸。
-- 压缩走现成脚本：`python e2e/compress-assets.py`。
-- 项目自留的更严目标：**图片压到 60KB 以内**（只提醒不阻断，但超了整包很快会顶到 1.8MB 告警线）。
-- 校验：`node e2e/check-assets.js`（已接入全量验证的静态层，超标直接失败、退出码 1）；
-  `tests/unit/assets-limit.test.js` 守着这两个阈值不被改宽。
+- **硬红线：`miniprogram/` 里所有图片 + 音频的体积之和 ≤ 200KB。**
+- 代码包里只放**必要**资源：对局立绘 `assets/skins/`（28 张，192px）+ tabbar 图标 `assets/tab/`（8 张）
+  ≈ 184KB。此外还有单文件 200KB、整包 1.8MB 两条线。
+- 其余静态资源一律放**打包路径以外**，用 URL 引入：
+  - 成就图标、段位徽章 → 仓库根 **`art/`**，由云托管以 `/assets/**` 静态托管
+    （`server/index.js` 挂 `express.static`，`Dockerfile` 里 `COPY art/ /app/art/`）；
+    端上用 **`utils/art.js` 的 `artUrl()`** 拼完整 URL。
+    `<image>` 加载网络图片**不受「服务器域名」白名单限制**（白名单只管 wx.request/uploadFile/downloadFile/connectSocket），
+    所以不需要在小程序后台配域名。
+  - 美术原图（大图）→ `assets-src/`（gitignore，不打包、不入库）。
+- 压缩走现成脚本：`python e2e/compress-assets.py`（成就 → `art/`、皮肤 → 包内 192px）。
+- 校验：`node e2e/check-assets.js`（静态层，超限直接失败退出码 1）：
+  ① 包内图片/音频**总量** ≤200KB；② 单文件 ≤200KB；③ 整包 ≤1.8MB；④ 打包目录纯净度。
 - 音频现状：包内**没有任何音频文件** —— 音效是 `game/audio.js` 用 WebAudio 现场合成的，发音走 TTS 插件。
-  将来要加音频资源，同样受 200KB 限制。
+  将来要加音频，同样计入这 200KB 总量。

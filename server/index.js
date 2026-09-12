@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const fs = require("fs");
+const path = require("path");
 
 // 引入数据层初始化与 openid 透传中间件
 const { init } = require("./db");
@@ -54,6 +56,26 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(morgan("tiny"));
+
+// ============ 静态美术资源（成就图标 / 段位徽章） ============
+// 为什么放在服务端而不是代码包里：微信上传时会检测「图片和音频资源大小」，
+// 判的是**代码包内图片/音频的总量**（建议超过 200K 就放 CDN、用 URL 引入）。
+// 这两批图合计 ~429KB，占了大头 → 移出代码包，由本服务以 /assets/** 静态提供，
+// 端上用 utils/art.js 拼成完整 URL（<image> 加载网络图片不受域名白名单限制）。
+// 资源目录：仓库根 `art/`，构建时由 Dockerfile COPY 进镜像（见 Dockerfile）。
+const ART_DIR = [
+  path.join(__dirname, "art"),                 // 容器内：/app/art
+  path.join(__dirname, "..", "art"),           // 本地开发：<repo>/art
+  path.join(__dirname, "public", "assets"),    // 兼容：若把资源放到 server/public
+].find((d) => fs.existsSync(d));
+if (ART_DIR) {
+  app.use("/assets", express.static(ART_DIR, {
+    maxAge: "7d",            // 文件名带内容特征且不常变，允许端上/中间层缓存
+    fallthrough: true,       // 找不到就交给后面的 404
+  }));
+} else {
+  console.warn("[art] 未找到静态美术资源目录（art/），成就图标与段位徽章将 404");
+}
 
 // 挂载路由（业务路由统一先经过 openid 中间件解析用户身份）
 app.use("/api/health", healthRouter);

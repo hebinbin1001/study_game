@@ -12,6 +12,8 @@ docs
 .codeartsdoer
 .tmp_dict
 
+# 注意：art/ 不能排除——成就图标与段位徽章由本服务静态托管（见 Dockerfile / server/index.js）
+
 # 日志与编辑器
 *.log
 .DS_Store
