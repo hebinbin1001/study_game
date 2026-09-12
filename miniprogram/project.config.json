@@ -1,7 +1,16 @@
 {
   "description": "词力战士（Word Warrior）小程序工程配置",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "utils/__tests__"
+      },
+      {
+        "type": "folder",
+        "value": "assets-src"
+      }
+    ],
     "include": []
   },
   "setting": {

@@ -32,3 +32,7 @@ e2e/reports/
 
 # ===== 部署 CLI 产物（cloudbase cloudrun deploy 会生成） =====
 cloudbaserc.json
+
+# ===== 美术原图（不参与小程序打包，也不入库；端上用压缩后的展示尺寸） =====
+# 用法：把美术交付的原图放到 assets-src/<kind>/，再跑 python e2e/compress-assets.py
+assets-src/
