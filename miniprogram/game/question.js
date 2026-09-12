@@ -117,7 +117,17 @@ const XHY_TAIL_FALLBACK = [
 const ZC_CHAR_FALLBACK = ['大', '小', '天', '地', '日', '月', '水', '火', '山', '人', '上', '下'];
 
 // ============ 三、工具函数 ============
-const rand = (n) => Math.floor(Math.random() * n);
+// 随机源：默认 Math.random；挑战关卡调用 setRandom(rng) 注入可复现随机源后，
+// 同一关（同种子）每次进入挖的格子、选项顺序都一致 —— 重玩刷星公平、可分享复盘。
+// 注意：只影响「出题」，不影响引擎的粒子/抖动等表现层随机（那些仍用 Math.random）。
+let _rnd = Math.random;
+function setRandom(fn) {
+  _rnd = (typeof fn === 'function') ? fn : Math.random;
+}
+function getRandom() {
+  return _rnd;
+}
+const rand = (n) => Math.floor(_rnd() * n);
 const randInt = (a, b) => a + rand(b - a + 1);
 
 // ============ 四、题型归类 ============
@@ -222,7 +232,7 @@ function buildWordOptions(item, bank) {
       if (!seen.has(c)) { seen.add(c); distract.push(c); }
     }
   }
-  return [correct].concat(distract).sort(() => Math.random() - 0.5);
+  return [correct].concat(distract).sort(() => _rnd() - 0.5);
 }
 
 // zc 专用：正确单字 + 词库干扰字 d（无 d/不足时从形近字表与兜底池补）。
@@ -273,7 +283,7 @@ function buildZcOptions(item, bank) {
     const c = CN_FALLBACK[rand(CN_FALLBACK.length)];
     if (!seen.has(c)) { seen.add(c); distract.push(c); }
   }
-  return [correct].concat(distract).sort(() => Math.random() - 0.5);
+  return [correct].concat(distract).sort(() => _rnd() - 0.5);
 }
 
 // 词级提示防剧透（H2）：hint 为完整答案词/含答案时，替换为不剧透引导语。
@@ -613,7 +623,7 @@ function genDistractors(item, blankIdx, correct, bank) {
   }
 
   // 打乱后返回（Array.from + sort 随机）
-  return Array.from(set).sort(() => Math.random() - 0.5);
+  return Array.from(set).sort(() => _rnd() - 0.5);
 }
 
 // ============ 七、缺省干扰项补齐（REQ-IMP-10） ============
@@ -688,6 +698,9 @@ module.exports = {
   genQuestion,
   genDistractors,
   ensureDistractors,
+  // 随机源注入（挑战关卡固定题面用）
+  setRandom,
+  getRandom,
   // 词级题型（H2-B）
   isWordLevel,
   splitWordQuestion,

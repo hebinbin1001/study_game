@@ -35,9 +35,11 @@ function seededRandom(seed) {
   };
 }
 
-s.test('常量：每局 8 题、3 条命、3 次提示、每题 10 分', () => {
+s.test('常量：每局 8 题、5 条命、3 次提示、每题 10 分', () => {
   s.assert.equal(g.ROUND_Q, 8);
-  s.assert.equal(g.LIVES, 3);
+  // 命数 3 → 5（2026-09-12 与字母射击统一口径）：
+  // 3 命时通关最多错 2 题，8 题局最低正确率 75%，1 星档拿不到（R1 同类死区）。
+  s.assert.equal(g.LIVES, 5);
   s.assert.equal(g.HINTS, 3);
   s.assert.equal(g.POINTS, 10);
   s.assert.equal(g.EXTRA_TILES, 2);
@@ -212,11 +214,12 @@ s.test('判定：英文忽略大小写，长度不符即判错', () => {
   s.assert.false(g.isCorrect('', 'apple'));
 });
 
-s.test('星级：按答对比例 90% / 70% / 40% 分三档', () => {
+s.test('星级：按答对比例 90% / 70% / 60% 分三档（与字母射击同口径）', () => {
   s.assert.equal(g.starsFor(8, 8), 3);
   s.assert.equal(g.starsFor(7, 8), 2, '87.5% 未到 90%，应落到 2 星');
   s.assert.equal(g.starsFor(6, 8), 2);
-  s.assert.equal(g.starsFor(4, 8), 1);
+  s.assert.equal(g.starsFor(5, 8), 1, '62.5% 落在 1 星档（60%~69%）');
+  s.assert.equal(g.starsFor(4, 8), 0, '50% 未到 60%，应无星');
   s.assert.equal(g.starsFor(3, 8), 0);
   s.assert.equal(g.starsFor(0, 8), 0);
   s.assert.equal(g.starsFor(0, 0), 0);

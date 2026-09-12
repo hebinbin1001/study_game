@@ -5,6 +5,10 @@ var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var link = require('../../game/link');
 var auth = require('../../utils/auth');
+var storage = require('../../utils/storage');
+var challenge = require('../../utils/challenge');
+var rng = require('../../utils/rng');
+var request = require('../../utils/request');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var COLS = 4, PAIR = 8;
@@ -19,25 +23,72 @@ Page({
     over: false,
     win: false,
     stars: 0,
-    starsText: ''
+    starsText: '',
+    challenge: false,      // 是否挑战主线关卡
+    challengeKey: ''       // 挑战存档键（调试/测试可见）
   },
 
   _sel: null,
 
-  onLoad: function () { this.newRound(); },
+  onLoad: function (options) {
+    var opt = options || {};
+    // 挑战主线：学段/对数按关卡参数固定，牌面用关卡种子（同一关每次同一套词）
+    this._challenge = String(opt.challenge) === '1';
+    this._gradeKey = opt.grade || '';
+    this._level = parseInt(opt.level, 10) || 0;
+    this._seed = parseInt(opt.seed, 10) || (this._challenge ? challenge.seedOf(this._gradeKey, this._level) : 0);
+    this._roundTick = 0;   // 「换局」次数：挑战模式下用它派生子种子（题不变、牌面重排）
+    this._rng = this._challenge ? rng.makeRng(this._seed) : null;
+    this._words = null;    // 挑战模式下本关的词集（只取一次，换局复用 → 题不变）
+    this._challengeKey = this._challenge
+      ? (this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level)
+      : '';
+    this.setData({ challenge: this._challenge, challengeKey: this._challengeKey });
+    this.newRound();
+  },
+
+  /** 本局随机源：挑战=关卡种子派生的可复现随机源；自由玩=真随机 */
+  _rand: function () {
+    return (this._rng || Math.random)();
+  },
 
   newRound: function () {
     var self = this;
     var words = [];
-    var grade = GRADES[Math.floor(Math.random() * GRADES.length)];
-    for (var t = 0; t < 20 && words.length < PAIR; t++) {
-      var w = dict.randomItemByGroup ? dict.randomItemByGroup(grade.key, 'w1', words) : null;
-      if (!w) w = this._randW1(grade.key, words);
-      if (w) words.push(w);
-    }
-    if (words.length < PAIR) {
-      grade = GRADES[0];
-      words = this._loadW1(grade.key).slice(0, PAIR);
+    var grade;
+    var pairCount = PAIR;
+    if (this._challenge) {
+      // 挑战关卡：学段取关卡参数，对数按关卡参数，取词用关卡种子（题不变）
+      var lv = challenge.levelAt(this._gradeKey, this._level);
+      pairCount = (lv ? challenge.paramsOf(this._gradeKey, lv.mode).pairs : PAIR) || PAIR;
+      grade = this._gradeByKey(this._gradeKey) || GRADES[0];
+      this._roundTick = this._roundTick || 0;
+      // 词集只取一次（由关卡种子决定）；「换局」只重排牌面，不换题
+      if (!this._words || !this._words.length) {
+        this._words = rng.pickN(this._loadW1(grade.key), pairCount, rng.makeRng(this._seed));
+        if (this._words.length < pairCount) {
+          // 本学段单词不够 → 并入其他学段补齐（保证关卡可玩）
+          var merged = [];
+          for (var gi = 0; gi < GRADES.length; gi++) {
+            merged = merged.concat(this._loadW1(GRADES[gi].key));
+          }
+          this._words = rng.pickN(merged, pairCount, rng.makeRng(this._seed));
+        }
+      }
+      words = this._words;
+      // 牌面重排用 tick 派生的新种子：同一关首次进入固定，换局后变（避免无解牌面卡死）
+      this._rng = rng.makeRng(this._seed + this._roundTick * 7919);
+    } else {
+      grade = GRADES[Math.floor(this._rand() * GRADES.length)];
+      for (var t = 0; t < 20 && words.length < pairCount; t++) {
+        var w = dict.randomItemByGroup ? dict.randomItemByGroup(grade.key, 'w1', words) : null;
+        if (!w) w = this._randW1(grade.key, words);
+        if (w) words.push(w);
+      }
+      if (words.length < pairCount) {
+        grade = GRADES[0];
+        words = this._loadW1(grade.key).slice(0, pairCount);
+      }
     }
     var cards = [];
     words.forEach(function (w) {
@@ -48,14 +99,25 @@ Page({
     cards = this._shuffle(cards).map(function (c, i) { c.i = i; return c; });
 
     this._sel = null;
+    var label = this._challenge
+      ? (challenge.labelOf(this._gradeKey) + ' · 挑战第 ' + this._level + '/' + challenge.LEVELS_PER_GRADE + ' 关')
+      : grade.label;
     this.setData({
-      gradeLabel: grade.label,
+      gradeLabel: label,
       cards: cards,
       lives: 3,
       left: cards.length,
       tip: '点「词」再点它的「释义」· 连线 ≤2 转弯且不穿其他牌',
       over: false, win: false, stars: 0, starsText: ''
     });
+  },
+
+  /** 学段 key → 学段对象（挑战模式用） */
+  _gradeByKey: function (key) {
+    for (var i = 0; i < GRADES.length; i++) {
+      if (GRADES[i].key === key) return GRADES[i];
+    }
+    return null;
   },
 
   _loadW1: function (gradeKey) {
@@ -68,13 +130,13 @@ Page({
     (exclude || []).forEach(function (e) { if (e && e.q) seen[e.q] = 1; });
     var pool = list.filter(function (w) { return !seen[w.q]; });
     if (!pool.length) return null;
-    return pool[Math.floor(Math.random() * pool.length)];
+    return pool[Math.floor(this._rand() * pool.length)];
   },
 
   _shuffle: function (arr) {
     var a = arr.slice();
     for (var i = a.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
+      var j = Math.floor(this._rand() * (i + 1));
       var t = a[i]; a[i] = a[j]; a[j] = t;
     }
     return a;
@@ -126,8 +188,9 @@ Page({
       // 注意：setData 会同步更新 this.data.left，此处不能再减 2，
       // 否则剩最后 2 张牌（1 对未消）就会提前判过关。
       if (this.data.left <= 0) {
-        var stars = this.data.lives === 3 ? 3 : (this.data.lives === 2 ? 2 : 1);
+        var stars = challenge.starsByLives(this.data.lives);
         this.setData({ over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), tip: '全部连上！' });
+        this._saveChallengeStars(stars);
       }
     } else {
       var why = !pair ? '它不是它的释义' : '路径被挡或不满足 ≤2 转弯';
@@ -158,6 +221,20 @@ Page({
     }, 320);
   },
 
+  /**
+   * 挑战关卡结算：写挑战星级（取历史最大值）+ 同步段位（累计星）。
+   * 只有过关才写；失败（命耗尽）不写档，与字母射击一致。
+   */
+  _saveChallengeStars: function (stars) {
+    if (!this._challenge || !this._gradeKey || !this._level) return;
+    storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
+    if (stars > 0 && auth.isLoggedIn()) {
+      request.post('/api/rank/sync', { stars: stars }).catch(function () {
+        // 静默：网络失败下次通关自动补
+      });
+    }
+  },
+
   _buildGrid: function () {
     var g = [];
     for (var r = 0; r < COLS; r++) {
@@ -171,7 +248,11 @@ Page({
     return g;
   },
 
-  again: function () { this.newRound(); },
+  again: function () {
+    // 挑战模式：题不变、牌面重排（避免无解牌面把玩家卡死）
+    if (this._challenge) this._roundTick = (this._roundTick || 0) + 1;
+    this.newRound();
+  },
   goBack: function () { wx.navigateBack(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 词语连连看', path: '/pages/playlist/playlist' };

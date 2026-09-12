@@ -19,9 +19,12 @@
 
 var engine = require('../../game/engine');
 var config = require('../../game/config');
+var question = require('../../game/question');
 var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
+var challenge = require('../../utils/challenge');
+var rng = require('../../utils/rng');
 var audio = require('../../game/audio');
 var auth = require('../../utils/auth');
 var request = require('../../utils/request');
@@ -107,11 +110,29 @@ Page({
       grade = custom.grade || grade;
     }
 
+    // 挑战主线（2026-09-12）：按「学段 + 关卡」用固定种子出题 ——
+    // 同一关每次进入题目、挖空位置、选项顺序都一致（重玩刷星公平、可分享复盘）。
+    // 走的是与自定义关卡相同的「固定题源」通路，但计入挑战星级（见 result.js）。
+    var isChallenge = !!(options && String(options.challenge) === '1');
+    this._challenge = isChallenge;
+    this._challengeItems = null;
+    question.setRandom();                 // 先复位，避免上一局挑战的种子泄漏到本局
+    if (isChallenge) {
+      var lvInfo = challenge.levelAt(grade, level);
+      var seed = (options && options.seed) ? parseInt(options.seed, 10) : challenge.seedOf(grade, level);
+      if (!seed) seed = challenge.seedOf(grade, level);
+      question.setRandom(rng.makeRng(seed));
+      this._challengeItems = challenge.pickItems(
+        grade, level, (lvInfo ? challenge.paramsOf(grade, lvInfo.mode).totalQ : CONFIG.totalQ) || CONFIG.totalQ, type
+      );
+    }
+
     this.setData({
       grade: grade,
       level: level,
       type: type,
-      totalQ: CONFIG.totalQ
+      totalQ: (this._challengeItems && this._challengeItems.length) ? this._challengeItems.length : CONFIG.totalQ,
+      challenge: isChallenge
     });
 
     // 读取本地皮肤选择（离线渲染，未选择时回退默认皮肤）
@@ -230,6 +251,7 @@ Page({
   onUnload() {
     engine.stop();
     this._clearComboTimer();
+    question.setRandom();   // 复位出题随机源，避免挑战种子泄漏到后续自由练
   },
 
   // ============ 引擎启动与回调注入 ============
@@ -297,6 +319,16 @@ Page({
        * @returns {Object|null} WordItem，无可用题目返回 null（引擎会触发结算）
        */
       getNextItem: function () {
+        // 挑战主线：按关卡种子预先取好的固定题目，按序出题
+        if (self._challengeItems && self._challengeItems.length) {
+          var ci = self._usedItems.length;
+          if (ci < self._challengeItems.length) {
+            var chItem = self._challengeItems[ci];
+            self._usedItems.push(chItem);
+            return chItem;
+          }
+          return null;
+        }
         // B4：自定义关卡 → 按序出固定 10 题（items 已由导入/公开广场带全）
         if (self._customLevel && Array.isArray(self._customLevel.items)) {
           var citems = self._customLevel.items;
@@ -338,6 +370,10 @@ Page({
        * @returns {Array} WordItem[]，学段不存在返回 []
        */
       getBank: function () {
+        // 挑战主线：干扰项从本关固定题库里取（与出题同源，避免出现没学过的字）
+        if (self._challengeItems && self._challengeItems.length) {
+          return self._challengeItems;
+        }
         // B4：自定义关卡 → 词库=本关固定 items（干扰项从同关内取）
         if (self._customLevel && Array.isArray(self._customLevel.items)) {
           return self._customLevel.items;
@@ -658,6 +694,7 @@ Page({
       '&level=' + this.data.level +
       '&type=' + (this.data.type || '') +
       '&custom=' + (this._customLevel ? '1' : '0') +
+      '&challenge=' + (this._challenge ? '1' : '0') +
       '&win=' + (result.win ? 1 : 0) +
       '&score=' + result.score +
       '&correctCount=' + result.correctCount +

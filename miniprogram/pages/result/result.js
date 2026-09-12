@@ -14,6 +14,7 @@ var storage = require('../../utils/storage');
 var request = require('../../utils/request');
 var auth = require('../../utils/auth');
 var question = require('../../game/question');
+var challenge = require('../../utils/challenge');
 
 Page({
   data: {
@@ -76,6 +77,9 @@ Page({
     this._type = options.type || '';
     // B4：自定义关卡（10 个一组），不写系统星级存档、不入字词进度榜/总榜
     this._custom = options.custom === '1';
+    // 挑战主线（2026-09-12）：星级写入 <grade>@challenge@<level> 命名空间，
+    // 与「题型分类自由练」的存档互不覆盖；挑战星同样计入累计星（走 rankSync）。
+    this._challenge = options.challenge === '1';
 
     // 计算正确率
     var rate = totalQ > 0 ? (correctCount / totalQ * 100) : 0;
@@ -123,9 +127,11 @@ Page({
     });
 
     // 通关写星级存档（取历史最大值；分类关卡写 grade@type@level，综合沿用旧 key，REQ-GAME-13）
-    // 自定义关卡跳过：不占系统星级/进度（B4）
+    // 自定义关卡跳过：不占系统星级/进度（B4）；挑战主线写 challenge 命名空间
     if (!this._custom && grade && level >= 1) {
-      var typeKey = (this._type && this._type !== 'all') ? this._type : undefined;
+      var typeKey = this._challenge
+        ? challenge.STAR_KEY
+        : ((this._type && this._type !== 'all') ? this._type : undefined);
       storage.saveStars(grade, level, stars, typeKey);
     }
 
@@ -195,6 +201,9 @@ Page({
     var url = '/pages/game/game';
     if (grade) {
       url += '?grade=' + grade + '&level=' + level;
+      if (this._challenge) {
+        url += '&challenge=1&seed=' + challenge.seedOf(grade, level);
+      }
       if (this._type && this._type !== 'all') {
         url += '&type=' + this._type;
       }

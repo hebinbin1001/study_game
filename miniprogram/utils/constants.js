@@ -80,7 +80,8 @@ const STORAGE_KEYS = {
   bossSkin: 'ww_boss_skin',        // 当前使用的怪兽皮肤 avatarId
   sound: 'ww_sound_on',            // 声音开关（'1'开/'0'关，默认开）
   lastGrade: 'ww_last_grade',      // 最近一次进入的学段（首页「继续挑战」定位用）
-  lastType: 'ww_last_type'         // 最近一次进入的题型分类（空 = 综合）
+  lastType: 'ww_last_type',        // 最近一次进入的题型分类（空 = 综合）
+  challengeMigrated: 'ww_challenge_migrated' // 挑战主线存档迁移标记（一次性，见 utils/challenge.js）
 };
 
 // ============ 五、游戏配置默认值（REQ-NFR-5、REQ-GAME-3） ============
@@ -101,6 +102,11 @@ const GAME_CONFIG = {
 // 关卡规模（关卡页与首页「继续挑战」共用，避免两处漂移）
 const LEVELS_PER_GRADE = 10;        // 每学段关卡数
 const DEFAULT_UNLOCKED_LEVELS = 3;  // 默认解锁前 3 关（含游客）；第 4 关起需登录且逐关解锁
+
+// 挑战主线（2026-09-12 拍板）：一关 = 一种玩法 + 本学段题库 + 该关参数。
+// 与上面的「题型分类自由练」并存：自由练仍是每学段每分类 10 关。
+const CHALLENGE_LEVELS_PER_GRADE = 30;  // 挑战主线每学段关数
+const CHALLENGE_STAR_KEY = 'challenge'; // 挑战星级的存档命名空间（storage 里存成 <grade>@challenge@<level>）
 
 // 词条 type → 用户分类。c1/c2 按「完整词长」区分词语/成语（与出题 typeKind 口径一致：
 // 题面原文长度 >= 4 视为成语，如 守*待兔 长度为 5 → 成语）。
@@ -149,6 +155,8 @@ module.exports = {
   GAME_CONFIG,
   LEVELS_PER_GRADE,
   DEFAULT_UNLOCKED_LEVELS,
+  CHALLENGE_LEVELS_PER_GRADE,
+  CHALLENGE_STAR_KEY,
   TYPE_GROUPS,
   isItemInGroup
 };

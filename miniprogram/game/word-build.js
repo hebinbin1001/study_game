@@ -16,8 +16,14 @@
 
 'use strict';
 
+var constants = require('../utils/constants');
+
 var ROUND_Q = 8;      // 每局题数
-var LIVES = 3;        // 初始命数
+// 初始命数：3 → 5（2026-09-12 与字母射击统一口径）
+//   3 命 + 90/70/40 时，通关最多答错 2 题 → 8 题局最低正确率 75%，
+//   1 星档（40%~69%）数学上不可达（与 R1 修掉的星级死区同类缺陷）。
+//   5 命 + 90/70/60 下，6~10 题局三档星级都可达；护栏见 utils/__tests__/challenge.test.js。
+var LIVES = 5;        // 初始命数
 var HINTS = 3;        // 每局提示次数
 var POINTS = 10;      // 每题得分
 var MIN_LEN = 3;      // 英文单词最短 3 个字母
@@ -212,14 +218,11 @@ function hintStep(answer, tiles, slots) {
   return null;
 }
 
-/** 星级：按答对题数占总题数比例（90% / 70% / 40%） */
+/** 星级：按答对题数占总题数比例（90% / 70% / 60%，与字母射击同一套阈值） */
 function starsFor(right, total) {
-  if (!total) return 0;
-  var rate = right / total;
-  if (rate >= 0.9) return 3;
-  if (rate >= 0.7) return 2;
-  if (rate >= 0.4) return 1;
-  return 0;
+  var t = parseInt(total, 10) || 0;
+  if (!t) return 0;
+  return constants.starsByRate((parseInt(right, 10) || 0) / t * 100);
 }
 
 /** 结算文案（答对题数 / 总题数 / 得分 / 剩余提示） */

@@ -10,6 +10,7 @@
 var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 var constants = require('../../utils/constants');
+var challenge = require('../../utils/challenge');
 
 Page({
   // 实例级标志（不在 data，避免渲染）；登录/协议进行中置 true，防 nudge 弹窗互顶
@@ -60,6 +61,8 @@ Page({
   // —— 数据刷新 ——
   refresh: function () {
     var self = this;
+    // 挑战主线：老存档（字母射击 10 关）一次性迁移到主线的对应关卡，幂等
+    challenge.migrateStars(storage);
     var loggedIn = auth.isLoggedIn();
     var u = auth.getUser();
     var nickname = (loggedIn && u && u.nickname) ? u.nickname : '';
@@ -83,10 +86,16 @@ Page({
     for (var gi = 0; gi < constants.GRADES.length; gi++) {
       if (constants.GRADES[gi].key === lastGrade) { gradeLabel = constants.GRADES[gi].label; break; }
     }
-    var cont = storage.findContinueLevel(lastGrade, lastType || undefined);
+    // 继续挑战 = 挑战主线（2026-09-12 拍板）：
+    // 一关 = 一种玩法 + 本学段题库，取该学段第一个未满星的主线关卡，
+    // 卡片直接显示「玩法 · 学段 · 第 N/30 关」，点击进入该玩法页（带关卡种子）。
+    var cont = storage.findContinueLevel(lastGrade, challenge.STAR_KEY, challenge.LEVELS_PER_GRADE);
+    var contLv = challenge.levelAt(lastGrade, cont.level) || challenge.levelAt(lastGrade, 1);
+    var contMode = contLv ? contLv.mode : 'shoot';
     // 游客第 4 关起需登录：卡片改为引导去关卡页（那里会弹登录引导）
     var continuePlayable = loggedIn || cont.level <= constants.DEFAULT_UNLOCKED_LEVELS;
-    var continueHint = '字母射击 · ' + gradeLabel + ' · 第 ' + cont.level + ' 关'
+    var continueHint = (contLv ? contLv.modeLabel : '字母射击') + ' · ' + gradeLabel
+      + ' · 第 ' + cont.level + '/' + challenge.LEVELS_PER_GRADE + ' 关'
       + (cont.allPassed ? '（已通关，可刷星）' : '');
 
     var dailyDone = false;
@@ -111,6 +120,8 @@ Page({
       continueStars: cont.stars,
       continueHint: continueHint,
       continuePlayable: continuePlayable,
+      continueMode: contMode,
+      continueModeLabel: contLv ? contLv.modeLabel : '',
       dailyDone: dailyDone
     });
 
@@ -302,15 +313,19 @@ Page({
 
   // 继续挑战：可直接开打则直达对局（一期改造），否则去关卡页
   // （游客第 4 关起需登录，关卡页会弹登录引导；已通关则回到最后一关刷星）
+  // 2026-09-12：升级为「挑战主线」—— 按该关的玩法跳对应玩法页（字母射击/字母拼词/词语连连看），
+  // 并带上 challenge=1 与关卡种子，玩法页据此固定题面、结算写挑战星级。
   goContinue: function () {
     if (!this.data.continuePlayable) {
       wx.navigateTo({ url: '/pages/level/level' });
       return;
     }
-    var url = '/pages/game/game?grade=' + this.data.continueGrade
-      + '&level=' + this.data.continueLevel;
-    var t = storage.get(constants.STORAGE_KEYS.lastType);
-    if (t && t !== 'all') url += '&type=' + t;
+    var lv = challenge.levelAt(this.data.continueGrade, this.data.continueLevel);
+    var url = challenge.pageUrl(lv, this.data.continueGrade);
+    if (!url) {
+      url = '/pages/game/game?challenge=1&grade=' + this.data.continueGrade
+        + '&level=' + this.data.continueLevel;
+    }
     wx.navigateTo({ url: url });
   },
 

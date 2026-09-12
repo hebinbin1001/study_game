@@ -329,14 +329,17 @@ function isLevelUnlocked(grade, level, typeKey) {
  *
  * @param {string} grade 学段 key
  * @param {string} [typeKey] 题型分类 key
+ * @param {number} [levelCount] 该存档维度的关卡总数（默认每学段 10 关；
+ *        挑战主线传 constants.CHALLENGE_LEVELS_PER_GRADE = 30）
  * @returns {{level:number, stars:number, allPassed:boolean}}
  */
-function findContinueLevel(grade, typeKey) {
-  var levelCount = constants.LEVELS_PER_GRADE;
+function findContinueLevel(grade, typeKey, levelCount) {
+  var asked = parseInt(levelCount, 10);
+  var total = (asked > 0) ? asked : constants.LEVELS_PER_GRADE;
   var defaultUnlocked = constants.DEFAULT_UNLOCKED_LEVELS;
   var lastUnlocked = 1;
 
-  for (var i = 1; i <= levelCount; i++) {
+  for (var i = 1; i <= total; i++) {
     var unlocked = (i <= defaultUnlocked) || (getStars(grade, i - 1, typeKey) >= 1);
     if (!unlocked) break;
     lastUnlocked = i;

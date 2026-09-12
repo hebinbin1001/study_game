@@ -27,7 +27,8 @@
     </view>
   </scroll-view>
 
-  <!-- 题型分类 chips（综合/单词/填空/词语/成语/歇后语，横滑；不足一关的分类点击提示） -->
+  <!-- 顶部 chips：「挑战主线」= 每学段 30 关（一关一种玩法，见 utils/challenge.js）；
+       其余分类 = 该题型的自由练 10 关（不足一关的分类点击提示） -->
   <scroll-view wx:if="{{typeGroups.length > 0}}" class="type-tabs" scroll-x="true" enable-flex="true">
     <view
       wx:for="{{typeGroups}}"

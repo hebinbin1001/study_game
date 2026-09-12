@@ -6,6 +6,10 @@ var lib = require('../../game/word-build');
 var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var CONST = require('../../utils/constants');
+var challenge = require('../../utils/challenge');
+var rng = require('../../utils/rng');
+var auth = require('../../utils/auth');
+var request = require('../../utils/request');
 
 var MODE = 'letter';
 var BEST_KEY = 'ww_word_build_best';
@@ -27,7 +31,10 @@ Page({
     win: false,
     starsText: '',
     overMsg: '',
-    best: 0
+    best: 0,
+    challenge: false,      // 是否挑战主线关卡（true 时成绩写 <grade>@challenge@<level>）
+    challengeKey: '',      // 挑战存档键（调试/测试可见）
+    challengeLabel: ''     // 结算文案里的关卡说明
   },
 
   _pool: [],
@@ -43,8 +50,34 @@ Page({
   _locked: false,
   _timers: [],
 
-  onLoad: function () {
-    this.setData({ best: storage.get(BEST_KEY) || 0 });
+  onLoad: function (options) {
+    var opt = options || {};
+    // 挑战主线：按「学段 + 关卡 + 种子」固定出题；自由玩：沿用「最近学段」随机出题
+    this._challenge = String(opt.challenge) === '1';
+    this._gradeKey = (this._challenge && opt.grade)
+      ? opt.grade
+      : (storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34');
+    this._level = parseInt(opt.level, 10) || 0;
+    this._roundQ = lib.ROUND_Q;
+    this._rng = null;
+    this._challengeKey = '';
+    this._challengeLabel = '';
+    if (this._challenge) {
+      var lv = challenge.levelAt(this._gradeKey, this._level);
+      if (lv) {
+        this._roundQ = challenge.paramsOf(this._gradeKey, lv.mode).count || lib.ROUND_Q;
+        this._challengeLabel = challenge.labelOf(this._gradeKey) + ' · 挑战第 ' + this._level + '/' + challenge.LEVELS_PER_GRADE + ' 关';
+      }
+      var seed = parseInt(opt.seed, 10) || challenge.seedOf(this._gradeKey, this._level);
+      this._rng = rng.makeRng(seed);
+      this._challengeKey = this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level;
+    }
+    this.setData({
+      best: storage.get(BEST_KEY) || 0,
+      challenge: this._challenge,
+      challengeKey: this._challengeKey,
+      challengeLabel: this._challengeLabel
+    });
     this._buildPool();
     this.start();
   },
@@ -59,19 +92,21 @@ Page({
 
   // 词池：首选最近学段（首页选过的），不足一局时并入其他学段，避免"开不了局"
   _buildPool: function () {
-    var last = storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34';
+    var last = this._gradeKey || storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34';
     var primary = dict.loadByGrade(last);
     var others = [];
     CONST.GRADES.forEach(function (gr) {
       if (gr.key === last) return;
       others = others.concat(dict.loadByGrade(gr.key));
     });
-    this._pool = lib.mergePools(primary, others, MODE, lib.ROUND_Q);
+    this._pool = lib.mergePools(primary, others, MODE, this._roundQ || lib.ROUND_Q);
   },
 
   start: function () {
     this._clearTimers();
-    this._queue = lib.pickQuestions(this._pool, lib.ROUND_Q);
+    // 挑战关卡：题量按学段参数、出题用关卡种子（同一关每次一样）；
+    // 自由玩：题量用引擎默认、随机源用真随机
+    this._queue = lib.pickQuestions(this._pool, this._roundQ || lib.ROUND_Q, this._rng || undefined);
     this._qi = 0;
     this._lives = lib.LIVES;
     this._score = 0;
@@ -89,7 +124,8 @@ Page({
     var item = this._queue[this._qi];
     var answer = String(item.a);
     this._cur = item;
-    this._tiles = lib.makeTiles(answer, []);
+    // 挑战关卡：字母块的打乱也用关卡种子（同一关每次题面完全一致）
+    this._tiles = lib.makeTiles(answer, [], this._rng || undefined);
     this._slots = lib.makeSlots(answer.length);
     this._locked = false;
     this.setData({
@@ -195,13 +231,19 @@ Page({
   _finish: function (cleared) {
     this._clearTimers();
     var total = this._queue.length;
-    var stars = lib.starsFor(this._right, total);
+    // 只有「答完全部题」才计星；命耗尽判负不发星（与字母射击一致）
+    var stars = cleared ? lib.starsFor(this._right, total) : 0;
     var best = this.data.best;
     if (this._score > best) {
       best = this._score;
       storage.set(BEST_KEY, best);
     }
     var msg = lib.resultText(this._right, total, this._score, this._hintLeft) + '\n最高分 ' + best;
+    if (this._challenge) {
+      msg = this._challengeLabel + '\n' + msg
+        + (cleared ? '' : '\n（生命耗尽，本关不计星）');
+      this._saveChallengeStars(stars);
+    }
     this.setData({
       settle: true,
       win: stars >= 1,
@@ -209,6 +251,21 @@ Page({
       overMsg: msg,
       best: best
     });
+  },
+
+  /**
+   * 挑战关卡结算：写挑战星级存档 + 同步段位（累计星）。
+   * 星级取历史最大值（storage.saveStars 内部保证，重玩不会降级）；
+   * 只有通关（stars>=1）才同步段位，避免失败局也涨段位。
+   */
+  _saveChallengeStars: function (stars) {
+    if (!this._challenge || !this._gradeKey || !this._level) return;
+    storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
+    if (stars > 0 && auth.isLoggedIn()) {
+      request.post('/api/rank/sync', { stars: stars }).catch(function () {
+        // 静默：网络失败下次通关自动补
+      });
+    }
   },
 
   onRetry: function () { this.start(); },
