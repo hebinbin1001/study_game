@@ -316,6 +316,54 @@ function judgeCase(c, anon, auth) {
   }
   groupResults["wrong-book-flow"] = wb;
 
+  // ===== 成就体系契约（需求④）：列表 >=30 条 + 新字段齐备 + check 幂等 =====
+  const ac = { pass: true, problems: [] };
+  const acProblem = (msg) => { ac.pass = false; ac.problems.push(msg); };
+  console.log("");
+  console.log("=== Achievement Flow (list shape >=30 -> check -> list again) ===");
+
+  const achList = await doRequest("GET", "/api/achievement/list", null, OPENID_HEADERS);
+  const achItems = achList.json && Array.isArray(achList.json.data) ? achList.json.data : null;
+  console.log("[flow] list          : " + describe(achList) + " items=" + (achItems ? achItems.length : "not-array"));
+  if (!achItems) {
+    acProblem("achievement list must stay an ARRAY (old clients render it as an array)");
+  } else {
+    if (achItems.length < 30) acProblem("expected >=30 achievements, got " + achItems.length);
+    const bad = achItems.filter((it) =>
+      !it.achievementId || !it.name || !it.description || !it.category
+      || typeof it.progress !== "number" || typeof it.threshold !== "number"
+      || typeof it.current !== "number" || typeof it.unlocked !== "boolean");
+    if (bad.length) acProblem("items missing new fields (category/progress/current/threshold/unlocked): " + bad.length);
+    const categories = {};
+    achItems.forEach((it) => { categories[it.category] = (categories[it.category] || 0) + 1; });
+    console.log("[flow] categories    : " + JSON.stringify(categories));
+    if (Object.keys(categories).length < 6) acProblem("expected >=6 categories, got " + Object.keys(categories).length);
+    const unlocked = achItems.filter((it) => it.unlocked);
+    console.log("[flow] unlocked      : " + unlocked.length + "/" + achItems.length);
+    if (unlocked.some((it) => !it.unlockedAt)) acProblem("unlocked items must carry unlockedAt");
+    const overProgress = achItems.filter((it) => it.progress < 0 || it.progress > 100);
+    if (overProgress.length) acProblem("progress out of range: " + overProgress.length);
+  }
+
+  const firstIds = achItems ? achItems.filter((it) => it.unlocked).map((it) => it.achievementId).sort() : [];
+  const achCheck = await doRequest("POST", "/api/achievement/check", {}, OPENID_HEADERS);
+  console.log("[flow] check         : " + describe(achCheck));
+  if (!achCheck.json || achCheck.json.code !== 0) acProblem("check failed");
+  else if (!Array.isArray(achCheck.json.data.newlyUnlocked)) acProblem("newlyUnlocked must be an array");
+
+  const achList2 = await doRequest("GET", "/api/achievement/list", null, OPENID_HEADERS);
+  const secondIds = achList2.json && Array.isArray(achList2.json.data)
+    ? achList2.json.data.filter((it) => it.unlocked).map((it) => it.achievementId).sort()
+    : null;
+  console.log("[flow] list again    : " + describe(achList2) + " unlocked=" + (secondIds ? secondIds.length : "-"));
+  if (!secondIds) acProblem("second list call not an array");
+  else if (JSON.stringify(secondIds) === JSON.stringify(firstIds)) {
+    console.log("[flow] idempotent    : same unlocked set as before (nothing new this run)");
+  } else {
+    console.log("[flow] idempotent    : unlocked set grew from " + firstIds.length + " to " + secondIds.length + " (first-time unlock)");
+  }
+  groupResults["achievement-flow"] = ac;
+
   console.log("");
   console.log("=== Per-Group Summary ===");
   let passCount = 0;

@@ -95,22 +95,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     (await H.textOf(home, '.cta .c-s')) === homeData.continueHint,
     'DOM = ' + (await H.textOf(home, '.cta .c-s')));
 
-  console.log('[2/8] 点「继续挑战」→ 落到该关对应的玩法页');
-  const ct = await home.$('.cta .ct');
-  ck.check('找到继续挑战按钮 .cta .ct', !!ct);
-  if (ct) {
-    await ct.tap();
-    await home.waitFor(2000);
-    const cur = await miniProgram.currentPage();
-    ck.check('跳到第 1 关的玩法页 pages/game/game', cur.path === 'pages/game/game', '实际 = ' + cur.path);
-    const gd = await cur.data();
-    ck.check('玩法页收到 challenge=1（挑战模式）', gd.challenge === true, '实际 = ' + gd.challenge);
-    ck.check('玩法页关卡号为 1', gd.level === 1, '实际 = ' + gd.level);
-    ck.check('玩法页题量 = 该关参数（10 题）', gd.totalQ === challenge.paramsOf(GRADE, 'shoot').totalQ,
-      '实际 = ' + gd.totalQ);
-  }
-
-  console.log('[3/8] 关卡页「挑战主线」视图：30 关 + 玩法标签');
+  console.log('[2/8] 关卡页「挑战主线」视图：30 关 + 玩法标签');
   const lvPage = await H.goto(miniProgram, LEVEL_URL, 1800);
   const lvData = await lvPage.data();
   const rows = lvData.levels || [];
@@ -134,7 +119,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     '实际 = ' + JSON.stringify((lvData.typeGroups[0] || {}).label));
   ck.check('关卡列表渲染出 30 行', !!(await H.waitForCount(lvPage, '.lvrow', 30, 8000)));
 
-  console.log('[4/8] 固定题面：字母拼词挑战关两次进入一致，且等于独立复算值');
+  console.log('[3/8] 固定题面：字母拼词挑战关两次进入一致，且等于独立复算值');
   const expWb = expectWordBuild(GRADE, WB_LEVEL);
   const wbUrl = '/pages/word-build/word-build?challenge=1&grade=' + GRADE
     + '&level=' + WB_LEVEL + '&seed=' + challenge.seedOf(GRADE, WB_LEVEL);
@@ -159,7 +144,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('同一关再次进入：字母块排列完全一致',
     (wbD2.tiles || []).map(function (t) { return t.ch; }).join('') === tiles1);
 
-  console.log('[5/8] 不同关题目组合不同');
+  console.log('[4/8] 不同关题目组合不同');
   const expWb5 = expectWordBuild(GRADE, WB_LEVEL + 3);
   ck.check('第 ' + WB_LEVEL + ' 关与第 ' + (WB_LEVEL + 3) + ' 关的题目组合不同',
     expWb.queue.join('|') !== expWb5.queue.join('|'),
@@ -167,7 +152,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('不同关的种子不同',
     challenge.seedOf(GRADE, WB_LEVEL) !== challenge.seedOf(GRADE, WB_LEVEL + 3));
 
-  console.log('[6/8] 连连看挑战关：种子牌面 + 换局重排');
+  console.log('[5/8] 连连看挑战关：种子牌面 + 换局重排');
   const expLink0 = expectLink(GRADE, LINK_LEVEL, 0);
   const linkUrl = '/pages/link/link?challenge=1&grade=' + GRADE
     + '&level=' + LINK_LEVEL + '&seed=' + challenge.seedOf(GRADE, LINK_LEVEL);
@@ -201,7 +186,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     JSON.stringify(lkLabs3) !== JSON.stringify(lkLabs1));
   ck.check('换局后牌面下标仍完整（16 张）', (lkD3.cards || []).length === 16);
 
-  console.log('[7/8] 挑战星级写入 <grade>@challenge@<level>（不污染自由练存档）');
+  console.log('[6/8] 挑战星级写入 <grade>@challenge@<level>（不污染自由练存档）');
   const resUrl = '/pages/result/result?challenge=1&grade=' + GRADE + '&level=' + WB_LEVEL
     + '&type=&custom=0&win=1&score=80&correctCount=8&totalQ=8&stars=3&maxCombo=5';
   await H.goto(miniProgram, resUrl, 1500);
@@ -223,7 +208,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('两个命名空间互不覆盖（挑战键仍是 3）',
     starsStore && starsStore[GRADE + '@challenge@' + WB_LEVEL] === 3);
 
-  console.log('[8/8] 老存档迁移：旧字母射击星级 → 主线对应关（幂等）');
+  console.log('[7/8] 老存档迁移：旧字母射击星级 → 主线对应关（幂等）');
   const shootSlots = challenge.levelsOfMode('kindergarten', 'shoot');
   await miniProgram.callWxMethod('setStorageSync', 'ww_stars', { 'kindergarten_1': 3, 'kindergarten_2': 2 });
   await miniProgram.callWxMethod('removeStorageSync', 'ww_challenge_migrated');
@@ -241,6 +226,26 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   const home2Data = await home2.data();
   ck.check('迁移后首页继续挑战推进到下一关', home2Data.continueLevel >= 1,
     '实际 = ' + home2Data.continueLevel);
-  const cur2 = await miniProgram.currentPage();
-  ck.check('全程未崩溃（仍在首页）', cur2.path === 'pages/index/index', '实际 = ' + cur2.path);
+
+  // ===== 最后一段：点「继续挑战」进对局 =====
+  // 放在整个用例的最后，是因为开发者工具在「对局页 Canvas rAF 还开着时 reLaunch 走」会偶发挂死
+  // （表现为后续 reLaunch timeout / page destroyed，实测可复现）。这里跑完就收工，不再切路由。
+  console.log('[8/8] 点「继续挑战」→ 落到该关对应的玩法页');
+  await miniProgram.callWxMethod('setStorageSync', 'ww_stars', {});
+  await miniProgram.callWxMethod('removeStorageSync', 'ww_challenge_migrated');
+  const home3 = await H.goto(miniProgram, HOME_URL, 1800);
+  const ct = await home3.$('.cta .ct');
+  ck.check('找到继续挑战按钮 .cta .ct', !!ct);
+  if (ct) {
+    await ct.tap();
+    await home3.waitFor(2000);
+    const cur3 = await miniProgram.currentPage();
+    ck.check('跳到第 1 关的玩法页 pages/game/game', cur3.path === 'pages/game/game', '实际 = ' + cur3.path);
+    const gd = await cur3.data();
+    ck.check('玩法页收到 challenge=1（挑战模式）', gd.challenge === true, '实际 = ' + gd.challenge);
+    ck.check('玩法页关卡号为 1', gd.level === 1, '实际 = ' + gd.level);
+    ck.check('玩法页题量 = 该关参数（10 题）', gd.totalQ === challenge.paramsOf(GRADE, 'shoot').totalQ,
+      '实际 = ' + gd.totalQ);
+    ck.check('全程未崩溃（停在玩法页）', cur3.path === 'pages/game/game', '实际 = ' + cur3.path);
+  }
 });

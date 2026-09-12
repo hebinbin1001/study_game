@@ -1,75 +1,116 @@
 const express = require("express");
+const { Op } = require("sequelize");
 const {
-  Achievement,
+  User,
   UserAchievement,
   RankRecord,
   Score,
+  WrongRecord,
+  CheckinRecord,
+  CustomLevel,
 } = require("../db");
+const achievements = require("../achievements");
 
 const router = express.Router();
 
-// 内置成就定义
-const DEFAULT_ACHIEVEMENTS = [
-  {
-    achievementId: "first_blood",
-    name: "首胜",
-    description: "首次通关",
-    icon: "/assets/achievements/first_blood.png",
-    conditionType: "total_wins",
-    conditionValue: 1,
-  },
-  {
-    achievementId: "combo_master",
-    name: "连击大师",
-    description: "单局连击达到10",
-    icon: "/assets/achievements/combo_master.png",
-    conditionType: "max_combo",
-    conditionValue: 10,
-  },
-  {
-    achievementId: "star_collector",
-    name: "星数收集",
-    description: "累计获得50星",
-    icon: "/assets/achievements/star_collector.png",
-    conditionType: "total_stars",
-    conditionValue: 50,
-  },
-  {
-    achievementId: "rank_bronze",
-    name: "青铜段位",
-    description: "达到青铜段位",
-    icon: "/assets/achievements/rank_bronze.png",
-    conditionType: "rank",
-    conditionValue: 1,
-  },
-  {
-    achievementId: "rank_king",
-    name: "王者段位",
-    description: "达到王者段位",
-    icon: "/assets/achievements/rank_king.png",
-    conditionType: "rank",
-    conditionValue: 7,
-  },
-  {
-    achievementId: "perfect_clear",
-    name: "完美通关",
-    description: "单局获得3星评价",
-    icon: "/assets/achievements/perfect_clear.png",
-    conditionType: "perfect_clear",
-    conditionValue: 1,
-  },
-];
+/**
+ * 成就体系（2026-09-12 需求④ 扩充到 30+）
+ *
+ * 设计要点：
+ *   1. 定义与判定口径全部在 server/achievements.js（纯函数、可单测），**不再依赖 achievements 表**——
+ *      原表 conditionType 是 MySQL ENUM，每加一类条件都要改生产库结构；定义进代码后零 DDL。
+ *   2. 解锁记录仍落 user_achievements（openid + achievementId + createdAt），
+ *      `findOrCreate` 保证**幂等**：重复检查不会重复插入，也不会覆盖首次解锁时间。
+ *   3. 列表返回**数组**（与改造前同形状），额外带上 category/progress/unlockedAt 等字段，
+ *      老客户端忽略多余字段即可，前后端可各自升级。
+ */
 
 /**
- * 初始化内置成就
+ * 汇总算指标所需的原始数据。
+ *
+ * 踩坑记录：Score 挂在 users.id 上（不是 openid），得先按 openid 找到 user；
+ * 找不到 user（从没登录建档过）时不能直接返回空成就，而是把 scores 当空数组继续判——
+ * 这样「签到/段位」这类不依赖成绩的成就仍然能正确判定。
+ *
+ * @param {string} openid
+ * @returns {Promise<Object>} stats 快照
  */
-async function initAchievements() {
-  for (const ach of DEFAULT_ACHIEVEMENTS) {
-    await Achievement.findOrCreate({
-      where: { achievementId: ach.achievementId },
-      defaults: ach,
+async function loadStats(openid) {
+  const user = await User.findOne({ where: { openid } });
+
+  const [rankRecord, scores, wrongRecords, checkins, customLevelCount] = await Promise.all([
+    RankRecord.findOne({ where: { openid } }),
+    user
+      ? Score.findAll({ where: { user_id: user.id }, order: [["createdAt", "ASC"]] })
+      : Promise.resolve([]),
+    WrongRecord.findAll({ where: { openid } }),
+    CheckinRecord.findAll({ where: { openid } }),
+    // 自定义关卡表用的是 authorOpenid（不是 openid）；被拒的草稿不计入
+    CustomLevel.count({ where: { authorOpenid: openid, status: { [Op.ne]: "rejected" } } }),
+  ]);
+
+  return achievements.statsFrom({
+    rankRecord: rankRecord
+      ? { wins: rankRecord.wins, stars: rankRecord.stars, rankId: rankRecord.rankId }
+      : null,
+    scores: scores.map((s) => ({
+      grade: s.grade,
+      level: s.level,
+      score: s.score,
+      correct_count: s.correct_count,
+      total_q: s.total_q,
+      max_combo: s.max_combo,
+      stars: s.stars,
+    })),
+    wrongRecords: wrongRecords.map((w) => ({
+      mastery: w.mastery,
+      reviewCount: w.reviewCount,
+    })),
+    checkins: checkins.map((c) => ({ date: c.date, streak: c.streak })),
+    customLevelCount: customLevelCount,
+  });
+}
+
+/** 读取用户已解锁记录：{ achievementId: createdAt } */
+async function loadUnlocked(openid) {
+  const rows = await UserAchievement.findAll({ where: { openid } });
+  const map = {};
+  rows.forEach((r) => { map[r.achievementId] = r.createdAt; });
+  return map;
+}
+
+/**
+ * 判定并落库新解锁的成就（幂等），返回新解锁列表。
+ * @param {string} openid
+ * @returns {Promise<Object>} { stats, newlyUnlocked, unlockedAt }
+ */
+async function syncUnlocks(openid) {
+  const stats = await loadStats(openid);
+  const unlockedAt = await loadUnlocked(openid);
+  const evaluated = achievements.evaluate(stats);
+
+  const newlyUnlocked = [];
+  for (const state of evaluated) {
+    if (!state.unlocked || unlockedAt[state.achievementId]) continue;
+    // findOrCreate 幂等：并发重复调用也只会有一条记录
+    const [row, created] = await UserAchievement.findOrCreate({
+      where: { openid, achievementId: state.achievementId },
+      defaults: { openid, achievementId: state.achievementId },
     });
+    unlockedAt[state.achievementId] = row.createdAt;
+    if (created) {
+      const def = achievements.DEFINITIONS.find((d) => d.achievementId === state.achievementId);
+      newlyUnlocked.push({
+        achievementId: def.achievementId,
+        name: def.name,
+        description: def.description,
+        category: def.category,
+        icon: achievements.iconOf(def.achievementId),
+      });
+    }
   }
+
+  return { stats, newlyUnlocked, unlockedAt };
 }
 
 /**
@@ -86,32 +127,9 @@ router.get("/list", async (req, res) => {
       });
     }
 
-    // 确保内置成就存在
-    await initAchievements();
-
-    // 获取所有成就
-    const allAchievements = await Achievement.findAll();
-
-    // 获取用户已解锁的成就
-    const userAchievements = await UserAchievement.findAll({
-      where: { openid },
-      attributes: ["achievementId"],
-    });
-
-    const unlockedSet = new Set(userAchievements.map((a) => a.achievementId));
-
-    // 组装返回数据
-    const list = allAchievements.map((ach) => ({
-      achievementId: ach.achievementId,
-      name: ach.name,
-      description: ach.description,
-      icon: ach.icon,
-      conditionType: ach.conditionType,
-      conditionValue: ach.conditionValue,
-      unlocked: unlockedSet.has(ach.achievementId),
-    }));
-
-    res.send({ code: 0, data: list });
+    // 列表顺手做一次判定（用户打开成就页时就能看到最新进度与解锁），落库幂等
+    const { stats, unlockedAt } = await syncUnlocks(openid);
+    res.send({ code: 0, data: achievements.listWithProgress(stats, unlockedAt) });
   } catch (err) {
     console.error("GET /api/achievement/list 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
@@ -132,73 +150,27 @@ router.post("/check", async (req, res) => {
       });
     }
 
-    await initAchievements();
-
-    // 获取用户数据
-    const rankRecord = await RankRecord.findOne({
-      where: { openid },
-    });
-
-    const scores = await Score.findAll({
-      where: { user_id: (await require("../db").User.findOne({ where: { openid } })).id },
-    });
-
-    const userAchievements = await UserAchievement.findAll({
-      where: { openid },
-    });
-
-    const unlockedSet = new Set(userAchievements.map((a) => a.achievementId));
-
-    const allAchievements = await Achievement.findAll();
-    const newlyUnlocked = [];
-
-    for (const ach of allAchievements) {
-      if (unlockedSet.has(ach.achievementId)) continue;
-
-      let unlocked = false;
-
-      switch (ach.conditionType) {
-        case "total_wins":
-          unlocked = rankRecord && rankRecord.wins >= ach.conditionValue;
-          break;
-        case "total_stars":
-          unlocked = rankRecord && rankRecord.stars >= ach.conditionValue;
-          break;
-        case "rank":
-          unlocked = rankRecord && rankRecord.rankId >= ach.conditionValue;
-          break;
-        case "max_combo":
-          // 从成绩中找最大连击
-          const maxCombo = scores.reduce((max, s) => Math.max(max, s.max_combo || 0), 0);
-          unlocked = maxCombo >= ach.conditionValue;
-          break;
-        case "perfect_clear":
-          // 统计 3 星通关次数
-          const perfectCount = scores.filter((s) => s.stars === 3).length;
-          unlocked = perfectCount >= ach.conditionValue;
-          break;
-      }
-
-      if (unlocked) {
-        await UserAchievement.create({
-          openid,
-          achievementId: ach.achievementId,
-        });
-        newlyUnlocked.push(ach);
-      }
-    }
+    const { newlyUnlocked, unlockedAt } = await syncUnlocks(openid);
 
     res.send({
       code: 0,
       data: {
         newlyUnlocked,
-        totalUnlocked: unlockedSet.size + newlyUnlocked.length,
+        totalUnlocked: Object.keys(unlockedAt).length,
+        total: achievements.DEFINITIONS.length,
       },
     });
   } catch (err) {
     console.error("POST /api/achievement/check 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
+});
+
+/**
+ * GET /api/achievement/categories —— 成就分类（前端 tab；也可以直接由列表里的 category 归组）
+ */
+router.get("/categories", async (req, res) => {
+  res.send({ code: 0, data: achievements.categories() });
 });
 
 module.exports = router;

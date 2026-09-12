@@ -113,4 +113,22 @@ s.test('端到端读数：0 星青铜 1；练满一个学段（30 星）升入�
   s.assert.equal(ladder.starsForCell(72), 527, '满级（荣耀王者 9）门槛应稳定在 527 星');
 });
 
+s.test('徽章图：按小级拼 72 张图路径，且能回退大段位图', () => {
+  // 2026-09-12 美术交付 72 张小级徽章：/assets/ranks/rank-<段key>-<1~9>-256.png
+  s.assert.equal(ladder.rankOf(0).icon, '/assets/ranks/rank-bronze-1-256.png');
+  s.assert.equal(ladder.rankOf(30).icon, '/assets/ranks/rank-silver-4-256.png');
+  s.assert.ok(/^\/assets\/ranks\/[a-z]+\.png$/.test(ladder.rankOf(0).iconBig),
+    '应同时给出大段位图路径作为兜底');
+  // 72 级每级的图路径都不重复，且级号落在 1~9
+  const paths = [];
+  for (let c = 1; c <= ladder.TOTAL_CELLS; c++) {
+    const cur = ladder.rankOf(ladder.starsForCell(c));
+    s.assert.equal(cur.cell, c, '第 ' + c + ' 级门槛处应恰好是第 ' + c + ' 级');
+    s.assert.ok(/-\d-256\.png$/.test(cur.icon), '图路径应带小级号：' + cur.icon);
+    paths.push(cur.icon);
+  }
+  s.assert.equal(paths.length, 72);
+  s.assert.allDistinct(paths, '72 级徽章图路径不应重复');
+});
+
 s.done();

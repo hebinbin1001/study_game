@@ -5,6 +5,84 @@
 
 ---
 
+## 2026-09-12（素材到货：成就清单对齐 + 72 级段位徽章接入 + 包体护栏）
+
+> 用户交付了第二批美术：成就图标 38 张、段位小级徽章 72 级（各含 -256 版）、战士皮肤 24 套。
+
+### 成就清单按到货图标反向对齐（36 条）
+
+- 到货图标是按**早前草稿清单**出的，与定稿的成就 id 有出入 → 现在以**已交付的文件名为准**反向对齐定义
+  （id 只是取图用的键，玩家看到的名称/描述由我们决定）。
+- 顺带修掉两个自己埋的问题：
+  1. **combo 类死成就**：原来写了「单局连击 15」，但一局只有 10 题、单局连击上限就是 10 —— 永远解不开。
+     改成 `combo_10`（单局 10 连）+ `combo_20`/`combo_master`（**累计连击** 20/50，可达且分档合理）；
+  2. 新增 `maxScore`（单局满分）、`perfectLevels`（三星关卡去重）、`perfectStreak`（连续全对）三个指标，
+     支撑 `boss_slayer`「单局满分 100」、`grade_all_3star`「30 个关卡三星」、`no_mistake_run`「连续 3 局全对」。
+- 单测新增/加强：指标必须被使用且都存在、满级样本必须全部可解锁、阈值阶梯不重复不倒挂
+  （`achievements.test.js` 18 用例 / 404 断言）。
+
+### 72 级段位徽章接入
+
+- `server/rank-ladder.js`：`rankOf()` 的 `icon` 改为按**小级**拼路径 `/assets/ranks/rank-<段key>-<级>-256.png`
+  （原来只有 8 张大段位图，中间小级看不到差别 —— 这正是「爬到中间级没收益」的观感来源）；
+  同时返回 `iconBig`（大段位图）作为兜底。
+- 「我的」页：徽章图加载失败时自动回退大段位图（`onRankIconError`），72 张里缺某张也不会裂图。
+- 单测：72 级图路径全不重复、级号 1~9、兜底路径存在（`rank-ladder.test.js` 10 用例 / 816 断言）。
+
+### ⚠️ 包体红线（需要你决策，见 `docs/美术素材需求与豆包提示词.md` 开头的「先读」）
+
+- 实测 `miniprogram/` 图片共 **222 张 / 31.4 MB**，而**微信主包上限 2MB** —— 现在这份包上传会失败。
+- 新增 `e2e/check-assets.js` 把包体做成红绿灯（单张 > 60KB、总量 > 1.5MB 即报问题），
+  已接进 `run-all.js`；**素材方案落地前跑在 `--warn-only`（不阻断）**，方案定了再去掉该参数恢复阻断。
+- 建议：端上只留展示尺寸（图标 ≤128px、皮肤 ≤256px），原图移入 `miniprogram/assets-src/`（不参与打包）。
+
+---
+
+## 2026-09-12（需求④ 成就扩充：6 → 37 条 + 分类筛选 + 进度）
+
+> 用户原始需求：「成就主页可以在丰富一些，多搞一些成就」。
+
+### 关键决策：成就定义进代码，不动数据库
+
+- 原实现把定义写进 `achievements` 表，且 `conditionType` 是 **MySQL ENUM（只有 5 个取值）**——
+  每加一类条件都要改生产库表结构，扩到 30+ 会反复 DDL。
+- 现按段位（`server/rank-ladder.js`）同一思路：**新增 `server/achievements.js` 作为唯一口径**，
+  定义 + 判定 + 进度全是纯函数（可单测）；用户解锁记录仍落 `user_achievements`
+  （openid + achievementId + createdAt），**本次改动零表结构变更、零生产 DDL**。
+
+### 服务端
+
+- `server/achievements.js`：7 个分类（答题/关卡/玩法/习惯/错题/段位/自定义）× 共 **37 条**成就；
+  15 个可判定指标（累计答对、最高连击、单局全对、连续三星、通关数、三星数、累计星、对局数、
+  连续/累计签到、错题总数、已掌握数、复习过的错题数、段位、自定义关卡数）。
+- `GET /api/achievement/list`：顺手做一次判定并落库（幂等），返回**数组**（与改造前同形状，
+  老客户端不受影响），每条额外带 `category / current / threshold / progress / unlockedAt`。
+- `POST /api/achievement/check`：只返回本次新解锁的成就（幂等，`findOrCreate`），
+  并给出 `totalUnlocked / total`。
+- 新增 `GET /api/achievement/categories`（分类元数据，前端也可自行由列表归组）。
+
+### 小程序端
+
+- 新增 `miniprogram/utils/achievement-view.js`（纯逻辑）：卡片装饰（进度文案/解锁日期/emoji 兜底）、
+  由数据推导分类 tab（后端加分类前端自动出现）、分类筛选、分组行、汇总。
+- 成就页：分类 chips（全部/已解锁/7 个分类，带 x/y 角标）+ 每条成就的**进度条**与「已达成/当前/目标」
+  文案 + 解锁日期；「全部」视图按分类插分组标题；新增「只看已解锁」筛选。
+- 图标策略：`<image src="/assets/achievements/<id>.png">` 失败时自动回退分类 emoji
+  （图标由美术产出，未到位不裂图，可分批交付）；检查解锁换成弹窗展示新成就名。
+
+### 测试
+
+- `miniprogram/utils/__tests__/achievements.test.js`（17 用例 / 407 断言）：
+  规模与结构、分类齐全、**无死成就护栏**（每个 metric 都要实现且被使用；满级样本必须全部可解锁；
+  空样本一条都不许白送）、阈值阶梯不重复不倒挂、statsFrom 各口径边界、evaluate 阈值边界与进度封顶、
+  列表保持数组形状且已解锁时间不被覆盖、段位类阈值落在合法段位区间。
+- `miniprogram/utils/__tests__/achievement-view.test.js`（11 用例 / 47 断言）：
+  进度文案与日期格式化、分类推导（含未知分类追加）、筛选、分组标题只插一次、汇总不除零。
+- `e2e/smoke-api.js` 新增**成就契约链路**（对真实部署跑）：列表 ≥30 条且新字段齐备、
+  分类 ≥6 个、unlocked 必带 unlockedAt、进度不越界、check 幂等。
+
+---
+
 ## 2026-09-12（需求② 错题本优化：分页 + 复习答对后可删除/保留）
 
 > 用户原始需求：「错题本的展示可以优化下，比如分页展示，错题再次做完正确就可以删除，也可以选择继续保留错题」。
@@ -363,4 +441,3 @@
 ### 接口体检（2026-09-08 线上网关）
 - `e2e/smoke-api.js`：12 组路由 **全部 PASS**（authed 走 x-wx-source 通道为 1003 属预期——真实小程序走 Bearer token 不受影响；若需 smoke source 通道通，检查云托管 env `WX_TRUSTED_SOURCES` 未被清空）。
 - 真实调用链探测（login 拿 token → Bearer 调 user/me、score、rank/sync、wrong/add·list、checkin/auto、report、ranklist/world、achievement、avatar）：**全部 code=0**。
-

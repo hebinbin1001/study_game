@@ -9,7 +9,8 @@ Page({
     nickname: '',
     avatarUrl: '',
     rankName: '',     // 段位（/api/rank/info，失败静默占位）
-    rankIcon: '',     // 段位徽章图（assets/ranks/*.png，后端按当前小级返回）
+    rankIcon: '',     // 段位徽章图（assets/ranks/rank-<段>-<级>-256.png，后端按当前小级返回）
+    rankIconBig: '',  // 大段位图兜底（小级图缺失时 onerror 切到这张）
     wins: 0,
     rankStars: 0,
     menu: [
@@ -47,10 +48,18 @@ Page({
       self.setData({
         rankName: d.rankName || '',
         rankIcon: d.icon || '',
+        rankIconBig: d.iconBig || '',
         wins: d.wins || 0,
         rankStars: d.stars || 0
       });
     }).catch(function () {});
+  },
+
+  // 段位小级徽章加载失败 → 回退到大段位图（72 张里缺某张时不出现裂图）
+  onRankIconError: function () {
+    if (this.data.rankIconBig && this.data.rankIcon !== this.data.rankIconBig) {
+      this.setData({ rankIcon: this.data.rankIconBig });
+    }
   },
 
   // 菜单点击

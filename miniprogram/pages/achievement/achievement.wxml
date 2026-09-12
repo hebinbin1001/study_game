@@ -22,28 +22,77 @@
     </view>
   </view>
 
-  <!-- 成就列表：勋章卡片（已解锁 / 未解锁两种状态） -->
+  <!-- 分类筛选（全部 / 已解锁 / 答题 / 关卡 / 玩法 / 习惯 / 错题 / 段位 / 自定义） -->
+  <scroll-view wx:if="{{categories.length > 1}}" class="cat-tabs" scroll-x="true" enable-flex="true">
+    <view
+      wx:for="{{categories}}"
+      wx:key="key"
+      class="cat-tab {{activeCategory === item.key ? 'on' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="pickCategory">
+      {{item.emoji}} {{item.label}}
+      <text class="cat-count">{{item.key === 'unlocked' ? item.unlocked : (item.unlocked + '/' + item.total)}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- 加载失败 -->
+  <view wx:if="{{loadError}}" class="empty-state" bindtap="loadAchievements">
+    <view class="empty-emoji">📡</view>
+    <view class="empty-text">加载失败（{{loadError}}）</view>
+    <view class="empty-text">点这里重试</view>
+  </view>
+
+  <!-- 成就列表：分类分组标题 + 勋章卡片（已解锁 / 未解锁两态 + 进度条） -->
   <view class="achievement-list">
-    <block wx:for="{{achievements}}" wx:key="achievementId">
-      <view class="medal-card {{item.unlocked ? 'unlocked' : 'locked'}}">
-        <view class="medal {{item.unlocked ? 'medal--on' : 'medal--off'}}">
-          <text class="medal-emoji">{{item.unlocked ? item.emoji : '🔒'}}</text>
-          <view class="medal-shine" wx:if="{{item.unlocked}}">✨</view>
+    <block wx:for="{{achievements}}" wx:key="index">
+      <!-- 分类分组标题（仅「全部」视图） -->
+      <view wx:if="{{item.t === 'g'}}" class="cat-group">
+        <text class="cat-group-title">{{item.emoji}} {{item.text}}</text>
+        <text class="cat-group-count">{{item.unlocked}}/{{item.count}}</text>
+      </view>
+
+      <!-- 成就卡片 -->
+      <view wx:elif="{{item.t === 'c'}}" class="medal-card {{item.it.unlocked ? 'unlocked' : 'locked'}}">
+        <view class="medal {{item.it.unlocked ? 'medal--on' : 'medal--off'}}">
+          <!-- 图标优先，缺图（图还没做/没发）时自动回退 emoji -->
+          <image
+            wx:if="{{item.it.icon && !item.it.iconErr}}"
+            class="medal-img"
+            src="{{item.it.icon}}"
+            mode="aspectFit"
+            data-id="{{item.it.achievementId}}"
+            data-index="{{index}}"
+            binderror="onIconError" />
+          <text wx:else class="medal-emoji">{{item.it.unlocked ? item.it.emoji : '🔒'}}</text>
+          <view class="medal-shine" wx:if="{{item.it.unlocked}}">✨</view>
         </view>
         <view class="medal-info">
-          <view class="medal-name">{{item.name}}</view>
-          <view class="medal-desc">{{item.description}}</view>
+          <view class="medal-name">{{item.it.name}}</view>
+          <view class="medal-desc">{{item.it.description}}</view>
+          <!-- 进度条：未解锁时显示当前/目标，解锁后显示达成日期 -->
+          <view class="medal-progress">
+            <view class="medal-progress-bar">
+              <view class="medal-progress-fill" style="width: {{item.it.progress}}%;"></view>
+            </view>
+            <text class="medal-progress-text">{{item.it.unlocked ? (item.it.unlockedText || '已达成') : item.it.progressText}}</text>
+          </view>
         </view>
         <view class="medal-status">
-          <view class="badge badge--green" wx:if="{{item.unlocked}}">已解锁</view>
+          <view class="badge badge--green" wx:if="{{item.it.unlocked}}">已解锁</view>
           <view class="badge badge-locked" wx:else>未解锁</view>
         </view>
       </view>
     </block>
+
+    <!-- 筛选后为空（总数为 0 时走下面那张空态卡） -->
+    <view class="empty-state" wx:if="{{achievements.length === 0 && totalCount > 0 && !loadError}}">
+      <view class="empty-emoji">🎖️</view>
+      <view class="empty-text">这个分类下还没有解锁的成就</view>
+    </view>
   </view>
 
   <!-- 空态：尚无成就记录 -->
-  <view class="card--soft empty-card" wx:if="{{!loading && achievements.length === 0}}">
+  <view class="card--soft empty-card" wx:if="{{!loading && totalCount === 0}}">
     <view class="empty-state">
       <text class="empty-emoji">🏅</text>
       <view class="empty-text">还没有成就记录</view>

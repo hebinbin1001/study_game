@@ -13,15 +13,17 @@
 
 'use strict';
 
+// key 用于拼「小级徽章图」文件名：/assets/ranks/rank-<key>-<1~9>-256.png
+// icon 保留大段位图，作为小级图缺失时前端 onerror 的兜底。
 const BIG_RANKS = [
-  { id: 1, name: '青铜', icon: '/assets/ranks/bronze.png' },
-  { id: 2, name: '白银', icon: '/assets/ranks/silver.png' },
-  { id: 3, name: '黄金', icon: '/assets/ranks/gold.png' },
-  { id: 4, name: '铂金', icon: '/assets/ranks/platinum.png' },
-  { id: 5, name: '钻石', icon: '/assets/ranks/diamond.png' },
-  { id: 6, name: '星耀', icon: '/assets/ranks/star.png' },
-  { id: 7, name: '王者', icon: '/assets/ranks/king.png' },
-  { id: 8, name: '荣耀王者', icon: '/assets/ranks/glory.png' }
+  { id: 1, key: 'bronze', name: '青铜', icon: '/assets/ranks/bronze.png' },
+  { id: 2, key: 'silver', name: '白银', icon: '/assets/ranks/silver.png' },
+  { id: 3, key: 'gold', name: '黄金', icon: '/assets/ranks/gold.png' },
+  { id: 4, key: 'platinum', name: '铂金', icon: '/assets/ranks/platinum.png' },
+  { id: 5, key: 'diamond', name: '钻石', icon: '/assets/ranks/diamond.png' },
+  { id: 6, key: 'star', name: '星耀', icon: '/assets/ranks/star.png' },
+  { id: 7, key: 'king', name: '王者', icon: '/assets/ranks/king.png' },
+  { id: 8, key: 'glory', name: '荣耀王者', icon: '/assets/ranks/glory.png' }
 ];
 
 const LEVELS_PER_RANK = 9;
@@ -67,7 +69,10 @@ function rankOf(stars) {
     rankId: big.id,
     rankLevel: level,
     rankName: big.name + ' ' + level,
-    icon: big.icon
+    // 72 级小级徽章（2026-09-12 美术交付；-256 为端上展示尺寸），
+    // iconBig 是大段位图，供小级图缺失时兜底。
+    icon: '/assets/ranks/rank-' + big.key + '-' + level + '-256.png',
+    iconBig: big.icon
   };
 }
 

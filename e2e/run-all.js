@@ -29,6 +29,9 @@ const STAGES = [
   { id: 'syntax', layer: '静态', title: '全量 JS 语法检查', script: 'e2e/syntax-check-all.js' },
   { id: 'structure', layer: '静态', title: '结构回归（app.json/组件/tabBar/玩法一致性）', script: 'e2e/structure-check.js' },
   { id: 'wxss', layer: '静态', title: 'WXSS 检查', script: 'e2e/check-wxss.js' },
+  // 包体检查（微信主包 2MB 硬限）：素材方案确认前先用 --warn-only，避免把流水线钉死；
+  // 素材压缩/分包落地后把参数去掉，恢复成阻断。
+  { id: 'assets', layer: '静态', title: '包体资源检查（超限仅警告）', script: 'e2e/check-assets.js', args: ['--warn-only'] },
   { id: 'unit', layer: '单元', title: '单元测试套件', script: 'miniprogram/utils/__tests__/run-all.js' },
   { id: 'game', layer: '端到端', title: '单词闯关（字母射击打怪）', script: 'e2e/verify-game.js' },
   { id: 'result', layer: '端到端', title: '结算页（本局错题回顾）', script: 'e2e/verify-result.js' },
@@ -91,7 +94,7 @@ function main() {
     console.log('      node ' + stage.script);
     console.log('---------------------------------------------------------');
 
-    const res = spawnSync(process.execPath, [stage.script], {
+    const res = spawnSync(process.execPath, [stage.script].concat(stage.args || []), {
       cwd: ROOT,
       stdio: 'inherit'
     });
