@@ -446,22 +446,30 @@ const WARRIOR = {
   baseH: 22,       // 底座高
   baseGap: 6,      // 底座顶面相对 CANNON_Y 的上移量
   bobAmp: 2.5,     // 待机上下浮动幅度（px）
-  bobSpeed: 0.004  // 浮动角速度（每毫秒；约 1.6s 一个来回）
+  bobSpeed: 0.004, // 浮动角速度（每毫秒；约 1.6s 一个来回）
+  recoilMax: 8,    // 开火后坐力：战士最多下沉多少 px（底座不动，只有身体沉）
+  // 后坐力作用范围：炮弹离炮口多远之内还算「刚出膛」（px）。
+  // 炮弹速度 700px/s，取 140px ≈ 200ms 的观感 —— 太短（52px≈74ms）人眼看不到。
+  recoilDist: 140,
+  flashR: 22       // 炮口闪光最大半径
 };
 
 /**
  * 战士站位（纯函数，可单测）：底座矩形 + 战士中心点 + 待机浮动。
  * @param {number} [now] 时间戳（毫秒）；不传/0 表示不浮动
+ * @param {number} [recoilDy] 后坐力下沉量（px，来自 warriorRecoil().dy）
  * @returns {{cx:number, cy:number, glyph:number, baseX:number, baseY:number, baseW:number, baseH:number, bob:number}}
  */
-function warriorLayout(now) {
+function warriorLayout(now, recoilDy) {
   const cx = W / 2;
   const baseTop = CANNON_Y - WARRIOR.baseGap;
   const bob = now ? Math.sin(now * WARRIOR.bobSpeed) * WARRIOR.bobAmp : 0;
+  // 后坐力只把「战士本体」往下压，底座（baseY）不动 —— 这样看上去是人在后仰，不是台子塌了
+  const dy = (typeof recoilDy === 'number' && isFinite(recoilDy)) ? recoilDy : 0;
   return {
     cx: cx,
     // 让战士「脚底」正好落在底座顶面：中心 = 底座顶 - 半个字高（+ 呼吸偏移）
-    cy: baseTop - WARRIOR.glyph / 2 + bob,
+    cy: baseTop - WARRIOR.glyph / 2 + bob + dy,
     glyph: WARRIOR.glyph,
     baseX: cx - WARRIOR.baseW / 2,
     baseY: baseTop,
@@ -471,11 +479,58 @@ function warriorLayout(now) {
   };
 }
 
+/**
+ * 开火后坐力 + 炮口闪光强度（纯函数，可单测）。
+ *
+ * 为什么不用时间戳驱动：小程序 canvas 的 rAF 时间戳在模拟器/后台会节流甚至停摆
+ * （项目里踩过：选项点对了炮弹却永远飞不到）。改成「按炮弹离炮口的距离」驱动后，
+ * 效果与游戏状态严格同步，`_testStep` 手动步进也能复现，不依赖真实时钟。
+ *
+ * @param {Object} state 引擎状态（读 state.bullet）
+ * @returns {{dy:number, t:number}} dy = 战士下沉量(px)；t = 闪光强度 0~1
+ */
+function warriorRecoil(state) {
+  const b = state && state.bullet;
+  if (!b || typeof b.x !== 'number' || typeof b.y !== 'number') return { dy: 0, t: 0 };
+  const dx = b.x - W / 2;
+  const dy = b.y - CANNON_Y;
+  const d = Math.sqrt(dx * dx + dy * dy);
+  if (!(d >= 0) || d > WARRIOR.recoilDist) return { dy: 0, t: 0 };
+  const t = 1 - d / WARRIOR.recoilDist;   // 刚出膛 = 1，飞远了 = 0
+  return { dy: WARRIOR.recoilMax * t, t: t };
+}
+
 function drawCannon(ctx, state, now) {
   // 战士皮肤：取 state.warriorSkin（engine 注入的 { emoji, color }），无则回退默认
   const skin = (state && state.warriorSkin) || DEFAULT_WARRIOR;
-  const L = warriorLayout(now || 0);
+  const recoil = warriorRecoil(state);
+  const L = warriorLayout(now || 0, recoil.dy);
   ctx.save();
+  // 炮口闪光：整段画在最底层之后、战士之前，避免糊住角色本体
+  if (recoil.t > 0) {
+    const fx = L.cx;
+    const fy = L.baseY - WARRIOR.glyph - 2 + recoil.dy;
+    const r = WARRIOR.flashR * recoil.t;
+    ctx.save();
+    ctx.globalAlpha = 0.55 * recoil.t;
+    ctx.fillStyle = (skin && skin.color) || '#5c7f9e';
+    ctx.beginPath(); ctx.arc(fx, fy, r, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.95 * recoil.t;
+    ctx.fillStyle = '#fff8d6';
+    ctx.beginPath(); ctx.arc(fx, fy, r * 0.45, 0, Math.PI * 2); ctx.fill();
+    // 四道短火花（用 rotate + 矩形，避免依赖 ellipse/lineDash 等兼容性存疑的 API）
+    ctx.globalAlpha = 0.8 * recoil.t;
+    ctx.fillStyle = '#ffd166';
+    for (let i = 0; i < 4; i++) {
+      const a = (Math.PI / 2) * i;
+      ctx.save();
+      ctx.translate(fx, fy);
+      ctx.rotate(a);
+      ctx.fillRect(-1.5, -r * 0.95, 3, r * 0.5);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
   // 站位光圈：用皮肤主色在脚下打一层柔光，让「谁的皮肤」一眼可辨
   ctx.save();
   ctx.globalAlpha = 0.28;
@@ -614,6 +669,8 @@ module.exports = {
   // 战士站位（导出供单测守「别再做小了」）
   WARRIOR,
   warriorLayout,
+  // 开火后坐力 + 炮口闪光强度（导出供单测）
+  warriorRecoil,
   // 导出工具函数供 engine 复用
   roundRect,
   clamp

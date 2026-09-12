@@ -79,4 +79,61 @@ s.test('不传时间戳时不浮动（供静态截图/单测使用）', () => {
   s.assert.equal(renderer.warriorLayout(0).bob, 0);
 });
 
+// ============ 开火反馈（2026-09-12：皮肤动态展示 遗留 B） ============
+// 设计取舍：效果不用时间戳驱动，而是按「炮弹离炮口的距离」算 ——
+// 小程序 canvas 的 rAF 时间戳在模拟器/后台会节流甚至停摆（项目里踩过），
+// 按距离算则与游戏状态严格同步，`_testStep` 手动步进也能复现。
+
+s.test('后坐力：没有炮弹时战士纹丝不动', () => {
+  const idle = renderer.warriorRecoil(null);
+  s.assert.equal(idle.dy, 0, '空状态不应有后坐力');
+  s.assert.equal(idle.t, 0, '空状态闪光强度应为 0');
+  const noBullet = renderer.warriorRecoil({ bullet: null });
+  s.assert.equal(noBullet.dy, 0, '无炮弹不应有后坐力');
+  // 坏数据不能把画面算崩（NaN 会污染整个 canvas 变换）
+  const bad = renderer.warriorRecoil({ bullet: { x: 'a', y: 'b' } });
+  s.assert.equal(bad.dy, 0, '炮弹字段非法时应回退为 0');
+});
+
+s.test('后坐力：刚出膛最强，飞远归零，中间单调衰减', () => {
+  const atMuzzle = renderer.warriorRecoil({ bullet: { x: W / 2, y: CANNON_Y } });
+  s.assert.ok(atMuzzle.t > 0.99, '刚出膛闪光强度应接近 1，实际 ' + atMuzzle.t.toFixed(3));
+  s.assert.ok(Math.abs(atMuzzle.dy - WARRIOR.recoilMax) < 1e-6,
+    '刚出膛后坐力应为上限 ' + WARRIOR.recoilMax + '，实际 ' + atMuzzle.dy);
+
+  // 单调衰减 + 有界：沿炮口正上方逐点采样
+  let prevDy = atMuzzle.dy;
+  for (let d = 5; d <= WARRIOR.recoilDist + 20; d += 5) {
+    const r = renderer.warriorRecoil({ bullet: { x: W / 2, y: CANNON_Y - d } });
+    s.assert.ok(r.dy <= prevDy + 1e-9, '距离 ' + d + ' 处后坐力不应反弹：' + r.dy + ' > ' + prevDy);
+    s.assert.ok(r.dy >= 0 && r.dy <= WARRIOR.recoilMax, '后坐力越界：' + r.dy);
+    s.assert.ok(r.t >= 0 && r.t <= 1, '闪光强度越界：' + r.t);
+    prevDy = r.dy;
+  }
+  const far = renderer.warriorRecoil({ bullet: { x: W / 2, y: CANNON_Y - WARRIOR.recoilDist - 1 } });
+  s.assert.equal(far.dy, 0, '飞出作用范围后应完全没有后坐力');
+  s.assert.equal(far.t, 0, '飞出作用范围后不应有闪光');
+});
+
+s.test('后坐力：距离按炮口算，方向不影响强度', () => {
+  const up = renderer.warriorRecoil({ bullet: { x: W / 2, y: CANNON_Y - 10 } });
+  const down = renderer.warriorRecoil({ bullet: { x: W / 2, y: CANNON_Y + 10 } });
+  const side = renderer.warriorRecoil({ bullet: { x: W / 2 + 10, y: CANNON_Y } });
+  s.assert.ok(Math.abs(up.dy - down.dy) < 1e-9, '正上方与正下方同距应等强');
+  s.assert.ok(Math.abs(up.dy - side.dy) < 1e-9, '正上方与正侧方同距应等强');
+});
+
+s.test('后坐力：只压战士本体，底座不动且不越出画布', () => {
+  const rest = renderer.warriorLayout(0);
+  const max = renderer.warriorRecoil({ bullet: { x: W / 2, y: CANNON_Y } });
+  const sunk = renderer.warriorLayout(0, max.dy);
+  s.assert.equal(sunk.baseY, rest.baseY, '底座不应跟着下沉');
+  s.assert.equal(sunk.baseX, rest.baseX, '底座不应左右移动');
+  s.assert.ok(sunk.cy > rest.cy, '战士应被压得比静止时更低');
+  s.assert.ok(Math.abs((sunk.cy - rest.cy) - max.dy) < 1e-9, '下沉量应等于后坐力值');
+  // 脚底允许沉到台面以下（这就是后坐力的观感），但头顶不能压出画布
+  s.assert.ok(sunk.cy - sunk.glyph / 2 > 0, '最大后坐力下战士头顶出画布了：' + (sunk.cy - sunk.glyph / 2).toFixed(1));
+  s.assert.ok(sunk.baseY + sunk.baseH <= H, '底座被带出画布底部');
+});
+
 s.done();

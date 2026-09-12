@@ -29,6 +29,7 @@ var audio = require('../../game/audio');
 var auth = require('../../utils/auth');
 var request = require('../../utils/request');
 var review = require('../../utils/review');
+var renderer = require('../../game/renderer');
 
 var CONFIG = config.CONFIG;
 
@@ -72,7 +73,10 @@ Page({
     // ---- 新手引导（M6-L） ----
     tutorialStep: 0,           // 0=不显示；1..3 引导步骤
     tutorialTitle: '',         // 当前步骤标题
-    tutorialDesc: ''           // 当前步骤文案
+    tutorialDesc: '',          // 当前步骤文案
+
+    // ---- 开火反馈（皮肤动态展示；仅 e2e 断言用，正常对局不读） ----
+    lastRecoil: { dy: 0, t: 0 } // { dy: 战士下沉量, t: 炮口闪光强度 0~1 }
   },
 
   // ============ 本局运行时状态（不参与 setData） ============
@@ -619,6 +623,21 @@ Page({
       engine._update(1 / 60);
     }
     engine.renderOnce();                            // 同步补一帧：让截图/断言看到与状态一致的画面
+  },
+
+  /**
+   * 【仅供端到端测试】读开火反馈强度（后坐力/炮口闪光）。
+   *
+   * 为什么存在：这两个效果是 canvas 上画的，端到端拿不到像素做断言。
+   * 这里把「状态 → 效果强度」的纯函数结果同步写进 data，测试即可对着
+   * 真实点击之后的状态断言，而不是靠像素或时钟等待。
+   *
+   * @returns {{dy:number, t:number}} dy = 战士下沉量(px)；t = 闪光强度 0~1
+   */
+  _testRecoil() {
+    var r = renderer.warriorRecoil(engine.getState());
+    this.setData({ lastRecoil: r });
+    return r;
   },
 
   // ============ 暂停 / 继续 / 退出（R5） ============

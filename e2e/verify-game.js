@@ -206,6 +206,34 @@ H.runSuite('verify-game（单词闯关）', async function (miniProgram, ck) {
     }
   }
 
+  // B5. 开火反馈：后坐力 + 炮口闪光（皮肤动态展示，2026-09-12 补）
+  // 效果由「炮弹离炮口的距离」驱动（不用时间戳，模拟器节流也不会假失败），
+  // 所以断言方式是：真实点击正确选项 → 立刻读强度 → 手动步进到炮弹飞远 → 强度归零。
+  console.log('[6.7/7] 开火反馈：战士后坐力 + 炮口闪光');
+  const optionsR = await H.waitForCount(page, '.option', EXPECTED_OPTIONS, 15000);
+  const dR = optionsR ? await page.data() : null;
+  const ciR = dR ? correctIndexOf(dR) : -1;
+  if (optionsR && ciR >= 0) {
+    await optionsR[ciR].tap();                       // 真实点击（模拟用户操作）
+    await page.callMethod('_testRecoil');            // 把当前强度写进 data
+    const atFire = (await page.data()).lastRecoil || {};
+    ck.check('开火瞬间战士有后坐力（下沉 > 0）', (atFire.dy || 0) > 0,
+      '实际 dy = ' + atFire.dy);
+    ck.check('开火瞬间有炮口闪光（强度接近 1）', (atFire.t || 0) > 0.9,
+      '实际 t = ' + atFire.t);
+
+    await page.callMethod('_testStep', 20);          // 20 帧 ≈ 0.33s，炮弹已飞出作用范围
+    await page.callMethod('_testRecoil');
+    const afterFly = (await page.data()).lastRecoil || {};
+    ck.check('炮弹飞远后后坐力归零', afterFly.dy === 0 && afterFly.t === 0,
+      '实际 = ' + JSON.stringify(afterFly));
+
+    await page.callMethod('_testStep', 150);         // 收尾：走完命中与出新题
+    await page.waitFor(400);
+  } else {
+    ck.check('找到可用于开火反馈验证的选项', false, 'correct 下标 = ' + ciR);
+  }
+
   console.log('[7/7] 校验页面未跳转/未崩溃');
   cur = await miniProgram.currentPage();
   ck.check('全流程结束后仍在游戏页', cur.path === 'pages/game/game', '实际 = ' + cur.path);
