@@ -64,11 +64,31 @@ function expectWordBuild(gradeKey, level) {
 }
 
 /** Node 侧复算连连看的牌面（与 pages/link 的 newRound 同一步骤） */
+/**
+ * 连连看挑战词池：必须与 pages/link 的 _loadW1 完全一致。
+ *
+ * 为什么强调（2026-09-12）：原来这里用的是 dict.filterByGroup(gradeKey, 'w1')，而 'w1' 是
+ * **类型码不是分组 key** —— isItemInGroup 找不到该分组就静默放行整库，成语/挖空词全混进来，
+ * 牌面会出现「舍*忘*」这种带 * 的题面。页面侧已在 e6d2c34 修成「type === 'w1' 且纯英文」，
+ * 测试侧同步口径，否则复算出来的词集与页面必然对不上（挑战用例会红）。
+ */
+function w1Pool(gradeKey) {
+  return dict.loadByGrade(gradeKey).filter(function (w) {
+    return w.type === 'w1' && /^[A-Za-z]+$/.test(String(w.q || ''));
+  });
+}
+
 function expectLink(gradeKey, level, tick) {
   const pairs = challenge.paramsOf(gradeKey, 'link').pairs;
   const seed = challenge.seedOf(gradeKey, level) + (tick || 0) * 7919;
   // 词集只由关卡种子决定（换局不换题）；牌面重排用 tick 派生的新种子
-  const words = rng.pickN(dict.filterByGroup(gradeKey, 'w1'), pairs, rng.makeRng(challenge.seedOf(gradeKey, level)));
+  let words = rng.pickN(w1Pool(gradeKey), pairs, rng.makeRng(challenge.seedOf(gradeKey, level)));
+  if (words.length < pairs) {
+    // 本学段纯英文单词不够 → 并入其他学段补齐（与页面 _loadW1 的兜底一致，保证关卡可玩）
+    let merged = [];
+    constants.GRADES.forEach(function (g) { merged = merged.concat(w1Pool(g.key)); });
+    words = rng.pickN(merged, pairs, rng.makeRng(challenge.seedOf(gradeKey, level)));
+  }
   const r = rng.makeRng(seed);
   const cards = [];
   words.forEach(function (w) {

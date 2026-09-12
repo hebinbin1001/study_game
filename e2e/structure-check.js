@@ -7,12 +7,20 @@ function check(ok, label) {
   if (!ok) fail++;
 }
 
-// 1) app.json 可解析 + 页面四件套
+// 1) app.json 可解析 + 页面四件套（含 page.json，缺一不可）
+//
+// 为什么 page.json 也必须是硬要求（2026-09-12 真机踩坑）：
+//   开启「组件按需注入」(lazyCodeLoading: requiredComponents) 后，框架靠编译产物里的
+//   __wxAppCode__["<页面路径>.json"] 去找页面的 usingComponents；页面缺 json 时该条目
+//   缺失，页面会被解析成 wx://not-found 占位 —— 表现就是真机点进去黑屏 / 进不去
+//   （排行榜、错题本当年就是这么挂的），而开发者工具里因为注入时机不同看不出来。
 const app = JSON.parse(fs.readFileSync('miniprogram/app.json', 'utf8'));
 app.pages.forEach((p) => {
-  const core = ['js', 'wxml', 'wxss'].every((e) => fs.existsSync(`miniprogram/${p}.${e}`));
-  check(core, `页面 ${p} 三件套齐全`);
+  const miss = ['js', 'wxml', 'wxss', 'json'].filter((e) => !fs.existsSync(`miniprogram/${p}.${e}`));
+  check(miss.length === 0, `页面 ${p} 四件套齐全` + (miss.length ? `（缺 ${miss.join('/')}）` : ''));
 });
+check(app.lazyCodeLoading === 'requiredComponents',
+  'app.json 已开启组件按需注入（lazyCodeLoading: requiredComponents）');
 check(Array.isArray(app.pages) && app.pages.length >= 20, `页面总数 ${app.pages.length}`);
 check(!!app.tabBar && app.tabBar.list.length === 4, 'tabBar 4 项');
 const tabPaths = app.tabBar.list.map((t) => t.pagePath);

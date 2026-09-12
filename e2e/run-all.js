@@ -48,6 +48,15 @@ const STAGES = [
   { id: 'm2m4', layer: '端到端', title: 'M2~M4 页面回归（8 页）', script: 'e2e/verify-m2m4.js' }
 ];
 
+// 逐页加载探针（按需注入 / 真机黑屏指纹）——真机「点进去黑屏 / 进不去」的回归闸门。
+// 排在页面回归之前：先确认 35 页都不报 __wxAppCode__ / wx://not-found，再跑具体玩法断言。
+STAGES.push({
+  id: 'load',
+  layer: '端到端',
+  title: '逐页加载探针（按需注入 / 真机黑屏指纹）',
+  script: 'e2e/probe-pages-load.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false };
   argv.forEach(function (a) {

@@ -1,15 +1,22 @@
 /**
- * check-wxss.js —— WXSS 轻量静态检查（花括号/圆括号/注释配对）
+ * check-wxss.js —— WXSS 与 app.json 的轻量静态护栏
  *
- * 背景：Node 单测不编译 WXSS，子代理写入截断导致的「缺闭合 }」只会在
- *   微信开发者工具编译时报错（如 unexpected EOF）；本脚本在本地提前发现。
+ * 背景：Node 单测不编译 WXSS，子代理写入截断导致的「缺闭合大括号」只会在微信开发者
+ * 工具编译时报错（如 unexpected EOF）；本脚本在本地提前发现。
  *
- * 检查范围：miniprogram/app.wxss 与 miniprogram/pages 下所有 wxss 文件
- * 检查项：1) 块注释开始与结束标记配对；2) 去注释后花括号与圆括号配对平衡（含行号）。
+ * 检查范围：miniprogram/app.wxss 与 miniprogram/pages 下所有 wxss 文件 + app.json
+ * 检查项：
+ *   1) 块注释的开始与结束标记是否配对；
+ *   2) 去注释后花括号与圆括号是否配对；
+ *   3) button 文字垂直居中（原生 button 默认 line-height 2.55555556 约 46px，
+ *      写死 height 却不写 line-height 会让文字贴顶）；
+ *   4) 半成品深色模式（只改 page 底色的 prefers-color-scheme: dark 媒体查询）；
+ *   5) 组件按需注入必须开启（lazyCodeLoading: "requiredComponents"）。
  *
  * 用法：node e2e/check-wxss.js
  * 退出码：0 全部通过；1 存在问题（逐条打印文件与行号）。
  */
+
 'use strict';
 
 const fs = require('fs');
@@ -28,20 +35,20 @@ for (const d of fs.readdirSync(pagesDir)) {
 }
 
 let bad = 0;
+
+// ============ 1 与 2）注释、括号配对 ============
 for (const file of files) {
   const src = fs.readFileSync(file, 'utf8');
   const rel = path.relative(ROOT, file);
 
-  // 1) 注释配对（/* 数量与 */ 数量必须一致）
   const open = (src.match(/\/\*/g) || []).length;
   const close = (src.match(/\*\//g) || []).length;
   if (open !== close) {
-    console.log('[FAIL] ' + rel + ': 注释不配对（/*=' + open + ', */=' + close + '）');
+    console.log('[FAIL] ' + rel + ': 注释不配对（' + open + ' 个开始标记 / ' + close + ' 个结束标记）');
     bad++;
     continue; // 注释不配对会让括号检查误报，跳过该文件
   }
 
-  // 2) 去注释后花括号/圆括号配对
   const noComment = src.replace(/\/\*[\s\S]*?\*\//g, '');
   const stack = [];
   let line = 1;
@@ -69,13 +76,13 @@ for (const file of files) {
   }
 }
 
-// ============ 3) 按钮文字垂直居中护栏（2026-09-12 用户反馈「按钮里的字靠上」） ============
+// ============ 3）按钮文字垂直居中护栏（2026-09-12 用户反馈「按钮里的字靠上」）============
 //
-// 根因：小程序原生 <button> 默认 line-height: 2.55555556（≈46px），而 app.wxss 里曾写
-// `button.btn { line-height: inherit }` —— 父容器没设行高时会退化成 normal。
-// 两者都会让「设了 height 但没写 line-height」的按钮文字贴顶。
-// 这里守两条：① 不许再出现 line-height: inherit/normal 的 button 规则；
-//            ② app.wxss 必须保留全局 button 居中规则（display:flex + align-items:center）。
+// 根因：小程序原生 button 默认 line-height 2.55555556（约 46px），而 app.wxss 里若写
+// 「button.btn { line-height: inherit }」，父容器没设行高时会退化成 normal。
+// 两者都会让「设了 height 但没写 line-height」的按钮文字贴顶。这里守两条：
+//   ① 不允许出现 line-height: inherit/normal 的 button 规则；
+//   ② app.wxss 必须保留全局 button 居中规则（display:flex + align-items:center）。
 {
   const appSrc = fs.readFileSync(path.join(ROOT, 'app.wxss'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
   const globalRule = /(^|\n)\s*button\s*\{([^}]*)\}/.exec(appSrc);
@@ -99,38 +106,47 @@ for (const file of files) {
       const body = m[2];
       if (/line-height:\s*(inherit|normal)/.test(body)) {
         console.log('[FAIL] ' + rel + ': button 规则里不能用 line-height: inherit/normal'
-          + '（父级没设行高/正常行高会让按钮文字贴顶），请改用 display:flex + align-items:center 或 line-height 等于 height');
+          + '（父级没设行高、正常行高都会让按钮文字贴顶），请改用 display:flex + align-items:center，或让 line-height 等于 height');
         bad++;
       }
     }
   }
 }
 
-// ============ 护栏：不许出现「半成品深色模式」================
+// ============ 4 与 5）app.json 的两条硬要求 ============
 //
-// 踩过的坑（2026-09-12 真机实测）：app.wxss 里曾有一段 @media (prefers-color-scheme: dark)，
-// 只把 page 底色改成近黑、文字改浅色，而各页面的卡片/渐变/按钮全是浅色主题 ——
-// 结果 18 个「没自带背景色、依赖 page 底」的页面在深色模式手机上整片发黑，内容看不清。
-// 开发者工具默认浅色，本地完全复现不出来，只能靠真机发现。
+// ① 深色模式：2026-09-12 真机实测，app.wxss 里曾有一段 prefers-color-scheme: dark
+//    媒体查询，只把 page 底色改成近黑、文字改浅色，而各页面的卡牌 / 渐变 / 按钮全是浅色
+//    主题 —— 结果「没自带背景色、依赖 page 底色」的页面在深色模式手机上整片发黑（21 个页面）。
+//    这里要求：要就逐页做完整深色配色（并补深色截图回归），要就完全不做，不允许只改 page 底色。
 //
-// 规则：要么**不做**深色模式（当前选择：卡通教育游戏统一浅色主题），
-//       要么**逐页做完整深色配色**并补深色截图回归 —— 不允许只改 page 底的半成品。
+// ② 按需注入：必须开启 lazyCodeLoading: "requiredComponents"。
+//    · 微信官方推荐开启（文档《按需注入和用时注入》，基础库 2.11.1 起支持）；
+//    · 真机调试的运行时是强制走按需注入的（开发者工具 toolkit 里的
+//      features.lazyCodeLoadingForDevTool）——app.json 不开的话，编译产物里没有
+//      __wxAppCode__ 映射，真机直接报 Can't find variable: __wxAppCode__，整页崩、路由失败；
+//    · 开启的前提是每个页面都有 page.json：框架靠 __wxAppCode__["页面路径.json"] 找
+//      usingComponents，缺 json 的页面会被解析成 wx://not-found 占位，表现就是点进去黑屏。
+//      这条底线由 structure-check.js 的「页面四件套齐全」硬校验守住。
+//
+// 历史更正：2026-09-12 曾把真机黑屏归因于 lazyCodeLoading 并把它删掉，属误判。真正原因是
+// 「页面缺 page.json」与「深色媒体查询」，两者已各自修掉；删掉按需注入反而让真机从
+// 「部分页面点不进去」升级成「__wxAppCode__ 未定义、整页崩」。
 {
   for (const file of files) {
-    // 先剥掉注释：说明文字里会出现这句话（比如 app.wxss 里解释「为什么移除」的那段），不能误判
+    // 先剥掉注释：说明文字里会出现这句话，不能误判
     const src = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
     const rel = path.relative(ROOT, file);
     if (/@media[^{]*prefers-color-scheme\s*:\s*dark/.test(src)) {
-      console.log('[FAIL] ' + rel + ': 检测到 prefers-color-scheme: dark —— 不允许再出现「只改 page 底」的'
+      console.log('[FAIL] ' + rel + ': 检测到 prefers-color-scheme: dark —— 不允许再出现「只改 page 底色」的'
         + '半成品深色模式（真机上会让没有自带背景的页面整片发黑）。'
-        + '要支持深色模式请逐页做完整配色 + 深色截图回归；否则请移除该媒体查询。');
+        + '要支持深色模式请逐页做完整配色并补深色截图回归；否则请移除该媒体查询。');
       bad++;
     }
   }
 
-  // app.json 的 darkmode/themeLocation 同样是大杀器：一旦打开，微信会把导航栏与页面底
-  // 按系统深色模式切换（theme.json 的 dark 变体），而页面内容是浅色的 → 真机整片发黑。
   const appJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'app.json'), 'utf8'));
+
   if (appJson.darkmode) {
     console.log('[FAIL] app.json: 不允许开启 darkmode —— 本项目统一浅色主题，'
       + '开启后系统深色模式会让没有自带背景的页面整片发黑（2026-09-12 真机踩坑）。');
@@ -140,17 +156,15 @@ for (const file of files) {
     console.log('[FAIL] app.json: themeLocation 仅用于深色主题，本项目不用；请一并移除。');
     bad++;
   }
-
-  // lazyCodeLoading（按需注入）：真机上会出现「先路由、后注册」的竞态 ——
-  // 页面被解析成 wx://not-found 占位（**黑屏**），报「Component is not found」+
-  // 「Page ... has not been registered yet」；开发者工具启动快，几乎复现不出来。
-  // 2026-09-12 真机踩坑，已移除。本项目 35 页 / 720KB，按需注入收益很小，不要重开。
-  if (appJson.lazyCodeLoading) {
-    console.log('[FAIL] app.json: 不要开启 lazyCodeLoading —— 真机上会出现「页面还没注册就路由」的竞态，'
-      + '表现为点进页面整片黑屏（wx://not-found 占位），而开发者工具里正常。');
+  if (appJson.lazyCodeLoading !== 'requiredComponents') {
+    console.log('[FAIL] app.json: 必须开启 lazyCodeLoading: "requiredComponents"（组件按需注入）——'
+      + '关闭后真机 / 真机调试会报 Can\'t find variable: __wxAppCode__（整页崩、路由失败）；'
+      + '开启前提是每个页面都有 page.json（structure-check.js 已加硬校验）。');
     bad++;
   }
 }
 
-console.log(bad === 0 ? '全部 ' + files.length + ' 个 wxss 检查通过。' : '共发现 ' + bad + ' 处问题。');
+console.log(bad === 0
+  ? '全部 ' + files.length + ' 个 wxss 与 app.json 检查通过。'
+  : '共发现 ' + bad + ' 处问题。');
 process.exit(bad === 0 ? 0 : 1);
