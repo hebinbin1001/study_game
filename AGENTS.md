@@ -67,3 +67,16 @@ cloudbase cloudrun list -e prod-d6gnifjoe28cfd96f   # 看服务状态与更新�
 
 - 微信开发者工具：`D:\Program Files (x86)\Tencent\微信web开发者工具`；模拟器截图在窗口不在前台时 rAF 被节流 → 画布空白，属正常现象不是 bug。
 - 子代理：本环境 `spawn_agent/followup_task` 的任务正文有时送不到子代理，默认**串行推进**；用户明确要求并行时再试。
+
+## 6. 资源与包体上限（硬性，用户 2026-09-12 明确要求）
+
+**图片和音频，单个文件都不能超过 200KB。** 这是平台侧的单文件硬限，和「整包 ≤2MB」是两件事，必须分别满足。
+
+- 新增任何图片/音频（美术皮肤、成就图标、段位徽章、音效、关卡素材）前先看体积；
+  超标就往 `miniprogram/assets-src/` 放原图（**该目录不参与打包**），端上只放压缩后的展示尺寸。
+- 压缩走现成脚本：`python e2e/compress-assets.py`。
+- 项目自留的更严目标：**图片压到 60KB 以内**（只提醒不阻断，但超了整包很快会顶到 1.8MB 告警线）。
+- 校验：`node e2e/check-assets.js`（已接入全量验证的静态层，超标直接失败、退出码 1）；
+  `miniprogram/utils/__tests__/assets-limit.test.js` 守着这两个阈值不被改宽。
+- 音频现状：包内**没有任何音频文件** —— 音效是 `game/audio.js` 用 WebAudio 现场合成的，发音走 TTS 插件。
+  将来要加音频资源，同样受 200KB 限制。

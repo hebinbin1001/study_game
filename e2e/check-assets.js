@@ -10,7 +10,10 @@
  *   变成流水线里的红绿灯，换素材时立刻能看见。
  *
  * 判定规则（微信限制的是**整包体积**，所以这里按全部会打包的文件算）：
- *   · 单个图片 > MAX_FILE_KB（默认 60KB）→ 记一条问题；
+ *   · **单个图片/音频 > MAX_FILE_KB（200KB，用户 2026-09-12 明确的硬限）→ 失败**；
+ *     这是平台侧的单文件上限，跟整包体积是两件事，必须单独守；
+ *   · 单个图片 > SOFT_IMAGE_KB（60KB）→ 只提醒不失败（超出会让整包迅速膨胀，
+ *     建议按展示尺寸压；原图放 assets-src/ 不参与打包）；
  *   · 整包（代码 + 模板 + 样式 + 词库 + 图片）> MAX_PACKAGE_MB（默认 1.8MB）→ 失败；
  *     留 0.2MB 余量给微信自己的注入内容，别贴着 2MB 上限跑。
  *
@@ -27,9 +30,13 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const MINIPROGRAM = path.join(ROOT, 'miniprogram');
-const MAX_FILE_KB = 60;
+// 用户 2026-09-12 明确要求：图片和音频单个文件都不能超过 200KB（平台硬限）
+const MAX_FILE_KB = 200;
+// 项目自留的更严目标：图片压到 60KB 以内，整包才留得住余量（只提醒，不阻断）
+const SOFT_IMAGE_KB = 60;
 const MAX_PACKAGE_MB = 1.8;
 const IMG_EXT = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
+const AUDIO_EXT = ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.wma', '.flac', '.amr'];
 const SKIP_DIRS = ['assets-src', 'node_modules', 'miniprogram_npm'];
 // 不参与打包的文件（与微信开发者工具的忽略规则对齐）
 const SKIP_FILES = ['.gitignore', 'project.private.config.json', 'project.config.json'];
@@ -53,6 +60,7 @@ function walk(dir, out) {
       file: rel,
       size: fs.statSync(p).size,
       isImage: IMG_EXT.indexOf(path.extname(ent.name).toLowerCase()) !== -1,
+      isAudio: AUDIO_EXT.indexOf(path.extname(ent.name).toLowerCase()) !== -1,
     });
   });
 }
@@ -63,13 +71,21 @@ function main() {
   list.sort((a, b) => b.size - a.size);
 
   const images = list.filter((f) => f.isImage);
+  const audios = list.filter((f) => f.isAudio);
   const totalMB = list.reduce((n, f) => n + f.size, 0) / 1024 / 1024;
   const imageMB = images.reduce((n, f) => n + f.size, 0) / 1024 / 1024;
-  const oversize = images.filter((f) => f.size / 1024 > MAX_FILE_KB).sort((a, b) => b.size - a.size);
+  const audioMB = audios.reduce((n, f) => n + f.size, 0) / 1024 / 1024;
+  // 硬限：图片 + 音频一起算（用户口径「图片和音频不超过 200K」）
+  const oversized = list.filter((f) => (f.isImage || f.isAudio) && f.size / 1024 > MAX_FILE_KB)
+    .sort((a, b) => b.size - a.size);
+  // 软提醒：只有图片（音频没法"按展示尺寸压"，提示也没意义）
+  const soft = images.filter((f) => f.size / 1024 > SOFT_IMAGE_KB).sort((a, b) => b.size - a.size);
 
   console.log('打包体积估算：' + list.length + ' 个文件 / ' + totalMB.toFixed(2) + ' MB'
-    + '（其中图片 ' + images.length + ' 张 / ' + imageMB.toFixed(2) + ' MB）');
-  console.log('阈值：整包 ≤ ' + MAX_PACKAGE_MB + 'MB（微信主包 2MB 硬限）、单张图 ≤ ' + MAX_FILE_KB + 'KB');
+    + '（其中图片 ' + images.length + ' 张 / ' + imageMB.toFixed(2) + ' MB'
+    + '、音频 ' + audios.length + ' 个 / ' + audioMB.toFixed(2) + ' MB）');
+  console.log('阈值：单个图片/音频 ≤ ' + MAX_FILE_KB + 'KB（硬限）、整包 ≤ ' + MAX_PACKAGE_MB + 'MB'
+    + '（微信主包 2MB 硬限）、图片建议 ≤ ' + SOFT_IMAGE_KB + 'KB');
 
   if (process.argv.indexOf('--list') !== -1) {
     console.log('');
@@ -83,9 +99,17 @@ function main() {
   if (totalMB > MAX_PACKAGE_MB) {
     problems.push('整包 ' + totalMB.toFixed(2) + ' MB，超过 ' + MAX_PACKAGE_MB + 'MB');
   }
-  if (oversize.length) {
-    problems.push('单张超过 ' + MAX_FILE_KB + 'KB 的有 ' + oversize.length + ' 张，例如：'
-      + oversize.slice(0, 3).map((f) => f.file + '(' + (f.size / 1024).toFixed(0) + 'KB)').join('、'));
+  if (oversized.length) {
+    problems.push('单个文件超过 ' + MAX_FILE_KB + 'KB 的有 ' + oversized.length + ' 个（图片/音频都不能超），例如：'
+      + oversized.slice(0, 3).map((f) => f.file + '(' + (f.size / 1024).toFixed(0) + 'KB)').join('、'));
+  }
+
+  if (soft.length) {
+    console.log('');
+    console.log('提示：有 ' + soft.length + ' 张图片超过建议值 ' + SOFT_IMAGE_KB + 'KB（不阻断，但会让整包迅速变大）：');
+    soft.slice(0, 5).forEach((f) => {
+      console.log('  ' + (f.size / 1024).toFixed(1).padStart(8) + ' KB  ' + f.file);
+    });
   }
 
   if (problems.length) {
