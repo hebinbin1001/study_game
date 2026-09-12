@@ -7,7 +7,7 @@
 //   - 蛇吃到干扰字母 → 扣 1 命（该食物作废）；撞墙/撞身 → 扣 1 命
 //   - 拼完当前词 → 换下一个目标词；共拼完 WORDS_PER_ROUND 个词即通关
 //   - 3 命用尽则结束；按正确命中率/剩余命给 1-3 星
-// 触屏：点蛇头四周的格子转向 —— 以蛇头为中心，点哪一侧就往哪边走（无实体方向键，也不支持滑动）。
+// 触屏：相对转向 —— 以蛇头朝向为中心线，点左/右侧拐 90°、点正前方直行、点正后不掉头（无实体方向键，也不支持滑动）。
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
@@ -304,27 +304,41 @@ Page({
 
   // ===== 触屏控制 =====
   /**
-   * 点格子转向（用户 2026-09-12 提出：点蛇头的哪个方向就往那边走）。
+   * 点格子转向 —— **相对转向**（用户 2026-09-12 拍板：以蛇头为中心线，点左右 = 转 90°）。
    *
-   * 取「蛇头 → 被点格子」的主轴方向作为目标方向（横竖谁的距离大听谁的），
-   * 再交给 _setDir —— 它会拦下 180° 反向，避免蛇直接撞进自己身体。
-   * 点蛇头所在格子不产生方向，忽略。
+   * 规则（把「蛇头 → 被点格子」的向量，投影到蛇头朝向轴上判断）：
+   *   · 点在前方 ±45° 内           → 直行，不改朝向
+   *   · 点在前/后 ±45°~135° 之间   → 朝**被点的那一侧拐 90°**（新朝向 = 点的那一侧）
+   *   · 点在正后方 ±135° 以外      → 不掉头（保持当前朝向，避免直接撞上自己的身体）
+   *   · 点蛇头自己                 → 忽略
+   *
+   * 实现要点：以蛇头朝向为基准算叉积（cross）与点积（dot），用 atan2(cross, dot) 得到
+   * 点击相对朝向的夹角（-π~π）；cross > 0 表示点在左侧（左拐），cross < 0 表示右侧（右拐）。
+   * 方向编号 0=上 1=右 2=下 3=左，左拐 = (d+3)%4、右拐 = (d+1)%4。
+   *
+   * 注意：这是「转向」而不是「指哪走哪」—— 点远处和点相邻格效果一样，
+   * 玩家连点同一侧两次可以掉头（与改造前一致，_setDir 只拦单次 180°）。
    */
   onCellTap: function (e) {
     if (this.data.over) return;
     var idx = parseInt(e.currentTarget.dataset.i, 10);
     if (isNaN(idx) || !this._snake || !this._snake.length) return;
     var head = this._snake[0];
-    var tr = Math.floor(idx / SIZE);
-    var tc = idx % SIZE;
-    var dr = tr - head.r;
-    var dc = tc - head.c;
-    if (dr === 0 && dc === 0) return;              // 点的是蛇头自己
-    if (Math.abs(dc) >= Math.abs(dr)) {
-      this._setDir(dc > 0 ? 1 : 3);                // 右 / 左
-    } else {
-      this._setDir(dr > 0 ? 2 : 0);                // 下 / 上
-    }
+    var dr = Math.floor(idx / SIZE) - head.r;
+    var dc = (idx % SIZE) - head.c;
+    if (dr === 0 && dc === 0) return;              // 点的是蛇头自己，忽略
+
+    var d = this._dir;
+    var hr = d === 0 ? -1 : (d === 2 ? 1 : 0);     // 朝向向量（行方向：向上为负）
+    var hc = d === 1 ? 1 : (d === 3 ? -1 : 0);     // 朝向向量（列方向：向右为正）
+    var dot = hr * dr + hc * dc;                   // > 0：点在朝向的前方
+    var cross = hr * dc - hc * dr;                 // > 0：点在朝向的左侧
+    var ang = Math.atan2(cross, dot);              // 点击相对朝向的夹角，-π ~ π
+    var Q = Math.PI / 4;
+
+    if (ang > Q && ang <= 3 * Q) this._setDir((d + 3) % 4);        // 左侧 → 左拐 90°
+    else if (ang < -Q && ang >= -3 * Q) this._setDir((d + 1) % 4); // 右侧 → 右拐 90°
+    // 其余情况（前方 ±45° 内 / 后方 ±135° 以外）保持直行
   },
 
   // 说明：原滑动转向（onTouchStart/onTouchEnd）已按用户反馈移除 ——

@@ -28,7 +28,7 @@
   </view>
 
   <!-- 触屏提示 -->
-  <view class="tap-hint">👆 点蛇头四周的格子转向 · 吃掉「绿色字母」按顺序拼出上方单词</view>
+  <view class="tap-hint">👆 点蛇头轴线哪一侧，就朝那一侧拐 90° · 吃掉「绿色字母」按顺序拼出上方单词</view>
 
   <!-- 网格（承载触屏） -->
   <view class="board-touch">
@@ -42,7 +42,7 @@
     </view>
   </view>
 
-  <view class="foot-tip">👆 点蛇头的上/下/左/右，蛇就往那边走 · 🟢 应拼字母 · 🔴 干扰字母</view>
+  <view class="foot-tip">👆 以蛇头为中心线：点左侧往左拐、点右侧往右拐（各 90°）· 点正前方直行 · 🟢 应拼字母 · 🔴 干扰字母</view>
 
   <!-- 结算 -->
   <view wx:if="{{over}}" class="over-mask">

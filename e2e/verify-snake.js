@@ -9,8 +9,9 @@
  *      —— 锁住「filterByGroup 传类型码 w1 静默放行全库」与「分组 word 混入 w2 挖空词」两类缺陷
  *   C. 食物生成规则：场上 4 个字母食物 = 1 个「应拼字母」(food-ok) + 3 个干扰字母(food-bad)，
  *      且 food-ok 的字母 === 进度条里下一个待拼字母（按序吃字母的核心规则）
- *   D. 移动与点方向：冻结主循环后逐步推进，蛇头按当前方向前进 1 格；
- *      走真实 onCellTap 点蛇头四周格子 → 方向变为点的那一侧；180° 反向被拒绝；点蛇头自己忽略
+ *   D. 移动与相对转向：冻结主循环后逐步推进，蛇头按当前方向前进 1 格；
+ *      走真实 onCellTap —— 点轴线哪一侧就朝那一侧拐 90°、点正前方直行、
+ *      点正后方不掉头、点蛇头自己忽略、只看方向不看距离
  *   E. 吃食物规则：吃到干扰字母 → 生命 -1；吃到应拼字母 → 得分 +5 且拼写进度推进
  *   F. 撞墙穿到对面（用户 2026-09-12 反馈「撞墙即死太挫败」→ 改为穿墙）：越过边界后蛇头从对面穿出且不扣命
  *
@@ -63,26 +64,40 @@ async function tapCell(page, idx) {
 }
 
 /**
- * 朝 dir 方向点一格（供「归位 / 瞄准」这类流程使用）。
- * 取蛇头同排/同列上较远的格子，保证主轴方向明确；
- * 蛇头已贴边时该方向没有可点的格子，直接抛错（调用点都在归位后的固定起点上）。
+ * 点「从蛇头出发、朝 stepDir 的相邻格」= 相对转向里的一次「朝那一侧拐 90°」。
+ * 相对转向下点击只看方向不看距离，所以取相邻格即可（也顺带证明「点近处远处一个样」）。
  */
-async function tapDir(page, dir) {
+async function tapStep(page, stepDir) {
   const data = await page.data();
   const head = headIndexOf(data.cells || []);
-  if (head < 0) throw new Error('tapDir: 找不到蛇头');
+  if (head < 0) throw new Error('tapStep: 找不到蛇头');
   const hr = Math.floor(head / SIZE);
   const hc = head % SIZE;
-  const SPAN = 4;
-  let tr = hr, tc = hc;
-  if (dir === DIR.UP) tr = Math.max(0, hr - SPAN);
-  else if (dir === DIR.DOWN) tr = Math.min(SIZE - 1, hr + SPAN);
-  else if (dir === DIR.LEFT) tc = Math.max(0, hc - SPAN);
-  else tc = Math.min(SIZE - 1, hc + SPAN);
-  if (tr === hr && tc === hc) {
-    throw new Error('tapDir: 蛇头贴边，无法构造「' + dir + '」方向的点击');
+  const v = { 0: [-1, 0], 1: [0, 1], 2: [1, 0], 3: [0, -1] }[stepDir];
+  const tr = hr + v[0];
+  const tc = hc + v[1];
+  if (tr < 0 || tr >= SIZE || tc < 0 || tc >= SIZE) {
+    throw new Error('tapStep: 目标格越界，无法构造「' + stepDir + '」方向的点击');
   }
   await tapCell(page, tr * SIZE + tc);
+}
+
+/**
+ * 把蛇头朝向转到 targetDir（供「归位 / 瞄准」这类流程使用）。
+ * 相对转向下每次点击最多拐 90°，所以按差值拆成 1~2 次点击：
+ * delta=1 右拐一次、delta=3 左拐一次、delta=2 连点同侧两次掉头。
+ */
+async function tapDir(page, targetDir) {
+  const raw = (await page.data()).dir;
+  // startGame 只设内部 _dir=1（右）而不走 setData，首帧 data.dir 可能是 undefined / 残留值；
+  // 这里按「起始朝向 = 右」兜底（resetAndFreeze 用的是 tapStep，不依赖本函数）。
+  const cur = (typeof raw === 'number' && raw >= 0 && raw <= 3) ? raw : DIR.RIGHT;
+  const delta = (targetDir - cur + 4) % 4;
+  if (delta === 0) return;                                  // 已在目标朝向
+  if (delta === 1) { await tapStep(page, (cur + 1) % 4); return; }
+  if (delta === 3) { await tapStep(page, (cur + 3) % 4); return; }
+  await tapStep(page, (cur + 1) % 4);                       // 先右拐 90°
+  await tapStep(page, (cur + 2) % 4);                       // 再右拐 90° = 掉头
 }
 
 /**
@@ -120,7 +135,9 @@ async function resetAndFreeze(page) {
   await page.callMethod('startGame');
   await page.waitFor(200);
   await freeze(page);
-  await tapDir(page, DIR.DOWN); // 点蛇头正下方：从内部 _dir=1(右) 转到 2(下)，允许且会 setData
+  // startGame 后内部朝向恒为 1(右)，点蛇头正下方一格 = 右拐 90° = 朝向 2(下)，
+  // 且 _setDir 会 setData(dir)，把 data.dir 从「残留值 / undefined」同步成已知值。
+  await tapStep(page, DIR.DOWN);
 }
 
 function headIndexOf(cells) {
@@ -293,38 +310,49 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
     headIndexOf((await page.data()).cells) === HEAD_START,
     '实际 = ' + headIndexOf((await page.data()).cells));
 
-  // D2. 点方向操控（用户 2026-09-12：以蛇头为中心，点哪一侧就往哪边走）
-  //     滑动转向已移除，本段只用 onCellTap；下标全部写死，改 SIZE 时需同步复核
-  console.log('[6/10] 校验点方向操控（点蛇头哪一侧就往哪边走）');
-  await tapCell(page, at(5, 8));                    // 点蛇头正右方
-  ck.check('点蛇头正右方 → 朝向变「右」(1)', (await page.data()).dir === DIR.RIGHT,
-    '实际 dir = ' + (await page.data()).dir);
+  // D2. 相对转向（用户 2026-09-12 拍板：以蛇头为中心线，点左右 = 转 90°）
+  //     起始：蛇头 (5,3)、朝向「下」(2)。滑动转向已移除，本段只用 onCellTap；
+  //     下标全部写死，改 SIZE 或起点时需同步复核。
+  console.log('[6/10] 校验相对转向（点轴线哪一侧就朝哪一侧拐 90°）');
+  const dirOf = async function () { return (await page.data()).dir; };
 
-  await tapCell(page, at(5, 0));                    // 点正左方 = 当前朝向的反方向
-  ck.check('点蛇头正后方（180° 反向）被拒绝，方向仍为「右」',
-    (await page.data()).dir === DIR.RIGHT, '实际 dir = ' + (await page.data()).dir);
+  await tapCell(page, at(6, 3));                    // 正前方（蛇头正下方一格）
+  ck.check('点正前方 → 直行，朝向仍「下」(2)', await dirOf() === DIR.DOWN,
+    '实际 dir = ' + await dirOf());
 
-  await tapCell(page, at(9, 0));                    // 竖向距离 4 > 横向距离 3 → 主轴取竖向 = 下
-  ck.check('点蛇头左下方（竖向更远）→ 主轴取竖向，朝向变「下」(2)',
-    (await page.data()).dir === DIR.DOWN, '实际 dir = ' + (await page.data()).dir);
+  await tapCell(page, at(5, 4));                    // 蛇头轴线东侧（朝下时为左侧）
+  ck.check('点轴线东侧 → 朝东拐 90°，朝向变「右」(1)', await dirOf() === DIR.RIGHT,
+    '实际 dir = ' + await dirOf());
 
-  await tapCell(page, at(5, 8));                    // 横向距离 5 > 竖向距离 0 → 主轴取横向 = 右
-  ck.check('点蛇头正右方（横向更远）→ 主轴取横向，朝向变「右」(1)',
-    (await page.data()).dir === DIR.RIGHT, '实际 dir = ' + (await page.data()).dir);
+  await tapCell(page, at(5, 8));                    // 当前朝右：正前方（远格，验证只看方向不看距离）
+  ck.check('点远处正前方 → 仍直行，朝向不变（只看方向不看距离）',
+    await dirOf() === DIR.RIGHT, '实际 dir = ' + await dirOf());
+
+  await tapCell(page, at(6, 3));                    // 朝右时轴线南侧
+  ck.check('点轴线南侧 → 朝南拐 90°，朝向变「下」(2)', await dirOf() === DIR.DOWN,
+    '实际 dir = ' + await dirOf());
+
+  await tapCell(page, at(4, 3));                    // 正后方（蛇头正上方一格）
+  ck.check('点正后方 → 不掉头，朝向仍「下」(2)', await dirOf() === DIR.DOWN,
+    '实际 dir = ' + await dirOf());
+
+  await tapCell(page, at(7, 0));                    // 斜着点前侧偏西（夹角约 -56°）
+  ck.check('斜着点轴线西侧 → 仍按侧向判定，朝西拐 90°，朝向变「左」(3)',
+    await dirOf() === DIR.LEFT, '实际 dir = ' + await dirOf());
 
   await tapCell(page, HEAD_START);                  // 点蛇头自己
-  ck.check('点蛇头自己 → 朝向不变（忽略）', (await page.data()).dir === DIR.RIGHT,
-    '实际 dir = ' + (await page.data()).dir);
+  ck.check('点蛇头自己 → 朝向不变（忽略）', await dirOf() === DIR.LEFT,
+    '实际 dir = ' + await dirOf());
 
-  await tapCell(page, at(2, 3));                    // 点蛇头正上方
-  ck.check('点蛇头正上方 → 朝向变「上」(0)', (await page.data()).dir === DIR.UP,
-    '实际 dir = ' + (await page.data()).dir);
-
-  // 沿点出来的新朝向（上）推进 1 步，确认「点方向」和真实移动接得上
+  // 把朝向转回「下」再推进 1 步，确认「转向」和真实移动接得上
+  // （不能朝西走：蛇身就在左边，会立刻撞到自己）
+  await tapDir(page, DIR.DOWN);
+  ck.check('连点可把朝向转回「下」(2)', await dirOf() === DIR.DOWN,
+    '实际 dir = ' + await dirOf());
   const headBeforeTapMove = headIndexOf((await page.data()).cells);
   await step(page, 1);
-  ck.check('按点出来的朝向「上」推进 1 步，蛇头下标 -' + SIZE,
-    headIndexOf((await page.data()).cells) === headBeforeTapMove - SIZE,
+  ck.check('按拐出来的朝向「下」推进 1 步，蛇头下标 +' + SIZE,
+    headIndexOf((await page.data()).cells) === headBeforeTapMove + SIZE,
     headBeforeTapMove + ' → ' + headIndexOf((await page.data()).cells));
 
   // 再归位一次：吃食物用例需要「前方有跑道」的确定起点，避免蛇头贴边导致无格可吃
