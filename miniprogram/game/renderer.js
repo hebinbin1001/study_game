@@ -300,7 +300,7 @@ function render(ctx, state, now) {
   ctx.clearRect(0, 0, W, H);
   drawSky(ctx);
   if (state.monster && state.question) drawMonster(ctx, state, now);
-  drawCannon(ctx, state);
+  drawCannon(ctx, state, now);
   if (state.bullet) drawBullet(ctx, state.bullet);
   drawParticles(ctx, state);
   drawCheckmark(ctx, state);
@@ -432,19 +432,71 @@ function drawEye(ctx, cx, cy, angry) {
 }
 
 // ============ 炮台（战士皮肤） ============
-function drawCannon(ctx, state) {
+/**
+ * 战士视觉参数（2026-09-12 用户反馈「字母射击里的战士太小」后调整）。
+ * 单位 = 画布逻辑像素（画布 390×500，会被等比缩放到手机屏）：
+ *   · 原来 emoji 只有 30px（≈画布高的 6%）、底座 60×18，在 250×118 的怪兽面前几乎看不见；
+ *   · 现在 56px（≈11%）、底座 104×22，与怪兽卡片的分量对得上，也留住了「越高级皮肤越好看」的展示空间。
+ * 改这几个数就能整体调大小；站位由 warriorLayout() 统一算，保证「战士踩在底座上、不越界」。
+ */
+const WARRIOR = {
+  glyph: 56,       // emoji 字号（战士本体视觉高度）
+  baseW: 104,      // 底座宽
+  baseH: 22,       // 底座高
+  baseGap: 6,      // 底座顶面相对 CANNON_Y 的上移量
+  bobAmp: 2.5,     // 待机上下浮动幅度（px）
+  bobSpeed: 0.004  // 浮动角速度（每毫秒；约 1.6s 一个来回）
+};
+
+/**
+ * 战士站位（纯函数，可单测）：底座矩形 + 战士中心点 + 待机浮动。
+ * @param {number} [now] 时间戳（毫秒）；不传/0 表示不浮动
+ * @returns {{cx:number, cy:number, glyph:number, baseX:number, baseY:number, baseW:number, baseH:number, bob:number}}
+ */
+function warriorLayout(now) {
+  const cx = W / 2;
+  const baseTop = CANNON_Y - WARRIOR.baseGap;
+  const bob = now ? Math.sin(now * WARRIOR.bobSpeed) * WARRIOR.bobAmp : 0;
+  return {
+    cx: cx,
+    // 让战士「脚底」正好落在底座顶面：中心 = 底座顶 - 半个字高（+ 呼吸偏移）
+    cy: baseTop - WARRIOR.glyph / 2 + bob,
+    glyph: WARRIOR.glyph,
+    baseX: cx - WARRIOR.baseW / 2,
+    baseY: baseTop,
+    baseW: WARRIOR.baseW,
+    baseH: WARRIOR.baseH,
+    bob: bob
+  };
+}
+
+function drawCannon(ctx, state, now) {
   // 战士皮肤：取 state.warriorSkin（engine 注入的 { emoji, color }），无则回退默认
   const skin = (state && state.warriorSkin) || DEFAULT_WARRIOR;
-  const cx = W / 2, cy = CANNON_Y;
+  const L = warriorLayout(now || 0);
   ctx.save();
+  // 站位光圈：用皮肤主色在脚下打一层柔光，让「谁的皮肤」一眼可辨
+  ctx.save();
+  ctx.globalAlpha = 0.28;
+  ctx.fillStyle = (skin && skin.color) || '#5c7f9e';
+  // 用「缩放 + 画圆」画椭圆：ctx.ellipse 在部分老版本小程序 canvas 上不保证可用，
+  // 而 arc 一定可用（项目里其他图形都用 arc）。
+  ctx.translate(L.cx, L.baseY + L.baseH);
+  ctx.scale(1, 0.26);
+  ctx.beginPath();
+  ctx.arc(0, 0, L.baseW * 0.62, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
   // 底座（卡通硬阴影平台，保留"炮台"站位感）
+  ctx.fillStyle = '#43617c';
+  roundRect(ctx, L.baseX, L.baseY + 5, L.baseW, L.baseH, 11); ctx.fill();   // 硬阴影层
   ctx.fillStyle = '#5c7f9e';
-  roundRect(ctx, cx - 30, cy - 4, 60, 18, 8); ctx.fill();
+  roundRect(ctx, L.baseX, L.baseY, L.baseW, L.baseH, 11); ctx.fill();       // 台面
   // 皮肤角色：emoji 占位（战士本体）
-  ctx.font = '30px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.font = L.glyph + 'px "PingFang SC","Microsoft YaHei",sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(skin.emoji, cx, cy - 24);
+  ctx.fillText(skin.emoji, L.cx, L.cy);
   ctx.restore();
 }
 
@@ -545,6 +597,9 @@ function blankCenter(state, ctx) {
 module.exports = {
   render,
   blankCenter,
+  // 战士站位（导出供单测守「别再做小了」）
+  WARRIOR,
+  warriorLayout,
   // 导出工具函数供 engine 复用
   roundRect,
   clamp
