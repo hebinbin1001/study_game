@@ -56,12 +56,18 @@ s.test('战士皮肤：共 24 套，且图片文件都真实存在于包内', ()
   s.assert.equal(withImage, 24);
 });
 
-s.test('怪兽皮肤：仍是 emoji（美术未交付），但主色齐全', () => {
+s.test('怪兽皮肤：4 套真图已接入，图片文件真实存在于包内（2026-09-12 到货）', () => {
   const monsters = skins.LOCAL_SKINS.filter((x) => x.type === 'monster');
   s.assert.equal(monsters.length, 4);
   monsters.forEach((m) => {
-    s.assert.ok(!m.image, m.avatarId + ' 目前不应有图片（怪兽美术未交付）');
+    s.assert.ok(!!m.image, m.avatarId + ' 缺图片路径');
+    const abs = path.join(ROOT, m.image.replace(/^\//, ''));
+    s.assert.ok(fs.existsSync(abs), m.avatarId + ' 的图片不存在：' + m.image + '（路径写了但图没进包 → 真机白块）');
+    s.assert.ok(fs.statSync(abs).size > 1024, m.avatarId + ' 图片过小（可能是占位）：' + m.image);
+    // 单文件 200KB 上限（用户明确要求，见 e2e/check-assets.js）
+    s.assert.ok(fs.statSync(abs).size / 1024 <= 200, m.avatarId + ' 超过 200KB');
     s.assert.ok(/^#[0-9a-fA-F]{6}$/.test(m.color), m.avatarId + ' 颜色非法');
+    s.assert.ok(!!m.emoji, m.avatarId + ' 仍要保留 emoji（真图加载失败时兜底）');
   });
 });
 
@@ -102,6 +108,14 @@ s.test('getMonsterSkin：正确返回怪兽皮肤', () => {
   s.assert.equal(m.id, 'monster_04');
   s.assert.equal(m.emoji, '⚡');
   s.assert.equal(m.color, '#ffc24d');
+  // 契约：必须把 image 带出去 —— 引擎靠它预加载真图，漏了就会静默退回 emoji
+  // （2026-09-12 真踩过：SKIN_RENDER 加了 image、这个函数没返回 → 对局里还是 emoji）
+  s.assert.equal(m.image, '/assets/skins/monster_04.png', 'getMonsterSkin 必须带上 image');
+  ['monster_01', 'monster_02', 'monster_03'].forEach((id) => {
+    s.assert.ok(!!skins.getMonsterSkin(id).image, id + ' 的 image 缺失');
+  });
+  // 战士那条通路同理（历史实现是对的，这里一起钉住防回退）
+  s.assert.ok(!!skins.getWarriorSkin('warrior_01').image, 'getWarriorSkin 必须带上 image');
 });
 
 s.test('getWarriorSkin：未知 id / 怪兽 id 回退默认战士', () => {
@@ -137,6 +151,10 @@ s.test('LOCAL_SKINS：与 SKIN_RENDER 的 avatarId 一一对应、字段齐全',
     s.assert.ok(['free', 'stars', 'rank', 'level', 'milestone'].indexOf(sk.unlockType) >= 0, sk.avatarId + ' unlockType 非法');
     s.assert.equal(sk.emoji, skins.SKIN_RENDER[sk.avatarId].emoji);
     s.assert.equal(sk.color, skins.SKIN_RENDER[sk.avatarId].color);
+    // 图片路径也必须两张表一致：2026-09-12 出现过「LOCAL_SKINS 加了 image、
+    // SKIN_RENDER 忘了加」→ 对局里静默退回 emoji，只有这条能当场抓住。
+    s.assert.equal(sk.image || '', skins.SKIN_RENDER[sk.avatarId].image || '',
+      sk.avatarId + ' 的两张表图片路径不一致（LOCAL_SKINS 与 SKIN_RENDER 必须同步）');
   }
 });
 

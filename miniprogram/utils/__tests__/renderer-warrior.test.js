@@ -136,4 +136,62 @@ s.test('后坐力：只压战士本体，底座不动且不越出画布', () => 
   s.assert.ok(sunk.baseY + sunk.baseH <= H, '底座被带出画布底部');
 });
 
+// ============ 怪兽真图叠放（2026-09-12 美术到货） ============
+// 设计：真图画在题目卡片**之前**，被卡片挡住下半身，看起来像怪兽举着卡片。
+// 关键不变量：只位移不缩放（缩放会把角色压扁）、不顶出画布上沿、左右与卡片同心。
+
+const { MON_START_Y, DANGER_Y } = require('../../game/config');
+const MON_ART = renderer.MON_ART;
+
+s.test('怪兽真图：宽度固定、高度按原图比例（绝不拉伸变形）', () => {
+  s.assert.ok(MON_ART.w > 100 && MON_ART.w < MON_W,
+    '图片宽度应介于 100 与卡片宽 ' + MON_W + ' 之间，实际 ' + MON_ART.w);
+  const wide = renderer.monsterArtLayout(340, 170, 70, 100);
+  s.assert.equal(wide.w, MON_ART.w, '宽度应取固定值');
+  s.assert.ok(Math.abs(wide.h - MON_ART.w * 170 / 340) < 1e-9,
+    '高度应按原图比例算，实际 ' + wide.h);
+  const tall = renderer.monsterArtLayout(340, 340, 70, 100);
+  s.assert.ok(Math.abs(tall.h - MON_ART.w) < 1e-9, '正方形原图高度应等于宽度');
+  // 坏数据不能算出 NaN（NaN 会让整帧 canvas 失效）
+  [renderer.monsterArtLayout(0, 0, 70, 100),
+    renderer.monsterArtLayout(undefined, undefined, 70, 100)].forEach((r) => {
+    s.assert.ok(isFinite(r.x) && isFinite(r.y) && isFinite(r.w) && isFinite(r.h),
+      '原始尺寸非法时应兜底成正方形，不能产生 NaN');
+  });
+});
+
+s.test('怪兽真图：左右与卡片同心', () => {
+  const mx = 70;                                   // 卡片左边距
+  const r = renderer.monsterArtLayout(340, 200, mx, 120);
+  s.assert.ok(Math.abs((r.x - mx) - (MON_W - r.w) / 2) < 1e-9, '应在卡片内水平居中');
+  // 跟随震屏：卡片左移时图片一起动（同一个 mx）
+  const shaken = renderer.monsterArtLayout(340, 200, mx - 7, 120);
+  s.assert.ok(Math.abs((shaken.x - r.x) - (-7)) < 1e-9, '震屏偏移应 1:1 传递');
+});
+
+s.test('怪兽真图：底边压在卡片顶部下方，且不顶出画布上沿', () => {
+  // 开局位置：画布上方只剩 22px，最容易顶出去
+  const atStart = renderer.monsterArtLayout(340, 235, 70, MON_START_Y);
+  s.assert.equal(atStart.bottom, MON_START_Y + MON_ART.overlap, '底边应压在卡片顶部下方固定距离');
+  s.assert.ok(atStart.y >= MON_ART.topMin - 1e-9,
+    '图片顶边不得超出画布上沿，实际 y = ' + atStart.y);
+  s.assert.ok(atStart.y + atStart.h >= atStart.bottom - 1e-9,
+    '图片应完整覆盖到底边（不能因为夹取而下移出缝）');
+  // 一路下沉到底都不越界、不形变
+  for (let y = MON_START_Y; y <= DANGER_Y; y += 20) {
+    const r = renderer.monsterArtLayout(340, 235, 70, y);
+    s.assert.ok(r.y >= MON_ART.topMin - 1e-9, 'y=' + y + ' 处顶边越界：' + r.y);
+    s.assert.ok(Math.abs(r.h - MON_ART.w * 235 / 340) < 1e-9, 'y=' + y + ' 处高度被改（会变形）');
+  }
+});
+
+s.test('怪兽真图：高度参数与卡片尺寸相称（观感护栏）', () => {
+  s.assert.ok(MON_ART.overlap > 0 && MON_ART.overlap < MON_H,
+    '叠入卡片的深度应在卡片高度以内，实际 ' + MON_ART.overlap);
+  // 下沉稳定后能露出的高度 = 图片高 - 叠入深度，太矮就白接了美术
+  const r = renderer.monsterArtLayout(340, 235, 70, 200);
+  const visible = r.h - MON_ART.overlap;
+  s.assert.ok(visible >= 50, '稳定后露出的怪兽高度应 ≥50px，实际 ' + visible.toFixed(1));
+});
+
 s.done();

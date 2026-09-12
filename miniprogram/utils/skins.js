@@ -55,11 +55,13 @@ const SKIN_RENDER = {
   milestone_250: { emoji: '🐚', color: '#3FB6C9', image: '/assets/skins/skin-ocean-guard.png' },
   milestone_365: { emoji: '🪄', color: '#E8B84B', image: '/assets/skins/skin-legend-sage.png' },
 
-  // —— 怪兽皮肤（美术未交付，仍是 emoji + 主色） ——
-  monster_01: { emoji: '👾', color: '#ff8fae' },  // 小怪兽（默认）
-  monster_02: { emoji: '🔥', color: '#ff5a5a' },  // 火焰怪兽
-  monster_03: { emoji: '❄️', color: '#7ec4ff' },  // 冰霜怪兽
-  monster_04: { emoji: '⚡', color: '#ffc24d' }   // 雷霆巨兽
+  // —— 怪兽皮肤（2026-09-12 美术到货：真图；emoji 保留作加载失败时的兜底） ——
+  // 对局里由 renderer.drawMonster 画在题目卡片**后面**（只露头肩，见 monsterArtLayout）；
+  // 形象页按 image 正常展示整张图。
+  monster_01: { emoji: '👾', color: '#ff8fae', image: '/assets/skins/monster_01.png' },  // 小怪兽（默认）
+  monster_02: { emoji: '🔥', color: '#ff5a5a', image: '/assets/skins/monster_02.png' },  // 火焰怪兽
+  monster_03: { emoji: '❄️', color: '#7ec4ff', image: '/assets/skins/monster_03.png' },  // 冰霜怪兽
+  monster_04: { emoji: '⚡', color: '#ffc24d', image: '/assets/skins/monster_04.png' }   // 雷霆巨兽
 };
 
 // 默认（classic）皮肤：离线 / 未选择 / 未知 id 时的回退
@@ -94,11 +96,13 @@ const LOCAL_SKINS = [
   { avatarId: 'warrior_04', name: '狮王战士',   type: 'warrior', rarity: 'legend', unlockType: 'rank',  unlockValue: 7,  emoji: '🦁', color: '#FF6B6B', image: '/assets/skins/skin-king-lion.png' },
   { avatarId: 'skin-glory-phoenix', name: '荣耀凤凰', type: 'warrior', rarity: 'legend', unlockType: 'rank', unlockValue: 8, emoji: '🔥', color: '#FF2D6F', image: '/assets/skins/skin-glory-phoenix.png' },
   { avatarId: 'skin-scholar-king', name: '学者之王', type: 'warrior', rarity: 'legend', unlockType: 'level', unlockValue: 30, emoji: '👑', color: '#5A6BD6', image: '/assets/skins/skin-scholar-king.png' },
-  // —— 怪兽（4 套，美术未交付） ——
-  { avatarId: 'monster_01', name: '小怪兽',     type: 'monster', rarity: 'common', unlockType: 'free',  unlockValue: 0,  emoji: '👾', color: '#ff8fae' },
-  { avatarId: 'monster_02', name: '火焰怪兽',   type: 'monster', rarity: 'rare',   unlockType: 'stars', unlockValue: 50, emoji: '🔥', color: '#ff5a5a' },
-  { avatarId: 'monster_03', name: '冰霜怪兽',   type: 'monster', rarity: 'epic',   unlockType: 'rank',  unlockValue: 4,  emoji: '❄️', color: '#7ec4ff' },
-  { avatarId: 'monster_04', name: '雷霆巨兽',   type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 6,  emoji: '⚡', color: '#ffc24d' },
+  // —— 怪兽（4 套，2026-09-12 美术到货：真图 + emoji 兜底） ——
+  // 真图由 `e2e/prepare-monsters.py` 从豆包出的白底拼图「切图 + 抠白底 + 压到 340px」生成，
+  // 只保留「头 + 上半身」——对局里下半身会被题目卡片挡住（见 game/renderer.js 的 monsterArtLayout）。
+  { avatarId: 'monster_01', name: '小怪兽',   type: 'monster', rarity: 'common', unlockType: 'free',  unlockValue: 0,  emoji: '👾', color: '#ff8fae', image: '/assets/skins/monster_01.png' },
+  { avatarId: 'monster_02', name: '火焰怪兽', type: 'monster', rarity: 'rare',   unlockType: 'stars', unlockValue: 50, emoji: '🔥', color: '#ff5a5a', image: '/assets/skins/monster_02.png' },
+  { avatarId: 'monster_03', name: '冰霜怪兽', type: 'monster', rarity: 'epic',   unlockType: 'rank',  unlockValue: 4,  emoji: '❄️', color: '#7ec4ff', image: '/assets/skins/monster_03.png' },
+  { avatarId: 'monster_04', name: '雷霆巨兽', type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 6,  emoji: '⚡', color: '#ffc24d', image: '/assets/skins/monster_04.png' },
   // —— 每日一题连续签到里程碑（B2；解锁由后端每日一题发放，图形用新美术） ——
   { avatarId: 'milestone_30',  name: '🌱 萌芽学徒 · 连续 30 天',  type: 'warrior', rarity: 'legend', unlockType: 'milestone', unlockValue: 30,  emoji: '🌱', color: '#7BD389', image: '/assets/skins/skin-sprout-apprentice.png' },
   { avatarId: 'milestone_60',  name: '☁️ 云骑 · 连续 60 天',      type: 'warrior', rarity: 'legend', unlockType: 'milestone', unlockValue: 60,  emoji: '☁️', color: '#8FC8F0', image: '/assets/skins/skin-cloud-rider.png' },
@@ -151,7 +155,9 @@ function getWarriorSkin(avatarId) {
 function getMonsterSkin(avatarId) {
   const r = SKIN_RENDER[avatarId];
   if (r && avatarId.indexOf('monster_') === 0) {
-    return { id: avatarId, emoji: r.emoji, color: r.color };
+    // 注意：这里必须把 image 一起带出去 —— 引擎是拿 G.monsterSkin.image 去预加载真图的，
+    // 漏掉这个字段会「静默退回 emoji」（2026-09-12 接入怪兽美术时真踩过，端到端当场抓到）。
+    return { id: avatarId, emoji: r.emoji, color: r.color, image: r.image };
   }
   return DEFAULT_MONSTER;
 }

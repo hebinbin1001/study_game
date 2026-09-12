@@ -652,6 +652,22 @@ Page({
     return r;
   },
 
+  /**
+   * 【仅供端到端测试】查皮肤真图是否已被 canvas 成功解码。
+   *
+   * 为什么需要：真图路径写错、图损坏、超出画布能力时，渲染层会**静默回退 emoji**
+   * （这是有意的容错），但那样「美术接没接上」就没法自动化验证。
+   * 这里把解码结果暴露出来，端到端才能断言「真的用了图，不是 emoji 兜底」。
+   *
+   * @param {string} [kind] 'monster'（默认）或 'warrior'
+   * @returns {{ready:boolean, w:number, h:number}}
+   */
+  _testSkinImage(kind) {
+    var G = engine.getState() || {};
+    var it = (G.skinImages || {})[kind || 'monster'];
+    return { ready: !!(it && it.ready), w: (it && it.w) || 0, h: (it && it.h) || 0 };
+  },
+
   // ============ 暂停 / 继续 / 退出（R5） ============
 
   /**

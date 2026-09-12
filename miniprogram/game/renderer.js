@@ -315,6 +315,42 @@ function drawSky(ctx) {
 }
 
 // ============ 怪兽（题目卡片） ============
+/**
+ * 怪兽真图的尺寸与叠放参数（2026-09-12 美术到货后新增）。
+ * 单位 = 画布逻辑像素（画布 390×500）：
+ *   · w：图片宽度。高度按原图比例算，**绝不拉伸**（强行凑比例会把角色压扁）；
+ *   · overlap：图片底边落在「卡片顶部下方」多少 px —— 下半身被卡片挡住，
+ *     看起来像怪兽举着题目卡片（原图只保留头+上半身，所以不会被挡掉关键部位）；
+ *   · topMin：图片顶边的下限，防止顶出画布上沿被切掉。
+ *
+ * 为什么是固定的 w 而不是「卡片多宽图就多宽」：卡片贴到画布顶部时（开局 m.y=22）
+ * 上方只剩 22px，图越大越会被 topMin 顶住、露出来的部分反而越少。
+ * 取 170 宽时，下沉约 2 秒后怪兽头肩完整露出（约 70px 高），观感与战斗节奏都合适。
+ */
+const MON_ART = { w: 170, overlap: 46, topMin: 2 };
+
+/**
+ * 怪兽真图的绘制矩形（纯函数，可单测）：**只位移、不缩放**。
+ *
+ * @param {number} iw 图片原始宽（<=0 时按正方形兜底）
+ * @param {number} ih 图片原始高
+ * @param {number} mx 卡片左上角 x（已含震屏偏移）
+ * @param {number} my 卡片左上角 y
+ * @returns {{x:number, y:number, w:number, h:number, bottom:number}} 绘制矩形（bottom = 底边 y）
+ */
+function monsterArtLayout(iw, ih, mx, my) {
+  const w = MON_ART.w;
+  const h = (iw > 0 && ih > 0) ? (w * ih / iw) : w;
+  const bottom = my + MON_ART.overlap;
+  return {
+    x: mx + (MON_W - w) / 2,
+    y: Math.max(MON_ART.topMin, bottom - h),
+    w: w,
+    h: h,
+    bottom: bottom
+  };
+}
+
 function drawMonster(ctx, state, now) {
   const m = state.monster;
   const q = state.question;
@@ -324,6 +360,24 @@ function drawMonster(ctx, state, now) {
   const sx = m.shake ? (Math.random() - 0.5) * m.shake : 0;
   const scale = 1 + angry * 0.08;
   const x = m.x + sx, y = m.y;
+
+  // 怪兽真图（美术到货）：画在题目卡片**之前**，被卡片挡住下半身。
+  // 与卡片共用同一套变换（震屏 / 暴怒缩放一起动），裁剪边界用未变换坐标系的卡片底边，
+  // 保证无论怎么缩放都不会有腿露在卡片外面。
+  const artReady = state && state.skinImages && state.skinImages.monster && state.skinImages.monster.ready;
+  if (artReady) {
+    const img = state.skinImages.monster.img;
+    const M = monsterArtLayout(img.width || MON_ART.w, img.height || MON_ART.w, x, y);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, W, y + MON_H);
+    ctx.clip();
+    ctx.translate(W / 2, y + MON_H / 2);
+    ctx.scale(scale, scale);
+    ctx.translate(-W / 2, -(y + MON_H / 2));
+    ctx.drawImage(img, M.x, M.y, M.w, M.h);
+    ctx.restore();
+  }
 
   ctx.save();
   ctx.translate(W / 2, y + MON_H / 2);
@@ -343,27 +397,31 @@ function drawMonster(ctx, state, now) {
   ctx.strokeStyle = angry ? '#ff3b30' : '#fff';
   roundRect(ctx, x, y, MON_W, MON_H, 26); ctx.stroke();
 
-  // 头顶角
-  ctx.fillStyle = m.color;
-  ctx.beginPath();
-  ctx.moveTo(x + 28, y + 8); ctx.lineTo(x + 40, y - 14); ctx.lineTo(x + 56, y + 10);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = angry ? '#ff3b30' : '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x + MON_W - 28, y + 8); ctx.lineTo(x + MON_W - 40, y - 14); ctx.lineTo(x + MON_W - 56, y + 10);
-  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // 卡片上的「角 + 眼睛 + emoji」是**没有真图时的兜底造型**（美术未到货时用的）。
+  // 有真图时必须跳过：否则头顶的怪兽本身有脸、卡片上又画一对眼睛，会变成四只眼。
+  if (!artReady) {
+    // 头顶角
+    ctx.fillStyle = m.color;
+    ctx.beginPath();
+    ctx.moveTo(x + 28, y + 8); ctx.lineTo(x + 40, y - 14); ctx.lineTo(x + 56, y + 10);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = angry ? '#ff3b30' : '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x + MON_W - 28, y + 8); ctx.lineTo(x + MON_W - 40, y - 14); ctx.lineTo(x + MON_W - 56, y + 10);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
 
-  // 眼睛
-  const eyeY = y + 34;
-  drawEye(ctx, x + MON_W * 0.3, eyeY, angry);
-  drawEye(ctx, x + MON_W * 0.7, eyeY, angry);
+    // 眼睛
+    const eyeY = y + 34;
+    drawEye(ctx, x + MON_W * 0.3, eyeY, angry);
+    drawEye(ctx, x + MON_W * 0.7, eyeY, angry);
 
-  // 怪兽皮肤徽章（emoji 占位）：置于卡片顶部中央，标识当前 boss 皮肤
-  if (m.emoji) {
-    ctx.font = '16px "PingFang SC","Microsoft YaHei",sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(m.emoji, x + MON_W / 2, y + 18);
+    // 怪兽皮肤徽章（emoji 占位）：置于卡片顶部中央，标识当前 boss 皮肤
+    if (m.emoji) {
+      ctx.font = '16px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(m.emoji, x + MON_W / 2, y + 18);
+    }
   }
 
   // H2-B：词级题（fill/trans/xhy/zc）—— 整词空槽布局，不走逐字挖格
@@ -671,6 +729,9 @@ module.exports = {
   warriorLayout,
   // 开火后坐力 + 炮口闪光强度（导出供单测）
   warriorRecoil,
+  // 怪兽真图叠放（导出供单测：只位移不缩放、不顶出画布）
+  MON_ART,
+  monsterArtLayout,
   // 导出工具函数供 engine 复用
   roundRect,
   clamp

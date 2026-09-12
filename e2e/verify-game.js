@@ -234,6 +234,23 @@ H.runSuite('verify-game（单词闯关）', async function (miniProgram, ck) {
     ck.check('找到可用于开火反馈验证的选项', false, 'correct 下标 = ' + ciR);
   }
 
+  // B6. 皮肤真图接线（2026-09-12 怪兽美术到货）：确认 canvas 真的解码成功，
+  // 而不是静默回退 emoji —— 路径写错/图损坏时渲染层会悄悄兜底，只有这条能抓住。
+  console.log('[6.8/7] 皮肤真图：怪兽 / 战士是否被 canvas 成功解码');
+  let monsterImg = null;
+  for (let i = 0; i < 10; i++) {
+    monsterImg = await page.callMethod('_testSkinImage', 'monster');
+    if (monsterImg && monsterImg.ready) break;
+    await page.waitFor(300);                          // 图片是异步加载的，给它点时间
+  }
+  ck.check('怪兽真图已被 canvas 解码（不是 emoji 兜底）',
+    !!(monsterImg && monsterImg.ready), '实际 = ' + JSON.stringify(monsterImg));
+  ck.check('解码出的怪兽图尺寸有效', !!(monsterImg && monsterImg.w > 0 && monsterImg.h > 0),
+    '实际 = ' + JSON.stringify(monsterImg));
+  const warriorImg = await page.callMethod('_testSkinImage', 'warrior');
+  ck.check('战士真图同样解码成功', !!(warriorImg && warriorImg.ready && warriorImg.w > 0),
+    '实际 = ' + JSON.stringify(warriorImg));
+
   console.log('[7/7] 校验页面未跳转/未崩溃');
   cur = await miniProgram.currentPage();
   ck.check('全流程结束后仍在游戏页', cur.path === 'pages/game/game', '实际 = ' + cur.path);
