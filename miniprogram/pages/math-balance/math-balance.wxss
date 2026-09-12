@@ -4,6 +4,7 @@ page {
   min-height: 100vh;
 }
 .page-balance {
+  min-height: 100vh;   /* 同上：根容器撑满，.scaleBox 的 flex:1 才能吃到剩余空间 */
   padding: 24rpx 28rpx calc(40rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
   display: flex;
@@ -21,12 +22,18 @@ page {
 }
 
 .scaleBox {
+  /* 天平区占据剩余空间并居中；同时给够高度，避免绝对定位的秤盘溢出压住下面的提示行
+     （截图实测：左盘/右盘会探到 .scale 外面，和 .tip 文字重叠） */
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background: #fff;
   border-radius: 36rpx;
   padding: 36rpx 24rpx 20rpx;
   box-shadow: 0 12rpx 0 rgba(20, 90, 80, 0.14), 0 20rpx 40rpx rgba(20, 90, 80, 0.12);
 }
-.scale { position: relative; padding-top: 44rpx; }
+.scale { position: relative; padding-top: 44rpx; padding-bottom: 150rpx; }
 .beam {
   position: relative;
   height: 20rpx;

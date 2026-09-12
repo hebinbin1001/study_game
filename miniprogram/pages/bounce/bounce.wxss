@@ -92,7 +92,7 @@
   box-shadow: 0 6rpx 0 rgba(0,0,0,.08);
 }
 .m-btn:active { transform: translateY(3rpx); }
-.foot-tip { flex: 0 0 auto; text-align: center; font-size: 20rpx; color: #fff; opacity: .9; }
+.foot-tip { flex: 0 0 auto; text-align: center; font-size: 20rpx; color: #4a6b8a; opacity: 1; }
 
 /* 结算 */
 .over-mask {

@@ -2,7 +2,7 @@
 .page-match {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 16rpx 30rpx 0;
+  padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
@@ -16,9 +16,10 @@
 }
 .back-pill::after { border: none; }
 
-/* 4×4 棋盘占剩余高度，居中 */
+/* 4×4 棋盘：贴着自己的格子（不被拉伸），用 auto 外边距在剩余空间里居中 */
 .board {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
+  margin: auto 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12rpx;
@@ -53,7 +54,7 @@
 .tile.miss { background: linear-gradient(180deg, #ff9cbc 0%, #ff7ba4 100%); color: #fff; animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
 
-.tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #fff; opacity: .92; margin: 16rpx 0 6rpx; min-height: 36rpx; }
+.tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; margin: 16rpx 0 6rpx; min-height: 36rpx; }
 
 /* 结算插槽按钮（内容在页面上下文渲染） */
 .s-btns { display: flex; flex-direction: column; gap: 14rpx; margin-top: 24rpx; }

@@ -2,7 +2,7 @@
 .page-link {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 16rpx 30rpx 0;
+  padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
@@ -17,7 +17,10 @@
 .back-pill::after { border: none; }
 
 .board {
-  flex: 1 1 auto;
+  /* 棋盘贴着自己的格子，不再被拉伸（否则底槽里会出现一大片空白），
+     margin:auto 上下平分剩余空间 → 头部在顶、棋盘居中、提示贴底 */
+  flex: 0 0 auto;
+  margin: auto 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12rpx;
@@ -45,7 +48,7 @@
 .tile.err { background: linear-gradient(180deg, #ff9cbc 0%, #ff7ba4 100%); color: #fff; animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
 
-.tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #fff; opacity: .95; margin: 14rpx 0 6rpx; }
+.tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; margin: 14rpx 0 6rpx; }
 
 .over-mask {
   position: fixed; inset: 0; z-index: 60;

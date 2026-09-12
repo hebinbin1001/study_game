@@ -4,6 +4,7 @@ page {
   min-height: 100vh;
 }
 .page-memory {
+  min-height: 100vh;   /* 同上：根容器撑满，.grid 的 flex:1 才能吃到剩余空间 */
   padding: 24rpx 28rpx calc(40rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
   display: flex;
@@ -23,6 +24,10 @@ page {
 .banner.watch .main { color: #e08a00; }
 
 .grid {
+  /* 网格区占据剩余空间并整体居中（原来内容顶在上半屏，下面一片空） */
+  flex: 1 1 auto;
+  align-content: center;
+  justify-content: center;
   display: flex;
   flex-wrap: wrap;
   gap: 14rpx;

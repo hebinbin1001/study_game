@@ -3,7 +3,7 @@
   min-height: 100vh;
   height: 100vh;
   box-sizing: border-box;
-  padding: 16rpx 30rpx 0;
+  padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
@@ -49,7 +49,7 @@
 .lv-lock { position: absolute; font-size: 30rpx; }
 .lv-node.next .lv-size { color: #ff8f00; }
 
-.tip-note { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .9; margin: 0 0 8rpx; }
+.tip-note { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #4a6b8a; opacity: 1; margin: 0 0 8rpx; }
 
 /* HUD 用 app.wxss 的 .hud / .hud-chip */
 .hud-back {
@@ -115,7 +115,7 @@
   font-weight: 900;
   color: #4cc9f0;
 }
-.board-tip { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .9; }
+.board-tip { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #4a6b8a; opacity: 1; }
 
 /* 结算 */
 .settle-mask {

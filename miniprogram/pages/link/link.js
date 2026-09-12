@@ -81,8 +81,10 @@ Page({
     } else {
       grade = GRADES[Math.floor(this._rand() * GRADES.length)];
       for (var t = 0; t < 20 && words.length < pairCount; t++) {
-        var w = dict.randomItemByGroup ? dict.randomItemByGroup(grade.key, 'w1', words) : null;
-        if (!w) w = this._randW1(grade.key, words);
+        // 同样走 _loadW1（按类型码精确筛纯英文单词）——原来这里的
+        // randomItemByGroup(grade.key, 'w1') 也踩了「w1 是类型码不是分组 key」的坑，
+        // 会补进带 * 的挖空词（截图里出现过「临*不*」）。
+        var w = this._randW1(grade.key, words);
         if (w) words.push(w);
       }
       if (words.length < pairCount) {
@@ -121,7 +123,13 @@ Page({
   },
 
   _loadW1: function (gradeKey) {
-    return dict.filterByGroup(gradeKey, 'w1');
+    // 只取「纯英文单词」词条：原来写的是 filterByGroup(gradeKey, 'w1')，
+    // 而 'w1' 是**类型码不是分组 key** → 会静默放行整库，成语/挖空词混进来，
+    // 牌面就会出现「舍*忘*」「扶*济*」这种带 * 的挖空词（2026-09-12 截图体检发现；
+    // 消消乐之前修的是同一个坑）。
+    return dict.loadByGrade(gradeKey).filter(function (w) {
+      return w.type === 'w1' && /^[A-Za-z]+$/.test(String(w.q || ''));
+    });
   },
   _randW1: function (gradeKey, exclude) {
     var list = this._loadW1(gradeKey);

@@ -64,7 +64,9 @@
       <view class="key k-clr" bindtap="hint">💡 提示</view>
     </view>
 
-    <view class="op-tip">{{deadEnd ? '⚠️ ' + hint : hint}}</view>
+    <!-- 只在「走死路」时提示：正常情况这句话和上面 expr-box 的提示重复，
+         白占一行还会把底部规则行挤出屏幕（2026-09-12 布局体检） -->
+    <view wx:if="{{deadEnd}}" class="op-tip">⚠️ {{hint}}</view>
     <view class="goal">每张牌各用一次 · 每步只做一次运算（不需要括号）· 结果须恰为 24</view>
   </block>
 

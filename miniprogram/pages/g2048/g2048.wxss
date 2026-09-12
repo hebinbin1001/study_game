@@ -2,7 +2,7 @@
 .page-2048 {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 16rpx 30rpx 0;
+  padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
@@ -54,7 +54,9 @@
 
 /* 棋盘 */
 .board {
-  flex: 1 1 auto;
+  /* 同上：棋盘不再被拉伸，用 auto 外边距居中，底部提示就不会被挤出屏幕 */
+  flex: 0 0 auto;
+  margin: auto 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12rpx;
@@ -88,7 +90,7 @@
 /* 方向键已去掉（2026-09-12）：手机上滑动才是 2048 的标准操作，
    三排按键白占屏幕 22% 的高度；改为底部一行提示。滑动手感由
    wxml 的 catchtouchmove 保证（阻止页面跟着手指滚）。 */
-.tip { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; opacity: .92; margin: 18rpx 0 8rpx; }
+.tip { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #4a6b8a; opacity: 1; margin: 18rpx 0 8rpx; }
 
 /* 结算 */
 .over-mask {

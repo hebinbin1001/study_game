@@ -2,7 +2,8 @@
 .page-24 {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 16rpx 30rpx 0;
+  /* 底部留出安全区：原来 padding-bottom 是 0，最后那行规则文字会被底部指示条切掉 */
+  padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
@@ -32,7 +33,16 @@
 /* HUD 用 app.wxss 的 .hud / .hud-chip */
 
 /* 数字牌 */
-.cards { flex: 0 0 auto; display: flex; justify-content: center; gap: 22rpx; margin: 6rpx 0; }
+/* 牌区占据剩余空间并垂直居中：原来 flex:0 0 auto，内容全挤在上半屏、下面一大片空白
+   （2026-09-12 用户反馈「24 点布局没填充满」）。 */
+.cards {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22rpx;
+  margin: 6rpx 0;
+}
 .card {
   width: 160rpx; height: 160rpx;
   border-radius: 26rpx;
@@ -87,8 +97,8 @@
   box-shadow: 0 10rpx 0 rgba(0,0,0,.1);
 }
 .check-btn::after { border: none; }
-.op-tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #fff; opacity: .95; margin-top: 8rpx; min-height: 36rpx; }
-.goal { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #fff; font-weight: 700; opacity: .9; }
+.op-tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; margin-top: 8rpx; min-height: 36rpx; }
+.goal { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #4a6b8a; font-weight: 700; opacity: 1; }
 
 /* 结算 */
 .over-mask {
