@@ -34,6 +34,7 @@
       <view class="stat-lab">⭐ 累计星星</view>
     </view>
     <view class="stat-box">
+      <image wx:if="{{loggedIn && rankIcon}}" class="rank-badge" src="{{rankIcon}}" mode="aspectFit"></image>
       <view class="stat-num">{{loggedIn ? rankName || '-' : '-'}}</view>
       <view class="stat-lab">🎖 段位</view>
     </view>

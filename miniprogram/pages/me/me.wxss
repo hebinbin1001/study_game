@@ -195,3 +195,8 @@ page {
   color: #8aa0b8;
 }
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); }
+.rank-badge {
+  width: 56rpx;
+  height: 56rpx;
+  margin-bottom: 4rpx;
+}

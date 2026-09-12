@@ -9,6 +9,7 @@ Page({
     nickname: '',
     avatarUrl: '',
     rankName: '',     // 段位（/api/rank/info，失败静默占位）
+    rankIcon: '',     // 段位徽章图（assets/ranks/*.png，后端按当前小级返回）
     wins: 0,
     rankStars: 0,
     menu: [
@@ -45,6 +46,7 @@ Page({
       if (!d) return;
       self.setData({
         rankName: d.rankName || '',
+        rankIcon: d.icon || '',
         wins: d.wins || 0,
         rankStars: d.stars || 0
       });
