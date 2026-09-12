@@ -15,7 +15,11 @@ var GAMES = [
   { key: 'math24', name: '算 24 点', icon: '🧮', desc: '四数四则 · 脑力挑战', cat: '数学', math: true, unlocked: true, url: '/pages/math24/math24' },
   { key: 'sprint', name: '口算冲刺', icon: '⚡', desc: '60 秒限时 · 连击翻倍', cat: '数学', math: true, unlocked: true, url: '/pages/math-sprint/math-sprint' },
   { key: 'memory', name: '记忆矩阵', icon: '🔲', desc: '记住亮起的格子', cat: '智力', unlocked: true, url: '/pages/memory-grid/memory-grid' },
-  { key: 'g2048', name: '2048', icon: '🀄', desc: '数字合成 · 百玩不腻', cat: '数学', math: true, unlocked: true, url: '/pages/g2048/g2048' }
+  { key: 'wordbuild', name: '字母拼词工坊', icon: '🔤', desc: '看中文拼出英文单词', cat: '拼写', unlocked: true, url: '/pages/word-build/word-build' },
+  { key: 'idiombuild', name: '成语拼字', icon: '🀄️', desc: '看释义拼四字成语', cat: '拼写', unlocked: true, url: '/pages/idiom-build/idiom-build' },
+  { key: 'balance', name: '算式天平', icon: '⚖️', desc: '挑个数字让天平平衡', cat: '数学', math: true, unlocked: true, url: '/pages/math-balance/math-balance' },
+  { key: 'onestroke', name: '一笔画', icon: '✏️', desc: '每条线只走一次', cat: '智力', unlocked: true, url: '/pages/one-stroke/one-stroke' },
+  { key: 'g2048', name: '2048', icon: '🎲', desc: '数字合成 · 百玩不腻', cat: '数学', math: true, unlocked: true, url: '/pages/g2048/g2048' }
 ];
 
 var CATS = [
@@ -25,7 +29,8 @@ var CATS = [
   { key: '连线', label: '连线' },
   { key: '反应', label: '反应' },
   { key: '数学', label: '数学' },
-  { key: '智力', label: '智力' }
+  { key: '智力', label: '智力' },
+  { key: '拼写', label: '拼写' }
 ];
 
 Page({

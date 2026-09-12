@@ -1,0 +1,108 @@
+/* 一笔画样式：青绿 + 绝对定位的线/圆点棋盘（不用 Canvas，坐标由引擎算） */
+page {
+  background: linear-gradient(180deg, #3aa6a0 0%, #7fd0c8 32%, #cdeadf 66%, #f2fbf8 100%);
+  min-height: 100vh;
+}
+.page-one-stroke {
+  padding: 24rpx 28rpx calc(40rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.hud { display: flex; gap: 16rpx; }
+.chip {
+  flex: 1;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 16rpx 8rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 0 rgba(15, 80, 75, 0.14);
+}
+.chip .k { font-size: 22rpx; color: #7f9c97; }
+.chip .v { font-size: 34rpx; font-weight: 900; color: #16695e; margin-top: 4rpx; }
+
+.banner {
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 22rpx 24rpx;
+  text-align: center;
+  box-shadow: 0 10rpx 0 rgba(15, 80, 75, 0.16), 0 18rpx 36rpx rgba(15, 80, 75, 0.12);
+}
+.banner .main { font-size: 34rpx; font-weight: 900; color: #16695e; }
+.banner .sub { margin-top: 8rpx; font-size: 24rpx; color: #6b8b86; min-height: 34rpx; }
+.banner.warn .main { color: #d97706; }
+
+.board {
+  background: #fff;
+  border-radius: 36rpx;
+  padding: 24rpx;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 12rpx 0 rgba(15, 80, 75, 0.16), 0 20rpx 40rpx rgba(15, 80, 75, 0.12);
+}
+.canvas { position: relative; width: 600rpx; height: 600rpx; }
+
+.edge {
+  position: absolute;
+  height: 10rpx;
+  margin-top: -5rpx;
+  border-radius: 6rpx;
+  background: #c3d6d3;
+  transform-origin: 0 50%;
+  transition: background 0.16s ease;
+}
+.edge.used {
+  background: #34A853;
+  box-shadow: 0 0 12rpx rgba(52, 168, 83, 0.45);
+}
+
+.node {
+  position: absolute;
+  width: 84rpx;
+  height: 84rpx;
+  margin-left: -42rpx;
+  margin-top: -42rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.node .dot {
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 50%;
+  background: #fff;
+  border: 6rpx solid #12a08c;
+  box-sizing: border-box;
+  transition: all 0.14s ease;
+}
+.node.visited .dot { background: #12a08c; }
+.node.cur .dot {
+  width: 46rpx;
+  height: 46rpx;
+  background: #ff9f1c;
+  border-color: #e08a00;
+  box-shadow: 0 0 16rpx rgba(255, 159, 28, 0.6);
+}
+
+.foot { display: flex; gap: 16rpx; }
+.btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+  background: #12a08c;
+  color: #fff;
+  box-shadow: 0 8rpx 0 #0c8071;
+}
+.btn:active { transform: translateY(4rpx); }
+.btn.ghost {
+  background: #fff;
+  color: #12a08c;
+  box-shadow: 0 8rpx 0 rgba(15, 80, 75, 0.18);
+}

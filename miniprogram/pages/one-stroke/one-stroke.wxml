@@ -1,0 +1,48 @@
+<!-- 一笔画（玩法落地：demo g8）：每条线只能走一次，走完全部线过关 -->
+<view class="page-one-stroke">
+
+  <!-- 本玩法不计命数，顶部换成 关卡/已走线/步数 三个信息块（沿用统一 HUD 视觉） -->
+  <view class="hud">
+    <view class="chip"><view class="k">关卡</view><view class="v">{{levelText}}</view></view>
+    <view class="chip"><view class="k">已走线</view><view class="v">{{edgeText}}</view></view>
+    <view class="chip"><view class="k">步数</view><view class="v">{{stepText}}</view></view>
+  </view>
+
+  <view class="banner {{warn ? 'warn' : ''}}">
+    <view class="main">{{mainText}}</view>
+    <view class="sub">{{subText}}</view>
+  </view>
+
+  <view class="board">
+    <view class="canvas">
+      <!-- 先画线再画点，保证圆点压在线上面 -->
+      <view
+        wx:for="{{edges}}"
+        wx:key="key"
+        class="edge {{item.used ? 'used' : ''}}"
+        style="{{item.style}}"></view>
+      <view
+        wx:for="{{nodes}}"
+        wx:key="index"
+        class="node {{item.cls}}"
+        style="{{item.style}}"
+        data-idx="{{index}}"
+        catchtap="tapNode">
+        <view class="dot"></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="foot">
+    <view class="btn ghost" bindtap="onUndo">← 撤销一步</view>
+    <view class="btn ghost" bindtap="onReset">重置本关</view>
+  </view>
+  <view class="foot">
+    <view class="btn ghost" bindtap="goBack">返回</view>
+  </view>
+
+  <settle-pop
+    visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
+    title="{{win ? '全部通关！' : '再试一次'}}" msg="{{overMsg}}"
+    bind:retry="onRetry" />
+</view>

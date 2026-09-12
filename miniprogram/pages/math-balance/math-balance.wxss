@@ -1,0 +1,126 @@
+/* 算式天平样式：青绿 + 会倾斜的天平（与其它数学玩法的暖色区分开） */
+page {
+  background: linear-gradient(180deg, #35b6a4 0%, #7ed7c9 32%, #cdeee8 66%, #f0fbf9 100%);
+  min-height: 100vh;
+}
+.page-balance {
+  padding: 24rpx 28rpx calc(40rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.tip {
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 24rpx;
+  padding: 18rpx 24rpx;
+  font-size: 25rpx;
+  color: #2c6a62;
+  line-height: 1.6;
+}
+
+.scaleBox {
+  background: #fff;
+  border-radius: 36rpx;
+  padding: 36rpx 24rpx 20rpx;
+  box-shadow: 0 12rpx 0 rgba(20, 90, 80, 0.14), 0 20rpx 40rpx rgba(20, 90, 80, 0.12);
+}
+.scale { position: relative; padding-top: 44rpx; }
+.beam {
+  position: relative;
+  height: 20rpx;
+  border-radius: 12rpx;
+  background: linear-gradient(90deg, #d8b24a, #f0cd72, #d8b24a);
+  transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+.pillar {
+  position: absolute;
+  left: 50%;
+  top: -30rpx;
+  width: 8rpx;
+  height: 52rpx;
+  background: #c9a227;
+  border-radius: 4rpx;
+  transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+.pan {
+  position: absolute;
+  top: 20rpx;
+  width: 44%;
+  transform-origin: 50% 0;
+  transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+.pan.left { left: 0; }
+.pan.right { right: 0; }
+.pan .plate {
+  border-radius: 0 0 60rpx 60rpx;
+  border-top: none;
+  background: #f0f7f6;
+  border: 4rpx solid #cfe7e3;
+  padding: 26rpx 12rpx 34rpx;
+  text-align: center;
+}
+.pan .val {
+  font-size: 50rpx;
+  font-weight: 900;
+  color: #16695e;
+  letter-spacing: 2rpx;
+}
+.pan .val.empty { color: #b6ccc9; }
+.pan .sub { font-size: 22rpx; color: #7f9c97; margin-top: 8rpx; }
+.pan .plate.ok { background: #dcf6e4; border-color: #7bd389; }
+.pan .plate.ok .val { color: #2b7a4b; }
+.pan .plate.bad { background: #ffe2ea; border-color: #ff9fb8; }
+.pan .plate.bad .val { color: #c53862; }
+
+.trend {
+  margin-top: 26rpx;
+  text-align: center;
+  font-size: 25rpx;
+  color: #3b7d74;
+  min-height: 36rpx;
+  line-height: 1.5;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+.num {
+  width: calc(50% - 10rpx);
+  box-sizing: border-box;
+  padding: 34rpx 0;
+  text-align: center;
+  border-radius: 32rpx;
+  background: #fff;
+  font-size: 50rpx;
+  font-weight: 900;
+  color: #16695e;
+  box-shadow: 0 10rpx 0 rgba(20, 90, 80, 0.18), 0 18rpx 34rpx rgba(20, 90, 80, 0.1);
+  transition: transform 0.1s ease, background 0.16s ease;
+}
+.num:active { transform: translateY(4rpx); }
+.num.ok { background: #7bd389; color: #fff; }
+.num.bad { background: #ff5d8f; color: #fff; }
+
+.foot { display: flex; gap: 16rpx; }
+.btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+  background: #12a08c;
+  color: #fff;
+  box-shadow: 0 8rpx 0 #0c8071;
+}
+.btn:active { transform: translateY(4rpx); }
+.btn.ghost {
+  background: #fff;
+  color: #12a08c;
+  box-shadow: 0 8rpx 0 rgba(20, 90, 80, 0.18);
+}

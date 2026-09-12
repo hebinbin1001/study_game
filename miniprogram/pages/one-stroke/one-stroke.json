@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "settle-pop": "/components/settle-pop/settle-pop"
+  },
+  "navigationBarTitleText": "一笔画",
+  "navigationBarBackgroundColor": "#12A08C",
+  "navigationBarTextStyle": "white"
+}

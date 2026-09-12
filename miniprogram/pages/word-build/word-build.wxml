@@ -1,0 +1,45 @@
+<!-- 字母拼词工坊（玩法落地：demo g2）：看中文意思拼出英文单词 -->
+<view class="page-word-build">
+
+  <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />
+
+  <view class="prompt">
+    <view class="label">{{promptLabel}}</view>
+    <view class="cn">{{prompt}}</view>
+    <view class="meta">{{meta}}</view>
+  </view>
+
+  <view class="slots {{slotsCls}}">
+    <view
+      wx:for="{{slots}}"
+      wx:key="index"
+      class="slot {{item.filled ? 'filled' : ''}} {{item.cls}}"
+      data-idx="{{index}}"
+      catchtap="tapSlot">{{item.ch}}</view>
+  </view>
+
+  <view class="poolWrap">
+    <view class="pool">
+      <view
+        wx:for="{{tiles}}"
+        wx:key="index"
+        class="tile {{item.used ? 'used' : ''}}"
+        data-idx="{{index}}"
+        catchtap="tapTile">{{item.ch}}</view>
+    </view>
+  </view>
+
+  <view class="foot">
+    <view class="btn ghost" bindtap="onHint">💡 提示首字母</view>
+    <view class="btn" bindtap="onCheck">提交</view>
+  </view>
+
+  <view class="back">
+    <view class="btn ghost wide" bindtap="goBack">返回</view>
+  </view>
+
+  <settle-pop
+    visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
+    title="{{win ? '本局完成' : '生命用完了'}}" msg="{{overMsg}}"
+    bind:retry="onRetry" />
+</view>

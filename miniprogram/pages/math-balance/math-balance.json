@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "game-hud": "/components/game-hud/game-hud",
+    "settle-pop": "/components/settle-pop/settle-pop"
+  },
+  "navigationBarTitleText": "算式天平",
+  "navigationBarBackgroundColor": "#12A08C",
+  "navigationBarTextStyle": "white"
+}
