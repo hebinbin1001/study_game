@@ -29,7 +29,10 @@ Page({
   _found: {},
   _timers: [],
 
-  onLoad: function () { this.start(); },
+  onLoad: function (options) {
+    // 数字智力关卡页可指定从第几关开始（?level=N）
+    this.start(parseInt((options || {}).level, 10) || 0);
+  },
   onUnload: function () { this._clearTimers(); },
   onHide: function () { this._clearTimers(); },
 
@@ -39,8 +42,9 @@ Page({
   },
   _later: function (fn, ms) { this._timers.push(setTimeout(fn, ms)); },
 
-  start: function () {
-    this._level = 1;
+  start: function (levelNo) {
+    var no = parseInt(levelNo, 10);
+    this._level = (no >= 1) ? no : 1;
     this._lives = 3;
     this._score = 0;
     this.setData({ settle: false, win: false, starsText: '', overMsg: '' });

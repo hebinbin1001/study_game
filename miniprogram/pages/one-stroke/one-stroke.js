@@ -37,8 +37,7 @@ Page({
     this.setData({ best: storage.get(BEST_KEY) || 0 });
     // 数字智力关卡页指定关卡（?level=N → 内部下标 _li = N-1）
     var want = parseInt((options || {}).level, 10) || 0;
-    if (want >= 1 && want <= lib.LEVELS.length) this._li = want - 1;
-    this.start();
+    this.start(want >= 1 ? want - 1 : 0);
   },
   onUnload: function () { this._clearTimers(); },
   onHide: function () { this._clearTimers(); },
@@ -51,9 +50,11 @@ Page({
 
   _level: function () { return lib.LEVELS[this._li]; },
 
-  start: function () {
+  start: function (startLi) {
     this._clearTimers();
-    this._li = 0;
+    // 可选参数：从第几关开始（内部下标）；不传 = 从第 1 关
+    var li = parseInt(startLi, 10);
+    this._li = (li >= 0 && li < lib.LEVELS.length) ? li : 0;
     this._finished = 0;
     this._totalSteps = 0;
     this.setData({ settle: false, win: false, starsText: '', overMsg: '' });

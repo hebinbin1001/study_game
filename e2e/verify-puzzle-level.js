@@ -53,6 +53,19 @@ async function main() {
     await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=not-a-game', 1500);
     const after = await mp.currentPage();
     ck.check('重定向到玩法 tab', after.path === 'pages/playlist/playlist', '实际 = ' + after.path);
+
+    console.log('[5] 各玩法页 ?level=N 生效（直接进指定关）');
+    const os = await H.goto(mp, '/pages/one-stroke/one-stroke?level=7', 1600);
+    const osd = await os.data();
+    ck.check('一笔画从第 7 关开局', String(osd.levelText || '').indexOf('7/') === 0,
+      '实际 = ' + osd.levelText);
+    const kl = await H.goto(mp, '/pages/klotski/klotski?level=5', 1600);
+    const kld = await kl.data();
+    ck.check('华容道从第 5 关开局', kld.curLevel === 5, '实际 = ' + kld.curLevel);
+    const mg = await H.goto(mp, '/pages/memory-grid/memory-grid?level=4', 1600);
+    const mgd = await mg.data();
+    ck.check('记忆矩阵从第 4 关开局', String(mgd.hudText || '').indexOf('4') >= 0,
+      '实际 = ' + mgd.hudText);
   } catch (e) {
     ck.check('脚本执行无异常', false, (e && e.message) || String(e));
   } finally {

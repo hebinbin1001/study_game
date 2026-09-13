@@ -41,13 +41,16 @@ Page({
     demoUsed: false
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
     this._pieces = [];
     this._history = [];
     this._boardRect = null;
     this._touch = null;
     this._demoTimer = null;
     this.setData({ levelGroups: this._buildGroups() });
+    // 数字智力关卡页可指定从第几关开始（?level=N）
+    var want = parseInt((options || {}).level, 10) || 0;
+    if (want >= 1) this.startLevel(want);
   },
 
   onReady: function () { this._measureBoard(); },
