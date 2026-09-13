@@ -17,11 +17,51 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const { fn, col } = require("sequelize");
-const { User, Score, RankRecord } = require("../db");
+const { User, Score, RankRecord, sequelize } = require("../db");
 const ladder = require("../rank-ladder");
 const { checkAdmin, maskOpenid } = require("../admin-auth");
 
 const router = express.Router();
+
+/**
+ * 读某用户的「展示昵称 / 微信名」。
+ * ⚠️ wx_nickname 列可能还没在生产库加上（DDL 由用户执行）—— 这里用原生 SQL 读，
+ *    列不存在时自动降级成「只有昵称」，不让接口 5000（2026-09-13 踩过这个坑）。
+ */
+async function nicknamesOf(openid) {
+  if (!openid) return { nickname: "", wx: "" };
+  try {
+    const [rows] = await sequelize.query(
+      "SELECT nickname, wx_nickname FROM users WHERE openid = :o LIMIT 1",
+      { replacements: { o: openid } }
+    );
+    const r = (rows && rows[0]) || {};
+    return { nickname: r.nickname || "", wx: r.wx_nickname || r.nickname || "" };
+  } catch (e) {
+    const [rows] = await sequelize.query(
+      "SELECT nickname FROM users WHERE openid = :o LIMIT 1",
+      { replacements: { o: openid } }
+    );
+    const r = (rows && rows[0]) || {};
+    return { nickname: r.nickname || "", wx: r.nickname || "" };
+  }
+}
+
+/** 批量取微信名（列不存在 → 返回空 Map，前端显示「未获取」） */
+async function wxNicknameMap(openids) {
+  const map = new Map();
+  if (!openids.length) return map;
+  try {
+    const [rows] = await sequelize.query(
+      "SELECT openid, wx_nickname FROM users WHERE openid IN (:ids)",
+      { replacements: { ids: openids } }
+    );
+    (rows || []).forEach((r) => { if (r.wx_nickname) map.set(r.openid, r.wx_nickname); });
+  } catch (e) {
+    // 列不存在：整批没有微信名，属于预期内的降级
+  }
+  return map;
+}
 
 const ONLINE_WINDOW_MS = 5 * 60 * 1000;      // 在线窗口：最近 5 分钟
 
@@ -30,15 +70,8 @@ async function requireAdmin(req, res, next) {
   try {
     const passcode = (req.get && req.get("x-admin-passcode")) || req.query.passcode || "";
     // 微信名白名单（ADMIN_WX_NICKNAMES）：取用户存下的微信名；没有 wx_nickname 列/值时用展示昵称兜底
-    let wxNickname = "";
-    if (req.openid) {
-      const u = await User.findOne({
-        where: { openid: req.openid },
-        attributes: ["nickname", "wx_nickname"],
-        raw: true,
-      }).catch(() => null);
-      wxNickname = (u && (u.wx_nickname || u.nickname)) || "";
-    }
+    const names = await nicknamesOf(req.openid);
+    const wxNickname = names.wx;
     const r = checkAdmin(req.openid, passcode, process.env, wxNickname);
     if (!r.ok) {
       return res.send({ code: 4003, data: null, message: "需要管理员权限" });
@@ -63,15 +96,8 @@ function startOfToday() {
 router.get("/check", async (req, res) => {
   try {
     const passcode = (req.get && req.get("x-admin-passcode")) || req.query.passcode || "";
-    let wxNickname = "";
-    if (req.openid) {
-      const u = await User.findOne({
-        where: { openid: req.openid },
-        attributes: ["nickname", "wx_nickname"],
-        raw: true,
-      }).catch(() => null);
-      wxNickname = (u && (u.wx_nickname || u.nickname)) || "";
-    }
+    const names = await nicknamesOf(req.openid);
+    const wxNickname = names.wx;
     const r = checkAdmin(req.openid, passcode, process.env, wxNickname);
     res.send({
       code: 0,
@@ -139,7 +165,7 @@ router.get("/users", requireAdmin, async (req, res) => {
     const total = await User.count({ where });
     const users = await User.findAll({
       where,
-      attributes: ["id", "openid", "nickname", "wx_nickname", "avatar_url", "createdAt"],
+      attributes: ["id", "openid", "nickname", "avatar_url", "createdAt"],
       order: [["createdAt", "DESC"]],
       limit: pageSize,
       offset: (page - 1) * pageSize,
@@ -165,6 +191,7 @@ router.get("/users", requireAdmin, async (req, res) => {
         })
         : [],
     ]);
+    const wxMap = await wxNicknameMap(openids);
     const scoreMap = new Map(scoreAgg.map((r) => [r.user_id, r]));
     const rankMap = new Map(ranks.map((r) => [r.openid, r]));
 
@@ -174,7 +201,7 @@ router.get("/users", requireAdmin, async (req, res) => {
       const stars = Number(r.stars) || 0;
       return {
         nickname: u.nickname || "未命名",             // 管理员可见完整昵称
-        wxNickname: u.wx_nickname || "",              // 微信名（仅本接口返回，公开接口一律不含）
+        wxNickname: wxMap.get(u.openid) || "",        // 微信名（仅本接口返回；列未加时为空）
         openidMasked: maskOpenid(u.openid),           // openid 打码展示
         createdAt: u.createdAt,
         lastActiveAt: s.last || null,

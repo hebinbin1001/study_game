@@ -31,14 +31,11 @@ module.exports = (sequelize) => {
         allowNull: true,
         comment: "头像 URL（预留）",
       },
-      // 2026-09-13 用户需求：微信昵称单独存一份，**仅管理员可见**（展示昵称仍是 nickname）
-      // ⚠️ 生产库需要执行一次 DDL（见 docs/管理员后台与隐私口径.md）：
-      //   ALTER TABLE users ADD COLUMN wx_nickname VARCHAR(64) NULL COMMENT '微信昵称（仅管理员可见）';
-      wx_nickname: {
-        type: DataTypes.STRING(64),
-        allowNull: true,
-        comment: "微信昵称（来自微信昵称填写组件；仅管理员可见）",
-      },
+      // ⚠️ 微信昵称（wx_nickname）**故意不在这里声明**：
+      //    2026-09-13 踩坑 —— 一旦写进模型，Sequelize 默认 SELECT 所有字段，
+      //    生产库还没加列时所有读用户表的接口直接 5000（冒烟 6 组红）。
+      //    这张表上的 wx_nickname 一律用原生 SQL 读写（见 routes/user.js 与 routes/admin.js），
+      //    列不存在时自动降级，不影响任何主流程。
       token: {
         type: DataTypes.STRING(64),
         allowNull: true,
