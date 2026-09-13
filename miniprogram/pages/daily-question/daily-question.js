@@ -15,6 +15,7 @@ Page({
     // 状态
     answered: false,     // 今日已答对
     streak: 0,
+    rewardStars: 0,      // 本次签到获得的星数（2026-09-13 重标：每天 +1，连续踩线额外）
     // 题目
     word: '',
     meaning: '',         // 正确答案
@@ -136,6 +137,7 @@ Page({
       self.setData({
         answered: true,
         streak: d.streak || 0,
+        rewardStars: d.rewardStars || 0,
         rewards: rewards,
         picked: '',
         correct: true
@@ -143,7 +145,11 @@ Page({
       if (d.already) {
         wx.showToast({ title: '今日已签到 ✓', icon: 'none' });
       } else {
-        wx.showToast({ title: '✅ 签到成功 · 连续 ' + (d.streak || 0) + ' 天', icon: 'none' });
+        var gain = d.rewardStars || 0;
+        wx.showToast({
+          title: '✅ 签到成功 +' + gain + '⭐ · 连续 ' + (d.streak || 0) + ' 天',
+          icon: 'none'
+        });
       }
       if (rewards.length) {
         wx.showModal({

@@ -1,5 +1,8 @@
 const express = require("express");
-const { CheckinRecord, MilestoneClaim, RankRecord, UserAvatar, Avatar } = require("../db");
+const { CheckinRecord, MilestoneClaim, UserAvatar, Avatar } = require("../db");
+// 签到奖励口径（2026-09-13 重标）：每天 1 星 + 里程碑当天一次性额外 2/5/8/15，见 server/checkin-rewards.js
+const { rewardForStreak } = require("../checkin-rewards");
+const rankRouter = require("./rank");
 
 const router = express.Router();
 
@@ -32,18 +35,14 @@ async function doDailyCheckin(openid) {
 
   const record = await CheckinRecord.create({ openid, date: todayDate, streak });
 
-  // 轨道 A：送星（第1/3/7/14/30天递增，与旧签到奖励一致）
-  let rewardStars = 10;
-  if (streak === 3) rewardStars = 30;
-  if (streak === 7) rewardStars = 100;
-  if (streak === 14) rewardStars = 200;
-  if (streak === 30) rewardStars = 500;
-  let rank = await RankRecord.findOne({ where: { openid } });
-  if (!rank) {
-    rank = await RankRecord.create({ openid, rankId: 1, wins: 0, stars: rewardStars });
-  } else {
-    rank.stars += rewardStars;
-    await rank.save();
+  // 轨道 A：送星（2026-09-13 重标：每天 1 星 + 连续 3/7/14/30 天当天额外一次性送星）
+  // ⚠️ 不再直接 stars += 奖励：段位星现在是「答题去重星 + 签到累计奖励」现算，
+  //    直接加会被下一次通关/签到的重算覆盖掉，等于白签（见 rank.syncRankStars）。
+  const rewardStars = rewardForStreak(streak);
+  try {
+    await rankRouter.syncRankStars(openid);
+  } catch (e) {
+    console.error("每日一题打卡后重算段位星失败（不影响打卡本身）：", e && e.message);
   }
 
   return { recordId: record.recordId, date: todayDate, streak, rewardStars, already: false };

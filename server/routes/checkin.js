@@ -1,6 +1,9 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const { CheckinRecord, RankRecord, User, Score } = require("../db");
+// 签到奖励口径（2026-09-13 重标）：每天 1 星 + 里程碑 2/5/8/15，见 server/checkin-rewards.js
+const { rewardForStreak } = require("../checkin-rewards");
+const rankRouter = require("./rank");
 
 const router = express.Router();
 
@@ -32,19 +35,16 @@ async function doCheckin(openid) {
   const record = await CheckinRecord.create({ openid, date: todayDate, streak });
 
   // 奖励星数（连续 3/7/14/30 递增）
-  let rewardStars = 10;
-  if (streak === 3) rewardStars = 30;
-  if (streak === 7) rewardStars = 100;
-  if (streak === 14) rewardStars = 200;
-  if (streak === 30) rewardStars = 500;
+  // 2026-09-13 重标：旧值（10/30/100/200/500）一个月就能签到满级，改为小额长期奖励
+  const rewardStars = rewardForStreak(streak);
 
   // 累加段位星数（无段位记录则建档）
-  let rankRecord = await RankRecord.findOne({ where: { openid } });
-  if (!rankRecord) {
-    rankRecord = await RankRecord.create({ openid, rankId: 1, wins: 0, stars: rewardStars });
-  } else {
-    rankRecord.stars += rewardStars;
-    await rankRecord.save();
+  // ⚠️ 不再直接 stars += 奖励：段位星现在是「答题去重星 + 签到累计奖励」现算
+  //    （见 rank.syncRankStars）。直接加会被下一次通关重算覆盖掉，等于白签。
+  try {
+    await rankRouter.syncRankStars(openid);
+  } catch (e) {
+    console.error("签到后重算段位星失败（不影响签到本身）：", e && e.message);
   }
 
   return {

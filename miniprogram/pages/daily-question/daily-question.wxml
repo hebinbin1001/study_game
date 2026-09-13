@@ -14,6 +14,7 @@
     <view class="done-emoji">🎉</view>
     <view class="done-title">今日签到成功！</view>
     <view class="done-sub">每日一题已完成 · 明日再来，连续 {{streak}} 天</view>
+    <view wx:if="{{rewardStars > 0}}" class="done-gain">本次获得 +{{rewardStars}}⭐</view>
     <button class="btn-main" bindtap="goBack">返回首页</button>
   </view>
 

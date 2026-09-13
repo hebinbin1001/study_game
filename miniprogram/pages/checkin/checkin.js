@@ -1,7 +1,7 @@
 // 签到日历页（B2 改造：只读记录 + 里程碑日历）
 // 职责：
 //   1. 展示本月签到日历格（日期、已签高亮）与连续/累计天数
-//   2. 轨道 A：签到日历奖励阶梯说明（1/3/7/14/30 天送星，随每日一题自动发放）
+//   2. 轨道 A：签到奖励阶梯说明（每天 +1⭐；连续 3/7/14/30 天当天额外一次性送星，随每日一题自动发放）
 //   3. 轨道 B：每日一题连续里程碑皮肤（30/60/100/250/365，领取态来自 /api/daily/status）
 //   4. 今日未签 → 提供「去完成每日一题」入口（打卡唯一入口）
 // 说明：不再提供独立打卡按钮；打卡 = 每日一题答对（pages/daily-question）。
@@ -29,10 +29,14 @@ Page({
     calCells: [],       // [{d, isToday, on, future}]
     // 里程碑（轨道 B，来自 /api/daily/status）
     milestones: [],
-    // 轨道 A 阶梯说明
+    // 轨道 A 阶梯说明（2026-09-13 重标：每天 +1⭐，连续踩到 3/7/14/30 天当天额外一次性送星）
+    // 与 server/checkin-rewards.js 的 DAILY / MILESTONE 必须一致
     starLadder: [
-      { day: 1, stars: 10 }, { day: 3, stars: 30 }, { day: 7, stars: 100 },
-      { day: 14, stars: 200 }, { day: 30, stars: 500 }
+      { day: 1, stars: 1, label: '每天 +1⭐' },
+      { day: 3, stars: 2, label: '额外 +2⭐' },
+      { day: 7, stars: 5, label: '额外 +5⭐' },
+      { day: 14, stars: 8, label: '额外 +8⭐' },
+      { day: 30, stars: 15, label: '额外 +15⭐' }
     ],
     // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
     needLogin: false,

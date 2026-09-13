@@ -1,8 +1,9 @@
 const express = require("express");
-const { RankRecord, User, Score } = require("../db");
+const { RankRecord, User, Score, CheckinRecord } = require("../db");
 // 段位阶梯（8 大段 × 9 小级 = 72 级，按累计星数晋升）—— 唯一口径，见 rank-ladder.js
 const ladder = require("../rank-ladder");
 const { dedupeStars } = require("../rank-stars");
+const { totalBonus } = require("../checkin-rewards");
 
 const router = express.Router();
 
@@ -41,7 +42,14 @@ async function doSyncRankStars(openid) {
       raw: true,
     })
     : [];
-  const stars = dedupeStars(rows);
+  // 段位星 = 答题去重星（按 玩法×学段×题型×关卡 取历史最高）+ 签到累计奖励
+  // （签到奖励按 checkin_records 的连续天数重算，不需要给表加列）
+  const checkinRows = await CheckinRecord.findAll({
+    where: { openid },
+    attributes: ["streak"],
+    raw: true,
+  });
+  const stars = dedupeStars(rows) + totalBonus(checkinRows);
   const [record] = await RankRecord.findOrCreate({
     where: { openid },
     defaults: { openid, rankId: 1, wins: 0, stars: 0 },
@@ -173,85 +181,6 @@ router.get("/progress", async (req, res) => {
     });
   } catch (err) {
     console.error("GET /api/rank/progress 失败：", err);
-    res.send({ code: 5000, data: null, message: "服务内部错误" });
-  }
-});
-
-/**
- * POST /api/rank/sync —— 同步段位（通关后调用，累加胜场/星数并晋升）
- */
-router.post("/sync", async (req, res) => {
-  try {
-    const openid = req.openid;
-    if (!openid) {
-      return res.send({
-        code: 1001,
-        data: null,
-        message: "未识别用户（openid 缺失）",
-      });
-    }
-
-    const { stars } = req.body;
-    if (stars === undefined || stars === null || stars < 0) {
-      return res.send({
-        code: 4000,
-        data: null,
-        message: "参数缺失或非法",
-      });
-    }
-
-    // 获取用户
-    const [user] = await User.findOrCreate({
-      where: { openid },
-      defaults: { openid },
-    });
-
-    // 获取段位记录
-    let rankRecord = await RankRecord.findOne({
-      where: { openid },
-    });
-
-    if (!rankRecord) {
-      // 首次创建
-      rankRecord = await RankRecord.create({
-        openid,
-        rankId: 1,
-        wins: 0,
-        stars: 0,
-      });
-    }
-
-    // 累加胜场（1 次通关 = 1 胜）和星数
-    const newWins = rankRecord.wins + 1;
-    const newStars = rankRecord.stars + stars;
-
-    // 计算新段位：按累计星数落在阶梯的哪一级（8 大段 × 9 小级）
-    const oldCell = ladder.rankOf(rankRecord.stars).cell;
-    const nextRank = ladder.rankOf(newStars);
-    const newRankId = nextRank.rankId;
-
-    // 更新记录
-    await rankRecord.update({
-      wins: newWins,
-      stars: newStars,
-      rankId: newRankId,
-    });
-
-    res.send({
-      code: 0,
-      data: {
-        rankId: newRankId,
-        rankLevel: nextRank.rankLevel,
-        rankCell: nextRank.cell,
-        rankName: nextRank.rankName,
-        icon: nextRank.icon,
-        wins: newWins,
-        stars: newStars,
-        rankUp: nextRank.cell > oldCell,
-      },
-    });
-  } catch (err) {
-    console.error("POST /api/rank/sync 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
 });
