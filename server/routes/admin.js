@@ -63,6 +63,19 @@ async function wxNicknameMap(openids) {
   return map;
 }
 
+/**
+ * 探测生产库有没有 wx_nickname 列（管理端据此提示「请先执行 DDL」）。
+ * 用一条最轻的 SELECT，列不存在会抛错 → 返回 false，不影响其它逻辑。
+ */
+async function wxColumnReady() {
+  try {
+    await sequelize.query("SELECT wx_nickname FROM users LIMIT 1");
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 const ONLINE_WINDOW_MS = 5 * 60 * 1000;      // 在线窗口：最近 5 分钟
 
 /** 管理员校验中间件：不通过统一返回 4003（前端据此提示「口令无效」） */
@@ -151,6 +164,8 @@ router.get("/stats", requireAdmin, async (req, res) => {
         totalScores,         // 累计答题/上报局数
         onlineWindowMin: ONLINE_WINDOW_MS / 60000,
         rankDist: dist,
+        // 微信名列是否已创建（false = 还没执行 ALTER TABLE，微信名必然显示「未获取」）
+        wxNicknameColumnReady: await wxColumnReady(),
       },
       message: "ok",
     });

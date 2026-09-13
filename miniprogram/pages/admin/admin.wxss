@@ -41,6 +41,14 @@
   margin-top: 12rpx; height: 72rpx; line-height: 72rpx; text-align: center;
   background: #eaf2ff; color: #2e6fd6; border-radius: 16rpx; font-size: 26rpx; font-weight: 700;
 }
+.me-warn {
+  margin-top: 14rpx; padding: 14rpx 18rpx; border-radius: 14rpx;
+  background: #fff4e5; color: #b57f00; font-size: 22rpx; line-height: 1.5;
+}
+.me-ok {
+  margin-top: 14rpx; padding: 14rpx 18rpx; border-radius: 14rpx;
+  background: #eefaf1; color: #2f8b4d; font-size: 22rpx; line-height: 1.5;
+}
 .dist { display: flex; flex-wrap: wrap; gap: 12rpx; }
 .dist-item {
   background: #fff; border-radius: 999rpx; padding: 8rpx 20rpx;

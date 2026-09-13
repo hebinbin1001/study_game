@@ -29,6 +29,14 @@
       <view class="me-row"><text class="me-k">身份来源</text><text class="me-v">{{adminBy === 'openid' ? 'openid 白名单' : (adminBy === 'passcode' ? '管理口令' : (adminBy === 'wxNickname' ? '微信名白名单' : '-'))}}</text></view>
       <view class="me-row"><text class="me-k">我的 openid</text><text class="me-v me-id">{{myOpenid || myOpenidMasked || '-'}}</text></view>
       <view class="me-btn" bindtap="copyOpenid">复制 openid</view>
+      <view wx:if="{{stats && !stats.wxNicknameColumnReady}}" class="me-warn">
+        微信名列尚未创建：请在生产库执行 docs/管理员后台与隐私口径.md 里的 ALTER TABLE，
+        否则「微信名」列会一直显示「未获取」。
+      </view>
+      <view wx:elif="{{stats && stats.wxNicknameColumnReady}}" class="me-ok">
+        微信名列已就绪。若列表仍显示「未获取」，说明该用户还没在自己的手机上走到「保存昵称」这一步
+        （微信名只能在用户确认昵称时采集到）。
+      </view>
     </view>
 
     <view class="sec-title">段位分布</view>
