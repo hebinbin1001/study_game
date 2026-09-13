@@ -41,7 +41,8 @@ function tryWalk(level, cur, used, path, total) {
 }
 
 s.test('关卡合法：每关都连通，且奇点数为 0 或 2（欧拉路径条件）', () => {
-  s.assert.equal(g.LEVELS.length, 5);
+  // 2026-09-13 用户拍板：关卡数量下限 ≥30（原来只有 5 关）；生成器产出的关卡也必须全部合法
+  s.assert.ok(g.LEVELS.length >= 30, '关卡数应 ≥30，实际 ' + g.LEVELS.length);
   g.LEVELS.forEach(function (lv, i) {
     const r = g.validateLevel(lv);
     s.assert.true(r.ok, '第 ' + (i + 1) + ' 关「' + lv.name + '」不合法：' + r.reason);

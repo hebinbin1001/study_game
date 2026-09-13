@@ -98,7 +98,43 @@ Page({
     });
   },
 
+  /**
+   * 手指滑动画线（用户 2026-09-13 反馈：只能点，期望轨迹贴合）。
+   *
+   * 做法：touchstart/touchmove 拿到触点 → 换算成棋盘 rpx 坐标 → 找**最近的点**，
+   *      落在吸附半径内就直接当「点了这个点」处理（复用 tapNode 的全部规则：
+   *      起点、可走、走错提示、撤销栈都一致，不做第二套逻辑）。
+   * 防重复：滑完手指抬起时系统还会补一个 tap，所以滑动后 300ms 内的真实点击忽略。
+   */
+  onSlide: function (e) {
+    var t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+    if (!t) return;
+    var self = this;
+    if (!this._canvasRect) {
+      wx.createSelectorQuery().in(this).select('.canvas').boundingClientRect(function (r) {
+        self._canvasRect = r || null;
+      }).exec();
+      return;                       // 这次先量尺寸，下一次滑动就能吸附
+    }
+    var rpxPerPx = BOARD / this._canvasRect.width;
+    var x = (t.clientX - this._canvasRect.left) * rpxPerPx;
+    var y = (t.clientY - this._canvasRect.top) * rpxPerPx;
+    var geo = lib.geometry(this._level(), BOARD);
+    var best = -1;
+    var bestD = Infinity;
+    for (var i = 0; i < geo.nodes.length; i++) {
+      var n = geo.nodes[i];
+      var d = Math.sqrt((n.left - x) * (n.left - x) + (n.top - y) * (n.top - y));
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    if (best < 0 || bestD > BOARD * 0.12) return;   // 吸附半径：棋盘短边的 12%
+    this._lastSlideAt = Date.now();
+    this.tapNode({ currentTarget: { dataset: { idx: best } }, __fromSlide: true });
+  },
+
   tapNode: function (e) {
+    // 滑动后紧跟的真实 tap 直接忽略，避免一步走两次
+    if (!e.__fromSlide && Date.now() - (this._lastSlideAt || 0) < 300) return;
     var idx = e.currentTarget.dataset.idx;
     var lv = this._level();
 

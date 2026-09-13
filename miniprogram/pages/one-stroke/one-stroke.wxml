@@ -14,7 +14,7 @@
   </view>
 
   <view class="board">
-    <view class="canvas">
+    <view class="canvas" catchtouchstart="onSlide" catchtouchmove="onSlide">
       <!-- 先画线再画点，保证圆点压在线上面 -->
       <view
         wx:for="{{edges}}"
