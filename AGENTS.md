@@ -44,8 +44,10 @@ node e2e/run-all.js --module=game,puzzle   # 多模块（逗号分隔）
 node e2e/run-all.js --list-modules         # 看模块表；会提示「还没归类的单测文件」
 node e2e/run-all.js --only=<id>            # 单点排障：syntax/structure/wxss/unit/game/result/math24/link/snake/klotski/g2048/challenge/pages/m2m4/load/lines
 
-# 上线前（或改动面很大时）：跑一次全量，17 阶段约 12 分钟
-node e2e/run-all.js
+# ⚠️ 全量回归**只由用户发起**：必须等用户明确说「上线」之后才跑（用户 2026-09-13 明确要求：
+#    「上线前是我确认的，不是你，我说上线你再全量跑用例」）。**不要自行跑全量**，
+#    也不要因为「改动面大」就自己升级成全量 —— 需要时先问用户。
+node e2e/run-all.js              # 用户说了「上线」才跑：当前 19 阶段，约 13 分钟
 node e2e/smoke-api.js            # 线上接口冒烟（部署后跑）
 ```
 
