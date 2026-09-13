@@ -57,6 +57,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* 两侧留出可点触摸带（2026-09-13 用户反馈「贴边时想往边上转点不到」）：
+     蛇头在最右/最左列时，朝那一侧的半平面只剩 0 宽，手指没地方点；
+     棋盘两侧各让出 36rpx，这块空白同样算「那一侧」。 */
+  padding: 0 36rpx;
+  box-sizing: border-box;
 }
 /* 网格 */
 .grid {

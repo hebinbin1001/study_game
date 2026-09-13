@@ -85,6 +85,7 @@
 
   <!-- 已掌握列表 -->
   <view class="list" wx:if="{{activeTab === 'mastered'}}">
+    <view class="list-tip">熟练度满 100%（连续答对 5 次）才进入「已掌握」；答对但还没满的题会顺延复习时间，仍留在「待复习」</view>
     <block wx:for="{{mastered}}" wx:key="recordId">
       <view class="item-card mastered">
         <view class="item-header">
@@ -105,6 +106,7 @@
       {{loadingMore ? '加载中…' : '↓ 加载更多（还有 ' + moreCount + ' 条）'}}
     </view>
     <view class="empty-state" wx:if="{{mastered.length === 0}}">
+      <view class="empty-text">连续答对 5 次、熟练度满 100% 才会进这里</view>
       <view class="empty-emoji">🌱</view>
       <view class="empty-text">暂无已掌握题目，继续加油！</view>
     </view>

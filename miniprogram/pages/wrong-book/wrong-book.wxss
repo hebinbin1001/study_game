@@ -173,6 +173,17 @@
   margin-bottom: 18rpx;
 }
 
+/* 列表顶部的口径说明（已掌握 tab 用：解释「为什么这里可能是空的」） */
+.list-tip {
+  padding: 14rpx 18rpx;
+  margin: 6rpx 0 10rpx;
+  border-radius: 16rpx;
+  background: #eef3fa;
+  color: #5c7f9e;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
 .meta-text {
   font-size: 22rpx;
   color: #5c7f9e;

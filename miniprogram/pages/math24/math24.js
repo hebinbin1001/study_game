@@ -45,6 +45,7 @@ Page({
   _history: [],         // 撤销栈（存 tiles 快照）
   _tileId: 0,
   _pickOrder: [],       // 本步选牌顺序（存 tile id）：减法/除法按「先点的在前」计算
+  _pendingOp: '',       // 待用运算符：允许「先点运算符，再点两张牌」（2026-09-13）
 
   onLoad: function () {
     this.setData({ ops: m24.OPS.map(function (o) { return { key: o.key, label: o.label }; }) });
@@ -57,6 +58,7 @@ Page({
     this._history = [];
     this._tileId = 0;
     this._pickOrder = [];
+    this._pendingOp = '';
     var tiles = lv.nums.map(function (n) {
       var f = toFrac(n);
       return { id: 't' + (Math.random() * 1e9 | 0), frac: f, text: textOf(f), sel: false };
@@ -98,6 +100,10 @@ Page({
       this._pickOrder = (this._pickOrder || []).concat([t.id]);
     }
     this.setData({ tiles: tiles, picked: picked, selText: this._selPreview(tiles), hint: this._guide(picked) });
+    // 先点了运算符的情况：现在选够两张，立刻自动合并（不用再去点运算符）
+    if (picked === 2 && this._pendingOp) {
+      this._applyOp(this._pendingOp);
+    }
   },
 
   _selPreview: function (tiles) {
@@ -142,11 +148,28 @@ Page({
   // —— 点运算符：把选中的两张合并成一张 ——
   tapOp: function (e) {
     if (this.data.over) return;
+    var key = e.currentTarget.dataset.key;
+    // 允许「先点运算符，再点两张牌」：记下待用运算符，选够两张自动合并（用户 2026-09-13 反馈）
     if (this.data.picked !== 2) {
-      wx.showToast({ title: '先选两张牌', icon: 'none' });
+      this._pendingOp = key;
+      this.setData({ hint: '已选「' + this._opLabel(key) + '」，再点两张牌即可合并' });
       return;
     }
-    var key = e.currentTarget.dataset.key;
+    this._applyOp(key);
+  },
+
+  /** 运算符按钮文案（提示语用） */
+  _opLabel: function (key) {
+    for (var i = 0; i < m24.OPS.length; i++) {
+      if (m24.OPS[i].key === key) return m24.OPS[i].label;
+    }
+    return key;
+  },
+
+  /** 真正执行一次合并：牌已选够两张时调用（先点运算符 / 后点运算符都走这里） */
+  _applyOp: function (key) {
+    if (this.data.over) return;
+    this._pendingOp = '';
     var fn = null;
     for (var i = 0; i < m24.OPS.length; i++) {
       if (m24.OPS[i].key === key) { fn = m24.OPS[i].fn; break; }
@@ -230,6 +253,7 @@ Page({
     // 兼容两种撤销栈格式：新格式 { tiles, order }（带点击顺序），旧格式直接是 tiles 数组
     var prevTiles = (prev && prev.tiles) ? prev.tiles : prev;
     this._pickOrder = (prev && prev.order) ? prev.order.slice() : [];
+    this._pendingOp = '';
     var prevPicked = prevTiles.filter(function (t) { return t.sel; }).length;
     this.setData({
       tiles: prevTiles,

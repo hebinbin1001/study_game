@@ -96,6 +96,30 @@ H.runSuite('verify-math24（算 24 点 · 合并式）', async function (miniPro
     ck.check('合并后的结果牌自动选中（可继续操作）', d.picked === 1, '实际 picked = ' + d.picked);
   }
 
+  // [4.7/7] 先点运算符也能合并（用户 2026-09-13 反馈：不一定非要先点数字）
+  console.log('[4.7/7] 校验「先点运算符」玩法');
+  await (await page.$$('.k-clr'))[0].tap();      // 重来本关
+  await page.waitFor(320);
+  d = await page.data();
+  const nums1 = d.tiles.map(function (t) { return Number(t.text); });
+  await (await page.$$('.key.k-op'))[0].tap();   // 先点第一个运算符
+  await page.waitFor(200);
+  d = await page.data();
+  ck.check('先点运算符给出待用提示、且不报错', d.picked === 0 && (d.hint || '').indexOf('已选') >= 0,
+    'picked = ' + d.picked + ' hint = ' + d.hint);
+  const cards3 = await page.$$('.card');
+  await cards3[0].tap();
+  await page.waitFor(160);
+  await cards3[1].tap();
+  await page.waitFor(380);
+  d = await page.data();
+  const wantSum = nums1[0] + nums1[1];
+  ck.check('选够两张后自动合并：' + nums1[0] + ' + ' + nums1[1] + ' = ' + wantSum,
+    d.tiles.length === 3 && d.tiles.some(function (t) {
+      return t.justMerged && t.text === String(wantSum);
+    }),
+    '实际 = ' + JSON.stringify(d.tiles.map(function (t) { return t.text; })));
+
   console.log('[5/7] 撤销 / 重来');
   await (await page.$('.k-del')).tap();          // 撤销
   await page.waitFor(300);

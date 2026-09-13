@@ -308,7 +308,10 @@ Page({
     var nextIndex = this.data.currentIndex + 1;
     if (nextIndex >= this.data.items.length) {
       // 复习完成
-      this.setData({ completed: true });
+      // ⚠️ 必须同时收起答题反馈层（2026-09-13 用户反馈「答对后的弹窗一直都在」）：
+      //    最后一题答完只置 completed 的话，showFeedback 仍是 true，
+      //    反馈浮层会一直盖在「复习完成」页面上。
+      this.setData({ completed: true, showFeedback: false, answered: false, correct: false });
       return;
     }
 
