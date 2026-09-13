@@ -123,6 +123,7 @@ Page({
     var isChallenge = ctx.isChallenge;
     this._challenge = isChallenge;
     this._line = ctx.line;
+    this._challengeLabel = ctx.label;   // 「学段 · 玩法名 第 N/30 关」
     this._challengeItems = null;
     this._lives = CONFIG.initLives;       // 本局命数（挑战 Boss 关会被参数覆盖为 7）
     this._totalQ = CONFIG.totalQ;         // 本局题量（同上，Boss 关为 15）
@@ -146,7 +147,8 @@ Page({
       type: type,
       totalQ: this._totalQ,
       livesText: '❤'.repeat(this._lives),
-      challenge: isChallenge
+      challenge: isChallenge,
+      challengeLabel: this._challengeLabel || ''
     });
 
     // 读取本地皮肤选择（离线渲染，未选择时回退默认皮肤）

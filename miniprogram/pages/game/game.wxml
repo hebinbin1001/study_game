@@ -10,6 +10,7 @@
   <!-- HUD 层：命数 / 得分 / 题号 / 声音（REQ-GAME-3，白色卡通胶囊卡） -->
   <view class="hud">
     <view class="hud-chip hud-lives">{{livesText}}</view>
+    <view wx:if="{{challengeLabel}}" class="hud-chip">{{challengeLabel}}</view>
     <view class="hud-chip hud-score">得分 {{score}}</view>
     <view class="hud-chip hud-qnum">第 {{qIndex}}/{{totalQ}} 题</view>
     <view class="hud-chip hud-icon" catchtap="onToggleSound">{{soundOn ? '🔊' : '🔇'}}</view>

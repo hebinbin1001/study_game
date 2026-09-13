@@ -40,6 +40,7 @@ Page({
     var ctx = challenge.contextOf(opt);
     this._challenge = ctx.isChallenge;
     this._line = ctx.line;
+    this._challengeLabel = ctx.label;   // 「学段 · 玩法名 第 N/30 关」（玩法线/主线都带玩法名）
     this._gradeKey = opt.grade || '';
     this._level = parseInt(opt.level, 10) || 0;
     this._pairs = PAIR_COUNT;
@@ -84,7 +85,8 @@ Page({
 
     this._sel = null;
     this.setData({
-      gradeLabel: grade.label,
+      // 玩法线/主线：用 challenge.contextOf 给的标签（含玩法名与关卡号），自由玩才是学段名
+      gradeLabel: this._challengeLabel || grade.label,
       cards: cards,
       lives: 3,
       mistakes: 0,
