@@ -9,7 +9,7 @@
 const { suite } = require('./_runner');
 const s = suite('管理员判定与昵称脱敏');
 
-const { checkAdmin, maskNickname, maskOpenid, adminOpenidSet } = require('../../server/admin-auth');
+const { checkAdmin, pickWxNickname, maskNickname, maskOpenid, adminOpenidSet } = require('../../server/admin-auth');
 
 s.test('默认安全：两个环境变量都没配 → 谁都不是管理员', () => {
   s.assert.equal(checkAdmin('o1', 'any', {}).ok, false);
@@ -55,4 +55,15 @@ s.test('openid 掩码：前 6 后 4，短串只留前缀', () => {
   s.assert.equal(maskOpenid('oABCDEFGHIJKL'), 'oABCDE****IJKL');
   s.assert.equal(maskOpenid('short'), 'sho***');
   s.assert.equal(maskOpenid(''), '');
+});
+
+s.test('微信名取值：列就绪时只认 wx_nickname，禁止回落到展示昵称（防越权）', () => {
+  const row = { nickname: 'h842917647', wx_nickname: '' };
+  // 用户 2026-09-13 已执行 DDL → 列就绪：展示昵称冒充管理员微信名不算数
+  s.assert.equal(pickWxNickname(row, true), '', '列就绪时展示昵称不参与白名单');
+  s.assert.equal(pickWxNickname({ nickname: '小明', wx_nickname: 'h842917647' }, true), 'h842917647');
+  // 列未就绪（DDL 未执行）→ 退化兜底，保证管理端至少能用
+  s.assert.equal(pickWxNickname(row, false), 'h842917647');
+  s.assert.equal(pickWxNickname(null, true), '');
+  s.assert.equal(pickWxNickname(undefined, false), '');
 });

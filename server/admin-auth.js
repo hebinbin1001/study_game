@@ -15,6 +15,8 @@
  * ⚠️ 微信名白名单的风险（必须知道）：微信名用户可自行修改、也可能重名 —— 谁把昵称改成
  *    h842917647 就能进管理端。所以它只适合**开发/测试期的便捷方式**；上线建议改用
  *    ADMIN_OPENIDS（管理页会显示自己的 openid 掩码，后台日志也能查到完整 openid）。
+ *    2026-09-13 起 `wx_nickname` 列已上线：白名单**只认 wx_nickname**、不再回落到展示昵称
+ *    （否则把展示昵称改成管理员微信名即可越权，见 pickWxNickname）。
  *
  * 昵称口径（用户明确要求「微信名称只有管理员能看到」）：
  *   · 排行榜等公开接口返回**脱敏昵称**（保留首字 + *，两个字以内只留一个字符）；
@@ -53,6 +55,23 @@ function checkAdmin(openid, passcode, env, wxNickname) {
 }
 
 /**
+ * 微信名白名单匹配时该取哪个值（纯函数，便于单测）。
+ *
+ * 为什么要区分「列是否就绪」：
+ *   · `wx_nickname` 列（DDL）就绪时，**只认** wx_nickname —— 绝不能回落到展示昵称，
+ *     否则谁把展示昵称改成管理员的微信名（如 h842917647）就能越权进管理端；
+ *   · 列还没加（DDL 未执行）时，退化为展示昵称兜底，保证管理端至少可用。
+ *
+ * @param {Object} row users 表一行（含 nickname / wx_nickname）
+ * @param {boolean} columnReady 生产库是否已有 wx_nickname 列
+ */
+function pickWxNickname(row, columnReady) {
+  const r = row || {};
+  if (columnReady) return r.wx_nickname || "";
+  return r.nickname || "";
+}
+
+/**
  * 公开场合展示用的脱敏昵称。
  * 规则：「张三丰」→「张**」；「张」→「*」；空/未命名 → 「用户」。
  */
@@ -72,4 +91,4 @@ function maskOpenid(openid) {
   return s.slice(0, 6) + "****" + s.slice(-4);
 }
 
-module.exports = { adminOpenidSet, checkAdmin, maskNickname, maskOpenid };
+module.exports = { adminOpenidSet, checkAdmin, pickWxNickname, maskNickname, maskOpenid };

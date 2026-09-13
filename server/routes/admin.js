@@ -19,7 +19,7 @@ const { Op } = require("sequelize");
 const { fn, col } = require("sequelize");
 const { User, Score, RankRecord, sequelize } = require("../db");
 const ladder = require("../rank-ladder");
-const { checkAdmin, maskOpenid } = require("../admin-auth");
+const { checkAdmin, pickWxNickname, maskOpenid } = require("../admin-auth");
 const { dedupeStars } = require("../rank-stars");
 const rankRouter = require("./rank");   // 取「最近一次段位星同步」的诊断信息
 
@@ -31,21 +31,24 @@ const router = express.Router();
  *    列不存在时自动降级成「只有昵称」，不让接口 5000（2026-09-13 踩过这个坑）。
  */
 async function nicknamesOf(openid) {
-  if (!openid) return { nickname: "", wx: "" };
+  if (!openid) return { nickname: "", wx: "", columnReady: false };
   try {
     const [rows] = await sequelize.query(
       "SELECT nickname, wx_nickname FROM users WHERE openid = :o LIMIT 1",
       { replacements: { o: openid } }
     );
     const r = (rows && rows[0]) || {};
-    return { nickname: r.nickname || "", wx: r.wx_nickname || r.nickname || "" };
+    // 列已就绪（用户 2026-09-13 已执行 DDL）：微信名**只认 wx_nickname**，
+    // 不回落到展示昵称 —— 否则谁把展示昵称改成管理员微信名就能越权进管理端。
+    return { nickname: r.nickname || "", wx: pickWxNickname(r, true), columnReady: true };
   } catch (e) {
     const [rows] = await sequelize.query(
       "SELECT nickname FROM users WHERE openid = :o LIMIT 1",
       { replacements: { o: openid } }
     );
     const r = (rows && rows[0]) || {};
-    return { nickname: r.nickname || "", wx: r.nickname || "" };
+    // 列还没加（DDL 未执行）：退化为展示昵称兜底，保证管理端至少能用
+    return { nickname: r.nickname || "", wx: pickWxNickname(r, false), columnReady: false };
   }
 }
 
@@ -123,7 +126,11 @@ router.get("/check", async (req, res) => {
         // 只有已经是管理员时才给完整 openid —— 方便把当前账号转成 ADMIN_OPENIDS 白名单
         // （普通用户即使调这个接口也只会拿到下面这份 null，看不到别人的 openid）
         openid: r.ok ? (req.openid || "") : "",
-        nickname: wxNickname,
+        // nickname 保留展示昵称口径（页面兼容）；wxNickname 是「微信名白名单实际取的值」
+        nickname: names.nickname,
+        wxNickname: wxNickname,
+        // 微信名列是否已就绪（false = 还没执行 ALTER TABLE，微信名必然为空）
+        wxColumnReady: names.columnReady,
       },
       message: "ok",
     });
