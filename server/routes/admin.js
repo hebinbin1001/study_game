@@ -101,7 +101,15 @@ router.get("/check", async (req, res) => {
     const r = checkAdmin(req.openid, passcode, process.env, wxNickname);
     res.send({
       code: 0,
-      data: { isAdmin: r.ok, by: r.by, openidMasked: maskOpenid(req.openid || ""), nickname: wxNickname },
+      data: {
+        isAdmin: r.ok,
+        by: r.by,
+        openidMasked: maskOpenid(req.openid || ""),
+        // 只有已经是管理员时才给完整 openid —— 方便把当前账号转成 ADMIN_OPENIDS 白名单
+        // （普通用户即使调这个接口也只会拿到下面这份 null，看不到别人的 openid）
+        openid: r.ok ? (req.openid || "") : "",
+        nickname: wxNickname,
+      },
       message: "ok",
     });
   } catch (err) {

@@ -24,6 +24,13 @@
     </view>
 
     <!-- 段位分布 -->
+    <view class="sec-title">我的身份（配 ADMIN_OPENIDS 白名单用）</view>
+    <view class="me-card">
+      <view class="me-row"><text class="me-k">身份来源</text><text class="me-v">{{adminBy === 'openid' ? 'openid 白名单' : (adminBy === 'passcode' ? '管理口令' : (adminBy === 'wxNickname' ? '微信名白名单' : '-'))}}</text></view>
+      <view class="me-row"><text class="me-k">我的 openid</text><text class="me-v me-id">{{myOpenid || myOpenidMasked || '-'}}</text></view>
+      <view class="me-btn" bindtap="copyOpenid">复制 openid</view>
+    </view>
+
     <view class="sec-title">段位分布</view>
     <view class="dist">
       <view wx:for="{{stats.rankDistList}}" wx:key="name" class="dist-item">

@@ -62,6 +62,12 @@ Page({
 
   loadStats: function () {
     var self = this;
+    // 先把「我是谁」写进页面（管理员可见自己的完整 openid，便于转白名单；可一键复制）
+    request.get('/api/admin/check?passcode=' + encodeURIComponent(this.data.passcode)).then(function (d) {
+      if (d && d.isAdmin) {
+        self.setData({ myOpenid: d.openid || '', myOpenidMasked: d.openidMasked || '', adminBy: d.by || '' });
+      }
+    }).catch(function () { /* 忽略 */ });
     request.get('/api/admin/stats?passcode=' + encodeURIComponent(this.data.passcode)).then(function (d) {
       if (!d) return;
       var dist = d.rankDist || {};
@@ -95,6 +101,15 @@ Page({
   },
 
   onSearch: function () { this.loadUsers(true); },
+
+  /** 复制自己的 openid（配 ADMIN_OPENIDS 白名单用） */
+  copyOpenid: function () {
+    var id = this.data.myOpenid || '';
+    if (!id) { wx.showToast({ title: '暂无 openid', icon: 'none' }); return; }
+    if (wx.setClipboardData) {
+      wx.setClipboardData({ data: id, success: function () { wx.showToast({ title: '已复制', icon: 'success' }); } });
+    }
+  },
 
   onMore: function () { this.loadUsers(false); },
 
