@@ -44,6 +44,7 @@ Page({
     correct: false,
     showFeedback: false,
     completed: false,
+    noDue: false,          // 「继续复习」时若没有到期题 → 完成页给明确说明
     correctCount: 0,
     totalCount: 0,
     // M6-G
@@ -80,16 +81,30 @@ Page({
         });
       }
       if (pending.length === 0) {
-        self.setData({ completed: true, totalCount: 0, currentItem: null });
+        // 用户点「继续复习」却没有到期题 → 明确提示，别让按钮看着像坏了
+        if (self._restartRequested) {
+          self._restartRequested = false;
+          wx.showToast({ title: '暂时没有到期的错题了', icon: 'none' });
+        }
+        self.setData({ completed: true, totalCount: 0, currentItem: null, noDue: true });
         return;
       }
 
+      self._restartRequested = false;
+      self._session = pending.slice();
       self.setData({
         items: pending,
         totalCount: pending.length,
         currentIndex: 0,
         currentItem: pending[0],
-        correctCount: 0
+        correctCount: 0,
+        noDue: false,
+        // ⚠️ 必须一起复位，否则「继续复习」拉到题了也还停在完成页（2026-09-13 用户反馈「点不动」）
+        completed: false,
+        showFeedback: false,
+        answered: false,
+        correct: false,
+        selectedOption: null
       });
       self.applyQuestion(pending[0]);
     }).catch(function () {
@@ -328,8 +343,20 @@ Page({
     wx.navigateBack();
   },
 
-  // 重新开始
+  /**
+   * 继续复习：重新拉一遍「到期待复习」。
+   *
+   * 踩坑记录（2026-09-13 用户反馈「答对之后的继续复习点不动」）：
+   *   两个原因叠在一起 ——
+   *   ① 答对的题会把 nextReviewAt 按艾宾浩斯间隔顺延（1/2/4/7/15/30 天），
+   *      所以刚复习完再拉「待复习」本来就是空的；
+   *   ② 拉到题以后旧代码只换了 items，没有把 completed 复位，
+   *      于是即使有题也仍然停在完成页 —— 点了完全没变化。
+   *   现在：点到题就真的回到答题（状态整体复位）；没到期题就明确提示，
+   *   完成页也会写清「什么时候会再出现」。
+   */
   restart: function () {
+    this._restartRequested = true;
     this.loadPendingItems();
   }
 });

@@ -57,6 +57,7 @@
       <view class="completed-stats" wx:else>
         暂无待复习题目，休息一下吧～
       </view>
+      <view class="completed-stats" wx:if="{{noDue}}">暂无到期错题：答对的题会按 1/2/4/7/15/30 天间隔再出现</view>
       <button class="btn-restart" bindtap="restart">🔄 继续复习</button>
       <button class="btn-back" bindtap="goBack">返回错题本</button>
     </view>
