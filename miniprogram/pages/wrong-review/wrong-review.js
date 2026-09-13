@@ -59,11 +59,26 @@ Page({
     this.loadPendingItems();
   },
 
+  /**
+   * 错题本卡片点进来时带 ?only=<recordId>：只练这一道（用户 2026-09-13 反馈）。
+   * 不带参数 = 原来的「整池复习」，行为不变。
+   */
+  onLoad: function (options) {
+    var opt = options || {};
+    this._only = opt.only ? String(opt.only) : '';
+  },
+
   // 加载待复习题目
   loadPendingItems: function () {
     var self = this;
     request.get('/api/wrong/list').then(function (data) {
       var pending = data.pending || [];
+      // 单题练习：只留这一道；已被移除/已掌握时下面会走「已完成」空态
+      if (self._only) {
+        pending = pending.filter(function (it) {
+          return String(it.recordId) === self._only;
+        });
+      }
       if (pending.length === 0) {
         self.setData({ completed: true, totalCount: 0, currentItem: null });
         return;

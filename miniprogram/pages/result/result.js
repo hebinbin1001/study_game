@@ -15,6 +15,8 @@ var request = require('../../utils/request');
 var auth = require('../../utils/auth');
 var question = require('../../game/question');
 var challenge = require('../../utils/challenge');
+// 本机玩法计数：首页「推荐玩法」按玩得最多的两款排序（2026-09-13）
+var playCounts = require('../../utils/play-counts');
 
 Page({
   data: {
@@ -136,6 +138,8 @@ Page({
         ? (this._line || challenge.STAR_KEY)
         : ((this._type && this._type !== 'all') ? this._type : undefined);
       storage.saveStars(grade, level, stars, typeKey);
+      // 打完一局记本机计数（字母射击这条线走的是结算页，不在 play-report 里）
+      playCounts.bump('shoot');
     }
 
     // 上报成绩（REQ-API-4）

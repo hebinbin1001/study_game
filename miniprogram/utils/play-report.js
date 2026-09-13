@@ -18,6 +18,8 @@
 
 var request = require('./request');
 var auth = require('./auth');
+// 本机玩法计数（首页「推荐玩法」按玩得最多排序用，2026-09-13）
+var counts = require('./play-counts');
 
 /**
  * 上报一局成绩（玩法维度）并在拿到星时同步段位。
@@ -34,8 +36,10 @@ var auth = require('./auth');
  */
 function reportPlay(p) {
   var d = p || {};
-  if (!auth.isLoggedIn()) return false;
   if (!d.gameType || !d.grade) return false;
+  // 先记本机计数：**游客也记**（首页推荐要对游客生效），放在登录判断之前
+  counts.bump(d.gameType);
+  if (!auth.isLoggedIn()) return false;
 
   var payload = {
     grade: d.grade,

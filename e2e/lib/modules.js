@@ -35,7 +35,7 @@ const MODULES = [
   {
     id: 'static',
     name: '静态护栏（语法 / 结构 / WXSS）',
-    stages: ['syntax', 'structure', 'wxss'],
+    stages: ['syntax', 'structure', 'wxss', 'taps'],
     unit: []
   },
   {
@@ -92,7 +92,7 @@ const MODULES = [
     id: 'pages',
     name: '页面渲染回归与真机黑屏探针（35 页）',
     stages: ['pages', 'load'],
-    unit: []
+    unit: ['play-counts']
   }
 ];
 
@@ -101,6 +101,7 @@ const STAGE_MODULE = {
   syntax: 'static',
   structure: 'static',
   wxss: 'static',
+  taps: 'static',
   assets: 'assets',
   unit: '(unit)',
   game: 'game',

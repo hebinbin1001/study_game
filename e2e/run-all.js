@@ -67,6 +67,14 @@ STAGES.push({
   script: 'e2e/verify-lines.js'
 });
 
+// 「点击无响应」静态护栏：bindtap 指向不存在的方法 / 像可点行却没绑事件
+STAGES.push({
+  id: 'taps',
+  layer: '静态',
+  title: '点击响应护栏（bindtap 指向 / 可点行绑定）',
+  script: 'e2e/check-taps.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false,
     module: null, changed: false, listModules: false, noStatic: false };

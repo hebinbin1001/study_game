@@ -126,6 +126,20 @@ Page({
     wx.navigateTo({ url: '/pages/wrong-review/wrong-review' });
   },
 
+  /**
+   * 单题练习：点错题卡片 → 只练这道题（用户 2026-09-13 反馈「错题在真机上点不进去学习」）。
+   *
+   * 排查结论：不是真机问题 —— 之前错题卡片**根本没有点击事件**（只有「移除」按钮），
+   * 所以点题没反应；能用的只有底部「开始复习」（一次复习整池）。
+   * 现在卡片整体可点，跳到 wrong-review?only=<recordId>，那边只练这一道。
+   */
+  practiceItem: function (e) {
+    var recordId = e && e.currentTarget && e.currentTarget.dataset
+      ? e.currentTarget.dataset.id : '';
+    if (!recordId) return;
+    wx.navigateTo({ url: '/pages/wrong-review/wrong-review?only=' + recordId });
+  },
+
   // 返回首页
   goBack: function () {
     wx.navigateBack();

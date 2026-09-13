@@ -182,8 +182,19 @@
 }
 
 /* 单条「移除」入口：靠右轻样式，避免抢走卡片主体的注意力 */
-.meta-del {
+/* 单题练习入口：卡片整体可点，这里给一个可见的操作提示 */
+.meta-go {
   margin-left: auto;
+  font-size: 22rpx;
+  color: #2e6fd6;
+  background: #eaf2ff;
+  padding: 6rpx 18rpx;
+  border-radius: 20rpx;
+  font-weight: 700;
+}
+
+.meta-del {
+  margin-left: 12rpx;
   font-size: 22rpx;
   color: #e2664f;
   background: #fdeeea;

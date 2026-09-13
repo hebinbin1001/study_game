@@ -37,7 +37,11 @@ check(iconOk, 'tabBar 图标文件存在');
 });
 
 // 3) 玩法 tab：14 款（含华容道），跳转 URL 存在，弹弹球为未解锁占位
-const src = fs.readFileSync('miniprogram/pages/playlist/playlist.js', 'utf8');
+// 玩法目录已抽到 utils/game-catalog.js（2026-09-13）：清单断言看目录文件，
+// 再单独校验玩法 tab 确实引用这份公共目录（防止两处又各写一份）。
+const src = fs.readFileSync('miniprogram/utils/game-catalog.js', 'utf8');
+const playlistSrc = fs.readFileSync('miniprogram/pages/playlist/playlist.js', 'utf8');
+check(playlistSrc.indexOf('utils/game-catalog') >= 0, '玩法 tab 使用公共玩法目录（utils/game-catalog.js）');
 const urls = [...src.matchAll(/url: '(\/pages\/[^']+)'/g)].map((m) => m[1]);
 // 允许带 query（如 /pages/level/level?mode=link）：校验时只看路径部分
 const missing = urls.filter((u) => !fs.existsSync(`miniprogram${u.split('?')[0]}.js`));

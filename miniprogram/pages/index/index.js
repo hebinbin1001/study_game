@@ -11,6 +11,9 @@ var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 var constants = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
+// 推荐玩法：玩法目录 + 本机计数（玩得最多的两款，2026-09-13）
+var gameCatalog = require('../../utils/game-catalog');
+var playCounts = require('../../utils/play-counts');
 
 Page({
   // 实例级标志（不在 data，避免渲染）；登录/协议进行中置 true，防 nudge 弹窗互顶
@@ -124,7 +127,8 @@ Page({
       continuePlayable: continuePlayable,
       continueMode: contMode,
       continueModeLabel: contLv ? contLv.modeLabel : '',
-      dailyDone: dailyDone
+      dailyDone: dailyDone,
+      recos: this._buildRecos()
     });
 
     if (loggedIn) this._fetchCloud();
@@ -334,6 +338,31 @@ Page({
   // 换关卡 → 关卡选择页
   goLevel: function () {
     wx.navigateTo({ url: '/pages/level/level' });
+  },
+
+  /**
+   * 首页「推荐玩法」：展示**本机玩得最多**的两款（用户 2026-09-13 反馈：原来是写死的两张卡）。
+   *
+   * 数据来源 utils/play-counts（一局打完才计数，游客也记）；
+   * 玩过不足两款时用默认推荐补齐（字母射击 / 词义消消乐），保证首页永远有两张卡。
+   */
+  _buildRecos: function () {
+    var byKey = {};
+    gameCatalog.forEach(function (g) { byKey[g.key] = g; });
+    var DEFAULT_KEYS = ['shoot', 'match'];
+    var keys = playCounts.topKeys(2);
+    DEFAULT_KEYS.forEach(function (k) {
+      if (keys.length < 2 && keys.indexOf(k) < 0) keys.push(k);
+    });
+    return keys.slice(0, 2).map(function (k) { return byKey[k]; })
+      .filter(function (g) { return !!g; });
+  },
+
+  /** 点推荐玩法卡片：按目录里的 url 跳转 */
+  goReco: function (e) {
+    var url = (e && e.currentTarget && e.currentTarget.dataset)
+      ? e.currentTarget.dataset.url : '';
+    if (url) wx.navigateTo({ url: url });
   },
 
   // 推荐玩法：字母射击→关卡选择
