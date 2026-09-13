@@ -36,7 +36,7 @@
       class="type-tab {{currentType === item.key ? 'on' : ''}}"
       data-key="{{item.key}}"
       bindtap="pickType">
-      {{item.label}}<text wx:if="{{item.key !== 'all'}}" class="type-count">{{item.count}}</text>
+      {{item.label}}<text wx:if="{{item.key !== 'all'}}" class="type-count">{{item.badge || item.count}}</text>
     </view>
   </scroll-view>
 

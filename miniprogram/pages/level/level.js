@@ -45,7 +45,12 @@ Page({
     chests: []              // 挑战主线里程碑宝箱（P3）
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
+    // 玩法 tab 直达某条玩法线：?mode=link 或 ?mode=mode_link → 预选该玩法的 30 关线
+    var _opt = options || {};
+    var _mode = _opt.mode ? String(_opt.mode) : '';
+    var _lineKey = _mode ? (_mode.indexOf('mode_') === 0 ? _mode : challenge.lineKeyOf(_mode)) : '';
+    if (challenge.isLineKey(_lineKey)) this.setData({ currentType: _lineKey });
     // 初始化学段列表（7 个学段，REQ-DICT-1）
     this.setData({ grades: constants.GRADES });
     this.refreshLevels();
@@ -109,8 +114,26 @@ Page({
       }
     }
     // ② 当前分类在切换学段后不可用 → 回退综合
+    // 玩法线 chips（P3 一期）：6 款题库玩法各一条独立 30 关线，插在「挑战主线」之后；
+    // badge 显示该线已通关数（题型分类 chip 仍显示题库题量）
+    var allStars = storage.getAllStars();
+    var lineChips = [];
+    for (var lm = 0; lm < challenge.LINE_MODES.length; lm++) {
+      var lineModeKey = challenge.LINE_MODES[lm];
+      var lineMeta = challenge.MODES[lineModeKey];
+      var lineProg = challenge.lineProgress(allStars, key, lineModeKey);
+      lineChips.push({
+        key: challenge.lineKeyOf(lineModeKey),
+        label: lineMeta.emoji + ' ' + lineMeta.label,
+        count: LEVELS_PER_GRADE,
+        badge: lineProg.cleared + '/' + LEVELS_PER_GRADE,
+        line: true
+      });
+    }
+    typeGroups = typeGroups.slice(0, 1).concat(lineChips, typeGroups.slice(1));
+
     var typeKey = this.data.currentType;
-    if (typeKey !== 'all' && !counts[typeKey]) typeKey = 'all';
+    if (typeKey !== 'all' && !counts[typeKey] && !challenge.isLineKey(typeKey)) typeKey = 'all';
     var typeLabel = '';
     for (var t = 0; t < constants.TYPE_GROUPS.length; t++) {
       if (constants.TYPE_GROUPS[t].key === typeKey) { typeLabel = constants.TYPE_GROUPS[t].label; break; }
@@ -121,9 +144,12 @@ Page({
     // ③ 关卡行数据
     //   · 综合（all）= 挑战主线：30 关，一关一种玩法（2026-09-12 拍板）
     //   · 具体分类   = 自由练：沿用原有 10 关 × 该分类题库
+    var isLineView = challenge.isLineKey(typeKey);
     var built = (typeKey === 'all')
       ? this._buildChallengeRows(key, loggedIn)
-      : this._buildPracticeRows(key, typeArg, loggedIn, typeLabel);
+      : (isLineView
+        ? this._buildLineRows(key, challenge.lineMode(typeKey), loggedIn)
+        : this._buildPracticeRows(key, typeArg, loggedIn, typeLabel));
     // 里程碑宝箱只在「挑战主线」视图展示（自由练没有主线进度）
     var chests = (typeKey === 'all') ? rewards.chestState(key) : [];
     var levels = built.levels;
@@ -143,6 +169,7 @@ Page({
       gradeTotalStars: gradeTotalStars,
       gradeStarPercent: gradeStarPercent,
       isChallengeView: typeKey === 'all',
+      isLineView: isLineView,
       chests: chests
     });
   },
@@ -197,6 +224,50 @@ Page({
    * 自由练行数据（某学段某分类的 10 关，题库=该分类）。
    * 与改造前完全一致，保证已有存档与分类练习不受影响。
    */
+  /**
+   * 玩法线行数据（某玩法独立 30 关，P3 一期）。
+   *
+   * 星级存 `grade@mode_<玩法>@level`，与主线 `@challenge@`、「按题型练」`@<题型>@`
+   * 三套命名空间并存互不覆盖；解锁规则与主线一致：前 3 关默认解锁（游客同享），
+   * 之后登录用户「上一关 ≥1 星」解锁下一关。
+   */
+  _buildLineRows: function (key, mode, loggedIn) {
+    var rows = challenge.lineLevelsOf(key, mode);
+    var lineKey = challenge.lineKeyOf(mode);
+    var levels = [];
+    var earnedStars = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var n = row.level;
+      var stars = storage.getStars(key, n, lineKey);
+      earnedStars += stars;
+      var needLogin = !loggedIn && n > DEFAULT_UNLOCKED;
+      var unlocked = (n <= DEFAULT_UNLOCKED) ||
+        (loggedIn && storage.isLevelUnlocked(key, n, lineKey));
+      levels.push({
+        level: n,
+        mode: row.mode,
+        page: row.page,
+        seed: row.seed,
+        stars: stars,
+        starArr: [stars >= 1, stars >= 2, stars >= 3],
+        unlocked: unlocked,
+        needLogin: needLogin,
+        shaking: false,
+        // 同一条线里玩法固定，行上不再重复玩法名（页面副标题已经写明），只留难度摘要
+        kindLabel: '',
+        sub: row.sub,
+        isBoss: false
+      });
+    }
+    var curIdx = this._firstOpenIndex(levels);
+    for (var j = 0; j < levels.length; j++) {
+      levels[j].state = this._stateOf(levels[j], j === curIdx);
+      levels[j].lockTip = this._lockTipOf(levels[j]);
+    }
+    return { levels: levels, earnedStars: earnedStars, totalStars: rows.length * 3 };
+  },
+
   _buildPracticeRows: function (key, typeArg, loggedIn, typeLabel) {
     var levels = [];
     var earnedStars = 0;
@@ -313,6 +384,10 @@ Page({
     if (this.data.isChallengeView) {
       // 挑战主线：按该关的玩法跳对应玩法页（带 challenge=1 与关卡种子）
       url = challenge.pageUrl(challenge.levelAt(grade.key, card.level), grade.key);
+      if (!url) return;
+    } else if (this.data.isLineView) {
+      // 玩法线：跳该玩法的关卡页（带 line=mode_xxx，写 <学段>@mode_xxx@<关卡> 星级）
+      url = challenge.lineUrl(grade.key, challenge.lineMode(this.data.currentType), card.level);
       if (!url) return;
     } else {
       url = '/pages/game/game?grade=' + grade.key + '&level=' + card.level;

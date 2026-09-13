@@ -39,7 +39,8 @@ check(iconOk, 'tabBar 图标文件存在');
 // 3) 玩法 tab：14 款（含华容道），跳转 URL 存在，弹弹球为未解锁占位
 const src = fs.readFileSync('miniprogram/pages/playlist/playlist.js', 'utf8');
 const urls = [...src.matchAll(/url: '(\/pages\/[^']+)'/g)].map((m) => m[1]);
-const missing = urls.filter((u) => !fs.existsSync(`miniprogram${u}.js`));
+// 允许带 query（如 /pages/level/level?mode=link）：校验时只看路径部分
+const missing = urls.filter((u) => !fs.existsSync(`miniprogram${u.split('?')[0]}.js`));
 check(missing.length === 0, `玩法跳转 ${urls.length} 个 URL 均存在` + (missing.length ? ' 缺:' + missing : ''));
 const unlocked = (src.match(/unlocked: true/g) || []).length;
 check(unlocked >= 13, `已解锁玩法 ${unlocked} 款`);

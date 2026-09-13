@@ -57,6 +57,14 @@ STAGES.push({
   script: 'e2e/probe-pages-load.js'
 });
 
+// 玩法线（P3 一期）：关卡页直达玩法线 → 对局 → 写 <学段>@mode_xxx@<关卡> 星级 → 二级分段
+STAGES.push({
+  id: 'lines',
+  layer: '端到端',
+  title: '玩法线（关卡线入口 / 写星命名空间 / 二级分段）',
+  script: 'e2e/verify-lines.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false };
   argv.forEach(function (a) {

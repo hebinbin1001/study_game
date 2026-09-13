@@ -52,7 +52,10 @@ Page({
   onLoad: function (options) {
     var opt = options || {};
     // 挑战主线：按「学段 + 关卡 + 种子」固定出题；自由玩：沿用「最近学段」随机出题
-    this._challenge = String(opt.challenge) === '1';
+    // 主线 / 玩法线共用解析：line=mode_xxx → 存档写 <学段>@mode_xxx@<关卡>
+    var ctx = challenge.contextOf(opt);
+    this._challenge = ctx.isChallenge;
+    this._line = ctx.line;
     this._gradeKey = (this._challenge && opt.grade)
       ? opt.grade
       : (storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34');
@@ -62,14 +65,10 @@ Page({
     this._challengeKey = '';
     this._challengeLabel = '';
     if (this._challenge) {
-      var lv = challenge.levelAt(this._gradeKey, this._level);
-      if (lv) {
-      this._roundQ = challenge.paramsOf(this._gradeKey, lv.mode, this._level).count || lib.ROUND_Q;
-        this._challengeLabel = challenge.labelOf(this._gradeKey) + ' · 挑战第 ' + this._level + '/' + challenge.LEVELS_PER_GRADE + ' 关';
-      }
-      var seed = parseInt(opt.seed, 10) || challenge.seedOf(this._gradeKey, this._level);
-      this._rng = rng.makeRng(seed);
-      this._challengeKey = this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level;
+      this._roundQ = (ctx.params && ctx.params.count) || lib.ROUND_Q;
+      this._challengeLabel = ctx.label;
+      this._rng = rng.makeRng(ctx.seed);
+      this._challengeKey = ctx.key;
     }
     this.setData({
       best: storage.get(BEST_KEY) || 0,
@@ -259,7 +258,7 @@ Page({
    */
   _saveChallengeStars: function (stars) {
     if (!this._challenge || !this._gradeKey || !this._level) return;
-    storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
+    storage.saveStars(this._gradeKey, this._level, stars, this._line || challenge.STAR_KEY);
     // 统一上报（成绩 + 段位）：game_type=word_build，供玩法进度榜与玩法类成就使用
     playReport.reportPlay({
       gameType: challenge.gameTypeOf('wordBuild'),

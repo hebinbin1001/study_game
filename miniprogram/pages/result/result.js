@@ -80,6 +80,9 @@ Page({
     // 挑战主线（2026-09-12）：星级写入 <grade>@challenge@<level> 命名空间，
     // 与「题型分类自由练」的存档互不覆盖；挑战星同样计入累计星（走 rankSync）。
     this._challenge = options.challenge === '1';
+    // 玩法线（P3 一期）：line=mode_xxx → 星级写 <grade>@mode_xxx@<level>；
+    // 不传或非法时退回主线 @challenge@，与旧链接完全兼容。
+    this._line = challenge.isLineKey(options.line) ? String(options.line) : challenge.STAR_KEY;
 
     // 计算正确率
     var rate = totalQ > 0 ? (correctCount / totalQ * 100) : 0;
@@ -130,7 +133,7 @@ Page({
     // 自定义关卡跳过：不占系统星级/进度（B4）；挑战主线写 challenge 命名空间
     if (!this._custom && grade && level >= 1) {
       var typeKey = this._challenge
-        ? challenge.STAR_KEY
+        ? (this._line || challenge.STAR_KEY)
         : ((this._type && this._type !== 'all') ? this._type : undefined);
       storage.saveStars(grade, level, stars, typeKey);
     }
@@ -202,7 +205,11 @@ Page({
     if (grade) {
       url += '?grade=' + grade + '&level=' + level;
       if (this._challenge) {
-        url += '&challenge=1&seed=' + challenge.seedOf(grade, level);
+        // 玩法线用线的种子（主线沿有关卡种子），否则「再玩一次」会换一套题
+        var lineSeed = (this._line && this._line !== challenge.STAR_KEY)
+          ? challenge.lineSeedOf(grade, challenge.lineMode(this._line), level)
+          : challenge.seedOf(grade, level);
+        url += '&challenge=1&line=' + (this._line || challenge.STAR_KEY) + '&seed=' + lineSeed;
       }
       if (this._type && this._type !== 'all') {
         url += '&type=' + this._type;

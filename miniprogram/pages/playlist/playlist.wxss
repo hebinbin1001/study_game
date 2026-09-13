@@ -32,6 +32,46 @@
 }
 
 /* 分类 chips */
+/* 二级分段（P3 一期）：闯关线 / 数字智力 —— 带图标的 tab 行 */
+.seg-row {
+  display: flex;
+  gap: 16rpx;
+  flex: 0 0 auto;
+  margin-top: 24rpx;
+}
+.seg-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  height: 84rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #6B7688;
+  box-shadow: 0 4rpx 12rpx rgba(28, 53, 92, .06);
+}
+.seg-tab.on {
+  background: linear-gradient(135deg, #4285F4, #6AA6F5);
+  color: #fff;
+}
+.seg-ic { font-size: 32rpx; }
+.seg-label { line-height: 1; }
+
+/* 玩法线卡片上的进度徽标（已通关 x/30） */
+.line-tag {
+  align-self: flex-start;
+  margin-top: 8rpx;
+  background: #EAF2FF;
+  color: #2E6FD6;
+  border-radius: 999rpx;
+  padding: 4rpx 16rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
 .cat-scroll { flex: 0 0 auto; width: 100%; margin-top: 24rpx; white-space: nowrap; }
 .cat-row { display: inline-flex; gap: 16rpx; padding: 4rpx 0 8rpx; }
 .cat-chip {

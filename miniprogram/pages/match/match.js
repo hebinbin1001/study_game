@@ -36,18 +36,19 @@ Page({
   onLoad: function (options) {
     var opt = options || {};
     // 挑战主线（P2）：学段/对数按关卡参数固定，牌面用关卡种子（同一关每次同一套词）
-    this._challenge = String(opt.challenge) === '1';
+    // 主线 / 玩法线共用解析：line=mode_xxx → 存档写 <学段>@mode_xxx@<关卡>
+    var ctx = challenge.contextOf(opt);
+    this._challenge = ctx.isChallenge;
+    this._line = ctx.line;
     this._gradeKey = opt.grade || '';
     this._level = parseInt(opt.level, 10) || 0;
     this._pairs = PAIR_COUNT;
     this._rng = null;
     this._challengeKey = '';
     if (this._challenge) {
-      var lv = challenge.levelAt(this._gradeKey, this._level);
-    this._pairs = (lv ? challenge.paramsOf(this._gradeKey, lv.mode, this._level).pairs : PAIR_COUNT) || PAIR_COUNT;
-      var seed = parseInt(opt.seed, 10) || challenge.seedOf(this._gradeKey, this._level);
-      this._rng = rng.makeRng(seed);
-      this._challengeKey = this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level;
+      this._pairs = (ctx.params && ctx.params.pairs) || PAIR_COUNT;
+      this._rng = rng.makeRng(ctx.seed);
+      this._challengeKey = ctx.key;
     }
     this.setData({ challenge: this._challenge, challengeKey: this._challengeKey });
     this.newRound();
@@ -203,7 +204,7 @@ Page({
    */
   _saveChallenge: function (stars, correct, total) {
     if (!this._challenge || !this._gradeKey || !this._level) return;
-    storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
+    storage.saveStars(this._gradeKey, this._level, stars, this._line || challenge.STAR_KEY);
     playReport.reportPlay({
       gameType: challenge.gameTypeOf('match'),
       grade: this._gradeKey,

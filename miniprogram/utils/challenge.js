@@ -314,7 +314,7 @@ function pageUrl(lv, gradeKey) {
  * @param {string} [typeKey] 题型分类（可选，'all'/空 = 不限）
  * @returns {Array} 词条数组（题量不足时返回实际数量）
  */
-function pickItems(gradeKey, level, count, typeKey) {
+function pickItems(gradeKey, level, count, typeKey, seed) {
   var key = gradeKeyOf(gradeKey);
   var pool = (typeKey && typeKey !== 'all')
     ? dict.filterByGroup(key, typeKey)
@@ -329,7 +329,8 @@ function pickItems(gradeKey, level, count, typeKey) {
     }
     pool = fallback;
   }
-  return rng.pickN(pool || [], count, rngFor(key, level));
+  // 第 5 个参数 seed 可选：玩法线传 lineSeedOf()，主线不传（沿用关卡种子，行为不变）
+  return rng.pickN(pool || [], count, rng.makeRng(seed || seedOf(key, level)));
 }
 
 // ============ 六、星级折算（统一口径，各玩法共用一个真源） ============
@@ -412,6 +413,260 @@ function migrateStars(storage) {
   return true;
 }
 
+// ============ 八、玩法线（P3 一期，2026-09-13）============
+//
+// 为什么有这一节（用户 2026-09-13 反馈）：
+//   「闯关学习只有从字母射击才可以进去，其他题库的玩法都是单独的，不太合理」。
+//   改造前只有一条 30 关主线（6 款玩法按节奏轮换），想玩连连看得先按顺序打过去；
+//   而玩法 tab 里那 6 款题库玩法点进去全是自由练，既没有关卡也不写任何进度。
+//
+// 现在：6 款题库玩法**各有一条独立 30 关玩法线**，按学段生成、按关卡递增难度、
+// 星级存 `<学段>@mode_<玩法>@<关卡>`；主线仍是 `@challenge@`，两套并存互不覆盖。
+//   · 命名空间统一加 `mode_` 前缀：玩法 key 里的 `idiom`（成语拼字）与「按题型练」的
+//     题型分组 key `idiom` 同名，不加前缀会互相覆盖存档（这是本轮排查出的真坑）。
+//   · 种子 = hash(line:学段:玩法:关卡) → 同一关每次进同一套题，可重玩刷星、可分享复盘。
+var LINE_PREFIX = 'mode_';
+/** 有独立关卡线的玩法（顺序 = 关卡页 chips 顺序） */
+var LINE_MODES = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'];
+/** 每 5 关一个难度档：30 关 = 6 档（0~5） */
+var LINE_TIER_SIZE = 5;
+
+/**
+ * 字母射击玩法线的「题量 + 命数」难度表。
+ *
+ * 为什么命数要跟着题量一起涨（踩过的坑，别改）：
+ *   通关要求答对 `题量 - (命数-1)` 题，而星级阈值是正确率 90/70/60 三档。
+ *   只加题量不加命数会把「最低通关正确率」顶到 70% 以上 —— 1 星档（≥60%）再也拿不到
+ *   （Boss 关当初就是因为这个把 15 题配了 7 命）。下表每档都满足
+ *   60% ≤ 最低通关正确率 ≤ 70%，三档都拿得到，单测 `challenge.test.js` 钉住这条不变量。
+ */
+var LINE_SHOOT_RAMP = [
+  { totalQ: 10, lives: 5 },
+  { totalQ: 11, lives: 5 },
+  { totalQ: 12, lives: 5 },
+  { totalQ: 13, lives: 5 },
+  { totalQ: 14, lives: 6 },
+  { totalQ: 15, lives: 6 }
+];
+
+/** 关卡号 → 难度档（0~5） */
+function lineTier(level) {
+  var n = parseInt(level, 10) || 1;
+  var t = Math.floor((n - 1) / LINE_TIER_SIZE);
+  if (t < 0) return 0;
+  return t > LINE_SHOOT_RAMP.length - 1 ? LINE_SHOOT_RAMP.length - 1 : t;
+}
+
+/**
+ * 「按正确率折星」类玩法（拼词 / 成语）的题量：每档 +1，但**跳过会造出 1 星死区的题量**。
+ *
+ * 为什么不能直接 +1（R1 同类坑，真实算过一次）：
+ *   这类玩法 5 条命，通关要求答对 `题量 - 4` 题，可达正确率只能取 (t-4)/t … 1。
+ *   题量 = 7 时可达正确率是 42.9 / 57.1 / 71.4 / 85.7 / 100%，60~70% 这一段**取不到**，
+ *   而 1 星阈值正好是 60% → 这一档玩家永远拿不到 1 星。
+ *   所以这里从目标题量起向上找第一个「1/2/3 星都可达」的题量（最多找 4 个，兜底返回目标值）。
+ *
+ * @param {number} base 学段基准题量
+ * @param {number} tier 难度档
+ * @param {number} lives 命数（拼词/成语固定 5）
+ */
+function lineSafeCount(base, tier, lives) {
+  var want = (parseInt(base, 10) || 8) + (parseInt(tier, 10) || 0);
+  for (var c = want; c <= want + 4; c++) {
+    if (starReachability(c, lives).reachable.length === 3) return c;
+  }
+  // 到不了三档可达 → 退回「本题量档位里最后一个仍可达的题量」，避免造出 1 星死区
+  for (var back = want - 1; back > 4; back--) {
+    if (starReachability(back, lives).reachable.length === 3) return back;
+  }
+  return want;
+}
+
+/** 玩法 key → 存档/URL 用的线 key（如 link → mode_link） */
+function lineKeyOf(mode) {
+  return LINE_PREFIX + mode;
+}
+
+/** 线 key 是否合法玩法线 */
+function isLineKey(key) {
+  var s = String(key || '');
+  if (s.indexOf(LINE_PREFIX) !== 0) return false;
+  return LINE_MODES.indexOf(s.slice(LINE_PREFIX.length)) >= 0;
+}
+
+/** 线 key → 玩法 key（非玩法线返回空串） */
+function lineMode(key) {
+  return isLineKey(key) ? String(key).slice(LINE_PREFIX.length) : '';
+}
+
+/** 玩法线关卡种子（同一关每次一致） */
+function lineSeedOf(gradeKey, mode, level) {
+  return rng.hashSeed('line:' + gradeKeyOf(gradeKey) + ':' + mode + ':' + (parseInt(level, 10) || 1));
+}
+
+/** 参数摘要文案（玩法线的关卡行副标题） */
+function subOfParams(mode, p) {
+  if (!p) return '';
+  if (mode === 'shoot') return p.totalQ + ' 题 · ' + p.lives + ' 命';
+  if (mode === 'wordBuild') return p.count + ' 题 · 拼字母';
+  if (mode === 'link') return p.pairs + ' 对 · ' + p.pairs * 2 + ' 张牌';
+  if (mode === 'match') return p.pairs + ' 对 · ' + p.pairs * 2 + ' 张牌';
+  if (mode === 'idiom') return p.count + ' 题 · 拼成语';
+  if (mode === 'snake') return p.words + ' 词 · 吃字母';
+  return '';
+}
+
+/**
+ * 玩法线某关的参数（学段基准 + 按难度档递增）。
+ *
+ * 递增口径（一期）：
+ *   · 字母射击：题量 10→15、命数 5→6（见 LINE_SHOOT_RAMP）
+ *   · 字母拼词 / 成语拼字：题量每档 +1（如 8→13）
+ *   · 单词贪吃蛇：目标词每档 +1（如 5→10）；星级按剩余命折算，不受影响
+ *   · 词义消消乐 / 词语连连看：**一期不递增** —— 牌面 4×4（8 对）在手机上已定型，
+ *     加牌会破版式；星级又是按「剩余命 3/2/1」折算，减命会让 3 星直接消失。
+ *     这两款留给二期用「多轮 / 限时」做难度，不在本期内塞假难度。
+ */
+function lineParams(gradeKey, mode, level) {
+  var base = paramsOf(gradeKey, mode);   // 玩法线没有 Boss 关，不传 level
+  var out = {};
+  for (var k in base) {
+    if (base.hasOwnProperty(k)) out[k] = base[k];
+  }
+  var tier = lineTier(level);
+  if (mode === 'shoot') {
+    var ramp = LINE_SHOOT_RAMP[tier];
+    out.totalQ = ramp.totalQ;
+    out.lives = ramp.lives;
+  } else if (mode === 'snake') {
+    out.words = (out.words || 5) + tier;
+  } else if (mode === 'wordBuild' || mode === 'idiom') {
+    // 5 命 + 正确率折星：题量要跳过「1 星死区」（见 lineSafeCount 的推导）
+    out.count = lineSafeCount(out.count || 8, tier, 5);
+  }
+  return out;
+}
+
+/**
+ * 取玩法线某一关的完整描述（与 levelAt 同形状，便于页面/关卡页复用同一套渲染）。
+ * @param {string} gradeKey 学段
+ * @param {string} mode 玩法 key
+ * @param {number} level 1 ~ 30
+ * @returns {Object|null}
+ */
+function lineLevelAt(gradeKey, mode, level) {
+  var n = parseInt(level, 10);
+  if (!(n >= 1 && n <= LEVELS_PER_GRADE)) return null;
+  if (LINE_MODES.indexOf(mode) < 0) return null;
+  var meta = MODES[mode];
+  var params = lineParams(gradeKey, mode, n);
+  return {
+    level: n,
+    mode: mode,
+    line: lineKeyOf(mode),
+    modeLabel: meta.label,
+    modeEmoji: meta.emoji,
+    page: meta.page,
+    starBasis: meta.starBasis,
+    sub: subOfParams(mode, params),
+    isBoss: false,
+    seed: lineSeedOf(gradeKey, mode, n),
+    params: params
+  };
+}
+
+/** 玩法线某学段的全部关卡（关卡页渲染用） */
+function lineLevelsOf(gradeKey, mode) {
+  var out = [];
+  for (var lv = 1; lv <= LEVELS_PER_GRADE; lv++) out.push(lineLevelAt(gradeKey, mode, lv));
+  return out;
+}
+
+/**
+ * 玩法线跳转 URL。
+ * @returns {string} 如 /pages/link/link?challenge=1&line=mode_link&grade=primary34&level=7&seed=123
+ */
+function lineUrl(gradeKey, mode, level) {
+  var lv = lineLevelAt(gradeKey, mode, level);
+  if (!lv) return '';
+  return lv.page + '?challenge=1&line=' + lv.line + '&grade=' + gradeKeyOf(gradeKey)
+    + '&level=' + lv.level + '&seed=' + lv.seed;
+}
+
+/**
+ * 玩法页通用：把页面 URL 参数解析成「一局对局的上下文」。
+ *
+ * 两条线共用同一套玩法页，只有命名空间/种子/参数来源不同：
+ *   · 主线：   ?challenge=1&grade=&level=&seed=          → line = 'challenge'
+ *   · 玩法线： ?challenge=1&line=mode_link&grade=&level=&seed=
+ *
+ * 页面侧只需要：`var ctx = challenge.contextOf(options)`，别再自己拼 key —— 之前 6 个页面
+ * 各自拼 `<grade>@challenge@<level>`，新增线时最容易漏改其中一处（漏了就会写错存档）。
+ *
+ * @param {Object} opt 页面 onLoad 的 options
+ * @returns {{isChallenge:boolean, line:string, mode:string, grade:string, level:number,
+ *            seed:number, params:Object|null, key:string, label:string, isBoss:boolean}}
+ */
+function contextOf(opt) {
+  var o = opt || {};
+  var isChallenge = String(o.challenge) === '1';
+  var grade = String(o.grade || '');
+  var level = parseInt(o.level, 10) || 0;
+  var line = isLineKey(o.line) ? String(o.line) : STAR_KEY;
+  var ctx = {
+    isChallenge: false, line: line, mode: '', grade: grade, level: level,
+    seed: 0, params: null, key: '', label: '', isBoss: false
+  };
+  if (!isChallenge || !grade || !level) return ctx;
+
+  if (line === STAR_KEY) {
+    var lv = levelAt(grade, level);
+    if (!lv) return ctx;
+    ctx.mode = lv.mode;
+    ctx.params = paramsOf(grade, lv.mode, level);
+    ctx.isBoss = !!lv.isBoss;
+    ctx.label = labelOf(grade) + ' · 挑战第 ' + level + '/' + LEVELS_PER_GRADE + ' 关';
+  } else {
+    var mode = lineMode(line);
+    var lineLv = lineLevelAt(grade, mode, level);
+    if (!lineLv) return ctx;
+    ctx.mode = mode;
+    ctx.params = lineLv.params;
+    ctx.label = labelOf(grade) + ' · ' + lineLv.modeLabel + '第 ' + level + '/' + LEVELS_PER_GRADE + ' 关';
+  }
+  ctx.seed = parseInt(o.seed, 10) || (line === STAR_KEY
+    ? seedOf(grade, level)
+    : lineSeedOf(grade, ctx.mode, level));
+  ctx.key = grade + '@' + line + '@' + level;
+  ctx.isChallenge = true;
+  return ctx;
+}
+
+/**
+ * 玩法线进度（关卡页卡片/进度条用）。
+ * @param {Object} starsMap storage.getAllStars() 的结果
+ * @param {string} gradeKey 学段
+ * @param {string} mode 玩法 key
+ * @returns {{cleared:number, earned:number, total:number, next:number}}
+ */
+function lineProgress(starsMap, gradeKey, mode) {
+  var all = starsMap || {};
+  var g = gradeKeyOf(gradeKey);
+  var line = lineKeyOf(mode);
+  var cleared = 0;
+  var earned = 0;
+  var next = 0;
+  for (var n = 1; n <= LEVELS_PER_GRADE; n++) {
+    var s = all[g + '@' + line + '@' + n];
+    var v = (typeof s === 'number' && s > 0) ? s : 0;
+    if (v > 0) cleared++;
+    earned += v;
+    if (!next && v === 0) next = n;
+  }
+  if (!next) next = LEVELS_PER_GRADE;
+  return { cleared: cleared, earned: earned, total: LEVELS_PER_GRADE * 3, next: next };
+}
+
 module.exports = {
   LEVELS_PER_GRADE: LEVELS_PER_GRADE,
   STAR_KEY: STAR_KEY,
@@ -436,5 +691,19 @@ module.exports = {
   starsByRightRate: starsByRightRate,
   starsByLives: starsByLives,
   starReachability: starReachability,
+  // 玩法线（P3 一期）：每款题库玩法一条独立 30 关关卡线
+  LINE_MODES: LINE_MODES,
+  LINE_PREFIX: LINE_PREFIX,
+  lineKeyOf: lineKeyOf,
+  isLineKey: isLineKey,
+  lineMode: lineMode,
+  lineTier: lineTier,
+  lineSeedOf: lineSeedOf,
+  lineParams: lineParams,
+  lineLevelAt: lineLevelAt,
+  lineLevelsOf: lineLevelsOf,
+  lineUrl: lineUrl,
+  lineProgress: lineProgress,
+  contextOf: contextOf,
   migrateStars: migrateStars
 };

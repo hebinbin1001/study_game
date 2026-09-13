@@ -33,15 +33,20 @@ Page({
   onLoad: function (options) {
     var opt = options || {};
     // 挑战主线：学段/对数按关卡参数固定，牌面用关卡种子（同一关每次同一套词）
-    this._challenge = String(opt.challenge) === '1';
+    // 主线 / 玩法线共用解析：line=mode_xxx → 存档写 <学段>@mode_xxx@<关卡>
+    var ctx = challenge.contextOf(opt);
+    this._challenge = ctx.isChallenge;
+    this._line = ctx.line;
+    this._params = ctx.params;          // newRound() 里用（本函数局部变量出不去）
+    this._challengeLabel = ctx.label;
     this._gradeKey = opt.grade || '';
     this._level = parseInt(opt.level, 10) || 0;
-    this._seed = parseInt(opt.seed, 10) || (this._challenge ? challenge.seedOf(this._gradeKey, this._level) : 0);
+    this._seed = ctx.seed || 0;
     this._roundTick = 0;   // 「换局」次数：挑战模式下用它派生子种子（题不变、牌面重排）
     this._rng = this._challenge ? rng.makeRng(this._seed) : null;
     this._words = null;    // 挑战模式下本关的词集（只取一次，换局复用 → 题不变）
     this._challengeKey = this._challenge
-      ? (this._gradeKey + '@' + challenge.STAR_KEY + '@' + this._level)
+      ? ctx.key
       : '';
     this.setData({ challenge: this._challenge, challengeKey: this._challengeKey });
     this.newRound();
@@ -59,8 +64,7 @@ Page({
     var pairCount = PAIR;
     if (this._challenge) {
       // 挑战关卡：学段取关卡参数，对数按关卡参数，取词用关卡种子（题不变）
-      var lv = challenge.levelAt(this._gradeKey, this._level);
-    pairCount = (lv ? challenge.paramsOf(this._gradeKey, lv.mode, this._level).pairs : PAIR) || PAIR;
+    pairCount = (this._params && this._params.pairs) || PAIR;
       grade = this._gradeByKey(this._gradeKey) || GRADES[0];
       this._roundTick = this._roundTick || 0;
       // 词集只取一次（由关卡种子决定）；「换局」只重排牌面，不换题
@@ -102,7 +106,7 @@ Page({
 
     this._sel = null;
     var label = this._challenge
-      ? (challenge.labelOf(this._gradeKey) + ' · 挑战第 ' + this._level + '/' + challenge.LEVELS_PER_GRADE + ' 关')
+      ? this._challengeLabel
       : grade.label;
     this.setData({
       gradeLabel: label,
@@ -235,7 +239,7 @@ Page({
    */
   _saveChallengeStars: function (stars) {
     if (!this._challenge || !this._gradeKey || !this._level) return;
-    storage.saveStars(this._gradeKey, this._level, stars, challenge.STAR_KEY);
+    storage.saveStars(this._gradeKey, this._level, stars, this._line || challenge.STAR_KEY);
     // 统一上报（成绩 + 段位）：game_type=link，供玩法进度榜与玩法类成就使用
     playReport.reportPlay({
       gameType: challenge.gameTypeOf('link'),

@@ -1,16 +1,29 @@
-<!-- 玩法 Tab（B1 UI 对齐 demo 玩法页；O1 自适应：flex 列 + 安全区） -->
+<!-- 玩法 Tab（P3 一期：顶部二级分段「闯关线 / 数字智力」；O1 自适应：flex 列 + 安全区） -->
 <view class="page-play">
-  <!-- 顶部信息条 -->
+  <!-- 顶部信息条（按当前分段统计） -->
   <view class="pgbar">
     <view class="pg-ic">🎮</view>
     <view class="pg-t">
-      <view class="pg-b">{{totalCount}} 款玩法合集</view>
-      <view class="pg-s">已解锁 {{unlockedCount}} · 持续上新中</view>
+      <view class="pg-b">{{totalCount}} 款玩法</view>
+      <view class="pg-s">{{sectionDesc}} · 已解锁 {{unlockedCount}}</view>
     </view>
-    <view class="pg-num">{{totalCount}}/{{totalCount}}</view>
+    <view class="pg-num">{{unlockedCount}}/{{totalCount}}</view>
   </view>
 
-  <!-- 分类筛选 -->
+  <!-- 二级分段：闯关线（有进度、按学段生成关卡）/ 数字智力（固定关卡小游戏） -->
+  <view class="seg-row">
+    <view
+      wx:for="{{sections}}"
+      wx:key="key"
+      class="seg-tab {{curSection === item.key ? 'on' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="pickSection">
+      <text class="seg-ic">{{item.icon}}</text>
+      <text class="seg-label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <!-- 分类筛选 chips（带图标） -->
   <scroll-view class="cat-scroll" scroll-x="true" enable-flex="true">
     <view class="cat-row">
       <view
@@ -34,14 +47,15 @@
         <view class="pic">{{item.icon}}</view>
         <view class="pname">{{item.name}}</view>
         <view class="pdesc">{{item.desc}}</view>
-        <view wx:if="{{item.math}}" class="cat-tag">数学</view>
+        <view wx:if="{{item.lineMode}}" class="line-tag">{{item.progressText}}</view>
+        <view wx:elif="{{item.math}}" class="cat-tag">数学</view>
         <view class="pfoot">
-          <view class="tag {{item.unlocked ? '' : 'off'}}">{{item.unlocked ? '已解锁' : '未解锁'}}</view>
+          <view class="tag {{item.unlocked ? '' : 'off'}}">{{item.unlocked ? (item.lineMode ? '去闯关' : '开始') : '未解锁'}}</view>
           <view class="arr">›</view>
         </view>
       </view>
     </view>
-    <view class="foot-note">更多玩法持续上新 · 敬请期待</view>
+    <view class="foot-note">{{curSection === 'line' ? '每条线 30 关 · 通关解锁下一关' : '更多玩法持续上新 · 敬请期待'}}</view>
     <view class="safe-gap"></view>
   </scroll-view>
 </view>

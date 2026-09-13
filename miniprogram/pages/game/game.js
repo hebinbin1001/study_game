@@ -117,22 +117,23 @@ Page({
     // 挑战主线（2026-09-12）：按「学段 + 关卡」用固定种子出题 ——
     // 同一关每次进入题目、挖空位置、选项顺序都一致（重玩刷星公平、可分享复盘）。
     // 走的是与自定义关卡相同的「固定题源」通路，但计入挑战星级（见 result.js）。
-    var isChallenge = !!(options && String(options.challenge) === '1');
+    // 主线 / 玩法线共用同一套解析（见 utils/challenge.js 的 contextOf）：
+    // 主线 = @challenge@，玩法线 = line=mode_xxx → @mode_xxx@，两者存档互不覆盖。
+    var ctx = challenge.contextOf(options);
+    var isChallenge = ctx.isChallenge;
     this._challenge = isChallenge;
+    this._line = ctx.line;
     this._challengeItems = null;
     this._lives = CONFIG.initLives;       // 本局命数（挑战 Boss 关会被参数覆盖为 7）
     this._totalQ = CONFIG.totalQ;         // 本局题量（同上，Boss 关为 15）
     question.setRandom();                 // 先复位，避免上一局挑战的种子泄漏到本局
     if (isChallenge) {
-      var lvInfo = challenge.levelAt(grade, level);
-      var seed = (options && options.seed) ? parseInt(options.seed, 10) : challenge.seedOf(grade, level);
-      if (!seed) seed = challenge.seedOf(grade, level);
-      question.setRandom(rng.makeRng(seed));
+      question.setRandom(rng.makeRng(ctx.seed));
       // Boss 关（第 30 关）的题量/命数与普通关不同，必须把 level 一起传进去才拿得到
-      var lvParams = lvInfo ? challenge.paramsOf(grade, lvInfo.mode, level) : null;
+      var lvParams = ctx.params;
       if (lvParams && lvParams.lives > 0) this._lives = lvParams.lives;
       this._challengeItems = challenge.pickItems(
-        grade, level, (lvParams ? lvParams.totalQ : CONFIG.totalQ) || CONFIG.totalQ, type
+        ctx.grade, ctx.level, (lvParams ? lvParams.totalQ : CONFIG.totalQ) || CONFIG.totalQ, type, ctx.seed
       );
     }
     // 实际开局题量以「真正取到的题目数」为准（题库不足时可能少于请求值，避免提前结算）
@@ -748,6 +749,7 @@ Page({
       '&type=' + (this.data.type || '') +
       '&custom=' + (this._customLevel ? '1' : '0') +
       '&challenge=' + (this._challenge ? '1' : '0') +
+      '&line=' + (this._challenge ? (this._line || challenge.STAR_KEY) : '') +
       '&win=' + (result.win ? 1 : 0) +
       '&score=' + result.score +
       '&correctCount=' + result.correctCount +
