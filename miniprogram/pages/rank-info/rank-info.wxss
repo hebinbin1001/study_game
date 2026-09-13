@@ -1,0 +1,81 @@
+/* 段位详情页 */
+.page-rank-info {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 24rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
+  background: #F5F7FB;
+}
+
+.ri-hero {
+  flex: 0 0 auto;
+  background: linear-gradient(135deg, #4285F4, #6AA6F5);
+  border-radius: 32rpx;
+  padding: 32rpx;
+  color: #fff;
+  text-align: center;
+}
+.ri-badge { width: 128rpx; height: 128rpx; }
+.ri-name { font-size: 40rpx; font-weight: 900; margin-top: 8rpx; }
+.ri-stars { font-size: 24rpx; opacity: .92; margin-top: 6rpx; }
+.ri-bar {
+  height: 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .3);
+  overflow: hidden;
+  margin: 20rpx 8rpx 12rpx;
+}
+.ri-bar__fill { height: 100%; background: #FFD166; border-radius: 999rpx; }
+.ri-next { font-size: 24rpx; font-weight: 700; }
+
+.ri-tip {
+  flex: 0 0 auto;
+  margin: 18rpx 0 6rpx;
+  padding: 14rpx 20rpx;
+  border-radius: 16rpx;
+  background: #eef3fa;
+  color: #5c7f9e;
+  font-size: 22rpx;
+}
+.ri-tip-em { color: #2e6fd6; font-weight: 700; }
+
+.ri-scroll { flex: 1 1 auto; min-height: 0; }
+
+.ri-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 18rpx 22rpx;
+  margin-top: 12rpx;
+  box-shadow: 0 4rpx 10rpx rgba(28, 53, 92, .05);
+}
+.ri-row.newbig { margin-top: 22rpx; }
+.ri-row.reached { background: #f2fbf4; }
+.ri-row.cur { box-shadow: inset 0 0 0 4rpx #ffb703, 0 4rpx 10rpx rgba(28, 53, 92, .05); }
+.ri-row-badge { width: 44rpx; height: 44rpx; }
+.ri-row-name { flex: 1; min-width: 0; font-size: 26rpx; font-weight: 700; color: #3a3a5c; }
+.ri-row-need { flex: 0 0 auto; font-size: 22rpx; color: #8a9bb5; }
+.ri-row-cur {
+  flex: 0 0 auto;
+  font-size: 20rpx;
+  font-weight: 800;
+  color: #b57f00;
+  background: #fff3d6;
+  border-radius: 999rpx;
+  padding: 4rpx 14rpx;
+}
+
+.ri-back {
+  flex: 0 0 auto;
+  margin-top: 18rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  background: #fff;
+  color: #5c7f9e;
+  font-size: 28rpx;
+  font-weight: 700;
+}

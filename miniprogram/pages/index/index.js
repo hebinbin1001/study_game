@@ -365,6 +365,11 @@ Page({
     if (url) wx.navigateTo({ url: url });
   },
 
+  /** 点「段位」→ 段位详情（各段位门槛 / 距下一段还差多少星，第三批 · 第 8 条） */
+  goRankInfo: function () {
+    wx.navigateTo({ url: '/pages/rank-info/rank-info?stars=' + (this.data.totalStars || 0) });
+  },
+
   // 推荐玩法：字母射击→关卡选择
   goShoot: function () {
     wx.navigateTo({ url: '/pages/level/level' });

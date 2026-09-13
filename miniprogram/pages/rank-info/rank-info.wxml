@@ -1,0 +1,31 @@
+<!-- 段位详情：当前段位 + 距下一段还差多少星 + 72 级阶梯（第三批 · 第 8 条） -->
+<view class="page-rank-info">
+  <view class="ri-hero">
+    <image wx:if="{{badge}}" class="ri-badge" src="{{badge}}" mode="aspectFit"></image>
+    <view class="ri-name">{{name}}</view>
+    <view class="ri-stars">⭐ 累计 {{stars}} 星</view>
+    <view class="ri-bar">
+      <view class="ri-bar__fill" style="width: {{progress}}%"></view>
+    </view>
+    <view class="ri-next">
+      {{isMax ? '已经是最高段位啦 🎉' : ('距离 ' + nextName + ' 还差 ' + need + ' 星')}}
+    </view>
+  </view>
+
+  <view class="ri-tip">每一级需要的星星会越来越多：<text class="ri-tip-em">青铜 → 荣耀王者共 8 大段 × 9 小级</text></view>
+
+  <scroll-view class="ri-scroll" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+    <view
+      wx:for="{{cells}}"
+      wx:key="cell"
+      class="ri-row {{item.reached ? 'reached' : ''}} {{item.isCur ? 'cur' : ''}} {{item.newBig ? 'newbig' : ''}}">
+      <image wx:if="{{item.newBig}}" class="ri-row-badge" src="{{item.badge}}" mode="aspectFit"></image>
+      <view class="ri-row-name">{{item.name}}</view>
+      <view class="ri-row-need">满 {{item.starsToEnter}} 星</view>
+      <view wx:if="{{item.isCur}}" class="ri-row-cur">当前</view>
+    </view>
+    <view class="safe-gap"></view>
+  </scroll-view>
+
+  <button class="ri-back" bindtap="goBack">返回</button>
+</view>

@@ -35,7 +35,7 @@
       <view class="a-num">{{totalStars}}</view>
       <view class="a-lab">⭐ {{starsLabel}}</view>
     </view>
-    <view class="asset-box">
+    <view class="asset-box" bindtap="goRankInfo">
       <view class="a-num a-num--name">{{loggedIn ? (rankName || '青铜') : '游客'}}</view>
       <view class="a-lab">🎖 段位</view>
     </view>

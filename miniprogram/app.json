@@ -17,6 +17,7 @@
     "pages/g2048/g2048",
     "pages/klotski/klotski",
     "pages/puzzle-level/puzzle-level",
+    "pages/rank-info/rank-info",
     "pages/math24/math24",
     "pages/math-sprint/math-sprint",
     "pages/memory-grid/memory-grid",
