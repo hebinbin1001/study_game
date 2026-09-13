@@ -1,5 +1,7 @@
 const express = require("express");
 const { User, Score } = require("../db");
+// 复用 rank 路由里挂的「重算段位星」实现（每关历史最高星去重），见 rank.js 的说明
+const rankRouter = require("./rank");
 const {
   CODE,
   SCORE_PER_QUESTION,
@@ -120,6 +122,14 @@ router.post("/", async (req, res) => {
       ...record,
       user_id: user.id,
     });
+
+    // 段位星走「每关历史最高星去重」口径（2026-09-13 用户拍板 (C)）：
+    // 每次上报后重算，避免同一关反复刷重复叠星。失败不影响成绩上报本身。
+    try {
+      await rankRouter.syncRankStars(req.openid);
+    } catch (e) {
+      console.error("POST /api/score 后重算段位星失败（不影响上报）：", e && e.message);
+    }
 
     res.send({ code: CODE.OK, data: { recordId: created.id } });
   } catch (err) {

@@ -23,7 +23,8 @@ var ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
 
 /** 第 i 级（0 基）升到下一级所需星数 */
 function starsToAdvance(i) {
-  return 2 + Math.floor(i / 6);
+  // 2026-09-13 用户拍板 (C)：曲线加陡 —— 每 3 级 +1 星（与后端同源，parity 单测逐级比对）
+  return 2 + Math.floor(i / 3);
 }
 
 /** 进入第 cell 级（1 基）所需的累计星数 */

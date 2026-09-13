@@ -35,7 +35,8 @@ const TOTAL_CELLS = BIG_RANKS.length * LEVELS_PER_RANK;   // 72
  * @returns {number} 所需星数
  */
 function starsToAdvance(i) {
-  return 2 + Math.floor(i / 6);
+  // 2026-09-13 用户拍板 (C)：曲线加陡 —— 每 3 级 +1 星（原每 6 级 +1），满级 527 → 947 星
+  return 2 + Math.floor(i / 3);
 }
 
 /**

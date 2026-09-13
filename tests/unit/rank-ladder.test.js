@@ -103,20 +103,20 @@ s.test('progressOf：满级时 isMaxRank=true、进度 100、没有下一段位'
 
 s.test('端到端读数：0 星青铜 1；练满一个学段（30 星）升入白银', () => {
   s.assert.equal(ladder.rankOf(0).rankName, '青铜 1');
-  // 一个学段 10 关 × 3 星 = 30 星；按当前曲线，青铜 9 需 18 星、白银 1 需 21 星
-  s.assert.equal(ladder.starsForCell(9), 18, '青铜 9 的门槛应为 18 星');
-  s.assert.equal(ladder.starsForCell(10), 21, '白银 1 的门槛应为 21 星');
+  // 2026-09-13 用户拍板 (C)：曲线加陡（每 3 级 +1 星），门槛随之上调
+  s.assert.equal(ladder.starsForCell(9), 23, '青铜 9 的门槛应为 23 星');
+  s.assert.equal(ladder.starsForCell(10), 27, '白银 1 的门槛应为 27 星');
   const r = ladder.rankOf(30);
   s.assert.equal(r.rankId, 2, '30 星应升入白银大段');
   s.assert.ok(r.rankLevel >= 1 && r.rankLevel <= 9, '小级应在 1~9');
-  // 记录满级门槛，便于以后调参时对照（当前设计：527 星）
-  s.assert.equal(ladder.starsForCell(72), 527, '满级（荣耀王者 9）门槛应稳定在 527 星');
+  // 记录满级门槛，便于以后调参时对照（2026-09-13 起：(C) 曲线 = 947 星）
+  s.assert.equal(ladder.starsForCell(72), 947, '满级（荣耀王者 9）门槛：加陡后应为 947 星');
 });
 
 s.test('徽章图：按小级拼 72 张图路径，且能回退大段位图', () => {
   // 2026-09-12 美术交付 72 张小级徽章：/assets/ranks/rank-<段key>-<1~9>-256.png
   s.assert.equal(ladder.rankOf(0).icon, '/assets/ranks/rank-bronze-1-256.png');
-  s.assert.equal(ladder.rankOf(30).icon, '/assets/ranks/rank-silver-4-256.png');
+  s.assert.equal(ladder.rankOf(30).icon, '/assets/ranks/rank-silver-1-256.png');
   s.assert.ok(/^\/assets\/ranks\/[a-z]+\.png$/.test(ladder.rankOf(0).iconBig),
     '应同时给出大段位图路径作为兜底');
   // 72 级每级的图路径都不重复，且级号落在 1~9
