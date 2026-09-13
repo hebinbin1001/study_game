@@ -60,7 +60,8 @@ node e2e/smoke-api.js            # 线上接口冒烟（部署后跑）
 
 - 提交信息用中文，分点说明**做了什么 / 为什么 / 怎么验证**；分点用多个 `-m`，**不要在提交信息里用转义引号**（会截断命令）。
 - 提交后 `git push origin main`（PowerShell 把 stderr 当错误输出是显示问题，看最后一行是否出现 `<old>..<new>  main -> main`）。
-- 云托管**Git 自动部署链路是坏的**（报 `blob unknown to registry`，平台侧问题），用 CLI：
+- 云托管 **push 即自动部署**（用户 2026-09-13 确认：不需要手动部署）；
+  仅当平台偶发 `blob unknown to registry` 时用下面的 CLI 兜底：
 
 ```bash
 cloudbase cloudrun deploy -e prod-d6gnifjoe28cfd96f -s express-g0hk --source . --port 80
