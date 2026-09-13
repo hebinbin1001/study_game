@@ -19,10 +19,24 @@ const files = fs.readdirSync(dir)
   .filter((f) => /\.test\.js$/.test(f))
   .sort();
 
+// --match=a,b：只跑文件名含 a/b 的单测。e2e/run-all.js 按模块传进来
+// （模块 → 测试文件的归属见 e2e/lib/modules.js 的 MODULES[].unit）。
+let match = null;
+process.argv.slice(2).forEach((a) => {
+  if (a.indexOf('--match=') === 0) {
+    match = a.slice('--match='.length).split(',').map((s) => s.trim()).filter(Boolean);
+  }
+});
+const selected = (match && match.length)
+  ? files.filter((f) => match.some((m) => f.indexOf(m) >= 0))
+  : files;
+console.log('[module] 选中单测 ' + selected.length + ' / ' + files.length
+  + (match && match.length ? '（筛选: ' + match.join(', ') + '）' : '（未筛选 = 全量）'));
+
 console.log('共发现 ' + files.length + ' 个测试文件\n');
 let anyFail = false;
 
-for (const f of files) {
+for (const f of selected) {
   const filePath = path.join(dir, f);
   console.log('>>> 运行 ' + f);
   const r = spawnSync(process.execPath, [filePath], { encoding: 'utf8', timeout: 120000 });

@@ -36,9 +36,16 @@
 
 ```bash
 cd study_game
-node e2e/run-all.js --no-e2e     # 静态 + 单元，约 9 秒：改数据/后端/文档时跑
-node e2e/run-all.js              # 全量 11 阶段，约 5 分钟：改前端页面/交互时必须跑
-node e2e/run-all.js --only=<id>  # 单点排障：syntax/structure/wxss/unit/game/result/math24/link/snake/pages/m2m4
+# 平时：只跑跟这次改动相关的模块（几秒~几分钟）。模块划分与「文件→模块」映射在
+#       e2e/lib/modules.js，选中模块会自动带上 static 静态护栏（--no-static 可关）。
+node e2e/run-all.js --changed              # 【推荐】按 git 改动自动推导该跑哪些模块
+node e2e/run-all.js --module=challenge     # 指定模块：static/assets/dict/challenge/game/wordgames/puzzle/user/server/pages
+node e2e/run-all.js --module=game,puzzle   # 多模块（逗号分隔）
+node e2e/run-all.js --list-modules         # 看模块表；会提示「还没归类的单测文件」
+node e2e/run-all.js --only=<id>            # 单点排障：syntax/structure/wxss/unit/game/result/math24/link/snake/klotski/g2048/challenge/pages/m2m4/load/lines
+
+# 上线前（或改动面很大时）：跑一次全量，17 阶段约 12 分钟
+node e2e/run-all.js
 node e2e/smoke-api.js            # 线上接口冒烟（部署后跑）
 ```
 

@@ -25,6 +25,8 @@ const path = require('path');
 
 // 开发者工具路径与 quit 收敛在 lib/devtools.js（harness.js 用同一份）
 const devtools = require('./lib/devtools');
+// 用例模块划分（--module / --changed / --list-modules 的映射表都在这里）
+const modules = require('./lib/modules');
 
 const ROOT = path.resolve(__dirname, '..');
 const REPORT_DIR = path.join(__dirname, 'reports');
@@ -66,21 +68,75 @@ STAGES.push({
 });
 
 function parseArgs(argv) {
-  const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false };
+  const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false,
+    module: null, changed: false, listModules: false, noStatic: false };
   argv.forEach(function (a) {
     if (a === '--no-e2e') opts.noE2e = true;
     else if (a === '--e2e-only') opts.e2eOnly = true;
     else if (a === '--no-reset') opts.noReset = true;
+    else if (a === '--changed') opts.changed = true;
+    else if (a === '--list-modules') opts.listModules = true;
+    else if (a === '--no-static') opts.noStatic = true;
+    else if (a.indexOf('--module=') === 0) opts.module = a.slice('--module='.length);
     else if (a.indexOf('--only=') === 0) opts.only = a.slice('--only='.length);
   });
   return opts;
 }
 
-function selectStages(opts) {
+/**
+ * 解析「这次要跑哪些模块」：
+ *   · --module=a,b → 指定模块；· --changed → 按 git 改动推导；· 都不传 = 全量（上线前用）。
+ * 选模块时自动补 static（语法/结构/WXSS，8 秒，任何改动都值得跑），--no-static 可关。
+ * @returns {{ids:Set|null, unitMatch:string[]|null, reason:string}}
+ */
+function resolveSelection(opts) {
+  let ids = null;
+  let reason = '';
+  if (opts.module) {
+    const want = opts.module.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    const bad = want.filter(function (id) { return !modules.moduleById(id); });
+    if (bad.length) {
+      console.error('未知模块：' + bad.join(', ') + '；可选：' + modules.ids().join(', '));
+      process.exit(2);
+    }
+    ids = new Set(want);
+    reason = '指定模块：' + want.join(', ');
+  } else if (opts.changed) {
+    const paths = modules.changedPaths(ROOT);
+    ids = new Set();
+    if (!paths.length) {
+      reason = '没有检测到改动文件';
+    } else {
+      const unknown = [];
+      paths.forEach(function (p) {
+        const ms = modules.modulesForPath(p);
+        if (!ms) { unknown.push(p); return; }
+        ms.forEach(function (m) { ids.add(m); });
+      });
+      console.log('改动文件 ' + paths.length + ' 个：');
+      paths.slice(0, 40).forEach(function (p) { console.log('    ' + p); });
+      if (unknown.length) {
+        console.log('⚠ 以下改动没有映射到模块（本次按静态护栏兜底，请补 e2e/lib/modules.js 的 PATH_RULES）：');
+        unknown.forEach(function (p) { console.log('    ' + p); });
+      }
+      reason = '改动推导';
+    }
+  }
+  if (ids && !opts.noStatic) ids.add('static');   // 选模块一律带上静态护栏
+  return { ids: ids, unitMatch: ids ? modules.unitMatchOf(ids) : null, reason: reason };
+}
+
+function selectStages(opts, sel) {
   return STAGES.filter(function (s) {
     if (opts.only) return s.id === opts.only;
     if (opts.noE2e && s.layer === '端到端') return false;
     if (opts.e2eOnly && s.layer !== '端到端') return false;
+    if (sel && sel.ids) {
+      // 单测阶段：只要选中的模块里有单测就跑，具体跑哪些由 --match 传下去
+      if (s.id === 'unit') return !!(sel.unitMatch && sel.unitMatch.length);
+      const mod = modules.moduleOfStage(s.id);
+      return !!mod && sel.ids.has(mod);
+    }
     return true;
   });
 }
@@ -93,7 +149,21 @@ function pad(s, n) {
 
 function main() {
   const opts = parseArgs(process.argv.slice(2));
-  const stages = selectStages(opts);
+
+  if (opts.listModules) {
+    modules.printTable(path.join(__dirname, '..', 'tests', 'unit'));
+    return;
+  }
+
+  const sel = resolveSelection(opts);
+  const stages = selectStages(opts, sel);
+  if (sel.ids) {
+    console.log('本次按模块跑：' + Array.from(sel.ids).join(', ') + '（' + sel.reason + '）');
+    if (sel.unitMatch && sel.unitMatch.length) {
+      console.log('单测筛选：' + sel.unitMatch.join(', '));
+    }
+    console.log('提示：上线前请跑一次不带参数的全量（node e2e/run-all.js）。');
+  }
 
   if (!stages.length) {
     console.error('没有匹配的阶段，请检查 --only=<id>。可选：' + STAGES.map(function (s) { return s.id; }).join(', '));
@@ -136,7 +206,11 @@ function main() {
     console.log('      node ' + stage.script);
     console.log('---------------------------------------------------------');
 
-    const res = spawnSync(process.execPath, [stage.script].concat(stage.args || []), {
+    // 单测阶段按模块把筛选条件传下去（--match=a,b）
+    const extraArgs = (stage.id === 'unit' && sel && sel.unitMatch && sel.unitMatch.length)
+      ? ['--match=' + sel.unitMatch.join(',')]
+      : [];
+    const res = spawnSync(process.execPath, [stage.script].concat(stage.args || []).concat(extraArgs), {
       cwd: ROOT,
       stdio: 'inherit'
     });
@@ -180,6 +254,7 @@ function main() {
   try {
     fs.mkdirSync(REPORT_DIR, { recursive: true });
     const summary = {
+      selection: (sel && sel.ids) ? Array.from(sel.ids) : 'all',
       startedAt: startedAt.toISOString(),
       finishedAt: new Date().toISOString(),
       totalMs: totalMs,
