@@ -31,6 +31,9 @@
     <view class="tab {{activeTab === 'pending' ? 'active' : ''}}" data-tab="pending" bindtap="switchTab">
       待复习 ({{stats.pending}})
     </view>
+    <view class="tab {{activeTab === 'reviewed' ? 'active' : ''}}" data-tab="reviewed" bindtap="switchTab">
+      已复习 ({{stats.reviewed}})
+    </view>
     <view class="tab {{activeTab === 'mastered' ? 'active' : ''}}" data-tab="mastered" bindtap="switchTab">
       已掌握 ({{stats.mastered}})
     </view>
@@ -84,6 +87,35 @@
   </view>
 
   <!-- 已掌握列表 -->
+  <!-- 已复习列表：复习过（答对过）但熟练度还没满 100 的题（用户 2026-09-13 新增口径） -->
+  <view class="list" wx:if="{{activeTab === 'reviewed'}}">
+    <view class="list-tip">这些题你已经复习过、但熟练度还没满 100%；继续复习满 100% 就会进「已掌握」</view>
+    <block wx:for="{{reviewed}}" wx:key="recordId">
+      <view class="item-card" bindtap="practiceItem" data-id="{{item.recordId}}">
+        <view class="item-header">
+          <text class="item-type tag">{{item.question.type}}</text>
+          <text class="item-mastery">熟练度 {{item.mastery}}% · 复习过 {{item.reviewCount}} 次</text>
+        </view>
+        <view class="item-question">
+          <text class="question-text">{{item.question.q}}</text>
+          <text class="question-answer">答案：{{item.question.a}}</text>
+        </view>
+        <view class="item-meta">
+          <text class="meta-text">错误 {{item.wrongCount}} 次</text>
+          <text class="meta-go">练这道题 ›</text>
+          <text class="meta-del" catchtap="removeItem" data-id="{{item.recordId}}">移除</text>
+        </view>
+        <view class="progress-bar">
+          <view class="progress-bar__fill" style="width: {{item.mastery}}%"></view>
+        </view>
+      </view>
+    </block>
+    <view class="empty-state" wx:if="{{reviewed.length === 0}}">
+      <view class="empty-text">还没有复习过的题</view>
+      <view class="empty-text">答对过的错题会出现在这里</view>
+    </view>
+  </view>
+
   <view class="list" wx:if="{{activeTab === 'mastered'}}">
     <view class="list-tip">熟练度满 100%（连续答对 5 次）才进入「已掌握」；答对但还没满的题会顺延复习时间，仍留在「待复习」</view>
     <block wx:for="{{mastered}}" wx:key="recordId">

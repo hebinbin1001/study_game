@@ -23,7 +23,8 @@ var PAGE_SIZE = 20;   // 每页条数（与后端上限 100 对齐）
  * @returns {string}
  */
 function listUrl(scope, page, pageSize) {
-  var s = (scope === 'mastered') ? 'mastered' : 'pending';
+  // 三种 scope：pending / mastered / reviewed（已复习 = 答对过但没满 100）
+  var s = (scope === 'mastered' || scope === 'reviewed') ? scope : 'pending';
   var p = Math.max(1, parseInt(page, 10) || 1);
   var size = Math.max(1, parseInt(pageSize, 10) || PAGE_SIZE);
   return '/api/wrong/list?scope=' + s + '&page=' + p + '&pageSize=' + size;
@@ -60,7 +61,8 @@ function decorateMastered(item) {
     questionId: it.questionId,
     question: it.question,
     wrongCount: it.wrongCount,
-    mastery: it.mastery
+    mastery: it.mastery,
+    reviewCount: it.reviewCount     // 「已复习」列表显示「复习过 N 次」用
   };
 }
 
@@ -96,16 +98,22 @@ function applyPage(state, page, reset) {
   var items = data.items || [];
   var counts = data.counts || { total: 0, pending: 0, mastered: 0 };
 
-  if (s.activeTab === 'mastered') {
-    var mastered = reset ? items.map(decorateMastered)
-      : (s.mastered || []).concat(items.map(decorateMastered));
-    return {
-      mastered: mastered,
-      stats: { total: counts.total, pending: counts.pending, mastered: counts.mastered },
+  // 已掌握 / 已复习：列表结构相同（都只展示题目本身 + 统计），只是 scope 不同
+  if (s.activeTab === 'mastered' || s.activeTab === 'reviewed') {
+    var key = s.activeTab;
+    var rows = reset ? items.map(decorateMastered)
+      : (s[key] || []).concat(items.map(decorateMastered));
+    var patch = {
+      stats: {
+        total: counts.total, pending: counts.pending,
+        mastered: counts.mastered, reviewed: counts.reviewed
+      },
       page: data.page || 1,
       hasMore: !!data.hasMore,
-      moreCount: Math.max(0, (data.total || mastered.length) - mastered.length)
+      moreCount: Math.max(0, (data.total || rows.length) - rows.length)
     };
+    patch[key] = rows;
+    return patch;
   }
 
   var pending = reset ? items.map(decorate)
@@ -116,7 +124,10 @@ function applyPage(state, page, reset) {
     renderList: renderList,
     visible: renderList,
     visibleN: pending.length,
-    stats: { total: counts.total, pending: counts.pending, mastered: counts.mastered },
+    stats: {
+      total: counts.total, pending: counts.pending,
+      mastered: counts.mastered, reviewed: counts.reviewed
+    },
     page: data.page || 1,
     hasMore: !!data.hasMore,
     moreCount: Math.max(0, (data.total || pending.length) - pending.length)
@@ -145,7 +156,8 @@ function applyLegacy(data) {
     stats: {
       total: d.total || (pending.length + mastered.length),
       pending: pending.length,
-      mastered: mastered.length
+      mastered: mastered.length,
+      reviewed: 0            // 老服务端没有「已复习」这一档，占位避免页面读到 undefined
     }
   };
 }
@@ -169,12 +181,18 @@ function removeRecord(state, recordId) {
     if (it.recordId === recordId) { hadMastered = true; return false; }
     return true;
   });
-  var dropped = (hadPending || hadMastered) ? 1 : 0;
-  var stats = s.stats || { total: 0, pending: 0, mastered: 0 };
+  var hadReviewed = false;
+  var reviewed = (s.reviewed || []).filter(function (it) {
+    if (it.recordId === recordId) { hadReviewed = true; return false; }
+    return true;
+  });
+  var dropped = (hadPending || hadMastered || hadReviewed) ? 1 : 0;
+  var stats = s.stats || { total: 0, pending: 0, mastered: 0, reviewed: 0 };
   var renderList = groupPending(pending);
   return {
     pending: pending,
     mastered: mastered,
+    reviewed: reviewed,
     renderList: renderList,
     visible: renderList,
     visibleN: pending.length,
@@ -182,7 +200,8 @@ function removeRecord(state, recordId) {
     stats: {
       total: Math.max(0, (stats.total || 0) - dropped),
       pending: Math.max(0, (stats.pending || 0) - (hadPending ? 1 : 0)),
-      mastered: Math.max(0, (stats.mastered || 0) - (hadMastered ? 1 : 0))
+      mastered: Math.max(0, (stats.mastered || 0) - (hadMastered ? 1 : 0)),
+      reviewed: Math.max(0, (stats.reviewed || 0) - (hadReviewed ? 1 : 0))
     }
   };
 }

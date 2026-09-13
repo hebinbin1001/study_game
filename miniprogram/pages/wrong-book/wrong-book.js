@@ -27,7 +27,8 @@ Page({
     page: 1,               // 当前已加载到第几页（针对 activeTab）
     moreCount: 0,          // 「加载更多」还可以加载多少条
     hasMore: false,
-    stats: { total: 0, pending: 0, mastered: 0 },
+    stats: { total: 0, pending: 0, mastered: 0, reviewed: 0 },
+    reviewed: [],          // 已复习：答对过但熟练度未满 100 的题（2026-09-13 新增口径）
     loading: false,
     loadingMore: false,
     activeTab: 'pending',

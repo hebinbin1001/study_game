@@ -18,7 +18,11 @@ const EBBINGHAUS_INTERVALS = [1, 2, 4, 7, 15, 30];
 
 const DEFAULT_PAGE_SIZE = 20;   // 默认每页条数
 const MAX_PAGE_SIZE = 100;      // 单页上限（防止一次拉爆）
-const SCOPES = ["pending", "mastered", "all"];   // 待复习 / 已掌握 / 全部
+// 待复习 / 已掌握 / 已复习 / 全部
+// 「已复习」= 答对过至少一次（reviewCount ≥ 1）但熟练度还没满 100 的题
+// —— 用户 2026-09-13 反馈：只分「待复习/已掌握」时，答对一次但没满 5 次的题
+// 既不在已掌握里、看上去也还挂在待复习，缺少一档「我练过了」的成就感。
+const SCOPES = ["pending", "mastered", "reviewed", "all"];
 const DEFAULT_SCOPE = "pending";
 
 /**
@@ -124,6 +128,7 @@ function splitScope(records) {
   return {
     pending: list.filter((r) => (Number(r.mastery) || 0) < 100),
     mastered: list.filter((r) => (Number(r.mastery) || 0) >= 100),
+    reviewed: list.filter((r) => (Number(r.reviewCount) || 0) >= 1 && (Number(r.mastery) || 0) < 100),
   };
 }
 
@@ -201,6 +206,7 @@ function buildListResponse(records, query) {
       total: list.length,
       pending: split.pending.length,
       mastered: split.mastered.length,
+      reviewed: split.reviewed.length,
     },
   };
 }
