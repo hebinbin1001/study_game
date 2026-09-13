@@ -13,6 +13,8 @@
 
 var request = require('../../utils/request');
 var view = require('../../utils/wrong-book-view');
+// M5 T2.3：受限页直入门禁（未登录不拉数据，页内引导登录）
+var auth = require('../../utils/auth');
 
 // 每页条数（与后端 MAX_PAGE_SIZE=100 的上限对齐）
 var PAGE_N = view.PAGE_SIZE;
@@ -32,11 +34,27 @@ Page({
     loading: false,
     loadingMore: false,
     activeTab: 'pending',
-    loadError: ''          // 加载失败原因（非空时展示错误条）
+    loadError: '',         // 加载失败原因（非空时展示错误条）
+    // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
+    needLogin: false,
+    gateText: ''
   },
 
   onShow: function () {
+    if (!auth.requireLogin(this, '登录后错题才会同步到云端，换设备也不丢')) return;
     this.loadWrongBook(true);
+  },
+
+  /** 门禁引导条「去登录」：成功后重新加载错题本 */
+  onGateLogin: function () {
+    var self = this;
+    auth.loginFromGate(this, function () {
+      self.loadWrongBook(true);
+    }, '登录后错题才会同步到云端，换设备也不丢').then(function (user) {
+      if (!user && typeof wx !== 'undefined' && wx.showToast) {
+        wx.showToast({ title: '登录后才能查看错题本', icon: 'none' });
+      }
+    });
   },
 
   /**
@@ -144,5 +162,13 @@ Page({
   // 返回首页
   goBack: function () {
     wx.navigateBack();
+  },
+
+  // M5 T4.1：错题本分享
+  onShareAppMessage: function () {
+    return {
+      title: '词力战士 - 错题不再抄十遍，打一局就记住了',
+      path: '/pages/index/index'
+    };
   }
 });

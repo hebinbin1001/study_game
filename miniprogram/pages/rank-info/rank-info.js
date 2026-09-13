@@ -53,5 +53,14 @@ Page({
     wx.setNavigationBarTitle({ title: '段位详情' });
   },
 
-  goBack: function () { wx.navigateBack(); }
+  goBack: function () { wx.navigateBack(); },
+
+  // M5 T4.1：段位详情分享（晒段位）
+  onShareAppMessage: function () {
+    var name = this.data.name || '';
+    return {
+      title: name ? ('词力战士 - 我已经是「' + name + '」了，来挑战我！') : '词力战士 - 看看段位阶梯，一起冲榜',
+      path: '/pages/index/index'
+    };
+  }
 });

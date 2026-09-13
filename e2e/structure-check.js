@@ -73,5 +73,32 @@ check(!appSrc.includes('loginSilently'), 'app.js 无自动静默登录(onLaunch)
 const idxSrc = fs.readFileSync('miniprogram/pages/index/index.js', 'utf8');
 check(idxSrc.includes('_doLogin') && idxSrc.includes('ensureAgreement'), '首页登录走协议前置');
 
+// 6) 受限页门禁 + 结算页游客提示 + 关键页分享（M5 T2.3 / T2.4 / T4.1）
+//
+// 为什么要有这条护栏：这三项都是「不做也不会报错」的补齐型需求 ——
+//   门禁漏了 = 分享链接能直接进排行榜/错题本（空列表或别人的数据）；
+//   结算页漏了 = 游客打完一局不知道成绩没上云；
+//   分享漏了 = 右上角转发不出去。静态断言把它们钉住，改页面时不会悄悄丢。
+const GATED_PAGES = ['avatar', 'rank', 'wrong-book', 'checkin', 'achievement'];
+GATED_PAGES.forEach((pg) => {
+  const js = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.js`, 'utf8');
+  const wxml = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.wxml`, 'utf8');
+  check(js.includes('auth.requireLogin'), `受限页 pages/${pg} 已接门禁（auth.requireLogin）`);
+  check(wxml.includes('class="gate-bar"') && wxml.includes('bindtap="onGateLogin"'),
+    `受限页 pages/${pg} 有登录引导条 + 「去登录」按钮`);
+});
+const resultJs = fs.readFileSync('miniprogram/pages/result/result.js', 'utf8');
+const resultWxml = fs.readFileSync('miniprogram/pages/result/result.wxml', 'utf8');
+check(resultWxml.includes('class="gate-bar"') && resultJs.includes('onLoginTap'),
+  '结算页有游客「登录保存成绩」提示条（M5 T2.4）');
+const appWxssSrc = fs.readFileSync('miniprogram/app.wxss', 'utf8');
+check(appWxssSrc.includes('.gate-bar'), '门禁引导条样式统一在 app.wxss（6 页共用一份）');
+
+// 分享：关键页必须能转发（M5 T4.1）
+['result', 'game', 'me', 'rank', 'rank-info', 'achievement', 'wrong-book', 'avatar', 'checkin'].forEach((pg) => {
+  const js = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.js`, 'utf8');
+  check(js.includes('onShareAppMessage'), `pages/${pg} 支持分享（onShareAppMessage）`);
+});
+
 console.log(fail ? `\n=== ${fail} 项失败 ===` : '\n=== 全部通过 ===');
 process.exit(fail ? 1 : 0);

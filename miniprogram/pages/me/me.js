@@ -165,5 +165,13 @@ Page({
         showCancel: false
       });
     });
+  },
+
+  // M5 T4.1：我的页分享
+  onShareAppMessage: function () {
+    return {
+      title: '词力战士 - 一边打怪兽一边记字词，学生党解压神器',
+      path: '/pages/index/index'
+    };
   }
 });

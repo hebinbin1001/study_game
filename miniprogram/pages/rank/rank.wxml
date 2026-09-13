@@ -9,6 +9,13 @@
     </view>
   </view>
 
+  <!-- M5 T2.3 门禁：直接 URL / 分享链接进来且未登录时，先引导登录（不请求数据） -->
+  <view class="gate-bar" wx:if="{{needLogin}}">
+    <text class="gate-emoji">🔒</text>
+    <text class="gate-text">{{gateText}}</text>
+    <button class="gate-btn" bindtap="onGateLogin">去登录</button>
+  </view>
+
   <!-- 双榜切换 -->
   <view class="tabs rank-mode-tabs">
     <view class="tab {{mode === 'total' ? 'active' : ''}}" data-mode="total" bindtap="switchMode">⭐ 总榜 · 星星</view>

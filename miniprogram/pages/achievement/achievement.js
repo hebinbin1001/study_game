@@ -24,11 +24,27 @@ Page({
     unlockedCount: 0,      // 已解锁数量（页头总进度卡）
     totalCount: 0,         // 成就总数
     progressPercent: 0,    // 收集进度百分比（0-100，模板预处理字段）
-    loadError: ''
+    loadError: '',
+    // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
+    needLogin: false,
+    gateText: ''
   },
 
   onShow: function () {
+    if (!auth.requireLogin(this, '登录后成就进度才会同步到云端')) return;
     this.loadAchievements();
+  },
+
+  /** 门禁引导条「去登录」：成功后重新加载成就列表 */
+  onGateLogin: function () {
+    var self = this;
+    auth.loginFromGate(this, function () {
+      self.loadAchievements();
+    }, '登录后成就进度才会同步到云端').then(function (user) {
+      if (!user && typeof wx !== 'undefined' && wx.showToast) {
+        wx.showToast({ title: '登录后才能查看成就', icon: 'none' });
+      }
+    });
   },
 
   // 加载成就列表
@@ -132,5 +148,16 @@ Page({
   // 返回首页
   goBack: function () {
     wx.navigateBack();
+  },
+
+  // M5 T4.1：成就页分享
+  onShareAppMessage: function () {
+    var unlocked = this.data.unlockedCount || 0;
+    return {
+      title: unlocked > 0
+        ? ('词力战士 - 我已经解锁 ' + unlocked + ' 枚成就勋章，来比比？')
+        : '词力战士 - 打怪兽记字词，攒勋章冲段位',
+      path: '/pages/index/index'
+    };
   }
 });

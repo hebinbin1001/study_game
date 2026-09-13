@@ -32,7 +32,10 @@ Page({
     grade: '',              // 学段 key
     level: 1,               // 关卡序号
     wrongItems: [],         // R4：本局错题回顾 [{ word, hint, ex }]
-    hasWrong: false         // 是否有错题（无错题时整块不渲染，不留空白）
+    hasWrong: false,        // 是否有错题（无错题时整块不渲染，不留空白）
+    // M5 T2.4：游客结算提示「登录保存成绩」
+    loggedIn: true,
+    gateText: ''
   },
 
   /**
@@ -64,6 +67,12 @@ Page({
   onLoad: function (options) {
     // R4：先取本局错题（与胜负无关，失败态同样可回顾）
     this._loadWrongItems();
+
+    // M5 T2.4：游客结算提示 —— 成绩只在本机，登录后才会同步到云端并计入段位
+    this.setData({
+      loggedIn: auth.isLoggedIn(),
+      gateText: '游客成绩只存在本机：登录后本局成绩、星星与段位才会同步到云端'
+    });
 
     // 解析游戏页传入的参数：
     //   win: '1'=通关，'0'=生命耗尽失败
@@ -162,6 +171,22 @@ Page({
     });
   },
 
+  // M5 T2.4：结算页游客一键登录 —— 登录成功后把本局的星星补同步进云端段位
+  onLoginTap: function () {
+    var self = this;
+    auth.promptLogin('登录后本局成绩、星星与段位才会同步到云端').then(function (user) {
+      if (!user) return; // 取消 / 失败：留在游客态，提示条不动
+      self.setData({ loggedIn: true });
+      if (typeof wx !== 'undefined' && wx.showToast) {
+        wx.showToast({ title: '登录成功，成绩已同步', icon: 'success' });
+      }
+      // 本局若已通关，补一次段位同步（游客态下 rankSync 被跳过）
+      if (!self.data.failed && self.data.grade) {
+        self.rankSync(self.data.stars);
+      }
+    });
+  },
+
   // 上报成绩到后端（REQ-API-4、REQ-NFR-2）
   //
   // 错误契约（utils/request.js v2）：
@@ -225,5 +250,16 @@ Page({
   // 回首页：重启到首页，清空页面栈
   goHome: function () {
     wx.reLaunch({ url: '/pages/index/index' });
+  },
+
+  // M5 T4.1：结算页分享战绩（右上角转发）
+  onShareAppMessage: function () {
+    var d = this.data;
+    var stars = d.stars || 0;
+    var starText = stars > 0 ? ('拿下了 ' + stars + ' 颗星！') : '来挑战一下我的成绩！';
+    return {
+      title: '词力战士 - 我' + starText + '（得分 ' + (d.score || 0) + '）',
+      path: '/pages/index/index'
+    };
   }
 });

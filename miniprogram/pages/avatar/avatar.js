@@ -13,6 +13,8 @@
 var request = require('../../utils/request');
 var storage = require('../../utils/storage');
 var skins = require('../../utils/skins');
+// M5 T2.3：受限页直入门禁（未登录不拉数据，页内引导登录）
+var auth = require('../../utils/auth');
 
 // 段位名（rankId 1~8，与 server/rank-ladder.js 的大段位对应，用于解锁条件文案）
 var RANK_NAMES = ['', '青铜', '白银', '黄金', '铂金', '钻石', '星耀', '王者', '荣耀王者'];
@@ -24,12 +26,26 @@ Page({
     currentWarrior: '',
     currentMonster: '',
     rankInfo: null,
-    loading: false
+    loading: false,
+    // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
+    needLogin: false,
+    gateText: ''
   },
 
   onShow: function () {
+    if (!auth.requireLogin(this, '登录后可查看与切换战士 / 怪兽形象')) return;
     this.loadAvatars();
     this.loadRankInfo();
+  },
+
+  /** 门禁引导条「去登录」：成功后按 onShow 原路径重新加载 */
+  onGateLogin: function () {
+    auth.loginFromGate(this, this.onShow, '登录后可查看与切换战士 / 怪兽形象')
+      .then(function (user) {
+        if (!user && typeof wx !== 'undefined' && wx.showToast) {
+          wx.showToast({ title: '登录后才能使用形象系统', icon: 'none' });
+        }
+      });
   },
 
   // 给后端返回的形象项附加「图片 + emoji 兜底 + 稀有度中文标签」
@@ -245,5 +261,16 @@ Page({
   // 返回首页
   goBack: function () {
     wx.navigateBack();
+  },
+
+  // M5 T4.1：形象页分享
+  onShareAppMessage: function () {
+    var name = (this.data.rankInfo && this.data.rankInfo.rankName) || '';
+    return {
+      title: name
+        ? ('词力战士 - 我' + name + '段位的战士皮肤，你到哪一段了？')
+        : '词力战士 - 打怪升级换皮肤，战士越强越帅',
+      path: '/pages/index/index'
+    };
   }
 });

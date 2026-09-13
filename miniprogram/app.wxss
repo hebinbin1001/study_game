@@ -359,6 +359,40 @@ button.btn {
 }
 .b-in { animation: bBoardIn 0.26s ease-out both; }
 
+/* ============ 未登录门禁引导条（M5 T2.3 受限页直入守卫） ============
+   受限页（排行榜 / 错题本 / 成就 / 签到 / 形象 / 结算页）在未登录时展示这一条，
+   页内引导而不是弹窗拦截：不打断用户、也不影响无登录态的页面渲染回归。
+   样式放全局，6 个页面共用一份（改文案/配色只改这里）。 */
+.gate-bar {
+  display: flex;
+  align-items: center;
+  margin: 20rpx 24rpx;
+  padding: 20rpx 24rpx;
+  background: #fff8e6;
+  border: 2rpx solid #ffd8a8;
+  border-radius: 18rpx;
+  box-shadow: 0 4rpx 12rpx rgba(200, 140, 0, 0.08);
+}
+.gate-bar .gate-emoji { flex: none; font-size: 34rpx; margin-right: 14rpx; }
+.gate-bar .gate-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #8a6338;
+  line-height: 1.5;
+}
+.gate-bar .gate-btn {
+  flex: none;
+  margin: 0 0 0 16rpx;
+  padding: 0 26rpx;
+  height: 60rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #fff;
+  background: #ff9800;
+  border-radius: 30rpx;
+}
+.gate-bar .gate-btn::after { border: none; }
+
 /* ============ 深色模式兜底：已移除（2026-09-12） ============
    背景：这里原先有一段 `@media (prefers-color-scheme: dark)`，只把 page 底色改成近黑 (#12171f)、
    文字改成浅色，但**页面内容（卡片、渐变、按钮、图例）全是按浅色主题设计的，没有任何一套深色适配**。

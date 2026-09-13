@@ -5,6 +5,8 @@ var request = require('../../utils/request');
 var constants = require('../../utils/constants');
 // 段位徽章（大段 8 枚）+ 头像兜底（2026-09-13 用户反馈）
 var rankBadge = require('../../utils/rank-badge');
+// M5 T2.3：受限页直入门禁（未登录不拉数据，页内引导登录）
+var auth = require('../../utils/auth');
 
 var PAGE_SIZE = 50;
 
@@ -34,10 +36,14 @@ Page({
     curGradeIndex: 0,
     curGradeKey: '',
     types: [],
-    curType: 'all'
+    curType: 'all',
+    // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
+    needLogin: false,
+    gateText: ''
   },
 
   onLoad: function () {
+    if (!auth.requireLogin(this, '登录后成绩才会入榜，才能查看排行榜')) return;
     var grades = constants.GRADES || [];
     var types = [{ key: 'all', label: '综合' }].concat(
       (constants.TYPE_GROUPS || []).filter(function (t) { return t.key !== 'all'; }).map(function (t) {
@@ -51,8 +57,21 @@ Page({
   },
 
   onShow: function () {
+    if (!auth.requireLogin(this, '登录后成绩才会入榜，才能查看排行榜')) return;
     this.loadTotal();
     if (this.data.mode === 'game') this.loadGame();
+  },
+
+  /** 门禁引导条「去登录」：成功后按 onLoad 原路径重新初始化并加载 */
+  onGateLogin: function () {
+    var self = this;
+    auth.loginFromGate(this, function () {
+      self.onLoad();
+    }, '登录后成绩才会入榜，才能查看排行榜').then(function (user) {
+      if (!user && typeof wx !== 'undefined' && wx.showToast) {
+        wx.showToast({ title: '登录后才能查看排行榜', icon: 'none' });
+      }
+    });
   },
 
   switchMode: function (e) {
@@ -159,5 +178,13 @@ Page({
     return rank;
   },
 
-  goBack: function () { wx.navigateBack(); }
+  goBack: function () { wx.navigateBack(); },
+
+  // M5 T4.1：排行榜分享（邀好友来比一比）
+  onShareAppMessage: function () {
+    return {
+      title: '词力战士 - 排行榜等你来冲，看看谁是字词王者',
+      path: '/pages/index/index'
+    };
+  }
 });

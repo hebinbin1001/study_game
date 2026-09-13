@@ -81,7 +81,8 @@ const MODULES = [
     name: '用户与成长（段位 / 成就 / 皮肤 / 错题本 / 复习 / 签到）',
     stages: ['m2m4'],
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
-      'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review']
+      'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review',
+      'auth-guard']
   },
   {
     id: 'server',

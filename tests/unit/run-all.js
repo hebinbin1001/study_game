@@ -39,7 +39,17 @@ let anyFail = false;
 for (const f of selected) {
   const filePath = path.join(dir, f);
   console.log('>>> 运行 ' + f);
-  const r = spawnSync(process.execPath, [filePath], { encoding: 'utf8', timeout: 120000 });
+  // 说明（2026-09-13）：默认要建管道捕获子进程输出；受限/沙箱环境会以 EPERM
+  // 拒绝建管道，导致**每个文件都报「退出码 null（失败）」的假红**。
+  // 这种情况退化成 stdio:'inherit'（不建管道，子进程直接继承终端），
+  // 输出照样可见、退出码判定不变。
+  let r = spawnSync(process.execPath, [filePath], { encoding: 'utf8', timeout: 120000 });
+  if (r.error) {
+    r = spawnSync(process.execPath, [filePath], { stdio: 'inherit', timeout: 120000 });
+  }
+  if (r.error) {
+    console.error('  无法启动测试进程：' + r.error.code + '（' + f + '）');
+  }
   if (r.stdout) console.log(r.stdout);
   if (r.stderr) console.error(r.stderr);
   if (r.status !== 0) anyFail = true;

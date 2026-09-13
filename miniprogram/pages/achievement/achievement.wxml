@@ -7,6 +7,13 @@
     <button class="check-pill" bindtap="checkUnlock">🔍 检查</button>
   </view>
 
+  <!-- M5 T2.3 门禁：直接 URL / 分享链接进来且未登录时，先引导登录（不请求数据） -->
+  <view class="gate-bar" wx:if="{{needLogin}}">
+    <text class="gate-emoji">🔒</text>
+    <text class="gate-text">{{gateText}}</text>
+    <button class="gate-btn" bindtap="onGateLogin">去登录</button>
+  </view>
+
   <!-- 总进度卡：勋章收集进度（进度条） -->
   <view class="card summary-card" wx:if="{{totalCount > 0}}">
     <view class="summary-row">

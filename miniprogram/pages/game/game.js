@@ -766,5 +766,14 @@ Page({
       wx.redirectTo({ url: '/pages/result/result?' + query });
     };
     go();
+  },
+
+  // M5 T4.1：对局页分享（带当前学段，好友直接进同一条线）
+  onShareAppMessage: function () {
+    var grade = this.data.grade || '';
+    return {
+      title: '词力战士 - 打怪兽记单词，一起来拼词闯关！',
+      path: grade ? ('/pages/game/game?grade=' + grade + '&level=1') : '/pages/index/index'
+    };
   }
 });

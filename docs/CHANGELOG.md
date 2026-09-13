@@ -5,6 +5,52 @@
 
 ---
 
+## 2026-09-13（M5 遗留 TODO 收尾：受限页门禁 / 游客结算提示 / 分享补齐）
+
+### 受限页直入门禁（防「分享链接直接进排行榜 / 错题本」）
+
+- 起因：`.codeartsdoer/specs/m5-login-guest/tasks.md` 里 T2.3 一直挂着 —— 首页入口拦了，
+  但**页面自身没守卫**，分享 / 扫码 / 直接 URL 仍能进 avatar、rank、wrong-book、checkin、achievement。
+- 新增 `utils/auth.js`：`requireLogin(page, desc)`（未登录 → 不放行 + 页面打 `needLogin` 标记）、
+  `loginFromGate(page, reload, desc)`（点「去登录」→ 走既有 `promptLogin` 协议前置流程 →
+  成功则解除门禁并以页面为 this 补加载一次）。
+- 为什么不做「进页面就 showModal」：① 弹窗打断后取消会停在空列表上，体验更差；
+  ② 无登录态的页面渲染回归（`verify-all-pages` / `verify-m2m4`）会被弹窗挂住。
+  改成**页内引导条**（样式统一在 `app.wxss` 的 `.gate-bar`，6 页共用一份）。
+- 未登录时**不发任何请求**（既不浪费接口，也不会渲染出别人的数据）。
+
+### 结算页游客提示（M5 T2.4）
+
+- 未登录打完一局 → 结算页顶部提示「游客成绩只存在本机」+「登录保存」按钮。
+- 登录成功后把本局星星补同步进云端段位 —— 游客态下 `rankSync` 原本被直接跳过，
+  所以这条顺带补上了「登录即入榜」。
+
+### 分享补齐（M5 T4.1）
+
+- result / game / me / rank / rank-info / achievement / wrong-book / avatar / checkin
+  九个页面加上 `onShareAppMessage`；文案带各自数据（结算页带星级与得分、签到页带连续天数、
+  段位页带段位名、成就页带已解锁枚数）。
+
+### 护栏（防回归 + 修两个"假红"护栏）
+
+- `e2e/structure-check.js` 第 6 节：五个受限页必须接门禁、结算页必须有游客提示、
+  门禁样式必须在 `app.wxss`、九个页面必须支持分享。
+- 新增 `tests/unit/auth-guard.test.js`（7 用例 / 25 断言）：含「取消登录不能照样拉数据」
+  「登录用户不能被自己的门禁拦住」「退出登录后门禁重新生效」「门禁只读判定、不写 token」。
+- 修护栏自身的假红：`e2e/syntax-check-all.js`（用 `execFileSync` 建管道，受限环境 EPERM →
+  **156/156 全部假失败**）与 `tests/unit/run-all.js`（同类问题 → 每个用例都报「退出码 null」）。
+  改法：管道失败时退化成 `stdio:'inherit'`，退出码判定不变、真语法错误照样打印。
+
+### 文档/规格整理
+
+- `.codeartsdoer/specs/m7-gameplay-modes/spec.md` 顶部标注**已被推翻**（三形态与蛇形地图均已删除，
+  提交 `1af3367`），避免后来者照着旧 spec 重复开发。
+- `.codeartsdoer/specs/m4-*/tasks.md` 的「实现状态总览」按代码复核重写（音效/学习报告/每日一题/
+  协议页其实都已落地；青少年模式与防沉迷确实未做）。
+- `docs/待办收尾与上线前清单.md` 新增第六节：本轮做了什么、还剩哪两条口径等你拍板。
+
+---
+
 ## 2026-09-12（P3 里程碑宝箱 + 修掉「level 皮肤永远解锁不了」的 bug）
 
 ### P3：挑战主线每 10 关一个宝箱

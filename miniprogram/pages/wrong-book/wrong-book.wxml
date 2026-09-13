@@ -1,5 +1,12 @@
 <!-- 错题本列表页 -->
 <view class="page-wrong-book">
+  <!-- M5 T2.3 门禁：直接 URL / 分享链接进来且未登录时，先引导登录（不请求数据） -->
+  <view class="gate-bar" wx:if="{{needLogin}}">
+    <text class="gate-emoji">🔒</text>
+    <text class="gate-text">{{gateText}}</text>
+    <button class="gate-btn" bindtap="onGateLogin">去登录</button>
+  </view>
+
   <!-- 页面标题 -->
   <view class="book-title-bar">
     <view class="book-title-emoji">📖</view>

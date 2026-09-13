@@ -7,6 +7,8 @@
 // 说明：不再提供独立打卡按钮；打卡 = 每日一题答对（pages/daily-question）。
 
 var request = require('../../utils/request');
+// M5 T2.3：受限页直入门禁（未登录不拉数据，页内引导登录）
+var auth = require('../../utils/auth');
 
 var MILESTONE_META = [
   { day: 30, emoji: '🐲', name: '神龙', avatarId: 'milestone_30' },
@@ -31,11 +33,27 @@ Page({
     starLadder: [
       { day: 1, stars: 10 }, { day: 3, stars: 30 }, { day: 7, stars: 100 },
       { day: 14, stars: 200 }, { day: 30, stars: 500 }
-    ]
+    ],
+    // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
+    needLogin: false,
+    gateText: ''
   },
 
   onShow: function () {
+    if (!auth.requireLogin(this, '登录后签到记录才会保存到云端')) return;
     this.loadData();
+  },
+
+  /** 门禁引导条「去登录」：成功后重新加载签到数据 */
+  onGateLogin: function () {
+    var self = this;
+    auth.loginFromGate(this, function () {
+      self.loadData();
+    }, '登录后签到记录才会保存到云端').then(function (user) {
+      if (!user && typeof wx !== 'undefined' && wx.showToast) {
+        wx.showToast({ title: '登录后才能查看签到日历', icon: 'none' });
+      }
+    });
   },
 
   loadData: function () {
@@ -112,5 +130,16 @@ Page({
 
   goBack: function () {
     wx.navigateBack();
+  },
+
+  // M5 T4.1：签到页分享
+  onShareAppMessage: function () {
+    var streak = this.data.currentStreak || 0;
+    return {
+      title: streak > 0
+        ? ('词力战士 - 我已连续打卡 ' + streak + ' 天，一起坚持学字词！')
+        : '词力战士 - 每天一题，坚持打卡攒星星换皮肤',
+      path: '/pages/index/index'
+    };
   }
 });

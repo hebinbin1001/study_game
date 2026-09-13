@@ -270,6 +270,55 @@ function promptLogin(desc) {
   });
 }
 
+// 受限页门禁的默认文案（各页可传自己的话术覆盖）
+var DEFAULT_GATE_TEXT = '登录后可同步进度，并解锁排行榜 / 错题本 / 成就 / 签到';
+
+/**
+ * 受限页直入门禁（M5 T2.3「页面自身 onLoad 守卫（防直接 URL 进入）」）。
+ *
+ * 背景：首页等入口早已做「未登录先引导登录」，但这些页面自身没有守卫，
+ * 分享链接 / 扫码 / 直接 URL 进入时仍能打开排行榜、错题本、成就、签到、形象页。
+ *
+ * 为什么用「页面内引导条」而不是进页面就 showModal：
+ *   1. 一进页面就被弹窗打断，取消后停在空列表上，体验更差；
+ *   2. 页面渲染回归（e2e/verify-all-pages.js、verify-m2m4.js）是在**无登录态的模拟器**里
+ *      reLaunch 这些页面的，进页面就弹窗会把用例挂住。
+ * 所以未登录时**不请求数据**（避免无谓接口 + 不展示别人的数据），页面内展示引导条；
+ * 点「去登录」再走 promptLogin（与首页入口同一套登录流程），成功后自动重新加载。
+ *
+ * @param {Object} page 页面实例（需有 setData）
+ * @param {string} [desc] 引导条文案
+ * @returns {boolean} true=已登录，调用方继续加载；false=未登录，调用方应立即 return
+ */
+function requireLogin(page, desc) {
+  var ok = isLoggedIn();
+  if (page && typeof page.setData === 'function') {
+    page.setData({ needLogin: !ok, gateText: desc || DEFAULT_GATE_TEXT });
+  }
+  return ok;
+}
+
+/**
+ * 门禁引导条上的「去登录」：登录成功后解除门禁并重新加载数据。
+ *
+ * @param {Object} page 页面实例
+ * @param {Function} [reload] 登录成功后的重新加载函数（以 page 为 this 调用）
+ * @param {string} [desc] 登录弹窗文案
+ * @returns {Promise<Object|null>} 登录成功返回 user，取消/失败返回 null
+ */
+function loginFromGate(page, reload, desc) {
+  return promptLogin(desc).then(function (user) {
+    var ok = !!user && isLoggedIn();
+    if (page && typeof page.setData === 'function') {
+      page.setData({ needLogin: !ok });
+    }
+    if (ok && typeof reload === 'function') {
+      reload.call(page);
+    }
+    return user || null;
+  });
+}
+
 /** 退出登录：通知后端清 token + 本地清除。 */
 function logout() {
   if (getToken()) {
@@ -292,5 +341,7 @@ module.exports = {
   loginSilently: loginSilently,
   refreshMe: refreshMe,
   promptLogin: promptLogin,
+  requireLogin: requireLogin,
+  loginFromGate: loginFromGate,
   logout: logout
 };

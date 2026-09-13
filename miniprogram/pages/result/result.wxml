@@ -2,6 +2,13 @@
      ⭐ 星级大展示 + 数据卡（得分/答对/正确率/最高连击）+ 按压感按钮
      关联需求：REQ-GAME-11（失败态）、REQ-GAME-12（星级评定）、REQ-GAME-15（结算展示） -->
 <view class="page-result">
+  <!-- M5 T2.4：游客结算提示（成绩只存本机，登录后同步云端） -->
+  <view class="gate-bar" wx:if="{{!loggedIn}}">
+    <text class="gate-emoji">💾</text>
+    <text class="gate-text">{{gateText}}</text>
+    <button class="gate-btn" bindtap="onLoginTap">登录保存</button>
+  </view>
+
   <!-- ⭐ 大星级展示（REQ-GAME-12，js 预处理 starArr） -->
   <view class="big-stars">
     <text
