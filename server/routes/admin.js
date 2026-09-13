@@ -20,6 +20,8 @@ const { fn, col } = require("sequelize");
 const { User, Score, RankRecord, sequelize } = require("../db");
 const ladder = require("../rank-ladder");
 const { checkAdmin, maskOpenid } = require("../admin-auth");
+const { dedupeStars } = require("../rank-stars");
+const rankRouter = require("./rank");   // 取「最近一次段位星同步」的诊断信息
 
 const router = express.Router();
 
@@ -166,6 +168,9 @@ router.get("/stats", requireAdmin, async (req, res) => {
         rankDist: dist,
         // 微信名列是否已创建（false = 还没执行 ALTER TABLE，微信名必然显示「未获取」）
         wxNicknameColumnReady: await wxColumnReady(),
+        // 段位同步自检：最近一次重算是否成功（空字符串 = 最近一次成功）
+        lastRankSyncError: rankRouter.syncRankDiagnostics().lastSyncError || "",
+        lastRankSyncAt: rankRouter.syncRankDiagnostics().lastSyncAt || null,
       },
       message: "ok",
     });
@@ -225,6 +230,19 @@ router.get("/users", requireAdmin, async (req, res) => {
       })
       : [];
     const rawMap = new Map(rawAgg.map((r) => [r.user_id, Number(r.raw) || 0]));
+    // 现算「去重后星数」：与库里的 stars（rank_record.stars）对比，两者不等 = 同步没生效
+    const allScores = ids.length
+      ? await Score.findAll({
+        where: { user_id: { [Op.in]: ids } },
+        attributes: ["user_id", "game_type", "grade", "type_key", "level", "stars"],
+        raw: true,
+      })
+      : [];
+    const scoresByUser = new Map();
+    allScores.forEach((r) => {
+      if (!scoresByUser.has(r.user_id)) scoresByUser.set(r.user_id, []);
+      scoresByUser.get(r.user_id).push(r);
+    });
     const wxMap = await wxNicknameMap(openids);
     const scoreMap = new Map(scoreAgg.map((r) => [r.user_id, r]));
     const rankMap = new Map(ranks.map((r) => [r.openid, r]));
@@ -242,6 +260,7 @@ router.get("/users", requireAdmin, async (req, res) => {
         scoreCount: Number(s.cnt) || 0,
         stars,
         starsRaw: rawMap.get(u.id) || 0,   // 流水口径（对比用；展示口径是 stars）
+        starsDeduped: dedupeStars(scoresByUser.get(u.id) || []),   // 按当前口径现算（应等于 stars）
         rankName: ladder.rankOf(stars).rankName,
       };
     });

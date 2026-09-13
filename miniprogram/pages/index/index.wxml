@@ -14,8 +14,9 @@
       <view wx:elif="{{loggedIn}}" class="hero-emoji">😎</view>
       <view wx:else class="hero-emoji">⚔️</view>
     </view>
-    <view class="hero-title">词力战士</view>
-    <view class="hero-sub">{{loggedIn ? '点击头像进入个人中心' : '玩中学 · 学中记'}}</view>
+    <!-- 已登录展示微信昵称（用户 2026-09-13 建议）：昵称优先，没设昵称回落品牌名 -->
+    <view class="hero-title">{{loggedIn && nickname ? nickname : '词力战士'}}</view>
+    <view class="hero-sub">{{loggedIn ? '词力战士 · 点我编辑资料' : '玩中学 · 学中记'}}</view>
   </view>
 
   <!-- 游客引导条（仅游客）：点去登录 → 先弹协议再登录；条下提供协议全文阅读 -->

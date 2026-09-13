@@ -30,7 +30,9 @@ const CLI_JS = path.join(DEVTOOLS_DIR, 'cli.js');
 // 两种布局都支持，老机器（有 node.exe + cli.js）继续走老路。
 const CLI_BAT = path.join(DEVTOOLS_DIR, 'cli.bat');
 const PROJECT_PATH = path.resolve(__dirname, '..', '..', 'miniprogram');
-const AUTO_PORT = 3799;
+// 自动化端口：默认 3799，可用环境变量 WX_AUTO_PORT 覆盖
+// （开发者工具的「安全设置 → 服务端口」是另一个端口，别混用）
+const AUTO_PORT = parseInt(process.env.WX_AUTO_PORT, 10) || 3799;
 
 function sleep(ms) {
   return new Promise(function (resolve) { setTimeout(resolve, ms); });
