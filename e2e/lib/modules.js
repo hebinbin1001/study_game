@@ -82,13 +82,13 @@ const MODULES = [
     stages: ['m2m4'],
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
       'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review',
-      'auth-guard']
+      'auth-guard', 'admin-auth']
   },
   {
     id: 'server',
     name: '云托管后端（接口 / 模型 / Sequelize 用法）',
     stages: [],
-    unit: ['sequelize-operators']
+    unit: ['sequelize-operators', 'rank-stars']
   },
   {
     id: 'pages',

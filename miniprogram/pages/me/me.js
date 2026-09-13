@@ -57,6 +57,22 @@ Page({
     }).catch(function () {});
   },
 
+  /**
+   * 版本号连点 5 次进管理后台（2026-09-13）：隐藏入口，普通用户不会误入；
+   * 进去后还要输管理口令，服务端再校验一次（ADMIN_OPENIDS / ADMIN_PASSCODE）。
+   */
+  onVersionTap: function () {
+    this._verTaps = (this._verTaps || 0) + 1;
+    if (this._verTaps >= 5) {
+      this._verTaps = 0;
+      wx.navigateTo({ url: '/pages/admin/admin' });
+      return;
+    }
+    if (this._verTaps >= 3) {
+      wx.showToast({ title: '再点 ' + (5 - this._verTaps) + ' 次进入管理后台', icon: 'none', duration: 800 });
+    }
+  },
+
   /** 点段位 → 段位详情页（各段位门槛 + 距下一段还差多少星，第三批 · 第 8 条） */
   goRankInfo: function () {
     // rankStars = /api/rank/info 返回的云端口径累计星（与「我的」页展示同源）

@@ -99,7 +99,7 @@ router.post("/profile", async (req, res) => {
       return res.send({ code: 1001, data: null, message: "未识别用户" });
     }
 
-    const { nickname, avatarUrl } = req.body || {};
+    const { nickname, avatarUrl, wxNickname } = req.body || {};
     const patch = {};
 
     if (nickname !== undefined && nickname !== null) {
@@ -134,11 +134,30 @@ router.post("/profile", async (req, res) => {
       patch.avatar_url = avatarUrl;
     }
 
+    // 微信昵称单独存档（2026-09-13 用户需求）：只有管理员能看到，公开接口一律不返回。
+    // 生产库若还没执行 wx_nickname 的 DDL，这里会报错 —— 单独兜住，**不影响昵称保存**。
+    let hasWxNickname = false;
+    if (wxNickname !== undefined && wxNickname !== null && String(wxNickname).trim()) {
+      patch.wx_nickname = String(wxNickname).trim().slice(0, 64);
+      hasWxNickname = true;
+    }
+
     if (!Object.keys(patch).length) {
       return res.send({ code: 4000, data: null, message: "参数缺失" });
     }
 
-    await user.update(patch);
+    if (hasWxNickname) {
+      try {
+        await user.update(patch);
+      } catch (e) {
+        // 兜底：列不存在（未执行 DDL）或写入失败 → 只存昵称/头像，微信名本次跳过
+        console.error("写 wx_nickname 失败（可能未执行 DDL），本次跳过微信名：", e && e.message);
+        delete patch.wx_nickname;
+        if (Object.keys(patch).length) await user.update(patch);
+      }
+    } else {
+      await user.update(patch);
+    }
     res.send({ code: 0, data: profileOf(user) });
   } catch (err) {
     console.error("POST /api/user/profile 失败：", err);

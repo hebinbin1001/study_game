@@ -1,0 +1,59 @@
+<!-- 管理后台：统计概览 + 用户列表（含微信名，仅管理员可见） -->
+<view class="page-admin">
+  <!-- 口令门：未通过校验时只显示输入框 -->
+  <view wx:if="{{!ready}}" class="gate">
+    <view class="gate-title">🔐 管理后台</view>
+    <view class="gate-sub">请输入管理口令（云托管环境变量 ADMIN_PASSCODE 里配置的那个）</view>
+    <input
+      class="gate-input"
+      password="true"
+      placeholder="管理口令"
+      value="{{passcode}}"
+      bindinput="onPasscodeInput" />
+    <button class="gate-btn" loading="{{checking}}" bindtap="onEnter">进入</button>
+  </view>
+
+  <block wx:else>
+    <!-- 统计概览 -->
+    <view class="stat-grid">
+      <view class="stat"><view class="s-num">{{stats.totalUsers}}</view><view class="s-lab">注册人数</view></view>
+      <view class="stat hot"><view class="s-num">{{stats.onlineUsers}}</view><view class="s-lab">在线（{{stats.onlineWindowMin}} 分钟）</view></view>
+      <view class="stat"><view class="s-num">{{stats.todayActiveUsers}}</view><view class="s-lab">今日活跃</view></view>
+      <view class="stat"><view class="s-num">{{stats.todayNewUsers}}</view><view class="s-lab">今日新增</view></view>
+      <view class="stat"><view class="s-num">{{stats.totalScores}}</view><view class="s-lab">累计答题</view></view>
+    </view>
+
+    <!-- 段位分布 -->
+    <view class="sec-title">段位分布</view>
+    <view class="dist">
+      <view wx:for="{{stats.rankDistList}}" wx:key="name" class="dist-item">
+        <text class="d-name">{{item.name}}</text>
+        <text class="d-count">{{item.count}} 人</text>
+      </view>
+    </view>
+
+    <!-- 用户列表 -->
+    <view class="sec-title">用户列表（微信名仅此处可见）</view>
+    <view class="search">
+      <input class="search-input" placeholder="按昵称搜索" value="{{q}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <view class="search-btn" bindtap="onSearch">搜索</view>
+    </view>
+    <view wx:for="{{users}}" wx:key="openidMasked" class="urow">
+      <view class="u-main">
+        <text class="u-nick">{{item.nickname}}</text>
+        <text class="u-wx">微信名：{{item.wxNickname || '（未获取）'}}</text>
+      </view>
+      <view class="u-sub">
+        <text class="u-chip">{{item.rankName}}</text>
+        <text class="u-chip">{{item.stars}} 星</text>
+        <text class="u-chip">{{item.scoreCount}} 局</text>
+      </view>
+      <view class="u-meta">{{item.openidMasked}} · 注册 {{item.createdAt}}</view>
+    </view>
+    <view wx:if="{{hasMore}}" class="more" bindtap="onMore">{{loading ? '加载中…' : '加载更多'}}</view>
+    <view wx:if="{{!users.length && !loading}}" class="empty">没有匹配的用户</view>
+
+    <button class="back" bindtap="goBack">返回</button>
+  </block>
+  <view class="safe-gap"></view>
+</view>

@@ -17,6 +17,7 @@ const nicknameRouter = require("./routes/nickname");
 const scoreRouter = require("./routes/score");
 const avatarRouter = require("./routes/avatar");
 const rankRouter = require("./routes/rank");
+const adminRouter = require("./routes/admin");
 const ranklistRouter = require("./routes/ranklist");
 const levelRouter = require("./routes/level");
 const levelReviewRouter = require("./routes/level-review");
@@ -84,6 +85,8 @@ app.use("/api/login", loginRouter);
 // 小程序码生成（不需要用户身份，供分享海报合成调用）
 app.use("/api/wxcode", wxcodeRouter);
 app.use("/api/user", openid, userRouter);
+// 管理端（2026-09-13 用户需求）：权限见 server/admin-auth.js（环境变量 ADMIN_OPENIDS / ADMIN_PASSCODE）
+app.use("/api/admin", openid, adminRouter);
 app.use("/api/nickname", openid, nicknameRouter);
 app.use("/api/score", openid, scoreRouter);
 app.use("/api/avatar", openid, avatarRouter);

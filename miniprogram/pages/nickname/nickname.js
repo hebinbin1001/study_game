@@ -83,7 +83,9 @@ Page({
     }
 
     // 已登录：云端保存（M5 REQ-PROFILE-1）
-    request.post('/api/user/profile', { nickname: nick, avatarUrl: avatarUrl }).then(function () {
+    // wxNickname：昵称页用的是微信「昵称填写」组件，提交时把这一份同时作为微信名存档，
+    // 服务端单独存 users.wx_nickname，**只有管理员能看**（展示昵称仍是 nickname）
+    request.post('/api/user/profile', { nickname: nick, avatarUrl: avatarUrl, wxNickname: nick }).then(function () {
       auth.refreshMe(); // 拉取最新资料回写缓存（needProfile → false）
       wx.showToast({ title: '保存成功', icon: 'success', duration: 1200 });
       setTimeout(function () { wx.navigateBack(); }, 1300);

@@ -31,6 +31,14 @@ module.exports = (sequelize) => {
         allowNull: true,
         comment: "头像 URL（预留）",
       },
+      // 2026-09-13 用户需求：微信昵称单独存一份，**仅管理员可见**（展示昵称仍是 nickname）
+      // ⚠️ 生产库需要执行一次 DDL（见 docs/管理员后台与隐私口径.md）：
+      //   ALTER TABLE users ADD COLUMN wx_nickname VARCHAR(64) NULL COMMENT '微信昵称（仅管理员可见）';
+      wx_nickname: {
+        type: DataTypes.STRING(64),
+        allowNull: true,
+        comment: "微信昵称（来自微信昵称填写组件；仅管理员可见）",
+      },
       token: {
         type: DataTypes.STRING(64),
         allowNull: true,
