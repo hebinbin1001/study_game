@@ -1,0 +1,38 @@
+<!-- 数字智力 · 关卡选择页：先看关卡再进游戏（第三批 · 第 4 条 a） -->
+<view class="page-puzzle-level">
+  <view class="pl-head">
+    <view class="pl-ic">{{icon}}</view>
+    <view class="pl-ht">
+      <view class="pl-name">{{name}}</view>
+      <view class="pl-desc">{{desc}}</view>
+    </view>
+    <view class="pl-progress">{{clearedCount}}/{{totalCount}}</view>
+  </view>
+
+  <view class="pl-tip">{{unlockedTip}}</view>
+
+  <scroll-view class="pl-scroll" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+    <view
+      wx:for="{{levels}}"
+      wx:key="no"
+      class="pl-row {{item.state}}"
+      data-index="{{index}}"
+      bindtap="onLevelTap">
+      <view class="pl-no">{{item.locked ? '🔒' : item.no}}</view>
+      <view class="pl-mid">
+        <view class="pl-label">{{item.label}}</view>
+        <view class="pl-sub">{{item.sub}}</view>
+      </view>
+      <view class="pl-rt">
+        <view wx:if="{{item.bestText}}" class="pl-best">{{item.bestText}}</view>
+        <view wx:if="{{item.done}}" class="pl-go">重玩 ›</view>
+        <view wx:elif="{{item.locked}}" class="pl-lock">未解锁</view>
+        <view wx:else class="pl-go pl-go--cur">{{item.state === 'cur' ? '开始 ›' : '去玩 ›'}}</view>
+      </view>
+    </view>
+    <view wx:if="{{!hasLevels}}" class="pl-empty">这个玩法暂时没有关卡列表</view>
+    <view class="safe-gap"></view>
+  </scroll-view>
+
+  <button class="pl-back" bindtap="goBack">返回</button>
+</view>

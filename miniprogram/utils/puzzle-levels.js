@@ -64,6 +64,17 @@ var COUNTS = {
  */
 function levelsOf(key) {
   var k = String(key || '');
+  if (k === 'g2048') {
+    // 2048 关卡表在 data/g2048-levels.js（与 2048 页共用），这里带上目标/档位/步数预算
+    return require('../data/g2048-levels').levels.map(function (lv) {
+      return {
+        no: lv.no,
+        label: '第 ' + lv.no + ' 关 · 目标 ' + lv.target,
+        sub: lv.tier + ' · ' + lv.steps + ' 步内达成',
+        params: { target: lv.target, steps: lv.steps, tier: lv.tier }
+      };
+    });
+  }
   if (k === 'sprint') {
     return gradeLevels(function (g, i) { return '60 秒 · 连击翻倍 · 难度 ' + (i + 1) + '/7'; });
   }

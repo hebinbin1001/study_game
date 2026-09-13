@@ -75,6 +75,14 @@ STAGES.push({
   script: 'e2e/check-taps.js'
 });
 
+// 数字智力关卡选择页（第三批 · 第 4 条 a）
+STAGES.push({
+  id: 'puzzleLevel',
+  layer: '端到端',
+  title: '数字智力关卡页（关卡列表 / ?level 生效 / 非法参数回退）',
+  script: 'e2e/verify-puzzle-level.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false,
     module: null, changed: false, listModules: false, noStatic: false };

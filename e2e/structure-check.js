@@ -48,8 +48,13 @@ const missing = urls.filter((u) => !fs.existsSync(`miniprogram${u.split('?')[0]}
 check(missing.length === 0, `玩法跳转 ${urls.length} 个 URL 均存在` + (missing.length ? ' 缺:' + missing : ''));
 const unlocked = (src.match(/unlocked: true/g) || []).length;
 check(unlocked >= 13, `已解锁玩法 ${unlocked} 款`);
-check(/key: 'klotski'[^}]*url: '\/pages\/klotski\/klotski'/.test(src.replace(/\s+/g, ' ')),
+check(/key: 'klotski'[^}]*puzzle-level\?mode=klotski/.test(src.replace(/\s+/g, ' ')),
   '玩法 tab 含华容道且指向 pages/klotski');
+// 第三批 · 第 4 条 a：数字智力类统一「先关卡页、再进游戏」
+const casualEntries = src.match(/section: 'casual'[^}]*url: '([^']+)'/g) || [];
+check(casualEntries.length >= 8, '数字智力类至少 8 款有 url（实际 ' + casualEntries.length + '）');
+check(casualEntries.every((e) => e.indexOf('url: \'/pages/puzzle-level/puzzle-level?mode=') >= 0),
+  '数字智力类全部走关卡页 puzzle-level', casualEntries.length + ' 款');
 const bounceUnlocked = /key: 'bounce',[^}]*unlocked: false/.test(src.replace(/\s+/g, ' '));
 check(bounceUnlocked, '弹弹球为未解锁占位(维持现状)');
 const bounceGoesToPage = src.includes("'/pages/bounce/bounce'");

@@ -47,9 +47,11 @@ Page({
   _pickOrder: [],       // 本步选牌顺序（存 tile id）：减法/除法按「先点的在前」计算
   _pendingOp: '',       // 待用运算符：允许「先点运算符，再点两张牌」（2026-09-13）
 
-  onLoad: function () {
+  onLoad: function (options) {
     this.setData({ ops: m24.OPS.map(function (o) { return { key: o.key, label: o.label }; }) });
-    this.startLevel(1);
+    // 数字智力关卡页会带 ?level=N 指定从哪关开始
+    var want = parseInt((options || {}).level, 10) || 0;
+    this.startLevel(want >= 1 && want <= LEVELS.length ? want : 1);
   },
 
   startLevel: function (no) {

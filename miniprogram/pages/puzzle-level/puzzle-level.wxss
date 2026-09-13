@@ -1,0 +1,97 @@
+/* 数字智力 · 关卡选择页 */
+.page-puzzle-level {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 24rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
+  background: #F5F7FB;
+}
+
+.pl-head {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  background: linear-gradient(135deg, #4285F4, #6AA6F5);
+  border-radius: 28rpx;
+  padding: 26rpx 30rpx;
+  color: #fff;
+  flex: 0 0 auto;
+}
+.pl-ic { font-size: 48rpx; }
+.pl-ht { flex: 1; min-width: 0; }
+.pl-name { font-size: 32rpx; font-weight: 800; }
+.pl-desc { font-size: 22rpx; opacity: .92; margin-top: 4rpx; }
+.pl-progress {
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, .25);
+  border-radius: 999rpx;
+  padding: 8rpx 20rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.pl-tip {
+  flex: 0 0 auto;
+  margin: 18rpx 0 6rpx;
+  padding: 14rpx 20rpx;
+  border-radius: 16rpx;
+  background: #eef3fa;
+  color: #5c7f9e;
+  font-size: 22rpx;
+}
+
+.pl-scroll { flex: 1 1 auto; min-height: 0; }
+
+.pl-row {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  background: #fff;
+  border-radius: 22rpx;
+  padding: 22rpx 24rpx;
+  margin-top: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(28, 53, 92, .06);
+}
+.pl-row.done { background: #f2fbf4; }
+.pl-row.cur { box-shadow: inset 0 0 0 4rpx #ffb703, 0 4rpx 12rpx rgba(28, 53, 92, .06); }
+.pl-row.lock { opacity: .62; }
+
+.pl-no {
+  flex: 0 0 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #eef3fa;
+  color: #3a3a5c;
+  font-size: 28rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pl-row.done .pl-no { background: #d9f3e0; color: #2f8b4d; }
+.pl-row.cur .pl-no { background: #fff3d6; color: #b57f00; }
+
+.pl-mid { flex: 1; min-width: 0; }
+.pl-label { font-size: 28rpx; font-weight: 800; color: #3a3a5c; }
+.pl-sub { font-size: 22rpx; color: #8a9bb5; margin-top: 4rpx; }
+
+.pl-rt { flex: 0 0 auto; text-align: right; }
+.pl-best { font-size: 20rpx; color: #2f8b4d; font-weight: 700; }
+.pl-go { font-size: 22rpx; color: #8a9bb5; margin-top: 4rpx; }
+.pl-go--cur { color: #4285F4; font-weight: 700; }
+.pl-lock { font-size: 20rpx; color: #a8b3c4; }
+
+.pl-empty { text-align: center; color: #8a9bb5; font-size: 24rpx; padding: 60rpx 0; }
+
+.pl-back {
+  flex: 0 0 auto;
+  margin-top: 18rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  background: #fff;
+  color: #5c7f9e;
+  font-size: 28rpx;
+  font-weight: 700;
+}

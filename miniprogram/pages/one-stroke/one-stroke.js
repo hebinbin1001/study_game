@@ -33,8 +33,11 @@ Page({
   _totalSteps: 0,
   _timers: [],
 
-  onLoad: function () {
+  onLoad: function (options) {
     this.setData({ best: storage.get(BEST_KEY) || 0 });
+    // 数字智力关卡页指定关卡（?level=N → 内部下标 _li = N-1）
+    var want = parseInt((options || {}).level, 10) || 0;
+    if (want >= 1 && want <= lib.LEVELS.length) this._li = want - 1;
     this.start();
   },
   onUnload: function () { this._clearTimers(); },

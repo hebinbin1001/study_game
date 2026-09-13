@@ -59,9 +59,12 @@ Page({
     _puzzle: null
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
     this.loadLevels();
     this.setData({ curLevel: this._pickStart() });
+    // 数字智力关卡页指定关卡（?level=N）
+    var want = parseInt((options || {}).level, 10) || 0;
+    if (want >= 1 && want <= TOTAL_LEVELS) this.setData({ curLevel: want });
     this.refreshStage();
   },
 

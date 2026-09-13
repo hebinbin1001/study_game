@@ -17,18 +17,10 @@ var storage = require('../../utils/storage');
 // 实战约 680 步）。本次按实测模型重算，并把目标上限收到 512：
 // 1024 需要约 600 步、2048 约 1300 步（10~30 分钟一局），不适合作为关卡目标。
 // 可达性回归见 miniprogram/tests/unit/g2048-levels.test.js。
-var LEVELS = [
-  { no: 1,  target: 32,  steps: 24,  tier: '入门' },
-  { no: 2,  target: 32,  steps: 16,  tier: '挑战' },
-  { no: 3,  target: 64,  steps: 48,  tier: '入门' },
-  { no: 4,  target: 64,  steps: 34,  tier: '挑战' },
-  { no: 5,  target: 128, steps: 96,  tier: '入门' },
-  { no: 6,  target: 128, steps: 68,  tier: '挑战' },
-  { no: 7,  target: 256, steps: 190, tier: '入门' },
-  { no: 8,  target: 256, steps: 136, tier: '挑战' },
-  { no: 9,  target: 512, steps: 380, tier: '入门' },
-  { no: 10, target: 512, steps: 272, tier: '挑战' }
-];
+// 关卡表搬到 data/g2048-levels.js（2026-09-13 扩充到 14 关）：关卡页与单测共用同一份
+var LEVELS = require('../../data/g2048-levels').levels;
+// 关卡进度 + 每关最短用时（用户 2026-09-13：每关显示最短时间）
+var puzProgress = require('../../utils/puzzle-progress');
 
 // 挑战模式（2026-09-12 用户认可「保留打到 2048 的成就感」）：
 //   · 目标 2048、**不限步数**（只有「无路可走」才会失败）；
@@ -50,17 +42,21 @@ Page({
     over: false,
     win: false,
     challenge: false,        // 是否挑战模式（不限步数冲 2048）
-    challengeBest: 0,        // 挑战模式最佳步数（0 = 还没通关过）
+      challengeBest: 0,        // 挑战模式最佳步数（0 = 还没通关过）
+      bestMsText: '',          // 本关最快用时文案（关卡页/结算显示）
     stars: 0,
     starsText: '',
     overMsg: ''
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
     this.setData({ levelInfo: LEVELS });
     this.setData({ challengeBest: storage.get(CHALLENGE_BEST_KEY) || 0 });
     var cur = storage.get('ww_g2048_cur') || 1;
     if (cur > LEVELS.length) cur = LEVELS.length;
+    // 数字智力关卡页可以指定从第几关进（?level=N）
+    var want = parseInt((options || {}).level, 10) || 0;
+    if (want >= 1 && want <= LEVELS.length) cur = want;
     this.loadLevel(cur);
   },
 
@@ -90,6 +86,9 @@ Page({
 
   loadLevel: function (no) {
     if (no > LEVELS.length) { this.setData({ playing: false }); return; }
+    var prevBest = puzProgress.bestMsOf('g2048', no);
+    this.setData({ bestMsText: prevBest ? ('本关最快 ' + (prevBest / 1000).toFixed(1) + ' 秒') : '' });
+    this._levelStartAt = Date.now();
     this._start(no);
   },
 
@@ -148,9 +147,17 @@ Page({
     var ratio = this.data.usedSteps / this.data.stepsLimit;
     var stars = ratio <= 0.5 ? 3 : (ratio <= 0.8 ? 2 : 1);
     storage.saveStars('g2048', this.data.curLevel, stars);
+    // 关卡进度 + 最短用时（本机）：通关才算，取历史最快
+    var usedMs = Date.now() - (this._levelStartAt || Date.now());
+    puzProgress.markCleared('g2048', this.data.curLevel);
+    var isNewBest = puzProgress.setBestMs('g2048', this.data.curLevel, usedMs);
+    var bestMs = puzProgress.bestMsOf('g2048', this.data.curLevel);
+    var bestText = ' · 用时 ' + (usedMs / 1000).toFixed(1) + ' 秒'
+      + (bestMs ? '（最快 ' + (bestMs / 1000).toFixed(1) + ' 秒' + (isNewBest ? ' · 新纪录！' : '）') : '）');
+    this.setData({ bestMsText: '本关最快 ' + (bestMs / 1000).toFixed(1) + ' 秒' });
     var next = Math.min(this.data.curLevel + 1, LEVELS.length);
     storage.set('ww_g2048_cur', next);
-    this.setData({ playing: false, over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), overMsg: '达成 ' + this.data.target + '！' });
+    this.setData({ playing: false, over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), overMsg: '达成 ' + this.data.target + '！' + bestText });
   },
 
   _lose: function (stuck) {

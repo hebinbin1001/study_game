@@ -44,9 +44,12 @@ s.test('固定关卡表玩法：数量与现成数据一致', () => {
   s.assert.equal(lv.totalOf('onestroke'), 34);
 });
 
-s.test('2048：不设上限（0），不返回假关卡列表', () => {
-  s.assert.equal(lv.totalOf('g2048'), 0);
-  s.assert.equal(lv.levelsOf('g2048').length, 0);
+s.test('2048：关卡表来自 data/g2048-levels.js（14 关），但不设上限', () => {
+  s.assert.equal(lv.totalOf('g2048'), 0, '0 = 不设上限（可继续扩关）');
+  const list = lv.levelsOf('g2048');
+  s.assert.equal(list.length, 14);
+  s.assert.contains(list[0].label, '目标');
+  s.assert.contains(String(list[13].sub), '步内');
 });
 
 s.test('未知玩法：返回空数组而不是抛错', () => {

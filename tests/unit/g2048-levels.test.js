@@ -22,20 +22,8 @@ const fs = require('fs');
 const path = require('path');
 
 // 直接解析页面源码里的 LEVELS（页面文件会调用 Page()，不能在 Node 里 require）
-const SRC = fs.readFileSync(
-  path.resolve(__dirname, '../../miniprogram/pages/g2048/g2048.js'), 'utf8');
-
-const LEVELS = (function () {
-  const m = SRC.match(/var LEVELS = \[([\s\S]*?)\n\];/);
-  if (!m) return null;
-  const out = [];
-  const re = /\{\s*no:\s*(\d+),\s*target:\s*(\d+),\s*steps:\s*(\d+),\s*tier:\s*'([^']+)'\s*\}/g;
-  let one;
-  while ((one = re.exec(m[1]))) {
-    out.push({ no: +one[1], target: +one[2], steps: +one[3], tier: one[4] });
-  }
-  return out;
-})();
+// 2026-09-13：关卡表搬到 data/g2048-levels.js（页面与数字智力关卡页共用一份），直接 require
+const LEVELS = require('../../miniprogram/data/g2048-levels').levels;
 
 /** 可达性下限：按「每步平均 1.5 次合并」估算需要多少步 */
 function minBudget(target) {
@@ -49,7 +37,7 @@ function hardFloor(target) {
 
 s.test('关卡表可解析且有 10 关', () => {
   s.assert.ok(LEVELS, '未能从页面源码解析出 LEVELS');
-  s.assert.equal(LEVELS.length, 10);
+  s.assert.equal(LEVELS.length, 14);
   LEVELS.forEach(function (lv, i) { s.assert.equal(lv.no, i + 1); });
 });
 

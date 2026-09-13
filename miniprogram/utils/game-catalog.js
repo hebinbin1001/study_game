@@ -27,13 +27,14 @@ module.exports = [
   { key: 'idiombuild', name: '成语拼字', icon: '🀄️', desc: '看释义拼四字成语', cat: '拼写', section: 'line', lineMode: 'idiom', unlocked: true, url: '/pages/level/level?mode=idiom' },
   { key: 'snake', name: '单词贪吃蛇', icon: '🐍', desc: '辨词进食 · 越长越强', cat: '反应', section: 'line', lineMode: 'snake', unlocked: true, url: '/pages/level/level?mode=snake' },
 
-  { key: 'sudoku', name: '数独', icon: '🔢', desc: '数字推理 · 数学闯关', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/sudoku/sudoku' },
-  { key: 'math24', name: '算 24 点', icon: '🧮', desc: '四数四则 · 脑力挑战', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/math24/math24' },
-  { key: 'sprint', name: '口算冲刺', icon: '⚡', desc: '60 秒限时 · 连击翻倍', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/math-sprint/math-sprint' },
-  { key: 'balance', name: '算式天平', icon: '⚖️', desc: '挑个数字让天平平衡', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/math-balance/math-balance' },
-  { key: 'g2048', name: '2048', icon: '🎲', desc: '数字合成 · 百玩不腻', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/g2048/g2048' },
-  { key: 'memory', name: '记忆矩阵', icon: '🔲', desc: '记住亮起的格子', cat: '智力', section: 'casual', unlocked: true, url: '/pages/memory-grid/memory-grid' },
-  { key: 'onestroke', name: '一笔画', icon: '✏️', desc: '每条线只走一次', cat: '智力', section: 'casual', unlocked: true, url: '/pages/one-stroke/one-stroke' },
-  { key: 'klotski', name: '华容道', icon: '🧩', desc: '滑动突围 · 30 关经典', cat: '智力', section: 'casual', unlocked: true, url: '/pages/klotski/klotski' },
+  // 数字智力类统一「先关卡页、再进游戏」（第三批 · 第 4 条 a，用户 2026-09-13 拍板）
+  { key: 'sudoku', name: '数独', icon: '🔢', desc: '数字推理 · 数学闯关', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=sudoku' },
+  { key: 'math24', name: '算 24 点', icon: '🧮', desc: '四数四则 · 脑力挑战', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=math24' },
+  { key: 'sprint', name: '口算冲刺', icon: '⚡', desc: '60 秒限时 · 连击翻倍', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=sprint' },
+  { key: 'balance', name: '算式天平', icon: '⚖️', desc: '挑个数字让天平平衡', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=balance' },
+  { key: 'g2048', name: '2048', icon: '🎲', desc: '数字合成 · 每关记最快用时', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=g2048' },
+  { key: 'memory', name: '记忆矩阵', icon: '🔲', desc: '记住亮起的格子', cat: '智力', section: 'casual', unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=memory' },
+  { key: 'onestroke', name: '一笔画', icon: '✏️', desc: '每条线只走一次', cat: '智力', section: 'casual', unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=onestroke' },
+  { key: 'klotski', name: '华容道', icon: '🧩', desc: '滑动突围 · 30 关经典', cat: '智力', section: 'casual', unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=klotski' },
   { key: 'bounce', name: '单词弹弹球', icon: '🏐', desc: '暂无成熟玩法案例 · 敬请期待', cat: '反应', section: 'casual', unlocked: false }
 ];
