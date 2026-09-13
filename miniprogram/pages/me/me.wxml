@@ -71,6 +71,6 @@
     <view class="danger-row danger-row--red" bindtap="goDeleteAccount">注销账号</view>
   </view>
 
-  <view class="version">词力战士 · Word Warrior v2.0</view>
+  <view class="version">词力战士 · Word Warrior v1.2.0</view>
   <view class="safe-gap"></view>
 </view>
