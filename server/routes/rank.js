@@ -17,11 +17,16 @@ const router = express.Router();
  * @returns {Promise<number>} 重算后的星星数
  */
 async function syncRankStars(openid) {
-  const rows = await Score.findAll({
-    where: { openid },
-    attributes: ["game_type", "grade", "type_key", "level", "stars"],
-    raw: true,
-  });
+  // ⚠️ scores 表存的是 user_id（没有 openid 列）—— 直接按 openid 查会 SQL 报错，
+  //    线上冒烟就是这么抓出来的（authed 返回 5000）。这里先换 user_id 再取成绩。
+  const user = await User.findOne({ where: { openid } });
+  const rows = user
+    ? await Score.findAll({
+      where: { user_id: user.id },
+      attributes: ["game_type", "grade", "type_key", "level", "stars"],
+      raw: true,
+    })
+    : [];
   const stars = dedupeStars(rows);
   const [record] = await RankRecord.findOrCreate({
     where: { openid },
