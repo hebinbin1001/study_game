@@ -120,6 +120,8 @@ const STAGE_MODULE = {
   lines: 'challenge'
   ,
   puzzleLevel: 'puzzle'
+  ,
+  reports: 'user'
 };
 
 /**

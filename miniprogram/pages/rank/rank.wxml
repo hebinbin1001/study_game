@@ -34,7 +34,7 @@
     </view>
 
     <!-- 字词榜：学段 + 题型（进度=该学段@题型最大通关关） -->
-    <block wx:if="{{curGame === 'word'}}">
+    <block wx:if="{{curGameNeedGrade}}">
       <scroll-view class="row-scroll" scroll-x="true" enable-flex="true">
         <view class="row-inner">
           <view

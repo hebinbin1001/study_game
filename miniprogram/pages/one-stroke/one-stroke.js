@@ -3,6 +3,7 @@
 // 关卡数据与走边/撤回/死路判定都在 game/one-stroke.js，页面只负责渲染与连击感。
 var lib = require('../../game/one-stroke');
 var storage = require('../../utils/storage');
+var playReport = require('../../utils/play-report');
 
 var BOARD = 600;          // 棋盘逻辑边长（rpx），与引擎 geometry() 同一单位
 var NEXT_MS = 1000;       // 过关后停留
@@ -223,6 +224,15 @@ Page({
   _finish: function () {
     this._clearTimers();
     var stars = lib.starsFor(this._finished, lib.LEVELS.length);
+    // 玩法进度榜上报（2026-09-13 补）：按「本局通关到第几关」上报，玩法榜据此排名
+    playReport.reportPlay({
+      gameType: 'onestroke',
+      grade: 'all',
+      level: Math.max(1, this._li + 1),
+      score: this._finished,
+      stars: stars,
+      maxCombo: 0
+    });
     var best = this.data.best;
     if (this._finished > best) {
       best = this._finished;

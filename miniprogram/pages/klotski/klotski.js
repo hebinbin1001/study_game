@@ -11,6 +11,7 @@
 //      解锁沿用「上一关 ≥1 星」。
 
 var K = require('../../game/klotski');
+var playReport = require('../../utils/play-report');
 var LEVELS = require('../../data/klotski-levels');
 var storage = require('../../utils/storage');
 
@@ -371,6 +372,15 @@ Page({
     var stars = this.data.demoUsed ? 0 : K.starsFor(this.data.minMoves, this.data.moves);
     if (!this.data.demoUsed) {
       storage.saveStars(PAGE, this.data.curLevel, stars);
+    // 玩法进度榜上报（2026-09-13 补）：这一款原来不上报，玩法榜里永远空着
+    playReport.reportPlay({
+      gameType: 'klotski',
+      grade: 'all',
+      level: this.data.curLevel,
+      score: 0,
+      stars: stars,
+      maxCombo: 0
+    });
     }
     var isLast = this.data.curLevel >= LEVELS.total;
     var msg = '用了 ' + this.data.moves + ' 步（最少 ' + this.data.minMoves + ' 步）';

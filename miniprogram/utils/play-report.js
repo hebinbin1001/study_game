@@ -34,6 +34,21 @@ var counts = require('./play-counts');
  * @param {number} [p.maxCombo] 最高连击（没有就传 0）
  * @returns {boolean} 是否发起了上报（游客或参数缺失返回 false）
  */
+/**
+ * 按星级反推一组「正确率样本」。
+ *
+ * 为什么需要：服务端 /api/score 会用 correctCount/totalQ 现算星级（不信任客户端自报的 stars，
+ * 防伪造刷分）。但数字智力类玩法（华容道/一笔画/2048）手里只有「这关值几星」，没有正确率概念 ——
+ * 传真实的步数/关数会被算成 0 星，玩法进度榜（按 stars > 0 过滤）就看不到这条记录。
+ * 于是按门槛 90/70/60 反推一个落在同一档的样本：3 星=10/10、2 星=8/10、1 星=7/10。
+ */
+function bandForStars(stars) {
+  var s = Math.max(1, Math.min(3, parseInt(stars, 10) || 0));
+  if (s >= 3) return { correct: 10, total: 10 };
+  if (s === 2) return { correct: 8, total: 10 };
+  return { correct: 7, total: 10 };
+}
+
 function reportPlay(p) {
   var d = p || {};
   if (!d.gameType || !d.grade) return false;
@@ -41,12 +56,16 @@ function reportPlay(p) {
   counts.bump(d.gameType);
   if (!auth.isLoggedIn()) return false;
 
+  // 只给了 stars、没给正确率样本 → 按星级反推，保证服务端算出来的星级与原意一致
+  var band = null;
+  if ((!d.correct && !d.total) && d.stars > 0) band = bandForStars(d.stars);
+
   var payload = {
     grade: d.grade,
     level: d.level || 1,
     score: d.score || 0,
-    correctCount: d.correct || 0,
-    totalQ: d.total || 0,
+    correctCount: band ? band.correct : (d.correct || 0),
+    totalQ: band ? band.total : (d.total || 0),
     stars: d.stars || 0,
     maxCombo: d.maxCombo || 0,
     type: '',

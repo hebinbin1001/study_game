@@ -83,6 +83,14 @@ STAGES.push({
   script: 'e2e/verify-puzzle-level.js'
 });
 
+// 玩法成绩上报护栏（排行榜玩法进度榜的前提：每个玩法都得有上报）
+STAGES.push({
+  id: 'reports',
+  layer: '静态',
+  title: '玩法成绩上报护栏（玩法进度榜不空）',
+  script: 'e2e/check-reports.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false,
     module: null, changed: false, listModules: false, noStatic: false };

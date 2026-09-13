@@ -25,10 +25,22 @@ Page({
     totalLoading: false,
     // 玩法筛选 chips
     gameChips: [
-      { key: 'word', label: '📚 字词', on: true, ready: true },
-      { key: 'sudoku', label: '数独', on: false, ready: false },
-      { key: 'g2048', label: '2048', on: false, ready: false },
-      { key: 'g24', label: '24点', on: false, ready: false }
+      // 2026-09-13：玩法进度榜补全 —— 每个已开放玩法一款（key 是后端 scores.game_type）
+      // needGrade=true 的（字词类）才按学段+题型过滤，数字智力类统一用 grade='all'
+      { key: 'word', label: '📚 词汇', game: 'word_warrior', needGrade: true, on: true, ready: true },
+      { key: 'word_build', label: '🔤 拼词', game: 'word_build', needGrade: true, on: false, ready: true },
+      { key: 'idiom', label: '🀄 成语', game: 'idiom', needGrade: true, on: false, ready: true },
+      { key: 'match', label: '🃏 消消乐', game: 'match', needGrade: true, on: false, ready: true },
+      { key: 'link', label: '🔗 连连看', game: 'link', needGrade: true, on: false, ready: true },
+      { key: 'snake', label: '🐍 贪吃蛇', game: 'snake', needGrade: true, on: false, ready: true },
+      { key: 'math24', label: '🧮 24点', game: 'math24', needGrade: false, on: false, ready: true },
+      { key: 'sudoku', label: '🔢 数独', game: 'sudoku', needGrade: false, on: false, ready: true },
+      { key: 'memory', label: '🔲 记忆', game: 'memory', needGrade: false, on: false, ready: true },
+      { key: 'sprint', label: '⚡ 口算', game: 'sprint', needGrade: false, on: false, ready: true },
+      { key: 'balance', label: '⚖️ 天平', game: 'balance', needGrade: false, on: false, ready: true },
+      { key: 'g2048', label: '🎲 2048', game: 'g2048', needGrade: false, on: false, ready: true },
+      { key: 'onestroke', label: '✏️ 一笔画', game: 'onestroke', needGrade: false, on: false, ready: true },
+      { key: 'klotski', label: '🧩 华容道', game: 'klotski', needGrade: false, on: false, ready: true }
     ],
     curGame: 'word',
     // 字词榜的学段 + 题型筛选（玩法榜=word 时显示）
@@ -133,8 +145,15 @@ Page({
   loadGame: function () {
     var self = this;
     self.setData({ gameLoading: true });
-    var url = '/api/ranklist/progress?game=word_warrior&grade=' + this.data.curGradeKey +
-      '&type=' + this.data.curType + '&pageSize=' + PAGE_SIZE;
+    // ⚠️ 原来这里写死 game=word_warrior —— 玩法榜永远只显示字母射击（用户反馈「好多玩法进度都没做」）
+    var chip = (this.data.gameChips || []).filter(function (c) { return c.key === self.data.curGame; })[0];
+    var game = (chip && chip.game) || 'word_warrior';
+    var needGrade = !!(chip && chip.needGrade);
+    self.setData({ curGameNeedGrade: needGrade });   // wxml 据此决定是否显示学段/题型筛选
+    var grade = needGrade ? this.data.curGradeKey : 'all';
+    var type = needGrade ? this.data.curType : 'all';
+    var url = '/api/ranklist/progress?game=' + game + '&grade=' + grade +
+      '&type=' + type + '&pageSize=' + PAGE_SIZE;
     request.get(url).then(function (d) {
       if (!d) return;
       var list = (d.list || []).map(function (it) {

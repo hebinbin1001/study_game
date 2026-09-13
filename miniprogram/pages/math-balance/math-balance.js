@@ -4,6 +4,7 @@
 // 关联：game/balance.js（纯逻辑，可单测）
 var lib = require('../../game/balance');
 var constants = require('../../utils/constants');
+var playReport = require('../../utils/play-report');
 var storage = require('../../utils/storage');
 
 var BEST_KEY = 'ww_balance_best';
@@ -145,6 +146,17 @@ Page({
   _finish: function (cleared) {
     this._clearTimers();
     var stars = lib.starsFor(this._right, lib.ROUND_Q);
+    // 玩法进度榜上报（2026-09-13 补）：这一款原来不上报，玩法榜里永远空着
+    playReport.reportPlay({
+      gameType: 'balance',
+      grade: 'all',
+      level: 1,
+      score: this._score || 0,
+      correct: this._right,
+      total: lib.ROUND_Q,
+      stars: stars,
+      maxCombo: 0
+    });
     var best = this.data.best;
     if (this._score > best) {
       best = this._score;

@@ -21,6 +21,7 @@ var storage = require('../../utils/storage');
 var LEVELS = require('../../data/g2048-levels').levels;
 // 关卡进度 + 每关最短用时（用户 2026-09-13：每关显示最短时间）
 var puzProgress = require('../../utils/puzzle-progress');
+var playReport = require('../../utils/play-report');
 
 // 挑战模式（2026-09-12 用户认可「保留打到 2048 的成就感」）：
 //   · 目标 2048、**不限步数**（只有「无路可走」才会失败）；
@@ -147,6 +148,15 @@ Page({
     var ratio = this.data.usedSteps / this.data.stepsLimit;
     var stars = ratio <= 0.5 ? 3 : (ratio <= 0.8 ? 2 : 1);
     storage.saveStars('g2048', this.data.curLevel, stars);
+    // 玩法进度榜上报（2026-09-13 补）：这一款原来不上报，玩法榜里永远空着
+    playReport.reportPlay({
+      gameType: 'g2048',
+      grade: 'all',
+      level: this.data.curLevel,
+      score: this.data.maxTile || 0,
+      stars: stars,
+      maxCombo: 0
+    });
     // 关卡进度 + 最短用时（本机）：通关才算，取历史最快
     var usedMs = Date.now() - (this._levelStartAt || Date.now());
     puzProgress.markCleared('g2048', this.data.curLevel);

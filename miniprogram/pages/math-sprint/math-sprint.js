@@ -4,6 +4,7 @@
 var engineLib = require('../../game/math-sprint');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
+var playReport = require('../../utils/play-report');
 
 Page({
   data: {
@@ -141,6 +142,17 @@ Page({
       best: best,
       overMsg: '答对 ' + this._right + ' 题 · 答错 ' + this._wrong + ' 题\n正确率 ' + acc
         + '% · 最高连击 ' + this._maxCombo + '\n最高分 ' + best
+    });
+    // 玩法进度榜上报（2026-09-13 补）：原来这一款从不上报，玩法榜里永远空着
+    playReport.reportPlay({
+      gameType: 'sprint',
+      grade: 'all',
+      level: 1,
+      score: this.data.score,
+      correct: this._right,
+      total: total,
+      stars: stars,
+      maxCombo: this._maxCombo
     });
   },
 
