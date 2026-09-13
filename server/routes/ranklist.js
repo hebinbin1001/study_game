@@ -1,6 +1,9 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const { sequelize, User, RankRecord, Rank, Score } = require("../db");
+// 段位名一律按 stars 现算（2026-09-13）：以前读存库的 rankId/Rank 表，
+// 曲线与星星口径改了以后那两处不会跟着变 → 排行榜段位一直显示旧值（用户反馈「排行榜段位没更新」）。
+const ladder = require("../rank-ladder");
 
 const router = express.Router();
 
@@ -69,7 +72,7 @@ router.get("/progress", async (req, res) => {
         rank: i + 1,
         nickname: user ? user.nickname : "未命名",
         avatarUrl: user ? user.avatar_url : "",
-        rankName: rr ? (rankNameMap.get(rr.rankId) || "青铜") : "青铜",
+        rankName: ladder.rankOf(rr ? rr.stars : 0).rankName,
         stars: rr ? rr.stars : 0,
         maxLevel: parseInt(r.max_level, 10) || 0,
         passedLevels: parseInt(r.passed_levels, 10) || 0,
@@ -144,8 +147,8 @@ router.get("/world", async (req, res) => {
         openid: record.openid,
         nickname: user ? user.nickname : "未命名",
         avatarUrl: user ? user.avatar_url : "",
-        rankId: record.rankId,
-        rankName: rankMap.get(record.rankId) || "青铜",
+        rankId: ladder.rankOf(record.stars).rankId,
+        rankName: ladder.rankOf(record.stars).rankName,
         score: record.stars * 100 + record.wins * 10, // 综合得分
         stars: record.stars,
         wins: record.wins,
@@ -244,8 +247,8 @@ router.get("/me", async (req, res) => {
         rank: myRank,
         nickname: user ? user.nickname : "未命名",
         avatarUrl: user ? user.avatar_url : "",
-        rankId: myRecord.rankId,
-        rankName: rank ? rank.rankName : "青铜",
+        rankId: ladder.rankOf(myRecord.stars).rankId,
+        rankName: ladder.rankOf(myRecord.stars).rankName,
         score: myRecord.stars * 100 + myRecord.wins * 10,
         stars: myRecord.stars,
         wins: myRecord.wins,

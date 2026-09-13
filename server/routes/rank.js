@@ -17,6 +17,20 @@ const router = express.Router();
  * @returns {Promise<number>} 重算后的星星数
  */
 async function syncRankStars(openid) {
+  try {
+    return await doSyncRankStars(openid);
+  } catch (e) {
+    lastSyncError = (e && e.message) || String(e);
+    console.error("syncRankStars 失败：", lastSyncError);
+    throw e;
+  }
+}
+
+/** 同步失败信息（管理端展示，定位「段位不更新」用） */
+let lastSyncError = "";
+let lastSyncAt = null;
+
+async function doSyncRankStars(openid) {
   // ⚠️ scores 表存的是 user_id（没有 openid 列）—— 直接按 openid 查会 SQL 报错，
   //    线上冒烟就是这么抓出来的（authed 返回 5000）。这里先换 user_id 再取成绩。
   const user = await User.findOne({ where: { openid } });
@@ -32,10 +46,16 @@ async function syncRankStars(openid) {
     where: { openid },
     defaults: { openid, rankId: 1, wins: 0, stars: 0 },
   });
-  if (record.stars !== stars) {
+  // 同时把 rankId 写成「按当前曲线现算的大段位」——排行榜旧实现读的就是这个字段，
+  // 不写回的话曲线改了它不会变（段位类皮肤解锁也依赖它）。
+  const rankId = ladder.rankOf(stars).rankId;
+  if (record.stars !== stars || record.rankId !== rankId) {
     record.stars = stars;
+    record.rankId = rankId;
     await record.save();
   }
+  lastSyncAt = new Date();
+  lastSyncError = "";
   return stars;
 }
 
@@ -64,6 +84,8 @@ router.post("/sync", async (req, res) => {
 
 // 供 score.js 复用（注意文件末尾是 module.exports = router，不能直接挂 module.exports）
 router.syncRankStars = syncRankStars;
+router.syncRankDiagnostics = function () { return { lastSyncAt: lastSyncAt, lastSyncError: lastSyncError }; };
+router.dedupeStars = dedupeStars;
 
 /**
  * GET /api/rank/info —— 获取段位信息

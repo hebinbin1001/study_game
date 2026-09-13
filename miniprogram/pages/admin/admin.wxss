@@ -72,6 +72,7 @@
 .u-wx { font-size: 22rpx; color: #2e6fd6; }
 .u-sub { display: flex; gap: 10rpx; margin-top: 10rpx; flex-wrap: wrap; }
 .u-chip { font-size: 20rpx; color: #5c7f9e; background: #eef3fa; border-radius: 999rpx; padding: 4rpx 14rpx; }
+.u-chip--bad { color: #c0392b; background: #fdecea; font-weight: 700; }
 .u-meta { font-size: 20rpx; color: #a8b3c4; margin-top: 10rpx; }
 .more { text-align: center; color: #2e6fd6; font-size: 26rpx; padding: 24rpx 0; }
 .empty { text-align: center; color: #8a9bb5; font-size: 24rpx; padding: 40rpx 0; }

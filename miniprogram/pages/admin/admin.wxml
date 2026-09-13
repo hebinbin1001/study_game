@@ -60,10 +60,11 @@
       </view>
       <view class="u-sub">
         <text class="u-chip">{{item.rankName}}</text>
-        <text class="u-chip">{{item.stars}} 星（流水 {{item.starsRaw}}）</text>
+        <text class="u-chip">库 {{item.stars}} · 现算 {{item.starsDeduped}} · 流水 {{item.starsRaw}}</text>
+        <text wx:if="{{item.stars !== item.starsDeduped}}" class="u-chip u-chip--bad">同步未生效</text>
         <text class="u-chip">{{item.scoreCount}} 局</text>
       </view>
-      <view class="u-meta">{{item.openidMasked}} · 注册 {{item.createdAt}}</view>
+      <view class="u-meta">{{item.openidMasked}} · 注册 {{item.createdAt}} · 最近上报 {{item.lastActiveAt || '无'}}</view>
     </view>
     <view wx:if="{{hasMore}}" class="more" bindtap="onMore">{{loading ? '加载中…' : '加载更多'}}</view>
     <view wx:if="{{!users.length && !loading}}" class="empty">没有匹配的用户</view>
