@@ -60,7 +60,9 @@
       <view class="rank-list">
         <view class="rank-item" wx:for="{{totalList}}" wx:key="openid">
           <view class="rank-number {{getRankClass(item.rank)}}">{{getRankEmoji(item.rank)}}</view>
-          <image class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <image wx:if="{{item.avatarUrl}}" class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <view wx:else class="rank-avatar rank-avatar--ph">{{item.initial}}</view>
+          <image wx:if="{{item.rankIcon}}" class="rank-badge" src="{{item.rankIcon}}" mode="aspectFit"></image>
           <view class="rank-info">
             <view class="rank-nickname">{{item.nickname}}</view>
             <view class="rank-rankname">{{item.rankName}}</view>
@@ -79,7 +81,9 @@
       <view class="rank-list">
         <view class="rank-item" wx:for="{{gameList}}" wx:key="openid">
           <view class="rank-number {{getRankClass(item.rank)}}">{{getRankEmoji(item.rank)}}</view>
-          <image class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <image wx:if="{{item.avatarUrl}}" class="rank-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <view wx:else class="rank-avatar rank-avatar--ph">{{item.initial}}</view>
+          <image wx:if="{{item.rankIcon}}" class="rank-badge" src="{{item.rankIcon}}" mode="aspectFit"></image>
           <view class="rank-info">
             <view class="rank-nickname">{{item.nickname}}</view>
             <view class="rank-rankname">{{item.subText}}</view>

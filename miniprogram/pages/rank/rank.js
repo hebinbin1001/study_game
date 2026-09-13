@@ -3,6 +3,8 @@
 // 玩法榜：/api/ranklist/progress?game=&grade=&type=（进度优先；字词按学段+题型）
 var request = require('../../utils/request');
 var constants = require('../../utils/constants');
+// 段位徽章（大段 8 枚）+ 头像兜底（2026-09-13 用户反馈）
+var rankBadge = require('../../utils/rank-badge');
 
 var PAGE_SIZE = 50;
 
@@ -135,6 +137,9 @@ Page({
       nickname: it.nickname || '未命名',
       avatarUrl: it.avatarUrl || '',
       rankName: it.rankName || '',
+      // 名称前的两个位置：头像 + 段位徽章（头像缺失时用昵称首字兜底）
+      rankIcon: rankBadge.badgeUrl(it.rankName),
+      initial: String(it.nickname || '?').slice(0, 1),
       stars: it.stars || 0,
       valText: valText,
       subText: subText

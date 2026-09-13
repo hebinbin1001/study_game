@@ -223,6 +223,24 @@
   box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.1);
 }
 
+/* 头像兜底：没有头像时用昵称首字占位（2026-09-13 用户反馈「名称前留了两个空」） */
+.rank-avatar--ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f0fa;
+  color: #5c7f9e;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+/* 段位徽章（大段 8 枚，走云托管） */
+.rank-badge {
+  width: 56rpx;
+  height: 56rpx;
+  flex: 0 0 56rpx;
+  margin-right: 12rpx;
+}
+
 .rank-avatar {
   width: 80rpx;
   height: 80rpx;
