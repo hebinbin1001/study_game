@@ -378,13 +378,17 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
   ck.check('已瞄准蛇头正前方的干扰字母食物', !!aBad,
     aBad ? ('朝向 ' + aBad.dir + ' · 前方 ' + aBad.steps + ' 格') : '瞄准 60 轮仍未命中');
   if (aBad) {
-    const beforeLives = (await page.data()).lives;
+    // ⚠️ 必须用「增量」判定：前面章节可能已经吃过字母，score/进度都不是从 0 起
+    //    （2026-09-13 全量回归踩到：绝对值断言 score === 0 / doneCount === 1 会偶发假失败）
+    const beforeBad = await page.data();
+    const beforeLives = beforeBad.lives;
     await step(page, aBad.steps);
     const afterBad = await page.data();
     console.log('        生命 ' + beforeLives + ' → ' + afterBad.lives);
     ck.check('吃到干扰字母生命 -1', afterBad.lives === beforeLives - 1,
       beforeLives + ' → ' + afterBad.lives);
-    ck.check('吃错字母不加分', afterBad.score === 0, '实际 score = ' + afterBad.score);
+    ck.check('吃错字母不加分', afterBad.score === beforeBad.score,
+      beforeBad.score + ' → ' + afterBad.score);
   }
 
   // E2. 吃到应拼字母 → 加分 + 进度推进
@@ -397,11 +401,13 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
     await step(page, aOk.steps);
     const afterOk = await page.data();
     const doneCount = (afterOk.progress || []).filter(function (p) { return p.done; }).length;
+    const doneBefore = (before.progress || []).filter(function (p) { return p.done; }).length;
     console.log('        得分 ' + before.score + ' → ' + afterOk.score + ' · 已完成字母数 ' + doneCount);
     ck.check('吃到应拼字母得分 +' + SCORE_PER_LETTER,
       afterOk.score - before.score === SCORE_PER_LETTER,
       before.score + ' → ' + afterOk.score);
-    ck.check('拼写进度推进 1 格', doneCount === 1, '实际已完成 = ' + doneCount);
+    ck.check('拼写进度推进 1 格', doneCount === doneBefore + 1,
+      doneBefore + ' → ' + doneCount);
     ck.check('得分同步到 HUD',
       (await H.textOf(page, '.hud .hud-chip:nth-child(2)')) === '分 ' + afterOk.score,
       '实际 = ' + (await H.textOf(page, '.hud .hud-chip:nth-child(2)')));
