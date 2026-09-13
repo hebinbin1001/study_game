@@ -214,6 +214,17 @@ router.get("/users", requireAdmin, async (req, res) => {
         })
         : [],
     ]);
+    // 诊断用：该用户「流水星数」= 每局上报星数直接相加（改口径之前的口径）
+    // 与展示星数（去重后）对比，能一眼看出「同一关反复刷」贡献了多少虚高星星
+    const rawAgg = ids.length
+      ? await Score.findAll({
+        where: { user_id: { [Op.in]: ids } },
+        attributes: ["user_id", [fn("SUM", col("stars")), "raw"]],
+        group: ["user_id"],
+        raw: true,
+      })
+      : [];
+    const rawMap = new Map(rawAgg.map((r) => [r.user_id, Number(r.raw) || 0]));
     const wxMap = await wxNicknameMap(openids);
     const scoreMap = new Map(scoreAgg.map((r) => [r.user_id, r]));
     const rankMap = new Map(ranks.map((r) => [r.openid, r]));
@@ -230,6 +241,7 @@ router.get("/users", requireAdmin, async (req, res) => {
         lastActiveAt: s.last || null,
         scoreCount: Number(s.cnt) || 0,
         stars,
+        starsRaw: rawMap.get(u.id) || 0,   // 流水口径（对比用；展示口径是 stars）
         rankName: ladder.rankOf(stars).rankName,
       };
     });
