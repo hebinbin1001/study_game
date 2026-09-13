@@ -72,7 +72,11 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16rpx;
+  /* 两行按键原来紧贴在一起（2026-09-13 用户反馈「下面的按钮离得太近」） */
+  margin-top: 18rpx;
 }
+/* 第二行只有 3 个键（撤销 / 重来 / 提示）：改成 3 列，按钮更宽、不再挤在左边 */
+.keys + .keys { grid-template-columns: repeat(3, 1fr); }
 .key {
   height: 96rpx; line-height: 96rpx;
   background: #fff; border-radius: 20rpx;

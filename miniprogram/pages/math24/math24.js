@@ -44,6 +44,7 @@ Page({
 
   _history: [],         // 撤销栈（存 tiles 快照）
   _tileId: 0,
+  _pickOrder: [],       // 本步选牌顺序（存 tile id）：减法/除法按「先点的在前」计算
 
   onLoad: function () {
     this.setData({ ops: m24.OPS.map(function (o) { return { key: o.key, label: o.label }; }) });
@@ -55,6 +56,7 @@ Page({
     if (!lv) return;
     this._history = [];
     this._tileId = 0;
+    this._pickOrder = [];
     var tiles = lv.nums.map(function (n) {
       var f = toFrac(n);
       return { id: 't' + (Math.random() * 1e9 | 0), frac: f, text: textOf(f), sel: false };
@@ -84,21 +86,51 @@ Page({
     if (t.sel) {                       // 再点一次取消
       tiles[idx] = Object.assign({}, t, { sel: false });
       picked--;
+      this._pickOrder = (this._pickOrder || []).filter(function (id) { return id !== t.id; });
     } else if (picked >= 2) {          // 已选两张：换成新的一张
       tiles = tiles.map(function (x) { return Object.assign({}, x, { sel: false }); });
       tiles[idx] = Object.assign({}, tiles[idx], { sel: true });
       picked = 1;
+      this._pickOrder = [t.id];
     } else {
       tiles[idx] = Object.assign({}, t, { sel: true });
       picked++;
+      this._pickOrder = (this._pickOrder || []).concat([t.id]);
     }
     this.setData({ tiles: tiles, picked: picked, selText: this._selPreview(tiles), hint: this._guide(picked) });
   },
 
   _selPreview: function (tiles) {
-    var sel = tiles.filter(function (t) { return t.sel; });
+    var sel = this._pickedTiles(tiles);
     if (sel.length < 2) return '';
     return sel[0].text + ' ? ' + sel[1].text;
+  },
+
+  /**
+   * 选中的两张牌，**按点击顺序**返回。
+   *
+   * 为什么必须按点击顺序（用户 2026-09-13 反馈「减法控制不了谁减谁」）：
+   *   原来直接 `tiles.filter(t => t.sel)` —— 拿到的是「牌桌上从左到右」的顺序，
+   *   于是先点 8 后点 3，算出来可能是 3 - 8。现在按 _pickOrder（点击顺序）取，
+   *   先点的永远在左：8 - 3。
+   *   顺序信息缺失时（老存档/异常路径）退回牌面顺序，保证不会崩。
+   */
+  _pickedTiles: function (tiles) {
+    var list = tiles || this.data.tiles || [];
+    var order = this._pickOrder || [];
+    var out = [];
+    order.forEach(function (id) {
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === id && list[i].sel && out.indexOf(list[i]) < 0) {
+          out.push(list[i]);
+          return;
+        }
+      }
+    });
+    if (out.length < 2) {
+      out = list.filter(function (t) { return t.sel; });
+    }
+    return out;
   },
 
   _guide: function (picked) {
@@ -122,8 +154,18 @@ Page({
     if (!fn) return;
 
     var tiles = this.data.tiles.slice();
+    // 按「点击顺序」取这两张牌：先点的当被减数/被除数（a 在前）
+    var pickedPair = this._pickedTiles(tiles);
     var idxs = [];
-    tiles.forEach(function (t, i) { if (t.sel) idxs.push(i); });
+    pickedPair.forEach(function (p) {
+      for (var i = 0; i < tiles.length; i++) {
+        if (tiles[i].id === p.id) { idxs.push(i); break; }
+      }
+    });
+    if (idxs.length < 2) {
+      idxs = [];
+      tiles.forEach(function (t, i) { if (t.sel) idxs.push(i); });
+    }
     var a = tiles[idxs[0]];
     var b = tiles[idxs[1]];
     var val = fn(a.frac, b.frac);
@@ -133,7 +175,10 @@ Page({
     }
 
     // 记入撤销栈
-    this._history.push(tiles.map(function (t) { return Object.assign({}, t); }));
+    this._history.push({
+      tiles: tiles.map(function (t) { return Object.assign({}, t); }),
+      order: (this._pickOrder || []).slice()
+    });
 
     // 合并：删两张、插入一张结果牌（**自动选中**，便于连续操作）
     var rest = [];
@@ -147,6 +192,8 @@ Page({
       justMerged: true
     };
     rest.push(merged);
+    // 结果牌自动选中，且它是「本次操作的第一张」—— 下一步再点的牌排在它后面
+    this._pickOrder = [merged.id];
 
     var steps = this.data.steps + 1;
     // 只剩一张：判定胜负
@@ -180,13 +227,17 @@ Page({
     if (this.data.over) return;
     if (!this._history.length) { wx.showToast({ title: '没有可撤销的步骤', icon: 'none' }); return; }
     var prev = this._history.pop();
+    // 兼容两种撤销栈格式：新格式 { tiles, order }（带点击顺序），旧格式直接是 tiles 数组
+    var prevTiles = (prev && prev.tiles) ? prev.tiles : prev;
+    this._pickOrder = (prev && prev.order) ? prev.order.slice() : [];
+    var prevPicked = prevTiles.filter(function (t) { return t.sel; }).length;
     this.setData({
-      tiles: prev,
-      picked: prev.filter(function (t) { return t.sel; }).length,
+      tiles: prevTiles,
+      picked: prevPicked,
       selText: '',
       steps: Math.max(0, this.data.steps - 1),
       deadEnd: false,
-      hint: this._guide(prev.filter(function (t) { return t.sel; }).length)
+      hint: this._guide(prevPicked)
     });
   },
 

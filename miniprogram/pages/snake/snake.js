@@ -208,6 +208,10 @@ Page({
   },
   onUnload: function () { this._stopLoop(); },
   onHide: function () { this._stopLoop(); },
+  onReady: function () {
+    this._refreshBoardRect();
+  },
+
   onShow: function () {
     if (!this._timer && this.data.round > 0 && !this.data.over) this._startLoop();
   },
@@ -366,6 +370,45 @@ Page({
    * 注意：这是「转向」而不是「指哪走哪」—— 点远处和点相邻格效果一样，
    * 玩家连点同一侧两次可以掉头（与改造前一致，_setDir 只拦单次 180°）。
    */
+  /** 触点在蛇头朝向直线的左/右哪一侧 → 转 90°；落在轴线上（cross≈0）保持直行 */
+  _turnByCross: function (cross, d) {
+    var EPS = 0.2;                                  // 半格容差：贴着轴线算直行
+    if (cross > EPS) this._setDir((d + 3) % 4);     // 左侧 → 左拐
+    else if (cross < -EPS) this._setDir((d + 1) % 4); // 右侧 → 右拐
+  },
+
+  /**
+   * 棋盘空白区域点按：整块触屏区都能控制方向，不必精确点在某格上。
+   * 用触点坐标换算棋盘坐标（棋盘位置在 onReady 缓存；取不到就跳过这次，下次再来）。
+   */
+  onBoardTap: function (e) {
+    if (this.data.over) return;
+    if (!this._snake || !this._snake.length) return;
+    var rect = this._boardRect;
+    var det = (e && e.detail) || {};
+    if (!rect || typeof det.x !== 'number' || typeof det.y !== 'number') {
+      this._refreshBoardRect();
+      return;
+    }
+    var cell = rect.width / SIZE;
+    var head = this._snake[0];
+    var dc = (det.x - rect.left) / cell - (head.c + 0.5);
+    var dr = (det.y - rect.top) / cell - (head.r + 0.5);
+    if (Math.abs(dr) < 0.3 && Math.abs(dc) < 0.3) return;   // 点得太靠蛇头，忽略
+    var d = this._dir;
+    var hr = d === 0 ? -1 : (d === 2 ? 1 : 0);
+    var hc = d === 1 ? 1 : (d === 3 ? -1 : 0);
+    this._turnByCross(hr * dc - hc * dr, d);
+  },
+
+  /** 缓存棋盘位置（触点换算要用；尺寸变化/首次渲染都可能取不到，多调几次无害） */
+  _refreshBoardRect: function () {
+    var self = this;
+    wx.createSelectorQuery().in(this).select('.grid').boundingClientRect(function (r) {
+      self._boardRect = r || null;
+    }).exec();
+  },
+
   onCellTap: function (e) {
     if (this.data.over) return;
     var idx = parseInt(e.currentTarget.dataset.i, 10);
@@ -378,14 +421,13 @@ Page({
     var d = this._dir;
     var hr = d === 0 ? -1 : (d === 2 ? 1 : 0);     // 朝向向量（行方向：向上为负）
     var hc = d === 1 ? 1 : (d === 3 ? -1 : 0);     // 朝向向量（列方向：向右为正）
-    var dot = hr * dr + hc * dc;                   // > 0：点在朝向的前方
-    var cross = hr * dc - hc * dr;                 // > 0：点在朝向的左侧
-    var ang = Math.atan2(cross, dot);              // 点击相对朝向的夹角，-π ~ π
-    var Q = Math.PI / 4;
-
-    if (ang > Q && ang <= 3 * Q) this._setDir((d + 3) % 4);        // 左侧 → 左拐 90°
-    else if (ang < -Q && ang >= -3 * Q) this._setDir((d + 1) % 4); // 右侧 → 右拐 90°
-    // 其余情况（前方 ±45° 内 / 后方 ±135° 以外）保持直行
+    // 以「蛇头朝向」为一条直线，把棋盘分成左右两个半平面：
+    // 触点在直线左侧就左拐、右侧就右拐，正好落在直线上（cross = 0）保持直行。
+    //
+    // 为什么不再用原来的 ±45° 锥形判定（用户 2026-09-13 反馈「很难控制」）：
+    //   锥形判定下，点「斜前方 2 格、偏 1 格」这种位置夹角只有 26.6°，会被判成「直行」，
+    //   而玩家眼里那明明在线的左边 —— 手感与直觉不一致。半平面判定与人眼一致。
+    this._turnByCross(hr * dc - hc * dr, d);
   },
 
   // 说明：原滑动转向（onTouchStart/onTouchEnd）已按用户反馈移除 ——

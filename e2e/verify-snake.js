@@ -336,6 +336,17 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
   ck.check('点正后方 → 不掉头，朝向仍「下」(2)', await dirOf() === DIR.DOWN,
     '实际 dir = ' + await dirOf());
 
+  // 半平面判定（2026-09-13 用户反馈「很难控制」后改的语义）：
+  // 旧实现是 ±45° 锥形 —— 点「斜前方 2 格、偏 1 格」夹角只有 26.6°，会被判成直行，
+  // 但玩家眼里那明明在轴线左侧。现在按触点在轴线的哪一侧决定拐弯，与直觉一致。
+  await tapCell(page, at(7, 4));                    // 朝下时：斜前方偏东一格（在轴线左侧）
+  ck.check('点斜前方偏一格 → 按半平面判为左拐（朝「右」(1)）', await dirOf() === DIR.RIGHT,
+    '实际 dir = ' + await dirOf());
+
+  // 归位：朝「右」时点蛇头正下方 → 回到「下」(2)，后面的老断言都按「下」推的
+  await tapCell(page, at(6, 3));
+  ck.check('归位回「下」(2)', await dirOf() === DIR.DOWN, '实际 dir = ' + await dirOf());
+
   await tapCell(page, at(7, 0));                    // 斜着点前侧偏西（夹角约 -56°）
   ck.check('斜着点轴线西侧 → 仍按侧向判定，朝西拐 90°，朝向变「左」(3)',
     await dirOf() === DIR.LEFT, '实际 dir = ' + await dirOf());

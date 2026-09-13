@@ -31,7 +31,7 @@
   <view class="tap-hint">👆 点蛇头轴线哪一侧，就朝那一侧拐 90° · 吃掉「绿色字母」按顺序拼出上方单词</view>
 
   <!-- 网格（承载触屏） -->
-  <view class="board-touch">
+  <view class="board-touch" bindtap="onBoardTap">
     <view class="grid b-tray b-in">
       <view
         wx:for="{{cells}}"

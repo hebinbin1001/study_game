@@ -65,6 +65,7 @@
         wx:key="i"
         class="k-cell {{item.gate ? 'gate' : ''}}"
         style="{{item.style}}">
+        <view wx:if="{{item.gate}}" class="k-gate-arrow">▼</view>
         <text wx:if="{{item.gate}}" class="k-gate-text">出</text>
       </view>
 

@@ -69,6 +69,33 @@ H.runSuite('verify-math24（算 24 点 · 合并式）', async function (miniPro
     d.tiles.some(function (t) { return t.text === String(Number(before[0]) + Number(before[1])); }),
     before.slice(0, 2).join('+') + ' 应等于其中一张；实际 = ' + JSON.stringify(d.tiles.map(function (t) { return t.text; })));
 
+  // [4.6/7] 减法/除法必须按「点击顺序」算：先点的在左（用户 2026-09-13 反馈）
+  //   旧实现取的是「牌桌上从左到右」的选中顺序，先点 8 后点 3 可能算成 3 − 8。
+  console.log('[4.6/7] 校验减法按点击顺序（先点的在前）');
+  await (await page.$$('.k-clr'))[0].tap();      // 重来本关，回到初始牌面
+  await page.waitFor(320);
+  d = await page.data();
+  const nums0 = d.tiles.map(function (t) { return Number(t.text); });
+  const iBig = nums0.findIndex(function (v, i) { return i > 0 && v > nums0[0]; });
+  ck.check('本关有「先点大数、后点小数」的组合可验证', iBig > 0, '牌面 = ' + nums0.join(','));
+  if (iBig > 0) {
+    const cards2 = await page.$$('.card');
+    await cards2[iBig].tap();                    // 先点大数
+    await page.waitFor(180);
+    await cards2[0].tap();                       // 再点小数
+    await page.waitFor(180);
+    await (await page.$$('.key.k-op'))[1].tap(); // 第二个运算符 = 减号
+    await page.waitFor(360);
+    d = await page.data();
+    const want = nums0[iBig] - nums0[0];
+    ck.check('减法结果 = ' + nums0[iBig] + ' − ' + nums0[0] + ' = ' + want + '（先点的在前）',
+      d.tiles.length === 3 && d.tiles.some(function (t) {
+        return t.justMerged && t.text === String(want);
+      }),
+      '实际 = ' + JSON.stringify(d.tiles.map(function (t) { return t.text; })));
+    ck.check('合并后的结果牌自动选中（可继续操作）', d.picked === 1, '实际 picked = ' + d.picked);
+  }
+
   console.log('[5/7] 撤销 / 重来');
   await (await page.$('.k-del')).tap();          // 撤销
   await page.waitFor(300);
