@@ -3,6 +3,7 @@
 // 成绩只存本地最高分（固定玩法不入字词进度）。
 // 关联：game/balance.js（纯逻辑，可单测）
 var lib = require('../../game/balance');
+var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 
 var BEST_KEY = 'ww_balance_best';
@@ -40,7 +41,10 @@ Page({
   _ans: 0,
   _timers: [],
 
-  onLoad: function () {
+  onLoad: function (options) {
+    // 数字智力关卡页按年级分档：?level=N → 第 N 个学段；不带参数 = 原来的题号递进手感
+    var lv = parseInt((options || {}).level, 10) || 0;
+    this._gi = (lv >= 1 && lv <= constants.GRADES.length) ? lv - 1 : -1;
     this.setData({ best: storage.get(BEST_KEY) || 0 });
     this.start();
   },
@@ -64,7 +68,7 @@ Page({
   },
 
   _loadQuestion: function () {
-    var q = lib.makeQuestion(this._qi);
+    var q = lib.makeQuestion(this._qi, null, this._gi);
     this._ans = q.ans;
     this.setData({
       expr: q.expr,
@@ -80,7 +84,8 @@ Page({
       lives: this._lives,
       score: this._score,
       hudText: '第 ' + (this._qi + 1) + '/' + lib.ROUND_Q + ' 题',
-      trend: '题型：' + q.label + ' · 第 ' + (this._qi + 1) + '/' + lib.ROUND_Q + ' 题'
+      trend: (this._gi >= 0 ? constants.GRADES[this._gi].label + ' · ' : '')
+        + '题型：' + q.label + ' · 第 ' + (this._qi + 1) + '/' + lib.ROUND_Q + ' 题'
     });
   },
 

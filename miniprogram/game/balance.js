@@ -26,20 +26,36 @@ function rnd(a, b, random) {
  * @param {Function} [random] 随机源（单测可注入）
  * @returns {{expr:string, ans:number, label:string}}
  */
-function makeQuestion(idx, random) {
+/**
+ * 年级档位 → 数值范围倍数（2026-09-13：数字智力关卡页按年级分档）。
+ * 不传 / 非法 / -1 → 1，**保持原范围不变**（旧单测与老入口手感不受影响）。
+ */
+function gradeScale(gradeIdx) {
+  if (typeof gradeIdx !== 'number' || gradeIdx < 0 || gradeIdx > 6) return 1;
+  return [0.6, 0.8, 1, 1.3, 1.6, 2, 2.4][gradeIdx];
+}
+
+function scaled(lo, hi, scale, random) {
+  var top = Math.max(2, Math.round(hi * scale));
+  var low = Math.min(lo, top);
+  return rnd(Math.max(1, Math.round(low)), top, random);
+}
+
+function makeQuestion(idx, random, gradeIdx) {
   var i = Math.max(0, idx || 0);
+  var k = gradeScale(gradeIdx);
   var a, b, c, expr, ans, label;
   if (i < 3) {
-    a = rnd(2, 9, random); b = rnd(2, 9, random);
+    a = scaled(2, 9, k, random); b = scaled(2, 9, k, random);
     expr = a + ' + ' + b; ans = a + b; label = '加法';
   } else if (i < 6) {
-    a = rnd(11, 20, random); b = rnd(2, 9, random);
+    a = scaled(11, 20, k, random); b = scaled(2, 9, k, random);
     expr = a + ' − ' + b; ans = a - b; label = '减法';
   } else if (i < 8) {
-    a = rnd(2, 9, random); b = rnd(2, 9, random);
+    a = scaled(2, 9, k, random); b = scaled(2, 9, k, random);
     expr = a + ' × ' + b; ans = a * b; label = '乘法';
   } else {
-    a = rnd(2, 5, random); b = rnd(2, 5, random); c = rnd(1, 9, random);
+    a = scaled(2, 5, k, random); b = scaled(2, 5, k, random); c = scaled(1, 9, k, random);
     expr = a + ' × ' + b + ' + ' + c; ans = a * b + c; label = '混合';
   }
   return { expr: expr, ans: ans, label: label };

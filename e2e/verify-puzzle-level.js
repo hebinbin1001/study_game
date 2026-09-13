@@ -66,6 +66,15 @@ async function main() {
     const mgd = await mg.data();
     ck.check('记忆矩阵从第 4 关开局', String(mgd.hudText || '').indexOf('4') >= 0,
       '实际 = ' + mgd.hudText);
+    // 口算/天平「按年级分档」：?level=N → 第 N 个学段（HUD/题型行会带学段名）
+    const sp = await H.goto(mp, '/pages/math-sprint/math-sprint?level=7', 1800);
+    const spd = await sp.data();
+    ck.check('口算冲刺第 7 档 = 大学（HUD 带学段名）', String(spd.hudText || '').indexOf('大学') >= 0,
+      '实际 = ' + spd.hudText);
+    const bl = await H.goto(mp, '/pages/math-balance/math-balance?level=1', 1800);
+    const bld = await bl.data();
+    ck.check('算式天平第 1 档 = 幼儿园（题型行带学段名）',
+      String(bld.trend || '').indexOf('幼儿园') >= 0, '实际 = ' + bld.trend);
   } catch (e) {
     ck.check('脚本执行无异常', false, (e && e.message) || String(e));
   } finally {

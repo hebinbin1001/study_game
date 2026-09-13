@@ -13,33 +13,60 @@ var WRONG_PENALTY_MS = 2500; // 答错扣时
 function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
 
 /**
+ * 年级档位 → 数值范围倍数（2026-09-13：数字智力关卡页按年级分档）。
+ * 不传 / 非法 / -1 → 返回 1，**保持原来的出题范围完全不变**（旧单测与老入口手感不受影响）。
+ * @param {number} gradeIdx 学段序号 0~6（对应 constants.GRADES）
+ */
+function gradeScale(gradeIdx) {
+  if (typeof gradeIdx !== 'number' || gradeIdx < 0 || gradeIdx > 6) return 1;
+  return [0.6, 0.8, 1, 1.3, 1.6, 2, 2.4][gradeIdx];
+}
+
+/** 按倍数缩放随机上界（保底 2，避免出现 0/1 这种没意义的题面） */
+function scaled(lo, hi, scale) {
+  var top = Math.max(2, Math.round(hi * scale));
+  var low = Math.min(lo, top);
+  return rnd(Math.max(1, Math.round(low)), top);
+}
+
+/**
  * 按已用时间出题。
  * @param {number} elapsedMs 本局已用毫秒
  * @returns {{expr:string, ans:number, tier:string}}
  */
-function makeQuestion(elapsedMs) {
+function makeQuestion(elapsedMs, gradeIdx) {
   var t = elapsedMs || 0;
+  var k = gradeScale(gradeIdx);
   var a, b, c, expr, ans, tier;
   if (t < 20000) {
     tier = '加减';
-    if (Math.random() < 0.5) { a = rnd(2, 12); b = rnd(2, 8); expr = a + ' + ' + b; ans = a + b; }
+    if (Math.random() < 0.5) {
+      a = scaled(2, 12, k); b = scaled(2, 8, k);
+      expr = a + ' + ' + b; ans = a + b;
+    }
     else {
       // 减法必须保证被减数更大：否则会出「8 − 9 = −1」这种负数题（低龄心算不该出现负数）
-      a = rnd(9, 20);
-      b = rnd(2, Math.min(9, a - 1));
+      a = scaled(9, 20, k);
+      b = scaled(2, Math.min(9, a - 1), k);
       expr = a + ' − ' + b; ans = a - b;
     }
   } else if (t < 42000) {
     tier = '乘除';
-    if (Math.random() < 0.55) { a = rnd(2, 9); b = rnd(2, 9); expr = a + ' × ' + b; ans = a * b; }
-    else { a = rnd(20, 60); b = rnd(5, 19); expr = a + ' + ' + b; ans = a + b; }
+    if (Math.random() < 0.55) {
+      a = scaled(2, 9, k); b = scaled(2, 9, k);
+      expr = a + ' × ' + b; ans = a * b;
+    } else {
+      a = scaled(20, 60, k); b = scaled(5, 19, k);
+      expr = a + ' + ' + b; ans = a + b;
+    }
   } else {
     tier = '混合';
     if (Math.random() < 0.5) {
-      a = rnd(2, 9); b = rnd(2, 9); c = rnd(1, 9);
+      a = scaled(2, 9, k); b = scaled(2, 9, k); c = scaled(1, 9, k);
       expr = a + ' × ' + b + ' + ' + c; ans = a * b + c;
     } else {
-      a = rnd(40, 99); b = rnd(11, 39); expr = a + ' − ' + b; ans = a - b;
+      a = scaled(40, 99, k); b = scaled(11, 39, k);
+      expr = a + ' − ' + b; ans = a - b;
     }
   }
   return { expr: expr, ans: ans, tier: tier };

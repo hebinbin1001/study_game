@@ -2,6 +2,7 @@
 // 与 demo 的差异：计时用引擎模块的常量、结算走公共 settle-pop、成绩不入字词进度（固定玩法）。
 // 关联：game/math-sprint.js（纯逻辑，可单测）
 var engineLib = require('../../game/math-sprint');
+var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 
 Page({
@@ -34,7 +35,10 @@ Page({
   _maxCombo: 0,
   _running: false,
 
-  onLoad: function () {
+  onLoad: function (options) {
+    // 数字智力关卡页按年级分档：?level=N → 第 N 个学段；不带参数 = 原来的纯限时手感
+    var lv = parseInt((options || {}).level, 10) || 0;
+    this._gi = (lv >= 1 && lv <= constants.GRADES.length) ? lv - 1 : -1;
     this.setData({ best: storage.get('ww_sprint_best') || 0 });
     this.start();
   },
@@ -84,14 +88,14 @@ Page({
   },
 
   _nextQuestion: function () {
-    var q = engineLib.makeQuestion(engineLib.TOTAL_MS - this._remain);
+    var q = engineLib.makeQuestion(engineLib.TOTAL_MS - this._remain, this._gi);
     this.setData({
       expr: q.expr,
       q: '?',
       options: engineLib.makeOptions(q.ans, 4),
       picked: -1,
       rightIdx: -1,
-      hudText: q.tier
+      hudText: (this._gi >= 0 ? constants.GRADES[this._gi].label + ' · ' : '') + q.tier
     });
     this._ans = q.ans;
   },

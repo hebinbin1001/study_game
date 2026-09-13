@@ -73,7 +73,8 @@ const MODULES = [
     name: '数字智力（24点 / 数独 / 华容道 / 2048 / 天平 / 口算 / 记忆 / 一笔画）',
     stages: ['math24', 'klotski', 'g2048', 'puzzleLevel'],
     unit: ['balance', 'math-sprint', 'memory-grid', 'one-stroke', 'math24-levels',
-      'klotski', 'klotski-levels', 'g2048-levels', 'sudoku-stages', 'puzzle-levels']
+      'klotski', 'klotski-levels', 'g2048-levels', 'sudoku-stages', 'puzzle-levels',
+      'sprint-balance-grade']
   },
   {
     id: 'user',
