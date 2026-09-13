@@ -9,7 +9,7 @@
       <view class="name">{{loggedIn ? (nickname || '未设置昵称') : '游客'}}</view>
       <view class="meta">
         <block wx:if="{{loggedIn}}">
-          <text class="meta-chip">🎖 {{rankName || '青铜'}}</text>
+          <text class="meta-chip" bindtap="goRankInfo">🎖 {{rankName || '青铜'}} ›</text>
           <text class="meta-chip">⭐ {{rankStars}}</text>
         </block>
         <text wx:else class="meta-chip">游客模式 · 数据仅存本机</text>
@@ -40,8 +40,10 @@
         src="{{rankIcon}}"
         mode="aspectFit"
         binderror="onRankIconError"></image>
-      <view class="stat-num">{{loggedIn ? rankName || '-' : '-'}}</view>
-      <view class="stat-lab">🎖 段位</view>
+      <view bindtap="goRankInfo">
+        <view class="stat-num">{{loggedIn ? rankName || '-' : '-'}}</view>
+        <view class="stat-lab">🎖 段位 ›</view>
+      </view>
     </view>
     <view class="stat-box">
       <view class="stat-num">{{loggedIn ? wins : '-'}}</view>
