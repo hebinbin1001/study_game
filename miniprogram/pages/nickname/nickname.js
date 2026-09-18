@@ -21,7 +21,8 @@ Page({
   data: {
     avatarUrl: '',    // 头像地址
     nickname: '',     // 昵称（输入框当前值）
-    wxNickname: '',   // 微信名（独立采集，仅管理员可见；不对外展示）
+    // 微信名（不展示在界面上，仅随保存动作上报给服务端；见 onNicknameInput 的说明）
+    wxNickname: '',
     loggedIn: false   // 登录态（M5）
   },
 
@@ -81,11 +82,6 @@ Page({
       patch.wxNickname = v;
     }
     this.setData(patch);
-  },
-
-  // 微信名输入回调（type="nickname"：用户点「使用微信昵称」后这里拿到的是微信名）
-  onWxNicknameInput: function (e) {
-    this.setData({ wxNickname: e.detail.value });
   },
 
   // 保存昵称/头像（REQ-NICK-2/3；M5 登录后云端保存）

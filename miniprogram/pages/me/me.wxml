@@ -27,16 +27,6 @@
     </view>
   </view>
 
-  <!-- 微信名补录条（仅登录且尚未采集时显示，2026-09-19） -->
-  <view wx:if="{{loggedIn && needWxNickname}}" class="wxnick-card" bindtap="goWxNickname">
-    <view class="wn-ic">💬</view>
-    <view class="wn-t">
-      <view class="wn-b">补全微信名（仅管理员可见）</view>
-      <view class="wn-s">点进去在「微信名」框点一下「使用微信昵称」即可，10 秒搞定</view>
-    </view>
-    <view class="wn-arrow">›</view>
-  </view>
-
   <!-- 统计三格 -->
   <view class="stat-row">
     <view class="stat-box">

@@ -14,9 +14,6 @@ Page({
     rankIconBig: '',  // 大段位图兜底（小级图缺失时 onerror 切到这张）
     wins: 0,
     rankStars: 0,
-    // 微信名未采集（2026-09-19）：存量用户已有昵称、不会再走注册流程，
-    // 所以在「我的」页给一条补录提示（仅当服务端还没有微信名时显示）
-    needWxNickname: false,
     menu: [
       // 注：原先这里还有一条「昵称与头像」，但它与资料卡上的「编辑」指向同一个页面，
       // 属于重复入口（需求 ③），已移除 —— 改资料统一走资料卡的「编辑」。
@@ -59,15 +56,6 @@ Page({
       });
     }).catch(function () {});
 
-    // 微信名是否已采集（未采集 → 显示补录条）
-    request.get('/api/user/wx-nickname').then(function (d) {
-      self.setData({ needWxNickname: !(d && d.wxNickname) });
-    }).catch(function () { self.setData({ needWxNickname: false }); });
-  },
-
-  /** 去补录微信名（复用昵称/资料页的独立采集入口） */
-  goWxNickname: function () {
-    wx.navigateTo({ url: '/pages/nickname/nickname' });
   },
 
   /**

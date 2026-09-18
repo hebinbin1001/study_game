@@ -93,22 +93,6 @@ page {
 .gc-b { font-size: 28rpx; font-weight: 800; color: #A66A00; }
 .gc-s { font-size: 22rpx; color: #C08B4A; line-height: 1.5; margin-top: 6rpx; }
 
-/* 微信名补录条（2026-09-19）：仅登录且未采集时出现 */
-.wxnick-card {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  margin-top: 28rpx;
-  background: #EEF6FF;
-  border: 2rpx solid #CFE4FB;
-  border-radius: 28rpx;
-  padding: 24rpx 28rpx;
-}
-.wn-ic { font-size: 40rpx; flex-shrink: 0; }
-.wn-t { flex: 1; min-width: 0; }
-.wn-b { font-size: 27rpx; font-weight: 800; color: #2C6BB3; }
-.wn-s { font-size: 21rpx; color: #6D93BD; line-height: 1.5; margin-top: 6rpx; }
-.wn-arrow { flex-shrink: 0; font-size: 36rpx; color: #A8C6E4; font-weight: 700; }
 
 /* 统计三格 */
 .stat-row {
