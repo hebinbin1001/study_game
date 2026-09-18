@@ -8,6 +8,15 @@ const ladder = require("../rank-ladder");
 const router = express.Router();
 
 /**
+ * 玩法进度榜「总览」用的玩法清单（与端上 utils/game-catalog.js 的 gameType 一一对应）。
+ * 顺序 = 卡片展示顺序：题库类在前、数字智力在后。
+ */
+const SUMMARY_GAMES = [
+  "word_warrior", "word_build", "link", "match", "idiom", "snake",
+  "math24", "sudoku", "sprint", "balance", "g2048", "memory", "onestroke", "klotski",
+];
+
+/**
  * GET /api/ranklist/progress —— 玩法闯关进度榜（B3）
  * ?game=word_warrior&grade=primary12&type=all
  * 聚合：某玩法/学段/题型下，各玩家「已通关最大关卡号（star>0）」降序；
@@ -107,6 +116,91 @@ router.get("/progress", async (req, res) => {
  * GET /api/rank/world —— 世界排行榜（全服 Top 100）
  * ?page=1&pageSize=20
  */
+/**
+ * GET /api/ranklist/progress-summary —— 玩法进度榜「总览」
+ *
+ * 为什么需要它（2026-09-18 用户反馈「玩法排行榜显示不太友好 + 向右超出边界」）：
+ *   原来玩法榜是一行平铺 14 个玩法 chips，既撑破页面宽度、又看不出每个玩法的情况。
+ *   改成「玩法卡片列表 → 点进去看该玩法完整榜」，卡片数据就要一次性拿 14 个玩法的
+ *   「榜首 + 我的进度」。逐玩法调 /progress 要发 14 个请求，所以这里做批量汇总。
+ *
+ * 进度口径（与单玩法榜一致）：stars>0 的关卡里取最大关卡号；另给「通关关卡数」。
+ * 这里**不限学段/题型**（卡片展示的是该玩法的总进度）；细分维度去详情榜看。
+ */
+router.get("/progress-summary", async (req, res) => {
+  try {
+    const [rows] = await sequelize.query(
+      `SELECT s.game_type,
+              s.user_id,
+              MAX(s.level) AS max_level,
+              COUNT(DISTINCT CONCAT(s.grade, '@', s.type_key, '@', s.level)) AS passed_levels
+         FROM scores s
+        WHERE s.stars > 0
+        GROUP BY s.game_type, s.user_id`
+    );
+
+    // 按玩法分组 → 排序（关卡高者靠前，同关卡比通关数）
+    const byGame = new Map(SUMMARY_GAMES.map((g) => [g, []]));
+    rows.forEach((r) => {
+      const g = String(r.game_type || "");
+      if (!byGame.has(g)) byGame.set(g, []);
+      byGame.get(g).push({
+        userId: r.user_id,
+        maxLevel: parseInt(r.max_level, 10) || 0,
+        passedLevels: parseInt(r.passed_levels, 10) || 0,
+      });
+    });
+
+    const allUids = new Set();
+    byGame.forEach((arr) => {
+      arr.sort((a, b) => (b.maxLevel - a.maxLevel) || (b.passedLevels - a.passedLevels));
+      if (arr[0]) allUids.add(arr[0].userId);
+    });
+    const userRows = allUids.size
+      ? await User.findAll({
+        where: { id: [...allUids] },
+        attributes: ["id", "openid", "nickname", "avatar_url"],
+      })
+      : [];
+    const userMap = new Map(userRows.map((u) => [u.id, u]));
+    // 「我的进度」自己可能不是榜首，得单独查一次
+    let myId = 0;
+    if (req.openid) {
+      const meUser = await User.findOne({ where: { openid: req.openid }, attributes: ["id"] });
+      if (meUser) myId = meUser.id;
+    }
+
+    const list = SUMMARY_GAMES.map((game) => {
+      const arr = byGame.get(game) || [];
+      const top = arr[0] || null;
+      const champUser = top ? userMap.get(top.userId) : null;
+      let myValue = 0;
+      let myRank = 0;
+      if (myId) {
+        const idx = arr.findIndex((x) => x.userId === myId);
+        if (idx >= 0) {
+          myValue = arr[idx].maxLevel;
+          myRank = idx + 1;
+        }
+      }
+      return {
+        game,
+        players: arr.length,
+        champNickname: champUser ? (champUser.nickname || "未命名") : "",
+        champAvatarUrl: champUser ? (champUser.avatar_url || "") : "",
+        champValue: top ? top.maxLevel : 0,
+        myValue,
+        myRank,
+      };
+    });
+
+    res.send({ code: 0, data: { list } });
+  } catch (err) {
+    console.error("GET /api/ranklist/progress-summary 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
 router.get("/world", async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);

@@ -99,6 +99,14 @@ STAGES.push({
   script: 'e2e/verify-bank.js'
 });
 
+// 排行榜玩法榜改版（2026-09-18）：卡片总览 → 详情榜；旧的平铺 chips 已删除
+STAGES.push({
+  id: 'rank',
+  layer: '端到端',
+  title: '排行榜玩法榜（卡片总览 / 详情切换 / 溢出根因已消除）',
+  script: 'e2e/verify-rank.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false,
     module: null, changed: false, listModules: false, noStatic: false };

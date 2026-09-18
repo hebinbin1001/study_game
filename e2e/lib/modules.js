@@ -79,7 +79,7 @@ const MODULES = [
   {
     id: 'user',
     name: '用户与成长（段位 / 成就 / 皮肤 / 错题本 / 复习 / 签到）',
-    stages: ['m2m4'],
+    stages: ['m2m4', 'rank'],
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
       'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review', 'rank-badge',
       'auth-guard', 'admin-auth']
@@ -124,6 +124,8 @@ const STAGE_MODULE = {
   reports: 'user'
   ,
   bank: 'dict'
+  ,
+  rank: 'user'
 };
 
 /**
