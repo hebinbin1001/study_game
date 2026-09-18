@@ -123,8 +123,8 @@
   border-radius: 999rpx;
 }
 .gs-quest-answer {
-  margin-top: 10rpx;
-  font-size: 38rpx;
+  margin-top: 8rpx;
+  font-size: 34rpx;
   font-weight: 900;
   color: #2f5470;
   line-height: 1.35;
@@ -134,7 +134,7 @@
 /* Boss 血条 */
 .gs-hp {
   flex: 0 0 auto;
-  margin: 18rpx auto 0;
+  margin: 12rpx auto 0;
   width: 70%;
   height: 20rpx;
   border-radius: 999rpx;
@@ -155,12 +155,14 @@
   align-items: center;
   justify-content: space-around;
   padding: 10rpx 0;
-  min-height: 260rpx;
+  /* 2026-09-18 用户反馈「战士和 Boss 太小」：战场最小高度整体放大（260 → 400rpx） */
+  min-height: 400rpx;
 }
 .gs-hero, .gs-boss {
   position: relative;
-  width: 200rpx;
-  height: 220rpx;
+  /* 立绘尺寸：200×220 → 300×340rpx（约 +50%），战场里更醒目 */
+  width: 300rpx;
+  height: 340rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -170,7 +172,7 @@
   height: 100%;
 }
 .gs-art-emoji {
-  font-size: 120rpx;
+  font-size: 190rpx;
   line-height: 1;
 }
 .gs-hero { animation: gsIdle 2.6s ease-in-out infinite; }
@@ -229,10 +231,10 @@
   align-items: center;
   justify-content: center;
   min-width: 56rpx;
-  height: 84rpx;
+  height: 78rpx;
   padding: 0 8rpx;
   border-bottom: 6rpx solid #cfe0ee;
-  font-size: 52rpx;
+  font-size: 48rpx;
   font-weight: 900;
   color: #b7c9d9;
 }
@@ -278,8 +280,8 @@
 /* ============ 字母 / 词卡面板 ============ */
 .gs-pad-wrap {
   flex: 0 0 auto;
-  margin-top: 16rpx;
-  padding: 14rpx 18rpx 18rpx;
+  margin-top: 12rpx;
+  padding: 12rpx 16rpx 14rpx;
   border-radius: 26rpx;
   background: rgba(255, 255, 255, .9);
   box-shadow: 0 8rpx 0 rgba(0, 0, 0, .06);
@@ -296,16 +298,16 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 14rpx;
+  gap: 12rpx;
 }
 .gs-bullet {
-  width: 96rpx;
-  height: 96rpx;
+  width: 88rpx;
+  height: 88rpx;
   border-radius: 22rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 44rpx;
+  font-size: 40rpx;
   font-weight: 900;
   color: #3f5a72;
   background: linear-gradient(180deg, #ffffff, #e8f3fc);

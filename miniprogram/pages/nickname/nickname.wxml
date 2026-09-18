@@ -37,7 +37,29 @@
           bindinput="onNicknameInput"
           maxlength="12" />
       </view>
-      <view class="input-hint">长度 2~12 个字符，支持中英文哦</view>
+      <view class="input-hint">长度 2~12 个字符 · 点键盘上方的「使用微信昵称」可一键填入微信昵称，之后随便改</view>
+    </view>
+
+    <!--
+      微信名（2026-09-18，用户要求「注册时就能拿到微信昵称」）：
+      平台限制——2022 年起微信收回了静默获取昵称的接口，唯一合规通道是「昵称填写」组件
+      （下面这个 type="nickname" 的输入框）：用户点输入框上方的「使用微信昵称」即可填入。
+      所以这里**单独**采集一次，不再和游戏昵称混用（混用会被自定义昵称覆盖，管理员就看不到微信名了）。
+      用途：仅管理员可见，方便运营联系；不对外展示。
+    -->
+    <view class="section">
+      <view class="section-title">💬 微信名（仅管理员可见）</view>
+      <view class="input-card">
+        <input
+          class="nickname-input wx-nickname-input"
+          type="nickname"
+          placeholder="点上方「使用微信昵称」即可填入"
+          placeholder-class="input-placeholder"
+          value="{{wxNickname}}"
+          bindinput="onWxNicknameInput"
+          maxlength="32" />
+      </view>
+      <view class="input-hint">仅用于运营联系，不会出现在排行榜或任何公开位置；不填也可以正常玩</view>
     </view>
   </view>
 

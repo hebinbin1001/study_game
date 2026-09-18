@@ -1,5 +1,4 @@
 const express = require("express");
-const { Op } = require("sequelize");
 const { sequelize, User, RankRecord, Rank, Score } = require("../db");
 // 段位名一律按 stars 现算（2026-09-13）：以前读存库的 rankId/Rank 表，
 // 曲线与星星口径改了以后那两处不会跟着变 → 排行榜段位一直显示旧值（用户反馈「排行榜段位没更新」）。
@@ -15,6 +14,17 @@ const SUMMARY_GAMES = [
   "word_warrior", "word_build", "link", "match", "idiom", "snake",
   "math24", "sudoku", "sprint", "balance", "g2048", "memory", "onestroke", "klotski",
 ];
+
+/**
+ * 上榜门槛（2026-09-19 用户要求：「没有注册的用户不能上排行榜」）。
+ *
+ * 什么算「没注册」：登录过但**没设昵称**（没走完资料这一步）的账号 ——
+ * 他们此前会以匿名名义出现在榜上，既认不出人也没意义。
+ * 现在三处榜单（总榜 / 玩法进度榜 / 玩法总览）统一按「users.nickname 非空」过滤。
+ *
+ * 注意：成绩本身照旧入库（不上榜 ≠ 不记录），用户补完昵称后立刻就能看到自己的名次。
+ */
+const NICKNAME_READY_SQL = "u.nickname IS NOT NULL AND u.nickname <> '' ";
 
 /**
  * GET /api/ranklist/progress —— 玩法闯关进度榜（B3）
@@ -45,11 +55,13 @@ router.get("/progress", async (req, res) => {
       binds.type = typeParam;
     }
 
+    // JOIN users 过滤「没设昵称」的账号（未完成注册不上榜）
     const [rows] = await sequelize.query(
       `SELECT s.user_id,
               MAX(s.level) AS max_level,
               COUNT(DISTINCT CONCAT(s.type_key,'@',s.level)) AS passed_levels
          FROM scores s
+         JOIN users u ON u.id = s.user_id AND ${NICKNAME_READY_SQL}
         WHERE ${whereSql.join(" AND ")}
         GROUP BY s.user_id
         ORDER BY max_level DESC, passed_levels DESC
@@ -79,7 +91,7 @@ router.get("/progress", async (req, res) => {
       const rr = user ? rrMap.get(user.openid) : null;
       return {
         rank: i + 1,
-        nickname: user ? user.nickname : "未命名",
+        nickname: user.nickname,
         avatarUrl: user ? user.avatar_url : "",
         rankName: ladder.rankOf(rr ? rr.stars : 0).rankName,
         stars: rr ? rr.stars : 0,
@@ -129,12 +141,14 @@ router.get("/progress", async (req, res) => {
  */
 router.get("/progress-summary", async (req, res) => {
   try {
+    // 同 /progress：没设昵称的账号不上榜
     const [rows] = await sequelize.query(
       `SELECT s.game_type,
               s.user_id,
               MAX(s.level) AS max_level,
               COUNT(DISTINCT CONCAT(s.grade, '@', s.type_key, '@', s.level)) AS passed_levels
          FROM scores s
+         JOIN users u ON u.id = s.user_id AND ${NICKNAME_READY_SQL}
         WHERE s.stars > 0
         GROUP BY s.game_type, s.user_id`
     );
@@ -186,7 +200,8 @@ router.get("/progress-summary", async (req, res) => {
       return {
         game,
         players: arr.length,
-        champNickname: champUser ? (champUser.nickname || "未命名") : "",
+        // 已按门槛 JOIN 过滤过，能出现在这里的用户一定有昵称，不再需要「未命名」兜底
+        champNickname: champUser ? champUser.nickname : "",
         champAvatarUrl: champUser ? (champUser.avatar_url || "") : "",
         champValue: top ? top.maxLevel : 0,
         myValue,
@@ -207,40 +222,30 @@ router.get("/world", async (req, res) => {
     const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize) || 20));
     const offset = (page - 1) * pageSize;
 
-    // 查询排行榜（按 score 降序，同分按 stars 降序）
-    const { count, rows } = await RankRecord.findAndCountAll({
-      order: [
-        ["stars", "DESC"],
-        ["wins", "DESC"],
-        ["createdAt", "ASC"],
-      ],
-      limit: pageSize,
-      offset,
-    });
-
-    // 获取段位信息
-    const rankIds = [...new Set(rows.map((r) => r.rankId))];
-    const ranks = await Rank.findAll({
-      where: { rankId: rankIds },
-    });
-    const rankMap = new Map(ranks.map((r) => [r.rankId, r.rankName]));
-
-    // 获取用户信息
-    const openids = rows.map((r) => r.openid);
-    const users = await User.findAll({
-      where: { openid: openids },
-      attributes: ["openid", "nickname", "avatar_url"],
-    });
-    const userMap = new Map(users.map((u) => [u.openid, u]));
+    // 查询排行榜（按星星降序、同分按胜场升序时间）
+    // ⚠️ 必须 JOIN users 过滤「没设昵称」的账号：否则未完成注册的人会以匿名名义上榜
+    const [rows] = await sequelize.query(
+      `SELECT r.openid, r.stars, r.wins, u.nickname, u.avatar_url
+         FROM rank_records r
+         JOIN users u ON u.openid = r.openid AND ${NICKNAME_READY_SQL}
+        ORDER BY r.stars DESC, r.wins DESC, r.createdAt ASC
+        LIMIT :limit OFFSET :offset`,
+      { replacements: { limit: pageSize, offset } }
+    );
+    const [countRows] = await sequelize.query(
+      `SELECT COUNT(*) AS total
+         FROM rank_records r
+         JOIN users u ON u.openid = r.openid AND ${NICKNAME_READY_SQL}`
+    );
+    const count = parseInt((countRows && countRows[0] && countRows[0].total) || 0, 10);
 
     // 组装返回数据
     const list = rows.map((record, index) => {
-      const user = userMap.get(record.openid);
       return {
         rank: offset + index + 1,
         openid: record.openid,
-        nickname: user ? user.nickname : "未命名",
-        avatarUrl: user ? user.avatar_url : "",
+        nickname: record.nickname,
+        avatarUrl: record.avatar_url || "",
         rankId: ladder.rankOf(record.stars).rankId,
         rankName: ladder.rankOf(record.stars).rankName,
         score: record.stars * 100 + record.wins * 10, // 综合得分
@@ -300,35 +305,38 @@ router.get("/me", async (req, res) => {
       });
     }
 
-    // 计算我的排名（比我星数多的记录数 + 1）
-    //
-    // ⚠️ 必须用 Sequelize v6 的 Op 符号操作符。
-    // 旧式别名 $gt / $ne 在 v6 已被移除：不会被识别成操作符，而是当作普通对象键
-    // 参与序列化，生成 `stars = '[object Object]'` 这样的错误 SQL，
-    // MySQL 侧报错 → 接口 5000。这正是线上 /api/ranklist/me 长期 5000 的根因。
-    // 回归护栏见 tests/unit/sequelize-operators.test.js。
-    const higherCount = await RankRecord.count({
-      where: {
-        stars: { [Op.gt]: myRecord.stars },
-      },
-    });
-
-    // 相同星数按更新时间排序
-    const sameStars = await RankRecord.findAll({
-      where: {
-        stars: myRecord.stars,
-        openid: { [Op.ne]: openid },
-      },
-      order: [["createdAt", "ASC"]],
-    });
-
-    const myRank = higherCount + sameStars.length + 1;
-
-    // 获取用户信息
+    // 获取用户信息（2026-09-19：没设昵称的账号不上榜，自己也不例外）
     const user = await User.findOne({
       where: { openid },
       attributes: ["nickname", "avatar_url"],
     });
+    if (!user || !user.nickname) {
+      // 未完成注册（没设昵称）→ 不上榜，前端据此不显示「我的排名」
+      return res.send({ code: 0, data: null, message: "未设置昵称，暂不上榜" });
+    }
+
+    // 计算我的排名（比我星数多的记录数 + 同星记录数 + 1）
+    //
+    // ⚠️ 用原生 SQL 而不是 Sequelize 的 Op：一是要和「有昵称才上榜」的 JOIN 口径一致，
+    //    二是历史上这里踩过 v6 操作符的坑（旧式 $gt / $ne 会被序列化成
+    //    `stars = '[object Object]'`，直接把接口打成 5000，见 tests/unit/sequelize-operators.test.js）。
+    const [higherRows] = await sequelize.query(
+      `SELECT COUNT(*) AS c
+         FROM rank_records r
+         JOIN users u ON u.openid = r.openid AND ${NICKNAME_READY_SQL}
+        WHERE r.stars > :stars`,
+      { replacements: { stars: myRecord.stars } }
+    );
+    const [sameRows] = await sequelize.query(
+      `SELECT COUNT(*) AS c
+         FROM rank_records r
+         JOIN users u ON u.openid = r.openid AND ${NICKNAME_READY_SQL}
+        WHERE r.stars = :stars AND r.openid <> :me`,
+      { replacements: { stars: myRecord.stars, me: openid } }
+    );
+    const myRank =
+      parseInt((higherRows[0] || {}).c || 0, 10) +
+      parseInt((sameRows[0] || {}).c || 0, 10) + 1;
 
     // 获取段位信息
     const rank = await Rank.findOne({
@@ -339,7 +347,7 @@ router.get("/me", async (req, res) => {
       code: 0,
       data: {
         rank: myRank,
-        nickname: user ? user.nickname : "未命名",
+        nickname: user.nickname,
         avatarUrl: user ? user.avatar_url : "",
         rankId: ladder.rankOf(myRecord.stars).rankId,
         rankName: ladder.rankOf(myRecord.stars).rankName,

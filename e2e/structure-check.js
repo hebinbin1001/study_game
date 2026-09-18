@@ -100,5 +100,21 @@ check(appWxssSrc.includes('.gate-bar'), '门禁引导条样式统一在 app.wxss
   check(js.includes('onShareAppMessage'), `pages/${pg} 支持分享（onShareAppMessage）`);
 });
 
+// 7) 微信名采集（2026-09-18 用户反馈「管理员拿不到微信昵称」）
+//
+// 约束：微信从 2022 年起不允许静默读取昵称，唯一合规通道是「昵称填写」组件
+// （<input type="nickname">，用户点「使用微信昵称」时才有值）。
+// 踩过的坑：原来保存时把**游戏昵称**同时当微信名存（wxNickname: nick），
+// 用户一旦改成自定义昵称，管理员就永远看不到微信名了 —— 所以微信名必须是独立字段。
+const nickWxml = fs.readFileSync('miniprogram/pages/nickname/nickname.wxml', 'utf8');
+const nickJs = fs.readFileSync('miniprogram/pages/nickname/nickname.js', 'utf8');
+check(nickWxml.includes('bindinput="onWxNicknameInput"'), '昵称页有独立的微信名输入（昵称填写组件）');
+check(nickJs.includes('wxNickname: wxNick'),
+  '保存时微信名取独立字段（不能再用游戏昵称 wxNickname: nick 覆盖）');
+check(!/wxNickname:\s*nick\b/.test(nickJs),
+  '回归护栏：微信名不得再被游戏昵称直接赋值');
+const userRouteSrc = fs.readFileSync('server/routes/user.js', 'utf8');
+check(userRouteSrc.includes('/wx-nickname'), '后端提供「取本人微信名」接口（昵称页回填用）');
+
 console.log(fail ? `\n=== ${fail} 项失败 ===` : '\n=== 全部通过 ===');
 process.exit(fail ? 1 : 0);

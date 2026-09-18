@@ -439,6 +439,21 @@ button.btn-back::after {
 .gcard-arrow { flex: 0 0 auto; font-size: 34rpx; color: #c3ccda; font-weight: 700; }
 
 /* 详情头部 */
+.no-nick {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin: 0 0 14rpx;
+  padding: 18rpx 22rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, .95);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .06);
+}
+.no-nick-ic { font-size: 32rpx; flex: 0 0 auto; }
+.no-nick-t { flex: 1 1 auto; font-size: 23rpx; font-weight: 800; color: #2f5470; }
+.no-nick-arrow { flex: 0 0 auto; font-size: 34rpx; color: #c3ccda; font-weight: 700; }
+
 .detail-head {
   flex: 0 0 auto;
   display: flex;

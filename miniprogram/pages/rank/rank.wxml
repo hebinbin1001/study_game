@@ -135,6 +135,12 @@
 
   <!-- ============ 总榜 ============ -->
   <block wx:if="{{mode === 'total'}}">
+    <!-- 没设昵称 → 不上榜（2026-09-19 用户要求：没注册的用户不进排行榜） -->
+    <view wx:if="{{needNickname}}" class="no-nick" bindtap="goSetNickname">
+      <text class="no-nick-ic">✍️</text>
+      <text class="no-nick-t">还没设置昵称，设置后就能上榜 · 点这里去设置</text>
+      <text class="no-nick-arrow">›</text>
+    </view>
     <view class="board-label">总榜 · 共 {{totalCount}} 人</view>
     <scroll-view class="board-scroll" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
       <view class="rank-list">

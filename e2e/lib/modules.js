@@ -88,7 +88,7 @@ const MODULES = [
     id: 'server',
     name: '云托管后端（接口 / 模型 / Sequelize 用法）',
     stages: [],
-    unit: ['sequelize-operators', 'rank-stars', 'checkin-rewards']
+    unit: ['sequelize-operators', 'rank-stars', 'checkin-rewards', 'rank-eligibility']
   },
   {
     id: 'pages',

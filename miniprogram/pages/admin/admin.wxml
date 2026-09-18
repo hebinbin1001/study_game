@@ -34,8 +34,9 @@
         否则「微信名」列会一直显示「未获取」。
       </view>
       <view wx:elif="{{stats && stats.wxNicknameColumnReady}}" class="me-ok">
-        微信名列已就绪。若列表仍显示「未获取」，说明该用户还没在自己的手机上走到「保存昵称」这一步
-        （微信名只能在用户确认昵称时采集到）。
+        微信名列已就绪。若某位用户仍显示「未采集」，说明 TA 还没在自己的手机上确认过昵称 ——
+        微信从 2022 年起就不允许静默读取昵称，只能在用户点一次「使用微信昵称」时采集
+        （入口：「我的 → 编辑资料 → 微信名」）。
       </view>
     </view>
 
@@ -56,7 +57,7 @@
     <view wx:for="{{users}}" wx:key="openidMasked" class="urow">
       <view class="u-main">
         <text class="u-nick">{{item.nickname}}</text>
-        <text class="u-wx">微信名：{{item.wxNickname || '（未获取）'}}</text>
+        <text class="u-wx">微信名：{{item.wxNickname || '（未采集 · 需对方在「我的 → 编辑资料」点一次）'}}</text>
       </view>
       <view class="u-sub">
         <text class="u-chip">{{item.rankName}}</text>

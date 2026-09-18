@@ -56,6 +56,7 @@ Page({
     totalMe: null,
     totalCount: 0,
     totalLoading: false,
+    needNickname: false,       // 没设昵称 → 不上榜（2026-09-19）
     // 玩法榜
     gameView: 'overview',      // 'overview'（玩法卡片总览）| 'detail'（某玩法完整榜）
     summaryList: [],           // 总览卡片
@@ -213,6 +214,8 @@ Page({
         totalList: list,
         totalCount: r[0].total || 0,
         totalMe: r[1] ? Object.assign({}, r[1], { val: r[1].stars, unit: '⭐' }) : null,
+        // /api/ranklist/me 返回 null = 还没设昵称（未完成注册）→ 提示去设置
+        needNickname: !r[1],
         totalLoading: false
       });
     }).catch(function () { self.setData({ totalLoading: false }); });
@@ -272,6 +275,11 @@ Page({
   },
 
   goBack: function () { wx.navigateBack(); },
+
+  /** 没设昵称的用户：引导去「编辑资料」设置昵称（设置后即可上榜） */
+  goSetNickname: function () {
+    wx.navigateTo({ url: '/pages/nickname/nickname' });
+  },
 
   // M5 T4.1：排行榜分享（邀好友来比一比）
   onShareAppMessage: function () {

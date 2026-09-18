@@ -89,6 +89,37 @@ router.get("/me", async (req, res) => {
 });
 
 /**
+ * GET /api/user/wx-nickname —— 取**本人**的微信名（2026-09-18）
+ *
+ * 用途：昵称页回填「微信名」输入框（它是独立字段，不再等于游戏昵称）。
+ * 隐私口径不变：只返回**自己**的微信名；别人的微信名依旧只有管理员能看。
+ * 生产库没有该列时（未执行 DDL）返回空串，不报 5000。
+ */
+router.get("/wx-nickname", async (req, res) => {
+  try {
+    const openid = req.openid;
+    if (!openid) {
+      return res.send({ code: 1001, data: null, message: "未识别用户（openid 缺失）" });
+    }
+    let wxNickname = "";
+    try {
+      const [rows] = await sequelize.query(
+        "SELECT wx_nickname FROM users WHERE openid = :o LIMIT 1",
+        { replacements: { o: openid } }
+      );
+      wxNickname = ((rows && rows[0]) || {}).wx_nickname || "";
+    } catch (e) {
+      // 列不存在（DDL 未执行）：按「还没采集」处理
+      wxNickname = "";
+    }
+    res.send({ code: 0, data: { wxNickname }, message: "ok" });
+  } catch (err) {
+    console.error("GET /api/user/wx-nickname 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
+/**
  * POST /api/user/profile —— 更新昵称/头像（M5）
  * 入参：{ nickname?, avatarUrl? }（至少一项）
  */

@@ -21,6 +21,7 @@ Page({
   data: {
     avatarUrl: '',    // 头像地址
     nickname: '',     // 昵称（输入框当前值）
+    wxNickname: '',   // 微信名（独立采集，仅管理员可见；不对外展示）
     loggedIn: false   // 登录态（M5）
   },
 
@@ -40,6 +41,20 @@ Page({
       avatarUrl: (u && u.avatarUrl) || storage.getAvatar() || '',
       nickname: (u && u.nickname) || storage.getNickname() || ''
     });
+    this._loadWxNickname();
+  },
+
+  /**
+   * 回填已保存的「微信名」（仅本人可见）。
+   * 为什么单独取：users.wx_nickname 不在 User 模型里（避免生产库未加列时全表查询报错），
+   * 所以要单独调一个只返回本人微信名的接口。
+   */
+  _loadWxNickname: function () {
+    var self = this;
+    if (!auth.isLoggedIn()) return;
+    request.get('/api/user/wx-nickname').then(function (d) {
+      if (d && d.wxNickname) self.setData({ wxNickname: d.wxNickname });
+    }).catch(function () { /* 静默：拿不到就留空，不影响保存 */ });
   },
 
   // chooseAvatar 回调：获取微信头像地址（REQ-NICK-1）
@@ -49,9 +64,28 @@ Page({
     this.setData({ avatarUrl: avatarUrl });
   },
 
-  // nickname input 输入回调（REQ-NICK-1）
+  /**
+   * 昵称输入回调（REQ-NICK-1）。
+   *
+   * 2026-09-19：昵称框本身也是「昵称填写」组件（type="nickname"）——
+   * 用户点键盘上方的「使用微信昵称」时，这里拿到的**就是微信昵称**。
+   * 于是「先到先得」地把它同时记成微信名：
+   *   · 用户点一次建议 → 昵称默认=微信昵称（可继续修改），微信名也一并拿到；
+   *   · 之后用户把昵称改成自定义 → 不会再覆盖已记下的微信名（管理员仍看得到）。
+   * 已经存过微信名（服务端回填）时不覆盖，避免老数据被随手输入顶掉。
+   */
   onNicknameInput: function (e) {
-    this.setData({ nickname: e.detail.value });
+    var v = e.detail.value;
+    var patch = { nickname: v };
+    if (!String(this.data.wxNickname || '').trim() && String(v || '').trim()) {
+      patch.wxNickname = v;
+    }
+    this.setData(patch);
+  },
+
+  // 微信名输入回调（type="nickname"：用户点「使用微信昵称」后这里拿到的是微信名）
+  onWxNicknameInput: function (e) {
+    this.setData({ wxNickname: e.detail.value });
   },
 
   // 保存昵称/头像（REQ-NICK-2/3；M5 登录后云端保存）
@@ -83,9 +117,12 @@ Page({
     }
 
     // 已登录：云端保存（M5 REQ-PROFILE-1）
-    // wxNickname：昵称页用的是微信「昵称填写」组件，提交时把这一份同时作为微信名存档，
-    // 服务端单独存 users.wx_nickname，**只有管理员能看**（展示昵称仍是 nickname）
-    request.post('/api/user/profile', { nickname: nick, avatarUrl: avatarUrl, wxNickname: nick }).then(function () {
+    // wxNickname：**独立字段**，只取下面那个「微信名」输入框的值（2026-09-18 改）。
+    // 原来是把游戏昵称同时当微信名存 —— 用户一旦改成自定义昵称，管理员就再也看不到微信名了。
+    var wxNick = String(this.data.wxNickname || '').trim();
+    request.post('/api/user/profile', {
+      nickname: nick, avatarUrl: avatarUrl, wxNickname: wxNick
+    }).then(function () {
       auth.refreshMe(); // 拉取最新资料回写缓存（needProfile → false）
       wx.showToast({ title: '保存成功', icon: 'success', duration: 1200 });
       setTimeout(function () { wx.navigateBack(); }, 1300);
