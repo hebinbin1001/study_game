@@ -30,6 +30,21 @@
   </view>
   <view wx:if="{{!loggedIn}}" class="agree-link" bindtap="goAgreement">登录即代表同意《用户协议与隐私政策》· 点击阅读全文</view>
 
+  <!--
+    完善资料引导（2026-09-19）：已登录但没设昵称 = 未完成注册 ——
+    这类账号不上排行榜（用户要求），所以要主动把入口摆出来。
+    为什么需要这条：老用户已处于登录态，不会再触发「登录后跳昵称页」的流程，
+    没有这条他们会一直停在「未注册」却不知道去哪补。
+  -->
+  <view wx:if="{{loggedIn && needProfile}}" class="profilebar" bindtap="goProfileSetup">
+    <view class="pb-ic">✍️</view>
+    <view class="pb-t">
+      <view class="pb-b">完善昵称后即可上榜</view>
+      <view class="pb-s">点一下「使用微信昵称」即可，10 秒搞定</view>
+    </view>
+    <view class="pb-btn">去设置</view>
+  </view>
+
   <!-- 资产条 -->
   <view class="asset-row">
     <view class="asset-box">

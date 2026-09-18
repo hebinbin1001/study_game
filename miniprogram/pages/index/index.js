@@ -112,6 +112,8 @@ Page({
       loggedIn: loggedIn,
       nickname: nickname,
       avatarUrl: avatarUrl,
+      // 已登录但没设昵称 = 未完成注册（不上排行榜）→ 首页显示「完善昵称」引导条
+      needProfile: !!(loggedIn && u && u.needProfile),
       totalStars: totalStars,
       localStars: totalStars,
       // 口径统一（用户拍板）：首页与我的页都展示同一个数 ——
@@ -290,6 +292,11 @@ Page({
   // 协议全文页
   goAgreement: function () {
     wx.navigateTo({ url: '/pages/agreement/agreement' });
+  },
+
+  /** 完善资料引导条：已登录但没设昵称（未完成注册，不上排行榜） */
+  goProfileSetup: function () {
+    wx.navigateTo({ url: '/pages/nickname/nickname' });
   },
 
   // 游客温和登录提醒：已有本地进度（得过星）且未提示过 → 提醒一次「登录同步」

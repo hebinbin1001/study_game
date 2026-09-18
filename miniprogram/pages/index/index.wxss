@@ -68,6 +68,31 @@
 .gb-t { flex: 1; min-width: 0; }
 .gb-b { font-size: 28rpx; font-weight: 800; color: #A66A00; }
 .gb-s { font-size: 22rpx; color: #C08B4A; margin-top: 2rpx; }
+
+/* 完善资料引导条（2026-09-19）：已登录但没设昵称 = 未完成注册（不上排行榜） */
+.profilebar {
+  margin-top: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: linear-gradient(135deg, #EEF6FF, #E3F0FF);
+  border: 2rpx solid #CFE4FB;
+  border-radius: 28rpx;
+  padding: 22rpx 24rpx;
+}
+.pb-ic { font-size: 40rpx; }
+.pb-t { flex: 1; min-width: 0; }
+.pb-b { font-size: 28rpx; font-weight: 800; color: #2C6BB3; }
+.pb-s { font-size: 22rpx; color: #6D93BD; margin-top: 2rpx; }
+.pb-btn {
+  flex-shrink: 0;
+  background: #4285F4;
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 800;
+  border-radius: 999rpx;
+  padding: 12rpx 26rpx;
+}
 .gb-btn {
   background: #FF9800;
   color: #fff;
