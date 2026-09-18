@@ -151,18 +151,37 @@
 /* 对阵区 */
 .gs-field {
   flex: 1 1 auto;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   padding: 10rpx 0;
-  /* 2026-09-18 用户反馈「战士和 Boss 太小」：战场最小高度整体放大（260 → 400rpx） */
-  min-height: 400rpx;
+  /* 2026-09-19 用户再次反馈「还是太小」：战场最小高度 400 → 430rpx */
+  min-height: 430rpx;
 }
-.gs-hero, .gs-boss {
+
+/**
+ * 立绘尺寸按「素材里角色的实际占比」分别配：
+ *   · 战士图裁边后 ≈ 79×137（竖构图）→ 用高度限制，显示约 219×380rpx（原图角色只有 123×214）
+ *   · Boss 图 ≈ 340×197（横构图，满幅）→ aspectFill 填满 300×300（脸占满，比原来的 300×174 横条明显大）
+ * 两个框加起来 580rpx < 战场内宽 670rpx，留出中间「VS」的位置。
+ */
+.gs-hero {
   position: relative;
-  /* 立绘尺寸：200×220 → 300×340rpx（约 +50%），战场里更醒目 */
+  flex: 0 0 auto;
+  width: 280rpx;
+  height: 380rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gs-boss {
+  position: relative;
+  flex: 0 0 auto;
+  /* 2026-09-19 用户反馈「boss 太大了」：aspectFill 会把脸填满整个框，
+     所以框本身就是可见大小 —— 390×380 → 300×300（仍比原来的 300×174 横条大不少） */
   width: 300rpx;
-  height: 340rpx;
+  height: 300rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,8 +190,13 @@
   width: 100%;
   height: 100%;
 }
+.gs-art--fill {
+  /* Boss 是横构图（头+肩），用 aspectFill 填满画框 → 脸部占满、视觉最大；
+     两侧裁掉一小部分是安全的（已用 Pillow 预演过裁切效果，犄角/耳朵仍在） */
+  border-radius: 24rpx;
+}
 .gs-art-emoji {
-  font-size: 190rpx;
+  font-size: 200rpx;
   line-height: 1;
 }
 .gs-hero { animation: gsIdle 2.6s ease-in-out infinite; }
@@ -205,15 +229,21 @@
   100% { transform: scale(1); }
 }
 .gs-clash {
-  font-size: 24rpx;
+  /* 「⚔ VS ⚔」绝对居中：不占横向空间，把整条宽度让给两张大立绘 */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 22rpx;
   font-weight: 900;
-  letter-spacing: 2rpx;
+  letter-spacing: 0;
   color: #c3d4e3;
   transition: color .2s, transform .2s;
+  pointer-events: none;
 }
 .gs-clash.danger {
   color: #ff4d6a;
-  transform: scale(1.25);
+  transform: translate(-50%, -50%) scale(1.4);
 }
 
 /* 词槽 */

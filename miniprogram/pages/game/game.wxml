@@ -55,9 +55,9 @@
       <view class="gs-boss {{bossHit ? 'gs-boss-hit' : ''}} {{bossCharging ? 'gs-boss-charging' : ''}}">
         <image
           wx:if="{{bossImg && bossImgOk}}"
-          class="gs-art"
+          class="gs-art gs-art--fill"
           src="{{bossImg}}"
-          mode="aspectFit"
+          mode="aspectFill"
           binderror="onBossImgError"></image>
         <view wx:else class="gs-art-emoji">{{bossEmoji}}</view>
       </view>
