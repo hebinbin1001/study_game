@@ -48,7 +48,7 @@ const MODULES = [
     id: 'dict',
     name: '词库与常量（题库解析 / 校验 / 敏感词 / 学段题型）',
     stages: ['bank'],
-    unit: ['constants', 'data', 'dict', 'bank', 'parser', 'validator', 'sensitive']
+    unit: ['constants', 'data', 'dict', 'bank', 'level-picker', 'parser', 'validator', 'sensitive']
   },
   {
     id: 'challenge',

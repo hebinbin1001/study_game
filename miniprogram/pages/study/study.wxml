@@ -52,17 +52,17 @@
     <view class="li li-blue">📚</view>
     <view class="lt">
       <view class="l-b">题库</view>
-      <view class="l-s">各学段词汇一览 · 可改可增可删 · 闯关就考这些</view>
+      <view class="l-s">我出题的素材 · 各学段词汇可改可增可删 · 闯关就考这些</view>
     </view>
     <view class="ar">›</view>
   </view>
 
-  <!-- 自定义题库 -->
+  <!-- 自建关卡（原「自定义题库」改名，2026-09-18：避免与新的「题库」页撞名） -->
   <view class="link" bindtap="goCustom">
     <view class="li li-orange">🛠️</view>
     <view class="lt">
-      <view class="l-b">自定义题库</view>
-      <view class="l-s">内置模板 · 10 个一组 · 可提交审核</view>
+      <view class="l-b">自建关卡</view>
+      <view class="l-s">用题库里的词挑 10 题组一关 · 可提交审核/分享给别人玩</view>
     </view>
     <view class="ar">›</view>
   </view>

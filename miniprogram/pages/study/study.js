@@ -1,5 +1,5 @@
 // 学习 Tab（B1，UI 对齐 demo 学习页）
-// 职责：周概览 + 学习报告 + 错题本 + 每日一题·签到 + 自定义题库 + 签到日历
+// 职责：周概览 + 学习报告 + 错题本 + 每日一题·签到 + 题库 + 自建关卡 + 签到日历
 // 关联：B2 将把「每日一题·签到」改为真实每日一题逻辑；checkin 页改造为只读日历。
 var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
@@ -78,9 +78,9 @@ Page({
     this._guard('/pages/bank/bank', '题库需登录（词条要存到云端才不丢）');
   },
 
-  // 自定义题库（我的题库 + 公开广场中心；B4）
+  // 自建关卡（原「自定义题库」改名，2026-09-18：避免与新的「题库」页撞名）
   goCustom: function () {
-    this._guard('/pages/custom-levels/custom-levels', '自定义题库需登录');
+    this._guard('/pages/custom-levels/custom-levels', '自建关卡需登录');
   },
 
   _guard: function (url, desc) {

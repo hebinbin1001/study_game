@@ -34,7 +34,10 @@
   <view class="items-section">
     <view class="section-header">
       <text class="section-title">📝 题目列表（{{items.length}}/10 · 提交需凑满 10 题一组）</text>
-      <button class="btn-add" bindtap="addItem">＋ 添加</button>
+      <view class="section-actions">
+        <button class="btn-pick" bindtap="openPicker">📚 从题库选</button>
+        <button class="btn-add" bindtap="addItem">＋ 添加</button>
+      </view>
     </view>
 
     <view class="item-list">
@@ -80,7 +83,7 @@
       <view class="empty-state">
         <text class="empty-emoji">🗂️</text>
         <view class="empty-text">还没有题目</view>
-        <view class="empty-sub">点「＋ 添加」出第一道题吧</view>
+        <view class="empty-sub">点「📚 从题库选」批量挑题，或「＋ 添加」手打一道</view>
       </view>
     </view>
   </view>
@@ -89,5 +92,65 @@
   <view class="action-section">
     <button class="btn-save" bindtap="saveDraft" disabled="{{saving}}">💾 保存草稿</button>
     <button class="btn-submit" bindtap="submitReview" disabled="{{saving}}">🚀 提交审核</button>
+  </view>
+
+  <!--
+    从题库选题弹层（2026-09-18 方案 A）
+    题库 = 我维护的词条（自建库挂在学段下），这里按学段挑 10 题组一关。
+    自建关卡的题不进闯关题源 —— 只做单向搬运。
+  -->
+  <view wx:if="{{pickerShow}}" class="pk-mask" bindtap="closePicker">
+    <view class="pk-sheet" catchtap="noop">
+      <view class="pk-head">
+        <text class="pk-title">📚 从题库选题</text>
+        <text class="pk-close" bindtap="closePicker">✕</text>
+      </view>
+      <view class="pk-sub">已选 {{pickerCount}}/10 · 本学段共 {{pickerTotal}} 条（我的词条排在最前）</view>
+
+      <scroll-view class="pk-scroll" scroll-x="true" enable-flex="true">
+        <view class="pk-row">
+          <view
+            wx:for="{{pickerGrades}}"
+            wx:key="key"
+            class="pk-chip {{pickerGradeIndex === index ? 'on' : ''}}"
+            data-index="{{index}}"
+            bindtap="pickerPickGrade">{{item.label}}</view>
+        </view>
+      </scroll-view>
+
+      <view class="pk-search">
+        <text class="pk-search-ic">🔍</text>
+        <input class="pk-search-input" value="{{pickerKeyword}}" placeholder="搜题目 / 答案 / 释义"
+               bindinput="pickerSearch" confirm-type="search" />
+        <text wx:if="{{pickerKeyword}}" class="pk-search-clr" bindtap="pickerClearSearch">✕</text>
+      </view>
+
+      <scroll-view class="pk-list" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+        <view
+          wx:for="{{pickerOptions}}"
+          wx:key="key"
+          class="pk-item {{item.picked ? 'on' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pickerToggle">
+          <view class="pk-check">{{item.picked ? '✓' : ''}}</view>
+          <view class="pk-main">
+            <view class="pk-qa">
+              <text class="pk-q">{{item.q}}</text>
+              <text class="pk-a">{{item.a}}</text>
+            </view>
+            <view wx:if="{{item.hint}}" class="pk-hint">{{item.hint}}</view>
+          </view>
+          <text class="pk-src {{item.srcRank === 0 ? 'mine' : (item.srcRank === 1 ? 'edit' : '')}}">{{item.src}}</text>
+        </view>
+        <view wx:if="{{!pickerOptions.length}}" class="pk-empty">没有匹配的词条</view>
+        <view class="safe-gap"></view>
+      </scroll-view>
+
+      <view class="pk-btns">
+        <view class="pk-btn ghost" bindtap="closePicker">取消</view>
+        <view class="pk-btn" bindtap="pickerApply">加入题单（{{pickerCount}}）</view>
+      </view>
+      <view class="pk-tip">加入的是副本：改这里不会动题库；重复题会自动跳过，一关固定 10 题</view>
+    </view>
   </view>
 </view>

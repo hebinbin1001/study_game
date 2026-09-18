@@ -144,6 +144,133 @@ button.back-pill::after {
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
 }
 
+/* 头部两个按钮（从题库选 + 添加） */
+.section-actions { display: flex; gap: 12rpx; flex: 0 0 auto; }
+.btn-pick {
+  min-width: 176rpx;
+  padding: 0 22rpx;
+  height: 68rpx;
+  line-height: 68rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  border-radius: 34rpx;
+  background: #6AA6F5;
+  color: #ffffff;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .12);
+}
+.btn-pick::after { border: none; }
+
+/* ============ 从题库选题弹层（2026-09-18） ============ */
+.pk-mask {
+  position: fixed;
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(23, 46, 66, .5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 60;
+}
+.pk-sheet {
+  width: 100%;
+  max-height: 88vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 26rpx 26rpx calc(26rpx + env(safe-area-inset-bottom));
+  border-radius: 32rpx 32rpx 0 0;
+  background: #fff;
+}
+.pk-head { display: flex; align-items: center; justify-content: space-between; }
+.pk-title { font-size: 34rpx; font-weight: 900; color: #2f5470; }
+.pk-close { font-size: 32rpx; color: #93a9bd; padding: 0 8rpx; }
+.pk-sub { margin-top: 6rpx; font-size: 22rpx; color: #7b93ad; }
+
+.pk-scroll { flex: 0 0 auto; width: 100%; white-space: nowrap; margin-top: 14rpx; }
+.pk-row { display: flex; gap: 12rpx; padding: 2rpx 0; }
+.pk-chip {
+  flex: 0 0 auto;
+  padding: 10rpx 24rpx;
+  border-radius: 999rpx;
+  background: #eef5fb;
+  color: #5c7f9e;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+.pk-chip.on { background: #4285F4; color: #fff; }
+
+.pk-search {
+  flex: 0 0 auto;
+  margin-top: 14rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 20rpx;
+  background: #f2f8fd;
+}
+.pk-search-ic { font-size: 24rpx; }
+.pk-search-input { flex: 1; font-size: 26rpx; color: #2f5470; }
+.pk-search-clr { font-size: 26rpx; color: #93a9bd; padding: 0 6rpx; }
+
+.pk-list { flex: 1 1 auto; min-height: 420rpx; max-height: 620rpx; margin-top: 12rpx; }
+.pk-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 18rpx;
+  margin-bottom: 12rpx;
+  border-radius: 20rpx;
+  background: #f7fbff;
+  border: 2rpx solid #e4eef8;
+}
+.pk-item.on { background: #eaf4ff; border-color: #9cc6f5; }
+.pk-check {
+  flex: 0 0 auto;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 12rpx;
+  border: 2rpx solid #cfe0ee;
+  background: #fff;
+  color: #4285F4;
+  font-size: 28rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pk-item.on .pk-check { background: #4285F4; border-color: #4285F4; color: #fff; }
+.pk-main { flex: 1 1 auto; min-width: 0; }
+.pk-qa { display: flex; align-items: baseline; gap: 12rpx; flex-wrap: wrap; }
+.pk-q { font-size: 28rpx; font-weight: 900; color: #2f5470; word-break: break-all; }
+.pk-a { font-size: 24rpx; font-weight: 800; color: #2fa96b; word-break: break-all; }
+.pk-hint { margin-top: 4rpx; font-size: 21rpx; color: #8a9bb5; }
+.pk-src {
+  flex: 0 0 auto;
+  font-size: 19rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  background: #eef5fb;
+  color: #93a9bd;
+}
+.pk-src.mine { background: #e6f7ee; color: #2fa96b; }
+.pk-src.edit { background: #fff4dd; color: #d18b00; }
+.pk-empty { padding: 60rpx 0; text-align: center; font-size: 26rpx; color: #93a9bd; }
+
+.pk-btns { flex: 0 0 auto; margin-top: 16rpx; display: flex; gap: 18rpx; }
+.pk-btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 44rpx;
+  background: #ffb703;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 900;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .1);
+}
+.pk-btn.ghost { flex: 0 0 200rpx; background: #eef5fb; color: #7b93ad; }
+.pk-tip { margin-top: 14rpx; text-align: center; font-size: 20rpx; color: #93a9bd; line-height: 1.5; }
+
 /* 添加按钮：绿色小胶囊 + 按压感 */
 .btn-add {
   min-width: 150rpx;

@@ -1,18 +1,19 @@
-<!-- 自定义题库中心（B4：我的题库 / 公开广场 / 新建 / 导入） -->
+<!-- 自建关卡中心（原名「自定义题库」，2026-09-18 改名避免与新的「题库」页撞名）
+     B4：我的关卡 / 公开广场 / 新建 / 导入 -->
 <view class="page-custom">
   <view class="hub-head">
     <button class="back-pill" bindtap="goBack">‹</button>
-    <view class="hub-title">🛠️ 自定义题库</view>
+    <view class="hub-title">🛠️ 自建关卡</view>
     <view class="hub-new" bindtap="createNew">＋ 新建</view>
   </view>
 
   <!-- tab -->
   <view class="tabs">
-    <view class="tab {{tab === 'mine' ? 'active' : ''}}" data-tab="mine" bindtap="switchTab">📁 我的题库</view>
+    <view class="tab {{tab === 'mine' ? 'active' : ''}}" data-tab="mine" bindtap="switchTab">📁 我的关卡</view>
     <view class="tab {{tab === 'public' ? 'active' : ''}}" data-tab="public" bindtap="switchTab">🌐 公开广场</view>
   </view>
 
-  <!-- 我的题库 -->
+  <!-- 我的关卡 -->
   <scroll-view wx:if="{{tab === 'mine'}}" class="hub-scroll" scroll-y="true" show-scrollbar="{{false}}">
     <view wx:if="{{!mine.length && !loading}}" class="empty">
       <view class="e-emoji">🗂️</view>

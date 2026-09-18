@@ -82,9 +82,51 @@ H.runSuite('verify-bank（题库）', async function (miniProgram, ck) {
   ck.check('进入学习 tab', study.path === 'pages/study/study', '实际 = ' + study.path);
   const links = await study.$$('.link');
   let found = false;
+  let foundLevel = false;
   for (const l of links) {
     const t = await l.text();
-    if (t && t.indexOf('题库') >= 0) { found = true; break; }
+    if (!t) continue;
+    if (t.indexOf('题库') >= 0 && t.indexOf('自建关卡') < 0) found = true;
+    if (t.indexOf('自建关卡') >= 0) foundLevel = true;
   }
   ck.check('学习 tab 有题库入口', found);
+  // 2026-09-18 改名：原「自定义题库」→「自建关卡」，避免与新「题库」撞名
+  ck.check('学习 tab 的自建关卡入口已改名（不再叫自定义题库）', foundLevel);
+
+  // ---------- [5] 自建关卡编辑器：从题库选题（方案 A） ----------
+  console.log('[5] 关卡编辑器「从题库选」：勾选 → 加入题单');
+  const editor = await H.goto(miniProgram, '/pages/level-editor/level-editor', 1600);
+  ck.check('编辑器页渲染', !!(await H.waitForSelector(editor, '.page-editor', 8000)));
+  const pickBtn = await editor.$('.btn-pick');
+  ck.check('存在「📚 从题库选」按钮', !!pickBtn);
+  if (pickBtn) {
+    await pickBtn.tap();
+    await editor.waitFor(900);
+    const d1 = await editor.data();
+    ck.check('选题弹层打开', d1.pickerShow === true, '实际 = ' + d1.pickerShow);
+    ck.check('列出本学段词条（>0 条）', (d1.pickerOptions || []).length > 0,
+      '实际 = ' + (d1.pickerOptions || []).length);
+    const items = await editor.$$('.pk-item');
+    ck.check('可勾选条目已渲染', items.length > 0, '实际 ' + items.length);
+    if (items.length >= 2) {
+      await items[0].tap();
+      await editor.waitFor(300);
+      await items[1].tap();
+      await editor.waitFor(300);
+      const d2 = await editor.data();
+      ck.check('勾选计数为 2', d2.pickerCount === 2, '实际 = ' + d2.pickerCount);
+      const applyBtn = (await editor.$$('.pk-btn'))[1];
+      await applyBtn.tap();
+      await editor.waitFor(900);
+      const d3 = await editor.data();
+      ck.check('加入题单：弹层关闭', d3.pickerShow === false, '实际 = ' + d3.pickerShow);
+      ck.check('题单里多了 2 道来自题库的题', (d3.items || []).length === 2,
+        '实际 = ' + (d3.items || []).length);
+      ck.check('搬进来的题字段完整（type/q/a）',
+        (d3.items || []).every((it) => it.type && it.q && it.a),
+        JSON.stringify((d3.items || []).slice(0, 2)));
+      ck.check('题库内部标记没有写进关卡数据',
+        (d3.items || []).every((it) => it._user === undefined && it._key === undefined));
+    }
+  }
 });
