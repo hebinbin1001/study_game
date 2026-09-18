@@ -60,7 +60,7 @@ const MODULES = [
     id: 'game',
     name: '字母射击对局与结算（引擎 / 出题 / 渲染 / 结算页）',
     stages: ['game', 'result'],
-    unit: ['engine', 'question', 'state', 'renderer-warrior']
+    unit: ['shoot', 'question']
   },
   {
     id: 'wordgames',

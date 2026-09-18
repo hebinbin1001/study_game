@@ -434,14 +434,17 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
       '实际 = ' + bossData.level);
     ck.check('Boss 关题量为 15（普通关是 10）', bossData.totalQ === challenge.BOSS_PARAMS.totalQ,
       '实际 = ' + bossData.totalQ);
-    ck.check('Boss 关命数为 7（data.livesText 为 7 颗心）', bossData.livesText === '❤'.repeat(7),
+    ck.check('Boss 关护盾为 7（data.livesText 为 7 颗心）', bossData.livesText === '❤'.repeat(7),
       '实际 = ' + JSON.stringify(bossData.livesText) + '（长度 ' + String(bossData.livesText || '').length + '）');
     const bossHud = await H.textOf(cur4, '.hud-lives');
     ck.check('Boss 关 HUD 命数文案 = 7 颗心', bossHud === '❤'.repeat(7), '实际 = ' + JSON.stringify(bossHud));
     const bossQ = await H.textOf(cur4, '.hud-qnum');
     ck.check('Boss 关题号显示为第 1/15 题', /1\s*\/\s*15/.test(bossQ || ''), '实际 = ' + JSON.stringify(bossQ));
-    ck.check('Boss 关出满 4 个选项（对局正常开始）',
-      !!(await H.waitForCount(cur4, '.option', 4, 15000)));
+    // 2026-09-18 改版：字母射击的选项从「固定 4 个选项」变成「字母面板」，
+    // 面板格子数 ≥ 空位数，故这里断言面板已渲染而不是恰好 4 个
+    ck.check('Boss 关对局正常开始（词槽 + 字母面板已渲染）',
+      !!(await H.waitForSelector(cur4, '.gs-slot', 15000)) &&
+      !!(await H.waitForSelector(cur4, '.gs-bullet', 15000)));
     ck.check('全程未崩溃（停在 Boss 玩法页）',
       (await miniProgram.currentPage()).path === 'pages/game/game');
   }

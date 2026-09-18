@@ -475,29 +475,67 @@ function genQuestion(item, bank) {
   }
   // 挖空/渲染源词：含 '*' 的 w2/c2 以完整答案 a 为源，杜绝挖到 '*' 占位符
   const w = sourceWord(item);
-  let blankIdx, correct;
-  const kind = typeKind(item);
-
-  if (kind === 'idiom') {
-    // 成语：挖 [1, len-1] 随机位（避开首字）
-    blankIdx = randInt(1, w.length - 1);
-    correct = w[blankIdx];
-  } else if (kind === 'cn') {
-    // 词语/单字：随机挖一格
-    blankIdx = rand(w.length);
-    correct = w[blankIdx];
-  } else {
-    // 英语：优先挖元音
-    const vi = [];
-    for (let i = 0; i < w.length; i++) {
-      if (VOWELS.includes(w[i].toLowerCase())) vi.push(i);
-    }
-    blankIdx = vi.length ? vi[rand(vi.length)] : rand(w.length);
-    correct = w[blankIdx];
-  }
+  const blankIdx = pickBlankIndex(item, w);
+  const correct = w[blankIdx];
 
   const options = genDistractors(item, blankIdx, correct, bank);
   return { blankIdx, correct, options, wordLevel: false };
+}
+
+/**
+ * 单空格题型的挖空位置（REQ-GAME-4 原规则，2026-09-18 从 genQuestion 原样抽出，行为不变）：
+ *   - 英语：优先挖元音，无元音则随机；
+ *   - 成语：挖中间某字（避开首字）；
+ *   - 词语/单字：随机挖一格。
+ *
+ * @param {Object} item 词条
+ * @param {string} w 题面源词（完整词）
+ * @returns {number} 挖空下标
+ */
+function pickBlankIndex(item, w) {
+  const kind = typeKind(item);
+  if (kind === 'idiom') {
+    // 成语：挖 [1, len-1] 随机位（避开首字）
+    return randInt(1, w.length - 1);
+  }
+  if (kind === 'cn') {
+    // 词语/单字：随机挖一格
+    return rand(w.length);
+  }
+  // 英语：优先挖元音
+  const vi = [];
+  for (let i = 0; i < w.length; i++) {
+    if (VOWELS.includes(w[i].toLowerCase())) vi.push(i);
+  }
+  return vi.length ? vi[rand(vi.length)] : rand(w.length);
+}
+
+/**
+ * 一道题需要挖空的位置列表（2026-09-18 新增：支持「一题多个空」）。
+ *
+ * 字母射击改版后，一题 = 一个完整词，词里可以有多个空（玩家依次补全才击破 Boss）。
+ * 空位来源按题型区分，**不改变任何题型的既有挖空语义**：
+ *   · 词级题型（fill/trans/xhy/zc）：整词一个空 → [0]；
+ *   · w2/c2 这类「带 * 模板」：模板里所有 * 的位置（本身就是多空题型）；
+ *   · 其余（w1/c1/原型三分类）：沿用单空格规则 → 长度 1 的数组。
+ *
+ * @param {Object} item 词条
+ * @returns {number[]} 升序的挖空下标数组；无空可挖时返回 [0] 兜底
+ */
+function hiddenIndexes(item) {
+  if (!item) return [0];
+  if (isWordLevel(item)) return [0];
+  const q = getWord(item);
+  if (q.indexOf('*') !== -1) {
+    const out = [];
+    for (let i = 0; i < q.length; i++) {
+      if (q[i] === '*') out.push(i);
+    }
+    if (out.length) return out;
+  }
+  const w = sourceWord(item);
+  if (!w.length) return [0];
+  return [pickBlankIndex(item, w)];
 }
 
 /**
@@ -698,6 +736,9 @@ module.exports = {
   genQuestion,
   genDistractors,
   ensureDistractors,
+  // 挖空位置（2026-09-18：多空题支持）
+  pickBlankIndex,
+  hiddenIndexes,
   // 随机源注入（挑战关卡固定题面用）
   setRandom,
   getRandom,

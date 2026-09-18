@@ -1,82 +1,133 @@
 <!--
-  游戏页：Canvas 2D + HUD + 选项按钮，对接 game/engine.js 主循环
-  关联 REQ：REQ-GAME-2（Canvas+HUD 分层）、REQ-GAME-3（命数/题号）、
-           REQ-GAME-6/7/8/9/10（答对/答错/下沉/连击/反馈）、
-           REQ-NFR-1（HUD 仅变化时 setData）、REQ-NFR-3（dpr 适配）
-  平移来源：prototype/index.html 第 156-168 行游戏页 UI 结构
+  游戏页 · 字母射击（2026-09-18 改版：WXML/CSS 渲染，逻辑在 game/shoot.js）
+  结构：HUD / 战场（勇士 · Boss · 血条）/ 词槽 / 字母面板 / 浮层
+  说明：视觉沿用本项目浅色卡通风（不做深色主题，规避系统深色模式踩坑）
 -->
-<view class="game-page">
+<view class="gs-page game-page">
 
-  <!-- HUD 层：命数 / 得分 / 题号 / 声音（REQ-GAME-3，白色卡通胶囊卡） -->
-  <view class="hud">
-    <view class="hud-chip hud-lives">{{livesText}}</view>
-    <view wx:if="{{challengeLabel}}" class="hud-chip">{{challengeLabel}}</view>
-    <view class="hud-chip hud-score">得分 {{score}}</view>
-    <view class="hud-chip hud-qnum">第 {{qIndex}}/{{totalQ}} 题</view>
-    <view class="hud-chip hud-icon" catchtap="onToggleSound">{{soundOn ? '🔊' : '🔇'}}</view>
-    <view class="hud-chip hud-icon hud-pause" catchtap="onPause">⏸</view>
-  </view>
-
-  <!--
-    游戏画布：Canvas 2D 新接口，逻辑尺寸 390×500（与 config.js W/H 一致）
-    onReady 中经 createSelectorQuery 获取 node + ctx，dpr 适配后注入 engine
-    关联 REQ-GAME-2、REQ-NFR-3
-  -->
-  <canvas type="2d" id="game-canvas" class="game-canvas"></canvas>
-
-  <!-- 底部面板：提示文字 + 选项按钮（REQ-GAME-2 分层） -->
-  <view class="bottom-panel">
-    <!-- 提示文字：答对/答错/逼近时由 engine.onTip 回调驱动 -->
-    <view class="tip">{{tip}}</view>
-
-    <!--
-      选项按钮区：wx:for 渲染选项
-      - 字符级题：4 个字符按钮（item.letter）
-      - 词级题（H2-B）：按钮文本为整词 item.display（英文大写），
-        item.wide=true 走宽版样式（自动宽度/换行）
-      catchtap 阻止冒泡并转发给 onOptionTap → engine.fire(opt)
-      关联 REQ-GAME-6/7（点选项触发答对/答错流程）
-    -->
-    <view class="options">
+  <!-- ============ HUD ============ -->
+  <view class="gs-hud hud">
+    <view class="gs-icon" catchtap="onQuit">✕</view>
+    <view class="gs-dots">
       <view
-        wx:for="{{options}}"
-        wx:key="letter"
-        class="option {{item.colorClass}} {{item.used ? 'used' : ''}} {{item.wide ? 'wide' : ''}} {{showAnswer && item.correct ? 'ok' : ''}} {{showAnswer && item.used ? 'bad' : ''}}"
-        catchtap="onOptionTap"
+        wx:for="{{dots}}"
+        wx:key="i"
+        class="gs-dot {{item.done ? 'done' : ''}} {{item.cur ? 'cur' : ''}}"></view>
+    </view>
+    <view class="gs-stats">
+      <view class="gs-chip">💰 {{score}}</view>
+      <view class="gs-chip gs-chip-combo">🔥 {{combo}}</view>
+      <view class="gs-chip hud-qnum">第 {{qIndex}}/{{totalQ}} 题</view>
+      <view class="gs-chip gs-chip-shield hud-lives">{{livesText}}</view>
+      <view class="gs-icon gs-icon-sound" catchtap="onToggleSound">{{soundOn ? '🔊' : '🔇'}}</view>
+      <view class="gs-icon gs-icon-sound" catchtap="onPause">⏸</view>
+    </view>
+  </view>
+
+  <!-- ============ 战场 ============ -->
+  <view class="gs-stage {{shake ? 'gs-shake' : ''}}">
+
+    <!-- 题面横幅：要拼出什么 -->
+    <view class="gs-quest">
+      <view class="gs-quest-top">
+        <text class="gs-quest-label">🎯 补全词语，打跑它</text>
+        <text wx:if="{{challengeLabel}}" class="gs-quest-stage">{{challengeLabel}}</text>
+        <text wx:elif="{{bossName}}" class="gs-quest-stage">{{bossName}}</text>
+      </view>
+      <view class="gs-quest-answer">{{meaning}}</view>
+    </view>
+
+    <!-- Boss 血条 -->
+    <view class="gs-hp"><view class="gs-hp-fill" style="width:{{bossHp}}%"></view></view>
+
+    <!-- 对阵：勇士 VS Boss -->
+    <view class="gs-field">
+      <view class="gs-hero {{heroHurt ? 'gs-hero-hurt' : ''}}">
+        <image
+          wx:if="{{warriorImg && warriorImgOk}}"
+          class="gs-art"
+          src="{{warriorImg}}"
+          mode="aspectFit"
+          binderror="onWarriorImgError"></image>
+        <view wx:else class="gs-art-emoji">{{warriorEmoji}}</view>
+      </view>
+      <view class="gs-clash {{bossCharging ? 'danger' : ''}}">⚔ VS ⚔</view>
+      <view class="gs-boss {{bossHit ? 'gs-boss-hit' : ''}} {{bossCharging ? 'gs-boss-charging' : ''}}">
+        <image
+          wx:if="{{bossImg && bossImgOk}}"
+          class="gs-art"
+          src="{{bossImg}}"
+          mode="aspectFit"
+          binderror="onBossImgError"></image>
+        <view wx:else class="gs-art-emoji">{{bossEmoji}}</view>
+      </view>
+    </view>
+
+    <!-- 词槽 -->
+    <view class="gs-slots">
+      <!-- 词级题型：题干 + 整词空槽 + 后缀 -->
+      <block wx:if="{{kind === 'word'}}">
+        <text class="gs-head">{{head}}</text>
+        <text class="gs-slot gs-slot--word {{slots[0].on ? 'on' : ''}}">{{slots[0].on ? slots[0].ch : '?'}}</text>
+        <text class="gs-tail">{{tail}}</text>
+      </block>
+      <!-- 字符级题型：整词逐格，挖空的格子显示 ? -->
+      <block wx:else>
+        <text
+          wx:for="{{slots}}"
+          wx:key="index"
+          class="gs-slot {{item.on ? 'on' : ''}}">{{item.on ? item.ch : '?'}}</text>
+      </block>
+    </view>
+
+    <!-- 浮层反馈 -->
+    <view wx:if="{{hitText}}" class="gs-float gs-float--hit">{{hitText}}</view>
+    <view wx:if="{{missText}}" class="gs-float gs-float--miss">{{missText}}</view>
+    <view wx:if="{{damageText}}" class="gs-float gs-float--dmg">{{damageText}}</view>
+  </view>
+
+  <!-- ============ 字母 / 词卡面板 ============ -->
+  <view class="gs-pad-wrap">
+    <view class="gs-pad-label">{{kind === 'word' ? '选择正确的词语' : '选择字母'}}</view>
+    <view class="gs-pad">
+      <view
+        wx:for="{{pad}}"
+        wx:key="k"
+        class="gs-bullet {{item.used ? 'used' : ''}} {{kind === 'word' ? 'gs-bullet--word' : ''}}"
         data-index="{{index}}"
-      >{{item.display || item.letter}}</view>
+        catchtap="onPadTap">{{item.text}}</view>
     </view>
+    <view class="gs-tip">{{tip}}</view>
   </view>
 
-  <!-- 连击提示浮层（REQ-GAME-9，连对 2/3/5 题时由 engine.onCombo 触发） -->
-  <view wx:if="{{comboText}}" class="combo-toast">{{comboText}}</view>
+  <!-- 连击浮层 -->
+  <view wx:if="{{comboText}}" class="gs-combo-toast">{{comboText}}</view>
 
-  <!-- 暂停遮罩（R5）：不透明底盖住画面，暂停期间看不到题目与计时 -->
-  <view wx:if="{{paused}}" class="pause-mask">
-    <view class="pause-card">
-      <view class="pause-emoji">⏸</view>
-      <view class="pause-title">已暂停</view>
-      <view class="pause-tip">题目与计时已隐藏</view>
-      <view class="pause-btns">
-        <view class="pause-btn pause-btn--ghost" catchtap="onQuit">返回</view>
-        <view class="pause-btn" catchtap="onResume">继续</view>
+  <!-- 暂停遮罩 -->
+  <view wx:if="{{paused}}" class="gs-mask pause-mask">
+    <view class="gs-card">
+      <view class="gs-card-emoji">⏸</view>
+      <view class="gs-card-title">已暂停</view>
+      <view class="gs-card-tip">本局进度已保留，回来接着打</view>
+      <view class="gs-card-btns">
+        <view class="gs-btn gs-btn--ghost pause-btn" catchtap="onQuit">返回</view>
+        <view class="gs-btn pause-btn" catchtap="onResume">继续</view>
       </view>
     </view>
   </view>
 
-  <!-- 新手引导蒙层（M6-L：首次进入 3 步，点击任意处下一步/开始） -->
-  <view wx:if="{{tutorialStep > 0}}" class="tutorial-mask" catchtap="onTutorialTap">
-    <view class="tutorial-card">
-      <view class="tutorial-emoji">{{tutorialStep === 1 ? '🐱' : (tutorialStep === 2 ? '💥' : '❤️')}}</view>
-      <view class="tutorial-title">{{tutorialTitle}}</view>
-      <view class="tutorial-desc">{{tutorialDesc}}</view>
-      <view class="tutorial-dots">
-        <view class="tutorial-dot {{tutorialStep === 1 ? 'on' : ''}}"></view>
-        <view class="tutorial-dot {{tutorialStep === 2 ? 'on' : ''}}"></view>
-        <view class="tutorial-dot {{tutorialStep === 3 ? 'on' : ''}}"></view>
+  <!-- 新手引导（首次进入 3 步） -->
+  <view wx:if="{{tutorialStep > 0}}" class="gs-mask tutorial-mask" catchtap="onTutorialTap">
+    <view class="gs-card">
+      <view class="gs-card-emoji">{{tutorialStep === 1 ? '🎯' : (tutorialStep === 2 ? '🔫' : '🛡')}}</view>
+      <view class="gs-card-title">{{tutorialTitle}}</view>
+      <view class="gs-card-tip">{{tutorialDesc}}</view>
+      <view class="gs-card-dots">
+        <view class="gs-card-dot {{tutorialStep === 1 ? 'on' : ''}}"></view>
+        <view class="gs-card-dot {{tutorialStep === 2 ? 'on' : ''}}"></view>
+        <view class="gs-card-dot {{tutorialStep === 3 ? 'on' : ''}}"></view>
       </view>
-      <view class="tutorial-btn">{{tutorialStep < 3 ? '下一步' : '开始闯关！'}}</view>
+      <view class="gs-btn">{{tutorialStep < 3 ? '下一步' : '开始闯关！'}}</view>
     </view>
   </view>
-
 </view>

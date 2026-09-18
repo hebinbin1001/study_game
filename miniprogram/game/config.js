@@ -1,132 +1,60 @@
 /**
- * game/config.js —— 词力战士游戏参数集中配置
+ * game/config.js —— 字母射击参数集中配置
  *
- * 职责：
- *   集中管理所有游戏魔法数字（下沉速度、逼近参数、画布几何、怪兽尺寸、
- *   炮弹速度、动画时长等），作为唯一调参与调难度入口。
- *   从 utils/constants.js 的 GAME_CONFIG 导入基础默认值并扩展布局参数。
+ * 2026-09-18 改版：字母射击从「canvas 引擎」改为「WXML/CSS + game/shoot.js 纯逻辑」，
+ * 画布几何（W/H/怪兽坐标/炮弹速度/粒子参数）随之全部删除 —— 那些常量只服务于
+ * 已移除的 renderer。这里只保留**玩法数值**（题量、护盾、计分、错题回流概率）。
  *
- * 平移来源：prototype/index.html 第 195-213 行 CONFIG 与几何常量。
- *
- * 关联需求：
- *   - REQ-NFR-5（参数可调、魔法数字集中）
- *   - REQ-GAME-3（关卡难度参数化）
- *   - REQ-GAME-6/7（答对/答错动画时长 approachTime/dyingTime）
- *   - REQ-NFR-1（粒子数量上限保帧率）
+ * 数值口径刻意不动（避免已上线难度漂移）：
+ *   · 每题一次判定的容错次数 = initLives（5）；
+ *   · 新版「每个空位点错扣 1 盾」，累计点错 5 次判负 —— 与旧版「答错 5 题判负」容错一致。
  */
 
 const { GAME_CONFIG } = require('../utils/constants');
 const { DEFAULT_REVIEW_RATE } = require('../utils/review');
 
-// ============ 一、画布几何（逻辑像素，与原型 W/H 完全一致） ============
-// 小程序经 dpr 适配 + ctx.scale(dpr,dpr) 后，绘制坐标系仍以逻辑像素为准
-const W = GAME_CONFIG.canvasW; // 390 画布逻辑宽
-const H = GAME_CONFIG.canvasH; // 500 画布逻辑高
+// ============ 一、计分参数 ============
+// ⚠️ 必须与服务端 server/constants.js 的 SCORE_PER_QUESTION 保持一致：
+//    服务端**忽略客户端自报的 score**，用 `答对数 × SCORE_PER_QUESTION` 反推分数
+//    （见 server/routes/score.js）。所以前端「得分」只能是同一个口径 ——
+//    新版把「答对」定义为「零失误击破一题」，得分 = 零失误题数 × 10。
+const SCORE_PER_CORRECT = 10;
 
-// ============ 二、怪兽几何 ============
-const MON_W = 250; // 怪兽（题目卡片）宽
-const MON_H = 118; // 怪兽（题目卡片）高
+// ============ 二、字母面板参数 ============
+// 面板最少几个子弹（正确字母之外再补干扰字母，凑够这个数量）
+const PAD_MIN_COUNT = 8;
+// 正确字母之外最少多给几个干扰字母
+const PAD_MIN_DISTRACTORS = 4;
 
-// ============ 三、派生坐标 ============
-// 炮台 y：画布底部上方 46px（原型 cannonY = 500 - 46）
-const CANNON_Y = H - 46;
-// 怪兽下沉到此 y 判负（原型 dangerY = 500 - 160）
-const DANGER_Y = H - 160;
-// 怪兽初始 y
-const MON_START_Y = 22;
+// ============ 三、动画时长（毫秒，页面层用） ============
+const FLY_MS = 220;        // 字母子弹飞行
+const COUNTER_MS = 300;    // Boss 反击弹飞行
+const CHARGE_MS = 140;     // Boss 蓄力
+const CLEAR_MS = 720;      // 击破 Boss → 下一题
+const DEFEAT_MS = 900;     // 勇士倒下 → 结算
 
-// ============ 四、怪兽配色（6 种循环） ============
-const MONSTER_COLORS = [
-  '#ff8fae', '#7ec4ff', '#b79bff', '#8ce0a5', '#ffc46b', '#8ad4e8'
-];
-
-// ============ 五、动画/玩法参数 ============
-// 炮弹飞行速度（px/秒），原型 fire() 中 speed:700
-const BULLET_SPEED = 700;
-// 答对后怪兽死亡动画时长（秒），原型 onBulletHit 中 setTimeout(nextQuestion, 700)
-const DYING_TIME = 0.7;
-// 答错逼近动画时长（秒），来自 GAME_CONFIG.approachTime
-const APPROACH_TIME = GAME_CONFIG.approachTime;
-// 连击提示触发的连击数阈值（原型 showCombo 在 combo>=2 时触发，3/5 加图标）
-const COMBO_HINT_THRESHOLDS = [2, 3, 5];
-
-// ============ 六、粒子/反馈参数（REQ-NFR-1 帧率保护） ============
-// 粒子数量上限，超过则丢弃新增，保证 60fps
-const MAX_PARTICLES = 200;
-// 答对爆炸粒子数
-const BURST_CORRECT_N = 26;
-// 答错爆炸粒子数
-const BURST_WRONG_N = 20;
-// 冒星星粒子数范围（3~5 颗）
-const STAR_PARTICLE_MIN = 3;
-const STAR_PARTICLE_MAX = 5;
-// ✓ 反馈存活时长（秒），原型 checkmark.life:0.3
-const CHECKMARK_LIFE = 0.3;
-// 弹字（+100/-1命）存活时长（秒），原型 popup life:1.1
-const POPUP_LIFE = 1.1;
-
-// ============ 七、计分参数 ============
-// 每题答对得分 10 分：每关 10 题，满分 100（前端 engine 累加 = 服务端答对数×每题分推导，两端一致）
-const SCORE_PER_CORRECT = 10; // 答对一题得分
-
-// ============ 七点二、错题回流概率（R2） ============
-// 每局抽题时以该概率优先出「待复习错题」，让主玩法本身承担自动复习。
-// 数值唯一来源在 utils/review.js（需求约定 20%~30%，取中值 25%）。
-const REVIEW_RATE = DEFAULT_REVIEW_RATE;
-
-// ============ 八、CONFIG 聚合对象 ============
-// 汇总所有配置，供 state/question/renderer/engine 统一引用
+// ============ 四、CONFIG 聚合对象 ============
 const CONFIG = {
   // 基础玩法（来自 GAME_CONFIG）
   totalQ: GAME_CONFIG.totalQ,           // 每关题数 10
-  initLives: GAME_CONFIG.initLives,     // 初始命数 5（与星级阈值联动，见 utils/constants.js 注释）
-  sinkSpeed: GAME_CONFIG.sinkSpeed,     // 怪兽自然下沉速度 13 px/秒
-  approach: GAME_CONFIG.approach,       // 答错逼近距离 58 px
-  approachTime: APPROACH_TIME,          // 答错逼近动画时长 0.6 秒
+  initLives: GAME_CONFIG.initLives,     // 初始护盾 5（与星级阈值联动，见 utils/constants.js 注释）
 
-  // 画布几何
-  W, H,
-  cannonY: CANNON_Y,
-  dangerY: DANGER_Y,
-  monStartY: MON_START_Y,
-
-  // 怪兽
-  monW: MON_W,
-  monH: MON_H,
-  monsterColors: MONSTER_COLORS,
-
-  // 炮弹与动画
-  bulletSpeed: BULLET_SPEED,
-  dyingTime: DYING_TIME,
-
-  // 连击
-  comboHintThresholds: COMBO_HINT_THRESHOLDS,
-
-  // 粒子与反馈
-  maxParticles: MAX_PARTICLES,
-  burstCorrectN: BURST_CORRECT_N,
-  burstWrongN: BURST_WRONG_N,
-  starParticleMin: STAR_PARTICLE_MIN,
-  starParticleMax: STAR_PARTICLE_MAX,
-  checkmarkLife: CHECKMARK_LIFE,
-  popupLife: POPUP_LIFE,
-
-  // 计分
+  // 计分（零失误击破一题的得分；必须与服务端 SCORE_PER_QUESTION 相同）
   scorePerCorrect: SCORE_PER_CORRECT,
 
+  // 字母面板
+  padMinCount: PAD_MIN_COUNT,
+  padMinDistractors: PAD_MIN_DISTRACTORS,
+
+  // 动画时长（毫秒）
+  flyMs: FLY_MS,
+  counterMs: COUNTER_MS,
+  chargeMs: CHARGE_MS,
+  clearMs: CLEAR_MS,
+  defeatMs: DEFEAT_MS,
+
   // 错题回流概率（R2）
-  reviewRate: REVIEW_RATE
+  reviewRate: DEFAULT_REVIEW_RATE
 };
 
-module.exports = {
-  CONFIG,
-  // 同时导出常用几何常量别名，便于 renderer 直接解构
-  W,
-  H,
-  MON_W,
-  MON_H,
-  CANNON_Y,
-  DANGER_Y,
-  MON_START_Y,
-  MONSTER_COLORS
-};
+module.exports = { CONFIG };

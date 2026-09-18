@@ -1,359 +1,432 @@
 /**
- * 游戏页样式：Canvas 2D + HUD + 选项按钮
- * 关联 REQ：REQ-GAME-2（分层布局）、REQ-GAME-3（命数/题号）、REQ-NFR-3（画布几何）
- * 平移来源：prototype/index.html 第 74-94 行游戏页样式
+ * 游戏页 · 字母射击（2026-09-18 改版）
+ *
+ * 全部尺寸用 rpx + flex，不写死像素（真机不同宽度都能自适应）。
+ * 动画只用 transform / opacity，交给合成层，避免真机掉帧。
+ * 视觉沿用项目浅色卡通风。
  */
 
-/* ============ 页面容器 ============ */
-/* 暖色天空渐变背景，纵向布局；内容超出时允许滚动兜底（小屏机型） */
-.game-page {
+.gs-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 18rpx 20rpx calc(24rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 16rpx 24rpx;
-  /* 底部安全区适配：全面屏底部选项按钮不被 Home 指示条遮挡 */
-  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
-  box-sizing: border-box;
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 70%, #eaf8ff 100%);
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 55%, #eaf8ff 100%);
 }
 
-/* ============ HUD 层 ============ */
-/* 命数 / 得分 / 题号：白色卡通胶囊卡横排（配色统一引用 app.wxss 设计 token） */
-.hud {
-  width: 100%;
-  min-height: 88rpx;
+/* ============ HUD ============ */
+.gs-hud {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  /* 收紧：终关 Boss 是 **7 颗心 + 两位得分 + 第 12/15 题**，
-     实测 8rpx 间距 + 原字号会被挤到换行（命数胶囊裂成两行，见 e2e/preview-game.js 的 Boss 场景）。 */
-  gap: 6rpx;
-  padding: 0 4rpx;
-  box-sizing: border-box;
+  gap: 12rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .06);
 }
-
-/* HUD 胶囊卡：白色半透明底 + 小号硬阴影（卡通按压风格） */
-.hud-chip {
+.gs-icon {
+  flex: 0 0 auto;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 16rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 72rpx;
-  padding: 0 14rpx;   /* 收紧：7 颗心 + 两位得分 + 第 12/15 题要能挤在一行 */
-  border-radius: 38rpx;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, 0.95),
-    0 6rpx 0 rgba(0, 0, 0, 0.08), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
-}
-
-/* 命数：粉色 ❤ 字符（token --pink） */
-.hud-lives {
-  font-size: 30rpx;
-  font-weight: 900;
-  color: var(--pink, #ff5d8f);
-  letter-spacing: 0;
-  min-width: 88rpx;
-  /* 命数是关键信息：不许被压缩、不许换行（7 颗心时必须保持一行） */
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-/* 得分：墨色粗体（token --ink，白底上用深色保证对比度） */
-.hud-score {
   font-size: 26rpx;
   font-weight: 900;
-  color: var(--ink, #3a3a5c);
-  white-space: nowrap;
+  color: #5c7f9e;
+  background: #eaf3fb;
 }
-
-/* 题号：次级灰蓝粗体（token --text-sub） */
-.hud-qnum {
-  font-size: 22rpx;
-  font-weight: 800;
-  color: var(--text-sub, #5c7f9e);
-  min-width: 120rpx;
-  white-space: nowrap;
-}
-
-/* 声音开关：窄胶囊（喇叭切换，catchtap） */
-/* 图标型胶囊（声音 / 暂停）：定宽紧凑，排在 HUD 右侧 */
-.hud-icon {
-  width: 60rpx;
-  padding: 0;
-  font-size: 28rpx;
-  flex-shrink: 0;
-}
-
-/* ============ 暂停遮罩（R5） ============
-   用不透明底遮住画布与选项：暂停时不能看到题目与计时（防止「暂停偷看」）。
-   暂停即 engine.stop() 停主循环，怪兽不再下沉。 */
-.pause-mask {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 500;
+.gs-dots {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #5aa9e6 0%, #a8d8f5 42%, #d8efff 100%);
+  gap: 8rpx;
+  overflow: hidden;
 }
-.pause-card {
-  width: 560rpx;
-  box-sizing: border-box;
-  background: #ffffff;
-  border-radius: 40rpx;
-  padding: 40rpx 32rpx 32rpx;
+.gs-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #cfe0ee;
+}
+.gs-dot.done { background: #6fcf97; }
+.gs-dot.cur { background: #ffb703; transform: scale(1.35); }
+.gs-stats {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.gs-chip {
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: #f2f8fd;
+  font-size: 22rpx;
+  font-weight: 800;
+  color: #5c7f9e;
+}
+.gs-chip-combo { color: #e8722c; }
+.gs-chip-shield { color: #e8556d; letter-spacing: -2rpx; }
+
+/* ============ 战场 ============ */
+.gs-stage {
+  position: relative;
+  flex: 1 1 auto;
+  margin-top: 16rpx;
+  padding: 20rpx 20rpx 24rpx;
+  border-radius: 28rpx;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, .85), transparent 45%),
+    linear-gradient(180deg, #ffffff 0%, #eef7ff 100%);
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, .06), inset 0 0 0 2rpx rgba(143, 208, 255, .5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.gs-shake { animation: gsShake .3s cubic-bezier(.36, .07, .19, .97); }
+@keyframes gsShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-10rpx, 5rpx); }
+  40% { transform: translate(10rpx, -6rpx); }
+  60% { transform: translate(-7rpx, -4rpx); }
+  80% { transform: translate(7rpx, 4rpx); }
+}
+
+/* 题面横幅 */
+.gs-quest {
+  flex: 0 0 auto;
   text-align: center;
-  box-shadow: 0 16rpx 0 rgba(0, 0, 0, 0.12), 0 30rpx 60rpx rgba(0, 0, 0, 0.2);
 }
-.pause-emoji { font-size: 64rpx; line-height: 1; }
-.pause-title {
-  margin-top: 12rpx;
-  font-size: 36rpx;
+.gs-quest-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+.gs-quest-label {
+  font-size: 22rpx;
+  font-weight: 800;
+  letter-spacing: 2rpx;
+  color: #7b93ad;
+}
+.gs-quest-stage {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #4a90d9;
+  background: #e6f3ff;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+}
+.gs-quest-answer {
+  margin-top: 10rpx;
+  font-size: 38rpx;
   font-weight: 900;
-  color: #3a3a5c;
+  color: #2f5470;
+  line-height: 1.35;
+  word-break: break-all;
 }
-.pause-tip {
-  margin-top: 8rpx;
+
+/* Boss 血条 */
+.gs-hp {
+  flex: 0 0 auto;
+  margin: 18rpx auto 0;
+  width: 70%;
+  height: 20rpx;
+  border-radius: 999rpx;
+  background: #dfeaf5;
+  overflow: hidden;
+}
+.gs-hp-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #ff8f6b, #ff5f6d 60%, #ffc94d);
+  transition: width .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* 对阵区 */
+.gs-field {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10rpx 0;
+  min-height: 260rpx;
+}
+.gs-hero, .gs-boss {
+  position: relative;
+  width: 200rpx;
+  height: 220rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gs-art {
+  width: 100%;
+  height: 100%;
+}
+.gs-art-emoji {
+  font-size: 120rpx;
+  line-height: 1;
+}
+.gs-hero { animation: gsIdle 2.6s ease-in-out infinite; }
+@keyframes gsIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12rpx); }
+}
+.gs-hero-hurt { animation: gsHeroHurt .55s cubic-bezier(.36, .07, .19, .97); }
+@keyframes gsHeroHurt {
+  0% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(10rpx) rotate(-12deg); filter: brightness(1.5) hue-rotate(-30deg); }
+  55% { transform: translateY(-10rpx) rotate(10deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+.gs-boss { animation: gsFloat 3.2s ease-in-out infinite; }
+@keyframes gsFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-16rpx) scale(1.03); }
+}
+.gs-boss-hit { animation: gsBossHit .34s cubic-bezier(.36, .07, .19, .97); }
+@keyframes gsBossHit {
+  0% { transform: scale(1); filter: brightness(2.6) saturate(.3); }
+  40% { transform: scale(1.18) rotate(-6deg); filter: brightness(2.2); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.gs-boss-charging { animation: gsCharge .32s ease-in-out; }
+@keyframes gsCharge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2) rotate(-4deg); filter: brightness(1.5) hue-rotate(-30deg); }
+  100% { transform: scale(1); }
+}
+.gs-clash {
   font-size: 24rpx;
-  color: #8a9bb5;
+  font-weight: 900;
+  letter-spacing: 2rpx;
+  color: #c3d4e3;
+  transition: color .2s, transform .2s;
 }
-.pause-btns {
+.gs-clash.danger {
+  color: #ff4d6a;
+  transform: scale(1.25);
+}
+
+/* 词槽 */
+.gs-slots {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4rpx;
+  min-height: 96rpx;
+}
+.gs-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56rpx;
+  height: 84rpx;
+  padding: 0 8rpx;
+  border-bottom: 6rpx solid #cfe0ee;
+  font-size: 52rpx;
+  font-weight: 900;
+  color: #b7c9d9;
+}
+.gs-slot.on {
+  color: #2f5470;
+  border-bottom-color: #4a90d9;
+}
+.gs-slot--word {
+  min-width: 160rpx;
+  font-size: 46rpx;
+  color: #2f5470;
+  border-bottom-color: #4a90d9;
+}
+.gs-head, .gs-tail {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #40617c;
+  padding-bottom: 18rpx;
+}
+
+/* 浮层反馈 */
+.gs-float {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  font-weight: 900;
+  pointer-events: none;
+  animation: gsFloatUp .9s cubic-bezier(.2, .85, .4, 1) forwards;
+}
+.gs-float--hit { font-size: 44rpx; color: #2fa96b; }
+.gs-float--miss {
+  font-size: 52rpx;
+  color: #ff5f6d;
+  letter-spacing: 4rpx;
+}
+.gs-float--dmg { font-size: 42rpx; color: #ff4d6a; margin-top: 70rpx; }
+@keyframes gsFloatUp {
+  0% { transform: translate(-50%, 0) scale(.4); opacity: 0; }
+  25% { transform: translate(-50%, -30rpx) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, -140rpx) scale(.9); opacity: 0; }
+}
+
+/* ============ 字母 / 词卡面板 ============ */
+.gs-pad-wrap {
+  flex: 0 0 auto;
+  margin-top: 16rpx;
+  padding: 14rpx 18rpx 18rpx;
+  border-radius: 26rpx;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .06);
+}
+.gs-pad-label {
+  text-align: center;
+  font-size: 20rpx;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+  color: #93a9bd;
+  margin-bottom: 12rpx;
+}
+.gs-pad {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14rpx;
+}
+.gs-bullet {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44rpx;
+  font-weight: 900;
+  color: #3f5a72;
+  background: linear-gradient(180deg, #ffffff, #e8f3fc);
+  border: 2rpx solid #cfe0ee;
+  box-shadow: 0 8rpx 0 #cfe0ee;
+  transition: transform .14s, opacity .2s, box-shadow .14s;
+}
+.gs-bullet:active {
+  transform: translateY(6rpx);
+  box-shadow: 0 2rpx 0 #cfe0ee;
+}
+.gs-bullet.used {
+  opacity: .18;
+  transform: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+.gs-bullet--word {
+  width: auto;
+  min-width: 150rpx;
+  padding: 0 24rpx;
+  font-size: 32rpx;
+}
+.gs-tip {
+  margin-top: 14rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #7b93ad;
+  line-height: 1.5;
+}
+
+/* 连击浮层 */
+.gs-combo-toast {
+  position: fixed;
+  left: 50%;
+  top: 34%;
+  transform: translateX(-50%);
+  padding: 14rpx 40rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 183, 3, .95);
+  color: #fff;
+  font-size: 40rpx;
+  font-weight: 900;
+  letter-spacing: 2rpx;
+  box-shadow: 0 10rpx 30rpx rgba(255, 183, 3, .5);
+  animation: gsPop .5s cubic-bezier(.34, 1.56, .64, 1);
+  z-index: 40;
+}
+@keyframes gsPop {
+  0% { transform: translateX(-50%) scale(.4); opacity: 0; }
+  60% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+/* ============ 遮罩（暂停 / 引导） ============ */
+.gs-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(23, 46, 66, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.gs-card {
+  width: 560rpx;
+  padding: 44rpx 36rpx 36rpx;
+  border-radius: 32rpx;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 20rpx 50rpx rgba(0, 0, 0, .2);
+}
+.gs-card-emoji { font-size: 96rpx; line-height: 1; }
+.gs-card-title {
+  margin-top: 16rpx;
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #2f5470;
+}
+.gs-card-tip {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #7b93ad;
+  line-height: 1.6;
+}
+.gs-card-dots {
+  margin-top: 22rpx;
+  display: flex;
+  justify-content: center;
+  gap: 12rpx;
+}
+.gs-card-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #dce8f2;
+}
+.gs-card-dot.on { background: #ffb703; }
+.gs-card-btns {
   margin-top: 30rpx;
   display: flex;
   gap: 20rpx;
 }
-.pause-btn {
+.gs-btn {
   flex: 1;
-  height: 92rpx;
-  line-height: 92rpx;
-  border-radius: 46rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 44rpx;
+  background: #ffb703;
+  color: #fff;
   font-size: 32rpx;
   font-weight: 900;
-  color: #ffffff;
-  background: #ffb703;
-  box-shadow: 0 8rpx 0 rgba(180, 120, 0, 0.3);
+  letter-spacing: 2rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .1);
 }
-.pause-btn--ghost {
-  background: #eef2f8;
-  color: #5c7f9e;
-  box-shadow: 0 8rpx 0 rgba(35, 70, 110, 0.12);
+.gs-btn--ghost {
+  background: #eef5fb;
+  color: #7b93ad;
 }
-.pause-btn:active { transform: translateY(3rpx); opacity: .92; }
-
-/* ============ 游戏画布 ============ */
-/* O1 自适应：画布占「视口 - HUD - 形态行 - 底部面板」剩余高度（flex:1），
-   不再固定 900rpx → 矮屏机型也能一屏放下不滚动。
-   逻辑尺寸 390×500（config.W/H）由 onReady 取实际 CSS 尺寸后
-   等比缩放并居中（scale=min(宽比,高比)），画面不变形不裁切。 */
-.game-canvas {
-  width: 100%;
-  flex: 1 1 auto;
-  min-height: 0;
-  border-radius: 24rpx;
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 70%, #eaf8ff 100%);
-  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.12);
-}
-
-/* ============ 底部面板 ============ */
-/* 提示文字 + 选项按钮垂直堆叠 */
-.bottom-panel {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 24rpx;
-  gap: 16rpx;
-}
-
-/* 提示文字：答对/答错/逼近时由 engine.onTip 回调驱动（token --text-sub，M6-4 放大） */
-.tip {
-  font-size: 30rpx;
-  color: var(--text-sub, #5c7f9e);
-  font-weight: 700;
-  text-align: center;
-  min-height: 36rpx;
-  line-height: 1.4;
-  padding: 0 16rpx;
-}
-
-/* ============ 选项按钮 ============ */
-/* 字符级：4 个字符选项横排居中；词级整词较长，允许换行成两行（H2-B） */
-.options {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20rpx 20rpx;
-  width: 100%;
-}
-
-/* 单个选项按钮：卡通硬阴影风格（平移原型 .char-btn） */
-.option {
-  width: 132rpx;
-  height: 132rpx;
-  border-radius: 40rpx;
-  color: #ffffff;
-  font-size: 60rpx;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* 与棋盘/卡牌同一套材质（需求⑥ 二期）：顶部内高光 + 底部硬阴影 + 环境投影，
-     底色由下面的 .cN 用渐变给（两类的选择器，特异性高于本行，不会被覆盖） */
-  box-shadow: inset 0 3rpx 0 rgba(255, 255, 255, 0.5),
-    0 12rpx 0 rgba(0, 0, 0, 0.18), 0 24rpx 44rpx rgba(0, 0, 0, 0.14);
-  text-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.16);
-  transition: transform 0.06s, box-shadow 0.06s, opacity 0.15s;
-}
-
-/* 词级整词按钮（H2-B）：胶囊形、自动宽度，容纳长整词（如 COMPETITION） */
-.option.wide {
-  width: auto;
-  min-width: 120rpx;
-  height: 96rpx;
-  padding: 0 30rpx;
-  border-radius: 48rpx;
-  font-size: 34rpx;
-  max-width: 46%;
-  word-break: keep-all;
-}
-
-/* 按下效果：下沉 + 阴影收缩 */
-.option:active {
-  transform: translateY(6rpx);
-  box-shadow: inset 0 3rpx 0 rgba(255, 255, 255, 0.5), 0 4rpx 0 rgba(0, 0, 0, 0.18);
-}
-
-/* 已用（选错）的选项置灰禁用 */
-.option.used {
-  opacity: 0.25;
-}
-
-/* ============ 答错反馈高亮（R3） ============
-   答错后有 1.2s 的反馈窗口（GAME_CONFIG.approachTime），在此期间：
-   正确项标绿、误选项标红 —— 低龄玩家往往先看按钮而不是看怪兽身上的空槽，
-   把答案同时标在按钮上，纠错才真正发生。 */
-.option.ok {
-  background: #2fbf71;
-  opacity: 1;
-  box-shadow: 0 12rpx 0 #1f8f53, 0 24rpx 44rpx rgba(0, 0, 0, 0.18);
-}
-.option.bad {
-  background: #e5484d;
-  opacity: 1;
-  box-shadow: 0 12rpx 0 #a52f33, 0 24rpx 44rpx rgba(0, 0, 0, 0.18);
-}
-
-/* 5 种配色循环（对应原型 .char-btn.c0~c4）。
-   二期改成「上浅下深」两段渐变 = 糖果按钮的立体感，纯色块看上去太平。 */
-.option.c0 { background: linear-gradient(180deg, #ff86ad 0%, var(--pink, #ff5d8f) 62%); }    /* 粉 */
-.option.c1 { background: linear-gradient(180deg, #6fd8ff 0%, var(--blue, #4cc9f0) 62%); }    /* 蓝 */
-.option.c2 { background: linear-gradient(180deg, #ffc93d 0%, var(--orange, #ffb703) 62%); }  /* 橙 */
-.option.c3 { background: linear-gradient(180deg, #9ee2aa 0%, var(--green, #7bd389) 62%); }   /* 绿 */
-.option.c4 { background: linear-gradient(180deg, #c8a6ff 0%, var(--purple, #b388ff) 62%); }  /* 紫 */
-
-/* ============ 连击提示浮层 ============ */
-/* 连对 2/3/5 题时由 engine.onCombo 触发，800ms 自动消失（墨底金字，token --ink/--gold） */
-.combo-toast {
-  position: fixed;
-  top: 40%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(58, 58, 92, 0.9);
-  color: var(--gold, #ffd166);
-  padding: 16rpx 36rpx;
-  border-radius: 44rpx;
-  font-size: 40rpx;
-  font-weight: 900;
-  letter-spacing: 4rpx;
-  z-index: 99;
-  white-space: nowrap;
-  box-shadow: 0 16rpx 44rpx rgba(0, 0, 0, 0.25);
-  animation: comboPop 0.8s ease-out forwards;
-}
-
-/* 连击提示弹出动画：从下方淡入 → 放大回弹 → 上浮淡出 */
-@keyframes comboPop {
-  0%   { opacity: 0; transform: translateX(-50%) translateY(20rpx) scale(0.8); }
-  20%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.1); }
-  40%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-40rpx) scale(1); }
-}
-
-/* ============ 新手引导蒙层（M6-L） ============ */
-.tutorial-mask {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 200;
-  background: rgba(30, 40, 60, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 60rpx;
-}
-.tutorial-card {
-  width: 560rpx;
-  background: #ffffff;
-  border-radius: 44rpx;
-  padding: 56rpx 44rpx 48rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 16rpx 0 rgba(0, 0, 0, 0.1), 0 30rpx 60rpx rgba(0, 0, 0, 0.18);
-  box-sizing: border-box;
-}
-.tutorial-emoji {
-  font-size: 100rpx;
-  line-height: 1;
-  margin-bottom: 24rpx;
-}
-.tutorial-title {
-  font-size: 40rpx;
-  font-weight: 900;
-  color: #3a3a5c;
-  letter-spacing: 4rpx;
-  margin-bottom: 18rpx;
-}
-.tutorial-desc {
-  font-size: 28rpx;
-  color: #5c7f9e;
-  text-align: center;
-  line-height: 1.6;
-  margin-bottom: 32rpx;
-}
-.tutorial-dots {
-  display: flex;
-  gap: 14rpx;
-  margin-bottom: 36rpx;
-}
-.tutorial-dot {
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 50%;
-  background: #d5dde8;
-}
-.tutorial-dot.on {
-  background: #4cc9f0;
-}
-.tutorial-btn {
-  width: 100%;
-  height: 96rpx;
-  line-height: 96rpx;
-  text-align: center;
-  border-radius: 48rpx;
-  background: #ffb703;
-  color: #ffffff;
-  font-size: 34rpx;
-  font-weight: 900;
-  letter-spacing: 4rpx;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.12);
-}
-
-/* 说明：原「对局形态表现行」样式（Boss 血条 / 极速倒计时 / 形态飘字 / 击破闪层 /
-   竞速惩罚锁）已随三种形态一并删除（一期）。 */
+.gs-card .gs-btn { margin-top: 30rpx; }
+.gs-card-btns .gs-btn { margin-top: 0; }

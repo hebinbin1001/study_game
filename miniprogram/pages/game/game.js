@@ -1,23 +1,25 @@
 /**
- * 游戏页逻辑：对接 game/engine.js 主循环
+ * 游戏页 · 字母射击（2026-09-18 改版）
  *
- * 职责：
- *   1. onLoad 读取 grade/level 页面参数，初始化本局配置；
- *   2. onReady 获取 Canvas node + ctx，dpr 适配后调用 engine.start；
- *   3. 注入回调：getNextItem（词库抽题）/ onHudChange / onOptionsChange /
- *      onCombo / onTip / onGameOver；
- *   4. onOptionTap 转发 engine.fire(opt)；
- *   5. onUnload/onHide 调用 engine.stop() 停止 rAF。
+ * 改版说明：
+ *   旧版是 canvas 引擎（game/engine.js + renderer.js）画怪兽与炮弹；
+ *   新版改为 **WXML/CSS 渲染 + game/shoot.js 纯逻辑判定**，玩法结构对齐
+ *   demo/deepseek_html_20260918_d7a82c.html：词槽填空 + 底部字母面板 + Boss 血条 +
+ *   打错就反击。视觉仍是本项目自己的浅色卡通风（不做深色主题）。
  *
- * 关联 REQ：
- *   - REQ-GAME-2（Canvas+HUD 分层）、REQ-GAME-3（命数/题号）
- *   - REQ-GAME-6/7/8/9/10（答对/答错/下沉/连击/反馈）
- *   - REQ-GAME-11/12/15（结算跳转）
- *   - REQ-NFR-1（HUD 仅变化时 setData）、REQ-NFR-3（dpr 适配）
- *   - REQ-DICT-3（词库抽题）
+ * 页面职责：
+ *   1. onLoad 解析 grade/level/type/自定义关卡/挑战上下文，预取本关固定题；
+ *   2. 逐题：shoot.buildRound() 造局面 → WXML 渲染词槽与字母面板；
+ *   3. 点面板：命中补空、失误扣护盾并按节奏播 Boss 反击动画；
+ *   4. 全部题打完 → 结算页（参数与旧版完全一致，result.js 无需改动）。
+ *
+ * 对外契约（刻意保持与旧版一致，避免影响结算/上报/排行榜）：
+ *   · correctCount = 「零失误击破的题数」，totalQ = 本局题量，rate = correctCount/totalQ；
+ *     result.js 用同样的公式重算星级（90/70/60），所以三档可达性不变；
+ *   · 护盾 = CONFIG.initLives，每点错一次扣 1 —— 与旧版「答错 5 题判负」容错次数一致。
  */
 
-var engine = require('../../game/engine');
+var shoot = require('../../game/shoot');
 var config = require('../../game/config');
 var question = require('../../game/question');
 var dict = require('../../utils/dict');
@@ -29,279 +31,258 @@ var audio = require('../../game/audio');
 var auth = require('../../utils/auth');
 var request = require('../../utils/request');
 var review = require('../../utils/review');
-var renderer = require('../../game/renderer');
+var skins = require('../../utils/skins');
 
 var CONFIG = config.CONFIG;
 
-// 新手引导步骤文案（M6-L，首次游玩展示；ww_tutorial_done 持久化）
+// 新手引导步骤（M6-L，首次游玩展示；ww_tutorial_done 持久化）
 var TUTORIAL_STEPS = [
-  { title: '欢迎，小战士！', desc: '怪兽身上是挖空的题目。点下方字母/词语，把它补全！' },
-  { title: '答对打跑怪兽', desc: '答对 +10 分、涨连击，还有爆炸星星特效 ✨' },
-  { title: '小心 ' + CONFIG.initLives + ' 条命', desc: '答错会扣命，' + CONFIG.initLives + ' 条命用完本局就输啦。准备好了吗？' }
+  { title: '欢迎，小战士！', desc: '怪兽身上是一道挖空的题目。从下面挑字母，把空补全就能打跑它！' },
+  { title: '点字母开火', desc: '点对字母会飞出去补进空格，还会连击加分 🔥' },
+  { title: '小心 Boss 反击', desc: '点错字母 Boss 会反击，扣掉 1 点护盾；护盾用完本局就结束啦。' }
 ];
 
 Page({
   data: {
     // ---- 本局配置 ----
-    grade: 'kindergarten',   // 学段 key
-    level: 1,                // 关卡序号
-    type: '',                // 题型分类 key（空串/'all' = 综合抽题）
+    grade: 'kindergarten',
+    level: 1,
+    type: '',
+    challenge: false,
+    challengeLabel: '',
 
-    // ---- HUD 状态 ----
-    livesText: '❤'.repeat(CONFIG.initLives),  // 命数渲染为 ❤ 字符串（初值随配置联动）
-    score: 0,                 // 得分
-    qIndex: 1,                // 当前题号（1 起，引擎 answered+1）
-    totalQ: CONFIG.totalQ,    // 总题数（10）
+    // ---- HUD ----
+    shield: CONFIG.initLives,
+    // 沿用旧字段名 livesText（页面/用例/结构护栏都读它），语义 = 剩余护盾
+    livesText: '❤'.repeat(CONFIG.initLives),
+    score: 0,
+    combo: 0,
+    qIndex: 1,
+    totalQ: CONFIG.totalQ,
+    dots: [],            // HUD 进度点 [{ i, done, cur }]
 
-    // ---- 提示与选项 ----
-    tip: '点击下方字母，补全单词，打跑怪兽！',  // 提示文字
-    options: [],              // 选项列表 [{ letter, correct, used, colorClass, display, wide }]
+    // ---- 战场 ----
+    warriorEmoji: '🛡',
+    warriorImg: '',
+    warriorImgOk: true,
+    bossEmoji: '👾',
+    bossImg: '',
+    bossImgOk: true,
+    bossName: '',
+    bossHp: 100,
+    heroHurt: false,
+    bossHit: false,
+    bossCharging: false,
+    shake: false,
 
-    // ---- 连击提示 ----
-    comboText: '',             // 连击浮层文字（空串时不显示）
+    // ---- 题目 ----
+    kind: 'letter',
+    meaning: '',
+    head: '',
+    tail: '',
+    hasSlot: false,
+    slots: [],
+    pad: [],
+    tip: '',
 
-    // ---- 答错反馈高亮（R3） ----
-    showAnswer: false,         // 答错后为真：选项区标绿正确项、标红误选项
+    // ---- 反馈浮层 ----
+    phase: 'idle',       // idle | flying | counter | hurt | clearing
+    hitText: '',
+    missText: '',
+    damageText: '',
+    comboText: '',
 
-    // ---- 暂停（R5） ----
-    paused: false,             // 暂停遮罩是否显示
+    // ---- 暂停 / 声音 ----
+    paused: false,
+    soundOn: true,
 
-    // ---- 声音开关（M6 增补） ----
-    soundOn: true,              // 音效/朗读总开关（HUD 喇叭切换）
-
-
-    // ---- 新手引导（M6-L） ----
-    tutorialStep: 0,           // 0=不显示；1..3 引导步骤
-    tutorialTitle: '',         // 当前步骤标题
-    tutorialDesc: '',          // 当前步骤文案
-
-    // ---- 开火反馈（皮肤动态展示；仅 e2e 断言用，正常对局不读） ----
-    lastRecoil: { dy: 0, t: 0 } // { dy: 战士下沉量, t: 炮口闪光强度 0~1 }
+    // ---- 新手引导 ----
+    tutorialStep: 0,
+    tutorialTitle: '',
+    tutorialDesc: ''
   },
 
-  // ============ 本局运行时状态（不参与 setData） ============
-  _canvasNode: null,          // Canvas 节点
-  _ctx: null,                 // Canvas 2D 上下文
-  _dpr: 1,                    // 设备像素比
-  _usedItems: [],             // 已出题目（供 dict.randomItem 排重）
-  _lastHud: null,             // 上次 HUD 快照（差值比较，仅变化时 setData）
-  _comboTimer: null,          // 连击提示自动清除定时器
-  _engineStarted: false,      // 引擎是否已 start（onShow 依据它决定是否 resume）
+  // ============ 运行时状态（不进 setData） ============
+  _round: null,          // 当前题（shoot.buildRound 产物）
+  _busy: false,          // 动画期间锁输入
+  _over: false,          // 本局是否已结束
+  _timers: [],           // 待清理的定时器
+  _usedItems: [],        // 已出题目（供抽题排重）
+  _challengeItems: null, // 挑战/自定义关卡的固定题序
+  _perfect: 0,           // 零失误击破的题数
+  _answered: 0,          // 已完成的题数
+  _missInRound: false,   // 本题是否失误过
+  _wrongItems: [],       // 本局错题（结算回顾）
+  _reviewPool: [],       // 错题回流池（R2）
+  _skins: { warrior: null, monster: null },
+  _line: '',
+  _customLevel: null,
+  _lives: CONFIG.initLives,
+  _totalQ: CONFIG.totalQ,
+
+  // ============ 定时器管理 ============
+  _later: function (ms, fn) {
+    var self = this;
+    var id = setTimeout(function () {
+      self._timers = self._timers.filter(function (t) { return t !== id; });
+      fn();
+    }, ms);
+    this._timers.push(id);
+    return id;
+  },
+  _clearTimers: function () {
+    (this._timers || []).forEach(function (t) { clearTimeout(t); });
+    this._timers = [];
+  },
 
   // ============ 生命周期 ============
-
-  /**
-   * 页面加载：读取 grade/level 参数，初始化本局配置。
-   * 关联 REQ-GAME-3（关卡参数化）
-   */
-  onLoad(options) {
-    var grade = options && options.grade ? options.grade : 'kindergarten';
-    var level = options && options.level ? parseInt(options.level, 10) : 1;
-    var type = options && options.type ? options.type : '';
+  onLoad: function (options) {
+    var opts = options || {};
+    var grade = opts.grade ? opts.grade : 'kindergarten';
+    var level = opts.level ? parseInt(opts.level, 10) : 1;
+    var type = opts.type ? opts.type : '';
 
     // B4：自定义关卡（10 个一组）——由 level-share / 公开广场带完整题目 JSON 进入
     var custom = null;
-    if (options && options.customLevel) {
-      try {
-        custom = JSON.parse(decodeURIComponent(options.customLevel));
-      } catch (e) {
-        custom = null;
-      }
+    if (opts.customLevel) {
+      try { custom = JSON.parse(decodeURIComponent(opts.customLevel)); } catch (e) { custom = null; }
     }
     if (custom && Array.isArray(custom.items)) {
-      // 自定义关卡：学段沿用其声明，题源=固定 10 题
       this._customLevel = custom;
       grade = custom.grade || grade;
     }
 
-    // 挑战主线（2026-09-12）：按「学段 + 关卡」用固定种子出题 ——
-    // 同一关每次进入题目、挖空位置、选项顺序都一致（重玩刷星公平、可分享复盘）。
-    // 走的是与自定义关卡相同的「固定题源」通路，但计入挑战星级（见 result.js）。
-    // 主线 / 玩法线共用同一套解析（见 utils/challenge.js 的 contextOf）：
-    // 主线 = @challenge@，玩法线 = line=mode_xxx → @mode_xxx@，两者存档互不覆盖。
-    var ctx = challenge.contextOf(options);
+    // 挑战主线 / 玩法线：按「学段 + 关卡」用固定种子出题（同关同题、同面板顺序）
+    var ctx = challenge.contextOf(opts);
     var isChallenge = ctx.isChallenge;
-    this._challenge = isChallenge;
     this._line = ctx.line;
-    this._challengeLabel = ctx.label;   // 「学段 · 玩法名 第 N/30 关」
-    this._challengeItems = null;
-    this._lives = CONFIG.initLives;       // 本局命数（挑战 Boss 关会被参数覆盖为 7）
-    this._totalQ = CONFIG.totalQ;         // 本局题量（同上，Boss 关为 15）
-    question.setRandom();                 // 先复位，避免上一局挑战的种子泄漏到本局
+    this._lives = CONFIG.initLives;
+    this._totalQ = CONFIG.totalQ;
+    question.setRandom();   // 先复位，避免上一局的种子泄漏进来
     if (isChallenge) {
       question.setRandom(rng.makeRng(ctx.seed));
-      // Boss 关（第 30 关）的题量/命数与普通关不同，必须把 level 一起传进去才拿得到
       var lvParams = ctx.params;
       if (lvParams && lvParams.lives > 0) this._lives = lvParams.lives;
       this._challengeItems = challenge.pickItems(
-        ctx.grade, ctx.level, (lvParams ? lvParams.totalQ : CONFIG.totalQ) || CONFIG.totalQ, type, ctx.seed
+        ctx.grade, ctx.level,
+        (lvParams ? lvParams.totalQ : CONFIG.totalQ) || CONFIG.totalQ,
+        type, ctx.seed
       );
     }
-    // 实际开局题量以「真正取到的题目数」为准（题库不足时可能少于请求值，避免提前结算）
+    // 实际题量以真正取到的题量为准（题库不足时不提前结算）
     this._totalQ = (this._challengeItems && this._challengeItems.length)
       ? this._challengeItems.length : CONFIG.totalQ;
+
+    // 皮肤：战士立绘 + Boss 立绘（离线兜底 emoji）
+    this._skins = {
+      warrior: skins.getWarriorSkin(storage.getWarriorSkin()),
+      monster: skins.getMonsterSkin(storage.getBossSkin())
+    };
+    var wSkin = this._skins.warrior || skins.DEFAULT_WARRIOR;
+    var mSkin = this._skins.monster || skins.DEFAULT_MONSTER;
+
+    this._usedItems = [];
+    this._perfect = 0;
+    this._answered = 0;
+    this._wrongItems = [];
+    this._reviewPool = [];
+    this._over = false;
+    this._busy = false;
+
+    var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
+    audio.setSoundEnabled(soundOn);
 
     this.setData({
       grade: grade,
       level: level,
       type: type,
-      totalQ: this._totalQ,
-      livesText: '❤'.repeat(this._lives),
       challenge: isChallenge,
-      challengeLabel: this._challengeLabel || ''
+      challengeLabel: ctx.label || '',
+      totalQ: this._totalQ,
+      shield: this._lives,
+      livesText: '❤'.repeat(this._lives),
+      soundOn: soundOn,
+      warriorEmoji: wSkin.emoji || '🛡',
+      warriorImg: wSkin.image || '',
+      bossEmoji: mSkin.emoji || '👾',
+      bossImg: mSkin.image || '',
+      bossName: mSkin.name || ''
     });
 
-    // 读取本地皮肤选择（离线渲染，未选择时回退默认皮肤）
-    this._skins = {
-      warrior: storage.getWarriorSkin(),
-      monster: storage.getBossSkin()
-    };
-
-    // 重置运行时状态
-    this._usedItems = [];
-    this._lastHud = null;
-    this._engineStarted = false;
-
-    // R2：错题回流池（异步拉取；未就绪时本局按纯随机出题，不阻塞对局）
-    this._reviewPool = [];
     this._loadReviewPool(type);
-
-    // R4：本局错题（引擎 onWrong 回调逐条累积，结算时交给结算页回顾）
-    this._wrongItems = [];
-
-    // 声音开关：恢复本地偏好（默认开）并同步到 audio 模块
-    var soundOn = storage.get(constants.STORAGE_KEYS.sound) !== '0';
-    audio.setSoundEnabled(soundOn);
-
-    this.setData({ soundOn: soundOn });
   },
 
-  // 切换声音（HUD 喇叭）：写入本地偏好并同步 audio（音效 + 朗读）
-  onToggleSound: function () {
-    var next = !this.data.soundOn;
-    storage.set(constants.STORAGE_KEYS.sound, next ? '1' : '0');
-    audio.setSoundEnabled(next);
-    this.setData({ soundOn: next });
-    if (next) {
-      audio.playCorrect(); // 开启时给一个反馈音
-    }
+  onReady: function () {
+    this._nextQuestion();
+    this._maybeShowTutorial();
   },
 
-  /**
-   * 页面显示：从后台切回 / 首次进入时调用。
-   * 若引擎已 start 且本局未结束，则恢复主循环（与 onHide 的 engine.stop() 配对，
-   * 修复切后台后画面冻结不可恢复的缺陷）。
-   * 防御：onShow 可能早于 onReady（引擎未 start）或本局已结束跳转结算页，
-   * 此时 _engineStarted=false / G.over=true，resume 不会生效。
-   */
-  onShow() {
-    if (!this._engineStarted) {
-      return;
-    }
-    // 暂停中不自动恢复（否则从后台切回会绕过暂停遮罩继续计时）
-    if (this.data.paused) return;
-    var G = engine.getState();
-    if (G && !G.over) {
-      engine.resume();
-    }
+  onHide: function () {
+    // 新版没有常驻主循环（动画全部是 CSS + 定时器），离开页面只需清定时器
+    this._clearTimers();
+    this._busy = false;
   },
 
-  /**
-   * 页面初次渲染完成：获取 Canvas 节点与逻辑尺寸，dpr 适配后启动引擎。
-   * 关联 REQ-GAME-2、REQ-NFR-3
-   */
-  onReady() {
-    var self = this;
-    // 用 createSelectorQuery 获取 Canvas node + 逻辑尺寸（REQ-GAME-2）
-    wx.createSelectorQuery().in(this)
-      .select('#game-canvas')
-      .fields({ node: true, size: true })
-      .exec(function (res) {
-        if (!res || !res[0] || !res[0].node) {
-          console.error('[game] Canvas 节点获取失败');
-          return;
-        }
-        var canvasNode = res[0].node;
-        var ctx = canvasNode.getContext('2d');
-        var width = res[0].width;   // CSS 逻辑宽(px)
-        var height = res[0].height; // CSS 逻辑高(px)
-
-        // O1 自适应：画布 CSS 尺寸随视口伸缩（flex），渲染坐标系固定 390×500。
-        // 等比缩放并居中：scale = min(宽比, 高比)，避免固定 900rpx 在矮屏放不下、
-        // 也避免按宽等比导致高不足时裁切/超高留白。多余画布区域由画布背景色延伸。
-        var dpr = wx.getSystemInfoSync().pixelRatio;
-        canvasNode.width = width * dpr;
-        canvasNode.height = height * dpr;
-        var scale = Math.min(width / config.W, height / config.H);
-        // 变换顺序（后调用者先作用于绘制点，后乘语义）：
-        // 先 translate（设备像素偏移）再 scale → 点 p → T(S(p)) = scale·p + offset，
-        // 实现「逻辑 390×500 等比缩放后居中」，画布为任意尺寸均不变形不裁切
-        ctx.translate(
-          (width - config.W * scale) * dpr / 2,
-          (height - config.H * scale) * dpr / 2
-        );
-        ctx.scale(dpr * scale, dpr * scale);
-
-        self._canvasNode = canvasNode;
-        self._ctx = ctx;
-        self._dpr = dpr;
-
-        // canvas 就绪即开打：形态已在关卡页的模式栏选定（一期改造），本页不再有进关弹层
-        if (!self._engineStarted) self._startEngine();
-      });
-  },
-
-  /**
-   * 页面隐藏：停止引擎主循环，避免后台空跑耗电。
-   * 关联 REQ-NFR-1
-   */
-  onHide() {
-    engine.stop();
-    this._clearComboTimer();
-  },
-
-  /**
-   * 页面卸载：停止引擎主循环，释放资源。
-   * 关联 REQ-NFR-1
-   */
-  onUnload() {
-    engine.stop();
-    this._clearComboTimer();
+  onUnload: function () {
+    this._clearTimers();
     question.setRandom();   // 复位出题随机源，避免挑战种子泄漏到后续自由练
   },
 
-  // ============ 引擎启动与回调注入 ============
-
-  // 答错 → 上报错题本（登录用户；游客无账号不上报，静默失败不影响对局）
-  _reportWrong: function (item) {
-    if (!auth.isLoggedIn() || !item || !item.q) return;
-    var questionId = (item.type || '') + '|' + (item.q || '') + '|' + (item.a || '');
-    request.post('/api/wrong/add', {
-      questionId: questionId,
-      question: {
-        type: item.type || '',
-        q: item.q || '',
-        a: item.a || '',
-        hint: item.hint || ''
-      }
-    }).then(function () {
-      // 诊断日志（真机 vConsole 可见）：便于确认错题是否上报成功
-      if (typeof console !== 'undefined' && console.log) console.log('[wrong] 错题已上报 ' + questionId);
-    }).catch(function (err) {
-      if (typeof console !== 'undefined' && console.warn) {
-        console.warn('[wrong] 错题上报失败 code=' + (err && err.code) + ' msg=' + (err && err.message));
-      }
-    });
-  },
+  // ============ 抽题 ============
 
   /**
-   * 拉取「待复习错题」构建本局错题池（R2）。
-   *
-   * 未登录 / 接口失败 / 离线 → 静默保持空池，本局照常纯随机出题（离线可玩是底线）。
-   * 分类关卡只在同类题型里取错题，避免综合题混进「成语」这类分类关。
-   *
-   * @param {string} type 题型分类 key（空 或 'all' 表示不限）
+   * 取下一道题。
+   * 优先级：挑战/自定义固定题序 → 错题回流（R2） → 本学段随机（按题型过滤）。
+   * @returns {Object|null} 词条；无可用题目返回 null
    */
+  _pickItem: function () {
+    if (this._challengeItems && this._challengeItems.length) {
+      var ci = this._usedItems.length;
+      if (ci < this._challengeItems.length) {
+        var chItem = this._challengeItems[ci];
+        this._usedItems.push(chItem);
+        return chItem;
+      }
+      return null;
+    }
+    if (this._customLevel && Array.isArray(this._customLevel.items)) {
+      var idx = this._usedItems.length;
+      if (idx < this._customLevel.items.length) {
+        var citem = this._customLevel.items[idx];
+        this._usedItems.push(citem);
+        return citem;
+      }
+      return null;
+    }
+
+    // R2：以 reviewRate 概率优先出「待复习错题」，让主玩法承担自动复习
+    if (this._reviewPool && this._reviewPool.length &&
+        review.shouldUseReview(CONFIG.reviewRate)) {
+      var hit = review.pickFromPool(this._reviewPool, review.usedMapOf(this._usedItems));
+      if (hit) {
+        this._usedItems.push(hit.item);
+        return hit.item;
+      }
+    }
+
+    var type = this.data.type;
+    var item = (type && type !== 'all')
+      ? dict.randomItemByGroup(this.data.grade, type, this._usedItems)
+      : dict.randomItem(this.data.grade, this._usedItems);
+    if (item) this._usedItems.push(item);
+    return item;
+  },
+
+  /** 干扰字符来源词库（挑战/自定义关卡用本关固定题，避免出现没学过的字） */
+  _bank: function () {
+    if (this._challengeItems && this._challengeItems.length) return this._challengeItems;
+    if (this._customLevel && Array.isArray(this._customLevel.items)) return this._customLevel.items;
+    var type = this.data.type;
+    if (type && type !== 'all') return dict.filterByGroup(this.data.grade, type);
+    return dict.loadByGrade(this.data.grade);
+  },
+
+  /** R2：错题回流池（异步；未就绪时按纯随机出题，不阻塞对局） */
   _loadReviewPool: function (type) {
     var self = this;
     if (!auth.isLoggedIn()) return;
@@ -320,452 +301,335 @@ Page({
     });
   },
 
-  /**
-   * 启动引擎并注入页面层回调。
-   * 回调签名以 game/engine.js 实际接口为准。
-   */
-  _startEngine() {
-    var self = this;
-    engine.start(this._canvasNode, this._ctx, {
-      // 皮肤选择（战士/boss avatarId），引擎解析为 emoji+主色渲染
-      skins: this._skins,
-      // 本局题量 / 命数（挑战 Boss 关 = 15 题 + 7 命；其余为默认 10 题 + 5 命）
-      totalQ: this._totalQ,
-      lives: this._lives,
-
-      /**
-       * 获取下一个词条（词库抽题，REQ-DICT-3）。
-       * @returns {Object|null} WordItem，无可用题目返回 null（引擎会触发结算）
-       */
-      getNextItem: function () {
-        // 挑战主线：按关卡种子预先取好的固定题目，按序出题
-        if (self._challengeItems && self._challengeItems.length) {
-          var ci = self._usedItems.length;
-          if (ci < self._challengeItems.length) {
-            var chItem = self._challengeItems[ci];
-            self._usedItems.push(chItem);
-            return chItem;
-          }
-          return null;
-        }
-        // B4：自定义关卡 → 按序出固定 10 题（items 已由导入/公开广场带全）
-        if (self._customLevel && Array.isArray(self._customLevel.items)) {
-          var citems = self._customLevel.items;
-          var idx = self._usedItems.length;
-          if (idx < citems.length) {
-            var citem = citems[idx];
-            self._usedItems.push(citem);
-            return citem;
-          }
-          return null;
-        }
-        var grade = self.data.grade;
-        var type = self.data.type;
-
-        // R2：以 reviewRate 概率优先出「待复习错题」，让主玩法承担自动复习。
-        // 池为空（游客 / 未登录 / 拉取失败 / 本局已出完）时自然回退到下面的随机抽题。
-        if (self._reviewPool && self._reviewPool.length &&
-            review.shouldUseReview(CONFIG.reviewRate)) {
-          var hit = review.pickFromPool(self._reviewPool, review.usedMapOf(self._usedItems));
-          if (hit) {
-            self._usedItems.push(hit.item);
-            return hit.item;
-          }
-        }
-
-        // 分类关卡：限该类题库抽题；综合走原逻辑
-        var item = (type && type !== 'all')
-          ? dict.randomItemByGroup(grade, type, self._usedItems)
-          : dict.randomItem(grade, self._usedItems);
-        if (item) {
-          self._usedItems.push(item);
-        }
-        return item;
-      },
-
-      /**
-       * 获取当前题库词条（词级题型干扰整词候选，H2-B）。
-       * 分类时返回该分类过滤后的词条（与出题同源）。
-       * @returns {Array} WordItem[]，学段不存在返回 []
-       */
-      getBank: function () {
-        // 挑战主线：干扰项从本关固定题库里取（与出题同源，避免出现没学过的字）
-        if (self._challengeItems && self._challengeItems.length) {
-          return self._challengeItems;
-        }
-        // B4：自定义关卡 → 词库=本关固定 items（干扰项从同关内取）
-        if (self._customLevel && Array.isArray(self._customLevel.items)) {
-          return self._customLevel.items;
-        }
-        var type = self.data.type;
-        if (type && type !== 'all') {
-          return dict.filterByGroup(self.data.grade, type);
-        }
-        return dict.loadByGrade(self.data.grade);
-      },
-
-      /**
-       * 答错回调（错题本上报，engine 在 _failQuestion 时触发）。
-       * @param {Object} item 答错的词条 { type,q,a,hint }
-       */
-      onWrong: function (item) {
-        self._wrongItems.push(item);   // R4：收集本局错题，供结算页回顾
-        self._reportWrong(item);
-      },
-
-      /**
-       * 形态阶段事件（M7，仅供表现层）：question/correct/wrong/over
-       */
-      onPhase: function (phase, payload) {
-        self._onPhase(phase, payload);
-      },
-
-      /**
-       * HUD 更新：仅在数值实际变化时 setData（REQ-NFR-1）。
-       * @param {Object} data { score, lives, answered, totalQ, combo }
-       */
-      onHudChange: function (data) {
-        self._onHudChange(data);
-      },
-
-      /**
-       * 选项列表更新。
-       * @param {Array} options [{ letter, correct, used, colorClass, display, wide }]
-       *        display 为按钮展示文本（词级整词），wide 标记宽版按钮样式（H2-B）
-       */
-      onOptionsChange: function (options) {
-        self.setData({ options: options });
-      },
-
-      /**
-       * 连击提示（连对 2/3/5 题时触发，REQ-GAME-9）。
-       * @param {number} combo 当前连击数
-       */
-      onCombo: function (combo) {
-        self._onCombo(combo);
-      },
-
-      /**
-       * 提示文字更新（答对/答错/逼近时触发）。
-       * @param {string} text 提示文字
-       */
-      onTip: function (text) {
-        self.setData({ tip: text });
-      },
-
-      /**
-       * 游戏结束：携带结果跳转结算页（REQ-GAME-11/12/15）。
-       * @param {Object} result { win, score, correctCount, totalQ, rate, stars }
-       */
-      onGameOver: function (result) {
-        self._onGameOver(result);
+  /** 答错上报错题本（登录用户；游客不上报，静默失败不影响对局） */
+  _reportWrong: function (item) {
+    if (!auth.isLoggedIn() || !item || !item.q) return;
+    var questionId = (item.type || '') + '|' + (item.q || '') + '|' + (item.a || '');
+    request.post('/api/wrong/add', {
+      questionId: questionId,
+      question: {
+        type: item.type || '',
+        q: item.q || '',
+        a: item.a || '',
+        hint: item.hint || ''
+      }
+    }).then(function () {
+      if (typeof console !== 'undefined' && console.log) console.log('[wrong] 错题已上报 ' + questionId);
+    }).catch(function (err) {
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('[wrong] 错题上报失败 code=' + (err && err.code) + ' msg=' + (err && err.message));
       }
     });
-
-    // 标记引擎已启动：onShow 依据该标记决定是否 resume（onShow 可能早于 onReady）
-    this._engineStarted = true;
-
-    // M6-L：引擎就绪后，首次进入展示新手引导（不阻塞主循环）
-    this._maybeShowTutorial();
   },
 
-  // ============ HUD 更新（差值比较，REQ-NFR-1） ============
+  // ============ 出题 ============
 
-  /**
-   * 引擎阶段事件回调。
-   *   question → 出新题：复位答案高亮（R3）
-   *   wrong    → 答错：亮起答案高亮（正确项标绿、误选项标红，R3）
-   *
-   * 说明：原 M7 的三种对局形态（经典/Boss/极速）已删除 —— 三者判定与计分完全一致，
-   * 属换皮表现；本回调现在只承担 R3 的高亮驱动。
-   */
-  _onPhase: function (phase) {
-    if (phase === 'wrong') this.setData({ showAnswer: true });
-    else if (phase === 'question') this.setData({ showAnswer: false });
-  },
+  _nextQuestion: function () {
+    if (this._over) return;
+    var item = this._pickItem();
+    if (!item) { this._finish(true); return; }
 
-  // ============ HUD 更新（差值比较，REQ-NFR-1） ============
-
-  /**
-   * HUD 更新：比较 score/lives/answered 与上次快照，仅任一变化时 setData。
-   * 避免引擎 _newQuestion 时冗余的全量 setData 触发渲染。
-   * 关联 REQ-NFR-1
-   */
-  _onHudChange(data) {
-    var last = this._lastHud;
-    var diff = {};
-    var changed = false;
-
-    // 得分变化
-    if (!last || last.score !== data.score) {
-      diff.score = data.score;
-      changed = true;
-    }
-    // 命数变化
-    if (!last || last.lives !== data.lives) {
-      diff.livesText = this._renderLives(data.lives);
-      changed = true;
-    }
-    // 已答题数变化（当前题号 = answered + 1）
-    if (!last || last.answered !== data.answered) {
-      diff.qIndex = data.answered + 1;
-      changed = true;
-    }
-    // 连击数镜像到 data：页面本身不展示，但它是「连击累积」的可观测值
-    // （端到端用例用它断言连击，见 e2e/verify-game.js）
-    if (!last || last.combo !== data.combo) {
-      diff.comboShow = data.combo || 0;
-      changed = true;
-    }
-    // 更新快照
-    this._lastHud = {
-      score: data.score,
-      lives: data.lives,
-      answered: data.answered,
-      combo: data.combo
-    };
-
-    // 仅在数值实际变化时触发 setData
-    if (changed) {
-      this.setData(diff);
-    }
-  },
-
-  /**
-   * 命数渲染为 ❤ 字符串。
-   * @param {number} lives 当前命数
-   * @returns {string} 如 '❤❤❤❤❤'
-   */
-  _renderLives(lives) {
-    var n = Math.max(0, lives);
-    var s = '';
-    for (var i = 0; i < n; i++) {
-      s += '❤';
-    }
-    return s;
-  },
-
-  // ============ 连击提示（REQ-GAME-9） ============
-
-  /**
-   * 连击提示：设置 comboText 触发浮层动画，800ms 后自动清除。
-   * 关联 REQ-GAME-9
-   */
-  _onCombo(combo) {
-    var text = combo + ' 连击!';
-    if (combo >= 5) {
-      text = combo + ' 连击!🎉';
-    } else if (combo >= 3) {
-      text = combo + ' 连击!🔥';
+    var round = shoot.buildRound(item, this._bank());
+    if (round.invalid) {
+      // 词条异常（空词）：跳过，不计入答对也不扣护盾
+      this._answered += 1;
+      this._nextQuestion();
+      return;
     }
 
-    this.setData({ comboText: text });
+    this._round = round;
+    this._missInRound = false;
+    this._busy = false;
 
-    // 800ms 后自动清除（与 wxss comboPop 动画时长一致）
-    this._clearComboTimer();
-    var self = this;
-    this._comboTimer = setTimeout(function () {
-      self.setData({ comboText: '' });
-      self._comboTimer = null;
-    }, 800);
-  },
+    var tip = round.wordLevel
+      ? (round.hintText || question.wordLevelGuide(item))
+      : '选对字母补全它，打跑这只怪兽！';
 
-  /**
-   * 清除连击提示定时器。
-   */
-  _clearComboTimer() {
-    if (this._comboTimer) {
-      clearTimeout(this._comboTimer);
-      this._comboTimer = null;
-    }
-  },
-
-  // ============ 新手引导（M6-L） ============
-
-  // 首次进入（ww_tutorial_done 无值）且引擎已启动后展示 3 步入场引导
-  _maybeShowTutorial() {
-    if (storage.get('ww_tutorial_done')) return;
-    this._showTutorialStep(1);
-  },
-
-  _showTutorialStep(step) {
-    var cfg = TUTORIAL_STEPS[step - 1];
-    if (!cfg) return;
     this.setData({
-      tutorialStep: step,
-      tutorialTitle: cfg.title,
-      tutorialDesc: cfg.desc
+      kind: round.kind,
+      meaning: question.meaningText(item),
+      head: round.head,
+      tail: round.tail,
+      hasSlot: round.hasSlot,
+      slots: round.slots.slice(),
+      pad: round.pad.slice(),
+      tip: tip,
+      bossHp: 100,
+      phase: 'idle',
+      hitText: '',
+      missText: '',
+      damageText: '',
+      bossHit: false,
+      bossCharging: false,
+      heroHurt: false,
+      shake: false,
+      qIndex: this._answered + 1,
+      dots: this._dots()
     });
   },
 
-  // 引导蒙层点击：未到最后一步 → 下一步；最后一步 → 完成进入游戏
-  onTutorialTap() {
-    var step = this.data.tutorialStep;
-    if (!step) return;
-    if (step < 3) {
-      this._showTutorialStep(step + 1);
-    } else {
-      this.finishTutorial();
+  /** HUD 进度点：已完成打绿、当前打黄 */
+  _dots: function () {
+    var out = [];
+    for (var i = 0; i < this._totalQ; i++) {
+      out.push({ i: i, done: i < this._answered, cur: i === this._answered });
     }
+    return out;
   },
 
-  // 完成引导：标记 ww_tutorial_done 并关闭蒙层（不阻塞游戏主循环）
-  finishTutorial() {
-    storage.set('ww_tutorial_done', '1');
-    this.setData({ tutorialStep: 0 });
+  // ============ 作答 ============
+
+  onPadTap: function (e) {
+    // 引导蒙层还在时（异常路径兜底），先关引导
+    if (this.data.tutorialStep > 0) { this.finishTutorial(); return; }
+    if (this.data.paused || this._busy || !this._round || this._over) return;
+    this._tapIndex(e.currentTarget.dataset.index);
   },
 
-  // ============ 玩家操作 ============
+  _tapIndex: function (index) {
+    var res = shoot.tap(this._round, index);
+    if (res.ignored) return;
+    if (res.ok) this._onHit(res, index);
+    else this._onMiss(index);
+  },
 
-  /**
-   * 【仅供端到端测试】冻结真实主循环并确定性推进指定帧数。
-   *
-   * 为什么存在：开发者工具的模拟器在窗口不处于前台时，会对 canvas 的
-   * requestAnimationFrame 做节流甚至停摆 —— 于是出现「选项点对了，但炮弹永远
-   * 飞不到、得分永远不加」「答错后永远不进入逼近扣命」这类与代码无关的偶发假失败。
-   *
-   * e2e 用法：先真实点击选项（模拟用户操作），再调用本方法把游戏时钟按固定步长
-   * 推进，把对局变成可复现的确定性状态机 —— 与 verify-snake「冻结 _stopLoop +
-   * 手动 _tick」的做法一致。
-   *
-   * @param {number} frames 推进帧数（每帧 1/60 秒游戏时间）
-   */
-  _testStep(frames) {
-    engine.stop();                                  // 冻结真实主循环，避免与手动步进叠加
-    var n = Math.max(1, parseInt(frames, 10) || 1);
-    for (var i = 0; i < n; i++) {
-      if (engine.G && engine.G.over) break;
-      engine._update(1 / 60);
+  _onHit: function (res, index) {
+    var self = this;
+    this._busy = true;
+    var pad = this._round.pad.slice();
+    this.setData({
+      pad: pad,
+      phase: 'flying',
+      bossHit: true
+    });
+    audio.playCorrect();
+    if (this._round.word) audio.speakByItem(this._round.item, this._round.word);
+
+    this._later(CONFIG.flyMs, function () {
+      var round = self._round;
+      if (!round) return;
+      var left = round.needed.length - round.filled;
+      self.setData({
+        slots: round.slots.slice(),
+        pad: round.pad.slice(),
+        bossHp: Math.round(left / round.needed.length * 100),
+        hitText: '',
+        bossHit: false,
+        shake: true,
+        phase: 'idle'
+      });
+      self._later(300, function () { self.setData({ shake: false, hitText: '' }); });
+      if (res.done) self._onClear();
+      else self._busy = false;
+    });
+  },
+
+  /** 全部空填满：击破本题 */
+  _onClear: function () {
+    var self = this;
+    // 计分口径必须与服务端一致：得分 = 零失误题数 × 10（见 game/config.js 顶部注释）。
+    // 所以只有「本题一次都没点错」才加分、才续连击。
+    var clean = !this._missInRound;
+    var combo = clean ? this.data.combo + 1 : 0;
+    var gain = clean ? shoot.scorePerCorrect() : 0;
+    this.setData({
+      phase: 'clearing',
+      combo: combo,
+      score: this.data.score + gain,
+      hitText: clean ? ('+' + gain) : '过关',
+      comboText: combo >= 2 ? (combo + ' 连击!' + (combo >= 5 ? '🎉' : (combo >= 3 ? '🔥' : ''))) : '',
+      bossHp: 0
+    });
+    if (combo >= 2) audio.playCombo();
+
+    this._later(CONFIG.clearMs, function () {
+      if (clean) self._perfect += 1;
+      self._answered += 1;
+      self._busy = false;
+      self.setData({ comboText: '', hitText: '', phase: 'idle' });
+      self._nextQuestion();
+    });
+  },
+
+  /** 点错：Boss 蓄力 → 反击弹 → 扣 1 点护盾 */
+  _onMiss: function (index) {
+    var self = this;
+    this._busy = true;
+    this._missInRound = true;
+    this.setData({ phase: 'counter', missText: '✕ MISS', combo: 0, comboText: '' });
+    audio.playWrong();
+
+    // 本局错题只记一次（同一题多次失误不重复上报/回顾）
+    if (this._round && this._wrongItems.indexOf(this._round.item) === -1) {
+      this._wrongItems.push(this._round.item);
+      this._reportWrong(this._round.item);
     }
-    engine.renderOnce();                            // 同步补一帧：让截图/断言看到与状态一致的画面
+
+    this._later(CONFIG.chargeMs, function () {
+      self.setData({ bossCharging: true });
+      self._later(CONFIG.counterMs, function () {
+        var shield = Math.max(0, self.data.shield - 1);
+        var dead = shield <= 0;
+        self.setData({
+          bossCharging: false,
+          heroHurt: true,
+          shake: true,
+          damageText: '-1 🛡',
+          phase: dead ? 'hurt' : 'counter',
+          shield: shield,
+          livesText: '❤'.repeat(shield)
+        });
+        self._later(400, function () {
+          self.setData({ heroHurt: false, shake: false, missText: '', damageText: '' });
+          if (dead) {
+            self._later(CONFIG.defeatMs, function () { self._finish(false); });
+          } else {
+            self.setData({ phase: 'idle' });
+            self._busy = false;
+          }
+        });
+      });
+    });
   },
+
+  // ============ 结算 ============
 
   /**
-   * 【仅供端到端测试】读开火反馈强度（后坐力/炮口闪光）。
-   *
-   * 为什么存在：这两个效果是 canvas 上画的，端到端拿不到像素做断言。
-   * 这里把「状态 → 效果强度」的纯函数结果同步写进 data，测试即可对着
-   * 真实点击之后的状态断言，而不是靠像素或时钟等待。
-   *
-   * @returns {{dy:number, t:number}} dy = 战士下沉量(px)；t = 闪光强度 0~1
+   * 本局结束。参数与旧版完全一致（result.js 用 correctCount/totalQ 重算星级）。
+   * @param {boolean} win 是否打完所有题（护盾耗尽 = false）
    */
-  _testRecoil() {
-    var r = renderer.warriorRecoil(engine.getState());
-    this.setData({ lastRecoil: r });
-    return r;
-  },
+  _finish: function (win) {
+    if (this._over) return;
+    this._over = true;
+    this._busy = true;
+    this._clearTimers();
 
-  /**
-   * 【仅供端到端测试】查皮肤真图是否已被 canvas 成功解码。
-   *
-   * 为什么需要：真图路径写错、图损坏、超出画布能力时，渲染层会**静默回退 emoji**
-   * （这是有意的容错），但那样「美术接没接上」就没法自动化验证。
-   * 这里把解码结果暴露出来，端到端才能断言「真的用了图，不是 emoji 兜底」。
-   *
-   * @param {string} [kind] 'monster'（默认）或 'warrior'
-   * @returns {{ready:boolean, w:number, h:number}}
-   */
-  _testSkinImage(kind) {
-    var G = engine.getState() || {};
-    var it = (G.skinImages || {})[kind || 'monster'];
-    return {
-      ready: !!(it && it.ready),
-      w: (it && it.w) || 0,
-      h: (it && it.h) || 0,
-      src: (it && it.src) || '',           // 加载失败时记录/回显用（正常加载时为空）
-      error: (it && it.error) || ''
-    };
-  },
+    var correctCount = this._perfect;
+    var totalQ = this._totalQ;
+    var rate = totalQ > 0 ? Math.round(correctCount / totalQ * 100) : 0;
+    var stars = shoot.starsOf(correctCount, totalQ);
+    if (win) audio.playWin();
 
-  // ============ 暂停 / 继续 / 退出（R5） ============
-
-  /**
-   * 暂停：停主循环 + 停竞速计时，并显示不透明遮罩（盖住题目与计时，防"暂停偷看"）。
-   * 主循环停掉后不会再推进状态，故暂停期间怪兽不下沉、倒计时不走。
-   */
-  onPause: function () {
-    if (this.data.paused) return;
-    engine.stop();
-    this.setData({ paused: true });
-  },
-
-  /** 继续：关掉遮罩并恢复主循环。 */
-  onResume: function () {
-    if (!this.data.paused) return;
-    this.setData({ paused: false });
-    var G = engine.getState();
-    if (G && !G.over) {
-      engine.resume();
-    }
-  },
-
-  /** 暂停后返回：直接退出本局，不结算、不上报成绩。 */
-  onQuit: function () {
-    engine.stop();
-    this.setData({ paused: false });
-    wx.navigateBack();
-  },
-
-  /**
-   * 选项按钮点击：转发给 engine.fire(opt)。
-   * catchtap 阻止冒泡，避免与父容器事件冲突。
-   * 关联 REQ-GAME-6/7（点选项触发答对/答错流程）
-   */
-  onOptionTap(e) {
-    // M6-L：若引导蒙层仍显示（异常路径兜底），先关闭引导再继续作答
-    if (this.data.tutorialStep > 0) {
-      this.finishTutorial();
-      return;
-    }
-    var index = e.currentTarget.dataset.index;
-    var opt = this.data.options[index];
-    if (!opt || opt.used) {
-      // 已用（选错）的选项不再响应
-      return;
-    }
-    engine.fire(opt);
-  },
-
-  // ============ 游戏结束（REQ-GAME-11/12/15） ============
-
-  /**
-   * 游戏结束：停止引擎，携带结果跳转结算页。
-   * 用 redirectTo 避免回退回游戏页（本局已结束）。
-   * 关联 REQ-GAME-11（失败态）、REQ-GAME-12（星级评定）、REQ-GAME-15（结算操作）
-   */
-  _onGameOver(result) {
-    // 先停止引擎主循环
-    engine.stop();
-    this._clearComboTimer();
-
-    // R4：把本局错题交给结算页回顾。
-    // 经 storage 中转而不是塞进 URL —— 查询串长度有限，错题多时会截断。
-    // 结算页读取后会立即清除该键（见 result.js），避免下次误显示上一局的题。
+    // R4：本局错题经 storage 中转给结算页回顾（URL 长度有限，不能塞查询串）
     storage.set('ww_last_wrong', (this._wrongItems || []).slice(0, 20));
 
-    // 拼接结算页查询参数（type 分类随参数传递，结算页据此写分类存档；
-    // B4：自定义关卡带 custom=1，结算页不写系统星级存档、不入字词进度）
     var query =
       'grade=' + this.data.grade +
       '&level=' + this.data.level +
       '&type=' + (this.data.type || '') +
       '&custom=' + (this._customLevel ? '1' : '0') +
-      '&challenge=' + (this._challenge ? '1' : '0') +
-      '&line=' + (this._challenge ? (this._line || challenge.STAR_KEY) : '') +
-      '&win=' + (result.win ? 1 : 0) +
-      '&score=' + result.score +
-      '&correctCount=' + result.correctCount +
-      '&totalQ=' + result.totalQ +
-      '&rate=' + result.rate +
-      '&stars=' + result.stars +
-      '&maxCombo=' + result.maxCombo;
+      '&challenge=' + (this.data.challenge ? '1' : '0') +
+      '&line=' + (this.data.challenge ? (this._line || challenge.STAR_KEY) : '') +
+      '&win=' + (win ? 1 : 0) +
+      '&score=' + this.data.score +
+      '&correctCount=' + correctCount +
+      '&totalQ=' + totalQ +
+      '&rate=' + rate +
+      '&stars=' + stars +
+      '&maxCombo=' + this.data.combo +
+      '&shoot=1';
 
-    var self = this;
-    var go = function () {
-      // 跳转结算页（redirectTo 替换当前页，避免回退回已结束的本局）
+    this._later(260, function () {
       wx.redirectTo({ url: '/pages/result/result?' + query });
-    };
-    go();
+    });
+  },
+
+  // ============ 交互：暂停 / 声音 ============
+
+  /** 立绘加载失败 → 退回 emoji（离线 / CDN 抖动时仍有画面） */
+  onWarriorImgError: function () {
+    this.setData({ warriorImgOk: false });
+  },
+
+  onBossImgError: function () {
+    this.setData({ bossImgOk: false });
+  },
+
+  onToggleSound: function () {
+    var next = !this.data.soundOn;
+    storage.set(constants.STORAGE_KEYS.sound, next ? '1' : '0');
+    audio.setSoundEnabled(next);
+    this.setData({ soundOn: next });
+    if (next) audio.playCorrect();
+  },
+
+  onPause: function () {
+    this._clearTimers();
+    this._busy = false;
+    this.setData({ paused: true, phase: 'idle' });
+  },
+
+  onResume: function () {
+    this.setData({ paused: false });
+  },
+
+  onQuit: function () {
+    this._clearTimers();
+    this.setData({ paused: false });
+    wx.navigateBack();
+  },
+
+  // ============ 新手引导（M6-L） ============
+
+  _maybeShowTutorial: function () {
+    if (storage.get('ww_tutorial_done')) return;
+    this._showTutorialStep(1);
+  },
+
+  _showTutorialStep: function (step) {
+    var s = TUTORIAL_STEPS[step - 1];
+    if (!s) { this.finishTutorial(); return; }
+    this.setData({ tutorialStep: step, tutorialTitle: s.title, tutorialDesc: s.desc });
+  },
+
+  onTutorialTap: function () {
+    var next = this.data.tutorialStep + 1;
+    if (next > TUTORIAL_STEPS.length) this.finishTutorial();
+    else this._showTutorialStep(next);
+  },
+
+  finishTutorial: function () {
+    storage.set('ww_tutorial_done', '1');
+    this.setData({ tutorialStep: 0, tutorialTitle: '', tutorialDesc: '' });
+  },
+
+  // ============ E2E 钩子（只读/驱动，供 e2e/verify-game.js 稳定断言） ============
+
+  /** 当前题依次要填的字符（E2E 用来点对，避免依赖随机） */
+  _testNeeded: function () {
+    return this._round ? this._round.needed.slice() : [];
+  },
+
+  /** 当前题的完整词 */
+  _testWord: function () {
+    return this._round ? this._round.word : '';
+  },
+
+  /** 自动点下一个正确格子 */
+  _testTapCorrect: function () {
+    if (!this._round) return false;
+    var need = shoot.expectedText(this._round);
+    if (need === null) return false;
+    for (var i = 0; i < this._round.pad.length; i++) {
+      if (!this._round.pad[i].used && this._round.pad[i].text === need) {
+        this._tapIndex(i);
+        return true;
+      }
+    }
+    return false;
+  },
+
+  /** 自动点一个错误格子（面板里没有错误项时返回 false） */
+  _testTapWrong: function () {
+    if (!this._round) return false;
+    var need = shoot.expectedText(this._round);
+    for (var i = 0; i < this._round.pad.length; i++) {
+      if (!this._round.pad[i].used && this._round.pad[i].text !== need) {
+        this._tapIndex(i);
+        return true;
+      }
+    }
+    return false;
   },
 
   // M5 T4.1：对局页分享（带当前学段，好友直接进同一条线）
