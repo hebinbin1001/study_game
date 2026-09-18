@@ -39,6 +39,8 @@ var builtinCache = {};
 // 用户题库覆盖层（2026-09-18）：由页面/启动时 setOverrides() 注入；
 // 为空时 loadByGrade 等价于纯内置词库（测试与离线场景零影响）。
 var overrideMap = null;
+// 自建题库（挂在学段下作为附加题源）；同样由 setBanks() 注入
+var bankMap = null;
 
 // 学段 key → 静态 require 的 JS 词库模块。
 // 重要：微信小程序不支持 require .json 文件（会把路径解析成 .json.js 而失败），
@@ -85,7 +87,7 @@ function loadByGrade(grade) {
   // 套上「用户题库覆盖层」（2026-09-18）：内置 ⊕ 新增 ⊕ 修改 − 停用。
   // 合并放在 dict 出口，凡是走 dict 取题的地方（字母射击 / 拼词 / 成语 / 贪吃蛇 /
   // 连连看 / 每日一题 / 关卡页题量统计）都自动跟着用户题库走，无需各自改代码。
-  var merged = bank.applyOverrides(builtinItems, grade, overrideMap);
+  var merged = bank.applyOverrides(builtinItems, grade, overrideMap, bankMap);
 
   // 缓存（覆盖层变化时由 setOverrides/refreshOverrides 统一清缓存）
   gradeCache[grade] = merged;
@@ -175,12 +177,29 @@ function getOverrides() {
 }
 
 /**
+ * 注入/更新「自建题库列表」（2026-09-18）。
+ * 自建库挂在某个学段下作为该学段的附加题源；enabled=false 的库不参与出题。
+ * @param {Array<Object>} list [{bankId,name,grade,enabled}]
+ */
+function setBanks(list) {
+  bankMap = bank.setBanks(list);
+  clearCache();
+  return bankMap;
+}
+
+/** 读当前自建库列表（题库页渲染用） */
+function getBanks() {
+  return bankMap || bank.getBanks();
+}
+
+/**
  * 本地改完覆盖层后重新读一遍（题库页保存/删除后调）。
  * 与 setOverrides 的差别：数据源是本地缓存而不是服务端返回值，
  * 用于「先本地生效、再异步推云端」的路径。
  */
 function refreshOverrides() {
   overrideMap = bank.getOverrides();
+  bankMap = bank.getBanks();
   clearCache();
   return overrideMap;
 }
@@ -291,6 +310,8 @@ module.exports = {
   // 用户题库覆盖层（2026-09-18）
   setOverrides: setOverrides,
   getOverrides: getOverrides,
+  setBanks: setBanks,
+  getBanks: getBanks,
   refreshOverrides: refreshOverrides,
   findGradeConfig: findGradeConfig
 };

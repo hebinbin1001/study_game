@@ -31,11 +31,26 @@ module.exports = (sequelize) => {
         allowNull: false,
         comment: "所属用户 openid",
       },
+      // 属于哪个自建库（NULL = 直接挂在学段上的改动：新增/改写/停用内置）
+      bankId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        comment: "自建库 ID（NULL = 学段级改动）",
+      },
       // 列名不用 key（MySQL 保留字），用 itemKey
       itemKey: {
         type: DataTypes.STRING(191),
         allowNull: false,
         comment: "词条指纹 grade|type|q",
+      },
+      // 归属范围：'base' = 直接挂在学段上的改动；否则 = 自建库的 bankId。
+      // 为什么要单独一列：唯一索引里 NULL 不算重复（MySQL 语义），
+      // 直接用 bankId 做唯一键会导致「学段级改动」无法 upsert。
+      scopeKey: {
+        type: DataTypes.STRING(64),
+        allowNull: false,
+        defaultValue: "base",
+        comment: "归属范围：base 或 自建库 ID",
       },
       action: {
         type: DataTypes.ENUM("create", "patch", "disable"),
@@ -76,7 +91,7 @@ module.exports = (sequelize) => {
       tableName: "word_entries",
       timestamps: true,
       indexes: [
-        { unique: true, fields: ["openid", "itemKey"] },
+        { unique: true, fields: ["openid", "scopeKey", "itemKey"] },
         { fields: ["openid", "grade"] },
       ],
     }

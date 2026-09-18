@@ -52,6 +52,49 @@
 }
 .bk-chip.on { background: #ffb703; color: #fff; }
 .bk-chip--t { font-size: 22rpx; padding: 10rpx 22rpx; }
+.bk-chip--bank { font-size: 23rpx; padding: 10rpx 22rpx; }
+.bk-chip--bank.off { opacity: .55; }
+.bk-chip--new { font-size: 22rpx; padding: 10rpx 20rpx; background: #e6f1fb; color: #4a90d9; }
+
+/* 当前自建库管理条 */
+.bk-bankbar {
+  flex: 0 0 auto;
+  margin-top: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 4rpx 0 rgba(0, 0, 0, .05);
+}
+.bk-bankbar-name { font-size: 24rpx; font-weight: 800; color: #2f5470; }
+.bk-bankbar-acts { display: flex; gap: 18rpx; flex: 0 0 auto; }
+.bk-act { font-size: 22rpx; font-weight: 800; color: #4a90d9; }
+.bk-act.danger { color: #d4627a; }
+
+/* 掌握状态筛选 */
+.bk-mfilters {
+  flex: 0 0 auto;
+  margin-top: 14rpx;
+  display: flex;
+  gap: 14rpx;
+}
+.bk-mf {
+  flex: 1;
+  text-align: center;
+  padding: 12rpx 0;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, .92);
+  color: #6d8aa5;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+.bk-mf.on { background: #4a90d9; color: #fff; }
+.bk-mf.weak.on { background: #e8722c; }
+.bk-mf.learned.on { background: #2fa96b; }
+.bk-mf-n { font-size: 20rpx; opacity: .85; }
 
 /* 搜索 */
 .bk-search {
@@ -93,6 +136,23 @@
   box-shadow: 0 6rpx 0 rgba(0, 0, 0, .05);
 }
 .bk-item.off { opacity: .55; }
+.bk-dot {
+  flex: 0 0 auto;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #d6e3ee;
+}
+.bk-dot.weak { background: #e8722c; }
+.bk-dot.learned { background: #2fa96b; }
+.bk-pill {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  font-weight: 800;
+}
+.bk-pill.ok { background: #e6f7ee; color: #2fa96b; }
+.bk-pill.bad { background: #fdeef1; color: #d4627a; }
 .bk-item-main { flex: 1 1 auto; min-width: 0; }
 .bk-item-top {
   display: flex;

@@ -142,3 +142,71 @@ s.test('全量冒烟：每个学段都能套用覆盖层且结果非空', () => 
   });
   dict.setOverrides([]);
 });
+
+// ============ 自建题库（挂在学段下作为附加题源，2026-09-18 二次改版） ============
+
+s.test('自建库：挂在本学段的库，词条并入题池', () => {
+  const banks = bank.setBanks([
+    { bankId: 'bkA', name: '我家错词本', grade: G, enabled: true }
+  ]);
+  const ov = bank.setOverrides([
+    bank.makeEntry('create', G, 'c2', '*马*空', { a: '天马行空', bankId: 'bkA' })
+  ]);
+  const out = bank.applyOverrides(fakeBuiltin(), G, ov, banks);
+  s.assert.equal(out.length, 4, '内置 3 条 + 自建库 1 条');
+  s.assert.ok(out.some((x) => x.a === '天马行空'), '自建库词条应并入');
+});
+
+s.test('自建库：库暂停后不参与出题（词条仍在本地，随时开回来）', () => {
+  const banks = bank.setBanks([
+    { bankId: 'bkA', name: '我家错词本', grade: G, enabled: false }
+  ]);
+  const ov = bank.setOverrides([
+    bank.makeEntry('create', G, 'c2', '*马*空', { a: '天马行空', bankId: 'bkA' })
+  ]);
+  const out = bank.applyOverrides(fakeBuiltin(), G, ov, banks);
+  s.assert.equal(out.length, 3, '暂停的库不并入');
+});
+
+s.test('自建库：挂在别的学段的库，不影响本学段', () => {
+  const banks = bank.setBanks([
+    { bankId: 'bkB', name: '初中错词', grade: 'junior', enabled: true }
+  ]);
+  const ov = bank.setOverrides([
+    bank.makeEntry('create', G, 'c2', '*马*空', { a: '天马行空', bankId: 'bkB' })
+  ]);
+  const out = bank.applyOverrides(fakeBuiltin(), G, ov, banks);
+  s.assert.equal(out.length, 3, '别的学段的库不应串进来');
+});
+
+s.test('自建库：与内置同题的词条不会在题池里重复（避免同一关出重复题）', () => {
+  const banks = bank.setBanks([
+    { bankId: 'bkC', name: '错词本', grade: G, enabled: true }
+  ]);
+  const ov = bank.setOverrides([
+    bank.makeEntry('create', G, 'w1', 'cat', { a: 'a', hint: '学段级新增' }),
+    bank.makeEntry('create', G, 'w1', 'cat', { a: 'a', hint: '自建库新增', bankId: 'bkC' })
+  ]);
+  const out = bank.applyOverrides(fakeBuiltin(), G, ov, banks);
+  s.assert.equal(out.length, 3, '与内置同题时不重复并入题池');
+  s.assert.equal(out.filter((x) => x.q === 'cat').length, 1, 'cat 只应出现一次');
+});
+
+s.test('作用域键：base 与自建库互不覆盖（本地增删改也按作用域隔离）', () => {
+  s.assert.equal(bank.entryKey('', G, 'w1', 'cat'), 'base::' + bank.fingerprint(G, 'w1', 'cat'));
+  s.assert.equal(bank.entryKey('bkZ', G, 'w1', 'cat'), 'bkZ::' + bank.fingerprint(G, 'w1', 'cat'));
+  s.assert.notEqual(bank.entryKey('', G, 'w1', 'cat'), bank.entryKey('bkZ', G, 'w1', 'cat'));
+});
+
+s.test('删库：库和库内词条一起清掉，题池回到内置', () => {
+  bank.setBanks([{ bankId: 'bkD', name: '临时库', grade: G, enabled: true }]);
+  bank.upsertLocal(bank.makeEntry('create', G, 'c2', '*马*空', { a: '天马行空', bankId: 'bkD' }));
+  dict.refreshOverrides();
+  s.assert.ok(dict.loadByGrade(G).some((x) => x.a === '天马行空'), '挂上库后应能出题');
+  bank.removeBankLocal('bkD');
+  bank.removeLocal(G, 'c2', '*马*空', 'bkD');
+  dict.refreshOverrides();
+  s.assert.ok(!dict.loadByGrade(G).some((x) => x.a === '天马行空'), '删库后不应再出题');
+  bank.removeLocal(G, 'c2', '*马*空');
+  dict.refreshOverrides();
+});

@@ -24,6 +24,17 @@
 var storage = require('./storage');
 
 var CACHE_KEY = 'ww_wordbank_overrides';
+var BANKS_KEY = 'ww_wordbank_banks';
+
+/** 作用域键：自建库 = bankId；学段级改动 = 'base' */
+function scopeOf(entry) {
+  return (entry && entry.bankId) ? String(entry.bankId) : 'base';
+}
+
+/** 覆盖记录的存储键：作用域 + 指纹（同一道题可以在学段级和某个自建库里各存一份） */
+function entryKey(bankId, grade, type, q) {
+  return ((bankId || 'base') + '::' + fingerprint(grade, type, q));
+}
 
 /** 词条指纹：内置条目靠它定位（学段 + 题型 + 题目），与数组下标无关（内置库升级不会错位） */
 function fingerprint(grade, type, q) {
@@ -53,10 +64,11 @@ function setOverrides(list) {
   var map = {};
   (list || []).forEach(function (e) {
     if (!e) return;
-    var key = e.key || fingerprint(e.grade, e.type, e.q);
+    var key = entryKey(e.bankId, e.grade, e.type, e.q);
     map[key] = {
       key: key,
       action: e.action || 'create',
+      bankId: e.bankId || '',
       grade: e.grade || '',
       type: e.type || '',
       q: e.q || '',
@@ -76,6 +88,34 @@ function getOverrides() {
 }
 
 /**
+ * 自建题库列表（挂在某个学段下作为该学段的附加题源）。
+ * @param {Array<Object>} list [{bankId,name,grade,enabled}]
+ */
+function setBanks(list) {
+  var map = {};
+  (list || []).forEach(function (b) {
+    if (!b || !b.bankId) return;
+    map[b.bankId] = {
+      bankId: b.bankId,
+      name: b.name || '未命名题库',
+      grade: b.grade || '',
+      enabled: b.enabled === undefined ? true : !!b.enabled
+    };
+  });
+  storage.set(BANKS_KEY, JSON.stringify(map));
+  return map;
+}
+
+function getBanks() {
+  var raw = storage.get(BANKS_KEY);
+  if (!raw) return {};
+  if (typeof raw === 'string') {
+    try { return JSON.parse(raw) || {}; } catch (e) { return {}; }
+  }
+  return (typeof raw === 'object') ? raw : {};
+}
+
+/**
  * 把覆盖层套到某个学段的内置词条上（纯函数，便于单测）。
  *
  * 规则与顺序：
@@ -88,8 +128,9 @@ function getOverrides() {
  * @param {Object} [map] 覆盖字典；缺省读本地缓存
  * @returns {Array<Object>} 合并后的词条数组（新数组，不修改入参）
  */
-function applyOverrides(builtin, grade, map) {
+function applyOverrides(builtin, grade, map, banks) {
   var ov = map || getOverrides();
+  var bk = banks || getBanks();
   var disabled = {};
   var patches = {};
   var creates = [];
@@ -97,8 +138,16 @@ function applyOverrides(builtin, grade, map) {
   Object.keys(ov || {}).forEach(function (k) {
     var e = ov[k];
     if (!e || e.grade !== grade) return;
-    if (e.action === 'disable') disabled[k] = true;
-    else if (e.action === 'patch') patches[k] = e;
+    var fp = fingerprint(e.grade, e.type, e.q);
+    if (scopeOf(e) !== 'base') {
+      // 自建库的词条：只有「库启用了、且库挂在本学段」才并入（作为附加题源）
+      var bank = bk[scopeOf(e)];
+      if (!bank || !bank.enabled || bank.grade !== grade) return;
+      if (e.action === 'create') creates.push(e);
+      return;
+    }
+    if (e.action === 'disable') disabled[fp] = true;
+    else if (e.action === 'patch') patches[fp] = e;
     else if (e.action === 'create') creates.push(e);
   });
 
@@ -152,6 +201,7 @@ function makeEntry(action, grade, type, q, fields) {
   var f = fields || {};
   return {
     action: action,
+    bankId: f.bankId || '',
     grade: grade || '',
     type: type || '',
     q: q || '',
@@ -159,35 +209,69 @@ function makeEntry(action, grade, type, q, fields) {
     hint: f.hint || '',
     ex: f.ex || '',
     d: f.d || '',
-    key: fingerprint(grade, type, q)
+    key: fingerprint(grade, type, q),
+    entryKey: entryKey(f.bankId, grade, type, q)
   };
 }
 
 /** 本地即时合并一条改动（不等云端回来就先让页面/对局生效） */
 function upsertLocal(entry) {
   var map = readCache();
-  var key = entry.key || fingerprint(entry.grade, entry.type, entry.q);
+  var key = entryKey(entry.bankId, entry.grade, entry.type, entry.q);
   map[key] = Object.assign({}, entry, { key: key });
   writeCache(map);
   return map;
 }
 
 /** 本地移除一条改动（恢复内置原样） */
-function removeLocal(grade, type, q) {
+function removeLocal(grade, type, q, bankId) {
   var map = readCache();
-  delete map[fingerprint(grade, type, q)];
+  delete map[entryKey(bankId, grade, type, q)];
   writeCache(map);
+  return map;
+}
+
+/** 本地保存自建库列表（新建/改名/启停后立即生效） */
+function upsertBankLocal(bank) {
+  var map = getBanks();
+  map[bank.bankId] = {
+    bankId: bank.bankId,
+    name: bank.name || '未命名题库',
+    grade: bank.grade || '',
+    enabled: bank.enabled === undefined ? true : !!bank.enabled
+  };
+  storage.set(BANKS_KEY, JSON.stringify(map));
+  return map;
+}
+
+/** 本地删除自建库（连带库内词条） */
+function removeBankLocal(bankId) {
+  var map = getBanks();
+  delete map[bankId];
+  storage.set(BANKS_KEY, JSON.stringify(map));
+  var ov = readCache();
+  Object.keys(ov).forEach(function (k) {
+    if (scopeOf(ov[k]) === String(bankId)) delete ov[k];
+  });
+  writeCache(ov);
   return map;
 }
 
 module.exports = {
   CACHE_KEY: CACHE_KEY,
+  BANKS_KEY: BANKS_KEY,
   fingerprint: fingerprint,
+  scopeOf: scopeOf,
+  entryKey: entryKey,
   setOverrides: setOverrides,
   getOverrides: getOverrides,
+  setBanks: setBanks,
+  getBanks: getBanks,
   applyOverrides: applyOverrides,
   mergeItem: mergeItem,
   makeEntry: makeEntry,
   upsertLocal: upsertLocal,
-  removeLocal: removeLocal
+  removeLocal: removeLocal,
+  upsertBankLocal: upsertBankLocal,
+  removeBankLocal: removeBankLocal
 };

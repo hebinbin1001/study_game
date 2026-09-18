@@ -33,6 +33,36 @@ H.runSuite('verify-bank（题库）', async function (miniProgram, ck) {
   ck.check('题库页根容器 .bk-page 已渲染', !!(await H.waitForSelector(page, '.bk-page', 8000)));
   ck.check('顶部标题区 .bk-head 已渲染', !!(await H.waitForSelector(page, '.bk-head', 8000)));
 
+  // 2026-09-18 二次改版：自建库 + 掌握状态筛选 + 新建题库入口
+  const data0 = await page.data();
+  if (!data0.needLogin) {
+    ck.check('词库选择 chips 已渲染（内置档）',
+      (await page.$$('.bk-chip--bank')).length >= 1, '实际 ' + (await page.$$('.bk-chip--bank')).length);
+    ck.check('有「＋ 新建题库」入口', !!(await page.$('.bk-chip--new')));
+    ck.check('掌握状态筛选 3 档（全部/薄弱/已掌握）', (await page.$$('.bk-mf')).length === 3,
+      '实际 ' + (await page.$$('.bk-mf')).length);
+    const allCount = data0.totalAll;
+    const weakBtn = await page.$('.bk-mf.weak');
+    if (weakBtn) {
+      await weakBtn.tap();
+      await page.waitFor(400);
+      const dWeak = await page.data();
+      ck.check('切到「薄弱」筛选后不崩且计数不超过全部',
+        dWeak.mFilter === 'weak' && (dWeak.shown || []).length <= allCount,
+        'weak shown = ' + (dWeak.shown || []).length + ' / all = ' + allCount);
+      await (await page.$('.bk-mf')).tap();
+      await page.waitFor(300);
+    }
+    const newBank = await page.$('.bk-chip--new');
+    if (newBank) {
+      await newBank.tap();
+      await page.waitFor(400);
+      ck.check('点「新建题库」弹出建库表单', (await page.$$('.bk-sheet')).length >= 1);
+      const cancel = await page.$('.bk-btn.ghost');
+      if (cancel) { await cancel.tap(); await page.waitFor(300); }
+    }
+  }
+
   console.log('[3/4] 未登录 → 受限页门禁（与其它受限页同一规范）');
   const data = await page.data();
   if (data.needLogin) {

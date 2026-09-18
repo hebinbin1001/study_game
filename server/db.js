@@ -33,6 +33,7 @@ const MilestoneClaim = require("./models/milestone-claim")(sequelize);
 const Achievement = require("./models/achievement")(sequelize);
 const UserAchievement = require("./models/user-achievement")(sequelize);
 const WordEntry = require("./models/word-entry")(sequelize);
+const WordBank = require("./models/word-bank")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
@@ -138,4 +139,5 @@ module.exports = {
   Achievement,
   UserAchievement,
   WordEntry,
+  WordBank,
 };

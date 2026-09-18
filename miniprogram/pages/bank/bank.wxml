@@ -1,4 +1,7 @@
-<!-- 题库页（2026-09-18）：各学段词汇浏览 + 编辑 / 新增 / 删除；这里就是闯关线的题源 -->
+<!--
+  题库页（2026-09-18）：各学段词汇一览 + 编辑/新增/删除 + 自建库 + 掌握状态
+  说明：这里的词条（含自建库）就是闯关线的题源；自建库挂在学段下作为附加题源。
+-->
 <view class="bk-page">
 
   <!-- 顶部 -->
@@ -30,6 +33,29 @@
       </view>
     </scroll-view>
 
+    <!-- 词库：内置 + 本学段的自建库 + 新建 -->
+    <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
+      <view class="bk-row">
+        <view
+          wx:for="{{bankChips}}"
+          wx:key="key"
+          class="bk-chip bk-chip--bank {{curBank === item.key ? 'on' : ''}} {{item.off ? 'off' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pickBank">{{item.label}}{{item.off ? '（已暂停）' : ''}}</view>
+        <view class="bk-chip bk-chip--new" bindtap="openCreateBank">＋ 新建题库</view>
+      </view>
+    </scroll-view>
+
+    <!-- 当前自建库的管理条 -->
+    <view wx:if="{{curBankIsCustom}}" class="bk-bankbar">
+      <text class="bk-bankbar-name">📗 {{curBankName}}</text>
+      <view class="bk-bankbar-acts">
+        <text class="bk-act" bindtap="openRenameBank">重命名</text>
+        <text class="bk-act" bindtap="toggleBankEnabled">启用/暂停</text>
+        <text class="bk-act danger" bindtap="deleteBank">删除</text>
+      </view>
+    </view>
+
     <!-- 题型 -->
     <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
       <view class="bk-row">
@@ -41,6 +67,19 @@
           bindtap="pickType">{{item.label}}</view>
       </view>
     </scroll-view>
+
+    <!-- 掌握状态筛选 -->
+    <view class="bk-mfilters">
+      <view class="bk-mf {{mFilter === 'all' ? 'on' : ''}}" data-key="all" bindtap="pickMFilter">
+        全部 <text class="bk-mf-n">{{totalAll}}</text>
+      </view>
+      <view class="bk-mf weak {{mFilter === 'weak' ? 'on' : ''}}" data-key="weak" bindtap="pickMFilter">
+        薄弱 <text class="bk-mf-n">{{weakCount}}</text>
+      </view>
+      <view class="bk-mf learned {{mFilter === 'learned' ? 'on' : ''}}" data-key="learned" bindtap="pickMFilter">
+        已掌握 <text class="bk-mf-n">{{learnedCount}}</text>
+      </view>
+    </view>
 
     <!-- 搜索 -->
     <view class="bk-search">
@@ -66,6 +105,7 @@
         wx:for="{{shown}}"
         wx:key="k"
         class="bk-item {{item.disabled ? 'off' : ''}}">
+        <view class="bk-dot {{item.status}}"></view>
         <view class="bk-item-main">
           <view class="bk-item-top">
             <text class="bk-q">{{item.q}}</text>
@@ -75,6 +115,8 @@
           <view class="bk-meta">
             <text class="bk-tag">{{item.typeLabel}}</text>
             <text class="bk-src {{item.srcCls}}">{{item.srcLabel}}</text>
+            <text wx:if="{{item.r}}" class="bk-pill ok">✓ {{item.r}}</text>
+            <text wx:if="{{item.w}}" class="bk-pill bad">✗ {{item.w}}</text>
           </view>
         </view>
         <view class="bk-item-act">
@@ -97,7 +139,7 @@
     <view class="bk-fab" bindtap="openCreate">＋ 新增词条</view>
   </block>
 
-  <!-- ============ 编辑弹层 ============ -->
+  <!-- ============ 词条编辑弹层 ============ -->
   <view wx:if="{{sheetShow}}" class="bk-mask" bindtap="closeSheet">
     <view class="bk-sheet" catchtap="noop">
       <view class="bk-sheet-title">{{sheetTitle}}</view>
@@ -127,8 +169,7 @@
              placeholder="如 猫 / 大象 / 比喻不主动努力" />
 
       <view class="bk-fl">干扰项（逗号分隔，可空）</view>
-      <input class="bk-input" value="{{fD}}" data-f="fD" bindinput="onField"
-             placeholder="如 e,o,i" />
+      <input class="bk-input" value="{{fD}}" data-f="fD" bindinput="onField" placeholder="如 e,o,i" />
 
       <view class="bk-fl">例句（可选）</view>
       <input class="bk-input" value="{{fEx}}" data-f="fEx" bindinput="onField"
@@ -139,6 +180,31 @@
         <view class="bk-btn" bindtap="saveSheet">保存</view>
       </view>
       <view class="bk-sheet-tip">保存后立刻用于闯关出题；内置词条的题目不可改（改了会变成新词条）</view>
+    </view>
+  </view>
+
+  <!-- ============ 新建 / 重命名题库弹层 ============ -->
+  <view wx:if="{{bankSheetShow}}" class="bk-mask" bindtap="closeBankSheet">
+    <view class="bk-sheet" catchtap="noop">
+      <view class="bk-sheet-title">{{bankSheetMode === 'rename' ? '重命名题库' : '新建题库'}}</view>
+      <view class="bk-fl">题库名</view>
+      <input class="bk-input" value="{{bName}}" bindinput="onBankName" placeholder="如 我家错词本 / 三年级上册" />
+      <view class="bk-fl">挂在哪个学段（作为该学段的附加题源）</view>
+      <scroll-view class="bk-type-scroll" scroll-x="true" enable-flex="true">
+        <view class="bk-row">
+          <view
+            wx:for="{{grades}}"
+            wx:key="key"
+            class="bk-chip {{bGradeIndex === index ? 'on' : ''}}"
+            data-index="{{index}}"
+            bindtap="pickBankGrade">{{item.label}}</view>
+        </view>
+      </scroll-view>
+      <view class="bk-sheet-btns">
+        <view class="bk-btn ghost" bindtap="closeBankSheet">取消</view>
+        <view class="bk-btn" bindtap="saveBankSheet">{{bankSheetMode === 'rename' ? '保存' : '创建'}}</view>
+      </view>
+      <view class="bk-sheet-tip">闯关时会和该学段的内置词库一起出题；暂停后不再参与出题，词条仍保留</view>
     </view>
   </view>
 </view>

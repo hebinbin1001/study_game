@@ -64,7 +64,7 @@ App({
    */
   syncWordBank() {
     try {
-      dict.refreshOverrides();          // 先用本地缓存生效
+      dict.refreshOverrides();   // 先用本地缓存（覆盖层 + 自建库列表）生效
     } catch (e) {
       // 读缓存失败：等价于没有覆盖层，继续用内置词库
     }
@@ -73,6 +73,11 @@ App({
       dict.setOverrides((d && d.list) || []);
     }).catch(() => {
       // 静默：离线/接口异常时保持本地缓存，词库功能不受影响
+    });
+    request.get('/api/wordbank/banks').then((d) => {
+      dict.setBanks((d && d.list) || []);
+    }).catch(() => {
+      // 静默：自建库拿不到时只用「学段 + 本地缓存」
     });
   },
 
