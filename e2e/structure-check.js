@@ -61,7 +61,7 @@ const bounceGoesToPage = src.includes("'/pages/bounce/bounce'");
 check(!bounceGoesToPage || !/key: 'bounce'[^}]*url:/.test(src), '弹弹球无 url(不可进入)');
 
 // 4) 每日一题 / checkin / 排行榜 / 自定义 关键页存在
-['daily-question', 'checkin', 'rank', 'custom-levels', 'sudoku', 'match', 'link', 'snake', 'math24', 'g2048', 'klotski', 'agreement'].forEach((pg) => {
+['daily-question', 'checkin', 'rank', 'custom-levels', 'bank', 'sudoku', 'match', 'link', 'snake', 'math24', 'g2048', 'klotski', 'agreement'].forEach((pg) => {
   check(fs.existsSync(`miniprogram/pages/${pg}/${pg}.js`), `关键页 pages/${pg} 存在`);
 });
 
@@ -79,7 +79,7 @@ check(idxSrc.includes('_doLogin') && idxSrc.includes('ensureAgreement'), '首页
 //   门禁漏了 = 分享链接能直接进排行榜/错题本（空列表或别人的数据）；
 //   结算页漏了 = 游客打完一局不知道成绩没上云；
 //   分享漏了 = 右上角转发不出去。静态断言把它们钉住，改页面时不会悄悄丢。
-const GATED_PAGES = ['avatar', 'rank', 'wrong-book', 'checkin', 'achievement'];
+const GATED_PAGES = ['avatar', 'rank', 'wrong-book', 'checkin', 'achievement', 'bank'];
 GATED_PAGES.forEach((pg) => {
   const js = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.js`, 'utf8');
   const wxml = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.wxml`, 'utf8');
@@ -95,7 +95,7 @@ const appWxssSrc = fs.readFileSync('miniprogram/app.wxss', 'utf8');
 check(appWxssSrc.includes('.gate-bar'), '门禁引导条样式统一在 app.wxss（6 页共用一份）');
 
 // 分享：关键页必须能转发（M5 T4.1）
-['result', 'game', 'me', 'rank', 'rank-info', 'achievement', 'wrong-book', 'avatar', 'checkin'].forEach((pg) => {
+['result', 'game', 'me', 'rank', 'rank-info', 'achievement', 'wrong-book', 'avatar', 'checkin', 'bank'].forEach((pg) => {
   const js = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.js`, 'utf8');
   check(js.includes('onShareAppMessage'), `pages/${pg} 支持分享（onShareAppMessage）`);
 });

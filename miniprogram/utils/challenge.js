@@ -607,6 +607,27 @@ function lineUrl(gradeKey, mode, level) {
  * @returns {{isChallenge:boolean, line:string, mode:string, grade:string, level:number,
  *            seed:number, params:Object|null, key:string, label:string, isBoss:boolean}}
  */
+/**
+ * 「下一关」跳转 URL（2026-09-18 用户要求：过关后要提示下一关）。
+ *
+ * 同一上下文内推进：主线 → 下一关；玩法线 → 同一条线的下一关。
+ * 自由玩（非挑战局）没有关卡概念、最后一关也没有下一关 → 返回 ''，页面据此不显示按钮。
+ *
+ * @param {Object} opt 当前页面 onLoad 的 options（含 challenge/line/grade/level）
+ * @returns {string} 可用的页面 URL；无下一关返回 ''
+ */
+function nextLevelUrl(opt) {
+  var ctx = contextOf(opt);
+  if (!ctx.isChallenge) return '';
+  var next = ctx.level + 1;
+  if (!(next >= 1 && next <= LEVELS_PER_GRADE)) return '';
+  if (ctx.line === STAR_KEY) {
+    var lv = levelAt(ctx.grade, next);
+    return lv ? pageUrl(lv, ctx.grade) : '';
+  }
+  return lineUrl(ctx.grade, ctx.mode, next);
+}
+
 function contextOf(opt) {
   var o = opt || {};
   var isChallenge = String(o.challenge) === '1';
@@ -705,5 +726,6 @@ module.exports = {
   lineUrl: lineUrl,
   lineProgress: lineProgress,
   contextOf: contextOf,
+  nextLevelUrl: nextLevelUrl,
   migrateStars: migrateStars
 };

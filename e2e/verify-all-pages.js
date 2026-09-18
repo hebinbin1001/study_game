@@ -51,6 +51,7 @@ const PAGES = [
   { path: 'pages/checkin/checkin', name: 'checkin', query: '', selectors: ['.page-checkin', '.checkin-card', '.btn-checkin'] },
   { path: 'pages/achievement/achievement', name: 'achievement', query: '', selectors: ['.page-achievement', '.header', '.achievement-list'] },
   { path: 'pages/report/report', name: 'report', query: '', selectors: ['.page-report', '.report-header'] },
+  { path: 'pages/bank/bank', name: 'bank', query: '', selectors: ['.bk-page', '.bk-head', '.bk-search'] },
   { path: 'pages/share-card/share-card', name: 'share-card', query: '', selectors: ['.share-card', '.share-canvas'] }
 ];
 

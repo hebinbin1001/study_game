@@ -13,6 +13,7 @@ const MIN_SDK_VERSION = '2.9.0';
 var request = require('./utils/request');
 var storage = require('./utils/storage');
 var auth = require('./utils/auth');
+var dict = require('./utils/dict');
 
 // 云托管连接方案（2026-09-08 迁移）：
 //   前端通过 wx.cloud.init + wx.cloud.callContainer 调用后端（envId/serviceName
@@ -48,6 +49,31 @@ App({
 
     // 4. 基础库版本兼容检测（低于 2.9.0 提示升级，REQ-NFR-3）
     this.checkSDKVersion();
+
+    // 5. 题库覆盖层预热（2026-09-18）：先用本地缓存让「用户编辑过的词条」
+    //    立刻参与出题（离线也有），登录后再静默拉云端覆盖记录。
+    this.syncWordBank();
+  },
+
+  /**
+   * 同步用户题库覆盖层。
+   *
+   * 为什么放在启动时：题库是**闯关线的题源**，如果只在题库页里加载，
+   * 用户改完题库后冷启动进闯关就会拿到旧题库（内置原样）——那就成了假联动。
+   * 本地缓存 → 立即生效；云端 → 静默覆盖（失败保持本地，不影响对局）。
+   */
+  syncWordBank() {
+    try {
+      dict.refreshOverrides();          // 先用本地缓存生效
+    } catch (e) {
+      // 读缓存失败：等价于没有覆盖层，继续用内置词库
+    }
+    if (!auth.isLoggedIn()) return;
+    request.get('/api/wordbank/entries').then((d) => {
+      dict.setOverrides((d && d.list) || []);
+    }).catch(() => {
+      // 静默：离线/接口异常时保持本地缓存，词库功能不受影响
+    });
   },
 
   onShow() {

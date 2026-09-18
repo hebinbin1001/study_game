@@ -1,0 +1,144 @@
+<!-- 题库页（2026-09-18）：各学段词汇浏览 + 编辑 / 新增 / 删除；这里就是闯关线的题源 -->
+<view class="bk-page">
+
+  <!-- 顶部 -->
+  <view class="bk-head">
+    <button class="bk-back" bindtap="goBack">‹</button>
+    <view class="bk-head-t">
+      <view class="bk-title">📚 题库</view>
+      <view class="bk-sub">这里的词条就是闯关线的题目来源{{syncing ? ' · 同步中…' : ''}}</view>
+    </view>
+  </view>
+
+  <!-- 门禁 -->
+  <view class="gate-bar" wx:if="{{needLogin}}">
+    <text class="gate-emoji">🔒</text>
+    <text class="gate-text">{{gateText}}</text>
+    <button class="gate-btn" bindtap="onGateLogin">去登录</button>
+  </view>
+
+  <block wx:else>
+    <!-- 学段 -->
+    <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
+      <view class="bk-row">
+        <view
+          wx:for="{{grades}}"
+          wx:key="key"
+          class="bk-chip {{gradeIndex === index ? 'on' : ''}}"
+          data-index="{{index}}"
+          bindtap="pickGrade">{{item.label}}</view>
+      </view>
+    </scroll-view>
+
+    <!-- 题型 -->
+    <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
+      <view class="bk-row">
+        <view
+          wx:for="{{types}}"
+          wx:key="key"
+          class="bk-chip bk-chip--t {{curType === item.key ? 'on' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pickType">{{item.label}}</view>
+      </view>
+    </scroll-view>
+
+    <!-- 搜索 -->
+    <view class="bk-search">
+      <text class="bk-search-ic">🔍</text>
+      <input
+        class="bk-search-input"
+        value="{{keyword}}"
+        placeholder="搜题目 / 答案 / 释义"
+        confirm-type="search"
+        bindinput="onSearch" />
+      <text wx:if="{{keyword}}" class="bk-search-clr" bindtap="clearSearch">✕</text>
+    </view>
+
+    <!-- 统计 -->
+    <view class="bk-stat">
+      <text class="bk-stat-main">{{gradeLabel}} · 共 {{totalAll}} 条</text>
+      <text class="bk-stat-sub">内置 {{builtinCount}} · 我的 {{mineCount}}</text>
+    </view>
+
+    <!-- 列表 -->
+    <scroll-view class="bk-list" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+      <view
+        wx:for="{{shown}}"
+        wx:key="k"
+        class="bk-item {{item.disabled ? 'off' : ''}}">
+        <view class="bk-item-main">
+          <view class="bk-item-top">
+            <text class="bk-q">{{item.q}}</text>
+            <text class="bk-a">{{item.a}}</text>
+          </view>
+          <view wx:if="{{item.hint}}" class="bk-hint">{{item.hint}}</view>
+          <view class="bk-meta">
+            <text class="bk-tag">{{item.typeLabel}}</text>
+            <text class="bk-src {{item.srcCls}}">{{item.srcLabel}}</text>
+          </view>
+        </view>
+        <view class="bk-item-act">
+          <view class="bk-btn-mini" data-k="{{item.k}}" bindtap="openEdit">编辑</view>
+          <view wx:if="{{item.disabled}}" class="bk-btn-mini ok" data-k="{{item.k}}" bindtap="restoreItem">恢复</view>
+          <view wx:elif="{{item.isBuiltin}}" class="bk-btn-mini no" data-k="{{item.k}}" bindtap="disableItem">停用</view>
+          <view wx:else class="bk-btn-mini no" data-k="{{item.k}}" bindtap="deleteItem">删除</view>
+        </view>
+      </view>
+
+      <view wx:if="{{hasMore}}" class="bk-more" bindtap="loadMore">加载更多</view>
+      <view wx:if="{{!shown.length}}" class="bk-empty">
+        <view class="bk-empty-emoji">📭</view>
+        <view class="bk-empty-text">这个筛选下还没有词条</view>
+      </view>
+      <view class="safe-gap"></view>
+    </scroll-view>
+
+    <!-- 新增 -->
+    <view class="bk-fab" bindtap="openCreate">＋ 新增词条</view>
+  </block>
+
+  <!-- ============ 编辑弹层 ============ -->
+  <view wx:if="{{sheetShow}}" class="bk-mask" bindtap="closeSheet">
+    <view class="bk-sheet" catchtap="noop">
+      <view class="bk-sheet-title">{{sheetTitle}}</view>
+
+      <view class="bk-fl">题型</view>
+      <scroll-view class="bk-type-scroll" scroll-x="true" enable-flex="true">
+        <view class="bk-row">
+          <view
+            wx:for="{{sheetTypeOptions}}"
+            wx:key="code"
+            class="bk-chip bk-chip--t {{fType === item.code ? 'on' : ''}}"
+            data-code="{{item.code}}"
+            bindtap="pickSheetType">{{item.name}}</view>
+        </view>
+      </scroll-view>
+
+      <view class="bk-fl">题目</view>
+      <input class="bk-input" value="{{fQ}}" data-f="fQ" bindinput="onField"
+             placeholder="如 cat / *l*ph*nt / 守*待兔" />
+
+      <view class="bk-fl">答案</view>
+      <input class="bk-input" value="{{fA}}" data-f="fA" bindinput="onField"
+             placeholder="如 a / elephant / 株" />
+
+      <view class="bk-fl">释义 / 提示</view>
+      <input class="bk-input" value="{{fHint}}" data-f="fHint" bindinput="onField"
+             placeholder="如 猫 / 大象 / 比喻不主动努力" />
+
+      <view class="bk-fl">干扰项（逗号分隔，可空）</view>
+      <input class="bk-input" value="{{fD}}" data-f="fD" bindinput="onField"
+             placeholder="如 e,o,i" />
+
+      <view class="bk-fl">例句（可选）</view>
+      <input class="bk-input" value="{{fEx}}" data-f="fEx" bindinput="onField"
+             placeholder="如 An apple a day keeps the doctor away." />
+
+      <view class="bk-sheet-btns">
+        <view class="bk-btn ghost" bindtap="closeSheet">取消</view>
+        <view class="bk-btn" bindtap="saveSheet">保存</view>
+      </view>
+      <view class="bk-sheet-tip">保存后立刻用于闯关出题；内置词条的题目不可改（改了会变成新词条）</view>
+    </view>
+  </view>
+</view>

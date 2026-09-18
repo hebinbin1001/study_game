@@ -137,7 +137,11 @@ Page({
       maxCombo: maxCombo,
       ratePercent: ratePercent,
       grade: grade,
-      level: level
+      level: level,
+      // 「下一关」（2026-09-18 用户要求）：只有挑战/玩法线、且不是最后一关才显示
+      showNext: !!challenge.nextLevelUrl({
+        challenge: '1', line: this._line, grade: grade, level: String(level)
+      })
     });
 
     // 通关写星级存档（取历史最大值；分类关卡写 grade@type@level，综合沿用旧 key，REQ-GAME-13）
@@ -250,6 +254,18 @@ Page({
   // 回首页：重启到首页，清空页面栈
   goHome: function () {
     wx.reLaunch({ url: '/pages/index/index' });
+  },
+
+  /**
+   * 下一关（2026-09-18）：同一上下文内推进到第 level+1 关。
+   * 用 challenge.nextLevelUrl 统一算 URL（主线/玩法线各自的种子与命名空间都在这一个函数里）。
+   */
+  onNext: function () {
+    var url = challenge.nextLevelUrl({
+      challenge: '1', line: this._line, grade: this.data.grade, level: String(this.data.level)
+    });
+    if (!url) return;
+    wx.redirectTo({ url: url });
   },
 
   // M5 T4.1：结算页分享战绩（右上角转发）

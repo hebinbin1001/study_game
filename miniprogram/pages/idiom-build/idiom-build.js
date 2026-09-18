@@ -62,6 +62,8 @@ Page({
     this._rng = null;
     this._challengeKey = '';
     this._challengeLabel = '';
+    // 「下一关」：同一上下文内的下一关 URL（自由玩/最后一关为空 → 结算层不显示按钮）
+    this._nextUrl = challenge.nextLevelUrl(opt);
     if (this._challenge) {
       this._roundQ = (ctx.params && ctx.params.count) || lib.ROUND_Q;
       this._challengeLabel = ctx.label;
@@ -72,7 +74,8 @@ Page({
       best: storage.get(BEST_KEY) || 0,
       challenge: this._challenge,
       challengeKey: this._challengeKey,
-      challengeLabel: this._challengeLabel
+      challengeLabel: this._challengeLabel,
+      showNext: !!this._nextUrl
     });
     this._buildPool();
     this.start();
@@ -273,6 +276,12 @@ Page({
   },
 
   onRetry: function () { this.start(); },
+
+  /** 通关后进入下一关（挑战/玩法线：同一条线的下一关） */
+  onNext: function () {
+    if (!this._nextUrl) return;
+    wx.redirectTo({ url: this._nextUrl });
+  },
   goBack: function () { wx.navigateBack(); },
 
   onShareAppMessage: function () {

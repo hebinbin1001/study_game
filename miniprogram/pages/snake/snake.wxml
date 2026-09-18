@@ -50,7 +50,8 @@
       <view class="o-stars">{{starText}}</view>
       <view class="o-title {{win ? '' : 'fail'}}">{{win ? '单词全拼完！' : '游戏结束'}}</view>
       <view class="o-msg">{{tip}}</view>
-      <button class="btn b1" bindtap="again">再来一局</button>
+      <button wx:if="{{showNext && win}}" class="btn b1" bindtap="onNext">下一关 ▶</button>
+      <button class="btn {{showNext && win ? 'b2' : 'b1'}}" bindtap="again">再来一局</button>
       <button class="btn b2" bindtap="goBack">返回</button>
     </view>
   </view>

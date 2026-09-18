@@ -4,6 +4,7 @@
 var lib = require('../../game/memory-grid');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
+var puzzleLevels = require('../../utils/puzzle-levels');
 
 Page({
   data: {
@@ -31,6 +32,7 @@ Page({
 
   onLoad: function (options) {
     // 数字智力关卡页可指定从第几关开始（?level=N）
+    this._levelMax = puzzleLevels.totalOf('memory') || 30;
     this.start(parseInt((options || {}).level, 10) || 0);
   },
   onUnload: function () { this._clearTimers(); },
@@ -164,11 +166,20 @@ Page({
       settle: true,
       win: stars >= 1,
       starsText: stars > 0 ? '⭐'.repeat(stars) : '',
-      overMsg: '通过 ' + cleared + ' 关 · 最高纪录 ' + best + ' 关\n总分 ' + this._score
+      overMsg: '通过 ' + cleared + ' 关 · 最高纪录 ' + best + ' 关\n总分 ' + this._score,
+      // 「下一关」（2026-09-18）：本局到达第 _level 关，结算后可直接从更高的下一关继续
+      showNext: (this._level + 1) <= (this._levelMax || 30)
     });
   },
 
   onRetry: function () { this.start(); },
+
+  /** 下一关：从「本局到达的关号 + 1」重新开局（难度更高） */
+  onNext: function () {
+    var next = (this._level || 1) + 1;
+    if (next > (this._levelMax || 30)) return;
+    wx.redirectTo({ url: '/pages/memory-grid/memory-grid?level=' + next });
+  },
   goBack: function () { wx.navigateBack(); },
 
   onShareAppMessage: function () {

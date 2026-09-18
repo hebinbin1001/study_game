@@ -26,6 +26,7 @@ const checkinRouter = require("./routes/checkin");
 const dailyRouter = require("./routes/daily");
 const achievementRouter = require("./routes/achievement");
 const reportRouter = require("./routes/report");
+const wordbankRouter = require("./routes/wordbank");
 
 const app = express();
 
@@ -99,6 +100,8 @@ app.use("/api/checkin", openid, checkinRouter);
 app.use("/api/daily", openid, dailyRouter);
 app.use("/api/achievement", openid, achievementRouter);
 app.use("/api/report", openid, reportRouter);
+// 题库（2026-09-18）：用户可编辑词条，作为闯关线题源
+app.use("/api/wordbank", openid, wordbankRouter);
 
 const port = process.env.PORT || 80;
 

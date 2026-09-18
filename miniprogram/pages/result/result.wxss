@@ -152,6 +152,11 @@ page {
 .btn-orange {
   background: #ffb703;
 }
+/* 「下一关」（2026-09-18）：通关后主推按钮 */
+.btn-green {
+  background: linear-gradient(135deg, #33c07f, #2fa96b);
+  margin-right: 24rpx;
+}
 
 /* ============ 本局错题回顾（R4） ============ */
 .wrong-card {

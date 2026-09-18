@@ -39,6 +39,7 @@
   flex: 0 0 auto;
   margin-top: 24rpx;
 }
+
 .seg-tab {
   flex: 1;
   display: flex;

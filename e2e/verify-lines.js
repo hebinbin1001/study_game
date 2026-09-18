@@ -72,6 +72,13 @@ async function main() {
     ck.check('存档键是玩法线命名空间', !!(lkData && lkData.challengeKey === gradeKey + '@mode_link@1'),
       '实际 = ' + (lkData && lkData.challengeKey) + ' / 期望 = ' + gradeKey + '@mode_link@1');
 
+    // ---------- B2. 「下一关」（2026-09-18 用户要求：过关后要提示下一关） ----------
+    // 注意：本段会 reLaunch 到别的关卡（会销毁上面那个 page 句柄），
+    // 所以必须放在 C 段写星断言**之前**只读断言、且不再复用 afterTap。
+    console.log('[2.5/5] 结算层的「下一关」口径');
+    ck.check('第 1 关已备好下一关（data.showNext=true）', !!(lkData && lkData.showNext === true),
+      '实际 = ' + (lkData && lkData.showNext));
+
     // ---------- C. 结算写星：只写玩法线命名空间 ----------
     console.log('[3/5] 结算写星：只写 <学段>@mode_link@<关卡>');
     await afterTap.callMethod('_saveChallengeStars', 3);
@@ -124,6 +131,15 @@ async function main() {
     ck.check('数字智力 9 款', (casual.games || []).length === 9, '实际 = ' + (casual.games || []).length);
     ck.check('弹弹球仍在数字智力里做未解锁占位',
       (casual.games || []).some(function (g) { return g.key === 'bounce' && !g.unlocked; }));
+
+    // ---------- F. 最后一关不给「下一关」（放在最后：会 reLaunch，销毁前面的 page 句柄） ----------
+    console.log('[6/6] 最后一关不给「下一关」');
+    const lastUrl = '/pages/link/link?challenge=1&line=mode_link&grade=' + gradeKey + '&level=30';
+    const pLast = await H.goto(mp, lastUrl, 1500);
+    const dLast = await H.waitForData(pLast, function (d) { return (d.cards || []).length === 16; },
+      15000, 'line-30-cards');
+    ck.check('第 30 关（最后一关）不显示下一关', !!(dLast && dLast.showNext === false),
+      '实际 = ' + (dLast && dLast.showNext));
   } catch (e) {
     ck.check('脚本执行无异常', false, (e && e.message) || String(e));
   } finally {

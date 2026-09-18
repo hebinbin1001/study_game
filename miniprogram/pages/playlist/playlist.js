@@ -66,6 +66,10 @@ Page({
 
   // 切换二级分段：闯关线 / 数字智力
   pickSection: function (e) {
+    this._pickSection(e);
+  },
+
+  _pickSection: function (e) {
     var key = e.currentTarget.dataset.key;
     if (!key || key === this.data.curSection) return;
     this.setData({ curSection: key, curCat: 'all' });

@@ -46,6 +46,9 @@ Page({
     this._pairs = PAIR_COUNT;
     this._rng = null;
     this._challengeKey = '';
+    // 「下一关」（2026-09-18）：同一上下文内的下一关 URL；自由玩/最后一关为空
+    this._nextUrl = challenge.nextLevelUrl(opt);
+    this.setData({ showNext: !!this._nextUrl });
     if (this._challenge) {
       this._pairs = (ctx.params && ctx.params.pairs) || PAIR_COUNT;
       this._rng = rng.makeRng(ctx.seed);
@@ -78,7 +81,8 @@ Page({
     var cards = [];
     pool.forEach(function (w) {
       var key = w.q + '|' + w.a;
-      cards.push({ t: 'w', key: key, lab: (w.q || w.a).toUpperCase(), en: w.q || w.a, hint: w.hint || '' });
+      // 2026-09-18 用户反馈：单词全大写不好识别，改成按词库原文显示（内置英文词条本身是小写）
+      cards.push({ t: 'w', key: key, lab: String(w.q || w.a), en: w.q || w.a, hint: w.hint || '' });
       cards.push({ t: 'c', key: key, lab: w.hint || w.a, en: w.q || w.a, hint: w.hint || '' });
     });
     cards = this._shuffle(cards);
@@ -199,6 +203,12 @@ Page({
 
   // 用本局错词启动「错题复习」？提供重玩
   again: function () { this.newRound(); },
+
+  /** 通关后进入下一关（挑战/玩法线：同一条线的下一关） */
+  onNext: function () {
+    if (!this._nextUrl) return;
+    wx.redirectTo({ url: this._nextUrl });
+  },
 
   /**
    * 挑战关卡结算：写挑战星级（取历史最大值）+ 上报本局成绩（game_type=match，供玩法进度榜与玩法类成就）。

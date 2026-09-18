@@ -46,7 +46,13 @@ Page({
     // 数字智力关卡页按年级分档：?level=N → 第 N 个学段；不带参数 = 原来的题号递进手感
     var lv = parseInt((options || {}).level, 10) || 0;
     this._gi = (lv >= 1 && lv <= constants.GRADES.length) ? lv - 1 : -1;
-    this.setData({ best: storage.get(BEST_KEY) || 0 });
+    // 「下一关」（2026-09-18）：档位递进（幼儿园 → … → 大学）；最后一档 / 自由玩不显示
+    this._nextUrl = (this._gi >= 0 && this._gi + 1 < constants.GRADES.length)
+      ? ('/pages/math-balance/math-balance?level=' + (this._gi + 2)) : '';
+    this.setData({
+      best: storage.get(BEST_KEY) || 0,
+      showNext: !!this._nextUrl
+    });
     this.start();
   },
   onUnload: function () { this._clearTimers(); },
@@ -174,6 +180,12 @@ Page({
 
   onRestart: function () { this.start(); },
   onRetry: function () { this.start(); },
+
+  /** 下一关：进入下一个年级档 */
+  onNext: function () {
+    if (!this._nextUrl) return;
+    wx.redirectTo({ url: this._nextUrl });
+  },
   goBack: function () { wx.navigateBack(); },
 
   onShareAppMessage: function () {

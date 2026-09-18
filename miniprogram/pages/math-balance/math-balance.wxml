@@ -44,5 +44,6 @@
   <settle-pop
     visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
     title="{{win ? '本局完成' : '生命用完了'}}" msg="{{overMsg}}"
-    bind:retry="onRetry" />
+    showNext="{{showNext}}" nextText="下一关（更高年级）▶"
+    bind:retry="onRetry" bind:next="onNext" />
 </view>

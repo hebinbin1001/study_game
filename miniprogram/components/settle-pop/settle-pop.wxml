@@ -8,6 +8,9 @@
     <!-- 页面自定义操作区 -->
     <view class="ops"><slot></slot></view>
 
+    <!-- 通关后的「下一关」：只在还有下一关时由页面打开（showNext） -->
+    <button wx:if="{{showNext && win}}" class="btn b2" catchtap="onNext">{{nextText || '下一关 ▶'}}</button>
     <button wx:if="{{showRetry && !win}}" class="btn b1" catchtap="onRetry">再来一次</button>
+    <button wx:if="{{win && !showNext}}" class="btn b1" catchtap="onRetry">再玩一次</button>
   </view>
 </view>

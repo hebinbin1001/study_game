@@ -48,7 +48,13 @@ Page({
     this._challengeKey = this._challenge
       ? ctx.key
       : '';
-    this.setData({ challenge: this._challenge, challengeKey: this._challengeKey });
+    // 「下一关」（2026-09-18）：同一上下文内的下一关 URL；自由玩/最后一关为空
+    this._nextUrl = challenge.nextLevelUrl(opt);
+    this.setData({
+      challenge: this._challenge,
+      challengeKey: this._challengeKey,
+      showNext: !!this._nextUrl
+    });
     this.newRound();
   },
 
@@ -99,7 +105,8 @@ Page({
     var cards = [];
     words.forEach(function (w) {
       var key = w.q + '|' + w.a;
-      cards.push({ t: 'w', key: key, lab: (w.q || w.a).toUpperCase(), en: w.q || w.a, hint: w.hint || '' });
+      // 2026-09-18 用户反馈：单词全大写不好识别，改成按词库原文显示（内置英文词条本身是小写）
+      cards.push({ t: 'w', key: key, lab: String(w.q || w.a), en: w.q || w.a, hint: w.hint || '' });
       cards.push({ t: 'c', key: key, lab: w.hint || w.a, en: w.q || w.a, hint: w.hint || '' });
     });
     cards = this._shuffle(cards).map(function (c, i) { c.i = i; return c; });
@@ -269,6 +276,12 @@ Page({
     // 挑战模式：题不变、牌面重排（避免无解牌面把玩家卡死）
     if (this._challenge) this._roundTick = (this._roundTick || 0) + 1;
     this.newRound();
+  },
+
+  /** 通关后进入下一关（挑战/玩法线：同一条线的下一关） */
+  onNext: function () {
+    if (!this._nextUrl) return;
+    wx.redirectTo({ url: this._nextUrl });
   },
   goBack: function () { wx.navigateBack(); },
   onShareAppMessage: function () {

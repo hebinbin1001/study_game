@@ -7,6 +7,7 @@
  *   </settle-pop>
  * 属性：
  *   visible / win / starsText(如 ⭐⭐⭐，失败传空) / title / msg
+ *   showNext / nextText —— 通关且还有下一关时显示「下一关 ▶」，点击触发事件 next
  * 默认按钮：visible && !win 时显示「再来一次」触发事件 retry；
  * 自定义操作由页面放内容在插槽里，或监听 bind:retry。
  */
@@ -17,12 +18,18 @@ Component({
     starsText: { type: String, value: '' },
     title: { type: String, value: '' },
     msg: { type: String, value: '' },
-    showRetry: { type: Boolean, value: true }
+    showRetry: { type: Boolean, value: true },
+    // 2026-09-18：通关后提示「下一关」——由页面传入是否还有下一关
+    showNext: { type: Boolean, value: false },
+    nextText: { type: String, value: '' }
   },
   data: {},
   methods: {
     onRetry() {
       this.triggerEvent('retry');
+    },
+    onNext() {
+      this.triggerEvent('next');
     },
     onTapBubble() {
       // 阻止冒泡

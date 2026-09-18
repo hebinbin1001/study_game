@@ -66,12 +66,18 @@ Page({
     this._roundWordCount = WORDS_PER_ROUND;
     this._rng = null;
     this._challengeKey = '';
+    // 「下一关」（2026-09-18）：同一上下文内的下一关 URL；自由玩/最后一关为空
+    this._nextUrl = challenge.nextLevelUrl(opt);
     if (this._challenge) {
       this._roundWordCount = (ctx.params && ctx.params.words) || WORDS_PER_ROUND;
       this._rng = rng.makeRng(ctx.seed);
       this._challengeKey = ctx.key;
     }
-    this.setData({ challenge: this._challenge, challengeKey: this._challengeKey });
+    this.setData({
+      challenge: this._challenge,
+      challengeKey: this._challengeKey,
+      showNext: !!this._nextUrl
+    });
     this.startGame();
   },
 
@@ -439,6 +445,12 @@ Page({
   },
 
   again: function () { this.startGame(); },
+
+  /** 通关后进入下一关（挑战/玩法线：同一条线的下一关） */
+  onNext: function () {
+    if (!this._nextUrl) return;
+    wx.redirectTo({ url: this._nextUrl });
+  },
   goBack: function () { this._stopLoop(); wx.navigateBack(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 单词贪吃蛇', path: '/pages/playlist/playlist' };

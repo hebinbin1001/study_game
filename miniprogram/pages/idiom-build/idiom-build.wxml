@@ -37,5 +37,5 @@
   <settle-pop
     visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
     title="{{win ? '本局完成' : '生命用完了'}}" msg="{{overMsg}}"
-    bind:retry="onRetry" />
+    showNext="{{showNext}}" bind:retry="onRetry" bind:next="onNext" />
 </view>

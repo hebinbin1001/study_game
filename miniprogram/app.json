@@ -18,6 +18,7 @@
     "pages/klotski/klotski",
     "pages/puzzle-level/puzzle-level",
     "pages/rank-info/rank-info",
+    "pages/bank/bank",
     "pages/admin/admin",
     "pages/math24/math24",
     "pages/math-sprint/math-sprint",

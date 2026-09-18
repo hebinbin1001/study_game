@@ -24,7 +24,7 @@
   <!-- 结算（公共组件 + 自定义操作） -->
   <settle-pop visible="{{over}}" win="{{win}}" stars-text="{{starsText}}"
     title="{{win ? '全部消除！' : '生命耗尽'}}" msg="{{win ? '获得 ' + stars + ' 星 · 错 ' + mistakes + ' 次' : '再试一次一定能行！'}}"
-    show-retry="{{!win}}">
+    show-retry="{{!win}}" show-next="{{showNext}}" bind:next="onNext">
     <view class="s-btns">
       <button class="btn-main" bindtap="again">再来一局</button>
       <button class="btn-ghost" bindtap="changeGrade">换学段</button>

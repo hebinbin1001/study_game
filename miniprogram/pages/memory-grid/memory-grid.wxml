@@ -24,5 +24,6 @@
   <settle-pop
     visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
     title="{{win ? '本局结束' : '再接再厉'}}" msg="{{overMsg}}"
-    bind:retry="onRetry" />
+    showNext="{{showNext}}" nextText="下一关（难度更高）▶"
+    bind:retry="onRetry" bind:next="onNext" />
 </view>

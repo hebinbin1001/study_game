@@ -47,6 +47,16 @@
     <view class="ar">›</view>
   </view>
 
+  <!-- 题库（2026-09-18）：查看各学段词汇，可编辑/新增/删除；这里就是闯关线的题源 -->
+  <view class="link" bindtap="goBank">
+    <view class="li li-blue">📚</view>
+    <view class="lt">
+      <view class="l-b">题库</view>
+      <view class="l-s">各学段词汇一览 · 可改可增可删 · 闯关就考这些</view>
+    </view>
+    <view class="ar">›</view>
+  </view>
+
   <!-- 自定义题库 -->
   <view class="link" bindtap="goCustom">
     <view class="li li-orange">🛠️</view>

@@ -198,6 +198,13 @@ H.runSuite('verify-link（词语连连看）', async function (miniProgram, ck) 
   ck.check('牌面含词卡与义卡两类',
     (data.cards || []).some(function (c) { return c.t === 'w'; }) &&
     (data.cards || []).some(function (c) { return c.t === 'c'; }));
+  // 2026-09-18 用户反馈：单词全大写不好识别 → 词卡按词库原文显示（内置英文词条是小写）。
+  // 这条护栏防的是「有人又把 .toUpperCase() 加回来」。
+  const wordLabs = (data.cards || []).filter(function (c) { return c.t === 'w'; })
+    .map(function (c) { return String(c.lab || ''); });
+  ck.check('词卡按原文显示（不再整体大写）',
+    wordLabs.length > 0 && !wordLabs.some(function (s) { return /[A-Z]/.test(s); }),
+    '实际 = ' + JSON.stringify(wordLabs));
 
   // 核心不变量：只要还有牌未消，就绝不能判过关（本次修复的缺陷回归点）
   let winViolation = null;

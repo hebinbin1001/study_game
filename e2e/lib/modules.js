@@ -47,14 +47,14 @@ const MODULES = [
   {
     id: 'dict',
     name: '词库与常量（题库解析 / 校验 / 敏感词 / 学段题型）',
-    stages: [],
-    unit: ['constants', 'data', 'dict', 'parser', 'validator', 'sensitive']
+    stages: ['bank'],
+    unit: ['constants', 'data', 'dict', 'bank', 'parser', 'validator', 'sensitive']
   },
   {
     id: 'challenge',
     name: '闯关与玩法线（主线 30 关 / 关卡页 / 玩法线 / 星级命名空间）',
     stages: ['challenge', 'lines'],
-    unit: ['challenge', 'challenge-lines', 'challenge-rewards', 'stars-reachable', 'rng']
+    unit: ['challenge', 'challenge-lines', 'challenge-rewards', 'stars-reachable', 'next-level', 'rng']
   },
   {
     id: 'game',
@@ -81,7 +81,7 @@ const MODULES = [
     name: '用户与成长（段位 / 成就 / 皮肤 / 错题本 / 复习 / 签到）',
     stages: ['m2m4'],
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
-      'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review',
+      'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review', 'rank-badge',
       'auth-guard', 'admin-auth']
   },
   {
@@ -122,6 +122,8 @@ const STAGE_MODULE = {
   puzzleLevel: 'puzzle'
   ,
   reports: 'user'
+  ,
+  bank: 'dict'
 };
 
 /**

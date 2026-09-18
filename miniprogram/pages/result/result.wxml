@@ -63,6 +63,7 @@
 
     <!-- 操作按钮（REQ-GAME-15） -->
     <view class="res-btns">
+      <button wx:if="{{showNext}}" class="btn btn-res btn-green" bindtap="onNext">下一关 ▶</button>
       <button class="btn btn-res btn-blue" bindtap="playAgain">再玩一次</button>
       <button class="btn btn-res btn-orange" bindtap="goHome">回首页</button>
     </view>

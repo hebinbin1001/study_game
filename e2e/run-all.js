@@ -91,6 +91,14 @@ STAGES.push({
   script: 'e2e/check-reports.js'
 });
 
+// 题库（2026-09-18）：玩法 tab / 学习 tab 入口 + 题库页渲染 + 未登录门禁
+STAGES.push({
+  id: 'bank',
+  layer: '端到端',
+  title: '题库（入口 / 页面渲染 / 登录门禁）',
+  script: 'e2e/verify-bank.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false,
     module: null, changed: false, listModules: false, noStatic: false };

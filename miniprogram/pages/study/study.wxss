@@ -42,6 +42,7 @@
 .li-green { background: #E6F6EA; }
 .li-purple { background: #F0ECFB; }
 .li-orange { background: #FFF3E6; }
+.li-blue { background: #E6F1FB; }
 .lt { flex: 1; min-width: 0; }
 .l-b { font-size: 30rpx; font-weight: 800; color: #333A45; }
 .l-s { font-size: 22rpx; color: #8A94A6; margin-top: 4rpx; }

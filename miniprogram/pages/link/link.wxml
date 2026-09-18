@@ -28,6 +28,7 @@
     <view class="over-card">
       <view class="o-stars">{{win ? starsText : '💔'}}</view>
       <view class="o-title {{win ? '' : 'fail'}}">{{win ? '全部连上！' : '生命耗尽'}}</view>
+      <button wx:if="{{showNext && win}}" class="btn b2" bindtap="onNext">下一关 ▶</button>
       <button class="btn b1" bindtap="newRound">再来一局</button>
     </view>
   </view>

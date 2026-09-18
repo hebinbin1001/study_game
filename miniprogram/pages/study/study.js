@@ -73,6 +73,11 @@ Page({
     this._guard('/pages/checkin/checkin', '签到记录需登录查看');
   },
 
+  // 题库（2026-09-18）：查看/编辑各学段词汇，闯关线题源
+  goBank: function () {
+    this._guard('/pages/bank/bank', '题库需登录（词条要存到云端才不丢）');
+  },
+
   // 自定义题库（我的题库 + 公开广场中心；B4）
   goCustom: function () {
     this._guard('/pages/custom-levels/custom-levels', '自定义题库需登录');
