@@ -22,6 +22,8 @@
 
 'use strict';
 
+var art = require('./art');
+
 // ============ 皮肤渲染映射（avatarId → 图片 + emoji + 主色） ============
 // 键与 server/seeders/avatar-seed.js 的 avatarId 一一对应。
 const SKIN_RENDER = {
@@ -62,6 +64,22 @@ const SKIN_RENDER = {
   monster_02: { emoji: '🔥', color: '#ff5a5a', image: '/assets/skins/monster_02.png' },  // 火焰怪兽
   monster_03: { emoji: '❄️', color: '#7ec4ff', image: '/assets/skins/monster_03.png' },  // 冰霜怪兽
   monster_04: { emoji: '⚡', color: '#ffc24d', image: '/assets/skins/monster_04.png' }   // 雷霆巨兽
+  ,
+  // —— 2026-09-19 新增：Boss 立绘 6 款（豆包出图；图走 CDN，见文件末尾的 CDN 段） ——
+  boss_pixel_devourer: { emoji: '👾', color: '#FF5F6D', image: '/assets/skins/boss_pixel_devourer.png' },
+  boss_crimson_ogre:   { emoji: '👹', color: '#FF9F43', image: '/assets/skins/boss_crimson_ogre.png' },
+  boss_jade_dragon:    { emoji: '🐲', color: '#2EE6A8', image: '/assets/skins/boss_jade_dragon.png' },
+  boss_abyss_kraken:   { emoji: '🦑', color: '#A06BFF', image: '/assets/skins/boss_abyss_kraken.png' },
+  boss_mech_lord:      { emoji: '🤖', color: '#3EC6FF', image: '/assets/skins/boss_mech_lord.png' },
+  boss_magma_titan:    { emoji: '🌋', color: '#FF6B3D', image: '/assets/skins/boss_magma_titan.png' },
+
+  // —— 2026-09-19 新增：元素主题战士 6 款 ——
+  'skin-gale-ninja':      { emoji: '🌀', color: '#2EE6A8', image: '/assets/skins/skin-gale-ninja.png' },
+  'skin-flame-berserker': { emoji: '🔥', color: '#FF5F5F', image: '/assets/skins/skin-flame-berserker.png' },
+  'skin-radiant-paladin': { emoji: '☀️', color: '#F5E9C8', image: '/assets/skins/skin-radiant-paladin.png' },
+  'skin-tide-druid':      { emoji: '🌊', color: '#3EC6FF', image: '/assets/skins/skin-tide-druid.png' },
+  'skin-thunder-lancer':  { emoji: '⚡', color: '#FFC94D', image: '/assets/skins/skin-thunder-lancer.png' },
+  'skin-void-assassin':   { emoji: '🌑', color: '#8B5CF6', image: '/assets/skins/skin-void-assassin.png' }
 };
 
 // 默认（classic）皮肤：离线 / 未选择 / 未知 id 时的回退。
@@ -113,6 +131,23 @@ const LOCAL_SKINS = [
   { avatarId: 'monster_02', name: '火焰怪兽', type: 'monster', rarity: 'rare',   unlockType: 'stars', unlockValue: 50, emoji: '🔥', color: '#ff5a5a', image: '/assets/skins/monster_02.png' },
   { avatarId: 'monster_03', name: '冰霜怪兽', type: 'monster', rarity: 'epic',   unlockType: 'rank',  unlockValue: 4,  emoji: '❄️', color: '#7ec4ff', image: '/assets/skins/monster_03.png' },
   { avatarId: 'monster_04', name: '雷霆巨兽', type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 6,  emoji: '⚡', color: '#ffc24d', image: '/assets/skins/monster_04.png' },
+
+  // —— 2026-09-19 新增：Boss 立绘 6 款（豆包出图）——
+  { avatarId: 'boss_pixel_devourer', name: '像素吞噬者', type: 'monster', rarity: 'rare',   unlockType: 'stars', unlockValue: 120, emoji: '👾', color: '#FF5F6D', image: '/assets/skins/boss_pixel_devourer.png' },
+  { avatarId: 'boss_crimson_ogre',   name: '赤鬼将军',   type: 'monster', rarity: 'rare',   unlockType: 'stars', unlockValue: 180, emoji: '👹', color: '#FF9F43', image: '/assets/skins/boss_crimson_ogre.png' },
+  { avatarId: 'boss_jade_dragon',    name: '翡翠龙王',   type: 'monster', rarity: 'epic',   unlockType: 'stars', unlockValue: 300, emoji: '🐲', color: '#2EE6A8', image: '/assets/skins/boss_jade_dragon.png' },
+  { avatarId: 'boss_abyss_kraken',   name: '深海梦魇',   type: 'monster', rarity: 'epic',   unlockType: 'rank',  unlockValue: 5,   emoji: '🦑', color: '#A06BFF', image: '/assets/skins/boss_abyss_kraken.png' },
+  { avatarId: 'boss_mech_lord',      name: '机械领主',   type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 7,   emoji: '🤖', color: '#3EC6FF', image: '/assets/skins/boss_mech_lord.png' },
+  { avatarId: 'boss_magma_titan',    name: '熔岩巨兽',   type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 8,   emoji: '🌋', color: '#FF6B3D', image: '/assets/skins/boss_magma_titan.png' },
+
+  // —— 2026-09-19 新增：元素主题战士 6 款（豆包出图）——
+  { avatarId: 'skin-gale-ninja',      name: '疾风忍者',   type: 'warrior', rarity: 'rare',   unlockType: 'stars', unlockValue: 400, emoji: '🌀', color: '#2EE6A8', image: '/assets/skins/skin-gale-ninja.png' },
+  { avatarId: 'skin-flame-berserker', name: '烈焰狂战',   type: 'warrior', rarity: 'epic',   unlockType: 'stars', unlockValue: 480, emoji: '🔥', color: '#FF5F5F', image: '/assets/skins/skin-flame-berserker.png' },
+  { avatarId: 'skin-radiant-paladin', name: '曜光圣骑',   type: 'warrior', rarity: 'legend', unlockType: 'stars', unlockValue: 620, emoji: '☀️', color: '#F5E9C8', image: '/assets/skins/skin-radiant-paladin.png' },
+  { avatarId: 'skin-tide-druid',      name: '潮汐德鲁伊', type: 'warrior', rarity: 'epic',   unlockType: 'rank',  unlockValue: 3,   emoji: '🌊', color: '#3EC6FF', image: '/assets/skins/skin-tide-druid.png' },
+  { avatarId: 'skin-thunder-lancer',  name: '雷霆枪骑',   type: 'warrior', rarity: 'legend', unlockType: 'rank',  unlockValue: 7,   emoji: '⚡', color: '#FFC94D', image: '/assets/skins/skin-thunder-lancer.png' },
+  { avatarId: 'skin-void-assassin',   name: '虚空刺客',   type: 'warrior', rarity: 'legend', unlockType: 'rank',  unlockValue: 8,   emoji: '🌑', color: '#8B5CF6', image: '/assets/skins/skin-void-assassin.png' },
+
   // —— 每日一题连续签到里程碑（B2；解锁由后端每日一题发放，图形用新美术） ——
   { avatarId: 'milestone_30',  name: '🌱 萌芽学徒 · 连续 30 天',  type: 'warrior', rarity: 'legend', unlockType: 'milestone', unlockValue: 30,  emoji: '🌱', color: '#7BD389', image: '/assets/skins/skin-sprout-apprentice.png' },
   { avatarId: 'milestone_60',  name: '☁️ 云骑 · 连续 60 天',      type: 'warrior', rarity: 'legend', unlockType: 'milestone', unlockValue: 60,  emoji: '☁️', color: '#8FC8F0', image: '/assets/skins/skin-cloud-rider.png' },
@@ -164,7 +199,10 @@ function getWarriorSkin(avatarId) {
  */
 function getMonsterSkin(avatarId) {
   const r = SKIN_RENDER[avatarId];
-  if (r && avatarId.indexOf('monster_') === 0) {
+  // 2026-09-19：新增的 Boss 立绘 id 用 `boss_` 前缀（monster_01~04 是早期 4 张），
+  // 两个前缀都算「怪兽类」，否则新 Boss 会被静默回退成默认小怪兽。
+  const isMonster = !!r && (avatarId.indexOf('monster_') === 0 || avatarId.indexOf('boss_') === 0);
+  if (isMonster) {
     // 注意：这里必须把 image 一起带出去 —— 引擎是拿 G.monsterSkin.image 去预加载真图的，
     // 漏掉这个字段会「静默退回 emoji」（2026-09-12 接入怪兽美术时真踩过，端到端当场抓到）。
     return { id: avatarId, emoji: r.emoji, color: r.color, image: r.image };
@@ -190,6 +228,35 @@ function getSkinImage(avatarId) {
   const r = SKIN_RENDER[avatarId];
   return (r && r.image) || '';
 }
+
+// ============ 立绘走 CDN（2026-09-19） ============
+//
+// 为什么要迁：微信上传检测项「图片和音频资源大小超过 200K」判的是**包内图片/音频总量**。
+// 28 张对局立绘占了 173KB（上限 200KB），新出的 12 张（Boss + 元素战士）根本塞不进去，
+// 而且包内图还必须压到很小 → 真机上战士/Boss 放大后发糊。
+//
+// 现在的分工（与成就图标、段位徽章同一套机制）：
+//   · 包内**只留两张**：默认战士（skin-recruit）+ 默认怪物（monster_01）—— 保证离线首屏有图；
+//   · 其余立绘全部走云托管 `/assets/**` 静态托管（仓库 art/skins/，不进包）；
+//   · 图挂了/离线 → 各页面已有的 emoji 兜底照旧生效（onIconError / onWarriorImgError）。
+//
+// 注意：<image src> 加载网络图**不受「服务器域名」白名单限制**（白名单只管 wx.request 等），
+// 所以这里直接给 https 地址即可，不需要在小程序后台配域名。
+const KEEP_IN_PACKAGE = ['/assets/skins/skin-recruit.png', '/assets/skins/monster_01.png'];
+
+function toCdnPath(img) {
+  if (!img) return img;
+  if (KEEP_IN_PACKAGE.indexOf(img) >= 0) return img;         // 默认两张留在包内（离线兜底）
+  if (/^https?:\/\//i.test(img)) return img;                 // 已是完整地址，原样返回
+  return art.artUrl(img);
+}
+
+Object.keys(SKIN_RENDER).forEach(function (k) {
+  SKIN_RENDER[k].image = toCdnPath(SKIN_RENDER[k].image);
+});
+LOCAL_SKINS.forEach(function (s) {
+  s.image = toCdnPath(s.image);
+});
 
 module.exports = {
   SKIN_RENDER,

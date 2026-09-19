@@ -77,6 +77,21 @@ const avatars = [
     unlockType: "rank",
     unlockValue: 6,
   },
+  // ===== 2026-09-19 新增：Boss 立绘 6 款（豆包出图，走 CDN art/skins/）=====
+  { avatarId: "boss_pixel_devourer", name: "像素吞噬者", type: "monster", rarity: "rare",   icon: "/assets/skins/boss_pixel_devourer.png", unlockType: "stars", unlockValue: 120 },
+  { avatarId: "boss_crimson_ogre",   name: "赤鬼将军",   type: "monster", rarity: "rare",   icon: "/assets/skins/boss_crimson_ogre.png",   unlockType: "stars", unlockValue: 180 },
+  { avatarId: "boss_jade_dragon",    name: "翡翠龙王",   type: "monster", rarity: "epic",   icon: "/assets/skins/boss_jade_dragon.png",    unlockType: "stars", unlockValue: 300 },
+  { avatarId: "boss_abyss_kraken",   name: "深海梦魇",   type: "monster", rarity: "epic",   icon: "/assets/skins/boss_abyss_kraken.png",   unlockType: "rank",  unlockValue: 5 },
+  { avatarId: "boss_mech_lord",      name: "机械领主",   type: "monster", rarity: "legend", icon: "/assets/skins/boss_mech_lord.png",      unlockType: "rank",  unlockValue: 7 },
+  { avatarId: "boss_magma_titan",    name: "熔岩巨兽",   type: "monster", rarity: "legend", icon: "/assets/skins/boss_magma_titan.png",    unlockType: "rank",  unlockValue: 8 },
+
+  // ===== 2026-09-19 新增：元素主题战士皮肤 6 款（豆包出图，走 CDN art/skins/）=====
+  { avatarId: "skin-gale-ninja",      name: "疾风忍者",  type: "warrior", rarity: "rare",   icon: "/assets/skins/skin-gale-ninja.png",      unlockType: "stars", unlockValue: 400 },
+  { avatarId: "skin-flame-berserker", name: "烈焰狂战",  type: "warrior", rarity: "epic",   icon: "/assets/skins/skin-flame-berserker.png", unlockType: "stars", unlockValue: 480 },
+  { avatarId: "skin-radiant-paladin", name: "曜光圣骑",  type: "warrior", rarity: "legend", icon: "/assets/skins/skin-radiant-paladin.png", unlockType: "stars", unlockValue: 620 },
+  { avatarId: "skin-tide-druid",      name: "潮汐德鲁伊", type: "warrior", rarity: "epic",   icon: "/assets/skins/skin-tide-druid.png",      unlockType: "rank",  unlockValue: 3 },
+  { avatarId: "skin-thunder-lancer",  name: "雷霆枪骑",  type: "warrior", rarity: "legend", icon: "/assets/skins/skin-thunder-lancer.png",  unlockType: "rank",  unlockValue: 7 },
+  { avatarId: "skin-void-assassin",   name: "虚空刺客",  type: "warrior", rarity: "legend", icon: "/assets/skins/skin-void-assassin.png",   unlockType: "rank",  unlockValue: 8 },
   // ===== 每日一题连续里程碑限定皮肤（B2，unlockType='milestone'，unlockValue=连续天数） =====
   {
     avatarId: "milestone_30",

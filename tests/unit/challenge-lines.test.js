@@ -32,8 +32,9 @@ const ROOT = path.join(__dirname, '..', '..', 'miniprogram');
 const GRADES = constants.GRADES.map(function (g) { return g.key; });
 
 // ============ 1. 规模与形状 ============
-s.test('规模：6 条玩法线，每条每学段 30 关', () => {
-  s.assert.equal(challenge.LINE_MODES.length, 6);
+s.test('规模：7 条玩法线，每条每学段 30 关', () => {
+  // 2026-09-19：新增第 7 条「限时抢答」（quiz）
+  s.assert.equal(challenge.LINE_MODES.length, 7);
   challenge.LINE_MODES.forEach(function (mode) {
     s.assert.ok(challenge.MODES[mode], mode + ' 必须是 MODES 里已有的玩法');
     GRADES.forEach(function (g) {

@@ -40,32 +40,53 @@ s.test('旧 id 保留：warrior_0X 与 milestone_XX 不能被删（玩家已拥�
   });
 });
 
-s.test('战士皮肤：共 24 套，且图片文件都真实存在于包内', () => {
+// 2026-09-19：立绘迁到 CDN（包内只留默认战士 + 默认怪物两张兜底）。
+// 断言从「图在包里」改成「图能落到真实文件上」——默认两张看包内，其余看 art/skins/。
+// 这样仍然能抓到「写了路径但图根本没备好 → 真机白块」这类问题。
+// 注意：本文件的 ROOT 已经是 miniprogram/（见文件顶部），art/ 在仓库根，所以要往上一层
+const ART_SKINS_DIR = path.join(ROOT, '..', 'art', 'skins');
+const CDN_BASE_RE = /^https?:\/\/[^/]+\/assets\/skins\//;
+
+/** 把皮肤 image 解析成磁盘上的真实文件；解析不出来返回 null */
+function skinFileOf(image) {
+  if (!image) return null;
+  if (CDN_BASE_RE.test(image)) {
+    return path.join(ART_SKINS_DIR, image.split('/assets/skins/')[1]);
+  }
+  if (image.charAt(0) === '/') return path.join(ROOT, image.replace(/^\//, ''));
+  return null;
+}
+
+s.test('战士皮肤：共 30 套（24 原有 + 6 元素新增），且每套都指向真实存在的立绘图', () => {
   const warriors = skins.LOCAL_SKINS.filter((x) => x.type === 'warrior');
-  s.assert.equal(warriors.length, 24, '战士皮肤应为 24 套，实际 ' + warriors.length);
+  // 2026-09-19：豆包出了 6 款元素主题战士（火/水/风/雷/光/暗）→ 24 → 30
+  s.assert.equal(warriors.length, 30, '战士皮肤应为 30 套，实际 ' + warriors.length);
   let withImage = 0;
   warriors.forEach((w) => {
     s.assert.ok(!!w.image, w.avatarId + ' 缺图片路径');
-    const rel = w.image.replace(/^\//, '');
-    const abs = path.join(ROOT, rel);
+    const abs = skinFileOf(w.image);
+    s.assert.ok(abs, w.avatarId + ' 图片路径无法解析：' + w.image);
     s.assert.ok(fs.existsSync(abs), w.avatarId + ' 的图片不存在：' + w.image
-      + '（写了路径但图没进包 → 真机白块）');
+      + '（写了路径但图没备好 → 真机白块）');
     s.assert.ok(fs.statSync(abs).size > 1024, w.avatarId + ' 图片过小（可能是占位）：' + w.image);
     withImage++;
   });
-  s.assert.equal(withImage, 24);
+  s.assert.equal(withImage, 30);
 });
 
-s.test('怪兽皮肤：4 套真图已接入，图片文件真实存在于包内（2026-09-12 到货）', () => {
+s.test('怪兽皮肤：10 套真图已接入（4 原有 + 6 新增 Boss），图片文件真实存在', () => {
   const monsters = skins.LOCAL_SKINS.filter((x) => x.type === 'monster');
-  s.assert.equal(monsters.length, 4);
+  // 2026-09-19：豆包出了 6 款 Boss（像素吞噬者/赤鬼将军/翡翠龙王/深海梦魇/机械领主/熔岩巨兽）→ 4 → 10
+  s.assert.equal(monsters.length, 10);
   monsters.forEach((m) => {
     s.assert.ok(!!m.image, m.avatarId + ' 缺图片路径');
-    const abs = path.join(ROOT, m.image.replace(/^\//, ''));
+    const abs = skinFileOf(m.image);
+    s.assert.ok(abs, m.avatarId + ' 图片路径无法解析：' + m.image);
     s.assert.ok(fs.existsSync(abs), m.avatarId + ' 的图片不存在：' + m.image + '（路径写了但图没进包 → 真机白块）');
     s.assert.ok(fs.statSync(abs).size > 1024, m.avatarId + ' 图片过小（可能是占位）：' + m.image);
-    // 单文件 200KB 上限（用户明确要求，见 e2e/check-assets.js）
-    s.assert.ok(fs.statSync(abs).size / 1024 <= 200, m.avatarId + ' 超过 200KB');
+    // 包内那两张要守住单文件 200KB（用户明确要求）；CDN 图不受包体限制，但仍别超过 300KB
+    const limit = CDN_BASE_RE.test(m.image) ? 300 : 200;
+    s.assert.ok(fs.statSync(abs).size / 1024 <= limit, m.avatarId + ' 超过 ' + limit + 'KB');
     s.assert.ok(/^#[0-9a-fA-F]{6}$/.test(m.color), m.avatarId + ' 颜色非法');
     s.assert.ok(!!m.emoji, m.avatarId + ' 仍要保留 emoji（真图加载失败时兜底）');
   });
@@ -96,11 +117,12 @@ s.test('getWarriorSkin：正确返回战士皮肤（含图片）', () => {
   s.assert.equal(w.id, 'warrior_02');
   s.assert.equal(w.emoji, '🐰');
   s.assert.equal(w.color, '#F7B6C8');
-  s.assert.equal(w.image, '/assets/skins/skin-bunny-scholar.png');
+  // 2026-09-19：立绘走 CDN，这里断言「指向正确的图」而不是具体前缀
+  s.assert.contains(w.image, '/assets/skins/skin-bunny-scholar.png');
   // 新增的美术 id 也要能当战士皮肤用
   const n = skins.getWarriorSkin('skin-fox-scout');
   s.assert.equal(n.id, 'skin-fox-scout');
-  s.assert.equal(n.image, '/assets/skins/skin-fox-scout.png');
+  s.assert.contains(n.image, '/assets/skins/skin-fox-scout.png');
 });
 
 s.test('getMonsterSkin：正确返回怪兽皮肤', () => {
@@ -110,7 +132,7 @@ s.test('getMonsterSkin：正确返回怪兽皮肤', () => {
   s.assert.equal(m.color, '#ffc24d');
   // 契约：必须把 image 带出去 —— 引擎靠它预加载真图，漏了就会静默退回 emoji
   // （2026-09-12 真踩过：SKIN_RENDER 加了 image、这个函数没返回 → 对局里还是 emoji）
-  s.assert.equal(m.image, '/assets/skins/monster_04.png', 'getMonsterSkin 必须带上 image');
+  s.assert.contains(m.image, '/assets/skins/monster_04.png', 'getMonsterSkin 必须带上 image');
   ['monster_01', 'monster_02', 'monster_03'].forEach((id) => {
     s.assert.ok(!!skins.getMonsterSkin(id).image, id + ' 的 image 缺失');
   });
@@ -192,12 +214,13 @@ s.test('两端目录一致：后端 seeders/avatar-seed.js 与前端 LOCAL_SKINS
   });
 });
 
-s.test('后端目录：战士 24 套 + 怪兽 4 套，id 不超长', () => {
+s.test('后端目录：战士 30 套 + 怪兽 10 套，id 不超长', () => {
   const { avatars } = require('../../server/seeders/avatar-seed');
   const warriors = avatars.filter((a) => a.type === 'warrior');
   const monsters = avatars.filter((a) => a.type === 'monster');
-  s.assert.equal(warriors.length, 24, '战士皮肤应 24 套，实际 ' + warriors.length);
-  s.assert.equal(monsters.length, 4, '怪兽皮肤应 4 套，实际 ' + monsters.length);
+  // 2026-09-19：+6 元素战士 / +6 Boss
+  s.assert.equal(warriors.length, 30, '战士皮肤应 30 套，实际 ' + warriors.length);
+  s.assert.equal(monsters.length, 10, '怪兽皮肤应 10 套，实际 ' + monsters.length);
   s.assert.equal(new Set(avatars.map((a) => a.avatarId)).size, avatars.length, 'avatarId 不能重复');
   avatars.forEach((a) => {
     s.assert.ok(a.avatarId.length <= 32, a.avatarId + ' 超过字段上限 32');
