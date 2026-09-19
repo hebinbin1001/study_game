@@ -27,6 +27,7 @@ const dailyRouter = require("./routes/daily");
 const achievementRouter = require("./routes/achievement");
 const reportRouter = require("./routes/report");
 const wordbankRouter = require("./routes/wordbank");
+const avatarFileRouter = require("./routes/avatar-file");
 
 const app = express();
 
@@ -55,7 +56,8 @@ const corsOptions = {
 
 // 通用中间件：请求体解析、跨域、请求日志
 app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// 头像上传走 base64 JSON，默认 100kb 不够（前端压到 160px 后约 20~60KB，base64 后 ×1.34）
+app.use(express.json({ limit: "2mb" }));
 app.use(cors(corsOptions));
 app.use(morgan("tiny"));
 
@@ -102,6 +104,8 @@ app.use("/api/achievement", openid, achievementRouter);
 app.use("/api/report", openid, reportRouter);
 // 题库（2026-09-18）：用户可编辑词条，作为闯关线题源
 app.use("/api/wordbank", openid, wordbankRouter);
+// 头像图片（2026-09-19）：公开可读，不能挂 openid 中间件（<image> 不带自定义头）
+app.use("/api/avatar", avatarFileRouter);
 
 const port = process.env.PORT || 80;
 

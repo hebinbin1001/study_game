@@ -42,7 +42,7 @@ const MODULES = [
     id: 'assets',
     name: '资源与包体（图片音频限额 / 打包目录纯净度）',
     stages: ['assets'],
-    unit: ['art-url', 'assets-limit', 'skins-trim']
+    unit: ['art-url', 'assets-limit', 'skins-trim', 'avatar-upload']
   },
   {
     id: 'dict',

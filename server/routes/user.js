@@ -8,11 +8,20 @@ const {
   WrongRecord,
   CheckinRecord,
   UserAchievement,
+  AvatarBlob,
   sequelize,
 } = require("../db");
 const { checkContent } = require("../utils/wechat");
 
 const router = express.Router();
+
+// 公网基址（拼头像稳定 URL 用；与前端 utils/art.js 的 ART_BASE 同一个服务）
+const PUBLIC_BASE = process.env.PUBLIC_BASE_URL
+  || "https://express-g0hk-309012-5-1304586666.sh.run.tcloudbase.com";
+
+/** 头像：单张上限 512KB（前端会先压到 160px，实际只有几十 KB，这里只做防御） */
+const AVATAR_MAX_BYTES = 512 * 1024;
+const AVATAR_MIME = ["image/png", "image/jpeg", "image/webp"];
 
 // 昵称长度约束：去除首尾空白后 2~12 字符（与 nickname.js 一致）
 const NICKNAME_MIN = 2;
@@ -84,6 +93,71 @@ router.get("/me", async (req, res) => {
     res.send({ code: 0, data: profileOf(user) });
   } catch (err) {
     console.error("GET /api/user/me 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
+/**
+ * POST /api/user/avatar —— 上传头像（2026-09-19）
+ *
+ * 为什么需要：`<button open-type="chooseAvatar">` 给的是**微信临时文件路径**，
+ * 直接存进 users.avatar_url 会导致「本机重启后失效、别人手机必然裂图」。
+ * 所以前端先压到 160px，再以 base64 传上来存库，然后把**稳定地址**写回 avatar_url。
+ *
+ * body: { mime: 'image/png'|'image/jpeg'|'image/webp', data: '<base64>' }
+ * 返回: { avatarUrl: 'https://<域名>/api/avatar/<openid>?v=<时间戳>' }
+ */
+router.post("/avatar", async (req, res) => {
+  try {
+    const openid = req.openid;
+    if (!openid) {
+      return res.send({ code: 1001, data: null, message: "未识别用户（openid 缺失）" });
+    }
+    const b = req.body || {};
+    const mime = String(b.mime || "image/png").toLowerCase();
+    const raw = String(b.data || "");
+    if (AVATAR_MIME.indexOf(mime) < 0) {
+      return res.send({ code: 4000, data: null, message: "头像格式不支持（仅 png/jpeg/webp）" });
+    }
+    if (!raw) {
+      return res.send({ code: 4000, data: null, message: "缺少图片数据" });
+    }
+    // 允许传 dataURL（前端有时会带前缀），统一剥掉
+    const base64 = raw.indexOf("base64,") >= 0 ? raw.slice(raw.indexOf("base64,") + 7) : raw;
+    let buf = null;
+    try {
+      buf = Buffer.from(base64, "base64");
+    } catch (e) {
+      buf = null;
+    }
+    if (!buf || !buf.length) {
+      return res.send({ code: 4000, data: null, message: "图片数据解析失败" });
+    }
+    if (buf.length > AVATAR_MAX_BYTES) {
+      return res.send({ code: 4000, data: null, message: "头像过大（请压缩后再传）" });
+    }
+
+    const user = await findUserByOpenid(openid);
+    if (!user) {
+      return res.send({ code: 1001, data: null, message: "未识别用户" });
+    }
+
+    const version = Date.now();
+    const [row] = await AvatarBlob.findOrCreate({
+      where: { openid },
+      defaults: { openid, mime, data: buf, version },
+    });
+    if (row) {
+      await row.update({ mime, data: buf, version });
+    }
+
+    // 稳定地址写回 users.avatar_url（带 ?v= 破缓存，换头像后各处立刻刷新）
+    const avatarUrl = PUBLIC_BASE + "/api/avatar/" + encodeURIComponent(openid) + "?v=" + version;
+    await user.update({ avatar_url: avatarUrl });
+
+    res.send({ code: 0, data: { avatarUrl }, message: "ok" });
+  } catch (err) {
+    console.error("POST /api/user/avatar 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
 });

@@ -20,7 +20,7 @@
           <view wx:else class="avatar-default">👤</view>
           <view class="avatar-pen">✏️</view>
         </view>
-        <view class="avatar-tip">点击更换头像</view>
+        <view class="avatar-tip">{{avatarUploading ? '头像上传中…' : '点击更换头像'}}</view>
       </button>
     </view>
 

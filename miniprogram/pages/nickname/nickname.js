@@ -12,6 +12,7 @@
 var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 var request = require('../../utils/request');
+var avatarUpload = require('../../utils/avatar-upload');
 
 // 昵称长度约束（REQ-NICK-3：可配置 2~12）
 var NICKNAME_MIN_LEN = 2;
@@ -19,7 +20,8 @@ var NICKNAME_MAX_LEN = 12;
 
 Page({
   data: {
-    avatarUrl: '',    // 头像地址
+    avatarUrl: '',    // 头像地址（上传成功后是稳定 URL；上传失败只是本机临时路径，仅用于预览）
+    avatarUploading: false,  // 头像上传中（按钮禁用 + 文案提示）
     nickname: '',     // 昵称（输入框当前值）
     // 微信名（不展示在界面上，仅随保存动作上报给服务端；见 onNicknameInput 的说明）
     wxNickname: '',
@@ -58,11 +60,28 @@ Page({
     }).catch(function () { /* 静默：拿不到就留空，不影响保存 */ });
   },
 
-  // chooseAvatar 回调：获取微信头像地址（REQ-NICK-1）
+  /**
+   * chooseAvatar 回调（REQ-NICK-1）。
+   *
+   * 2026-09-19 修复「头像无法更换」：微信给的是**临时文件路径**，直接存云端会导致
+   * 本机重启失效、别人手机裂图。所以这里立刻**压缩 + 上传**，拿回稳定地址再放进 avatarUrl；
+   * 上传失败时只做本地预览、并明确提示，**不把临时路径当头像存上去**（保存时还有一道过滤）。
+   */
   onChooseAvatar: function (e) {
-    var avatarUrl = e.detail && e.detail.avatarUrl;
-    if (!avatarUrl) return;
-    this.setData({ avatarUrl: avatarUrl });
+    var self = this;
+    var tempPath = e.detail && e.detail.avatarUrl;
+    if (!tempPath) return;
+    this.setData({ avatarUploading: true });
+    avatarUpload.uploadAvatar(tempPath).then(function (url) {
+      self.setData({ avatarUrl: url, avatarUploading: false });
+      wx.showToast({ title: '头像已更新', icon: 'success' });
+    }).catch(function (err) {
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('[avatar] 上传失败：', err && err.message);
+      }
+      self.setData({ avatarUploading: false, avatarUrl: tempPath });   // 仅本地预览
+      wx.showToast({ title: '头像没存上，请重试', icon: 'none', duration: 2000 });
+    });
   },
 
   /**
@@ -99,11 +118,16 @@ Page({
       return;
     }
 
-    var avatarUrl = this.data.avatarUrl || '';
+    // ⚠️ 只有「已上传成功」的稳定地址才允许多存云端：
+    //    微信 chooseAvatar 给的是临时路径（wxfile://tmp_…），存上去会导致别人手机裂图、本机重启失效。
+    //    上传失败时这里会过滤成空串 → 服务端保留原头像，不会被一行临时路径覆盖。
+    var avatarUrl = /^https?:\/\//i.test(this.data.avatarUrl || '') ? this.data.avatarUrl : '';
 
     // 本地镜像先行（离线可保存，REQ-NFR-2）
+    // 本地允许存临时路径（只在自己这台设备上用，重启后失效也无所谓）；
+    // 云端才必须用稳定 URL —— 见上面的 avatarUrl 过滤。
     storage.setNickname(nick);
-    if (avatarUrl) storage.setAvatar(avatarUrl);
+    if (this.data.avatarUrl) storage.setAvatar(this.data.avatarUrl);
 
     // 未登录：仅保存本机（游客也可暂存，登录后需重新保存上云）
     if (!auth.isLoggedIn()) {
