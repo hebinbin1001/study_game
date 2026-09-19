@@ -92,7 +92,8 @@ function expectLink(gradeKey, level, tick) {
   const r = rng.makeRng(seed);
   const cards = [];
   words.forEach(function (w) {
-    cards.push({ t: 'w', lab: (w.q || w.a).toUpperCase() });
+    // 2026-09-19：词卡不再整体大写（用户反馈不好识别），按词库原文显示
+    cards.push({ t: 'w', lab: String(w.q || w.a) });
     cards.push({ t: 'c', lab: w.hint || w.a });
   });
   return rng.shuffle(cards, r).map(function (c) { return c.lab; });
@@ -110,7 +111,7 @@ function expectMatch(gradeKey, level) {
   const cards = [];
   pool.forEach((w) => {
     const key = w.q + '|' + w.a;
-    cards.push({ t: 'w', key, lab: (w.q || w.a).toUpperCase() });
+    cards.push({ t: 'w', key, lab: String(w.q || w.a) });   // 同上：不再大写
     cards.push({ t: 'c', key, lab: w.hint || w.a });
   });
   return rng.shuffle(cards, r).map((c) => c.lab);
@@ -267,7 +268,8 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   const m2 = await H.goto(miniProgram, matchUrl, 1500);
   ck.check('消消乐同一关再次进入：牌面一致',
     JSON.stringify(((await m2.data()).cards || []).map(function (c) { return c.lab; })) === JSON.stringify(expMatch));
-  const badWordCards = (mD1.cards || []).filter(function (c) { return c.t === 'w' && !/^[A-Z]+$/.test(c.lab); });
+  // 2026-09-19：词卡改为按词库原文显示（小写英文），这里断言「纯英文词卡」而不是「全大写」
+  const badWordCards = (mD1.cards || []).filter(function (c) { return c.t === 'w' && !/^[A-Za-z]+$/.test(c.lab); });
   ck.check('消消乐词卡都是纯英文（修掉「分组 key 传成类型码」导致的带 * 词卡）',
     badWordCards.length === 0, '异常词卡 = ' + JSON.stringify(badWordCards.map(function (c) { return c.lab; })));
 
