@@ -43,7 +43,8 @@ async function main() {
     const lineChips = (lvData.typeGroups || []).filter(function (t) {
       return String(t.key || '').indexOf('mode_') === 0;
     });
-    ck.check('顶部 chips 里有 6 条玩法线', lineChips.length === 6,
+    // 2026-09-19：新增「限时抢答」→ 玩法线 6 → 7 条
+    ck.check('顶部 chips 里有 7 条玩法线', lineChips.length === 7,
       '实际 = ' + lineChips.length + '（' + lineChips.map(function (t) { return t.key; }).join(',') + '）');
     ck.check('玩法线关卡共 30 关', (lvData.levels || []).length === 30,
       '实际 = ' + (lvData.levels || []).length);
@@ -120,9 +121,10 @@ async function main() {
     const plData = await pl.data();
     ck.check('默认落在闯关线分段', plData.curSection === 'line', '实际 = ' + plData.curSection);
     const lineGames = plData.games || [];
-    ck.check('闯关线分段 6 款玩法', lineGames.length === 6, '实际 = ' + lineGames.length);
-    ck.check('6 款都带 lineMode（点进去是关卡线而不是自由练）',
-      lineGames.length === 6 && lineGames.every(function (g) { return !!g.lineMode; }),
+    // 2026-09-19：新增「限时抢答」→ 闯关线从 6 款变 7 款
+    ck.check('闯关线分段 7 款玩法', lineGames.length === 7, '实际 = ' + lineGames.length);
+    ck.check('7 款都带 lineMode（点进去是关卡线而不是自由练）',
+      lineGames.length === 7 && lineGames.every(function (g) { return !!g.lineMode; }),
       '实际 = ' + lineGames.map(function (g) { return g.lineMode || '-'; }).join(','));
     await pl.callMethod('pickSection', { currentTarget: { dataset: { key: 'casual' } } });
     await pl.waitFor(600);

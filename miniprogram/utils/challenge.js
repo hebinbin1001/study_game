@@ -89,6 +89,15 @@ var MODES = {
     emoji: '🐍',
     page: '/pages/snake/snake',
     starBasis: '剩余命 3/2/1'
+  },
+  // 2026-09-19 新增（一期第 4 件）：限时抢答
+  quiz: {
+    key: 'quiz',
+    gameType: 'quiz',
+    label: '限时抢答',
+    emoji: '⚡',
+    page: '/pages/quiz/quiz',
+    starBasis: '答对率 90/70/60（倒计时内抢答，答错扣 2 秒）'
   }
 };
 
@@ -219,6 +228,7 @@ function subOf(gradeKey, mode, level) {
   if (mode === 'match') return p.pairs + ' 对 · ' + p.pairs * 2 + ' 张牌';
   if (mode === 'idiom') return p.count + ' 题 · 拼成语';
   if (mode === 'snake') return p.words + ' 词 · 吃字母';
+  if (mode === 'quiz') return p.count + ' 题 · ' + p.seconds + ' 秒';
   return '';
 }
 
@@ -427,7 +437,7 @@ function migrateStars(storage) {
 //   · 种子 = hash(line:学段:玩法:关卡) → 同一关每次进同一套题，可重玩刷星、可分享复盘。
 var LINE_PREFIX = 'mode_';
 /** 有独立关卡线的玩法（顺序 = 关卡页 chips 顺序） */
-var LINE_MODES = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'];
+var LINE_MODES = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake', 'quiz'];
 /** 每 5 关一个难度档：30 关 = 6 档（0~5） */
 var LINE_TIER_SIZE = 5;
 
@@ -513,6 +523,7 @@ function subOfParams(mode, p) {
   if (mode === 'match') return p.pairs + ' 对 · ' + p.pairs * 2 + ' 张牌';
   if (mode === 'idiom') return p.count + ' 题 · 拼成语';
   if (mode === 'snake') return p.words + ' 词 · 吃字母';
+  if (mode === 'quiz') return p.count + ' 题 · ' + p.seconds + ' 秒';
   return '';
 }
 
@@ -543,6 +554,11 @@ function lineParams(gradeKey, mode, level) {
   } else if (mode === 'wordBuild' || mode === 'idiom') {
     // 5 命 + 正确率折星：题量要跳过「1 星死区」（见 lineSafeCount 的推导）
     out.count = lineSafeCount(out.count || 8, tier, 5);
+  } else if (mode === 'quiz') {
+    // 限时抢答：题量固定 10，**用时间做难度**（答错扣 2 秒 → 越往上越紧张）。
+    // 不用 lineSafeCount：这玩法不扣命，三档星级天然可达（答满 10 题全对就是 3 星）。
+    out.count = 10;
+    out.seconds = Math.max(30, 60 - tier * 8);   // 60 → 52 → 44 → 36 → 30（tier 0~4）
   }
   return out;
 }

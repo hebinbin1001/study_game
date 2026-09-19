@@ -107,6 +107,14 @@ STAGES.push({
   script: 'e2e/verify-rank.js'
 });
 
+// 限时抢答（2026-09-19 新增玩法）：倒计时 / 抢答判定 / 扣秒 / 结算与下一关
+STAGES.push({
+  id: 'quiz',
+  layer: '端到端',
+  title: '限时抢答（玩法线入口 / 倒计时 / 判定 / 结算）',
+  script: 'e2e/verify-quiz.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false,
     module: null, changed: false, listModules: false, noStatic: false };

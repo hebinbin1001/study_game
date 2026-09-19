@@ -1,0 +1,167 @@
+/* 限时抢答（2026-09-19）—— 浅色卡通风，尺寸全用 rpx */
+
+.page-quiz {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 20rpx 22rpx calc(28rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 55%, #eaf8ff 100%);
+}
+
+/* ============ 顶部 HUD ============ */
+.qz-hud {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+.qz-back {
+  flex: 0 0 auto;
+  width: 62rpx;
+  height: 62rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, .92);
+  color: #40617c;
+  font-size: 38rpx;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .06);
+}
+.qz-timer {
+  position: relative;
+  flex: 1 1 auto;
+  height: 56rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .92);
+  overflow: hidden;
+  box-shadow: inset 0 2rpx 6rpx rgba(0, 0, 0, .06);
+}
+.qz-timer-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, #6fcf97, #2fa96b);
+  transition: width .9s linear, background .3s;
+}
+.qz-timer-fill.danger { background: linear-gradient(90deg, #ff9f6b, #ff5f6d); }
+.qz-timer-text {
+  position: relative;
+  z-index: 1;
+  height: 56rpx;
+  line-height: 56rpx;
+  padding-left: 20rpx;
+  font-size: 24rpx;
+  font-weight: 900;
+  color: #2f5470;
+}
+.qz-stats { flex: 0 0 auto; display: flex; align-items: center; gap: 8rpx; }
+.qz-chip {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .92);
+  font-size: 22rpx;
+  font-weight: 800;
+  color: #5c7f9e;
+}
+.qz-combo { color: #e8722c; }
+
+.qz-label {
+  flex: 0 0 auto;
+  margin-top: 14rpx;
+  align-self: center;
+  padding: 6rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .85);
+  font-size: 21rpx;
+  font-weight: 700;
+  color: #4a90d9;
+}
+
+/* ============ 题干 ============ */
+.qz-stem-card {
+  flex: 0 0 auto;
+  margin-top: 26rpx;
+  padding: 40rpx 30rpx;
+  border-radius: 32rpx;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, .06);
+}
+.qz-stem-label {
+  font-size: 22rpx;
+  font-weight: 800;
+  letter-spacing: 2rpx;
+  color: #93a9bd;
+}
+.qz-stem {
+  margin-top: 16rpx;
+  font-size: 46rpx;
+  font-weight: 900;
+  color: #2f5470;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.qz-feedback {
+  flex: 0 0 auto;
+  margin-top: 18rpx;
+  text-align: center;
+  font-size: 40rpx;
+  font-weight: 900;
+  animation: qzPop .4s cubic-bezier(.34, 1.56, .64, 1);
+}
+.qz-feedback.ok { color: #2fa96b; }
+.qz-feedback.bad { color: #ff5f6d; }
+@keyframes qzPop {
+  0% { transform: scale(.5); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============ 选项 ============ */
+.qz-options {
+  flex: 1 1 auto;
+  margin-top: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20rpx;
+}
+.qz-opt {
+  min-height: 108rpx;
+  padding: 18rpx 26rpx;
+  border-radius: 26rpx;
+  background: #fff;
+  border: 3rpx solid #dfeaf5;
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #2f5470;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-break: break-all;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .05);
+  transition: transform .12s, border-color .2s, background .2s;
+}
+.qz-opt:active { transform: translateY(4rpx); box-shadow: 0 4rpx 0 rgba(0, 0, 0, .05); }
+.qz-opt.ok {
+  background: #e6f7ee;
+  border-color: #2fa96b;
+  color: #1f7a4d;
+}
+.qz-opt.bad {
+  background: #fdeef1;
+  border-color: #ff5f6d;
+  color: #c0394f;
+}
+
+.qz-tip {
+  flex: 0 0 auto;
+  margin-top: 20rpx;
+  text-align: center;
+  font-size: 21rpx;
+  color: #7b93ad;
+}

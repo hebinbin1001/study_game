@@ -19,6 +19,7 @@
     "pages/puzzle-level/puzzle-level",
     "pages/rank-info/rank-info",
     "pages/bank/bank",
+    "pages/quiz/quiz",
     "pages/admin/admin",
     "pages/math24/math24",
     "pages/math-sprint/math-sprint",

@@ -26,6 +26,7 @@ module.exports = [
   { key: 'wordbuild', name: '字母拼词工坊', icon: '🔤', desc: '看中文拼出英文单词', cat: '拼写', section: 'line', lineMode: 'wordBuild', unlocked: true, url: '/pages/level/level?mode=wordBuild' },
   { key: 'idiombuild', name: '成语拼字', icon: '🀄️', desc: '看释义拼四字成语', cat: '拼写', section: 'line', lineMode: 'idiom', unlocked: true, url: '/pages/level/level?mode=idiom' },
   { key: 'snake', name: '单词贪吃蛇', icon: '🐍', desc: '辨词进食 · 越长越强', cat: '反应', section: 'line', lineMode: 'snake', unlocked: true, url: '/pages/level/level?mode=snake' },
+  { key: 'quiz', name: '限时抢答', icon: '⚡', desc: '倒计时抢词 · 答错扣时间', cat: '反应', section: 'line', lineMode: 'quiz', unlocked: true, url: '/pages/level/level?mode=quiz' },
 
   // 数字智力类统一「先关卡页、再进游戏」（第三批 · 第 4 条 a，用户 2026-09-13 拍板）
   { key: 'sudoku', name: '数独', icon: '🔢', desc: '数字推理 · 数学闯关', cat: '数学', section: 'casual', math: true, unlocked: true, url: '/pages/puzzle-level/puzzle-level?mode=sudoku' },

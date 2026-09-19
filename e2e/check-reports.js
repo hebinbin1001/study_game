@@ -27,6 +27,7 @@ const PAGE_OF = {
   wordbuild: 'pages/word-build/word-build',
   idiombuild: 'pages/idiom-build/idiom-build',
   snake: 'pages/snake/snake',
+  quiz: 'pages/quiz/quiz',
   sudoku: 'pages/sudoku/sudoku',
   math24: 'pages/math24/math24',
   sprint: 'pages/math-sprint/math-sprint',

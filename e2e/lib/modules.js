@@ -64,9 +64,9 @@ const MODULES = [
   },
   {
     id: 'wordgames',
-    name: '题库类玩法（连连看 / 消消乐 / 拼词 / 成语 / 贪吃蛇）',
-    stages: ['link', 'snake'],
-    unit: ['word-build']
+    name: '题库类玩法（连连看 / 消消乐 / 拼词 / 成语 / 贪吃蛇 / 抢答）',
+    stages: ['link', 'snake', 'quiz'],
+    unit: ['word-build', 'quiz', 'quiz-bank']
   },
   {
     id: 'puzzle',
@@ -126,6 +126,8 @@ const STAGE_MODULE = {
   bank: 'dict'
   ,
   rank: 'user'
+  ,
+  quiz: 'wordgames'
 };
 
 /**

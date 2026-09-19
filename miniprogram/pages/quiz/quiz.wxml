@@ -1,0 +1,47 @@
+<!-- 限时抢答（2026-09-19 新增玩法）：倒计时内看释义抢词，答错扣 2 秒 -->
+<view class="page-quiz">
+
+  <!-- 顶部：倒计时 + 得分/连击/题号 -->
+  <view class="qz-hud">
+    <view class="qz-back" bindtap="goBack">‹</view>
+    <view class="qz-timer">
+      <view class="qz-timer-fill {{timePercent <= 25 ? 'danger' : ''}}" style="width:{{timePercent}}%"></view>
+      <text class="qz-timer-text">⏱ {{timeLeft}}s</text>
+    </view>
+    <view class="qz-stats">
+      <text class="qz-chip">💰 {{score}}</text>
+      <text class="qz-chip qz-combo">🔥 {{combo}}</text>
+      <text class="qz-chip">{{qIndex}}/{{totalQ}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{challengeLabel}}" class="qz-label">{{challengeLabel}}</view>
+
+  <!-- 题干 -->
+  <view class="qz-stem-card">
+    <view class="qz-stem-label">{{stemLabel}}</view>
+    <view class="qz-stem">{{stem}}</view>
+  </view>
+
+  <!-- 反馈（+分 / 扣秒） -->
+  <view wx:if="{{feedback}}" class="qz-feedback {{feedbackCls}}">{{feedback}}</view>
+
+  <!-- 选项 -->
+  <view class="qz-options">
+    <view
+      wx:for="{{options}}"
+      wx:key="text"
+      class="qz-opt {{item.cls}}"
+      data-idx="{{index}}"
+      bindtap="choose">{{item.text}}</view>
+  </view>
+
+  <view class="qz-tip">答对连击加分 · 答错 −2 秒 · 一局 {{totalQ}} 题或时间到即结算</view>
+
+  <!-- 结算（公共组件；挑战/玩法线带「下一关」） -->
+  <settle-pop
+    visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
+    title="{{win ? '抢答完成！' : '时间到！'}}" msg="{{overMsg}}"
+    showNext="{{showNext}}"
+    bind:retry="onRetry" bind:next="onNext" />
+</view>
