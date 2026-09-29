@@ -246,8 +246,15 @@ Page({
   },
 
   _decorate: function (it, valText, subText) {
+    // ⚠️ 2026-09-29 修：原来 WXML 里写的是 {{getRankEmoji(item.rank)}} / {{getRankClass(...)}}，
+    //   而**小程序的 WXML 不支持在 {{}} 里调用方法**（页面方法、数组 join、字符串 slice 都不行），
+    //   结果排名徽章整列渲染成空（用户反馈「排行榜显示不太对」时抓到）。
+    //   统一改成「在 JS 里算好、WXML 只做字段绑定」。
+    var rank = it.rank;
     return {
-      rank: it.rank,
+      rank: rank,
+      rankText: rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : String(rank))),
+      rankClass: rank === 1 ? 'top1' : (rank === 2 ? 'top2' : (rank === 3 ? 'top3' : '')),
       openid: it.openid,
       nickname: it.nickname || '未命名',
       avatarUrl: it.avatarUrl || '',
@@ -259,19 +266,6 @@ Page({
       valText: valText,
       subText: subText
     };
-  },
-
-  getRankClass: function (rank) {
-    if (rank === 1) return 'top1';
-    if (rank === 2) return 'top2';
-    if (rank === 3) return 'top3';
-    return '';
-  },
-  getRankEmoji: function (rank) {
-    if (rank === 1) return '🥇';
-    if (rank === 2) return '🥈';
-    if (rank === 3) return '🥉';
-    return rank;
   },
 
   goBack: function () { wx.navigateBack(); },

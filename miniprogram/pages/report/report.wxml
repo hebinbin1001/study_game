@@ -69,7 +69,7 @@
             <view class="trend-bar" style="height:{{item.rate}}%;"></view>
           </view>
           <view class="trend-val">{{item.rate}}%</view>
-          <view class="trend-date">{{item.date.slice(5)}}</view>
+          <view class="trend-date">{{item.dateShort}}</view>
         </view>
       </view>
     </view>

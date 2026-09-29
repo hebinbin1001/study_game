@@ -25,7 +25,12 @@ function textOf(f) { return m24.fracText(f); }
 
 Page({
   data: {
-    levelInfo: LEVELS,
+    // ⚠️ 2026-09-29 修：WXML 不支持在 {{}} 里调用方法，
+    //   原来模板写的是 {{item.nums.join('  ')}} → 关卡列表里的数字组合整列空白。
+    //   这里先在 JS 里拼好字符串，模板只做字段绑定。
+    levelInfo: LEVELS.map(function (lv) {
+      return { no: lv.no, numsText: (lv.nums || []).join('  ') };
+    }),
     curLevel: 1,
     playing: true,
     tiles: [],          // [{ id, frac, text, sel }]

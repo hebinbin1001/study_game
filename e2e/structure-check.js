@@ -1,5 +1,6 @@
 // 结构性回归：app.json 页面完整性 / 玩法 tab 一致性 / 关键配置
 const fs = require('fs');
+const path = require('path');
 
 let fail = 0;
 function check(ok, label) {
@@ -127,6 +128,33 @@ check(!/wxNickname:\s*nick\b/.test(nickJs),
   '回归护栏：微信名不得再被游戏昵称直接赋值');
 const userRouteSrc = fs.readFileSync('server/routes/user.js', 'utf8');
 check(userRouteSrc.includes('/wx-nickname'), '后端提供「取本人微信名」接口（昵称页回填用）');
+
+// 8) WXML 表达式里不许调用方法（2026-09-29）
+//
+// 小程序的 `{{}}` 只支持简单运算，**不支持函数调用** —— 页面方法（`{{getRankEmoji(x)}}`）、
+// 数组/字符串方法（`{{item.nums.join(' ')}}`、`{{item.date.slice(5)}}`）都会**静默渲染成空**，
+// 不报错、不警告，只有肉眼或截图才看得出来。2026-09-29 一次抓到 3 处（排行榜排名徽章整列空白、
+// 算 24 点关卡列表的数字组合空白、学习报告的日期空白）。
+// 正确写法：在 JS 里算好字段，WXML 只做 `{{item.xxx}}` 绑定。
+// 例外：项目没有用 WXS（wxs 模块调用在 WXML 里是合法的）；若将来引入 wxs，这条规则要放行对应写法。
+(function checkWxmlNoMethodCall() {
+  const bad = [];
+  const walk = (dir) => {
+    fs.readdirSync(dir, { withFileTypes: true }).forEach((e) => {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { walk(p); return; }
+      if (!/\.wxml$/.test(e.name)) return;
+      fs.readFileSync(p, 'utf8').split('\n').forEach((line, i) => {
+        const m = /\{\{[^}]*[A-Za-z_$][\w$]*\s*\(/.exec(line);
+        if (m) bad.push(p + ':' + (i + 1) + '  ' + m[0].trim());
+      });
+    });
+  };
+  walk('miniprogram');
+  check(bad.length === 0,
+    'WXML 的 {{}} 里不能调用方法（会静默渲染成空，需改成 JS 里算好再绑定）：\n      '
+      + bad.slice(0, 6).join('\n      '));
+})();
 
 console.log(fail ? `\n=== ${fail} 项失败 ===` : '\n=== 全部通过 ===');
 process.exit(fail ? 1 : 0);

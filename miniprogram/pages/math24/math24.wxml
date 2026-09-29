@@ -21,7 +21,7 @@
         data-no="{{item.no}}"
         bindtap="pickLevel">
         <view class="lv-no">第 {{item.no}} 关</view>
-        <view class="lv-nums">{{item.nums.join('  ')}}</view>
+        <view class="lv-nums">{{item.numsText}}</view>
       </view>
     </view>
   </block>

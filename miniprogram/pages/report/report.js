@@ -56,7 +56,15 @@ Page({
         totalQ: rep.totalQ || 0,
         avgRate: rep.avgRate || 0,
         totalStars: rep.totalStars || 0,
-        trend: rep.trend || [],
+        // ⚠️ 2026-09-29 修：WXML 不支持 {{item.date.slice(5)}} 这种调用，
+        //   原来「每日正确率」下面的日期整排空白；这里先算好短日期再绑定。
+        trend: (rep.trend || []).map(function (t) {
+          return {
+            date: t.date,
+            rate: t.rate,
+            dateShort: String(t.date || '').slice(5)   // 2026-09-13 → 09-13
+          };
+        }),
         wrongByType: wrongByType,
         pending: st.pending || 0,
         mastered: st.mastered || 0,

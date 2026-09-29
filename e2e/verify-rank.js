@@ -48,6 +48,15 @@ H.runSuite('verify-rank（排行榜 · 玩法榜改版）', async function (mini
     return;
   }
 
+  // 总榜（默认视图）：排名徽章必须有内容
+  // 背景（2026-09-29）：模板里写了 {{getRankEmoji(item.rank)}} —— 小程序 WXML **不支持**
+  // 在 {{}} 里调用方法，会静默渲染成空，整列排名徽章看不见（返回按钮那轮一起抓到的）。
+  const rankCell = await H.textOf(page, '.rank-number');
+  ck.check('总榜排名徽章有内容（不是空字符串）', !!(rankCell && rankCell.trim()),
+    '实际 = ' + JSON.stringify(rankCell));
+  ck.check('总榜第 1 名显示奖牌或名次', !!(rankCell && /\S/.test(rankCell)),
+    '实际 = ' + JSON.stringify(rankCell));
+
   const tabs = await page.$$('.rank-mode-tabs .tab');
   const gameTab = tabs && tabs[1];
   ck.check('存在「玩法 · 进度」切换页签', !!gameTab);

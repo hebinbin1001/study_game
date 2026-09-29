@@ -18,16 +18,25 @@
   flex: 0 0 auto;
 }
 .back-pill {
-  width: 88rpx;
-  height: 88rpx;
-  padding: 0;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  font-size: 40rpx;
+  /* 2026-09-29 修：原来是 88×88 的**圆形**（只放一个「‹」），
+     但玩法详情里文案变成了「‹ 全部玩法」，字一多就在圆里挤变形。
+     改成按内容自适应的胶囊：宽度不写死，左右留内边距。 */
+  flex: 0 0 auto;
+  height: 76rpx;
+  min-width: 76rpx;
+  padding: 0 28rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999rpx;
+  font-size: 28rpx;
   color: #3a3a5c;
-  font-weight: 900;
+  font-weight: 800;
   box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.06);
-  line-height: 88rpx;
+  line-height: 1;
+  white-space: nowrap;
 }
 .back-pill::after { border: none; }
 .rank-title-area { flex: 1; }
