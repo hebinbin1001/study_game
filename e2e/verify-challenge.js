@@ -4,7 +4,9 @@
  * verify-challenge.js —— 挑战主线端到端验证（2026-09-12 拍板落地）
  *
  * 覆盖断言：
- *   A. 首页「继续挑战」卡片：文案 = 玩法 · 学段 · 第 N/30 关（不再是「只有字母射击」）
+ *   A. 首页「继续挑战」卡片：文案 = 玩法 · 学段 · 第 N 关（不再是「只有字母射击」）
+ *      —— 2026-09-29 起不再带「/30」：卡片右侧还有「换关卡」按钮，写全了会把
+ *      「第几关」挤成「第 30...」（截图审查发现），总关数在关卡页更清楚。
  *   B. 首页点「继续挑战」→ 落到该关对应的玩法页（第 1 关 = 字母射击，带 challenge=1）
  *   C. 关卡页「挑战主线」视图：30 关、每关带玩法标签、玩法按节奏轮换、第 1 关是新手关
  *   D. 固定题面（种子）：同一关两次进入的题面/字母块完全一致，且与 Node 侧独立算出的期望一致
@@ -161,7 +163,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     homeData.continueMode === 'shoot', '实际 = ' + homeData.continueMode);
   ck.check('首页 data.continueLevel 为 1', homeData.continueLevel === 1,
     '实际 = ' + homeData.continueLevel);
-  ck.check('继续卡片等级显示第 1/30 关', String(homeData.continueHint || '').indexOf('第 1/30 关') !== -1,
+  ck.check('继续卡片等级显示第 1 关', String(homeData.continueHint || '').indexOf('第 1 关') !== -1,
     '实际 = ' + homeData.continueHint);
   ck.check('继续卡片带玩法名（字母射击）', String(homeData.continueHint || '').indexOf('字母射击') !== -1,
     '实际 = ' + homeData.continueHint);
@@ -419,7 +421,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     h3.continueLevel === challenge.BOSS_LEVEL, '实际 = ' + h3.continueLevel);
   ck.check('继续挑战指向 Boss 关的玩法（字母射击）', h3.continueMode === 'shoot', '实际 = ' + h3.continueMode);
   ck.check('卡片文案带 BOSS 标记', /BOSS/.test(h3.continueHint || ''), '实际 = ' + h3.continueHint);
-  ck.check('卡片文案带第 30/30 关', /第 30\/30 关/.test(h3.continueHint || ''), '实际 = ' + h3.continueHint);
+  ck.check('卡片文案带第 30 关', /第 30 关/.test(h3.continueHint || ''), '实际 = ' + h3.continueHint);
 
   console.log('[9/9] 点「继续挑战」→ 终关 Boss 对局（15 题 + 7 命）');
   const ct = await home3.$('.cta .ct');

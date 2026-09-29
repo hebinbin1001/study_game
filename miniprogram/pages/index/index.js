@@ -97,11 +97,17 @@ Page({
     var contMode = contLv ? contLv.mode : 'shoot';
     // 游客第 4 关起需登录：卡片改为引导去关卡页（那里会弹登录引导）
     var continuePlayable = loggedIn || cont.level <= constants.DEFAULT_UNLOCKED_LEVELS;
-    // 终关 Boss：卡片前缀加标记，玩家一眼看出「接下来是打 Boss」
+    // 终关 Boss：卡片前缀加标记，玩家一眼看出「接下来是打 Boss」。
+    //
+    // 2026-09-29 缩短（截图审查发现）：原文案是
+    //   「👑 BOSS · 字母射击 · 幼儿园 · 第 30/30 关」+「（已通关，可刷星）」
+    // 卡片里右侧还有「换关卡」按钮，文字被挤到只剩「第 30...」——
+    // 关键信息（第几关）反而看不清。现在去掉「/30」（总关数在关卡页更清楚）,
+    // 通关提示也压短，留出余量。总关数信息在关卡页/进度条里仍然完整。
     var continueHint = (contLv && contLv.isBoss ? '👑 BOSS · ' : '')
       + (contLv ? contLv.modeLabel : '字母射击') + ' · ' + gradeLabel
-      + ' · 第 ' + cont.level + '/' + challenge.LEVELS_PER_GRADE + ' 关'
-      + (cont.allPassed ? '（已通关，可刷星）' : '');
+      + ' · 第 ' + cont.level + ' 关'
+      + (cont.allPassed ? '（可刷星）' : '');
 
     var dailyDone = false;
     var todayKey = this._todayKey();

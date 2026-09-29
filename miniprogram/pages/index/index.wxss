@@ -262,7 +262,8 @@
   opacity: .92;
   border: 2rpx solid rgba(255, 255, 255, .6);
   border-radius: 999rpx;
-  padding: 6rpx 16rpx;
+  /* 2026-09-29：内边距收紧（16→12），把宽度让给副标题 —— 它此前被截成「第 30...」 */
+  padding: 6rpx 12rpx;
 }
 .cta .ar { color: #fff; font-size: 44rpx; font-weight: 800; opacity: .9; }
 

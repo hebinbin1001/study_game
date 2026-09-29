@@ -234,15 +234,23 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+  /* 2026-09-29 修复（截图审查发现）：原来只是一行浅灰小字，立绘放大后被 Boss 整个盖住，
+     「VS」基本看不见。改成白色胶囊底的「对阵徽章」并抬到立绘上方，危险态再染色。 */
+  z-index: 3;
   font-size: 22rpx;
   font-weight: 900;
   letter-spacing: 0;
-  color: #c3d4e3;
-  transition: color .2s, transform .2s;
+  color: #6b87a3;
+  background: rgba(255, 255, 255, .94);
+  border-radius: 999rpx;
+  padding: 4rpx 12rpx;
+  box-shadow: 0 4rpx 14rpx rgba(28, 53, 92, .16);
+  transition: color .2s, transform .2s, background .2s;
   pointer-events: none;
 }
 .gs-clash.danger {
   color: #ff4d6a;
+  background: #fff1f4;
   transform: translate(-50%, -50%) scale(1.4);
 }
 

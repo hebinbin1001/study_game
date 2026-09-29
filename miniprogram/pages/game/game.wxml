@@ -30,7 +30,9 @@
     <!-- 题面横幅：要拼出什么 -->
     <view class="gs-quest">
       <view class="gs-quest-top">
-        <text class="gs-quest-label">🎯 补全词语，打跑它</text>
+        <!-- 2026-09-29：原来用 🎯，在开发者工具模拟器里渲染成方块（字体缺字形）。
+             ✏️ 字形更老、兼容性更好，语义也更贴「补全词语」。 -->
+        <text class="gs-quest-label">✏️ 补全词语，打跑它</text>
         <text wx:if="{{challengeLabel}}" class="gs-quest-stage">{{challengeLabel}}</text>
         <text wx:elif="{{bossName}}" class="gs-quest-stage">{{bossName}}</text>
       </view>
