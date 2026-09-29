@@ -100,19 +100,29 @@ check(appWxssSrc.includes('.gate-bar'), '门禁引导条样式统一在 app.wxss
   check(js.includes('onShareAppMessage'), `pages/${pg} 支持分享（onShareAppMessage）`);
 });
 
-// 7) 微信名采集（2026-09-19 口径）
+// 7) 微信名采集（2026-09-29 口径修正）
 //
 // 约束：微信从 2022 年起不允许静默读取昵称，唯一合规通道是「昵称填写」组件
 // （<input type="nickname">，用户点「使用微信昵称」时才有值）。
-// 现在玩家侧**不展示任何「微信名」字样**（用户要求：界面别出现「微信名·仅管理员可见」），
-// 采集靠昵称框「先到先得」：点一次「使用微信昵称」→ 同时记下微信名；之后改成自定义昵称也不覆盖。
+// 玩家侧**不展示任何「微信名」字样**（用户要求）。
+//
+// ⚠️ 2026-09-29 修：旧实现是「昵称框有输入就先到先得记成微信名」，
+// 结果绝大多数用户手打自定义昵称 → 把**游戏昵称**存成了微信名，管理端看到的是错的。
+// 现在只认 `bindnicknamereview`（微信侧审完昵称）这一个信号，pass/timeout 时才采集。
 const nickWxml = fs.readFileSync('miniprogram/pages/nickname/nickname.wxml', 'utf8');
 const nickJs = fs.readFileSync('miniprogram/pages/nickname/nickname.js', 'utf8');
 const meWxmlSrc = fs.readFileSync('miniprogram/pages/me/me.wxml', 'utf8');
 check(nickWxml.indexOf('微信名') < 0, '玩家资料页不出现「微信名」字样（仅管理员侧可见）');
 check(meWxmlSrc.indexOf('微信名') < 0, '「我的」页不出现「微信名」字样');
-check(nickJs.includes('nickname: v') && nickJs.includes('patch.wxNickname = v'),
-  '昵称框仍然「先到先得」地记录微信名');
+check(nickWxml.includes('bindnicknamereview="onNicknameReview"'),
+  '昵称输入框接了微信昵称审核回调（唯一的采集时机）');
+check(/d\.pass !== true && d\.timeout !== true/.test(nickJs),
+  '只在 pass / timeout 时才把昵称记为微信名');
+// 反向护栏：onNicknameInput 里不许再写 wxNickname（否则又会把游戏昵称当微信名）
+const inputFn = nickJs.slice(nickJs.indexOf('onNicknameInput: function'),
+  nickJs.indexOf('onNicknameReview: function'));
+check(inputFn.indexOf('wxNickname') < 0,
+  '回归护栏：昵称输入回调里不得写 wxNickname（避免把游戏昵称存成微信名）');
 check(!/wxNickname:\s*nick\b/.test(nickJs),
   '回归护栏：微信名不得再被游戏昵称直接赋值');
 const userRouteSrc = fs.readFileSync('server/routes/user.js', 'utf8');

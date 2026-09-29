@@ -35,6 +35,7 @@
           placeholder-class="input-placeholder"
           value="{{nickname}}"
           bindinput="onNicknameInput"
+          bindnicknamereview="onNicknameReview"
           maxlength="12" />
       </view>
       <view class="input-hint">长度 2~12 个字符 · 点键盘上方的「使用微信昵称」可一键填入微信昵称，之后随便改</view>

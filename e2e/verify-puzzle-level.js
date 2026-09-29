@@ -75,6 +75,56 @@ async function main() {
     const bld = await bl.data();
     ck.check('算式天平第 1 档 = 幼儿园（题型行带学段名）',
       String(bld.trend || '').indexOf('幼儿园') >= 0, '实际 = ' + bld.trend);
+
+    // [6] 通关 → 关卡页更新 + 下一关解锁（2026-09-29 用户反馈的缺陷回归点）
+    //
+    // 背景：一笔画/口算/天平/记忆矩阵 这 4 款当时只上报服务端、**不写本地进度**，
+    //      而关卡页的「已通关」判定是 `puzzle-progress 记录 || ww_stars 有星`，
+    //      于是通关后关卡页仍显示未通关、下一关锁着。
+    // 这里直接把「第 1 关通过」喂进对应玩法的通关回调，再回关卡页看结果。
+    console.log('[6] 通关后关卡页要更新、下一关要解锁');
+    await mp.callWxMethod('setStorageSync', 'ww_puzzle_progress', {});   // 清底，保证从零开始
+
+    const osClear = await H.goto(mp, '/pages/one-stroke/one-stroke?level=1', 1600);
+    await osClear.callMethod('_levelClear');                            // 等价「第 1 关走完」
+    await osClear.waitFor(400);
+    const osLv = await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=onestroke', 1600);
+    const osRows = await H.waitForData(osLv, function (d) {
+      return (d.levels || []).length > 0;
+    }, 10000, 'onestroke-levels');
+    ck.check('一笔画：第 1 关标记为已通关',
+      !!(osRows && osRows.levels[0] && osRows.levels[0].done),
+      '实际 = ' + JSON.stringify(osRows && osRows.levels && osRows.levels[0]));
+    ck.check('一笔画：第 2 关已解锁（state 不再是 lock）',
+      !!(osRows && osRows.levels[1] && osRows.levels[1].state !== 'lock'),
+      '实际 = ' + (osRows && osRows.levels && osRows.levels[1] && osRows.levels[1].state));
+
+    const mgClear = await H.goto(mp, '/pages/memory-grid/memory-grid?level=1', 1600);
+    await mgClear.callMethod('_levelClear');
+    await mgClear.waitFor(400);
+    const mgLv = await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=memory', 1600);
+    const mgRows = await H.waitForData(mgLv, function (d) {
+      return (d.levels || []).length > 0;
+    }, 10000, 'memory-levels');
+    ck.check('记忆矩阵：第 1 关标记为已通关',
+      !!(mgRows && mgRows.levels[0] && mgRows.levels[0].done),
+      '实际 = ' + JSON.stringify(mgRows && mgRows.levels && mgRows.levels[0]));
+    ck.check('记忆矩阵：第 2 关已解锁',
+      !!(mgRows && mgRows.levels[1] && mgRows.levels[1].state !== 'lock'),
+      '实际 = ' + (mgRows && mgRows.levels && mgRows.levels[1] && mgRows.levels[1].state));
+
+    // 口算冲刺 / 算式天平：走「达标即记通关该年级档」
+    const spClear = await H.goto(mp, '/pages/math-sprint/math-sprint?level=1', 1800);
+    await spClear.callMethod('_stop');                                   // 先停计时，避免用例期间自然结束
+    await spClear.setData({ score: 999 });                               // 造一个达标分
+    await spClear.callMethod('finish');
+    await spClear.waitFor(400);
+    const spLv = await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=sprint', 1600);
+    const spRows = await H.waitForData(spLv, function (d) { return (d.levels || []).length > 0; },
+      10000, 'sprint-levels');
+    ck.check('口算冲刺：第 1 档标记为已通关',
+      !!(spRows && spRows.levels[0] && spRows.levels[0].done),
+      '实际 = ' + JSON.stringify(spRows && spRows.levels && spRows.levels[0]));
   } catch (e) {
     ck.check('脚本执行无异常', false, (e && e.message) || String(e));
   } finally {

@@ -5,6 +5,7 @@ var lib = require('../../game/memory-grid');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
 var puzzleLevels = require('../../utils/puzzle-levels');
+var puzzleProgress = require('../../utils/puzzle-progress');
 
 Page({
   data: {
@@ -130,6 +131,8 @@ Page({
   _levelClear: function () {
     var self = this;
     this._score += 10;
+    // 本地关卡进度（2026-09-29 修）：过一关记一关，关卡页据此解锁下一关
+    puzzleProgress.markCleared('memory', this._level);
     this.setData({
       locked: true,
       phase: 'reveal',

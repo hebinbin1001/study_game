@@ -2,6 +2,7 @@
 // 与 demo 的差异：计时用引擎模块的常量、结算走公共 settle-pop、成绩不入字词进度（固定玩法）。
 // 关联：game/math-sprint.js（纯逻辑，可单测）
 var engineLib = require('../../game/math-sprint');
+var puzzleProgress = require('../../utils/puzzle-progress');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
@@ -137,6 +138,10 @@ Page({
   finish: function () {
     this._stop();
     var stars = engineLib.starsFor(this.data.score);
+    // 本地关卡进度（2026-09-29 修）：达标即记为通关该年级档，关卡页据此解锁下一档
+    if (stars >= 1 && this._gi >= 0) {
+      puzzleProgress.markCleared('sprint', this._gi + 1);
+    }
     var total = this._right + this._wrong;
     var acc = total ? Math.round(this._right / total * 100) : 0;
     var best = this.data.best;
@@ -153,7 +158,8 @@ Page({
     playReport.reportPlay({
       gameType: 'sprint',
       grade: 'all',
-      level: 1,
+      // 关卡号 = 年级档（自由玩 _gi=-1 时兜底 1）
+      level: Math.max(1, this._gi + 1),
       score: this.data.score,
       correct: this._right,
       total: total,

@@ -11,7 +11,7 @@ const router = express.Router();
  * 顺序 = 卡片展示顺序：题库类在前、数字智力在后。
  */
 const SUMMARY_GAMES = [
-  "word_warrior", "word_build", "link", "match", "idiom", "snake",
+  "word_warrior", "word_build", "link", "match", "idiom", "snake", "quiz",
   "math24", "sudoku", "sprint", "balance", "g2048", "memory", "onestroke", "klotski",
 ];
 

@@ -5,6 +5,7 @@
 var lib = require('../../game/balance');
 var constants = require('../../utils/constants');
 var playReport = require('../../utils/play-report');
+var puzzleProgress = require('../../utils/puzzle-progress');
 var storage = require('../../utils/storage');
 
 var BEST_KEY = 'ww_balance_best';
@@ -152,11 +153,15 @@ Page({
   _finish: function (cleared) {
     this._clearTimers();
     var stars = lib.starsFor(this._right, lib.ROUND_Q);
+    // 本地关卡进度（2026-09-29 修）：达标即记为通关该年级档，关卡页据此解锁下一档
+    if (stars >= 1 && this._gi >= 0) {
+      puzzleProgress.markCleared('balance', this._gi + 1);
+    }
     // 玩法进度榜上报（2026-09-13 补）：这一款原来不上报，玩法榜里永远空着
     playReport.reportPlay({
       gameType: 'balance',
       grade: 'all',
-      level: 1,
+      level: Math.max(1, this._gi + 1),   // 关卡号 = 年级档（2026-09-29 修：原来恒为 1）
       score: this._score || 0,
       correct: this._right,
       total: lib.ROUND_Q,

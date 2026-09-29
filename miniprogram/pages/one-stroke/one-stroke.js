@@ -4,6 +4,7 @@
 var lib = require('../../game/one-stroke');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
+var progress = require('../../utils/puzzle-progress');
 
 var BOARD = 600;          // 棋盘逻辑边长（rpx），与引擎 geometry() 同一单位
 var NEXT_MS = 1000;       // 过关后停留
@@ -208,6 +209,9 @@ Page({
   _levelClear: function () {
     var lv = this._level();
     this._finished++;
+    // 本地关卡进度（2026-09-29 修）：原来只上报服务端、不写本地，
+    // 导致「通关了但关卡页仍显示未通关、下一关锁着」。
+    progress.markCleared('onestroke', this._li + 1);
     this.setData({
       warn: false,
       mainText: lv.name + ' 完成',
