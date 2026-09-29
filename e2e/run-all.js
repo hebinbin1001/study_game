@@ -115,6 +115,16 @@ STAGES.push({
   script: 'e2e/verify-quiz.js'
 });
 
+// 管理后台 + 微信名采集引导（2026-09-29）：门禁 / 统计 / 采集率 / 玩法热度 / 排序 / 头像。
+// 需要管理员权限的断言依赖环境变量 ADMIN_PASSCODE，未设置时自动降级为
+// 「门禁不泄露数据 + 昵称页引导卡存在」，其余打印 skip（不判红）。
+STAGES.push({
+  id: 'admin',
+  layer: '端到端',
+  title: '管理后台（门禁 / 采集率 / 玩法热度 / 排序 / 头像）',
+  script: 'e2e/verify-admin.js'
+});
+
 function parseArgs(argv) {
   const opts = { noE2e: false, e2eOnly: false, only: null, noReset: false,
     module: null, changed: false, listModules: false, noStatic: false };

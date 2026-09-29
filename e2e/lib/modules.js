@@ -82,13 +82,14 @@ const MODULES = [
     stages: ['m2m4', 'rank'],
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
       'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review', 'rank-badge',
-      'auth-guard', 'admin-auth']
+      'auth-guard', 'admin-auth', 'rel-time']
   },
   {
     id: 'server',
     name: '云托管后端（接口 / 模型 / Sequelize 用法）',
     stages: [],
-    unit: ['sequelize-operators', 'rank-stars', 'checkin-rewards', 'rank-eligibility']
+    unit: ['sequelize-operators', 'rank-stars', 'checkin-rewards', 'rank-eligibility',
+      'admin-query', 'game-names']
   },
   {
     id: 'pages',
@@ -128,6 +129,8 @@ const STAGE_MODULE = {
   rank: 'user'
   ,
   quiz: 'wordgames'
+  ,
+  admin: 'user'
 };
 
 /**
@@ -166,7 +169,10 @@ const PATH_RULES = [
   // 用户与成长
   { re: /^miniprogram\/pages\/(me|rank|achievement|avatar|nickname|wrong-book|wrong-review|checkin|daily-question|report|custom-levels|level-editor|level-share)\//,
     modules: ['user'] },
-  { re: /^miniprogram\/utils\/(storage|auth|skins|review|wrong-book-view|achievement-view)\.js$/, modules: ['user'] },
+  // 管理后台（2026-09-29）：页面在端上、规则在后端，两边都得验；页面清单也要跟着跑
+  { re: /^miniprogram\/pages\/admin\//, modules: ['user', 'server', 'pages'] },
+  { re: /^miniprogram\/utils\/(storage|auth|skins|review|wrong-book-view|achievement-view|rel-time)\.js$/,
+    modules: ['user'] },
   { re: /^miniprogram\/utils\/art\.js$/, modules: ['user', 'assets'] },
 
   // 公共模块：刻意映射到多个模块（改一处会牵连多处）
@@ -195,6 +201,7 @@ const PATH_RULES = [
   { re: /^e2e\/verify-(link|snake)\.js$/, modules: ['wordgames'] },
   { re: /^e2e\/verify-(math24|klotski|g2048)\.js$/, modules: ['puzzle'] },
   { re: /^e2e\/verify-(challenge|lines)\.js$/, modules: ['challenge'] },
+  { re: /^e2e\/verify-admin\.js$/, modules: ['user', 'server'] },
   { re: /^e2e\/verify-(all-pages|m2m4)\.js$/, modules: ['pages', 'user'] },
   { re: /^e2e\/probe-pages-load\.js$/, modules: ['pages'] },
   { re: /^e2e\/(check-assets|check-wxss|structure-check|syntax-check-all)\.js$/, modules: ['static', 'assets'] },

@@ -18,6 +18,10 @@ var avatarUpload = require('../../utils/avatar-upload');
 var NICKNAME_MIN_LEN = 2;
 var NICKNAME_MAX_LEN = 12;
 
+// 「保存后提示补微信名」只提示一次（2026-09-29）：
+// 微信名采集全部依赖引导，但每次保存都弹窗会烦人 —— 提示过就不再打扰。
+var WX_HINT_KEY = 'ww_wx_nick_hint';
+
 Page({
   data: {
     avatarUrl: '',    // 头像地址（上传成功后是稳定 URL；上传失败只是本机临时路径，仅用于预览）
@@ -160,6 +164,22 @@ Page({
       nickname: nick, avatarUrl: avatarUrl, wxNickname: wxNick
     }).then(function () {
       auth.refreshMe(); // 拉取最新资料回写缓存（needProfile → false）
+
+      // 2026-09-29：这次没采集到微信名 → 保存成功后提示一次怎么补（只提示一次）。
+      // 不做成强拦：微信名只对管理员可见，用户不补也不影响任何玩法。
+      if (!wxNick && !storage.get(WX_HINT_KEY)) {
+        storage.set(WX_HINT_KEY, '1');
+        wx.showModal({
+          title: '顺手补个微信昵称？',
+          content: '点昵称输入框 → 键盘上方会出现「使用微信昵称」，点一下就能填上。'
+            + '这个只有管理员看得到，排行榜上显示的仍是你自己设的昵称。',
+          showCancel: false,
+          confirmText: '知道了',
+          complete: function () { wx.navigateBack(); }
+        });
+        return;
+      }
+
       wx.showToast({ title: '保存成功', icon: 'success', duration: 1200 });
       setTimeout(function () { wx.navigateBack(); }, 1300);
     }).catch(function (err) {

@@ -167,6 +167,61 @@ page {
   padding-left: 8rpx;
 }
 
+/* ===== 微信昵称采集引导（2026-09-29） =====
+   微信不允许静默读取昵称，用户必须主动点一次键盘上方的「使用微信昵称」；
+   这块引导卡就是采集率的全部依赖 —— 未采集时暖色高亮 + 呼吸箭头，采集到立刻变绿。 */
+.wx-guide {
+  display: flex;
+  align-items: flex-start;
+  background: #fff8e6;
+  border: 3rpx solid #ffe3a3;
+  border-radius: 24rpx;
+  padding: 20rpx 22rpx;
+  margin-bottom: 18rpx;
+}
+.wx-guide--done {
+  background: #eefaf1;
+  border-color: #bfe8cd;
+}
+.wx-guide-ic {
+  font-size: 40rpx;
+  line-height: 1.1;
+  margin-right: 14rpx;
+}
+.wx-guide-t {
+  flex: 1;
+  min-width: 0;
+}
+.wx-guide-b {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #8a5a00;
+}
+.wx-guide--done .wx-guide-b {
+  color: #2f8b4d;
+}
+.wx-guide-s {
+  font-size: 22rpx;
+  color: #9a7a3a;
+  margin-top: 6rpx;
+  line-height: 1.5;
+}
+.wx-guide--done .wx-guide-s {
+  color: #4d8b64;
+}
+.wx-guide-arrow {
+  text-align: center;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #b58a2a;
+  margin-bottom: 12rpx;
+  animation: arrowPulse 1.6s ease-in-out infinite;
+}
+@keyframes arrowPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
 /* ===== 保存按钮（全局 .btn-primary：480×128 橙色大按钮） ===== */
 .btn-save {
   margin-top: 48rpx;

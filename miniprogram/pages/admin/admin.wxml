@@ -21,6 +21,16 @@
       <view class="stat"><view class="s-num">{{stats.todayActiveUsers}}</view><view class="s-lab">今日活跃</view></view>
       <view class="stat"><view class="s-num">{{stats.todayNewUsers}}</view><view class="s-lab">今日新增</view></view>
       <view class="stat"><view class="s-num">{{stats.totalScores}}</view><view class="s-lab">累计答题</view></view>
+      <view class="stat">
+        <view class="s-num">{{stats.wxCollectRate}}<text class="s-unit">%</text></view>
+        <view class="s-lab">微信名采集 {{stats.wxCollected}}/{{stats.wxCollectTotal}}</view>
+      </view>
+    </view>
+
+    <!-- 段位同步自检（服务端返回的最近一次重算结果；非空 = 失败了） -->
+    <view wx:if="{{stats.rankSyncWarn}}" class="me-warn">
+      ⚠️ 段位星最近一次同步失败：{{stats.rankSyncWarn}}
+      —— 此时用户星星会涨、段位不动，请检查后端日志。
     </view>
 
     <!-- 段位分布 -->
@@ -48,27 +58,56 @@
       </view>
     </view>
 
+    <!-- 玩法热度（2026-09-29 新增）：条形按第一名归一化，一眼看出哪个玩法最受欢迎 -->
+    <view class="sec-title">玩法热度（按累计局数）</view>
+    <view wx:if="{{stats.gameHeatTop.length}}" class="heat">
+      <view wx:for="{{stats.gameHeatTop}}" wx:key="label" class="heat-row">
+        <text class="heat-name">{{item.label}}</text>
+        <view class="heat-track"><view class="heat-bar" style="width: {{item.pct}}%"></view></view>
+        <text class="heat-count">{{item.count}}</text>
+      </view>
+      <view wx:if="{{stats.gameHeatRestTypes}}" class="heat-rest">
+        其余 {{stats.gameHeatRestTypes}} 款玩法合计 {{stats.gameHeatRestGames}} 局
+      </view>
+    </view>
+    <view wx:else class="empty">还没有成绩上报</view>
+
     <!-- 用户列表 -->
     <view class="sec-title">用户列表（微信名仅此处可见）</view>
+    <!-- 排序：服务端排序（不是端上排），所以翻页后顺序仍然正确 -->
+    <view class="sort-row">
+      <view
+        wx:for="{{sortOptions}}"
+        wx:key="key"
+        class="sort-chip {{sort === item.key ? 'sort-chip--on' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onSortTap">{{item.label}}</view>
+    </view>
     <view class="search">
-      <input class="search-input" placeholder="按昵称搜索" value="{{q}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <input class="search-input" placeholder="搜昵称 / 微信名 / openid" value="{{q}}" bindinput="onSearchInput" bindconfirm="onSearch" />
       <view class="search-btn" bindtap="onSearch">搜索</view>
     </view>
+    <view class="list-meta">共 {{total}} 人 · 已加载 {{users.length}}</view>
     <view wx:for="{{users}}" wx:key="openidMasked" class="urow">
-      <view class="u-main">
-        <text class="u-nick">{{item.nickname}}</text>
-        <text class="u-wx">微信名：{{item.wxNickname || '（未采集 · 需对方在「我的 → 编辑资料」点一次）'}}</text>
+      <image wx:if="{{item.avatarUrl}}" class="u-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+      <view wx:else class="u-avatar u-avatar--default">🙂</view>
+      <view class="u-body">
+        <view class="u-main">
+          <text class="u-nick">{{item.nickname}}</text>
+          <text class="u-wx {{item.wxCollected ? '' : 'u-wx--none'}}">微信名：{{item.wxText}}</text>
+        </view>
+        <view class="u-sub">
+          <text class="u-chip">{{item.rankName}}</text>
+          <text class="u-chip">库 {{item.stars}} · 现算 {{item.starsDeduped}} · 流水 {{item.starsRaw}}</text>
+          <text wx:if="{{item.stars !== item.starsDeduped}}" class="u-chip u-chip--bad">同步未生效</text>
+          <text class="u-chip">{{item.scoreCount}} 局</text>
+        </view>
+        <view class="u-meta">{{item.openidMasked}} · 注册 {{item.createdText}} · 最近上报 {{item.lastActiveText}}</view>
       </view>
-      <view class="u-sub">
-        <text class="u-chip">{{item.rankName}}</text>
-        <text class="u-chip">库 {{item.stars}} · 现算 {{item.starsDeduped}} · 流水 {{item.starsRaw}}</text>
-        <text wx:if="{{item.stars !== item.starsDeduped}}" class="u-chip u-chip--bad">同步未生效</text>
-        <text class="u-chip">{{item.scoreCount}} 局</text>
-      </view>
-      <view class="u-meta">{{item.openidMasked}} · 注册 {{item.createdAt}} · 最近上报 {{item.lastActiveAt || '无'}}</view>
     </view>
     <view wx:if="{{hasMore}}" class="more" bindtap="onMore">{{loading ? '加载中…' : '加载更多'}}</view>
     <view wx:if="{{!users.length && !loading}}" class="empty">没有匹配的用户</view>
+    <view class="list-note">「未采集」= 该用户没在自己手机上点过一次「使用微信昵称」。微信 2022 年起不允许静默读取昵称，这属于平台限制。</view>
 
     <button class="back" bindtap="goBack">返回</button>
   </block>

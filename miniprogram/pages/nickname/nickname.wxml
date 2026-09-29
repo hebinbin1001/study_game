@@ -27,6 +27,20 @@
     <!-- 昵称输入（REQ-NICK-1：nickname input 双通道，交互保留） -->
     <view class="section">
       <view class="section-title">✍️ 设置昵称</view>
+
+      <!-- 微信昵称采集引导（2026-09-29）：
+           微信从 2022 年起不允许静默读取昵称 —— 用户必须**主动点一次**键盘上方的
+           「使用微信昵称」，我们才拿得到。所以这里的视觉引导就是采集率的全部依赖，
+           点了之后（onNicknameReview 回调）立刻变绿反馈，让用户知道成功了。 -->
+      <view class="wx-guide {{wxNickname ? 'wx-guide--done' : ''}}">
+        <view class="wx-guide-ic">{{wxNickname ? '✅' : '💡'}}</view>
+        <view class="wx-guide-t">
+          <view class="wx-guide-b">{{wxNickname ? '已获取微信昵称' : '顺手点一下「使用微信昵称」'}}</view>
+          <view class="wx-guide-s">{{wxNickname ? '只有管理员能看到，不会公开显示' : '点下面输入框 → 键盘上方会冒出「使用微信昵称」→ 点它即可'}}</view>
+        </view>
+      </view>
+      <view wx:if="{{!wxNickname}}" class="wx-guide-arrow">⬇️ 点下面这个输入框试试</view>
+
       <view class="input-card">
         <input
           class="nickname-input"
@@ -38,7 +52,7 @@
           bindnicknamereview="onNicknameReview"
           maxlength="12" />
       </view>
-      <view class="input-hint">长度 2~12 个字符 · 点键盘上方的「使用微信昵称」可一键填入微信昵称，之后随便改</view>
+      <view class="input-hint">长度 2~12 个字符 · 微信昵称填进来后也可以随时改成自定义昵称</view>
     </view>
 
   </view>

@@ -7,13 +7,11 @@ const ladder = require("../rank-ladder");
 const router = express.Router();
 
 /**
- * 玩法进度榜「总览」用的玩法清单（与端上 utils/game-catalog.js 的 gameType 一一对应）。
- * 顺序 = 卡片展示顺序：题库类在前、数字智力在后。
+ * 玩法进度榜「总览」用的玩法清单。
+ * 2026-09-29 起改为引用 server/game-names.js（唯一数据源）—— 管理端的「玩法热度」
+ * 也要用同一份清单，写两处迟早对不上。顺序 = 卡片展示顺序：题库类在前、数字智力在后。
  */
-const SUMMARY_GAMES = [
-  "word_warrior", "word_build", "link", "match", "idiom", "snake", "quiz",
-  "math24", "sudoku", "sprint", "balance", "g2048", "memory", "onestroke", "klotski",
-];
+const { GAME_TYPES: SUMMARY_GAMES } = require("../game-names");
 
 /**
  * 上榜门槛（2026-09-19 用户要求：「没有注册的用户不能上排行榜」）。

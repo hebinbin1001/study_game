@@ -129,6 +129,26 @@ check(!/wxNickname:\s*nick\b/.test(nickJs),
 const userRouteSrc = fs.readFileSync('server/routes/user.js', 'utf8');
 check(userRouteSrc.includes('/wx-nickname'), '后端提供「取本人微信名」接口（昵称页回填用）');
 
+// 7.5) 管理后台 + 采集引导（2026-09-29）：用户要求「管理员界面还缺少什么，一起做了」
+//
+// 这批能力很容易被后续改动悄悄改没（页面重构、字段改名、重构时顺手删一行），
+// 用静态护栏钉住 —— 尤其是「昵称页的采集引导卡」：微信不允许静默读昵称，
+// 那块卡是采集率的**全部**依赖，删掉采集率就归零。
+const adminWxml = fs.readFileSync('miniprogram/pages/admin/admin.wxml', 'utf8');
+const adminJs = fs.readFileSync('miniprogram/pages/admin/admin.js', 'utf8');
+const adminRouteSrc = fs.readFileSync('server/routes/admin.js', 'utf8');
+check(nickWxml.includes('wx-guide'), '昵称页有微信昵称采集引导卡（采集率全靠它）');
+check(nickWxml.includes('使用微信昵称'), '引导卡点明「使用微信昵称」这个动作');
+check(adminWxml.includes('sort-chip') && adminJs.includes('onSortTap'), '管理页有用户排序切换');
+check(adminWxml.includes('u-avatar'), '管理页用户行有头像位（此前查了 avatar_url 却没返回）');
+check(adminWxml.includes('wxCollectRate') && adminRouteSrc.includes('wxCollectRate'),
+  '管理页展示微信名采集率（端上字段 ← 后端同名字段）');
+check(adminWxml.includes('gameHeatTop') && adminRouteSrc.includes('gameHeat'),
+  '管理页有玩法热度（后端聚合 → 端上条形）');
+check(adminJs.includes('rel-time'), '管理页时间用相对文案（不是裸时间戳）');
+check(adminRouteSrc.includes('admin-query') && adminRouteSrc.includes('searchOpenids'),
+  '管理端搜索覆盖昵称 / 微信名 / openid');
+
 // 8) WXML 表达式里不许调用方法（2026-09-29）
 //
 // 小程序的 `{{}}` 只支持简单运算，**不支持函数调用** —— 页面方法（`{{getRankEmoji(x)}}`）、

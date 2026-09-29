@@ -6,6 +6,11 @@
  *   GET  /api/admin/stats  —— 注册人数、在线人数、今日活跃/新增、累计答题、段位分布
  *   GET  /api/admin/users  —— 用户列表（**完整昵称**、掩码 openid、注册时间、最近活跃、段位、答题数）
  *
+ * 2026-09-29 补齐（用户要求「你看下管理员界面还缺少，一起做了」）：
+ *   · /stats  加「微信名采集率」「玩法热度」——采集率是微信名引导效果的直接度量
+ *   · /users  支持排序（active/stars/created）、搜索扩展到微信名与 openid、返回头像
+ *   规则（排序白名单 / LIKE 转义 / 采集率 / 热度聚合）抽在 server/admin-query.js，有单测。
+ *
  * 权限：`server/admin-auth.js` —— ADMIN_OPENIDS 白名单或 ADMIN_PASSCODE 口令（环境变量，零 DDL）。
  * 隐私：完整微信昵称只在本路由返回；排行榜等公开接口一律返回脱敏昵称（maskNickname）。
  *
@@ -21,6 +26,8 @@ const { User, Score, RankRecord, sequelize } = require("../db");
 const ladder = require("../rank-ladder");
 const { checkAdmin, pickWxNickname, maskOpenid } = require("../admin-auth");
 const { dedupeStars } = require("../rank-stars");
+const adminQuery = require("../admin-query");
+const { GAME_NAMES } = require("../game-names");
 const rankRouter = require("./rank");   // 取「最近一次段位星同步」的诊断信息
 
 const router = express.Router();
@@ -82,6 +89,74 @@ async function wxColumnReady() {
 }
 
 const ONLINE_WINDOW_MS = 5 * 60 * 1000;      // 在线窗口：最近 5 分钟
+
+/**
+ * 已采集微信名的账号数。
+ * wx_nickname 列可能还没建（DDL 由用户执行）→ 返回 0，由 wxNicknameColumnReady 说明原因。
+ */
+async function wxCollectedCount() {
+  try {
+    const [rows] = await sequelize.query(
+      "SELECT COUNT(*) AS c FROM users WHERE wx_nickname IS NOT NULL AND wx_nickname <> ''"
+    );
+    return Number((rows && rows[0] && rows[0].c) || 0);
+  } catch (e) {
+    return 0;
+  }
+}
+
+/**
+ * 按搜索词找匹配的 openid 列表（昵称 / 微信名 / openid 三列）。
+ *
+ * 为什么要走原生 SQL：`wx_nickname` 不在 Sequelize 模型里（见 models/user.js 的说明），
+ * 用不了模型的 where；而且这里要在三列之间做 OR，原生一句更清楚。
+ * 列不存在时降级成「昵称 + openid」两列。
+ *
+ * @param {string} pattern LIKE 模式（已转义，来自 adminQuery.searchPattern）
+ * @returns {Promise<string[]>} 命中的 openid（最多 500，防止一次拉爆内存）
+ */
+async function searchOpenids(pattern) {
+  const base = "SELECT openid FROM users WHERE ";
+  const tail = " LIMIT 500";
+  try {
+    const [rows] = await sequelize.query(
+      base + "(nickname LIKE :p OR wx_nickname LIKE :p OR openid LIKE :p)" + tail,
+      { replacements: { p: pattern } }
+    );
+    return (rows || []).map((r) => r.openid).filter(Boolean);
+  } catch (e) {
+    const [rows] = await sequelize.query(
+      base + "(nickname LIKE :p OR openid LIKE :p)" + tail,
+      { replacements: { p: pattern } }
+    );
+    return (rows || []).map((r) => r.openid).filter(Boolean);
+  }
+}
+
+/**
+ * 排序键 → SQL 片段（users 别名 u）。
+ *   每个都带 `u.id DESC` 兜底，保证同值时顺序稳定 —— 否则翻页会重复/漏人。
+ */
+const ORDER_SQL = {
+  // 最近活跃：该用户最近一次成绩上报时间（从没上报的排最后，MySQL 中 NULL 在 DESC 时垫底）
+  active: "(SELECT MAX(s.createdAt) FROM scores s WHERE s.user_id = u.id) DESC, u.id DESC",
+  // 段位星数：rank_records 里的展示口径
+  stars: "COALESCE((SELECT r.stars FROM rank_records r WHERE r.openid = u.openid LIMIT 1), 0) DESC, u.id DESC",
+  created: "u.createdAt DESC, u.id DESC"
+};
+
+/**
+ * 按排序键取一页用户 id（只取 id，详情仍走原有聚合逻辑，改动面最小）。
+ * @param {Array<string>|null} openids 搜索命中的 openid（null = 不按搜索过滤）
+ */
+async function orderedUserIds(openids, sort, limit, offset) {
+  const whereSql = openids ? " WHERE u.openid IN (:openids)" : "";
+  const [rows] = await sequelize.query(
+    "SELECT u.id FROM users u" + whereSql + " ORDER BY " + ORDER_SQL[sort] + " LIMIT :limit OFFSET :offset",
+    { replacements: { openids: openids || [], limit: limit, offset: offset } }
+  );
+  return (rows || []).map((r) => r.id);
+}
 
 /** 管理员校验中间件：不通过统一返回 4003（前端据此提示「口令无效」） */
 async function requireAdmin(req, res, next) {
@@ -146,12 +221,20 @@ router.get("/stats", requireAdmin, async (req, res) => {
     const today0 = startOfToday();
     const onlineSince = new Date(Date.now() - ONLINE_WINDOW_MS);
 
-    const [totalUsers, todayNewUsers, totalScores, onlineUsers, todayActiveUsers] = await Promise.all([
+    const [totalUsers, todayNewUsers, totalScores, onlineUsers, todayActiveUsers, wxCollected, gameRows] = await Promise.all([
       User.count(),
       User.count({ where: { createdAt: { [Op.gte]: today0 } } }),
       Score.count(),
       Score.count({ distinct: true, col: "user_id", where: { createdAt: { [Op.gte]: onlineSince } } }),
       Score.count({ distinct: true, col: "user_id", where: { createdAt: { [Op.gte]: today0 } } }),
+      // 微信名采集数（列不存在时返回 0，配合 wxNicknameColumnReady 判断是「没建列」还是「真没人点」）
+      wxCollectedCount(),
+      // 玩法热度：每个玩法被玩了多少局（看运营该往哪个玩法加内容）
+      Score.findAll({
+        attributes: ["game_type", [fn("COUNT", col("id")), "cnt"]],
+        group: ["game_type"],
+        raw: true,
+      }),
     ]);
 
     // 段位分布：按大段聚合（人数不多，内存聚合足够；将来人多再改 SQL）
@@ -173,6 +256,13 @@ router.get("/stats", requireAdmin, async (req, res) => {
         totalScores,         // 累计答题/上报局数
         onlineWindowMin: ONLINE_WINDOW_MS / 60000,
         rankDist: dist,
+        // 微信名采集：微信 2022 年起不允许静默读取昵称，只能靠用户主动点一次
+        // 「使用微信昵称」→ 这个比例直接反映引导做得好不好
+        wxCollected,
+        wxCollectRate: adminQuery.collectRate(wxCollected, totalUsers),
+        wxCollectTotal: totalUsers,
+        // 玩法热度（局数降序；未登记的新玩法会以原始 key 出现，便于发现遗漏）
+        gameHeat: adminQuery.gameHeat(gameRows, GAME_NAMES),
         // 微信名列是否已创建（false = 还没执行 ALTER TABLE，微信名必然显示「未获取」）
         wxNicknameColumnReady: await wxColumnReady(),
         // 段位同步自检：最近一次重算是否成功（空字符串 = 最近一次成功）
@@ -187,25 +277,39 @@ router.get("/stats", requireAdmin, async (req, res) => {
   }
 });
 
-/** GET /api/admin/users?page=1&pageSize=20&q=昵称 —— 用户列表（含完整昵称，仅管理员） */
+/**
+ * GET /api/admin/users —— 用户列表（含完整昵称与微信名，仅管理员）
+ *
+ * 参数：
+ *   page=1 & pageSize=20    分页（pageSize 上限 50）
+ *   q=关键词                搜昵称 / 微信名 / openid（LIKE 元字符已转义）
+ *   sort=active|stars|created  排序：最近活跃（默认）/ 段位星数 / 注册时间
+ */
 router.get("/users", requireAdmin, async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize, 10) || 20));
-    const q = String(req.query.q || "").trim();
+    const sort = adminQuery.resolveSort(req.query.sort);
+    const searched = adminQuery.searchPattern(req.query.q);
 
-    const where = {};
-    if (q) where.nickname = { [Op.like]: `%${q}%` };
+    // 搜索要先解析成 openid 列表（要跨 nickname / wx_nickname / openid 三列 OR）
+    const searchedOpenids = searched ? await searchOpenids(searched.pattern) : null;
+    const where = searchedOpenids ? { openid: { [Op.in]: searchedOpenids } } : {};
 
     const total = await User.count({ where });
-    const users = await User.findAll({
-      where,
-      attributes: ["id", "openid", "nickname", "avatar_url", "createdAt"],
-      order: [["createdAt", "DESC"]],
-      limit: pageSize,
-      offset: (page - 1) * pageSize,
-      raw: true,
-    });
+
+    // 两步取数：先按排序键拿这一页的 id 顺序，再按 id 取详情（聚合逻辑保持原样）
+    const idsInOrder = await orderedUserIds(searchedOpenids, sort, pageSize, (page - 1) * pageSize);
+    const rows = idsInOrder.length
+      ? await User.findAll({
+        where: { id: { [Op.in]: idsInOrder } },
+        attributes: ["id", "openid", "nickname", "avatar_url", "createdAt"],
+        raw: true,
+      })
+      : [];
+    // IN 查询不保证顺序 → 按 idsInOrder 还原（否则排序等于白做）
+    const rowById = new Map(rows.map((r) => [r.id, r]));
+    const users = idsInOrder.map((id) => rowById.get(id)).filter(Boolean);
 
     const ids = users.map((u) => u.id);
     const openids = users.map((u) => u.openid);
@@ -261,6 +365,8 @@ router.get("/users", requireAdmin, async (req, res) => {
       return {
         nickname: u.nickname || "未命名",             // 管理员可见完整昵称
         wxNickname: wxMap.get(u.openid) || "",        // 微信名（仅本接口返回；列未加时为空）
+        wxCollected: !!wxMap.get(u.openid),           // 是否采集到微信名（前端筛选/统计用）
+        avatarUrl: u.avatar_url || "",                // 头像（此前查了却没返回，列表一直是空的）
         openidMasked: maskOpenid(u.openid),           // openid 打码展示
         createdAt: u.createdAt,
         lastActiveAt: s.last || null,
