@@ -234,23 +234,29 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  /* 2026-09-29 修复（截图审查发现）：原来只是一行浅灰小字，立绘放大后被 Boss 整个盖住，
-     「VS」基本看不见。改成白色胶囊底的「对阵徽章」并抬到立绘上方，危险态再染色。 */
-  z-index: 3;
-  font-size: 22rpx;
+  /* 2026-09-29 二次调整（用户：「字母射击中间的 vs 好难看」）：
+     上一版是「白胶囊底 + ⚔ VS ⚔」，暴露了两个问题 ——
+       ① ⚔ 在这个字体下渲染成灰色单色小图标，夹在 VS 两边显得脏；
+       ② 胶囊有**实底**，而两个立绘都带 transform 动画（各自是独立层叠上下文），
+          一旦被压住一半，就变成一条残缺的白条，比不画还难看。
+     现在改成「纯 VS + 斜体 + 白色描边」：不依赖底色，压在立绘上也读得清，
+     视觉上只是一行字，不会再有"贴补丁"的观感。 */
+  z-index: 5;
+  font-size: 34rpx;
   font-weight: 900;
-  letter-spacing: 0;
-  color: #6b87a3;
-  background: rgba(255, 255, 255, .94);
-  border-radius: 999rpx;
-  padding: 4rpx 12rpx;
-  box-shadow: 0 4rpx 14rpx rgba(28, 53, 92, .16);
-  transition: color .2s, transform .2s, background .2s;
+  font-style: italic;
+  letter-spacing: 2rpx;
+  color: #5f7d9c;
+  /* 白描边用多重 text-shadow 模拟（小程序对 -webkit-text-stroke 支持不稳） */
+  text-shadow:
+    3rpx 0 0 #fff, -3rpx 0 0 #fff, 0 3rpx 0 #fff, 0 -3rpx 0 #fff,
+    3rpx 3rpx 0 #fff, -3rpx -3rpx 0 #fff, 3rpx -3rpx 0 #fff, -3rpx 3rpx 0 #fff,
+    0 8rpx 18rpx rgba(28, 53, 92, .22);
+  transition: color .2s, transform .2s;
   pointer-events: none;
 }
 .gs-clash.danger {
   color: #ff4d6a;
-  background: #fff1f4;
   transform: translate(-50%, -50%) scale(1.4);
 }
 

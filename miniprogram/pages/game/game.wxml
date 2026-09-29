@@ -53,7 +53,9 @@
           binderror="onWarriorImgError"></image>
         <view wx:else class="gs-art-emoji">{{warriorEmoji}}</view>
       </view>
-      <view class="gs-clash {{bossCharging ? 'danger' : ''}}">⚔ VS ⚔</view>
+      <!-- 2026-09-29 二次调整：去掉两侧的 ⚔（在这个字体下渲染成灰色单色小图标，显得脏），
+           只留斜体「VS」+ 白色描边 —— 压在立绘上也读得清，又不像贴了块白补丁。 -->
+      <view class="gs-clash {{bossCharging ? 'danger' : ''}}">VS</view>
       <view class="gs-boss {{bossHit ? 'gs-boss-hit' : ''}} {{bossCharging ? 'gs-boss-charging' : ''}}">
         <image
           wx:if="{{bossImg && bossImgOk}}"
