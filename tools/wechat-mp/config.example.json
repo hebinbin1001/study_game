@@ -1,0 +1,21 @@
+{
+  "_说明": [
+    "这是配置样例。图片路径一律相对于本文件所在目录。",
+    "blocks 按顺序生成正文；img 块会按出现顺序编号，脚本再逐张上传替换。",
+    "cover 若指向 blocks 里已有的图 → 直接选它；不在 blocks 里 → 先插到正文最前再选。",
+    "title 上限 64 字（公众号硬限制），脚本会在动手前拦下来。"
+  ],
+  "title": "示例：三分钟讲清我们做了什么",
+  "author": "词力战士",
+  "cover": "final/01-cover.jpg",
+  "summary": "",
+  "blocks": [
+    { "type": "img", "src": "final/01-cover.jpg" },
+    { "type": "p", "text": "开头先抛一个读者能共情的问题。" },
+    { "type": "p", "text": "这句会被加粗。", "bold": true },
+    { "type": "h2", "text": "一、小节标题" },
+    { "type": "p", "text": "小节正文。" },
+    { "type": "img", "src": "final/02-ch-monster.jpg" },
+    { "type": "p", "text": "图下面继续写。" }
+  ]
+}

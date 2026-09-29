@@ -96,6 +96,12 @@ const MODULES = [
     name: '页面渲染回归与真机黑屏探针（35 页）',
     stages: ['pages', 'load'],
     unit: ['play-counts']
+  },
+  {
+    id: 'tools',
+    name: '运营工具（公众号排版：配置解析 / HTML 生成）',
+    stages: [],
+    unit: ['mp-article']
   }
 ];
 
@@ -189,6 +195,8 @@ const PATH_RULES = [
   // 后端与词库工具
   { re: /^server\//, modules: ['server'] },
   { re: /^tools\/dict\//, modules: ['dict'] },
+  // 公众号排版工具（2026-09-30）：纯 Node 侧脚本，不进小程序包，但改动要过语法 + 它自己的单测
+  { re: /^tools\/wechat-mp\//, modules: ['tools'] },
   { re: /^(Dockerfile|\.dockerignore|container\.config\.json|cloudbaserc\.json)$/, modules: ['server', 'assets'] },
 
   // 测试自身的改动：按文件名归位
