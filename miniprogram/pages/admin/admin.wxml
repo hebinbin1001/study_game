@@ -88,6 +88,7 @@
       <view class="search-btn" bindtap="onSearch">搜索</view>
     </view>
     <view class="list-meta">共 {{total}} 人 · 已加载 {{users.length}}</view>
+    <view wx:if="{{loadWarn}}" class="me-warn">⚠️ {{loadWarn}}</view>
     <view wx:for="{{users}}" wx:key="openidMasked" class="urow">
       <image wx:if="{{item.avatarUrl}}" class="u-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
       <view wx:else class="u-avatar u-avatar--default">🙂</view>

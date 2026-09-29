@@ -18,6 +18,13 @@ const H = require('./lib/harness');
 
 const PASSCODE = process.env.ADMIN_PASSCODE || '';
 
+/** 把列表状态压成一行，失败时取证用 */
+function listState(d) {
+  return 'sort=' + (d && d.sort) + ' loading=' + (d && d.loading)
+    + ' total=' + (d && d.total) + ' 已加载=' + ((d && d.users) || []).length
+    + ' warn=' + JSON.stringify((d && d.loadWarn) || '');
+}
+
 H.runSuite('verify-admin（管理后台 · 微信名采集引导）', async function (miniProgram, ck) {
   // ---------- [1] 微信名采集引导（昵称页） ----------
   console.log('[1/4] 昵称页：微信昵称采集引导卡');
@@ -110,13 +117,27 @@ H.runSuite('verify-admin（管理后台 · 微信名采集引导）', async func
   ck.check('排序切换 3 个（最近活跃 / 段位星数 / 注册时间）', chips.length === 3, '实际 = ' + chips.length);
 
   if (chips.length === 3) {
-    const before = (await admin.data()).sort;
-    ck.check('默认排序是最近活跃', before === 'active', '实际 = ' + before);
+    const before = await admin.data();
+    ck.check('默认排序是最近活跃', before.sort === 'active', '实际 = ' + before.sort);
+    // 首屏必须把数据加载出来（此前这里返 0 条也没人发现）
+    ck.check('首屏用户列表已加载出数据', (before.users || []).length > 0, listState(before));
+
+    // ⚠️ 等待条件必须是「列表加载完成」，不能只等 sort 字段 ——
+    //    setData 是同步的，切排序会先把 users 清空再异步回填；
+    //    只等 sort 会在「列表已清空、还没回来」的瞬间通过，随后断言就扑空（这个坑这次踩到了）。
     await chips[1].tap();
-    const sorted = await H.waitForData(admin, function (d) { return d.sort === 'stars'; }, 10000, 'sort switched');
-    ck.check('点「段位星数」后 sort 切换为 stars', !!sorted);
+    const starsState = await H.waitForData(admin, function (d) {
+      return d.sort === 'stars' && !d.loading && (d.users || []).length > 0;
+    }, 15000, 'stars loaded');
+    ck.check('切「段位星数」后排序生效且列表仍加载出数据', !!starsState,
+      starsState ? '' : listState(await admin.data()));
+
     await chips[0].tap();
-    await H.waitForData(admin, function (d) { return d.sort === 'active'; }, 10000, 'sort back');
+    const activeState = await H.waitForData(admin, function (d) {
+      return d.sort === 'active' && !d.loading && (d.users || []).length > 0;
+    }, 15000, 'active loaded');
+    ck.check('切回「最近活跃」后列表仍加载出数据', !!activeState,
+      activeState ? '' : listState(await admin.data()));
   }
 
   const meta = await H.textOf(admin, '.list-meta');
@@ -124,6 +145,15 @@ H.runSuite('verify-admin（管理后台 · 微信名采集引导）', async func
 
   const d2 = await admin.data();
   const rows = d2.users || [];
+
+  // 来历（2026-09-29）：管理端排序改服务端后，用例一度报「共 22 人 · 已加载 0」，
+  // 查明是**等待条件写错**（只等 sort 字段，没等列表加载完成）造成的误报，接口一直是好的。
+  // 但「接口成功 + total 正常 + list 空 + 界面无提示」是必须能立刻发现的状态，所以留下这两条断言。
+  ck.check('列表没有降级 / 加载失败提示', !d2.loadWarn, '实际 = ' + JSON.stringify(d2.loadWarn));
+  ck.check('有用户时不能出现「共 N 人 · 已加载 0」',
+    !(d2.total > 0 && rows.length === 0),
+    '共 ' + d2.total + ' 人 · 已加载 ' + rows.length);
+
   if (rows.length) {
     const avatars = await admin.$$('.u-avatar');
     ck.check('每行都有头像位（有图用图、无图用默认）', avatars.length === rows.length,

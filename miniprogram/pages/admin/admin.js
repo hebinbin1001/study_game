@@ -51,6 +51,7 @@ Page({
     total: 0,              // 当前筛选条件下的总人数（分页靠它算「已加载 / 共」）
     sort: 'active',        // 当前排序键
     sortOptions: SORT_OPTIONS,
+    loadWarn: '',          // 列表异常提示（排序降级 / 加载失败）——空串 = 一切正常
     myOpenid: '',
     myOpenidMasked: '',
     adminBy: ''
@@ -156,11 +157,15 @@ Page({
         page: page,
         hasMore: !!(d && d.hasMore),
         total: (d && d.total) || 0,
+        // 后端排序降级（非空）或返回了「有人但本页没人」这种异常，都要说出来 ——
+        // 静默会把「共 22 人 · 已加载 0」摆在那里，看起来像用户数据丢了
+        loadWarn: (d && d.orderError) ? ('排序降级为注册时间：' + d.orderError) : '',
         loading: false
       });
     }).catch(function () {
       if (seq !== self._reqSeq) return;
-      self.setData({ loading: false });
+      // 此前这里完全静默 —— 接口挂了页面只会显示空列表，排查时只能靠猜
+      self.setData({ loading: false, loadWarn: '列表加载失败，请下拉重试或检查网络' });
     });
   },
 

@@ -87,4 +87,29 @@ s.test('玩法热度：同局数按名称稳定排序（避免刷新时顺序抖
   s.assert.deepEqual(a.map(function (r) { return r.label; }), b.map(function (r) { return r.label; }));
 });
 
+s.test('按 id 顺序重排：顺序按 ids 走，不按查询返回顺序', () => {
+  const rows = [{ id: 3, n: 'c' }, { id: 1, n: 'a' }, { id: 2, n: 'b' }];
+  const out = q.reorderById(rows, [1, 2, 3]);
+  s.assert.deepEqual(out.map(function (r) { return r.n; }), ['a', 'b', 'c']);
+});
+
+s.test('按 id 顺序重排：id 类型不一致也要对上（2026-09-29 事故回归）', () => {
+  // 原生 SQL 取顺序时 id 可能是字符串，模型返回的是数字 —— 曾有版本直接 Map.get 导致整页落空
+  const rows = [{ id: 12, n: '数字' }, { id: 34, n: '另一个' }];
+  const out = q.reorderById(rows, ['34', '12']);
+  s.assert.equal(out.length, 2);
+  s.assert.deepEqual(out.map(function (r) { return r.n; }), ['另一个', '数字']);
+  // 反向：rows 里是字符串、ids 里是数字
+  const out2 = q.reorderById([{ id: '7', n: 'x' }], [7]);
+  s.assert.equal(out2.length, 1);
+});
+
+s.test('按 id 顺序重排：缺失的 id 跳过、脏数据不抛错', () => {
+  const out = q.reorderById([{ id: 1 }], [1, 2, 3]);
+  s.assert.equal(out.length, 1);
+  s.assert.deepEqual(q.reorderById(null, [1]), []);
+  s.assert.deepEqual(q.reorderById([{ id: 1 }], null), []);
+  s.assert.deepEqual(q.reorderById([{ id: null }, { id: undefined }], [null]), []);
+});
+
 s.done();

@@ -299,7 +299,19 @@ router.get("/users", requireAdmin, async (req, res) => {
     const total = await User.count({ where });
 
     // 两步取数：先按排序键拿这一页的 id 顺序，再按 id 取详情（聚合逻辑保持原样）
-    const idsInOrder = await orderedUserIds(searchedOpenids, sort, pageSize, (page - 1) * pageSize);
+    //
+    // 降级 + 可观测（2026-09-29）：排序 SQL 出错时**绝不能**静默返回空列表 ——
+    // 管理端会显示成「共 22 人 · 已加载 0」，看起来像「用户都没了」而不是「排序坏了」。
+    // 出错就退回注册时间排序（等于旧行为），并把这个事实带回响应里。
+    let idsInOrder = [];
+    let orderError = "";
+    try {
+      idsInOrder = await orderedUserIds(searchedOpenids, sort, pageSize, (page - 1) * pageSize);
+    } catch (e) {
+      orderError = (e && e.message) || String(e);
+      console.error("admin/users 排序查询失败，回退注册时间排序：", e);
+      idsInOrder = await orderedUserIds(searchedOpenids, "created", pageSize, (page - 1) * pageSize);
+    }
     const rows = idsInOrder.length
       ? await User.findAll({
         where: { id: { [Op.in]: idsInOrder } },
@@ -307,9 +319,10 @@ router.get("/users", requireAdmin, async (req, res) => {
         raw: true,
       })
       : [];
-    // IN 查询不保证顺序 → 按 idsInOrder 还原（否则排序等于白做）
-    const rowById = new Map(rows.map((r) => [r.id, r]));
-    const users = idsInOrder.map((id) => rowById.get(id)).filter(Boolean);
+    // IN 查询不保证顺序 → 按 idsInOrder 还原（否则排序等于白做）。
+    // ⚠️ 必须用 reorderById：原生 SQL 与模型返回的 id 类型可能不一致（字符串 vs 数字），
+    //    直接 Map.get 会全部落空 → 列表静默变空（防御性加固，见 admin-query.reorderById 注释）。
+    const users = adminQuery.reorderById(rows, idsInOrder);
 
     const ids = users.map((u) => u.id);
     const openids = users.map((u) => u.openid);
@@ -380,7 +393,14 @@ router.get("/users", requireAdmin, async (req, res) => {
 
     res.send({
       code: 0,
-      data: { page, pageSize, total, hasMore: page * pageSize < total, list },
+      data: {
+        page, pageSize, total,
+        hasMore: page * pageSize < total,
+        sort,                 // 实际生效的排序键（前端据此校正显示）
+        orderError,           // 非空 = 排序降级了（管理端提示用；正常情况下是空串）
+        idCount: idsInOrder.length,   // 诊断：本页命中的用户数（=0 而 total>0 说明排序/筛选有问题）
+        list
+      },
       message: "ok",
     });
   } catch (err) {

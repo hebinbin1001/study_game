@@ -109,6 +109,34 @@ function gameHeat(rows, names) {
   return list;
 }
 
+/**
+ * 按给定的 id 顺序重排用户行（管理端「两步取数」的第二步）。
+ *
+ * 为什么需要这个函数（2026-09-29 加固；来源是一次**误报**排查）：
+ *   管理端排序改成服务端排序后，走的是「先用原生 SQL 取本页 id 顺序 → 再按 id 取详情」。
+ *   两步之间靠 Map 对齐，而 **id 的类型可能不一致** —— 原生 SQL 返回的 id 可能是
+ *   字符串（mysql2 按列类型决定），Sequelize 模型返回的是数字，`Map.get('12')` 找不到
+ *   数字 key 的 `12`，结果**这一页全部落空**：接口 200、total 正常、list=[]、没有任何报错，
+ *   管理端只显示「共 N 人 · 已加载 0」，看起来像用户数据丢了。
+ *
+ *   说明：2026-09-29 那次「已加载 0」最终查明是**端上用例等待条件写错**导致的误报，
+ *   不是本函数导致的；但类型不一致是真实风险，一旦发生就是静默空列表，所以照样加固。
+ *   这里一律用 `String(id)` 做键，两种类型都能对上；顺带解决「IN (...) 不保证顺序」。
+ *
+ * @param {Array<Object>} rows 数据库查出来的用户行（含 id）
+ * @param {Array<number|string>} ids 期望的顺序
+ * @returns {Array<Object>} 按 ids 顺序排列、且只保留命中的行
+ */
+function reorderById(rows, ids) {
+  const byId = new Map();
+  (rows || []).forEach(function (r) {
+    if (r && r.id !== null && r.id !== undefined) byId.set(String(r.id), r);
+  });
+  return (ids || [])
+    .map(function (id) { return byId.get(String(id)); })
+    .filter(Boolean);
+}
+
 module.exports = {
   SORT_KEYS: SORT_KEYS,
   DEFAULT_SORT: DEFAULT_SORT,
@@ -117,5 +145,6 @@ module.exports = {
   escapeLike: escapeLike,
   searchPattern: searchPattern,
   collectRate: collectRate,
-  gameHeat: gameHeat
+  gameHeat: gameHeat,
+  reorderById: reorderById
 };
