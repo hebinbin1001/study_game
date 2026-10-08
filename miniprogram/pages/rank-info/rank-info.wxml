@@ -12,7 +12,18 @@
     </view>
   </view>
 
-  <view class="ri-tip">每一级需要的星星会越来越多：<text class="ri-tip-em">青铜 → 荣耀王者共 8 大段 × 9 小级</text></view>
+  <!-- 段位晋级考试入口（2026-10-08）：只在「卡住待考」时出现 —— 没卡住的玩家不该被打扰。
+       卡住的表现是：星数已经够升下一个大段，但因为没过考试，展示星数被服务端封顶了。 -->
+  <view wx:if="{{needExam}}" class="ri-exam" bindtap="goExam">
+    <view class="ri-exam-ic">🎓</view>
+    <view class="ri-exam-t">
+      <view class="ri-exam-b">去考{{examTierName}}晋级试</view>
+      <view class="ri-exam-s">10 题全对才能晋升，过了这段星星就解封</view>
+    </view>
+    <view class="ri-exam-btn">去考试</view>
+  </view>
+
+  <view class="ri-tip">每一级需要的星星会越来越多：<text class="ri-tip-em">青铜 → 学神共 9 大段 × 9 小级</text></view>
 
   <scroll-view class="ri-scroll" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
     <view

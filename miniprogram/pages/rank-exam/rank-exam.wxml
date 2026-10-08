@@ -1,0 +1,63 @@
+<!-- 段位晋级考试（2026-10-08）：
+     10 题全对才算过；过了才能继续往上攒星（星数封顶见 server/exam-gate.js）。
+     三种形态：quiz 答题 / pass 通过 / fail 失败（可原地重考）。 -->
+<view class="page-exam">
+
+  <!-- ===== 答题 ===== -->
+  <block wx:if="{{phase === 'quiz'}}">
+    <view class="ex-head">
+      <view class="ex-title">段位晋级考试</view>
+      <view class="ex-sub">{{gradeLabel}} · 10 题全对才能晋{{targetTierName || '级'}}</view>
+    </view>
+
+    <view class="ex-progress">
+      <view class="ex-bar"><view class="ex-bar-fill" style="width:{{qIndex * 10}}%"></view></view>
+      <view class="ex-count">第 {{qIndex}}/{{totalQ}} 题</view>
+    </view>
+
+    <view class="ex-stem">{{stem}}</view>
+
+    <view class="ex-options">
+      <view
+        wx:for="{{options}}"
+        wx:key="index"
+        class="ex-option {{picked === index ? (item.right ? 'ex-option--right' : 'ex-option--wrong') : ''}}"
+        data-idx="{{index}}"
+        bindtap="onPick">
+        <text class="ex-option-text">{{item.text}}</text>
+        <text wx:if="{{picked === index}}" class="ex-option-mark">{{item.right ? '✓' : '✗'}}</text>
+      </view>
+    </view>
+
+    <view class="ex-tip">答错一题就结束 —— 晋级要求是满分</view>
+  </block>
+
+  <!-- ===== 通过 ===== -->
+  <block wx:elif="{{phase === 'pass'}}">
+    <view class="ex-result">
+      <view class="ex-emoji">🎓</view>
+      <view class="ex-result-title">考试通过！</view>
+      <view class="ex-result-sub">你已经具备晋升{{targetTierName || '下一段'}}的资格</view>
+      <view class="ex-result-note">
+        之前被卡住的星星现在生效了 —— 回段位页看看自己的新段位。
+      </view>
+      <button class="ex-btn ex-btn--primary" bindtap="goBack">看看我的段位</button>
+    </view>
+  </block>
+
+  <!-- ===== 失败 ===== -->
+  <block wx:else>
+    <view class="ex-result">
+      <view class="ex-emoji">💪</view>
+      <view class="ex-result-title">差一点点</view>
+      <view class="ex-result-sub" wx:if="{{failAt}}">第 {{failAt}} 题答错了，晋级要求是 10 题全对</view>
+      <view class="ex-result-sub" wx:else>这次没能提交成功，再来一次吧</view>
+      <view class="ex-result-note">
+        星星不会丢 —— 它们只是暂时卡住，考过就一次性生效。
+      </view>
+      <button class="ex-btn ex-btn--primary" bindtap="onRetry" loading="{{submitting}}">再考一次</button>
+      <view class="ex-back" bindtap="goBack">先回去练练</view>
+    </view>
+  </block>
+
+</view>

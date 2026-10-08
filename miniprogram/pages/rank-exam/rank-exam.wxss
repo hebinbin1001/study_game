@@ -1,0 +1,82 @@
+/* 段位晋级考试：克制的答题界面 —— 这是门槛，不是玩法，不要抢戏 */
+page {
+  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 60%, #e8f5ff 100%);
+  min-height: 100vh;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.page-exam { padding: 40rpx 36rpx calc(40rpx + env(safe-area-inset-bottom)); }
+
+/* 头部 */
+.ex-head { text-align: center; margin-bottom: 30rpx; }
+.ex-title {
+  font-size: 46rpx; font-weight: 900; color: #fff;
+  letter-spacing: 4rpx; text-shadow: 0 6rpx 0 rgba(0, 0, 0, .12);
+}
+.ex-sub { margin-top: 12rpx; font-size: 24rpx; color: #fff; opacity: .9; }
+
+/* 进度 */
+.ex-progress { margin-bottom: 30rpx; }
+.ex-bar {
+  height: 16rpx; border-radius: 999rpx; background: rgba(255, 255, 255, .55); overflow: hidden;
+}
+.ex-bar-fill {
+  height: 16rpx; border-radius: 999rpx;
+  background: linear-gradient(90deg, #ffb703, #ff8a00);
+  transition: width .3s;
+}
+.ex-count { margin-top: 12rpx; text-align: center; font-size: 24rpx; color: #3a3a5c; font-weight: 700; }
+
+/* 题面 */
+.ex-stem {
+  background: #fff; border-radius: 32rpx; padding: 46rpx 32rpx;
+  text-align: center; font-size: 42rpx; font-weight: 900; color: #2f5470;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .06), 0 14rpx 28rpx rgba(0, 0, 0, .08);
+  margin-bottom: 34rpx; line-height: 1.4; word-break: break-all;
+}
+
+/* 选项 */
+.ex-options { display: flex; flex-direction: column; gap: 20rpx; }
+.ex-option {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff; border-radius: 24rpx; padding: 34rpx 30rpx;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .05);
+  transition: transform .12s, background .15s;
+}
+.ex-option:active { transform: translateY(4rpx); }
+.ex-option-text { font-size: 34rpx; font-weight: 700; color: #3a3a5c; }
+.ex-option-mark { font-size: 36rpx; font-weight: 900; }
+.ex-option--right { background: #e8f8ec; }
+.ex-option--right .ex-option-mark { color: #2f9e44; }
+.ex-option--wrong { background: #fdecea; }
+.ex-option--wrong .ex-option-mark { color: #e03131; }
+
+.ex-tip { margin-top: 28rpx; text-align: center; font-size: 22rpx; color: #6b87a3; }
+
+/* 结果页 */
+.ex-result {
+  margin-top: 90rpx; background: #fff; border-radius: 40rpx;
+  padding: 60rpx 40rpx; text-align: center;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .06), 0 16rpx 32rpx rgba(0, 0, 0, .08);
+}
+.ex-emoji { font-size: 130rpx; line-height: 1; animation: exPop .5s cubic-bezier(.34, 1.56, .64, 1) 1; }
+@keyframes exPop {
+  0% { transform: scale(.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.ex-result-title { margin-top: 24rpx; font-size: 46rpx; font-weight: 900; color: #2f5470; }
+.ex-result-sub { margin-top: 14rpx; font-size: 26rpx; color: #5c7f9e; line-height: 1.5; }
+.ex-result-note {
+  margin-top: 26rpx; padding: 20rpx 24rpx; border-radius: 20rpx;
+  background: #f2f8ff; font-size: 23rpx; color: #4c7396; line-height: 1.6; text-align: left;
+}
+.ex-btn {
+  margin-top: 40rpx; height: 96rpx; line-height: 96rpx; border-radius: 48rpx;
+  font-size: 32rpx; font-weight: 800; border: none;
+}
+.ex-btn--primary {
+  background: linear-gradient(135deg, #ffb703, #ff8a00); color: #fff;
+  box-shadow: 0 8rpx 0 rgba(200, 110, 0, .28);
+}
+.ex-btn--primary::after { border: none; }
+.ex-back { margin-top: 28rpx; font-size: 26rpx; color: #5c7f9e; }

@@ -40,6 +40,32 @@
 }
 .ri-tip-em { color: #2e6fd6; font-weight: 700; }
 
+/* 段位晋级考试入口（2026-10-08）：只在卡住待考时出现，做成醒目的橙色卡 */
+.ri-exam {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin: 18rpx 0 6rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #fff3d6, #ffe3a8);
+  border: 3rpx solid #ffd166;
+  box-shadow: 0 6rpx 14rpx rgba(200, 140, 0, .16);
+}
+.ri-exam:active { transform: translateY(3rpx); }
+.ri-exam-ic { font-size: 52rpx; margin-right: 18rpx; }
+.ri-exam-t { flex: 1; min-width: 0; }
+.ri-exam-b { font-size: 30rpx; font-weight: 800; color: #8a5a00; }
+.ri-exam-s { margin-top: 6rpx; font-size: 22rpx; color: #a17c2e; line-height: 1.4; }
+.ri-exam-btn {
+  flex: 0 0 auto;
+  padding: 12rpx 26rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #ffb703, #ff8a00);
+  color: #fff; font-size: 26rpx; font-weight: 800;
+  box-shadow: 0 4rpx 0 rgba(200, 110, 0, .3);
+}
+
 .ri-scroll { flex: 1 1 auto; min-height: 0; }
 
 .ri-row {
