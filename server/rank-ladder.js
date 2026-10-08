@@ -23,11 +23,14 @@ const BIG_RANKS = [
   { id: 5, key: 'diamond', name: '钻石', icon: '/assets/ranks/diamond.png' },
   { id: 6, key: 'star', name: '星耀', icon: '/assets/ranks/star.png' },
   { id: 7, key: 'king', name: '王者', icon: '/assets/ranks/king.png' },
-  { id: 8, key: 'glory', name: '荣耀王者', icon: '/assets/ranks/glory.png' }
+  { id: 8, key: 'glory', name: '荣耀王者', icon: '/assets/ranks/glory.png' },
+  // 2026-10-08 新增最高段「学神」（用户要求：段位最后加学神）。
+  // 和其他大段一样分 9 小级，所以总级数从 72 → 81。
+  { id: 9, key: 'sage', name: '学神', icon: '/assets/ranks/sage.png' }
 ];
 
 const LEVELS_PER_RANK = 9;
-const TOTAL_CELLS = BIG_RANKS.length * LEVELS_PER_RANK;   // 72
+const TOTAL_CELLS = BIG_RANKS.length * LEVELS_PER_RANK;   // 81（9 大段 × 9 小级）
 
 /**
  * 第 i 级（0 基）升到下一级所需星数 —— 随级数递增。

@@ -1,9 +1,10 @@
 /**
  * rank-ladder.test.js —— 段位阶梯校验（需求 ①）
  *
- * 段位体系：8 个大段位 × 每段 9 个小级 = 72 级，按「累计星数」晋升，越往后每级越贵。
+ * 段位体系：9 个大段位 × 每段 9 个小级 = 81 级（2026-10-08 新增最高段「学神」），
+ * 按「累计星数」晋升，越往后每级越贵。
  * 本文件守三件事：
- *   ① 阶梯完整覆盖 72 级、名称连续（青铜 1~9 → 白银 1~9 → … → 荣耀王者 1~9）；
+ *   ① 阶梯完整覆盖 81 级、名称连续（青铜 1~9 → 白银 1~9 → … → 荣耀王者 1~9 → 学神 1~9）；
  *   ② 门槛严格递增（否则会出现「升级反而更容易」的倒挂）；
  *   ③ rankOf / progressOf 与门槛表自洽（边界取到正确一级、进度百分比不越界）。
  *
@@ -17,19 +18,19 @@ const s = suite('server/rank-ladder.js 段位阶梯');
 
 const ladder = require('../../server/rank-ladder');
 
-s.test('阶梯规模：8 大段 × 9 小级 = 72 级', () => {
-  s.assert.equal(ladder.BIG_RANKS.length, 8);
+s.test('阶梯规模：9 大段 × 9 小级 = 81 级', () => {
+  s.assert.equal(ladder.BIG_RANKS.length, 9);
   s.assert.equal(ladder.LEVELS_PER_RANK, 9);
-  s.assert.equal(ladder.TOTAL_CELLS, 72);
+  s.assert.equal(ladder.TOTAL_CELLS, 81);
   s.assert.equal(ladder.TOTAL_CELLS, ladder.BIG_RANKS.length * ladder.LEVELS_PER_RANK);
 });
 
-s.test('名称连续：青铜 1 → 青铜 9 → 白银 1 → … → 荣耀王者 9', () => {
+s.test('名称连续：青铜 1 → 青铜 9 → 白银 1 → … → 荣耀王者 9 → 学神 1 → 学神 9', () => {
   let expectSeq = [];
   ladder.BIG_RANKS.forEach(function (b) {
     for (let i = 1; i <= ladder.LEVELS_PER_RANK; i++) expectSeq.push(b.name + ' ' + i);
   });
-  s.assert.equal(expectSeq.length, 72);
+  s.assert.equal(expectSeq.length, 81);
 
   const actual = [];
   for (let c = 1; c <= ladder.TOTAL_CELLS; c++) {
@@ -40,6 +41,8 @@ s.test('名称连续：青铜 1 → 青铜 9 → 白银 1 → … → 荣耀王�
   s.assert.equal(actual[8], '青铜 9');
   s.assert.equal(actual[9], '白银 1');
   s.assert.equal(actual[71], '荣耀王者 9');
+  s.assert.equal(actual[72], '学神 1', '第 73 级起进入新增的最高段「学神」');
+  s.assert.equal(actual[80], '学神 9', '满级为学神 9');
 });
 
 s.test('门槛严格递增：每一级都比上一级更贵（越往后越难）', () => {
@@ -72,11 +75,11 @@ s.test('rankOf：边界星数落到正确的一级', () => {
   }
 });
 
-s.test('rankOf：rankId 仍是大段位 1~8（皮肤解锁口径不受影响）', () => {
+s.test('rankOf：rankId 是大段位 1~9（新增学神后，皮肤解锁口径跟着多一档）', () => {
   s.assert.equal(ladder.rankOf(0).rankId, 1);
   s.assert.equal(ladder.rankOf(ladder.starsForCell(10)).rankId, 2, '白银 1 段位编号应为 2');
-  s.assert.equal(ladder.rankOf(99999).rankId, 8, '满级应封顶在荣耀王者（8）');
-  s.assert.equal(ladder.rankOf(99999).cell, 72, '星数超出上限应封顶第 72 级');
+  s.assert.equal(ladder.rankOf(99999).rankId, 9, '满级应封顶在学神（9）');
+  s.assert.equal(ladder.rankOf(99999).cell, 81, '星数超出上限应封顶第 81 级');
   s.assert.equal(ladder.rankOf(-5).cell, 1, '负数星数应兜底到第 1 级');
 });
 
@@ -94,7 +97,7 @@ s.test('progressOf：进度百分比落在 0~100 且与门槛自洽', () => {
 });
 
 s.test('progressOf：满级时 isMaxRank=true、进度 100、没有下一段位', () => {
-  const p = ladder.progressOf(ladder.starsForCell(72) + 500);
+  const p = ladder.progressOf(ladder.starsForCell(81) + 500);
   s.assert.equal(p.isMaxRank, true);
   s.assert.equal(p.progressPercent, 100);
   s.assert.equal(p.nextRankName, null);
@@ -109,17 +112,21 @@ s.test('端到端读数：0 星青铜 1；练满一个学段（30 星）升入�
   const r = ladder.rankOf(30);
   s.assert.equal(r.rankId, 2, '30 星应升入白银大段');
   s.assert.ok(r.rankLevel >= 1 && r.rankLevel <= 9, '小级应在 1~9');
-  // 记录满级门槛，便于以后调参时对照（2026-09-13 起：(C) 曲线 = 947 星）
-  s.assert.equal(ladder.starsForCell(72), 947, '满级（荣耀王者 9）门槛：加陡后应为 947 星');
+  // 记录满级门槛，便于以后调参时对照：
+  //   2026-09-13 (C) 曲线、8 大段 → 947 星；
+  //   2026-10-08 新增「学神」大段（9 大段 × 9 = 81 级）→ 1187 星
+  s.assert.equal(ladder.starsForCell(81), 1187, '满级（学神 9）门槛：加学神后应为 1187 星');
+  s.assert.equal(ladder.starsForCell(72), 947, '荣耀王者 9 的门槛保持不变（947 星），学神是在它之上新加的');
 });
 
-s.test('徽章图：按小级拼 72 张图路径，且能回退大段位图', () => {
-  // 2026-09-12 美术交付 72 张小级徽章：/assets/ranks/rank-<段key>-<1~9>-256.png
+s.test('徽章图：按小级拼图路径，且能回退大段位图', () => {
+  // 小级徽章路径规则：/assets/ranks/rank-<段key>-<1~9>-256.png
+  // （学神的小级图还没出，缺图时前端 onerror 回退到大段图 sage.png —— 同一套兜底机制）
   s.assert.equal(ladder.rankOf(0).icon, '/assets/ranks/rank-bronze-1-256.png');
   s.assert.equal(ladder.rankOf(30).icon, '/assets/ranks/rank-silver-1-256.png');
   s.assert.ok(/^\/assets\/ranks\/[a-z]+\.png$/.test(ladder.rankOf(0).iconBig),
     '应同时给出大段位图路径作为兜底');
-  // 72 级每级的图路径都不重复，且级号落在 1~9
+  // 81 级每级的图路径都不重复，且级号落在 1~9
   const paths = [];
   for (let c = 1; c <= ladder.TOTAL_CELLS; c++) {
     const cur = ladder.rankOf(ladder.starsForCell(c));
@@ -127,8 +134,8 @@ s.test('徽章图：按小级拼 72 张图路径，且能回退大段位图', ()
     s.assert.ok(/-\d-256\.png$/.test(cur.icon), '图路径应带小级号：' + cur.icon);
     paths.push(cur.icon);
   }
-  s.assert.equal(paths.length, 72);
-  s.assert.allDistinct(paths, '72 级徽章图路径不应重复');
+  s.assert.equal(paths.length, 81);
+  s.assert.allDistinct(paths, '81 级徽章图路径不应重复');
 });
 
 s.done();
