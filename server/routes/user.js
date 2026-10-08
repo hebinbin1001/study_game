@@ -12,6 +12,7 @@ const {
   sequelize,
 } = require("../db");
 const { checkContent } = require("../utils/wechat");
+const { displayName } = require("../nickname-util");
 
 const router = express.Router();
 
@@ -40,17 +41,19 @@ async function findUserByOpenid(openid) {
 
 /**
  * 构造用户公开资料。
- * needProfile：未设昵称 → true（注册完成判定，M5）
+ *
+ * 2026-10-08「登录即有名」：注册就发默认昵称，不再有「资料未完善」这个状态，
+ * `needProfile` 恒为 false（字段保留只为兼容旧客户端）。昵称展示统一走
+ * displayName 兜底，老账号没补上也不会出现空名字。
  */
 function profileOf(user) {
-  const nickname = (user.nickname || "").trim();
   return {
     openid: user.openid,
-    nickname,
+    nickname: displayName(user.nickname, user.openid),
     avatarUrl: user.avatar_url || "",
     phone: user.phone || "",
     isNew: false,
-    needProfile: !nickname,
+    needProfile: false,
   };
 }
 
@@ -163,37 +166,6 @@ router.post("/avatar", async (req, res) => {
 });
 
 /**
- * GET /api/user/wx-nickname —— 取**本人**的微信名（2026-09-18）
- *
- * 用途：昵称页回填「微信名」输入框（它是独立字段，不再等于游戏昵称）。
- * 隐私口径不变：只返回**自己**的微信名；别人的微信名依旧只有管理员能看。
- * 生产库没有该列时（未执行 DDL）返回空串，不报 5000。
- */
-router.get("/wx-nickname", async (req, res) => {
-  try {
-    const openid = req.openid;
-    if (!openid) {
-      return res.send({ code: 1001, data: null, message: "未识别用户（openid 缺失）" });
-    }
-    let wxNickname = "";
-    try {
-      const [rows] = await sequelize.query(
-        "SELECT wx_nickname FROM users WHERE openid = :o LIMIT 1",
-        { replacements: { o: openid } }
-      );
-      wxNickname = ((rows && rows[0]) || {}).wx_nickname || "";
-    } catch (e) {
-      // 列不存在（DDL 未执行）：按「还没采集」处理
-      wxNickname = "";
-    }
-    res.send({ code: 0, data: { wxNickname }, message: "ok" });
-  } catch (err) {
-    console.error("GET /api/user/wx-nickname 失败：", err);
-    res.send({ code: 5000, data: null, message: "服务内部错误" });
-  }
-});
-
-/**
  * POST /api/user/profile —— 更新昵称/头像（M5）
  * 入参：{ nickname?, avatarUrl? }（至少一项）
  */
@@ -204,7 +176,10 @@ router.post("/profile", async (req, res) => {
       return res.send({ code: 1001, data: null, message: "未识别用户" });
     }
 
-    const { nickname, avatarUrl, wxNickname } = req.body || {};
+    // 2026-10-08：不再接收 wxNickname —— 微信昵称采集这条线整体下线
+    // （微信不给真名、用户又不点「使用微信昵称」，采到的其实没什么用；
+    //   用户标识以 openid 为准，展示名走 nickname + 默认昵称兜底）
+    const { nickname, avatarUrl } = req.body || {};
     const patch = {};
 
     if (nickname !== undefined && nickname !== null) {
@@ -239,26 +214,11 @@ router.post("/profile", async (req, res) => {
       patch.avatar_url = avatarUrl;
     }
 
-    // 微信昵称单独存档（2026-09-13 用户需求）：只有管理员能看到，公开接口一律不返回。
-    // 用原生 SQL 写（模型里不声明该列，避免生产库未加列时 SELECT 全表报错）；
-    // 列不存在时这里会失败，单独兜住，**不影响昵称/头像保存**。
-    const wxNick = (wxNickname === undefined || wxNickname === null) ? "" : String(wxNickname).trim().slice(0, 64);
-
     if (!Object.keys(patch).length) {
       return res.send({ code: 4000, data: null, message: "参数缺失" });
     }
 
     await user.update(patch);
-    if (wxNick && req.openid) {
-      try {
-        await sequelize.query(
-          "UPDATE users SET wx_nickname = :v WHERE openid = :o",
-          { replacements: { v: wxNick, o: req.openid } }
-        );
-      } catch (e) {
-        console.error("写 wx_nickname 失败（可能未执行 DDL），本次跳过微信名：", e && e.message);
-      }
-    }
     res.send({ code: 0, data: profileOf(user) });
   } catch (err) {
     console.error("POST /api/user/profile 失败：", err);

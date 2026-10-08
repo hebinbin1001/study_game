@@ -31,8 +31,7 @@ function decorateUsers(list) {
   return (list || []).map(function (u) {
     return Object.assign({}, u, {
       lastActiveText: u.lastActiveAt ? relTime.relTime(u.lastActiveAt) : '未上报',
-      createdText: relTime.relTime(u.createdAt) || '未知',
-      wxText: u.wxNickname || '未采集'
+      createdText: relTime.relTime(u.createdAt) || '未知'
     });
   });
 }

@@ -1,4 +1,4 @@
-<!-- 管理后台：统计概览 + 用户列表（含微信名，仅管理员可见） -->
+<!-- 管理后台：统计概览 + 用户列表（2026-10-08 起不再有「微信名」列 —— 那条采集线下线了） -->
 <view class="page-admin">
   <!-- 口令门：未通过校验时只显示输入框 -->
   <view wx:if="{{!ready}}" class="gate">
@@ -21,10 +21,6 @@
       <view class="stat"><view class="s-num">{{stats.todayActiveUsers}}</view><view class="s-lab">今日活跃</view></view>
       <view class="stat"><view class="s-num">{{stats.todayNewUsers}}</view><view class="s-lab">今日新增</view></view>
       <view class="stat"><view class="s-num">{{stats.totalScores}}</view><view class="s-lab">累计答题</view></view>
-      <view class="stat">
-        <view class="s-num">{{stats.wxCollectRate}}<text class="s-unit">%</text></view>
-        <view class="s-lab">微信名采集 {{stats.wxCollected}}/{{stats.wxCollectTotal}}</view>
-      </view>
     </view>
 
     <!-- 段位同步自检（服务端返回的最近一次重算结果；非空 = 失败了） -->
@@ -39,15 +35,6 @@
       <view class="me-row"><text class="me-k">身份来源</text><text class="me-v">{{adminBy === 'openid' ? 'openid 白名单' : (adminBy === 'passcode' ? '管理口令' : (adminBy === 'wxNickname' ? '微信名白名单' : '-'))}}</text></view>
       <view class="me-row"><text class="me-k">我的 openid</text><text class="me-v me-id">{{myOpenid || myOpenidMasked || '-'}}</text></view>
       <view class="me-btn" bindtap="copyOpenid">复制 openid</view>
-      <view wx:if="{{stats && !stats.wxNicknameColumnReady}}" class="me-warn">
-        微信名列尚未创建：请在生产库执行 docs/管理员后台与隐私口径.md 里的 ALTER TABLE，
-        否则「微信名」列会一直显示「未获取」。
-      </view>
-      <view wx:elif="{{stats && stats.wxNicknameColumnReady}}" class="me-ok">
-        微信名列已就绪。若某位用户仍显示「未采集」，说明 TA 还没在自己的手机上确认过昵称 ——
-        微信从 2022 年起就不允许静默读取昵称，只能在用户点一次「使用微信昵称」时采集
-        （入口：「我的 → 编辑资料 → 微信名」）。
-      </view>
     </view>
 
     <view class="sec-title">段位分布</view>
@@ -73,7 +60,7 @@
     <view wx:else class="empty">还没有成绩上报</view>
 
     <!-- 用户列表 -->
-    <view class="sec-title">用户列表（微信名仅此处可见）</view>
+    <view class="sec-title">用户列表</view>
     <!-- 排序：服务端排序（不是端上排），所以翻页后顺序仍然正确 -->
     <view class="sort-row">
       <view
@@ -84,7 +71,7 @@
         bindtap="onSortTap">{{item.label}}</view>
     </view>
     <view class="search">
-      <input class="search-input" placeholder="搜昵称 / 微信名 / openid" value="{{q}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+      <input class="search-input" placeholder="搜昵称 / openid" value="{{q}}" bindinput="onSearchInput" bindconfirm="onSearch" />
       <view class="search-btn" bindtap="onSearch">搜索</view>
     </view>
     <view class="list-meta">共 {{total}} 人 · 已加载 {{users.length}}</view>
@@ -95,7 +82,6 @@
       <view class="u-body">
         <view class="u-main">
           <text class="u-nick">{{item.nickname}}</text>
-          <text class="u-wx {{item.wxCollected ? '' : 'u-wx--none'}}">微信名：{{item.wxText}}</text>
         </view>
         <view class="u-sub">
           <text class="u-chip">{{item.rankName}}</text>
@@ -108,7 +94,7 @@
     </view>
     <view wx:if="{{hasMore}}" class="more" bindtap="onMore">{{loading ? '加载中…' : '加载更多'}}</view>
     <view wx:if="{{!users.length && !loading}}" class="empty">没有匹配的用户</view>
-    <view class="list-note">「未采集」= 该用户没在自己手机上点过一次「使用微信昵称」。微信 2022 年起不允许静默读取昵称，这属于平台限制。</view>
+    <view class="list-note">昵称可能是用户自己改的，也可能是注册时系统给的默认名（「战士 XXXX」，取 openid 后 4 位）。用户身份以 openid 为准。</view>
 
     <button class="back" bindtap="goBack">返回</button>
   </block>

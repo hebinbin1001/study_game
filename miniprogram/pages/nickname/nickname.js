@@ -18,17 +18,11 @@ var avatarUpload = require('../../utils/avatar-upload');
 var NICKNAME_MIN_LEN = 2;
 var NICKNAME_MAX_LEN = 12;
 
-// 「保存后提示补微信名」只提示一次（2026-09-29）：
-// 微信名采集全部依赖引导，但每次保存都弹窗会烦人 —— 提示过就不再打扰。
-var WX_HINT_KEY = 'ww_wx_nick_hint';
-
 Page({
   data: {
     avatarUrl: '',    // 头像地址（上传成功后是稳定 URL；上传失败只是本机临时路径，仅用于预览）
     avatarUploading: false,  // 头像上传中（按钮禁用 + 文案提示）
     nickname: '',     // 昵称（输入框当前值）
-    // 微信名（不展示在界面上，仅随保存动作上报给服务端；见 onNicknameInput 的说明）
-    wxNickname: '',
     loggedIn: false   // 登录态（M5）
   },
 
@@ -48,20 +42,6 @@ Page({
       avatarUrl: (u && u.avatarUrl) || storage.getAvatar() || '',
       nickname: (u && u.nickname) || storage.getNickname() || ''
     });
-    this._loadWxNickname();
-  },
-
-  /**
-   * 回填已保存的「微信名」（仅本人可见）。
-   * 为什么单独取：users.wx_nickname 不在 User 模型里（避免生产库未加列时全表查询报错），
-   * 所以要单独调一个只返回本人微信名的接口。
-   */
-  _loadWxNickname: function () {
-    var self = this;
-    if (!auth.isLoggedIn()) return;
-    request.get('/api/user/wx-nickname').then(function (d) {
-      if (d && d.wxNickname) self.setData({ wxNickname: d.wxNickname });
-    }).catch(function () { /* 静默：拿不到就留空，不影响保存 */ });
   },
 
   /**
@@ -96,31 +76,13 @@ Page({
    *   但绝大多数用户是**手打自定义昵称**（不会去点键盘上方的「使用微信昵称」），
    *   于是把**游戏昵称**存成了微信名 → 管理端看到的其实是游戏昵称，等于拿错了数据。
    *
-   *   现在只有在微信侧确认过昵称时才采集（见下面的 onNicknameReview）。
-   *   代价说清楚：用户若从不使用「微信昵称」建议，就采不到微信名，管理端会显示「未采集」——
-   *   这比显示一个**错误的**微信名要好（微信从 2022 年起不允许静默读取昵称，这是平台限制）。
+   * 2026-10-08：微信昵称采集这条线**整体下线**（连带 onNicknameReview 回调、
+   * users.wx_nickname 字段的读写、/api/user/wx-nickname 接口一起删）。原因：
+   * 微信不给真名、用户又几乎不会去点「使用微信昵称」，采到的既不准、又只是「另一个展示名」。
+   * 用户身份以 openid 为准，展示名走 nickname + 默认昵称兜底（server/nickname-util.js）。
    */
   onNicknameInput: function (e) {
     this.setData({ nickname: e.detail.value });
-  },
-
-  /**
-   * 微信昵称审核回调（`bindnicknamereview`，基础库 2.29.1+）。
-   *
-   * 这是**唯一**能确认「用户用的是微信昵称」的信号：用户在键盘上方点了「使用微信昵称」后，
-   * 微信会对这个昵称做内容审核，审完触发本事件。
-   *   · pass=true    → 审核通过，当前输入框里的值就是微信昵称 → 记为微信名；
-   *   · timeout=true → 审核超时但昵称先可用，同样是微信昵称 → 一并记为微信名；
-   *   · 其余（不通过）→ 不采集，避免把不合规昵称存进档案。
-   *
-   * 注意：`detail` 里**只有 pass / timeout，没有昵称文本**，昵称文本只能从输入框当前值取。
-   */
-  onNicknameReview: function (e) {
-    var d = (e && e.detail) || {};
-    if (d.pass !== true && d.timeout !== true) return;
-    var v = String(this.data.nickname || '').trim();
-    if (!v) return;
-    this.setData({ wxNickname: v });
   },
 
   // 保存昵称/头像（REQ-NICK-2/3；M5 登录后云端保存）
@@ -157,29 +119,11 @@ Page({
     }
 
     // 已登录：云端保存（M5 REQ-PROFILE-1）
-    // wxNickname：**独立字段**，只取下面那个「微信名」输入框的值（2026-09-18 改）。
-    // 原来是把游戏昵称同时当微信名存 —— 用户一旦改成自定义昵称，管理员就再也看不到微信名了。
-    var wxNick = String(this.data.wxNickname || '').trim();
+    // 2026-10-08：不再上报 wxNickname —— 微信昵称采集已整体下线
     request.post('/api/user/profile', {
-      nickname: nick, avatarUrl: avatarUrl, wxNickname: wxNick
+      nickname: nick, avatarUrl: avatarUrl
     }).then(function () {
-      auth.refreshMe(); // 拉取最新资料回写缓存（needProfile → false）
-
-      // 2026-09-29：这次没采集到微信名 → 保存成功后提示一次怎么补（只提示一次）。
-      // 不做成强拦：微信名只对管理员可见，用户不补也不影响任何玩法。
-      if (!wxNick && !storage.get(WX_HINT_KEY)) {
-        storage.set(WX_HINT_KEY, '1');
-        wx.showModal({
-          title: '顺手补个微信昵称？',
-          content: '点昵称输入框 → 键盘上方会出现「使用微信昵称」，点一下就能填上。'
-            + '这个只有管理员看得到，排行榜上显示的仍是你自己设的昵称。',
-          showCancel: false,
-          confirmText: '知道了',
-          complete: function () { wx.navigateBack(); }
-        });
-        return;
-      }
-
+      auth.refreshMe(); // 拉取最新资料回写缓存
       wx.showToast({ title: '保存成功', icon: 'success', duration: 1200 });
       setTimeout(function () { wx.navigateBack(); }, 1300);
     }).catch(function (err) {

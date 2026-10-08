@@ -4,6 +4,7 @@ const https = require("https");
 const { URL } = require("url");
 const { User } = require("../db");
 const { CODE, OPENID_RE } = require("../constants");
+const { defaultNickname, displayName } = require("../nickname-util");
 
 const router = express.Router();
 
@@ -84,14 +85,19 @@ async function resolveOpenid(jsCode, gwOpenid) {
   return result.openid;
 }
 
-/** 构造登录成功返回体 */
+/**
+ * 构造登录成功返回体。
+ *
+ * 2026-10-08「登录即有名」之后，不再存在「资料未完善」这个状态：
+ * 注册时就会拿到默认昵称（「战士 3F2A」），用户想改随时改。
+ * `needProfile` 保留字段只为兼容旧客户端，恒为 false。
+ */
 function loginPayload(user, isNew) {
-  const nickname = (user.nickname || "").trim();
   return {
     token: user.token,
     isNew: !!isNew,
-    needProfile: !nickname, // 未设昵称 → 需引导完善资料（注册完成判定）
-    nickname,
+    needProfile: false,
+    nickname: displayName(user.nickname, user.openid),
     avatarUrl: user.avatar_url || "",
   };
 }
@@ -119,8 +125,18 @@ router.post("/", async (req, res) => {
     // 登录即注册：openid 建档
     const [user, created] = await User.findOrCreate({
       where: { openid },
-      defaults: { openid },
+      // 注册即给默认昵称（「战士 3F2A」）。2026-10-08 改：
+      // 微信不给真实昵称、让用户主动点「使用微信昵称」又几乎没人点，
+      // 结果是大量活跃用户卡在「没昵称」这一步、榜上无名。
+      // 现在「登录即有名」，想改再改 —— openid 才是真正的用户标识。
+      defaults: { openid, nickname: defaultNickname(openid) },
     });
+
+    // 本次改动之前注册的老用户可能还是空昵称 —— 登录时顺手补上，
+    // 否则他们永远只能显示兜底名，连改都没得改。
+    if (!String(user.nickname || "").trim()) {
+      user.nickname = defaultNickname(openid);
+    }
 
     // 签发登录态令牌（重新登录刷新旧 token，单设备模型）
     user.token = crypto.randomBytes(24).toString("hex");

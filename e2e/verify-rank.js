@@ -20,22 +20,17 @@ const catalog = require('../miniprogram/utils/game-catalog');
 const EXPECTED_GAMES = catalog.filter(function (g) { return g.unlocked; }).length;
 
 H.runSuite('verify-rank（排行榜 · 玩法榜改版）', async function (miniProgram, ck) {
-  // [0] 首页「完善昵称」引导条与「未注册不上榜」是同一件事的一体两面：
-  //     已登录但没设昵称 = 未完成注册 → 首页必须给出入口（否则用户永远补不上）。
-  console.log('[0/4] 首页：未完成注册时给出「完善昵称」引导');
+  // [0] 2026-10-08「登录即有名」：首页原来的「完善昵称后即可上榜」引导条已删除 ——
+  //     注册就发默认昵称（战士 XXXX），登录即上榜，没有需要「补」的东西了。
+  //     这条从「必须有引导条」反过来验「不许再有引导条」，防止旧口径回潮。
+  console.log('[0/4] 首页：不再需要「完善昵称」引导（登录即有名）');
   const home = await H.goto(miniProgram, '/pages/index/index', 1600);
   const hd = await home.data();
-  if (hd.loggedIn) {
-    const hasBar = !!(await home.$('.profilebar'));
-    ck.check('引导条与 needProfile 状态一致', hasBar === !!hd.needProfile,
-      'needProfile=' + hd.needProfile + ' 但 .profilebar ' + (hasBar ? '在' : '不在'));
-    if (hd.needProfile) {
-      const btn = await home.$('.pb-btn');
-      ck.check('引导条带「去设置」按钮', !!btn);
-    }
-  } else {
-    ck.check('未登录时首页显示游客引导条（不是完善资料条）',
-      !!(await home.$('.guestbar')) && !(await home.$('.profilebar')));
+  ck.check('首页不再出现「完善昵称」引导条', !(await home.$('.profilebar')));
+  ck.check('后端不再下发 needProfile=true（资料无需「完善」）', !hd.needProfile,
+    'needProfile = ' + hd.needProfile);
+  if (!hd.loggedIn) {
+    ck.check('未登录时首页仍显示游客引导条', !!(await home.$('.guestbar')));
   }
 
   console.log('[1/4] 进入排行榜并切到玩法榜');

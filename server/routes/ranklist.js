@@ -3,6 +3,7 @@ const { sequelize, User, RankRecord, Rank, Score } = require("../db");
 // 段位名一律按 stars 现算（2026-09-13）：以前读存库的 rankId/Rank 表，
 // 曲线与星星口径改了以后那两处不会跟着变 → 排行榜段位一直显示旧值（用户反馈「排行榜段位没更新」）。
 const ladder = require("../rank-ladder");
+const { displayName } = require("../nickname-util");
 
 const router = express.Router();
 
@@ -22,7 +23,22 @@ const { GAME_TYPES: SUMMARY_GAMES } = require("../game-names");
  *
  * 注意：成绩本身照旧入库（不上榜 ≠ 不记录），用户补完昵称后立刻就能看到自己的名次。
  */
-const NICKNAME_READY_SQL = "u.nickname IS NOT NULL AND u.nickname <> '' ";
+/**
+ * 上榜门槛（2026-10-08 **已取消**）
+ *
+ * 原来的规则是「昵称非空」才上榜，本意是挡住匿名用户、让榜单可读。
+ * 但微信从 2022 年起不给真实昵称，让用户主动点「使用微信昵称」几乎没人点 ——
+ * 实际效果是把最活跃的那批人挡在榜外（线上 22 个用户里 16 个真人玩了几十局，
+ * 一个都没上榜）。
+ *
+ * 现在改成「登录即有名」（见 server/nickname-util.js）：注册就发默认昵称
+ * （「战士 3F2A」），用户想改再改。用户身份由 openid 保证唯一，不再需要这道门槛。
+ *
+ * 常量保留是为了不动下面 5 处 JOIN 的写法；将来真要恢复门槛，只改这一行即可。
+ */
+// 注意：这里**不能**写成 SQL 行尾注释（`1=1 -- xxx`）—— 它是拼在
+// `JOIN ... AND ${NICKNAME_READY_SQL}` 后面的，行尾注释会把同一行的后续 SQL 一起吞掉。
+const NICKNAME_READY_SQL = "1=1";
 
 /**
  * GET /api/ranklist/progress —— 玩法闯关进度榜（B3）
@@ -89,7 +105,8 @@ router.get("/progress", async (req, res) => {
       const rr = user ? rrMap.get(user.openid) : null;
       return {
         rank: i + 1,
-        nickname: user.nickname,
+        // 门槛取消后可能拿到空昵称（老账号还没补），展示时兜底成「战士 XXXX」
+        nickname: displayName(user.nickname, user.openid),
         avatarUrl: user ? user.avatar_url : "",
         rankName: ladder.rankOf(rr ? rr.stars : 0).rankName,
         stars: rr ? rr.stars : 0,
@@ -198,8 +215,8 @@ router.get("/progress-summary", async (req, res) => {
       return {
         game,
         players: arr.length,
-        // 已按门槛 JOIN 过滤过，能出现在这里的用户一定有昵称，不再需要「未命名」兜底
-        champNickname: champUser ? champUser.nickname : "",
+        // 门槛已取消（2026-10-08）：用 displayName 兜底，榜上不会再出现空名字
+        champNickname: champUser ? displayName(champUser.nickname, champUser.openid) : "",
         champAvatarUrl: champUser ? (champUser.avatar_url || "") : "",
         champValue: top ? top.maxLevel : 0,
         myValue,
@@ -221,7 +238,7 @@ router.get("/world", async (req, res) => {
     const offset = (page - 1) * pageSize;
 
     // 查询排行榜（按星星降序、同分按胜场升序时间）
-    // ⚠️ 必须 JOIN users 过滤「没设昵称」的账号：否则未完成注册的人会以匿名名义上榜
+    // JOIN users 是为了取昵称/头像；上榜门槛已于 2026-10-08 取消（NICKNAME_READY_SQL 恒真）
     const [rows] = await sequelize.query(
       `SELECT r.openid, r.stars, r.wins, u.nickname, u.avatar_url
          FROM rank_records r
@@ -242,7 +259,7 @@ router.get("/world", async (req, res) => {
       return {
         rank: offset + index + 1,
         openid: record.openid,
-        nickname: record.nickname,
+        nickname: displayName(record.nickname, record.openid),
         avatarUrl: record.avatar_url || "",
         rankId: ladder.rankOf(record.stars).rankId,
         rankName: ladder.rankOf(record.stars).rankName,
@@ -303,19 +320,19 @@ router.get("/me", async (req, res) => {
       });
     }
 
-    // 获取用户信息（2026-09-19：没设昵称的账号不上榜，自己也不例外）
+    // 获取用户信息（2026-10-08：上榜门槛已取消 —— 登录即有名，自己当然也在榜上）
     const user = await User.findOne({
       where: { openid },
-      attributes: ["nickname", "avatar_url"],
+      attributes: ["openid", "nickname", "avatar_url"],
     });
-    if (!user || !user.nickname) {
-      // 未完成注册（没设昵称）→ 不上榜，前端据此不显示「我的排名」
-      return res.send({ code: 0, data: null, message: "未设置昵称，暂不上榜" });
+    if (!user) {
+      // 连账号都没有 = 从没登录过，没有名次可言
+      return res.send({ code: 0, data: null, message: "尚未注册" });
     }
 
     // 计算我的排名（比我星数多的记录数 + 同星记录数 + 1）
     //
-    // ⚠️ 用原生 SQL 而不是 Sequelize 的 Op：一是要和「有昵称才上榜」的 JOIN 口径一致，
+    // ⚠️ 用原生 SQL 而不是 Sequelize 的 Op：一是要和上面榜单的 JOIN 口径保持一致，
     //    二是历史上这里踩过 v6 操作符的坑（旧式 $gt / $ne 会被序列化成
     //    `stars = '[object Object]'`，直接把接口打成 5000，见 tests/unit/sequelize-operators.test.js）。
     const [higherRows] = await sequelize.query(
@@ -345,7 +362,7 @@ router.get("/me", async (req, res) => {
       code: 0,
       data: {
         rank: myRank,
-        nickname: user.nickname,
+        nickname: displayName(user.nickname, user.openid),
         avatarUrl: user ? user.avatar_url : "",
         rankId: ladder.rankOf(myRecord.stars).rankId,
         rankName: ladder.rankOf(myRecord.stars).rankName,

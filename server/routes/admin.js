@@ -59,51 +59,7 @@ async function nicknamesOf(openid) {
   }
 }
 
-/** 批量取微信名（列不存在 → 返回空 Map，前端显示「未获取」） */
-async function wxNicknameMap(openids) {
-  const map = new Map();
-  if (!openids.length) return map;
-  try {
-    const [rows] = await sequelize.query(
-      "SELECT openid, wx_nickname FROM users WHERE openid IN (:ids)",
-      { replacements: { ids: openids } }
-    );
-    (rows || []).forEach((r) => { if (r.wx_nickname) map.set(r.openid, r.wx_nickname); });
-  } catch (e) {
-    // 列不存在：整批没有微信名，属于预期内的降级
-  }
-  return map;
-}
-
-/**
- * 探测生产库有没有 wx_nickname 列（管理端据此提示「请先执行 DDL」）。
- * 用一条最轻的 SELECT，列不存在会抛错 → 返回 false，不影响其它逻辑。
- */
-async function wxColumnReady() {
-  try {
-    await sequelize.query("SELECT wx_nickname FROM users LIMIT 1");
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 const ONLINE_WINDOW_MS = 5 * 60 * 1000;      // 在线窗口：最近 5 分钟
-
-/**
- * 已采集微信名的账号数。
- * wx_nickname 列可能还没建（DDL 由用户执行）→ 返回 0，由 wxNicknameColumnReady 说明原因。
- */
-async function wxCollectedCount() {
-  try {
-    const [rows] = await sequelize.query(
-      "SELECT COUNT(*) AS c FROM users WHERE wx_nickname IS NOT NULL AND wx_nickname <> ''"
-    );
-    return Number((rows && rows[0] && rows[0].c) || 0);
-  } catch (e) {
-    return 0;
-  }
-}
 
 /**
  * 按搜索词找匹配的 openid 列表（昵称 / 微信名 / openid 三列）。
@@ -221,14 +177,12 @@ router.get("/stats", requireAdmin, async (req, res) => {
     const today0 = startOfToday();
     const onlineSince = new Date(Date.now() - ONLINE_WINDOW_MS);
 
-    const [totalUsers, todayNewUsers, totalScores, onlineUsers, todayActiveUsers, wxCollected, gameRows] = await Promise.all([
+    const [totalUsers, todayNewUsers, totalScores, onlineUsers, todayActiveUsers, gameRows] = await Promise.all([
       User.count(),
       User.count({ where: { createdAt: { [Op.gte]: today0 } } }),
       Score.count(),
       Score.count({ distinct: true, col: "user_id", where: { createdAt: { [Op.gte]: onlineSince } } }),
       Score.count({ distinct: true, col: "user_id", where: { createdAt: { [Op.gte]: today0 } } }),
-      // 微信名采集数（列不存在时返回 0，配合 wxNicknameColumnReady 判断是「没建列」还是「真没人点」）
-      wxCollectedCount(),
       // 玩法热度：每个玩法被玩了多少局（看运营该往哪个玩法加内容）
       Score.findAll({
         attributes: ["game_type", [fn("COUNT", col("id")), "cnt"]],
@@ -256,15 +210,8 @@ router.get("/stats", requireAdmin, async (req, res) => {
         totalScores,         // 累计答题/上报局数
         onlineWindowMin: ONLINE_WINDOW_MS / 60000,
         rankDist: dist,
-        // 微信名采集：微信 2022 年起不允许静默读取昵称，只能靠用户主动点一次
-        // 「使用微信昵称」→ 这个比例直接反映引导做得好不好
-        wxCollected,
-        wxCollectRate: adminQuery.collectRate(wxCollected, totalUsers),
-        wxCollectTotal: totalUsers,
         // 玩法热度（局数降序；未登记的新玩法会以原始 key 出现，便于发现遗漏）
         gameHeat: adminQuery.gameHeat(gameRows, GAME_NAMES),
-        // 微信名列是否已创建（false = 还没执行 ALTER TABLE，微信名必然显示「未获取」）
-        wxNicknameColumnReady: await wxColumnReady(),
         // 段位同步自检：最近一次重算是否成功（空字符串 = 最近一次成功）
         lastRankSyncError: rankRouter.syncRankDiagnostics().lastSyncError || "",
         lastRankSyncAt: rankRouter.syncRankDiagnostics().lastSyncAt || null,
@@ -367,7 +314,6 @@ router.get("/users", requireAdmin, async (req, res) => {
       if (!scoresByUser.has(r.user_id)) scoresByUser.set(r.user_id, []);
       scoresByUser.get(r.user_id).push(r);
     });
-    const wxMap = await wxNicknameMap(openids);
     const scoreMap = new Map(scoreAgg.map((r) => [r.user_id, r]));
     const rankMap = new Map(ranks.map((r) => [r.openid, r]));
 
@@ -377,8 +323,6 @@ router.get("/users", requireAdmin, async (req, res) => {
       const stars = Number(r.stars) || 0;
       return {
         nickname: u.nickname || "未命名",             // 管理员可见完整昵称
-        wxNickname: wxMap.get(u.openid) || "",        // 微信名（仅本接口返回；列未加时为空）
-        wxCollected: !!wxMap.get(u.openid),           // 是否采集到微信名（前端筛选/统计用）
         avatarUrl: u.avatar_url || "",                // 头像（此前查了却没返回，列表一直是空的）
         openidMasked: maskOpenid(u.openid),           // openid 打码展示
         createdAt: u.createdAt,

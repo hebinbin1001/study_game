@@ -1,15 +1,17 @@
 'use strict';
 
-// verify-admin.js —— 管理后台 + 微信名采集引导（2026-09-29）
+// verify-admin.js —— 管理后台 + 昵称/上榜口径（2026-10-08 更新）
 //
-// 背景（用户：「1 + 2 一起做，你看下管理员界面还缺少，一起做了」）：
-//   1. 微信名采集引导：微信 2022 年起不允许静默读取昵称，用户必须**主动点一次**
-//      键盘上方的「使用微信昵称」—— 昵称页那块引导卡就是采集率的全部依赖，必须有。
-//   2. 管理端补齐：头像 / 排序 / 总人数 / 微信名采集率 / 玩法热度 / 相对时间。
+// 背景：
+//   1.（已下线）微信名采集引导 —— 微信不给真名、用户又不点「使用微信昵称」，
+//      折腾半天采到的东西既不准又只是「另一个展示名」。2026-10-08 整条线拆掉，
+//      改成「登录即有名」：注册发默认昵称（战士 XXXX），昵称只是展示层，身份靠 openid。
+//      所以本用例现在**反过来**验：采集相关的东西不许再回来。
+//   2. 管理端能力：头像 / 排序 / 总人数 / 玩法热度 / 相对时间。
 //
 // 关于口令：管理员校验在生产环境靠 ADMIN_PASSCODE（云托管环境变量，值不进仓库）。
 //   · 设了环境变量 → 跑完整流程（进入后台、切排序、查列表）
-//   · 没设       → 只验「门禁不泄露数据」+「引导卡存在」，需要权限的部分打印 skip（不判红）
+//   · 没设       → 只验「门禁不泄露数据 + 采集线上线」，需要权限的部分打印 skip（不判红）
 //   本机想跑完整：`set ADMIN_PASSCODE=xxx` 后再跑本脚本。
 //
 // 运行：node e2e/verify-admin.js
@@ -25,25 +27,19 @@ function listState(d) {
     + ' warn=' + JSON.stringify((d && d.loadWarn) || '');
 }
 
-H.runSuite('verify-admin（管理后台 · 微信名采集引导）', async function (miniProgram, ck) {
-  // ---------- [1] 微信名采集引导（昵称页） ----------
-  console.log('[1/4] 昵称页：微信昵称采集引导卡');
+H.runSuite('verify-admin（管理后台 · 昵称与上榜口径）', async function (miniProgram, ck) {
+  // ---------- [1] 昵称页：采集线已下线 ----------
+  console.log('[1/4] 昵称页：微信昵称采集已下线，只剩「改名」入口');
   const nick = await H.goto(miniProgram, '/pages/nickname/nickname', 1600);
   ck.check('昵称页渲染', !!(await H.waitForSelector(nick, '.page-nickname', 8000)));
 
-  const guide = await H.waitForSelector(nick, '.wx-guide', 8000);
-  ck.check('微信名引导卡已渲染（采集率全靠它）', !!guide);
-  if (guide) {
-    const text = await guide.text();
-    ck.check('引导卡文案点明「使用微信昵称」这个动作',
-      !!text && text.indexOf('使用微信昵称') >= 0, '实际 = ' + JSON.stringify(text));
-    // 未采集时应有指向输入框的箭头提示（纯视觉，但它是引导的关键一半）
-    const arrow = await nick.$('.wx-guide-arrow');
-    const nickData = await nick.data();
-    const collected = !!(nickData && nickData.wxNickname);
-    ck.check('未采集微信名时显示指向输入框的箭头', collected ? !arrow : !!arrow,
-      'wxNickname=' + JSON.stringify(nickData && nickData.wxNickname));
-  }
+  await nick.waitFor(600);
+  ck.check('采集引导卡已下线（不占版面、也不再引导用户点「使用微信昵称」）',
+    !(await nick.$('.wx-guide')));
+  ck.check('昵称输入框仍在（改名入口保留）', !!(await nick.$('.nickname-input')));
+  const nickData = await nick.data();
+  ck.check('页面不再持有 wxNickname 字段', !('wxNickname' in (nickData || {})),
+    '实际 data 键 = ' + JSON.stringify(Object.keys(nickData || {}).slice(0, 12)));
 
   // ---------- [2] 管理页门禁 ----------
   console.log('[2/4] 管理后台：口令门（未通过时不得泄露任何用户数据）');
@@ -89,21 +85,19 @@ H.runSuite('verify-admin（管理后台 · 微信名采集引导）', async func
     if (!passed) return;
   }
 
-  // 统计网格：原来是 5 格，本轮补「微信名采集」→ 6 格
-  const statsEls = await H.waitForCount(admin, '.stat', 6, 12000);
-  ck.check('统计网格 6 格（新增「微信名采集」）', !!statsEls,
-    statsEls ? '' : '数量不是 6');
+  // 统计网格：注册 / 在线 / 今日活跃 / 今日新增 / 累计答题（2026-10-08 去掉「微信名采集」→ 5 格）
+  const statsEls = await H.waitForCount(admin, '.stat', 5, 12000);
+  ck.check('统计网格 5 格（「微信名采集」已随采集线下线）', !!statsEls,
+    statsEls ? '' : '数量不是 5');
 
   const d1 = await H.waitForData(admin, function (d) { return !!d.stats; }, 12000, 'stats loaded');
   ck.check('统计接口返回并落到页面', !!d1);
   if (d1) {
     ck.check('注册人数 / 在线人数是数字', typeof d1.stats.totalUsers === 'number'
       && typeof d1.stats.onlineUsers === 'number');
-    ck.check('微信名采集率是数字（不是 NaN / 空）',
-      typeof d1.stats.wxCollectRate === 'number' && !isNaN(d1.stats.wxCollectRate),
-      '实际 = ' + JSON.stringify(d1.stats.wxCollectRate) + '%');
-    ck.check('微信名采集率在 0~100 之间',
-      d1.stats.wxCollectRate >= 0 && d1.stats.wxCollectRate <= 100);
+    ck.check('接口不再返回微信名采集率（字段已随采集线一并删掉）',
+      d1.stats.wxCollectRate === undefined,
+      '实际 = ' + JSON.stringify(d1.stats.wxCollectRate));
     ck.check('玩法热度数组存在', Array.isArray(d1.stats.gameHeatTop));
     ck.check('玩法热度条形宽度已算好（WXML 不能调方法，必须 JS 先算）',
       (d1.stats.gameHeatTop || []).every(function (g) {
@@ -161,9 +155,11 @@ H.runSuite('verify-admin（管理后台 · 微信名采集引导）', async func
     ck.check('每行的注册/最近上报已转成相对文案（不是 ISO 时间戳）',
       rows.every(function (u) { return typeof u.createdText === 'string' && u.createdText.length > 0; }),
       '样例 = ' + JSON.stringify(rows[0].createdText) + ' / ' + JSON.stringify(rows[0].lastActiveText));
-    ck.check('微信名兜底文案为「未采集」（不再每行重复长提示）',
-      rows.every(function (u) { return typeof u.wxText === 'string' && u.wxText.length > 0; }),
-      '样例 = ' + JSON.stringify(rows[0].wxText));
+    // 2026-10-08「登录即有名」：每行都必须有非空昵称（用户自设 或 系统默认名），
+    // 不允许再出现「未命名」「未采集」这类空态
+    ck.check('每行昵称都非空（登录即有名，不会再出现未命名）',
+      rows.every(function (u) { return !!(u.nickname && String(u.nickname).trim()); }),
+      '样例 = ' + JSON.stringify(rows.slice(0, 3).map(function (u) { return u.nickname; })));
   } else {
     console.log('  [info] 用户列表为空（新库或全被清理），跳过列表行断言');
   }

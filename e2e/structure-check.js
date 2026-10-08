@@ -101,33 +101,34 @@ check(appWxssSrc.includes('.gate-bar'), '门禁引导条样式统一在 app.wxss
   check(js.includes('onShareAppMessage'), `pages/${pg} 支持分享（onShareAppMessage）`);
 });
 
-// 7) 微信名采集（2026-09-29 口径修正）
+// 7) 用户身份与昵称口径（2026-10-08 大改：微信昵称采集整条线下线）
 //
-// 约束：微信从 2022 年起不允许静默读取昵称，唯一合规通道是「昵称填写」组件
-// （<input type="nickname">，用户点「使用微信昵称」时才有值）。
-// 玩家侧**不展示任何「微信名」字样**（用户要求）。
+// 背景：微信从 2022 年起不再返回真实昵称；让用户主动点键盘上方的「使用微信昵称」
+// 又几乎没人点 —— 结果是大量活跃用户卡在「没昵称」这一步，被「必须设昵称才上榜」
+// 的门槛挡在榜外（线上 22 个用户里 16 个真人玩了几十局，一个都没上榜）。
 //
-// ⚠️ 2026-09-29 修：旧实现是「昵称框有输入就先到先得记成微信名」，
-// 结果绝大多数用户手打自定义昵称 → 把**游戏昵称**存成了微信名，管理端看到的是错的。
-// 现在只认 `bindnicknamereview`（微信侧审完昵称）这一个信号，pass/timeout 时才采集。
+// 现在的口径：**区分用户靠 openid，昵称只是展示层**
+//   · 注册即发默认昵称（server/nickname-util.js 的 defaultNickname）；
+//   · 上榜门槛取消（ranklist 的 NICKNAME_READY_SQL 恒真）；
+//   · 采集三件套（bindnicknamereview / wx_nickname 读写 / /api/user/wx-nickname）全部下线。
 const nickWxml = fs.readFileSync('miniprogram/pages/nickname/nickname.wxml', 'utf8');
 const nickJs = fs.readFileSync('miniprogram/pages/nickname/nickname.js', 'utf8');
 const meWxmlSrc = fs.readFileSync('miniprogram/pages/me/me.wxml', 'utf8');
-check(nickWxml.indexOf('微信名') < 0, '玩家资料页不出现「微信名」字样（仅管理员侧可见）');
-check(meWxmlSrc.indexOf('微信名') < 0, '「我的」页不出现「微信名」字样');
-check(nickWxml.includes('bindnicknamereview="onNicknameReview"'),
-  '昵称输入框接了微信昵称审核回调（唯一的采集时机）');
-check(/d\.pass !== true && d\.timeout !== true/.test(nickJs),
-  '只在 pass / timeout 时才把昵称记为微信名');
-// 反向护栏：onNicknameInput 里不许再写 wxNickname（否则又会把游戏昵称当微信名）
-const inputFn = nickJs.slice(nickJs.indexOf('onNicknameInput: function'),
-  nickJs.indexOf('onNicknameReview: function'));
-check(inputFn.indexOf('wxNickname') < 0,
-  '回归护栏：昵称输入回调里不得写 wxNickname（避免把游戏昵称存成微信名）');
-check(!/wxNickname:\s*nick\b/.test(nickJs),
-  '回归护栏：微信名不得再被游戏昵称直接赋值');
+const loginRouteSrc = fs.readFileSync('server/routes/login.js', 'utf8');
+const ranklistSrc = fs.readFileSync('server/routes/ranklist.js', 'utf8');
 const userRouteSrc = fs.readFileSync('server/routes/user.js', 'utf8');
-check(userRouteSrc.includes('/wx-nickname'), '后端提供「取本人微信名」接口（昵称页回填用）');
+
+check(nickWxml.indexOf('微信名') < 0, '昵称页不出现「微信名」字样（采集已下线）');
+check(meWxmlSrc.indexOf('微信名') < 0, '「我的」页不出现「微信名」字样');
+// 反向护栏：采集相关的东西不许再回来（回潮了就会重新出现「采不到真名」那套问题）
+check(nickWxml.indexOf('bindnicknamereview') < 0, '回归护栏：昵称页不得再挂微信昵称审核回调');
+check(nickWxml.indexOf('wx-guide') < 0, '回归护栏：昵称页不得再出现采集引导卡');
+check(nickJs.indexOf('wxNickname:') < 0, '回归护栏：昵称页不得再持有 wxNickname 字段');
+check(userRouteSrc.indexOf('/wx-nickname') < 0, '回归护栏：后端不得再提供「取本人微信名」接口');
+// 正向护栏：登录即有名 + 登录即上榜
+check(loginRouteSrc.includes('defaultNickname'), '注册时会给默认昵称（登录即有名）');
+check(ranklistSrc.indexOf('NICKNAME_READY_SQL = "1=1"') >= 0,
+  '排行榜已取消「必须设昵称」门槛（否则活跃用户还是上不了榜）');
 
 // 7.5) 管理后台 + 采集引导（2026-09-29）：用户要求「管理员界面还缺少什么，一起做了」
 //
@@ -137,12 +138,8 @@ check(userRouteSrc.includes('/wx-nickname'), '后端提供「取本人微信名�
 const adminWxml = fs.readFileSync('miniprogram/pages/admin/admin.wxml', 'utf8');
 const adminJs = fs.readFileSync('miniprogram/pages/admin/admin.js', 'utf8');
 const adminRouteSrc = fs.readFileSync('server/routes/admin.js', 'utf8');
-check(nickWxml.includes('wx-guide'), '昵称页有微信昵称采集引导卡（采集率全靠它）');
-check(nickWxml.includes('使用微信昵称'), '引导卡点明「使用微信昵称」这个动作');
 check(adminWxml.includes('sort-chip') && adminJs.includes('onSortTap'), '管理页有用户排序切换');
 check(adminWxml.includes('u-avatar'), '管理页用户行有头像位（此前查了 avatar_url 却没返回）');
-check(adminWxml.includes('wxCollectRate') && adminRouteSrc.includes('wxCollectRate'),
-  '管理页展示微信名采集率（端上字段 ← 后端同名字段）');
 check(adminWxml.includes('gameHeatTop') && adminRouteSrc.includes('gameHeat'),
   '管理页有玩法热度（后端聚合 → 端上条形）');
 check(adminJs.includes('rel-time'), '管理页时间用相对文案（不是裸时间戳）');
