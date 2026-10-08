@@ -85,7 +85,7 @@ const MODULES = [
       'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review', 'rank-badge',
       'auth-guard', 'admin-auth', 'rel-time',
       // 2026-10-08 补登记：这两个一直没归到模块，跑 --module=user 时会漏掉
-      'exam-gate', 'nickname-util']
+      'exam-gate', 'nickname-util', 'ranklist-sql-alias']
   },
   {
     id: 'social',
@@ -213,6 +213,8 @@ const PATH_RULES = [
   { re: /^server\/(beijing-time|pk-rules|season-rewards|seed|grade-keys|book-keys|score-formula|reward-stars|table-missing)\.js$/,
     modules: ['social', 'server'] },
   { re: /^server\/routes\/(daily-challenge|season|pk)\.js$/, modules: ['social', 'server'] },
+  // 排行榜后端：页面在 user 模块，SQL 规则也在那里验
+  { re: /^server\/routes\/ranklist\.js$/, modules: ['user', 'server'] },
   { re: /^server\//, modules: ['server'] },
   { re: /^tools\/dict\//, modules: ['dict'] },
   // 公众号排版工具（2026-09-30）：纯 Node 侧脚本，不进小程序包，但改动要过语法 + 它自己的单测

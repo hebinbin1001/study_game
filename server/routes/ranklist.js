@@ -27,10 +27,22 @@ async function examColumnReady() {
   return EXAM_COL_READY;
 }
 
-/** 取「有效星数」的 SQL 表达式（列就绪 → LEAST(真实, 封顶)；否则原样） */
-async function effectiveStarsExpr(alias) {
-  if (!await examColumnReady()) return alias + ".stars";
-  return "LEAST(" + alias + ".stars, " + examGate.capSqlCase(alias) + ")";
+/**
+ * 取「有效星数」的 SQL 表达式（列就绪 → LEAST(真实, 封顶)；否则原样）。
+ *
+ * ⚠️ 两个别名必须分开传，这是线上 5000 的根因（2026-10-08 冒出、冒烟才抓到）：
+ *   封顶表达式读的是 `users.exam_cleared_tier`，而 `stars` 来自 `rank_records`。
+ *   最初只传了一个别名，SQL 生成成 `LEAST(r.stars, CASE r.exam_cleared_tier ...)` ——
+ *   rank_records 根本没有 exam_cleared_tier 列，MySQL 直接报
+ *   `Unknown column 'r.exam_cleared_tier'`，/api/ranklist/world 与 /me 双双 5000。
+ *
+ * @param {string} rankAlias rank_records 的别名（取 stars）
+ * @param {string} [userAlias] users 的别名（取 exam_cleared_tier），默认 'u'
+ * @returns {Promise<string>}
+ */
+async function effectiveStarsExpr(rankAlias, userAlias) {
+  if (!await examColumnReady()) return rankAlias + ".stars";
+  return "LEAST(" + rankAlias + ".stars, " + examGate.capSqlCase(userAlias || "u") + ")";
 }
 
 /**
@@ -302,7 +314,7 @@ router.get("/world", async (req, res) => {
     // 查询排行榜（按星星降序、同分按胜场升序时间）
     // JOIN users 是为了取昵称/头像；上榜门槛已于 2026-10-08 取消（NICKNAME_READY_SQL 恒真）
     // 星数走「晋级考试封顶」口径：排序和展示都用有效星数，避免「显示白银 9 却排在铂金前面」
-    const effStars = await effectiveStarsExpr("r");
+    const effStars = await effectiveStarsExpr("r", "u");
     const [rows] = await sequelize.query(
       `SELECT r.openid, r.stars, ${effStars} AS eff_stars, r.wins, u.nickname, u.avatar_url
          FROM rank_records r
@@ -406,7 +418,7 @@ router.get("/me", async (req, res) => {
     // 我的有效星数（晋级考试封顶后），名次与展示都用它
     const myCleared = (await examClearedMap([openid])).get(openid) || "";
     const myEffStarsValue = examGate.cappedStars(myRecord.stars, myCleared);
-    const myEffStars = await effectiveStarsExpr("r");
+    const myEffStars = await effectiveStarsExpr("r", "u");
     const [higherRows] = await sequelize.query(
       `SELECT COUNT(*) AS c
          FROM rank_records r
