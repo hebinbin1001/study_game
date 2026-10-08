@@ -349,7 +349,13 @@ router.get("/users", requireAdmin, async (req, res) => {
     });
   } catch (err) {
     console.error("GET /api/admin/users 失败：", err);
-    res.send({ code: 5000, data: null, message: "服务内部错误" });
+    // 2026-10-08：把原因带出来。这个接口出过一次「pageSize=50 就 5000、20 却正常」的怪事，
+    // 当时只能靠猜（线上日志要翻云托管控制台）。这是**仅管理员可见**的接口，
+    // 带上 err.message 不会外泄给普通用户，排查效率却能高一个数量级。
+    res.send({
+      code: 5000, data: null,
+      message: "服务内部错误：" + ((err && err.message) || "未知"),
+    });
   }
 });
 
