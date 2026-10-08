@@ -4,8 +4,34 @@ const { RankRecord, User, Score, CheckinRecord } = require("../db");
 const ladder = require("../rank-ladder");
 const { dedupeStars } = require("../rank-stars");
 const { totalBonus } = require("../checkin-rewards");
+const examGate = require("../exam-gate");
+const { sequelize } = require("../db");
 
 const router = express.Router();
+
+/**
+ * 读「已通过晋级考试的最高大段 key」（2026-10-08 新增）。
+ *
+ * 为什么用原生 SQL：`exam_cleared_tier` 列**故意不写进 Sequelize 模型** ——
+ * 一旦写进去，Sequelize 默认 SELECT 全字段，生产库还没加列时所有读用户表的接口直接 5000
+ * （wx_nickname 那轮踩过一模一样的坑）。列不存在时这里降级成空串（= 从没考过）。
+ *
+ * @param {string} openid
+ * @returns {Promise<string>}
+ */
+async function examClearedTier(openid) {
+  if (!openid) return "";
+  try {
+    const [rows] = await sequelize.query(
+      "SELECT exam_cleared_tier FROM users WHERE openid = :o LIMIT 1",
+      { replacements: { o: openid } }
+    );
+    const r = (rows && rows[0]) || {};
+    return r.exam_cleared_tier || "";
+  } catch (e) {
+    return "";   // 列不存在（DDL 未执行）→ 按「没考过」处理，不影响别的功能
+  }
+}
 
 /**
  * 按「每关历史最高星」重算并写回该用户的段位星（2026-09-13 用户拍板 (C)）。
@@ -111,9 +137,15 @@ router.get("/info", async (req, res) => {
 
     const rankRecord = await RankRecord.findOne({ where: { openid } });
     const wins = rankRecord ? rankRecord.wins : 0;
-    const stars = rankRecord ? rankRecord.stars : 0;
+    const rawStars = rankRecord ? rankRecord.stars : 0;
 
-    // 段位由累计星数现算（无需改表：rankId 仍是大段位 1~8，与皮肤解锁口径兼容）
+    // 晋级考试封顶（2026-10-08 用户拍板）：没考过下一个大段的考试 → 星星与段位都卡在当前大段最高级。
+    // 库里的星星照常涨（下一段考试一过就自动「解锁」这些星），但**对外展示**走封顶值，
+    // 这样段位、星数、以及端上的各种进度条三处口径一致，不会出现「星星涨了段位不动」的割裂感。
+    const cleared = await examClearedTier(openid);
+    const stars = examGate.cappedStars(rawStars, cleared);
+
+    // 段位由累计星数现算（无需改表：rankId 仍是大段位，与皮肤解锁口径兼容）
     const cur = ladder.rankOf(stars);
     const prog = ladder.progressOf(stars);
 
@@ -131,11 +163,57 @@ router.get("/info", async (req, res) => {
         progressPercent: prog.progressPercent,
         isMaxRank: prog.isMaxRank,
         wins,
-        stars,
+        stars,                 // 展示用（晋级考试封顶后）
+        rawStars,              // 真实累计（诊断/调试用，前端不展示）
+        examClearedTier: cleared,
+        needExam: examGate.needsExam(rawStars, cleared),
+        nextExamTier: examGate.needsExam(rawStars, cleared)
+          ? examGate.nextTierToExam(cleared) : "",
       },
     });
   } catch (err) {
     console.error("GET /api/rank/info 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
+/**
+ * POST /api/rank/exam/pass —— 记录「晋级考试通过」（2026-10-08）
+ *
+ * 入参：{ tier }（刚通过的那个大段 key，可省略）
+ * 规则：**一档一档往上考**，不能跳级 —— 服务端按「已通过的大段」自己算下一场该考谁，
+ *       客户端传的 tier 只用来对账（不匹配就拒绝），防止改包跳级。
+ *
+ * ⚠️ 这是唯一写 exam_cleared_tier 的地方；星星本身不动（走封顶口径，见 exam-gate.js）。
+ */
+router.post("/exam/pass", async (req, res) => {
+  try {
+    const openid = req.openid;
+    if (!openid) {
+      return res.send({ code: 1001, data: null, message: "未识别用户（openid 缺失）" });
+    }
+
+    const cleared = await examClearedTier(openid);
+    const next = examGate.nextTierToExam(cleared);
+    if (!next) {
+      return res.send({ code: 0, data: { examClearedTier: cleared }, message: "已到顶，无需再考" });
+    }
+
+    const want = String((req.body && req.body.tier) || "").trim();
+    if (want && want !== next) {
+      return res.send({
+        code: 4000, data: null,
+        message: "考试目标不匹配（当前应考：" + next + "）",
+      });
+    }
+
+    await sequelize.query(
+      "UPDATE users SET exam_cleared_tier = :t WHERE openid = :o",
+      { replacements: { t: next, o: openid } }
+    );
+    res.send({ code: 0, data: { examClearedTier: next }, message: "ok" });
+  } catch (err) {
+    console.error("POST /api/rank/exam/pass 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
 });
