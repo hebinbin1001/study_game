@@ -1,0 +1,30 @@
+/* 战士徽章：圆形小立绘，轻阴影浮在 HUD 上 */
+.wb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .86);
+  box-shadow: 0 3rpx 10rpx rgba(28, 53, 92, .14);
+  overflow: hidden;
+  transition: transform .12s;
+}
+.wb:active { transform: scale(.92); }
+
+/* 固定在右上角：玩法页一行接入即可（返回键在左上，不会打架） */
+.wb--fixed {
+  position: fixed;
+  right: 24rpx;
+  /* 2026-10-08 调：原来的 24rpx 会和页面标题栏挤在同一行（实测截图里贴住了「第 1/6」）。
+     fixed 定位的 top 是相对屏幕的，所以要自己让开标题栏的高度（各页 header 约 90~110rpx）。 */
+  top: 110rpx;
+  z-index: 20;
+}
+
+.wb--sm { width: 72rpx; height: 72rpx; }
+.wb--md { width: 132rpx; height: 132rpx; }
+
+.wb-img { width: 100%; height: 100%; }
+
+.wb-emoji { font-size: 40rpx; line-height: 1; }
+.wb--md .wb-emoji { font-size: 68rpx; }

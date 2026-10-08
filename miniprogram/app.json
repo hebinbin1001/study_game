@@ -82,5 +82,8 @@
     ]
   },
   "sitemapLocation": "sitemap.json",
+  "usingComponents": {
+    "warrior-badge": "/components/warrior-badge/index"
+  },
   "lazyCodeLoading": "requiredComponents"
 }

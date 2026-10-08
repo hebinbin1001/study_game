@@ -1,0 +1,10 @@
+<!-- 战士徽章：玩法页顶部的「我的战士」（点击去换皮肤） -->
+<view class="wb wb--{{size}} {{fixed ? 'wb--fixed' : ''}}" bindtap="onTap">
+  <image
+    wx:if="{{image}}"
+    class="wb-img"
+    src="{{image}}"
+    mode="aspectFit"
+    binderror="onImgError"></image>
+  <view wx:else class="wb-emoji" style="color:{{color}}">{{emoji}}</view>
+</view>

@@ -17,6 +17,12 @@
       class="big-star {{item ? 'on' : 'off'}}">{{item ? '⭐' : '☆'}}</text>
   </view>
 
+  <!-- 我的战士（2026-10-08）：赢了举剑欢呼、输了垂头 —— 皮肤在这里「有情绪」。
+       用同一批立绘 + CSS 动画实现，不需要新素材。 -->
+  <view class="hero-mood {{failed ? 'hero-mood--lose' : 'hero-mood--win'}}">
+    <warrior-badge size="md" />
+  </view>
+
   <!-- 结算面板 -->
   <view class="result-panel">
     <!-- 标题：通关 / 失败（REQ-GAME-11） -->
