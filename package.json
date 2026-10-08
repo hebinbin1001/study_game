@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/hebinbin1001/study_game#readme",
   "devDependencies": {
-    "miniprogram-automator": "^0.12.1"
+    "miniprogram-automator": "^0.12.1",
+    "pinyin-pro": "^3.29.4"
   }
 }

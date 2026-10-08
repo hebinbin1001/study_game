@@ -300,3 +300,45 @@
   line-height: 1.6;
   text-align: center;
 }
+/* ===== 排序控件（2026-10-08）===== */
+.bk-sortbar {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin: 12rpx 0 4rpx;
+}
+.bk-sortbar-label { font-size: 22rpx; color: #8a9bb5; font-weight: 700; }
+.bk-sort-chip {
+  padding: 8rpx 24rpx;
+  border-radius: 999rpx;
+  background: #fff;
+  color: #5c7f9e;
+  font-size: 23rpx;
+  font-weight: 700;
+  box-shadow: 0 3rpx 8rpx rgba(28, 53, 92, .06);
+}
+.bk-sort-chip.on {
+  background: linear-gradient(135deg, #6fc3ff, #3f8fe0);
+  color: #fff;
+}
+
+/* ===== 翻页（2026-10-08，替掉原来的「加载更多」）===== */
+.bk-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20rpx;
+  padding: 22rpx 0 8rpx;
+}
+.bk-pager-btn {
+  height: 64rpx; line-height: 64rpx;
+  padding: 0 30rpx;
+  border-radius: 32rpx;
+  background: #fff;
+  color: #2e6fd6;
+  font-size: 25rpx; font-weight: 800;
+  box-shadow: 0 4rpx 0 rgba(28, 53, 92, .08);
+}
+.bk-pager-btn:active { transform: translateY(3rpx); }
+.bk-pager-btn.dis { color: #b8c4d4; background: #f2f5f9; box-shadow: none; }
+.bk-pager-info { font-size: 22rpx; color: #6b87a3; font-weight: 700; }

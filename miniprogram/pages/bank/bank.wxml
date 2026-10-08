@@ -100,6 +100,13 @@
     </view>
 
     <!-- 列表 -->
+    <!-- 排序（2026-10-08）：词库在构建期补好了 py 字段（汉字 = 全拼、英文 = 小写本身），
+         所以「英文按字母、中文按拼音」用的是同一套键，一个控件就够。 -->
+    <view class="bk-sortbar">
+      <text class="bk-sortbar-label">排序</text>
+      <view class="bk-sort-chip {{sortKey === 'py' ? 'on' : ''}}" data-key="py" bindtap="pickSort">字母 · 拼音序</view>
+    </view>
+
     <scroll-view class="bk-list" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
       <view
         wx:for="{{shown}}"
@@ -127,7 +134,13 @@
         </view>
       </view>
 
-      <view wx:if="{{hasMore}}" class="bk-more" bindtap="loadMore">加载更多</view>
+      <!-- 翻页（2026-10-08）：原来是「加载更多」追加式，改成页码替换式。
+           追加式想回头看第 3 页得从头再加载，也看不出自己翻到哪了。 -->
+      <view wx:if="{{totalPages > 1}}" class="bk-pager">
+        <view class="bk-pager-btn {{pageNum <= 1 ? 'dis' : ''}}" data-dir="-1" bindtap="goPage">上一页</view>
+        <view class="bk-pager-info">第 {{pageNum}} / {{totalPages}} 页 · 共 {{filteredTotal}} 条</view>
+        <view class="bk-pager-btn {{pageNum >= totalPages ? 'dis' : ''}}" data-dir="1" bindtap="goPage">下一页</view>
+      </view>
       <view wx:if="{{!shown.length}}" class="bk-empty">
         <view class="bk-empty-emoji">📭</view>
         <view class="bk-empty-text">这个筛选下还没有词条</view>

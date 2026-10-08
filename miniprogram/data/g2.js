@@ -7,277 +7,323 @@ module.exports = {
       "type": "w1",
       "q": "sister",
       "a": "sister",
-      "hint": "姐妹"
+      "hint": "姐妹",
+      "py": "sister"
     },
     {
       "type": "w1",
       "q": "friend",
       "a": "friend",
-      "hint": "朋友"
+      "hint": "朋友",
+      "py": "friend"
     },
     {
       "type": "w1",
       "q": "teacher",
       "a": "teacher",
-      "hint": "老师"
+      "hint": "老师",
+      "py": "teacher"
     },
     {
       "type": "w1",
       "q": "student",
       "a": "student",
-      "hint": "学生"
+      "hint": "学生",
+      "py": "student"
     },
     {
       "type": "w1",
       "q": "doctor",
       "a": "doctor",
-      "hint": "医生"
+      "hint": "医生",
+      "py": "doctor"
     },
     {
       "type": "w1",
       "q": "nurse",
       "a": "nurse",
-      "hint": "护士"
+      "hint": "护士",
+      "py": "nurse"
     },
     {
       "type": "w1",
       "q": "home",
       "a": "home",
-      "hint": "家"
+      "hint": "家",
+      "py": "home"
     },
     {
       "type": "w1",
       "q": "house",
       "a": "house",
-      "hint": "房子"
+      "hint": "房子",
+      "py": "house"
     },
     {
       "type": "w1",
       "q": "room",
       "a": "room",
-      "hint": "房间"
+      "hint": "房间",
+      "py": "room"
     },
     {
       "type": "w1",
       "q": "school",
       "a": "school",
-      "hint": "学校"
+      "hint": "学校",
+      "py": "school"
     },
     {
       "type": "w1",
       "q": "park",
       "a": "park",
-      "hint": "公园"
+      "hint": "公园",
+      "py": "park"
     },
     {
       "type": "w1",
       "q": "shop",
       "a": "shop",
-      "hint": "商店"
+      "hint": "商店",
+      "py": "shop"
     },
     {
       "type": "w1",
       "q": "street",
       "a": "street",
-      "hint": "街道"
+      "hint": "街道",
+      "py": "street"
     },
     {
       "type": "w1",
       "q": "river",
       "a": "river",
-      "hint": "河流"
+      "hint": "河流",
+      "py": "river"
     },
     {
       "type": "w1",
       "q": "lake",
       "a": "lake",
-      "hint": "湖泊"
+      "hint": "湖泊",
+      "py": "lake"
     },
     {
       "type": "w1",
       "q": "sea",
       "a": "sea",
-      "hint": "海"
+      "hint": "海",
+      "py": "sea"
     },
     {
       "type": "w1",
       "q": "mountain",
       "a": "mountain",
-      "hint": "山"
+      "hint": "山",
+      "py": "mountain"
     },
     {
       "type": "w1",
       "q": "city",
       "a": "city",
-      "hint": "城市"
+      "hint": "城市",
+      "py": "city"
     },
     {
       "type": "w1",
       "q": "china",
       "a": "china",
-      "hint": "中国"
+      "hint": "中国",
+      "py": "china"
     },
     {
       "type": "w1",
       "q": "monday",
       "a": "monday",
-      "hint": "星期一"
+      "hint": "星期一",
+      "py": "monday"
     },
     {
       "type": "w1",
       "q": "sunday",
       "a": "sunday",
-      "hint": "星期日"
+      "hint": "星期日",
+      "py": "sunday"
     },
     {
       "type": "w1",
       "q": "spring",
       "a": "spring",
-      "hint": "春天"
+      "hint": "春天",
+      "py": "spring"
     },
     {
       "type": "w1",
       "q": "summer",
       "a": "summer",
-      "hint": "夏天"
+      "hint": "夏天",
+      "py": "summer"
     },
     {
       "type": "w1",
       "q": "winter",
       "a": "winter",
-      "hint": "冬天"
+      "hint": "冬天",
+      "py": "winter"
     },
     {
       "type": "w1",
       "q": "morning",
       "a": "morning",
-      "hint": "早晨"
+      "hint": "早晨",
+      "py": "morning"
     },
     {
       "type": "c2",
       "q": "椅*",
       "a": "椅子",
-      "hint": "椅子"
+      "hint": "椅子",
+      "py": "yi"
     },
     {
       "type": "c2",
       "q": "窗*",
       "a": "窗户",
-      "hint": "窗户"
+      "hint": "窗户",
+      "py": "chuang"
     },
     {
       "type": "c2",
       "q": "黑*",
       "a": "黑板",
-      "hint": "黑板"
+      "hint": "黑板",
+      "py": "hei"
     },
     {
       "type": "c2",
       "q": "粉*",
       "a": "粉笔",
-      "hint": "粉笔"
+      "hint": "粉笔",
+      "py": "fen"
     },
     {
       "type": "c2",
       "q": "操*",
       "a": "操场",
-      "hint": "操场"
+      "hint": "操场",
+      "py": "cao"
     },
     {
       "type": "c2",
       "q": "体*",
       "a": "体育",
-      "hint": "体育"
+      "hint": "体育",
+      "py": "ti"
     },
     {
       "type": "c2",
       "q": "音*",
       "a": "音乐",
-      "hint": "音乐"
+      "hint": "音乐",
+      "py": "yin"
     },
     {
       "type": "c2",
       "q": "美*",
       "a": "美术",
-      "hint": "美术"
+      "hint": "美术",
+      "py": "mei"
     },
     {
       "type": "c2",
       "q": "语*",
       "a": "语文",
-      "hint": "语文"
+      "hint": "语文",
+      "py": "yu"
     },
     {
       "type": "c2",
       "q": "数*",
       "a": "数学",
-      "hint": "数学"
+      "hint": "数学",
+      "py": "shu"
     },
     {
       "type": "c2",
       "q": "英*",
       "a": "英语",
-      "hint": "英语"
+      "hint": "英语",
+      "py": "ying"
     },
     {
       "type": "c2",
       "q": "科*",
       "a": "科学",
-      "hint": "科学"
+      "hint": "科学",
+      "py": "ke"
     },
     {
       "type": "c2",
       "q": "电*",
       "a": "电脑",
-      "hint": "电脑"
+      "hint": "电脑",
+      "py": "dian"
     },
     {
       "type": "c2",
       "q": "手*",
       "a": "手机",
-      "hint": "手机"
+      "hint": "手机",
+      "py": "shou"
     },
     {
       "type": "c2",
       "q": "电*机",
       "a": "电视机",
-      "hint": "电视机"
+      "hint": "电视机",
+      "py": "dianji"
     },
     {
       "type": "c2",
       "q": "冰*",
       "a": "冰箱",
-      "hint": "冰箱"
+      "hint": "冰箱",
+      "py": "bing"
     },
     {
       "type": "c2",
       "q": "风*",
       "a": "风扇",
-      "hint": "风扇"
+      "hint": "风扇",
+      "py": "feng"
     },
     {
       "type": "c2",
       "q": "灯*",
       "a": "灯泡",
-      "hint": "灯泡"
+      "hint": "灯泡",
+      "py": "deng"
     },
     {
       "type": "c2",
       "q": "钟*",
       "a": "钟表",
-      "hint": "钟表"
+      "hint": "钟表",
+      "py": "zhong"
     },
     {
       "type": "c2",
       "q": "日*",
       "a": "日历",
-      "hint": "日历"
+      "hint": "日历",
+      "py": "ri"
     },
     {
       "type": "c2",
       "q": "课*",
       "a": "课本",
-      "hint": "课本"
+      "hint": "课本",
+      "py": "ke"
     },
     {
       "type": "zc",
@@ -288,7 +334,8 @@ module.exports = {
         "月",
         "日",
         "白"
-      ]
+      ],
+      "py": "ming"
     },
     {
       "type": "zc",
@@ -299,7 +346,8 @@ module.exports = {
         "天",
         "雪",
         "色"
-      ]
+      ],
+      "py": "bai"
     },
     {
       "type": "zc",
@@ -310,7 +358,8 @@ module.exports = {
         "多",
         "少",
         "平"
-      ]
+      ],
+      "py": "tai"
     },
     {
       "type": "zc",
@@ -321,7 +370,8 @@ module.exports = {
         "明",
         "光",
         "色"
-      ]
+      ],
+      "py": "yue"
     },
     {
       "type": "zc",
@@ -332,7 +382,8 @@ module.exports = {
         "高",
         "顶",
         "峰"
-      ]
+      ],
+      "py": "shan"
     },
     {
       "type": "zc",
@@ -343,7 +394,8 @@ module.exports = {
         "朵",
         "香",
         "色"
-      ]
+      ],
+      "py": "hua"
     },
     {
       "type": "zc",
@@ -354,7 +406,8 @@ module.exports = {
         "叶",
         "枝",
         "根"
-      ]
+      ],
+      "py": "shu"
     },
     {
       "type": "zc",
@@ -365,7 +418,8 @@ module.exports = {
         "生",
         "习",
         "书"
-      ]
+      ],
+      "py": "xue"
     },
     {
       "type": "zc",
@@ -376,7 +430,8 @@ module.exports = {
         "人",
         "少",
         "大"
-      ]
+      ],
+      "py": "lao"
     },
     {
       "type": "zc",
@@ -387,7 +442,8 @@ module.exports = {
         "时",
         "事",
         "心"
-      ]
+      ],
+      "py": "tong"
     },
     {
       "type": "zc",
@@ -398,7 +454,8 @@ module.exports = {
         "下",
         "山",
         "学"
-      ]
+      ],
+      "py": "shang"
     },
     {
       "type": "zc",
@@ -409,7 +466,8 @@ module.exports = {
         "上",
         "山",
         "雨"
-      ]
+      ],
+      "py": "xia"
     },
     {
       "type": "zc",
@@ -420,7 +478,8 @@ module.exports = {
         "人",
         "心",
         "字"
-      ]
+      ],
+      "py": "du"
     },
     {
       "type": "zc",
@@ -431,7 +490,8 @@ module.exports = {
         "人",
         "书",
         "诗"
-      ]
+      ],
+      "py": "xie"
     },
     {
       "type": "zc",
@@ -442,7 +502,8 @@ module.exports = {
         "球",
         "心",
         "色"
-      ]
+      ],
+      "py": "qian"
     },
     {
       "type": "zc",
@@ -453,7 +514,8 @@ module.exports = {
         "胶",
         "树",
         "木"
-      ]
+      ],
+      "py": "xiang"
     },
     {
       "type": "zc",
@@ -464,7 +526,8 @@ module.exports = {
         "寸",
         "度",
         "量"
-      ]
+      ],
+      "py": "chi"
     },
     {
       "type": "zc",
@@ -475,7 +538,8 @@ module.exports = {
         "本",
         "房",
         "桌"
-      ]
+      ],
+      "py": "shu"
     },
     {
       "type": "zc",
@@ -486,7 +550,8 @@ module.exports = {
         "面",
         "腿",
         "椅"
-      ]
+      ],
+      "py": "zhuo"
     },
     {
       "type": "zc",
@@ -497,7 +562,8 @@ module.exports = {
         "背",
         "腿",
         "桌"
-      ]
+      ],
+      "py": "yi"
     },
     {
       "type": "zc",
@@ -508,7 +574,8 @@ module.exports = {
         "门",
         "口",
         "子"
-      ]
+      ],
+      "py": "chuang"
     },
     {
       "type": "zc",
@@ -519,7 +586,8 @@ module.exports = {
         "色",
         "笔",
         "木"
-      ]
+      ],
+      "py": "hei"
     },
     {
       "type": "zc",
@@ -530,7 +598,8 @@ module.exports = {
         "色",
         "红",
         "末"
-      ]
+      ],
+      "py": "fen"
     },
     {
       "type": "zc",
@@ -541,7 +610,8 @@ module.exports = {
         "心",
         "作",
         "练"
-      ]
+      ],
+      "py": "cao"
     },
     {
       "type": "zc",
@@ -552,7 +622,8 @@ module.exports = {
         "身",
         "重",
         "力"
-      ]
+      ],
+      "py": "ti"
     },
     {
       "type": "zc",
@@ -563,7 +634,8 @@ module.exports = {
         "声",
         "响",
         "调"
-      ]
+      ],
+      "py": "yin"
     },
     {
       "type": "zc",
@@ -574,7 +646,8 @@ module.exports = {
         "丽",
         "好",
         "景"
-      ]
+      ],
+      "py": "mei"
     },
     {
       "type": "zc",
@@ -585,7 +658,8 @@ module.exports = {
         "言",
         "话",
         "字"
-      ]
+      ],
+      "py": "yu"
     }
   ]
 };

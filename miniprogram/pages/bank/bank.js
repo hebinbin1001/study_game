@@ -48,6 +48,10 @@ function toRow(grade, item, banks) {
     q: item.q || '',
     a: item.a || '',
     hint: item.hint || '',
+    // 排序键（2026-10-08）：词库在构建期就补好了 py（汉字=全拼、英文=小写本身），
+    // 端上直接拿它排 —— 小程序里跑不了拼音库，运行时算不出来。
+    // 自建词条是用户在端上新增的，没有 py → 退回用题面本身（会排到中文之前，可接受）。
+    py: item.py || String(item.q || '').toLowerCase(),
     d: Array.isArray(item.d) ? item.d.join(',') : (item.d || ''),
     ex: item.ex || '',
     srcLabel: label,
@@ -80,6 +84,11 @@ Page({
     learnedCount: 0,
     shown: [],
     hasMore: false,
+    // 排序 / 翻页（2026-10-08）
+    sortKey: 'py',        // 目前只有「拼音·字母序」一档
+    totalPages: 1,
+    pageNum: 1,           // 当前页（与 js 的 _page 同步；WXML 只能读 data）
+    filteredTotal: 0,     // 当前筛选条件下的条数（与 totalAll 不同：那是全部）
     syncing: false,
 
     // 编辑弹层
@@ -264,8 +273,47 @@ Page({
       if (!kw) return true;
       return (r.q + ' ' + r.a + ' ' + r.hint).toLowerCase().indexOf(kw) >= 0;
     });
-    var slice = list.slice(0, this._page * PAGE_SIZE);
-    this.setData({ shown: slice, hasMore: list.length > slice.length });
+    // 排序（2026-10-08 用户要求「按字母顺序和汉字拼音顺序排序」）：
+    //   · py 是构建期补好的 —— 英文词条 = 小写本身（按字母），中文 = 全拼（按拼音）；
+    //   · 取不到 py 的（用户新建、带符号的题面）排最后，别混在正常序里。
+    var sortKey = d.sortKey || 'py';
+    if (sortKey === 'py') {
+      list.sort(function (a, b) {
+        var pa = a.py || '\uffff';   // 没有键的排最后
+        var pb = b.py || '\uffff';
+        if (pa === pb) return 0;
+        return pa < pb ? -1 : 1;
+      });
+    }
+
+    // 翻页（2026-10-08）：原来是「加载更多」追加，改成页码替换
+    var page = Math.max(1, this._page || 1);
+    var start = (page - 1) * PAGE_SIZE;
+    var slice = list.slice(start, start + PAGE_SIZE);
+    this.setData({
+      shown: slice,
+      hasMore: start + slice.length < list.length,
+      filteredTotal: list.length,
+      pageNum: page,     // 翻页控件要显示「第 N / M 页」；_page 是 js 属性，WXML 读不到
+      totalPages: Math.max(1, Math.ceil(list.length / PAGE_SIZE))
+    });
+  },
+
+  /** 切换排序（目前只有「拼音/字母序」一档；留着 sortKey 便于以后加「掌握度优先」） */
+  pickSort: function (e) {
+    var key = e.currentTarget.dataset.key || 'py';
+    this.setData({ sortKey: key });
+    this._page = 1;
+    this._applyFilter();
+  },
+
+  /** 翻页：上一页 / 下一页 */
+  goPage: function (e) {
+    var dir = parseInt(e.currentTarget.dataset.dir, 10) || 0;
+    var target = (this._page || 1) + dir;
+    if (target < 1 || target > (this.data.totalPages || 1)) return;
+    this._page = target;
+    this._applyFilter();
   },
 
   // ============ 筛选交互 ============
@@ -306,9 +354,9 @@ Page({
     this._applyFilter();
   },
 
+  /** 兼容老 wxml 的「加载更多」入口（现在等价于下一页） */
   loadMore: function () {
-    this._page += 1;
-    this._applyFilter();
+    this.goPage({ currentTarget: { dataset: { dir: 1 } } });
   },
 
   goBack: function () {
