@@ -84,4 +84,29 @@ s.test('nextTierToExam：一档一档往上考，不能跳级', () => {
   s.assert.equal(gate.nextTierToExam('不存在'), 'bronze', '脏值按没考过处理');
 });
 
+s.test('capSqlCase：生成 SQL 片段，门槛由 ladder 现算、别名做了防注入', () => {
+  const sql = gate.capSqlCase('u');
+  s.assert.contains(sql, 'CASE u.exam_cleared_tier');
+  s.assert.contains(sql, "WHEN 'bronze' THEN " + (ladder.starsForCell(19) - 1));
+  // 考过荣耀王者就能进学神（最后一个大段），所以那两档是「不封顶」
+  s.assert.contains(sql, "WHEN 'glory' THEN " + gate.NO_CAP);
+  s.assert.contains(sql, "WHEN 'sage' THEN " + gate.NO_CAP);
+  s.assert.contains(sql, 'ELSE ' + (ladder.starsForCell(10) - 1), 'ELSE 分支 = 没考过时的封顶');
+  // 别名里的危险字符会被剔掉（这个片段是拼进 SQL 的，不能留注入面）：
+  // 分号、注释符、空格都不许留 —— 剩下的成分拼成一个普通标识符就安全了
+  const dirty = gate.capSqlCase('u; DROP TABLE users--');
+  s.assert.ok(dirty.indexOf(';') < 0, '分号必须被剔除');
+  s.assert.ok(dirty.indexOf('--') < 0, '注释符必须被剔除');
+  s.assert.contains(dirty, 'CASE uDROPTABLEusers');
+});
+
+s.test('capSqlCase 与 cappedStars 口径一致（同一档位算出同一个上界）', () => {
+  // 只比对 WHEN 分支（空档走 ELSE，上面已单独断言过）
+  ['bronze', 'silver', 'gold', 'platinum', 'diamond', 'star', 'king', 'glory', 'sage'].forEach(function (tier) {
+    const fromJs = gate.cappedStars(gate.NO_CAP, tier);
+    s.assert.contains(gate.capSqlCase('u'), 'THEN ' + fromJs + ' ',
+      tier + ' 档的 SQL 上界应与 cappedStars 一致');
+  });
+});
+
 s.done();

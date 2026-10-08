@@ -4,6 +4,65 @@ const { sequelize, User, RankRecord, Rank, Score } = require("../db");
 // 曲线与星星口径改了以后那两处不会跟着变 → 排行榜段位一直显示旧值（用户反馈「排行榜段位没更新」）。
 const ladder = require("../rank-ladder");
 const { displayName } = require("../nickname-util");
+const examGate = require("../exam-gate");
+
+/**
+ * 晋级考试的星数封顶表达式（2026-10-08）。
+ *
+ * 排行榜必须**按封顶后的星数排序** —— 否则会出现「显示白银 9，却排在铂金前面」这种错乱。
+ * 所以封顶要写进 SQL，而不是取回结果后在 JS 里改数字。
+ *
+ * exam_cleared_tier 列可能还没建（DDL 由用户执行）→ 先探测一次并缓存，
+ * 列不存在就退回「不封顶」，绝不让整个榜单因为一个可选功能打挂。
+ */
+let EXAM_COL_READY = null;
+async function examColumnReady() {
+  if (EXAM_COL_READY !== null) return EXAM_COL_READY;
+  try {
+    await sequelize.query("SELECT exam_cleared_tier FROM users LIMIT 1");
+    EXAM_COL_READY = true;
+  } catch (e) {
+    EXAM_COL_READY = false;
+  }
+  return EXAM_COL_READY;
+}
+
+/** 取「有效星数」的 SQL 表达式（列就绪 → LEAST(真实, 封顶)；否则原样） */
+async function effectiveStarsExpr(alias) {
+  if (!await examColumnReady()) return alias + ".stars";
+  return "LEAST(" + alias + ".stars, " + examGate.capSqlCase(alias) + ")";
+}
+
+/**
+ * 批量取「已通过晋级考试的最高大段」（内存版，给不涉及星数排序的榜单用）。
+ * 列未就绪 / 查不到都返回空 Map —— 调用方按「没考过」处理。
+ * @param {string[]} openids
+ * @returns {Promise<Map<string, string>>}
+ */
+async function examClearedMap(openids) {
+  const map = new Map();
+  if (!openids || !openids.length) return map;
+  if (!await examColumnReady()) return map;
+  try {
+    const [rows] = await sequelize.query(
+      "SELECT openid, exam_cleared_tier FROM users WHERE openid IN (:ids)",
+      { replacements: { ids: openids } }
+    );
+    (rows || []).forEach(function (r) {
+      if (r && r.exam_cleared_tier) map.set(r.openid, r.exam_cleared_tier);
+    });
+  } catch (e) {
+    // 查不到就按没考过处理，不影响榜单可用性
+  }
+  return map;
+}
+
+/** 某个用户的「有效星数」（内存版，与 effectiveStarsExpr 同口径） */
+function effStarsOf(rr, clearedMap, user) {
+  const raw = rr ? (Number(rr.stars) || 0) : 0;
+  const cleared = (user && clearedMap.get(user.openid)) || "";
+  return examGate.cappedStars(raw, cleared);
+}
 
 const router = express.Router();
 
@@ -96,6 +155,9 @@ router.get("/progress", async (req, res) => {
       ? await RankRecord.findAll({ where: { openid: openids }, attributes: ["openid", "rankId", "stars"] })
       : [];
     const rrMap = new Map(rrRows.map((r) => [r.openid, r]));
+    // 晋级考试封顶：批量取这批人的「已通过大段」，段位与星数都按封顶口径展示
+    //（玩法榜是按关卡排的，不涉及星数排序，所以这里只需改显示值）
+    const clearedMap = await examClearedMap(openids);
     const rankIds = [...new Set(rrRows.map((r) => r.rankId))];
     const rankRows = rankIds.length ? await Rank.findAll({ where: { rankId: rankIds } }) : [];
     const rankNameMap = new Map(rankRows.map((r) => [r.rankId, r.rankName]));
@@ -108,8 +170,8 @@ router.get("/progress", async (req, res) => {
         // 门槛取消后可能拿到空昵称（老账号还没补），展示时兜底成「战士 XXXX」
         nickname: displayName(user.nickname, user.openid),
         avatarUrl: user ? user.avatar_url : "",
-        rankName: ladder.rankOf(rr ? rr.stars : 0).rankName,
-        stars: rr ? rr.stars : 0,
+        rankName: ladder.rankOf(effStarsOf(rr, clearedMap, user)).rankName,
+        stars: effStarsOf(rr, clearedMap, user),
         maxLevel: parseInt(r.max_level, 10) || 0,
         passedLevels: parseInt(r.passed_levels, 10) || 0,
       };
@@ -239,11 +301,13 @@ router.get("/world", async (req, res) => {
 
     // 查询排行榜（按星星降序、同分按胜场升序时间）
     // JOIN users 是为了取昵称/头像；上榜门槛已于 2026-10-08 取消（NICKNAME_READY_SQL 恒真）
+    // 星数走「晋级考试封顶」口径：排序和展示都用有效星数，避免「显示白银 9 却排在铂金前面」
+    const effStars = await effectiveStarsExpr("r");
     const [rows] = await sequelize.query(
-      `SELECT r.openid, r.stars, r.wins, u.nickname, u.avatar_url
+      `SELECT r.openid, r.stars, ${effStars} AS eff_stars, r.wins, u.nickname, u.avatar_url
          FROM rank_records r
          JOIN users u ON u.openid = r.openid AND ${NICKNAME_READY_SQL}
-        ORDER BY r.stars DESC, r.wins DESC, r.createdAt ASC
+        ORDER BY eff_stars DESC, r.wins DESC, r.createdAt ASC
         LIMIT :limit OFFSET :offset`,
       { replacements: { limit: pageSize, offset } }
     );
@@ -256,15 +320,17 @@ router.get("/world", async (req, res) => {
 
     // 组装返回数据
     const list = rows.map((record, index) => {
+      // eff_stars = 晋级考试封顶后的星数（列未就绪时它就是 r.stars）
+      const eff = Number(record.eff_stars) || 0;
       return {
         rank: offset + index + 1,
         openid: record.openid,
         nickname: displayName(record.nickname, record.openid),
         avatarUrl: record.avatar_url || "",
-        rankId: ladder.rankOf(record.stars).rankId,
-        rankName: ladder.rankOf(record.stars).rankName,
-        score: record.stars * 100 + record.wins * 10, // 综合得分
-        stars: record.stars,
+        rankId: ladder.rankOf(eff).rankId,
+        rankName: ladder.rankOf(eff).rankName,
+        score: eff * 100 + record.wins * 10, // 综合得分（用有效星数，与段位口径一致）
+        stars: eff,
         wins: record.wins,
       };
     });
@@ -335,19 +401,25 @@ router.get("/me", async (req, res) => {
     // ⚠️ 用原生 SQL 而不是 Sequelize 的 Op：一是要和上面榜单的 JOIN 口径保持一致，
     //    二是历史上这里踩过 v6 操作符的坑（旧式 $gt / $ne 会被序列化成
     //    `stars = '[object Object]'`，直接把接口打成 5000，见 tests/unit/sequelize-operators.test.js）。
+    // 2026-10-08：比较也要用**封顶后的有效星数** —— 否则榜单按封顶值排、名次按真实星算，
+    // 同一屏里会出现「我明明排在 TA 前面，名次却比 TA 低」。
+    // 我的有效星数（晋级考试封顶后），名次与展示都用它
+    const myCleared = (await examClearedMap([openid])).get(openid) || "";
+    const myEffStarsValue = examGate.cappedStars(myRecord.stars, myCleared);
+    const myEffStars = await effectiveStarsExpr("r");
     const [higherRows] = await sequelize.query(
       `SELECT COUNT(*) AS c
          FROM rank_records r
          JOIN users u ON u.openid = r.openid AND ${NICKNAME_READY_SQL}
-        WHERE r.stars > :stars`,
-      { replacements: { stars: myRecord.stars } }
+        WHERE ${myEffStars} > :stars`,
+      { replacements: { stars: myEffStarsValue } }
     );
     const [sameRows] = await sequelize.query(
       `SELECT COUNT(*) AS c
          FROM rank_records r
          JOIN users u ON u.openid = r.openid AND ${NICKNAME_READY_SQL}
-        WHERE r.stars = :stars AND r.openid <> :me`,
-      { replacements: { stars: myRecord.stars, me: openid } }
+        WHERE ${myEffStars} = :stars AND r.openid <> :me`,
+      { replacements: { stars: myEffStarsValue, me: openid } }
     );
     const myRank =
       parseInt((higherRows[0] || {}).c || 0, 10) +
@@ -364,10 +436,10 @@ router.get("/me", async (req, res) => {
         rank: myRank,
         nickname: displayName(user.nickname, user.openid),
         avatarUrl: user ? user.avatar_url : "",
-        rankId: ladder.rankOf(myRecord.stars).rankId,
-        rankName: ladder.rankOf(myRecord.stars).rankName,
+        rankId: ladder.rankOf(myEffStarsValue).rankId,
+        rankName: ladder.rankOf(myEffStarsValue).rankName,
         score: myRecord.stars * 100 + myRecord.wins * 10,
-        stars: myRecord.stars,
+        stars: myEffStarsValue,
         wins: myRecord.wins,
       },
     });

@@ -20,6 +20,13 @@
 const ladder = require("./rank-ladder");
 
 /**
+ * 「不封顶」的哨兵值。用 MySQL INT 上限而不是 Number.MAX_SAFE_INTEGER ——
+ * 同一套口径要同时用在 JS（cappedStars）和 SQL（capSqlCase）里，两边必须能对上数。
+ * 段位满级门槛才 1187 星，这个上限绰绰有余。
+ */
+const NO_CAP = 2147483647;
+
+/**
  * 由「已通过考试的最高大段 key」算出允许到达的最大级别（1 基 cell）。
  *
  * 语义：通过「青铜」的考试 → 允许进入「白银」，也就是最多到白银 9；
@@ -67,7 +74,7 @@ function cappedStars(stars, clearedTierKey) {
   const maxCell = maxCellFrom(clearedTierKey);
   // 卡在「最大 cell」这一级的**区间内**：区间上界是进入下一级所需星数 - 1
   const cap = maxCell >= ladder.TOTAL_CELLS
-    ? Number.MAX_SAFE_INTEGER                       // 已经通关，不封顶
+    ? NO_CAP                                        // 已经通关，不封顶
     : ladder.starsForCell(maxCell + 1) - 1;
   return Math.min(raw, cap);
 }
@@ -86,9 +93,40 @@ function needsExam(stars, clearedTierKey) {
   return raw > cappedStars(raw, clearedTierKey);
 }
 
+/**
+ * 生成「星数封顶」的 SQL 片段（给排行榜用）。
+ *
+ * 为什么要在 SQL 里算：排行榜是**按星数排序**的 —— 如果只在取回结果后改数字，
+ * 排序就已经按真实星数排完了，会出现「显示白银 9、却排在铂金的人前面」这种错乱。
+ * 所以封顶必须参与 ORDER BY，也就必须在 SQL 里表达。
+ *
+ * 门槛值一律由 rank-ladder 现算（不写死数字）：曲线以后调了，这里跟着变。
+ *
+ * @param {string} alias users 表的别名（如 'u'）
+ * @returns {string} 形如 `CASE u.exam_cleared_tier WHEN 'bronze' THEN 26 ... ELSE 26 END`
+ */
+function capSqlCase(alias) {
+  const a = String(alias || 'u').replace(/[^A-Za-z0-9_]/g, '');   // 防注入：别名只留词字符
+  const fallback = capForTier('');                                 // 没考过 → 卡在第一个大段
+  const branches = ladder.BIG_RANKS.map(function (r) {
+    return "WHEN '" + r.key + "' THEN " + capForTier(r.key);
+  });
+  return 'CASE ' + a + '.exam_cleared_tier ' + branches.join(' ')
+    + ' ELSE ' + fallback + ' END';
+}
+
+/** 某个大段「已通过」时的星数上界（内部用，供 capSqlCase 拼 SQL） */
+function capForTier(clearedTierKey) {
+  const maxCell = maxCellFrom(clearedTierKey);
+  if (maxCell >= ladder.TOTAL_CELLS) return NO_CAP;       // 已到顶：不封顶
+  return ladder.starsForCell(maxCell + 1) - 1;
+}
+
 module.exports = {
+  NO_CAP: NO_CAP,
   nextTierToExam: nextTierToExam,
   maxCellFrom: maxCellFrom,
   cappedStars: cappedStars,
-  needsExam: needsExam
+  needsExam: needsExam,
+  capSqlCase: capSqlCase
 };
