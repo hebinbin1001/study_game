@@ -53,7 +53,9 @@ H.runSuite('verify-daily-season-pk（每日挑战 / 赛季 / 好友 PK）', asyn
       const cur = await dc.data();
       if (cur.phase !== 'playing') break;
       await dc.callMethod('_testAnswer', true);
-      await dc.waitFor(60);
+      // 服务端要求总用时 ≥1s（防机器人连点）：用例每题停一下，让提交真的落库。
+      // 否则会走到「用时不合法」分支，用例看起来过了、其实没验证到写入链路。
+      await dc.waitFor(130);
     }
     const done = await dc.data();
     ck.check('答满题量进入结算态', done.phase === 'done', '实际 = ' + done.phase);
