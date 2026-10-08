@@ -221,6 +221,79 @@ button.btn {
   text-align: center;
 }
 
+/* ==========================================================================
+   统一按钮规范（2026-10-08）
+
+   背景（用户反馈）：「返回按钮统一设计下，现在太普通了」+
+   「下一关、返回、重玩等按钮统一下」。
+
+   现状：app.wxss 里本来就有 .btn / .btn-primary 这套基础，
+   但各页**没引用它**、各自又写了一遍（.ri-back / .lv-back / .wb-back …），
+   同一类操作在不同页面长得不一样 —— 这才是"看着乱"的根源。
+
+   这里把「关卡流程里会反复出现的操作」定成标准件，各页直接引用：
+     尺寸  btn-lg（128rpx，主操作）/ btn-md（96rpx，常规）/ btn-sm（72rpx，次要内联）
+     语义  btn-primary 主操作（橙）· btn-ghost 次要（白底描边）
+           btn-next 下一关（绿）· btn-retry 重玩（蓝）· btn-back 返回（胶囊）
+
+   ⚠️ 三句实现上的硬约束（都踩过坑）：
+     1. 必须 flex 居中 —— 原生 button 的 line-height 会让文字贴顶（见上方那条注释）；
+     2. 去掉原生 ::after 边框，否则会多一圈灰线；
+     3. :active 用「下压 + 阴影变浅」而不是改背景色 —— 改背景色在深色按钮上看不出来。
+   ========================================================================== */
+
+/* ---- 尺寸档 ---- */
+.btn-lg { height: 128rpx; font-size: 42rpx; padding: 0 56rpx; }
+.btn-md { height: 96rpx; font-size: 32rpx; padding: 0 40rpx; }
+.btn-sm { height: 72rpx; font-size: 26rpx; padding: 0 28rpx; border-radius: 36rpx; }
+
+/* ---- 语义档 ---- */
+/* 主操作：下一关 / 开始 / 保存 */
+.btn-next {
+  background: linear-gradient(135deg, #7bd389, #4caf50);
+  box-shadow: 0 10rpx 0 rgba(40, 120, 60, .28), 0 16rpx 30rpx rgba(0, 0, 0, .1);
+}
+/* 重玩：蓝 */
+.btn-retry {
+  background: linear-gradient(135deg, #6fc3ff, #3f8fe0);
+  box-shadow: 0 10rpx 0 rgba(30, 90, 150, .26), 0 16rpx 30rpx rgba(0, 0, 0, .1);
+}
+/* 次要操作：白底描边，用在「回首页」「取消」这类不想抢注意力的位置 */
+.btn-ghost {
+  background: #ffffff;
+  color: #5c7f9e;
+  box-shadow: 0 8rpx 0 rgba(28, 53, 92, .1);
+}
+.btn-ghost.btn { color: #5c7f9e; }
+
+/**
+ * 返回：统一胶囊（白底 + 左箭头 + 轻微阴影）。
+ * 用它替掉各页自写的圆形返回 —— 圆形那个在小屏上像颗纽扣，撑不起"返回"的语义。
+ */
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 72rpx;
+  padding: 0 30rpx 0 22rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .92);
+  color: #3a3a5c;
+  font-size: 28rpx;
+  font-weight: 800;
+  letter-spacing: 1rpx;
+  box-shadow: 0 6rpx 16rpx rgba(28, 53, 92, .12);
+  transition: transform .12s;
+}
+.btn-back::before {
+  content: '‹';
+  margin-right: 10rpx;
+  font-size: 42rpx;
+  line-height: 1;
+  font-weight: 900;
+}
+.btn-back:active { transform: translateY(3rpx); }
+
 /* ============ 返回按钮 ============ */
 .back-btn {
   align-self: flex-start;
