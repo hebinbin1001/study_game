@@ -22,12 +22,17 @@ var PAGE_SIZE = 20;   // 每页条数（与后端上限 100 对齐）
  * @param {number} [pageSize]
  * @returns {string}
  */
-function listUrl(scope, page, pageSize) {
+function listUrl(scope, page, pageSize, q) {
   // 三种 scope：pending / mastered / reviewed（已复习 = 答对过但没满 100）
   var s = (scope === 'mastered' || scope === 'reviewed') ? scope : 'pending';
   var p = Math.max(1, parseInt(page, 10) || 1);
   var size = Math.max(1, parseInt(pageSize, 10) || PAGE_SIZE);
-  return '/api/wrong/list?scope=' + s + '&page=' + p + '&pageSize=' + size;
+  var url = '/api/wrong/list?scope=' + s + '&page=' + p + '&pageSize=' + size;
+  // 关键字（2026-10-08）：搜索在**服务端**做 —— 端上只加载了一页，
+  // 在端上筛等于"只在已加载的 20 条里找"，用户会以为搜不到。
+  var kw = String(q == null ? '' : q).trim();
+  if (kw) url += '&q=' + encodeURIComponent(kw);
+  return url;
 }
 
 /**
@@ -97,6 +102,10 @@ function applyPage(state, page, reset) {
   var data = page || {};
   var items = data.items || [];
   var counts = data.counts || { total: 0, pending: 0, mastered: 0 };
+  // 总页数（2026-10-08 翻页用）：服务端给的是「该 scope（含搜索词）的总条数」，
+  // 除以每页条数向上取整。至少 1 页 —— 否则空结果时翻页控件会显示「第 1/0 页」。
+  var size = Math.max(1, parseInt(data.pageSize, 10) || PAGE_SIZE);
+  var totalPages = Math.max(1, Math.ceil((Number(data.total) || 0) / size));
 
   // 已掌握 / 已复习：列表结构相同（都只展示题目本身 + 统计），只是 scope 不同
   if (s.activeTab === 'mastered' || s.activeTab === 'reviewed') {
@@ -109,6 +118,7 @@ function applyPage(state, page, reset) {
         mastered: counts.mastered, reviewed: counts.reviewed
       },
       page: data.page || 1,
+      totalPages: totalPages,
       hasMore: !!data.hasMore,
       moreCount: Math.max(0, (data.total || rows.length) - rows.length)
     };
@@ -129,6 +139,7 @@ function applyPage(state, page, reset) {
       mastered: counts.mastered, reviewed: counts.reviewed
     },
     page: data.page || 1,
+    totalPages: totalPages,
     hasMore: !!data.hasMore,
     moreCount: Math.max(0, (data.total || pending.length) - pending.length)
   };

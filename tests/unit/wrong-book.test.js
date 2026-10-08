@@ -214,3 +214,52 @@ s.test('艾宾浩斯：答错重置复习次数、熟练度 -10 且不为负（�
 });
 
 s.done();
+// ============ 搜索（2026-10-08 用户要求「错题本应该支持翻页和搜索」）============
+
+s.test('搜索：按题目过滤，大小写不敏感', () => {
+  const list = [
+    { recordId: '1', question: 'Apple', answer: '苹果', mastery: 0 },
+    { recordId: '2', question: 'banana', answer: '香蕉', mastery: 0 },
+  ];
+  s.assert.equal(book.filterByKeyword(list, 'apple').length, 1, '大小写不敏感');
+  s.assert.equal(book.filterByKeyword(list, 'banana')[0].recordId, '2');
+  s.assert.equal(book.filterByKeyword(list, '').length, 2, '空词不过滤');
+  s.assert.equal(book.filterByKeyword(list, '   ').length, 2, '纯空白当没搜');
+  s.assert.equal(book.filterByKeyword(list, '不存在的词').length, 0);
+});
+
+s.test('搜索：题目和答案都能搜到（用户记得的可能是答案）', () => {
+  const list = [{ recordId: '1', question: 'apple', answer: '苹果', mastery: 0 }];
+  s.assert.equal(book.filterByKeyword(list, '苹果').length, 1, '中文答案要能搜');
+  s.assert.equal(book.filterByKeyword(list, 'app').length, 1, '部分匹配');
+});
+
+s.test('搜索 + 分页：total 与 hasMore 都按**过滤后**的集合算', () => {
+  // 造 12 条：6 条含 cat、6 条不含 —— 这是最容易写错的地方：
+  // 如果先分页再过滤（或者 total 用了未过滤的集合），翻页会出现空页
+  const list = [];
+  for (let i = 0; i < 12; i++) {
+    list.push({
+      recordId: String(i),
+      question: i < 6 ? ('cat' + i) : ('dog' + i),
+      answer: '', mastery: 0, reviewCount: 0,
+    });
+  }
+  const res = book.buildListResponse(list, { scope: 'pending', page: '1', pageSize: '4', q: 'cat' });
+  s.assert.equal(res.total, 6, '总数应只算命中的 6 条');
+  s.assert.equal(res.items.length, 4);
+  s.assert.equal(res.hasMore, true);
+
+  const p2 = book.buildListResponse(list, { scope: 'pending', page: '2', pageSize: '4', q: 'cat' });
+  s.assert.equal(p2.items.length, 2, '第二页应有剩下的 2 条');
+  s.assert.equal(p2.hasMore, false, '第二页应是最后一页');
+  // 全部命中项都含 cat（没有混进 dog）
+  s.assert.ok(p2.items.every(function (it) { return String(it.question).indexOf('cat') === 0; }));
+});
+
+s.test('搜索无结果：返回空列表且 hasMore=false（不报错）', () => {
+  const res = book.buildListResponse(makeRecords(5), { scope: 'pending', page: '1', pageSize: '20', q: 'zzz' });
+  s.assert.equal(res.items.length, 0);
+  s.assert.equal(res.total, 0);
+  s.assert.equal(res.hasMore, false);
+});

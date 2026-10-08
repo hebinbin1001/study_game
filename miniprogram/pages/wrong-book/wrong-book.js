@@ -27,6 +27,8 @@ Page({
     visible: [],           // 待复习当前展示行（与 renderList 同步；wxml 沿用）
     visibleN: 0,           // 待复习已加载条数（卡片数，不含分组行）
     page: 1,               // 当前已加载到第几页（针对 activeTab）
+    totalPages: 1,         // 总页数（翻页控件用）
+    q: '',                 // 搜索关键字（2026-10-08：错题本支持搜索）
     moreCount: 0,          // 「加载更多」还可以加载多少条
     hasMore: false,
     stats: { total: 0, pending: 0, mastered: 0, reviewed: 0 },
@@ -59,30 +61,35 @@ Page({
 
   /**
    * 加载错题本。
-   * @param {boolean} reset true=从第一页重载（进页面 / 切 tab / 重试）；false=加载下一页
+   *
+   * 2026-10-08 改：分页从「加载更多（追加）」改成**翻页（替换）**，并支持搜索。
+   * 用户原话「错题本应该支持翻页和搜索」—— 「加载更多」的问题是：
+   * 想回头看第 3 页得从头再加载一遍，而且翻到后面根本不知道自己看到哪了。
+   *
+   * @param {boolean|number} reset true=回第一页重载（进页面/切 tab/重试/搜索）；
+   *                               number=跳到指定页；不传=重载当前页
    */
   loadWrongBook: function (reset) {
     var self = this;
-    // 三种入口：onShow/切 tab 传 true；「加载更多」不传参；错误条点击传的是事件对象（带 data-reset="1"）
+    // 入口：onShow/切 tab/搜索传 true；翻页传页码；错误条点击传的是事件对象（带 data-reset="1"）
     var isReset = (reset === true)
       || !!(reset && reset.currentTarget && reset.currentTarget.dataset && reset.currentTarget.dataset.reset === '1');
     var scope = this.data.activeTab;
-    var page = isReset ? 1 : (this.data.page + 1);
-    if (!isReset && (this.data.loadingMore || !this.data.hasMore)) return;
+    var page = isReset ? 1 : (typeof reset === 'number' ? Math.max(1, reset) : this.data.page);
+    if (this.data.loading) return;
 
-    if (isReset) self.setData({ loading: true, loadError: '' });
-    else self.setData({ loadingMore: true });
+    self.setData({ loading: true, page: page, loadError: '' });
 
-    request.get(view.listUrl(scope, page, PAGE_N)).then(function (data) {
+    request.get(view.listUrl(scope, page, PAGE_N, this.data.q)).then(function (data) {
       // 老服务端兼容：没有 items 字段说明返回的是老的 { pending, mastered, total }
       if (!data || !data.items) {
         return self.setData(Object.assign(view.applyLegacy(data), {
           loading: false, loadingMore: false, loadError: ''
         }));
       }
-      self.setData(Object.assign(view.applyPage(self.data, data, isReset), {
-        loading: false, loadingMore: false, loadError: ''
-      }));
+      // 翻页一律按「替换」处理（原来 isReset=false 是追加，现在没有追加语义了）
+      self.setData(Object.assign(view.applyPage(self.data, data, true),
+        { loading: false, loadingMore: false, loadError: '' }));
     }).catch(function (err) {
       // 诊断日志：失败不再静默
       if (typeof console !== 'undefined' && console.warn) {
@@ -96,9 +103,33 @@ Page({
     });
   },
 
-  // 加载更多（取下一页追加）
+  /** 搜索输入（不立刻请求，等用户点搜索 / 回车） */
+  onSearchInput: function (e) {
+    this.setData({ q: e.detail.value });
+  },
+
+  /** 执行搜索：回第一页重载（搜索是在服务端做的，见 wrong-book-view.listUrl） */
+  onSearch: function () {
+    this.loadWrongBook(true);
+  },
+
+  /** 清空搜索 */
+  onClearSearch: function () {
+    this.setData({ q: '' });
+    this.loadWrongBook(true);
+  },
+
+  /** 翻页：上一页 / 下一页（替换式，不追加） */
+  goPage: function (e) {
+    var dir = parseInt(e.currentTarget.dataset.dir, 10);
+    var target = this.data.page + (dir || 0);
+    if (target < 1 || target > this.data.totalPages) return;
+    this.loadWrongBook(target);
+  },
+
+  /** 兼容老 wxml 的「加载更多」入口（现在等价于下一页） */
   showMore: function () {
-    this.loadWrongBook(false);
+    this.goPage({ currentTarget: { dataset: { dir: 1 } } });
   },
 
   // 切换标签：切换后重载该 tab 的第一页（两个 tab 各自分页）

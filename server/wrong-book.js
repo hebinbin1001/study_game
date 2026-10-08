@@ -83,7 +83,11 @@ function isLegacyQuery(query) {
  */
 function parsePaging(query) {
   const q = query || {};
-  const out = { ok: true, page: 1, pageSize: DEFAULT_PAGE_SIZE, scope: DEFAULT_SCOPE, message: "" };
+  // q：关键字（2026-10-08 新增，空 = 不过滤）。它不是分页参数，搭车返回只是省一个入参。
+  const out = {
+    ok: true, page: 1, pageSize: DEFAULT_PAGE_SIZE,
+    scope: DEFAULT_SCOPE, q: String(q.q || "").trim(), message: "",
+  };
 
   if (q.page !== undefined && q.page !== "") {
     const page = Number(q.page);
@@ -130,6 +134,27 @@ function splitScope(records) {
     mastered: list.filter((r) => (Number(r.mastery) || 0) >= 100),
     reviewed: list.filter((r) => (Number(r.reviewCount) || 0) >= 1 && (Number(r.mastery) || 0) < 100),
   };
+}
+
+/**
+ * 按关键字过滤（2026-10-08 新增：用户要求「错题本应该支持翻页和搜索」）。
+ *
+ * 匹配范围是**题面 + 答案** —— 用户找一道错题时，记得的通常是
+ * 「那道关于 XX 的题」或者正确答案长什么样，两边都搜才找得到。
+ * 英文不区分大小写（`Apple` / `apple` 都要能搜到）。
+ *
+ * @param {Array} records 该 scope 的全部记录（保持入参顺序）
+ * @param {string} q 搜索词（空 = 不过滤）
+ * @returns {Array}
+ */
+function filterByKeyword(records, q) {
+  const list = Array.isArray(records) ? records : [];
+  const kw = String(q == null ? "" : q).trim().toLowerCase();
+  if (!kw) return list.slice();
+  return list.filter(function (r) {
+    const hay = (String(r.question || "") + " " + String(r.answer || "")).toLowerCase();
+    return hay.indexOf(kw) >= 0;
+  });
 }
 
 /**
@@ -194,7 +219,10 @@ function buildListResponse(records, query) {
   }
 
   const scoped = filterByScope(list, paging.scope);
-  const pageData = paginate(scoped, paging.page, paging.pageSize);
+  // ⚠️ 顺序不能反：先按 scope 切、再按关键字筛、最后分页。
+  // 反过来的话 total / hasMore 会按「未过滤」的集合算，翻页就会出现空页。
+  const filtered = filterByKeyword(scoped, paging.q);
+  const pageData = paginate(filtered, paging.page, paging.pageSize);
   return {
     items: pageData.items,
     page: pageData.page,
@@ -222,6 +250,7 @@ module.exports = {
   parsePaging,
   splitScope,
   filterByScope,
+  filterByKeyword,
   paginate,
   buildListResponse,
 };

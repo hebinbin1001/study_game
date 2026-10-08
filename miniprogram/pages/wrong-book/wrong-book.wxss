@@ -1,3 +1,68 @@
+/* ===== 搜索（2026-10-08）===== */
+.wb-search {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin: 20rpx 0 6rpx;
+}
+.wb-search-input {
+  flex: 1;
+  height: 76rpx;
+  padding: 0 78rpx 0 24rpx;
+  border-radius: 38rpx;
+  background: #fff;
+  font-size: 26rpx;
+  color: #3a3a5c;
+  box-shadow: 0 4rpx 12rpx rgba(28, 53, 92, .06);
+}
+/* 清空按钮压在输入框里（负 margin 让它在 flex 布局里不额外占位） */
+.wb-search-clear {
+  flex: 0 0 auto;
+  width: 52rpx; height: 52rpx; line-height: 52rpx; text-align: center;
+  border-radius: 50%;
+  background: #eef3fa;
+  color: #8a9bb5;
+  font-size: 26rpx;
+  margin-left: -74rpx;
+  margin-right: 8rpx;
+}
+.wb-search-btn {
+  flex: 0 0 auto;
+  height: 76rpx; line-height: 76rpx;
+  padding: 0 34rpx;
+  border-radius: 38rpx;
+  background: linear-gradient(135deg, #6fc3ff, #3f8fe0);
+  color: #fff; font-size: 26rpx; font-weight: 800;
+  box-shadow: 0 6rpx 0 rgba(30, 90, 150, .2);
+}
+.wb-search-btn:active { transform: translateY(3rpx); }
+
+/* ===== 翻页（2026-10-08，替掉原来的「加载更多」）=====
+   追加式的问题是：想回头看第 3 页得从头再加载，也看不出自己翻到哪了。 */
+.wb-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24rpx;
+  margin: 26rpx 0 8rpx;
+}
+.wb-pager-btn {
+  height: 68rpx; line-height: 68rpx;
+  padding: 0 32rpx;
+  border-radius: 34rpx;
+  background: #fff;
+  color: #2e6fd6;
+  font-size: 26rpx; font-weight: 800;
+  box-shadow: 0 5rpx 0 rgba(28, 53, 92, .08);
+}
+.wb-pager-btn:active { transform: translateY(3rpx); }
+.wb-pager-btn.dis {
+  color: #b8c4d4;
+  background: #f2f5f9;
+  box-shadow: none;
+}
+.wb-pager-info { font-size: 24rpx; color: #6b87a3; font-weight: 700; }
+
 /* 错题本列表页（wrong-book）—— 暖色天空卡通风（与 app.wxss 全局主题一致） */
 .page-wrong-book {
   padding: 20rpx 30rpx 60rpx;

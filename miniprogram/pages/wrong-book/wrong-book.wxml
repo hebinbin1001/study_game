@@ -15,6 +15,21 @@
   </view>
 
   <!-- 统计卡 -->
+  <!-- 搜索（2026-10-08）：错题攒多了以后要能按关键字找。
+       ⚠️ 搜索是**服务端**做的（见 wrong-book-view.listUrl 的 q 参数）——
+       端上只加载了一页，在端上筛等于「只在已加载的 20 条里找」，用户会以为搜不到。 -->
+  <view class="wb-search">
+    <input
+      class="wb-search-input"
+      placeholder="搜题目 / 答案"
+      value="{{q}}"
+      bindinput="onSearchInput"
+      bindconfirm="onSearch"
+      confirm-type="search" />
+    <view wx:if="{{q}}" class="wb-search-clear" bindtap="onClearSearch">✕</view>
+    <view class="wb-search-btn" bindtap="onSearch">搜索</view>
+  </view>
+
   <view class="stats-bar">
     <view class="stat-item">
       <text class="stat-emoji">📚</text>
@@ -81,16 +96,21 @@
       </view>
     </block>
 
-    <!-- 加载更多 -->
-    <view wx:if="{{hasMore}}" class="btn-review" style="background:#eef2f8;color:#5c7f9e;" bindtap="showMore">
-      {{loadingMore ? '加载中…' : '↓ 加载更多（还有 ' + moreCount + ' 条）'}}
+    <!-- 翻页（2026-10-08）：原来是「加载更多」追加式，改成翻页替换式 ——
+         追加式想回头看第 3 页得从头再加载，也看不出自己翻到哪了。 -->
+    <view wx:if="{{totalPages > 1}}" class="wb-pager">
+      <view class="wb-pager-btn {{page <= 1 || loading ? 'dis' : ''}}" data-dir="-1" bindtap="goPage">上一页</view>
+      <view class="wb-pager-info">第 {{page}} / {{totalPages}} 页</view>
+      <view class="wb-pager-btn {{page >= totalPages || loading ? 'dis' : ''}}" data-dir="1" bindtap="goPage">下一页</view>
     </view>
 
     <view class="empty-state" wx:if="{{pending.length === 0 && !loadError}}">
       <view class="empty-emoji">📝</view>
       <view class="empty-text">暂无待复习题目，太棒啦！</view>
     </view>
-    <button class="btn-review" wx:if="{{pending.length > 0 && !hasMore}}" bindtap="startReview">✏️ 开始复习</button>
+    <!-- 原来这里还要求 !hasMore（「加载完才能开始复习」）——
+         改成翻页后 hasMore 的语义变成「还有下一页」，这个条件会把按钮永久藏起来。 -->
+    <button class="btn-review" wx:if="{{pending.length > 0}}" bindtap="startReview">✏️ 开始复习</button>
   </view>
 
   <!-- 已掌握列表 -->
@@ -141,8 +161,11 @@
         </view>
       </view>
     </block>
-    <view wx:if="{{hasMore}}" class="btn-review" style="background:#eef2f8;color:#5c7f9e;" bindtap="showMore">
-      {{loadingMore ? '加载中…' : '↓ 加载更多（还有 ' + moreCount + ' 条）'}}
+    <!-- 翻页（同待复习 tab） -->
+    <view wx:if="{{totalPages > 1}}" class="wb-pager">
+      <view class="wb-pager-btn {{page <= 1 || loading ? 'dis' : ''}}" data-dir="-1" bindtap="goPage">上一页</view>
+      <view class="wb-pager-info">第 {{page}} / {{totalPages}} 页</view>
+      <view class="wb-pager-btn {{page >= totalPages || loading ? 'dis' : ''}}" data-dir="1" bindtap="goPage">下一页</view>
     </view>
     <view class="empty-state" wx:if="{{mastered.length === 0}}">
       <view class="empty-text">连续答对 5 次、熟练度满 100% 才会进这里</view>
