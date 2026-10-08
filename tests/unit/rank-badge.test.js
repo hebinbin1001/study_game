@@ -66,22 +66,7 @@ s.test('徽章文件确实存在（大段图都在 art/ranks 里）', () => {
   const fs = require('fs');
   const path = require('path');
   rankBadge.TIERS.forEach(function (t) {
-    // 学神是 2026-10-08 新加的段位，美术图还没出 —— 缺图时前端 onerror 会回退，
-    // 不影响功能，所以这里放行；等图补上后把这条豁免删掉即可。
-    if (t.key === 'sage') return;
     const p = path.join(__dirname, '..', '..', 'art', 'ranks', t.key + '.png');
     s.assert.true(fs.existsSync(p), t.key + '.png 不存在（云托管 /assets/ranks 会取不到图）');
   });
-});
-
-s.test('学神徽章图待补（补上后把上一条的豁免删掉）', () => {
-  const fs = require('fs');
-  const path = require('path');
-  const p = path.join(__dirname, '..', '..', 'art', 'ranks', 'sage.png');
-  if (fs.existsSync(p)) {
-    s.assert.true(true, 'sage.png 已就位，记得回头删掉上一条的豁免');
-  } else {
-    console.log('   [info] art/ranks/sage.png 还没有 —— 学神段位的徽章图待补（缺图时回退到文字，不报错）');
-    s.assert.true(true);
-  }
 });
