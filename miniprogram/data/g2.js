@@ -1,140 +1,8 @@
 module.exports = {
   "grade": "g2",
   "label": "二年级",
-  "count": 75,
+  "count": 74,
   "items": [
-    {
-      "type": "w1",
-      "q": "pear",
-      "a": "pear",
-      "hint": "梨"
-    },
-    {
-      "type": "w1",
-      "q": "peach",
-      "a": "peach",
-      "hint": "桃子"
-    },
-    {
-      "type": "w1",
-      "q": "watermelon",
-      "a": "watermelon",
-      "hint": "西瓜"
-    },
-    {
-      "type": "w1",
-      "q": "lemon",
-      "a": "lemon",
-      "hint": "柠檬"
-    },
-    {
-      "type": "w1",
-      "q": "bread",
-      "a": "bread",
-      "hint": "面包"
-    },
-    {
-      "type": "w1",
-      "q": "rice",
-      "a": "rice",
-      "hint": "米饭"
-    },
-    {
-      "type": "w1",
-      "q": "noodle",
-      "a": "noodle",
-      "hint": "面条"
-    },
-    {
-      "type": "w1",
-      "q": "meat",
-      "a": "meat",
-      "hint": "肉"
-    },
-    {
-      "type": "w1",
-      "q": "fish",
-      "a": "fish",
-      "hint": "鱼"
-    },
-    {
-      "type": "w1",
-      "q": "egg",
-      "a": "egg",
-      "hint": "鸡蛋"
-    },
-    {
-      "type": "w1",
-      "q": "milk",
-      "a": "milk",
-      "hint": "牛奶"
-    },
-    {
-      "type": "w1",
-      "q": "juice",
-      "a": "juice",
-      "hint": "果汁"
-    },
-    {
-      "type": "w1",
-      "q": "tea",
-      "a": "tea",
-      "hint": "茶"
-    },
-    {
-      "type": "w1",
-      "q": "water",
-      "a": "water",
-      "hint": "水"
-    },
-    {
-      "type": "w1",
-      "q": "soup",
-      "a": "soup",
-      "hint": "汤"
-    },
-    {
-      "type": "w1",
-      "q": "cake",
-      "a": "cake",
-      "hint": "蛋糕"
-    },
-    {
-      "type": "w1",
-      "q": "ice",
-      "a": "ice",
-      "hint": "冰"
-    },
-    {
-      "type": "w1",
-      "q": "candy",
-      "a": "candy",
-      "hint": "糖果"
-    },
-    {
-      "type": "w1",
-      "q": "family",
-      "a": "family",
-      "hint": "家庭"
-    },
-    {
-      "type": "w1",
-      "q": "father",
-      "a": "father",
-      "hint": "父亲"
-    },
-    {
-      "type": "w1",
-      "q": "mother",
-      "a": "mother",
-      "hint": "母亲"
-    },
-    {
-      "type": "w1",
-      "q": "brother",
-      "a": "brother",
-      "hint": "兄弟"
-    },
     {
       "type": "w1",
       "q": "sister",
@@ -284,6 +152,132 @@ module.exports = {
       "q": "morning",
       "a": "morning",
       "hint": "早晨"
+    },
+    {
+      "type": "c2",
+      "q": "椅*",
+      "a": "椅子",
+      "hint": "椅子"
+    },
+    {
+      "type": "c2",
+      "q": "窗*",
+      "a": "窗户",
+      "hint": "窗户"
+    },
+    {
+      "type": "c2",
+      "q": "黑*",
+      "a": "黑板",
+      "hint": "黑板"
+    },
+    {
+      "type": "c2",
+      "q": "粉*",
+      "a": "粉笔",
+      "hint": "粉笔"
+    },
+    {
+      "type": "c2",
+      "q": "操*",
+      "a": "操场",
+      "hint": "操场"
+    },
+    {
+      "type": "c2",
+      "q": "体*",
+      "a": "体育",
+      "hint": "体育"
+    },
+    {
+      "type": "c2",
+      "q": "音*",
+      "a": "音乐",
+      "hint": "音乐"
+    },
+    {
+      "type": "c2",
+      "q": "美*",
+      "a": "美术",
+      "hint": "美术"
+    },
+    {
+      "type": "c2",
+      "q": "语*",
+      "a": "语文",
+      "hint": "语文"
+    },
+    {
+      "type": "c2",
+      "q": "数*",
+      "a": "数学",
+      "hint": "数学"
+    },
+    {
+      "type": "c2",
+      "q": "英*",
+      "a": "英语",
+      "hint": "英语"
+    },
+    {
+      "type": "c2",
+      "q": "科*",
+      "a": "科学",
+      "hint": "科学"
+    },
+    {
+      "type": "c2",
+      "q": "电*",
+      "a": "电脑",
+      "hint": "电脑"
+    },
+    {
+      "type": "c2",
+      "q": "手*",
+      "a": "手机",
+      "hint": "手机"
+    },
+    {
+      "type": "c2",
+      "q": "电*机",
+      "a": "电视机",
+      "hint": "电视机"
+    },
+    {
+      "type": "c2",
+      "q": "冰*",
+      "a": "冰箱",
+      "hint": "冰箱"
+    },
+    {
+      "type": "c2",
+      "q": "风*",
+      "a": "风扇",
+      "hint": "风扇"
+    },
+    {
+      "type": "c2",
+      "q": "灯*",
+      "a": "灯泡",
+      "hint": "灯泡"
+    },
+    {
+      "type": "c2",
+      "q": "钟*",
+      "a": "钟表",
+      "hint": "钟表"
+    },
+    {
+      "type": "c2",
+      "q": "日*",
+      "a": "日历",
+      "hint": "日历"
+    },
+    {
+      "type": "c2",
+      "q": "课*",
+      "a": "课本",
+      "hint": "课本"
     },
     {
       "type": "zc",

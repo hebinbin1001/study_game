@@ -4,216 +4,6 @@ module.exports = {
   "count": 100,
   "items": [
     {
-      "type": "c2",
-      "q": "粉*",
-      "a": "粉笔",
-      "hint": "粉笔"
-    },
-    {
-      "type": "c2",
-      "q": "操*",
-      "a": "操场",
-      "hint": "操场"
-    },
-    {
-      "type": "c2",
-      "q": "体*",
-      "a": "体育",
-      "hint": "体育"
-    },
-    {
-      "type": "c2",
-      "q": "音*",
-      "a": "音乐",
-      "hint": "音乐"
-    },
-    {
-      "type": "c2",
-      "q": "美*",
-      "a": "美术",
-      "hint": "美术"
-    },
-    {
-      "type": "c2",
-      "q": "语*",
-      "a": "语文",
-      "hint": "语文"
-    },
-    {
-      "type": "c2",
-      "q": "数*",
-      "a": "数学",
-      "hint": "数学"
-    },
-    {
-      "type": "c2",
-      "q": "英*",
-      "a": "英语",
-      "hint": "英语"
-    },
-    {
-      "type": "c2",
-      "q": "科*",
-      "a": "科学",
-      "hint": "科学"
-    },
-    {
-      "type": "c2",
-      "q": "电*",
-      "a": "电脑",
-      "hint": "电脑"
-    },
-    {
-      "type": "w1",
-      "q": "beautiful",
-      "a": "beautiful",
-      "hint": "美丽的"
-    },
-    {
-      "type": "w1",
-      "q": "important",
-      "a": "important",
-      "hint": "重要的"
-    },
-    {
-      "type": "w1",
-      "q": "different",
-      "a": "different",
-      "hint": "不同的"
-    },
-    {
-      "type": "w1",
-      "q": "wonderful",
-      "a": "wonderful",
-      "hint": "奇妙的"
-    },
-    {
-      "type": "w1",
-      "q": "interesting",
-      "a": "interesting",
-      "hint": "有趣的"
-    },
-    {
-      "type": "w1",
-      "q": "remember",
-      "a": "remember",
-      "hint": "记得"
-    },
-    {
-      "type": "w1",
-      "q": "together",
-      "a": "together",
-      "hint": "一起"
-    },
-    {
-      "type": "w1",
-      "q": "another",
-      "a": "another",
-      "hint": "另一个"
-    },
-    {
-      "type": "w1",
-      "q": "already",
-      "a": "already",
-      "hint": "已经"
-    },
-    {
-      "type": "w1",
-      "q": "always",
-      "a": "always",
-      "hint": "总是"
-    },
-    {
-      "type": "w1",
-      "q": "never",
-      "a": "never",
-      "hint": "从不"
-    },
-    {
-      "type": "w1",
-      "q": "often",
-      "a": "often",
-      "hint": "经常"
-    },
-    {
-      "type": "w1",
-      "q": "sometimes",
-      "a": "sometimes",
-      "hint": "有时"
-    },
-    {
-      "type": "w1",
-      "q": "usually",
-      "a": "usually",
-      "hint": "通常"
-    },
-    {
-      "type": "w1",
-      "q": "quickly",
-      "a": "quickly",
-      "hint": "快地"
-    },
-    {
-      "type": "w1",
-      "q": "slowly",
-      "a": "slowly",
-      "hint": "慢地"
-    },
-    {
-      "type": "w1",
-      "q": "carefully",
-      "a": "carefully",
-      "hint": "小心地"
-    },
-    {
-      "type": "w1",
-      "q": "easily",
-      "a": "easily",
-      "hint": "容易地"
-    },
-    {
-      "type": "w1",
-      "q": "happily",
-      "a": "happily",
-      "hint": "快乐地"
-    },
-    {
-      "type": "w1",
-      "q": "sadly",
-      "a": "sadly",
-      "hint": "悲伤地"
-    },
-    {
-      "type": "w1",
-      "q": "loudly",
-      "a": "loudly",
-      "hint": "大声地"
-    },
-    {
-      "type": "w1",
-      "q": "quietly",
-      "a": "quietly",
-      "hint": "安静地"
-    },
-    {
-      "type": "w1",
-      "q": "warmly",
-      "a": "warmly",
-      "hint": "温暖地"
-    },
-    {
-      "type": "w1",
-      "q": "softly",
-      "a": "softly",
-      "hint": "柔软地"
-    },
-    {
-      "type": "w1",
-      "q": "nearly",
-      "a": "nearly",
-      "hint": "几乎"
-    },
-    {
       "type": "w1",
       "q": "mostly",
       "a": "mostly",
@@ -362,6 +152,216 @@ module.exports = {
       "q": "q*i*t*y",
       "a": "quietly",
       "hint": "安静地"
+    },
+    {
+      "type": "c2",
+      "q": "繁*似*",
+      "a": "繁花似锦",
+      "hint": "形容花开美丽"
+    },
+    {
+      "type": "c2",
+      "q": "锦*添*",
+      "a": "锦上添花",
+      "hint": "比喻好上加好"
+    },
+    {
+      "type": "c2",
+      "q": "雪*送*",
+      "a": "雪中送炭",
+      "hint": "比喻急难中相助"
+    },
+    {
+      "type": "c2",
+      "q": "火*浇*",
+      "a": "火上浇油",
+      "hint": "比喻使人更加愤怒"
+    },
+    {
+      "type": "c2",
+      "q": "如*添*",
+      "a": "如虎添翼",
+      "hint": "比喻强大者更加强大"
+    },
+    {
+      "type": "c2",
+      "q": "天*",
+      "a": "天空",
+      "hint": "天上的空间"
+    },
+    {
+      "type": "c2",
+      "q": "白*",
+      "a": "白云",
+      "hint": "白色的云"
+    },
+    {
+      "type": "c2",
+      "q": "太*",
+      "a": "太阳",
+      "hint": "太阳"
+    },
+    {
+      "type": "c2",
+      "q": "月*",
+      "a": "月亮",
+      "hint": "月亮"
+    },
+    {
+      "type": "c2",
+      "q": "星*",
+      "a": "星星",
+      "hint": "星星"
+    },
+    {
+      "type": "c2",
+      "q": "学*",
+      "a": "学校",
+      "hint": "学校"
+    },
+    {
+      "type": "c2",
+      "q": "老*",
+      "a": "老师",
+      "hint": "老师"
+    },
+    {
+      "type": "c2",
+      "q": "同*",
+      "a": "同学",
+      "hint": "同学"
+    },
+    {
+      "type": "c2",
+      "q": "上*",
+      "a": "上课",
+      "hint": "上课"
+    },
+    {
+      "type": "c2",
+      "q": "下*",
+      "a": "下课",
+      "hint": "下课"
+    },
+    {
+      "type": "c2",
+      "q": "读*",
+      "a": "读书",
+      "hint": "读书"
+    },
+    {
+      "type": "c2",
+      "q": "写*",
+      "a": "写字",
+      "hint": "写字"
+    },
+    {
+      "type": "c2",
+      "q": "铅*",
+      "a": "铅笔",
+      "hint": "铅笔"
+    },
+    {
+      "type": "c2",
+      "q": "橡*",
+      "a": "橡皮",
+      "hint": "橡皮"
+    },
+    {
+      "type": "c2",
+      "q": "尺*",
+      "a": "尺子",
+      "hint": "尺子"
+    },
+    {
+      "type": "c2",
+      "q": "书*",
+      "a": "书包",
+      "hint": "书包"
+    },
+    {
+      "type": "c2",
+      "q": "桌*",
+      "a": "桌子",
+      "hint": "桌子"
+    },
+    {
+      "type": "c2",
+      "q": "椅*",
+      "a": "椅子",
+      "hint": "椅子"
+    },
+    {
+      "type": "c2",
+      "q": "窗*",
+      "a": "窗户",
+      "hint": "窗户"
+    },
+    {
+      "type": "c2",
+      "q": "黑*",
+      "a": "黑板",
+      "hint": "黑板"
+    },
+    {
+      "type": "c2",
+      "q": "粉*",
+      "a": "粉笔",
+      "hint": "粉笔"
+    },
+    {
+      "type": "c2",
+      "q": "操*",
+      "a": "操场",
+      "hint": "操场"
+    },
+    {
+      "type": "c2",
+      "q": "体*",
+      "a": "体育",
+      "hint": "体育"
+    },
+    {
+      "type": "c2",
+      "q": "音*",
+      "a": "音乐",
+      "hint": "音乐"
+    },
+    {
+      "type": "c2",
+      "q": "美*",
+      "a": "美术",
+      "hint": "美术"
+    },
+    {
+      "type": "c2",
+      "q": "语*",
+      "a": "语文",
+      "hint": "语文"
+    },
+    {
+      "type": "c2",
+      "q": "数*",
+      "a": "数学",
+      "hint": "数学"
+    },
+    {
+      "type": "c2",
+      "q": "英*",
+      "a": "英语",
+      "hint": "英语"
+    },
+    {
+      "type": "c2",
+      "q": "科*",
+      "a": "科学",
+      "hint": "科学"
+    },
+    {
+      "type": "c2",
+      "q": "电*",
+      "a": "电脑",
+      "hint": "电脑"
     },
     {
       "type": "zc",

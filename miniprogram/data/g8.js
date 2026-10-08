@@ -4,292 +4,208 @@ module.exports = {
   "count": 67,
   "items": [
     {
+      "type": "w1",
+      "q": "collect",
+      "a": "collect",
+      "hint": "收集"
+    },
+    {
+      "type": "w1",
+      "q": "college",
+      "a": "college",
+      "hint": "大学"
+    },
+    {
+      "type": "w1",
+      "q": "comfort",
+      "a": "comfort",
+      "hint": "舒适"
+    },
+    {
+      "type": "w1",
+      "q": "common",
+      "a": "common",
+      "hint": "共同的"
+    },
+    {
+      "type": "w1",
+      "q": "communicate",
+      "a": "communicate",
+      "hint": "交流"
+    },
+    {
+      "type": "w1",
+      "q": "compare",
+      "a": "compare",
+      "hint": "比较"
+    },
+    {
+      "type": "w1",
+      "q": "compete",
+      "a": "compete",
+      "hint": "竞争"
+    },
+    {
+      "type": "w1",
+      "q": "complete",
+      "a": "complete",
+      "hint": "完成"
+    },
+    {
+      "type": "w1",
+      "q": "concern",
+      "a": "concern",
+      "hint": "关心"
+    },
+    {
+      "type": "w1",
+      "q": "condition",
+      "a": "condition",
+      "hint": "条件"
+    },
+    {
+      "type": "w1",
+      "q": "confident",
+      "a": "confident",
+      "hint": "自信的"
+    },
+    {
+      "type": "w1",
+      "q": "consider",
+      "a": "consider",
+      "hint": "考虑"
+    },
+    {
+      "type": "w1",
+      "q": "contain",
+      "a": "contain",
+      "hint": "包含"
+    },
+    {
+      "type": "w1",
+      "q": "continue",
+      "a": "continue",
+      "hint": "继续"
+    },
+    {
+      "type": "w1",
+      "q": "control",
+      "a": "control",
+      "hint": "控制"
+    },
+    {
+      "type": "w1",
+      "q": "correct",
+      "a": "correct",
+      "hint": "正确的"
+    },
+    {
+      "type": "w1",
+      "q": "count",
+      "a": "count",
+      "hint": "计数"
+    },
+    {
+      "type": "w1",
+      "q": "country",
+      "a": "country",
+      "hint": "国家"
+    },
+    {
+      "type": "w1",
+      "q": "course",
+      "a": "course",
+      "hint": "课程"
+    },
+    {
+      "type": "w1",
+      "q": "create",
+      "a": "create",
+      "hint": "创造"
+    },
+    {
+      "type": "w1",
+      "q": "culture",
+      "a": "culture",
+      "hint": "文化"
+    },
+    {
+      "type": "w1",
+      "q": "custom",
+      "a": "custom",
+      "hint": "习俗"
+    },
+    {
+      "type": "w1",
+      "q": "decide",
+      "a": "decide",
+      "hint": "决定"
+    },
+    {
+      "type": "w1",
+      "q": "degree",
+      "a": "degree",
+      "hint": "程度"
+    },
+    {
+      "type": "w1",
+      "q": "depend",
+      "a": "depend",
+      "hint": "依赖"
+    },
+    {
+      "type": "w1",
+      "q": "describe",
+      "a": "describe",
+      "hint": "描述"
+    },
+    {
+      "type": "w1",
+      "q": "design",
+      "a": "design",
+      "hint": "设计"
+    },
+    {
+      "type": "w1",
+      "q": "develop",
+      "a": "develop",
+      "hint": "发展"
+    },
+    {
+      "type": "w2",
+      "q": "d*f*i*ult",
+      "a": "difficult",
+      "hint": "困难的"
+    },
+    {
+      "type": "w2",
+      "q": "d*s*o*er",
+      "a": "discover",
+      "hint": "发现"
+    },
+    {
+      "type": "w2",
+      "q": "d*s*u*s",
+      "a": "discuss",
+      "hint": "讨论"
+    },
+    {
+      "type": "w2",
+      "q": "*d*c*t*on",
+      "a": "education",
+      "hint": "教育"
+    },
+    {
+      "type": "w2",
+      "q": "*ff*ct*v*",
+      "a": "effective",
+      "hint": "有效的"
+    },
+    {
       "type": "w2",
       "q": "*nv*r*nm*nt",
       "a": "environment",
       "hint": "环境"
-    },
-    {
-      "type": "w2",
-      "q": "e*p*r*e*ce",
-      "a": "experience",
-      "hint": "经验"
-    },
-    {
-      "type": "w2",
-      "q": "e*p*r*m*nt",
-      "a": "experiment",
-      "hint": "实验"
-    },
-    {
-      "type": "w2",
-      "q": "f*v*r*t*",
-      "a": "favorite",
-      "hint": "最爱的"
-    },
-    {
-      "type": "w2",
-      "q": "g*n*r*t*on",
-      "a": "generation",
-      "hint": "一代人"
-    },
-    {
-      "type": "w2",
-      "q": "g*v*r*m*nt",
-      "a": "government",
-      "hint": "政府"
-    },
-    {
-      "type": "w2",
-      "q": "i*p*r*a*t",
-      "a": "important",
-      "hint": "重要的"
-    },
-    {
-      "type": "w2",
-      "q": "i*p*o*e",
-      "a": "improve",
-      "hint": "改进"
-    },
-    {
-      "type": "w2",
-      "q": "i*c*u*e",
-      "a": "include",
-      "hint": "包含"
-    },
-    {
-      "type": "w2",
-      "q": "*ncr**s*",
-      "a": "increase",
-      "hint": "增加"
-    },
-    {
-      "type": "w2",
-      "q": "i*f*u*n*e",
-      "a": "influence",
-      "hint": "影响"
-    },
-    {
-      "type": "w2",
-      "q": "i*t*o*u*e",
-      "a": "introduce",
-      "hint": "介绍"
-    },
-    {
-      "type": "w2",
-      "q": "k*o*l*d*e",
-      "a": "knowledge",
-      "hint": "知识"
-    },
-    {
-      "type": "w2",
-      "q": "l*ng**g*",
-      "a": "language",
-      "hint": "语言"
-    },
-    {
-      "type": "w2",
-      "q": "l*t*r*t*r*",
-      "a": "literature",
-      "hint": "文学"
-    },
-    {
-      "type": "c2",
-      "q": "百*不*",
-      "a": "百折不挠",
-      "hint": "形容意志坚强"
-    },
-    {
-      "type": "c2",
-      "q": "不*不*",
-      "a": "不屈不挠",
-      "hint": "形容不屈服"
-    },
-    {
-      "type": "c2",
-      "q": "再*再*",
-      "a": "再接再厉",
-      "hint": "比喻继续努力"
-    },
-    {
-      "type": "c2",
-      "q": "变*加*",
-      "a": "变本加厉",
-      "hint": "比喻情况更加严重"
-    },
-    {
-      "type": "c2",
-      "q": "变*为*",
-      "a": "变废为宝",
-      "hint": "比喻废物利用"
-    },
-    {
-      "type": "c2",
-      "q": "点*成*",
-      "a": "点石成金",
-      "hint": "比喻点化"
-    },
-    {
-      "type": "c2",
-      "q": "画*点*",
-      "a": "画龙点睛",
-      "hint": "比喻关键处加一笔"
-    },
-    {
-      "type": "c2",
-      "q": "抛*引*",
-      "a": "抛砖引玉",
-      "hint": "比喻以粗浅引出高明"
-    },
-    {
-      "type": "c2",
-      "q": "引*入*",
-      "a": "引狼入室",
-      "hint": "比喻招来祸患"
-    },
-    {
-      "type": "c2",
-      "q": "引*烧*",
-      "a": "引火烧身",
-      "hint": "比喻自招祸患"
-    },
-    {
-      "type": "c2",
-      "q": "玩*自*",
-      "a": "玩火自焚",
-      "hint": "比喻自取灭亡"
-    },
-    {
-      "type": "c2",
-      "q": "作*自*",
-      "a": "作茧自缚",
-      "hint": "比喻自己束缚自己"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自作自受",
-      "hint": "自己做的事自己受"
-    },
-    {
-      "type": "c2",
-      "q": "自*其*",
-      "a": "自食其果",
-      "hint": "自己承受自己做事后果"
-    },
-    {
-      "type": "c2",
-      "q": "自*苦*",
-      "a": "自讨苦吃",
-      "hint": "自己找麻烦"
-    },
-    {
-      "type": "c2",
-      "q": "自*烦*",
-      "a": "自寻烦恼",
-      "hint": "自己找烦恼"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自吹自擂",
-      "hint": "自己吹嘘自己"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自高自大",
-      "hint": "自以为了不起"
-    },
-    {
-      "type": "c2",
-      "q": "自*不*",
-      "a": "自命不凡",
-      "hint": "自以为不平凡"
-    },
-    {
-      "type": "c2",
-      "q": "自*为*",
-      "a": "自以为是",
-      "hint": "自认为正确"
-    },
-    {
-      "type": "c2",
-      "q": "自*其*",
-      "a": "自行其是",
-      "hint": "自己认为对就做"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自言自语",
-      "hint": "自己对自己说"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自怨自艾",
-      "hint": "自己悔恨"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自娱自乐",
-      "hint": "自己娱乐自己"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自给自足",
-      "hint": "自己满足自己"
-    },
-    {
-      "type": "c2",
-      "q": "自*更*",
-      "a": "自力更生",
-      "hint": "靠自己努力"
-    },
-    {
-      "type": "c2",
-      "q": "自*不*",
-      "a": "自强不息",
-      "hint": "自己努力向上"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自暴自弃",
-      "hint": "自己甘心落后"
-    },
-    {
-      "type": "c2",
-      "q": "自*形*",
-      "a": "自惭形秽",
-      "hint": "因不如人而惭愧"
-    },
-    {
-      "type": "c2",
-      "q": "自*欺*",
-      "a": "自欺欺人",
-      "hint": "欺骗自己也欺骗别人"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自私自利",
-      "hint": "只为自己"
-    },
-    {
-      "type": "c2",
-      "q": "自*自*",
-      "a": "自由自在",
-      "hint": "无拘无束"
-    },
-    {
-      "type": "c2",
-      "q": "自*其*",
-      "a": "自得其乐",
-      "hint": "自己能从中得到乐趣"
     },
     {
       "type": "c2",
@@ -404,6 +320,90 @@ module.exports = {
       "q": "*出阳关*故人",
       "a": "西出阳关无故人",
       "hint": "王维送元二使安西"
+    },
+    {
+      "type": "c2",
+      "q": "*在异乡*异客",
+      "a": "独在异乡为异客",
+      "hint": "王维九月九日忆山东兄弟"
+    },
+    {
+      "type": "c2",
+      "q": "*逢佳节*思亲",
+      "a": "每逢佳节倍思亲",
+      "hint": "王维九月九日忆山东兄弟"
+    },
+    {
+      "type": "c2",
+      "q": "*知兄弟*高处",
+      "a": "遥知兄弟登高处",
+      "hint": "王维九月九日忆山东兄弟"
+    },
+    {
+      "type": "c2",
+      "q": "*插茱萸*一人",
+      "a": "遍插茱萸少一人",
+      "hint": "王维九月九日忆山东兄弟"
+    },
+    {
+      "type": "c2",
+      "q": "*蚕到死*方尽",
+      "a": "春蚕到死丝方尽",
+      "hint": "李商隐无题"
+    },
+    {
+      "type": "c2",
+      "q": "*炬成灰*始干",
+      "a": "蜡炬成灰泪始干",
+      "hint": "李商隐无题"
+    },
+    {
+      "type": "c2",
+      "q": "*女不知*国恨",
+      "a": "商女不知亡国恨",
+      "hint": "杜牧泊秦淮"
+    },
+    {
+      "type": "fill",
+      "q": "The teacher __ us a lot of homework.",
+      "a": "gives",
+      "hint": "老师给我们很多作业"
+    },
+    {
+      "type": "fill",
+      "q": "I __ my homework every day.",
+      "a": "do",
+      "hint": "我每天做作业"
+    },
+    {
+      "type": "fill",
+      "q": "She __ to school by bus.",
+      "a": "goes",
+      "hint": "她坐公交车上学"
+    },
+    {
+      "type": "fill",
+      "q": "They __ playing basketball.",
+      "a": "are",
+      "hint": "他们正在打篮球"
+    },
+    {
+      "type": "fill",
+      "q": "He __ a doctor.",
+      "a": "is",
+      "hint": "他是医生"
+    },
+    {
+      "type": "fill",
+      "q": "We __ happy.",
+      "a": "are",
+      "hint": "我们很快乐"
+    },
+    {
+      "type": "fill",
+      "q": "The book __ very interesting.",
+      "a": "is",
+      "hint": "这本书很有趣"
     }
   ]
 };

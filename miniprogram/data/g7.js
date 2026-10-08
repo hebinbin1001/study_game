@@ -208,202 +208,202 @@ module.exports = {
       "hint": "气候"
     },
     {
-      "type": "w1",
-      "q": "collect",
-      "a": "collect",
-      "hint": "收集"
+      "type": "c2",
+      "q": "百*不*",
+      "a": "百折不挠",
+      "hint": "形容意志坚强"
     },
     {
-      "type": "w1",
-      "q": "college",
-      "a": "college",
-      "hint": "大学"
+      "type": "c2",
+      "q": "不*不*",
+      "a": "不屈不挠",
+      "hint": "形容不屈服"
     },
     {
-      "type": "w1",
-      "q": "comfort",
-      "a": "comfort",
-      "hint": "舒适"
+      "type": "c2",
+      "q": "再*再*",
+      "a": "再接再厉",
+      "hint": "比喻继续努力"
     },
     {
-      "type": "w1",
-      "q": "common",
-      "a": "common",
-      "hint": "共同的"
+      "type": "c2",
+      "q": "变*加*",
+      "a": "变本加厉",
+      "hint": "比喻情况更加严重"
     },
     {
-      "type": "w1",
-      "q": "communicate",
-      "a": "communicate",
-      "hint": "交流"
+      "type": "c2",
+      "q": "变*为*",
+      "a": "变废为宝",
+      "hint": "比喻废物利用"
     },
     {
-      "type": "w1",
-      "q": "compare",
-      "a": "compare",
-      "hint": "比较"
+      "type": "c2",
+      "q": "点*成*",
+      "a": "点石成金",
+      "hint": "比喻点化"
     },
     {
-      "type": "w1",
-      "q": "compete",
-      "a": "compete",
-      "hint": "竞争"
+      "type": "c2",
+      "q": "画*点*",
+      "a": "画龙点睛",
+      "hint": "比喻关键处加一笔"
     },
     {
-      "type": "w1",
-      "q": "complete",
-      "a": "complete",
-      "hint": "完成"
+      "type": "c2",
+      "q": "抛*引*",
+      "a": "抛砖引玉",
+      "hint": "比喻以粗浅引出高明"
     },
     {
-      "type": "w1",
-      "q": "concern",
-      "a": "concern",
-      "hint": "关心"
+      "type": "c2",
+      "q": "引*入*",
+      "a": "引狼入室",
+      "hint": "比喻招来祸患"
     },
     {
-      "type": "w1",
-      "q": "condition",
-      "a": "condition",
-      "hint": "条件"
+      "type": "c2",
+      "q": "引*烧*",
+      "a": "引火烧身",
+      "hint": "比喻自招祸患"
     },
     {
-      "type": "w1",
-      "q": "confident",
-      "a": "confident",
-      "hint": "自信的"
+      "type": "c2",
+      "q": "玩*自*",
+      "a": "玩火自焚",
+      "hint": "比喻自取灭亡"
     },
     {
-      "type": "w1",
-      "q": "consider",
-      "a": "consider",
-      "hint": "考虑"
+      "type": "c2",
+      "q": "作*自*",
+      "a": "作茧自缚",
+      "hint": "比喻自己束缚自己"
     },
     {
-      "type": "w1",
-      "q": "contain",
-      "a": "contain",
-      "hint": "包含"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自作自受",
+      "hint": "自己做的事自己受"
     },
     {
-      "type": "w1",
-      "q": "continue",
-      "a": "continue",
-      "hint": "继续"
+      "type": "c2",
+      "q": "自*其*",
+      "a": "自食其果",
+      "hint": "自己承受自己做事后果"
     },
     {
-      "type": "w1",
-      "q": "control",
-      "a": "control",
-      "hint": "控制"
+      "type": "c2",
+      "q": "自*苦*",
+      "a": "自讨苦吃",
+      "hint": "自己找麻烦"
     },
     {
-      "type": "w1",
-      "q": "correct",
-      "a": "correct",
-      "hint": "正确的"
+      "type": "c2",
+      "q": "自*烦*",
+      "a": "自寻烦恼",
+      "hint": "自己找烦恼"
     },
     {
-      "type": "w1",
-      "q": "count",
-      "a": "count",
-      "hint": "计数"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自吹自擂",
+      "hint": "自己吹嘘自己"
     },
     {
-      "type": "w1",
-      "q": "country",
-      "a": "country",
-      "hint": "国家"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自高自大",
+      "hint": "自以为了不起"
     },
     {
-      "type": "w1",
-      "q": "course",
-      "a": "course",
-      "hint": "课程"
+      "type": "c2",
+      "q": "自*不*",
+      "a": "自命不凡",
+      "hint": "自以为不平凡"
     },
     {
-      "type": "w1",
-      "q": "create",
-      "a": "create",
-      "hint": "创造"
+      "type": "c2",
+      "q": "自*为*",
+      "a": "自以为是",
+      "hint": "自认为正确"
     },
     {
-      "type": "w1",
-      "q": "culture",
-      "a": "culture",
-      "hint": "文化"
+      "type": "c2",
+      "q": "自*其*",
+      "a": "自行其是",
+      "hint": "自己认为对就做"
     },
     {
-      "type": "w1",
-      "q": "custom",
-      "a": "custom",
-      "hint": "习俗"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自言自语",
+      "hint": "自己对自己说"
     },
     {
-      "type": "w1",
-      "q": "decide",
-      "a": "decide",
-      "hint": "决定"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自怨自艾",
+      "hint": "自己悔恨"
     },
     {
-      "type": "w1",
-      "q": "degree",
-      "a": "degree",
-      "hint": "程度"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自娱自乐",
+      "hint": "自己娱乐自己"
     },
     {
-      "type": "w1",
-      "q": "depend",
-      "a": "depend",
-      "hint": "依赖"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自给自足",
+      "hint": "自己满足自己"
     },
     {
-      "type": "w1",
-      "q": "describe",
-      "a": "describe",
-      "hint": "描述"
+      "type": "c2",
+      "q": "自*更*",
+      "a": "自力更生",
+      "hint": "靠自己努力"
     },
     {
-      "type": "w1",
-      "q": "design",
-      "a": "design",
-      "hint": "设计"
+      "type": "c2",
+      "q": "自*不*",
+      "a": "自强不息",
+      "hint": "自己努力向上"
     },
     {
-      "type": "w1",
-      "q": "develop",
-      "a": "develop",
-      "hint": "发展"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自暴自弃",
+      "hint": "自己甘心落后"
     },
     {
-      "type": "w2",
-      "q": "d*f*i*ult",
-      "a": "difficult",
-      "hint": "困难的"
+      "type": "c2",
+      "q": "自*形*",
+      "a": "自惭形秽",
+      "hint": "因不如人而惭愧"
     },
     {
-      "type": "w2",
-      "q": "d*s*o*er",
-      "a": "discover",
-      "hint": "发现"
+      "type": "c2",
+      "q": "自*欺*",
+      "a": "自欺欺人",
+      "hint": "欺骗自己也欺骗别人"
     },
     {
-      "type": "w2",
-      "q": "d*s*u*s",
-      "a": "discuss",
-      "hint": "讨论"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自私自利",
+      "hint": "只为自己"
     },
     {
-      "type": "w2",
-      "q": "*d*c*t*on",
-      "a": "education",
-      "hint": "教育"
+      "type": "c2",
+      "q": "自*自*",
+      "a": "自由自在",
+      "hint": "无拘无束"
     },
     {
-      "type": "w2",
-      "q": "*ff*ct*v*",
-      "a": "effective",
-      "hint": "有效的"
+      "type": "c2",
+      "q": "自*其*",
+      "a": "自得其乐",
+      "hint": "自己能从中得到乐趣"
     }
   ]
 };

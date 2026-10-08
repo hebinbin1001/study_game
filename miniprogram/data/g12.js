@@ -4,148 +4,244 @@ module.exports = {
   "count": 66,
   "items": [
     {
-      "type": "c2",
-      "q": "*木千山*远大",
-      "a": "落木千山天远大",
-      "hint": "黄庭坚登快阁"
+      "type": "w1",
+      "q": "authentic",
+      "a": "authentic",
+      "hint": "真正的"
     },
     {
-      "type": "c2",
-      "q": "*江一道*分明",
-      "a": "澄江一道月分明",
-      "hint": "黄庭坚登快阁"
+      "type": "w1",
+      "q": "authority",
+      "a": "authority",
+      "hint": "权威"
     },
     {
-      "type": "c2",
-      "q": "*畏浮云*望眼",
-      "a": "不畏浮云遮望眼",
-      "hint": "王安石登飞来峰"
+      "type": "w1",
+      "q": "autonomous",
+      "a": "autonomous",
+      "hint": "自治的"
     },
     {
-      "type": "c2",
-      "q": "*缘身在*高层",
-      "a": "自缘身在最高层",
-      "hint": "王安石登飞来峰"
+      "type": "w1",
+      "q": "available",
+      "a": "available",
+      "hint": "可用的"
     },
     {
-      "type": "c2",
-      "q": "*重水复*无路",
-      "a": "山重水复疑无路",
-      "hint": "陆游游山西村"
+      "type": "w2",
+      "q": "a*a*d*n",
+      "a": "abandon",
+      "hint": "抛弃"
     },
     {
-      "type": "c2",
-      "q": "*暗花明*一村",
-      "a": "柳暗花明又一村",
-      "hint": "陆游游山西村"
+      "type": "w2",
+      "q": "*bstr*ct",
+      "a": "abstract",
+      "hint": "抽象的"
     },
     {
-      "type": "c2",
-      "q": "*舟侧畔*帆过",
-      "a": "沉舟侧畔千帆过",
-      "hint": "刘禹锡酬乐天扬州初逢"
+      "type": "w2",
+      "q": "a*c*l*r*t*",
+      "a": "accelerate",
+      "hint": "加速"
     },
     {
-      "type": "c2",
-      "q": "*树前头*木春",
-      "a": "病树前头万木春",
-      "hint": "刘禹锡酬乐天扬州初逢"
+      "type": "w2",
+      "q": "*cc*mm*d*t**n",
+      "a": "accommodation",
+      "hint": "住宿"
     },
     {
-      "type": "c2",
-      "q": "*风破浪*有时",
-      "a": "长风破浪会有时",
-      "hint": "李白行路难"
+      "type": "w2",
+      "q": "a*c*m*l*s*",
+      "a": "accomplish",
+      "hint": "完成"
     },
     {
-      "type": "c2",
-      "q": "*挂云帆*沧海",
-      "a": "直挂云帆济沧海",
-      "hint": "李白行路难"
+      "type": "w2",
+      "q": "*cc*m*l*t*",
+      "a": "accumulate",
+      "hint": "积累"
     },
     {
-      "type": "c2",
-      "q": "*当凌绝*",
-      "a": "会当凌绝顶",
-      "hint": "杜甫望岳"
+      "type": "w2",
+      "q": "*cc*r*t*",
+      "a": "accurate",
+      "hint": "精确的"
     },
     {
-      "type": "c2",
-      "q": "*览众山*",
-      "a": "一览众山小",
-      "hint": "杜甫望岳"
+      "type": "w2",
+      "q": "a*k*o*l*d*e",
+      "a": "acknowledge",
+      "hint": "承认"
     },
     {
-      "type": "c2",
-      "q": "*流直下*千尺",
-      "a": "飞流直下三千尺",
-      "hint": "李白望庐山瀑布"
+      "type": "w2",
+      "q": "a*q*i*e",
+      "a": "acquire",
+      "hint": "获得"
     },
     {
-      "type": "c2",
-      "q": "*是银河*九天",
-      "a": "疑是银河落九天",
-      "hint": "李白望庐山瀑布"
+      "type": "w2",
+      "q": "a*e*u*t*",
+      "a": "adequate",
+      "hint": "充足的"
     },
     {
-      "type": "c2",
-      "q": "*岸猿声*不住",
-      "a": "两岸猿声啼不住",
-      "hint": "李白早发白帝城"
+      "type": "w2",
+      "q": "a*v*c*t*",
+      "a": "advocate",
+      "hint": "提倡"
     },
     {
-      "type": "c2",
-      "q": "*舟已过*重山",
-      "a": "轻舟已过万重山",
-      "hint": "李白早发白帝城"
+      "type": "w2",
+      "q": "a*r*c*l*u*e",
+      "a": "agriculture",
+      "hint": "农业"
     },
     {
-      "type": "c2",
-      "q": "*花潭水*千尺",
-      "a": "桃花潭水深千尺",
-      "hint": "李白赠汪伦"
+      "type": "w2",
+      "q": "a*t*r*a*i*e",
+      "a": "alternative",
+      "hint": "替代的"
     },
     {
-      "type": "c2",
-      "q": "*及汪伦*我情",
-      "a": "不及汪伦送我情",
-      "hint": "李白赠汪伦"
+      "type": "w2",
+      "q": "a*b*g*o*s",
+      "a": "ambiguous",
+      "hint": "模糊的"
     },
     {
-      "type": "c2",
-      "q": "*家新燕*春泥",
-      "a": "谁家新燕啄春泥",
-      "hint": "白居易钱塘湖春行"
+      "type": "w2",
+      "q": "*nn*v*rs*ry",
+      "a": "anniversary",
+      "hint": "周年"
     },
     {
-      "type": "c2",
-      "q": "*花渐欲*人眼",
-      "a": "乱花渐欲迷人眼",
-      "hint": "白居易钱塘湖春行"
+      "type": "w2",
+      "q": "a*t*c*p*t*",
+      "a": "anticipate",
+      "hint": "预期"
     },
     {
-      "type": "fill",
-      "q": "The professor __ a lecture on quantum physics yesterday.",
-      "a": "delivered",
-      "hint": "教授昨天讲了量子物理讲座"
+      "type": "w2",
+      "q": "a*p*e*i*t*",
+      "a": "appreciate",
+      "hint": "欣赏"
     },
     {
-      "type": "fill",
-      "q": "She __ her thesis by the end of this month.",
-      "a": "will complete",
-      "hint": "她将在本月底完成论文"
+      "type": "w2",
+      "q": "*ppr*pr**t*",
+      "a": "appropriate",
+      "hint": "适当的"
     },
     {
-      "type": "fill",
-      "q": "The committee __ the proposal carefully.",
-      "a": "considered",
-      "hint": "委员会仔细考虑了提案"
+      "type": "w2",
+      "q": "a*c*i*e*t",
+      "a": "architect",
+      "hint": "建筑师"
     },
     {
-      "type": "fill",
-      "q": "He __ his ambition of becoming a doctor.",
-      "a": "achieved",
-      "hint": "他实现了当医生的抱负"
+      "type": "w2",
+      "q": "a*m*s*h*r*",
+      "a": "atmosphere",
+      "hint": "大气"
+    },
+    {
+      "type": "trans",
+      "q": "抛弃",
+      "a": "abandon",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "抽象的",
+      "a": "abstract",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "荒谬的",
+      "a": "absurd",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "丰富的",
+      "a": "abundant",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "加速",
+      "a": "accelerate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "可进入的",
+      "a": "accessible",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "住宿",
+      "a": "accommodation",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "完成",
+      "a": "accomplish",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "积累",
+      "a": "accumulate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "精确的",
+      "a": "accurate",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "控告",
+      "a": "accuse",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "习惯的",
+      "a": "accustomed",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "承认",
+      "a": "acknowledge",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "获得",
+      "a": "acquire",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "适应",
+      "a": "adapt",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "充足的",
+      "a": "adequate",
+      "hint": "形容词"
     },
     {
       "type": "fill",
@@ -302,102 +398,6 @@ module.exports = {
       "q": "The committee __ the new regulations.",
       "a": "established",
       "hint": "委员会制定了新规章"
-    },
-    {
-      "type": "trans",
-      "q": "抛弃",
-      "a": "abandon",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "抽象的",
-      "a": "abstract",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "荒谬的",
-      "a": "absurd",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "丰富的",
-      "a": "abundant",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "加速",
-      "a": "accelerate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "可进入的",
-      "a": "accessible",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "住宿",
-      "a": "accommodation",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "完成",
-      "a": "accomplish",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "积累",
-      "a": "accumulate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "精确的",
-      "a": "accurate",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "控告",
-      "a": "accuse",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "习惯的",
-      "a": "accustomed",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "承认",
-      "a": "acknowledge",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "获得",
-      "a": "acquire",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "适应",
-      "a": "adapt",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "充足的",
-      "a": "adequate",
-      "hint": "形容词"
     }
   ]
 };

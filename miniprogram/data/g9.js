@@ -4,88 +4,208 @@ module.exports = {
   "count": 66,
   "items": [
     {
-      "type": "c2",
-      "q": "*在异乡*异客",
-      "a": "独在异乡为异客",
-      "hint": "王维九月九日忆山东兄弟"
+      "type": "w2",
+      "q": "e*p*r*e*ce",
+      "a": "experience",
+      "hint": "经验"
     },
     {
-      "type": "c2",
-      "q": "*逢佳节*思亲",
-      "a": "每逢佳节倍思亲",
-      "hint": "王维九月九日忆山东兄弟"
+      "type": "w2",
+      "q": "e*p*r*m*nt",
+      "a": "experiment",
+      "hint": "实验"
     },
     {
-      "type": "c2",
-      "q": "*知兄弟*高处",
-      "a": "遥知兄弟登高处",
-      "hint": "王维九月九日忆山东兄弟"
+      "type": "w2",
+      "q": "f*v*r*t*",
+      "a": "favorite",
+      "hint": "最爱的"
     },
     {
-      "type": "c2",
-      "q": "*插茱萸*一人",
-      "a": "遍插茱萸少一人",
-      "hint": "王维九月九日忆山东兄弟"
+      "type": "w2",
+      "q": "g*n*r*t*on",
+      "a": "generation",
+      "hint": "一代人"
     },
     {
-      "type": "c2",
-      "q": "*蚕到死*方尽",
-      "a": "春蚕到死丝方尽",
-      "hint": "李商隐无题"
+      "type": "w2",
+      "q": "g*v*r*m*nt",
+      "a": "government",
+      "hint": "政府"
     },
     {
-      "type": "c2",
-      "q": "*炬成灰*始干",
-      "a": "蜡炬成灰泪始干",
-      "hint": "李商隐无题"
+      "type": "w2",
+      "q": "i*p*r*a*t",
+      "a": "important",
+      "hint": "重要的"
     },
     {
-      "type": "c2",
-      "q": "*女不知*国恨",
-      "a": "商女不知亡国恨",
-      "hint": "杜牧泊秦淮"
+      "type": "w2",
+      "q": "i*p*o*e",
+      "a": "improve",
+      "hint": "改进"
     },
     {
-      "type": "fill",
-      "q": "The teacher __ us a lot of homework.",
-      "a": "gives",
-      "hint": "老师给我们很多作业"
+      "type": "w2",
+      "q": "i*c*u*e",
+      "a": "include",
+      "hint": "包含"
     },
     {
-      "type": "fill",
-      "q": "I __ my homework every day.",
-      "a": "do",
-      "hint": "我每天做作业"
+      "type": "w2",
+      "q": "*ncr**s*",
+      "a": "increase",
+      "hint": "增加"
     },
     {
-      "type": "fill",
-      "q": "She __ to school by bus.",
-      "a": "goes",
-      "hint": "她坐公交车上学"
+      "type": "w2",
+      "q": "i*f*u*n*e",
+      "a": "influence",
+      "hint": "影响"
     },
     {
-      "type": "fill",
-      "q": "They __ playing basketball.",
-      "a": "are",
-      "hint": "他们正在打篮球"
+      "type": "w2",
+      "q": "i*t*o*u*e",
+      "a": "introduce",
+      "hint": "介绍"
     },
     {
-      "type": "fill",
-      "q": "He __ a doctor.",
-      "a": "is",
-      "hint": "他是医生"
+      "type": "w2",
+      "q": "k*o*l*d*e",
+      "a": "knowledge",
+      "hint": "知识"
     },
     {
-      "type": "fill",
-      "q": "We __ happy.",
-      "a": "are",
-      "hint": "我们很快乐"
+      "type": "w2",
+      "q": "l*ng**g*",
+      "a": "language",
+      "hint": "语言"
     },
     {
-      "type": "fill",
-      "q": "The book __ very interesting.",
-      "a": "is",
-      "hint": "这本书很有趣"
+      "type": "w2",
+      "q": "l*t*r*t*r*",
+      "a": "literature",
+      "hint": "文学"
+    },
+    {
+      "type": "trans",
+      "q": "能力",
+      "a": "ability",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "接受",
+      "a": "accept",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "建议",
+      "a": "advice",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "同意",
+      "a": "agree",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "允许",
+      "a": "allow",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "古老的",
+      "a": "ancient",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "出现",
+      "a": "appear",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "到达",
+      "a": "arrive",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "注意",
+      "a": "attention",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "态度",
+      "a": "attitude",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "平衡",
+      "a": "balance",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "相信",
+      "a": "believe",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "利益",
+      "a": "benefit",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "生物学",
+      "a": "biology",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "职业",
+      "a": "career",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "庆祝",
+      "a": "celebrate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "世纪",
+      "a": "century",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "挑战",
+      "a": "challenge",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "选择",
+      "a": "choice",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "气候",
+      "a": "climate",
+      "hint": "名词"
     },
     {
       "type": "fill",
@@ -224,126 +344,6 @@ module.exports = {
       "q": "We __ a cake.",
       "a": "bake",
       "hint": "我们烤蛋糕"
-    },
-    {
-      "type": "trans",
-      "q": "能力",
-      "a": "ability",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "接受",
-      "a": "accept",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "建议",
-      "a": "advice",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "同意",
-      "a": "agree",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "允许",
-      "a": "allow",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "古老的",
-      "a": "ancient",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "出现",
-      "a": "appear",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "到达",
-      "a": "arrive",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "注意",
-      "a": "attention",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "态度",
-      "a": "attitude",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "平衡",
-      "a": "balance",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "相信",
-      "a": "believe",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "利益",
-      "a": "benefit",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "生物学",
-      "a": "biology",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "职业",
-      "a": "career",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "庆祝",
-      "a": "celebrate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "世纪",
-      "a": "century",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "挑战",
-      "a": "challenge",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "选择",
-      "a": "choice",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "气候",
-      "a": "climate",
-      "hint": "名词"
     },
     {
       "type": "xhy",

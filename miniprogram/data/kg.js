@@ -4,6 +4,234 @@ module.exports = {
   "count": 100,
   "items": [
     {
+      "type": "w1",
+      "q": "cat",
+      "a": "cat",
+      "hint": "猫"
+    },
+    {
+      "type": "w1",
+      "q": "dog",
+      "a": "dog",
+      "hint": "狗"
+    },
+    {
+      "type": "w1",
+      "q": "sun",
+      "a": "sun",
+      "hint": "太阳"
+    },
+    {
+      "type": "w1",
+      "q": "moon",
+      "a": "moon",
+      "hint": "月亮"
+    },
+    {
+      "type": "w1",
+      "q": "star",
+      "a": "star",
+      "hint": "星星"
+    },
+    {
+      "type": "w1",
+      "q": "tree",
+      "a": "tree",
+      "hint": "树"
+    },
+    {
+      "type": "w1",
+      "q": "flower",
+      "a": "flower",
+      "hint": "花"
+    },
+    {
+      "type": "w1",
+      "q": "bird",
+      "a": "bird",
+      "hint": "鸟"
+    },
+    {
+      "type": "w1",
+      "q": "fish",
+      "a": "fish",
+      "hint": "鱼"
+    },
+    {
+      "type": "w1",
+      "q": "book",
+      "a": "book",
+      "hint": "书"
+    },
+    {
+      "type": "w1",
+      "q": "water",
+      "a": "water",
+      "hint": "水"
+    },
+    {
+      "type": "w1",
+      "q": "fire",
+      "a": "fire",
+      "hint": "火"
+    },
+    {
+      "type": "w1",
+      "q": "red",
+      "a": "red",
+      "hint": "红色"
+    },
+    {
+      "type": "w1",
+      "q": "blue",
+      "a": "blue",
+      "hint": "蓝色"
+    },
+    {
+      "type": "w1",
+      "q": "big",
+      "a": "big",
+      "hint": "大"
+    },
+    {
+      "type": "w1",
+      "q": "small",
+      "a": "small",
+      "hint": "小"
+    },
+    {
+      "type": "w1",
+      "q": "up",
+      "a": "up",
+      "hint": "上"
+    },
+    {
+      "type": "w1",
+      "q": "down",
+      "a": "down",
+      "hint": "下"
+    },
+    {
+      "type": "w1",
+      "q": "left",
+      "a": "left",
+      "hint": "左"
+    },
+    {
+      "type": "w1",
+      "q": "right",
+      "a": "right",
+      "hint": "右"
+    },
+    {
+      "type": "w1",
+      "q": "hand",
+      "a": "hand",
+      "hint": "手"
+    },
+    {
+      "type": "w1",
+      "q": "eye",
+      "a": "eye",
+      "hint": "眼睛"
+    },
+    {
+      "type": "w1",
+      "q": "ear",
+      "a": "ear",
+      "hint": "耳朵"
+    },
+    {
+      "type": "w1",
+      "q": "foot",
+      "a": "foot",
+      "hint": "脚"
+    },
+    {
+      "type": "w1",
+      "q": "door",
+      "a": "door",
+      "hint": "门"
+    },
+    {
+      "type": "w1",
+      "q": "car",
+      "a": "car",
+      "hint": "汽车"
+    },
+    {
+      "type": "w1",
+      "q": "bus",
+      "a": "bus",
+      "hint": "公交车"
+    },
+    {
+      "type": "w1",
+      "q": "ship",
+      "a": "ship",
+      "hint": "大船"
+    },
+    {
+      "type": "w1",
+      "q": "boat",
+      "a": "boat",
+      "hint": "小船"
+    },
+    {
+      "type": "w1",
+      "q": "hat",
+      "a": "hat",
+      "hint": "帽子"
+    },
+    {
+      "type": "w1",
+      "q": "shoe",
+      "a": "shoe",
+      "hint": "鞋子"
+    },
+    {
+      "type": "w1",
+      "q": "cup",
+      "a": "cup",
+      "hint": "杯子"
+    },
+    {
+      "type": "w1",
+      "q": "pen",
+      "a": "pen",
+      "hint": "钢笔"
+    },
+    {
+      "type": "w1",
+      "q": "bag",
+      "a": "bag",
+      "hint": "书包"
+    },
+    {
+      "type": "w1",
+      "q": "bed",
+      "a": "bed",
+      "hint": "床"
+    },
+    {
+      "type": "w1",
+      "q": "box",
+      "a": "box",
+      "hint": "盒子"
+    },
+    {
+      "type": "w1",
+      "q": "ball",
+      "a": "ball",
+      "hint": "球"
+    },
+    {
+      "type": "w1",
+      "q": "doll",
+      "a": "doll",
+      "hint": "娃娃"
+    },
+    {
       "type": "c1",
       "q": "大",
       "a": "大",
@@ -374,234 +602,6 @@ module.exports = {
       "q": "红",
       "a": "红",
       "hint": "红色的红"
-    },
-    {
-      "type": "w1",
-      "q": "cat",
-      "a": "cat",
-      "hint": "猫"
-    },
-    {
-      "type": "w1",
-      "q": "dog",
-      "a": "dog",
-      "hint": "狗"
-    },
-    {
-      "type": "w1",
-      "q": "sun",
-      "a": "sun",
-      "hint": "太阳"
-    },
-    {
-      "type": "w1",
-      "q": "moon",
-      "a": "moon",
-      "hint": "月亮"
-    },
-    {
-      "type": "w1",
-      "q": "star",
-      "a": "star",
-      "hint": "星星"
-    },
-    {
-      "type": "w1",
-      "q": "tree",
-      "a": "tree",
-      "hint": "树"
-    },
-    {
-      "type": "w1",
-      "q": "flower",
-      "a": "flower",
-      "hint": "花"
-    },
-    {
-      "type": "w1",
-      "q": "bird",
-      "a": "bird",
-      "hint": "鸟"
-    },
-    {
-      "type": "w1",
-      "q": "fish",
-      "a": "fish",
-      "hint": "鱼"
-    },
-    {
-      "type": "w1",
-      "q": "book",
-      "a": "book",
-      "hint": "书"
-    },
-    {
-      "type": "w1",
-      "q": "water",
-      "a": "water",
-      "hint": "水"
-    },
-    {
-      "type": "w1",
-      "q": "fire",
-      "a": "fire",
-      "hint": "火"
-    },
-    {
-      "type": "w1",
-      "q": "red",
-      "a": "red",
-      "hint": "红色"
-    },
-    {
-      "type": "w1",
-      "q": "blue",
-      "a": "blue",
-      "hint": "蓝色"
-    },
-    {
-      "type": "w1",
-      "q": "big",
-      "a": "big",
-      "hint": "大"
-    },
-    {
-      "type": "w1",
-      "q": "small",
-      "a": "small",
-      "hint": "小"
-    },
-    {
-      "type": "w1",
-      "q": "up",
-      "a": "up",
-      "hint": "上"
-    },
-    {
-      "type": "w1",
-      "q": "down",
-      "a": "down",
-      "hint": "下"
-    },
-    {
-      "type": "w1",
-      "q": "left",
-      "a": "left",
-      "hint": "左"
-    },
-    {
-      "type": "w1",
-      "q": "right",
-      "a": "right",
-      "hint": "右"
-    },
-    {
-      "type": "w1",
-      "q": "hand",
-      "a": "hand",
-      "hint": "手"
-    },
-    {
-      "type": "w1",
-      "q": "eye",
-      "a": "eye",
-      "hint": "眼睛"
-    },
-    {
-      "type": "w1",
-      "q": "ear",
-      "a": "ear",
-      "hint": "耳朵"
-    },
-    {
-      "type": "w1",
-      "q": "foot",
-      "a": "foot",
-      "hint": "脚"
-    },
-    {
-      "type": "w1",
-      "q": "door",
-      "a": "door",
-      "hint": "门"
-    },
-    {
-      "type": "w1",
-      "q": "car",
-      "a": "car",
-      "hint": "汽车"
-    },
-    {
-      "type": "w1",
-      "q": "bus",
-      "a": "bus",
-      "hint": "公交车"
-    },
-    {
-      "type": "w1",
-      "q": "ship",
-      "a": "ship",
-      "hint": "大船"
-    },
-    {
-      "type": "w1",
-      "q": "boat",
-      "a": "boat",
-      "hint": "小船"
-    },
-    {
-      "type": "w1",
-      "q": "hat",
-      "a": "hat",
-      "hint": "帽子"
-    },
-    {
-      "type": "w1",
-      "q": "shoe",
-      "a": "shoe",
-      "hint": "鞋子"
-    },
-    {
-      "type": "w1",
-      "q": "cup",
-      "a": "cup",
-      "hint": "杯子"
-    },
-    {
-      "type": "w1",
-      "q": "pen",
-      "a": "pen",
-      "hint": "钢笔"
-    },
-    {
-      "type": "w1",
-      "q": "bag",
-      "a": "bag",
-      "hint": "书包"
-    },
-    {
-      "type": "w1",
-      "q": "bed",
-      "a": "bed",
-      "hint": "床"
-    },
-    {
-      "type": "w1",
-      "q": "box",
-      "a": "box",
-      "hint": "盒子"
-    },
-    {
-      "type": "w1",
-      "q": "ball",
-      "a": "ball",
-      "hint": "球"
-    },
-    {
-      "type": "w1",
-      "q": "doll",
-      "a": "doll",
-      "hint": "娃娃"
     }
   ]
 };

@@ -21,10 +21,11 @@ const constants = require('../../miniprogram/utils/constants');
 const DATA_DIR = path.join(__dirname, '../../miniprogram/data');
 
 // 期望条目数见下方 EXPECTED（2026-10-08 学段按年级细分后重新分配）
-// 14 档的期望条目数（2026-10-08 按年级细分：旧的粗学段词库平分到各年级）
+// 14 档的期望条目数（2026-10-08 按年级细分：旧的粗学段词库按「英语/汉字」分组各平分到各年级）
+// 注：两组余数叠加，g1/g2 差 2 条是正常的（76 / 74）。
 const EXPECTED = {
   kg: 100,
-  g1: 75, g2: 75,
+  g1: 76, g2: 74,
   g3: 100, g4: 100, g5: 100, g6: 100,
   g7: 67, g8: 67, g9: 66,
   g10: 67, g11: 67, g12: 66,

@@ -610,6 +610,240 @@ module.exports = {
       "hint": "抵制"
     },
     {
+      "type": "trans",
+      "q": "丰富",
+      "a": "abundance",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "获得",
+      "a": "acquisition",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "提倡",
+      "a": "advocate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "缓解",
+      "a": "alleviate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "模糊的",
+      "a": "ambiguous",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "类比",
+      "a": "analogy",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "匿名的",
+      "a": "anonymous",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "预期",
+      "a": "anticipate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "任意的",
+      "a": "arbitrary",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "渴望",
+      "a": "aspiration",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "评估",
+      "a": "assessment",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "同化",
+      "a": "assimilate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "归因",
+      "a": "attribute",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "真正的",
+      "a": "authentic",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "自治",
+      "a": "autonomy",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "基准",
+      "a": "benchmark",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "仁慈的",
+      "a": "benevolent",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "良性的",
+      "a": "benign",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "使迷惑",
+      "a": "bewilder",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "偏见",
+      "a": "bias",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "封锁",
+      "a": "blockade",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "抵制",
+      "a": "boycott",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "官僚主义",
+      "a": "bureaucracy",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "候选人",
+      "a": "candidate",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "催化剂",
+      "a": "catalyst",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "迎合",
+      "a": "cater",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "审查",
+      "a": "censorship",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "连贯的",
+      "a": "coherent",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "同时发生",
+      "a": "coincide",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "合作",
+      "a": "collaborate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "商品",
+      "a": "commodity",
+      "hint": "名词"
+    },
+    {
+      "type": "trans",
+      "q": "兼容的",
+      "a": "compatible",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "补偿",
+      "a": "compensate",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "补充",
+      "a": "complement",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "遵守",
+      "a": "comply",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "强制的",
+      "a": "compulsory",
+      "hint": "形容词"
+    },
+    {
+      "type": "trans",
+      "q": "构想",
+      "a": "conceive",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "商讨",
+      "a": "confer",
+      "hint": "动词"
+    },
+    {
+      "type": "trans",
+      "q": "遵从",
+      "a": "conform",
+      "hint": "动词"
+    },
+    {
       "type": "c2",
       "q": "高*远*",
       "a": "高瞻远瞩",
@@ -968,240 +1202,6 @@ module.exports = {
       "q": "The study __ the effectiveness of the new treatment.",
       "a": "evaluated",
       "hint": "研究评估了新疗法的有效性"
-    },
-    {
-      "type": "trans",
-      "q": "丰富",
-      "a": "abundance",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "获得",
-      "a": "acquisition",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "提倡",
-      "a": "advocate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "缓解",
-      "a": "alleviate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "模糊的",
-      "a": "ambiguous",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "类比",
-      "a": "analogy",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "匿名的",
-      "a": "anonymous",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "预期",
-      "a": "anticipate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "任意的",
-      "a": "arbitrary",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "渴望",
-      "a": "aspiration",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "评估",
-      "a": "assessment",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "同化",
-      "a": "assimilate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "归因",
-      "a": "attribute",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "真正的",
-      "a": "authentic",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "自治",
-      "a": "autonomy",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "基准",
-      "a": "benchmark",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "仁慈的",
-      "a": "benevolent",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "良性的",
-      "a": "benign",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "使迷惑",
-      "a": "bewilder",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "偏见",
-      "a": "bias",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "封锁",
-      "a": "blockade",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "抵制",
-      "a": "boycott",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "官僚主义",
-      "a": "bureaucracy",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "候选人",
-      "a": "candidate",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "催化剂",
-      "a": "catalyst",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "迎合",
-      "a": "cater",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "审查",
-      "a": "censorship",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "连贯的",
-      "a": "coherent",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "同时发生",
-      "a": "coincide",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "合作",
-      "a": "collaborate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "商品",
-      "a": "commodity",
-      "hint": "名词"
-    },
-    {
-      "type": "trans",
-      "q": "兼容的",
-      "a": "compatible",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "补偿",
-      "a": "compensate",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "补充",
-      "a": "complement",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "遵守",
-      "a": "comply",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "强制的",
-      "a": "compulsory",
-      "hint": "形容词"
-    },
-    {
-      "type": "trans",
-      "q": "构想",
-      "a": "conceive",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "商讨",
-      "a": "confer",
-      "hint": "动词"
-    },
-    {
-      "type": "trans",
-      "q": "遵从",
-      "a": "conform",
-      "hint": "动词"
     }
   ]
 };

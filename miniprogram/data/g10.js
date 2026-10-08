@@ -244,166 +244,166 @@ module.exports = {
       "hint": "业余的"
     },
     {
-      "type": "w1",
-      "q": "ambiguous",
-      "a": "ambiguous",
-      "hint": "模糊的"
+      "type": "c2",
+      "q": "锲*不*",
+      "a": "锲而不舍",
+      "hint": "比喻坚持不懈"
     },
     {
-      "type": "w1",
-      "q": "amend",
-      "a": "amend",
-      "hint": "修正"
+      "type": "c2",
+      "q": "孜*不*",
+      "a": "孜孜不倦",
+      "hint": "形容勤奋"
     },
     {
-      "type": "w1",
-      "q": "analogy",
-      "a": "analogy",
-      "hint": "类比"
+      "type": "c2",
+      "q": "废*忘*",
+      "a": "废寝忘食",
+      "hint": "形容专心努力"
     },
     {
-      "type": "w1",
-      "q": "analyse",
-      "a": "analyse",
-      "hint": "分析"
+      "type": "c2",
+      "q": "发*图*",
+      "a": "发奋图强",
+      "hint": "振作精神"
     },
     {
-      "type": "w1",
-      "q": "ancestor",
-      "a": "ancestor",
-      "hint": "祖先"
+      "type": "c2",
+      "q": "力*上*",
+      "a": "力争上游",
+      "hint": "努力争先进"
     },
     {
-      "type": "w1",
-      "q": "anniversary",
-      "a": "anniversary",
-      "hint": "周年"
+      "type": "c2",
+      "q": "坚*不*",
+      "a": "坚持不懈",
+      "hint": "坚持到底"
     },
     {
-      "type": "w1",
-      "q": "annual",
-      "a": "annual",
-      "hint": "年度的"
+      "type": "c2",
+      "q": "坚*不*",
+      "a": "坚定不移",
+      "hint": "形容意志坚定"
     },
     {
-      "type": "w1",
-      "q": "anticipate",
-      "a": "anticipate",
-      "hint": "预期"
+      "type": "c2",
+      "q": "坚*不*",
+      "a": "坚韧不拔",
+      "hint": "形容意志坚强"
     },
     {
-      "type": "w1",
-      "q": "anxiety",
-      "a": "anxiety",
-      "hint": "焦虑"
+      "type": "c2",
+      "q": "千*百*",
+      "a": "千方百计",
+      "hint": "想尽办法"
     },
     {
-      "type": "w1",
-      "q": "anyhow",
-      "a": "anyhow",
-      "hint": "无论如何"
+      "type": "c2",
+      "q": "绞*脑*",
+      "a": "绞尽脑汁",
+      "hint": "费尽思虑"
     },
     {
-      "type": "w1",
-      "q": "apart",
-      "a": "apart",
-      "hint": "分开"
+      "type": "c2",
+      "q": "聚*会*",
+      "a": "聚精会神",
+      "hint": "集中精神"
     },
     {
-      "type": "w1",
-      "q": "apparent",
-      "a": "apparent",
-      "hint": "明显的"
+      "type": "c2",
+      "q": "全*贯*",
+      "a": "全神贯注",
+      "hint": "全副精神集中"
     },
     {
-      "type": "w1",
-      "q": "appeal",
-      "a": "appeal",
-      "hint": "呼吁"
+      "type": "c2",
+      "q": "专*致*",
+      "a": "专心致志",
+      "hint": "一心一意"
     },
     {
-      "type": "w1",
-      "q": "appoint",
-      "a": "appoint",
-      "hint": "任命"
+      "type": "c2",
+      "q": "一*不*",
+      "a": "一丝不苟",
+      "hint": "形容办事认真"
     },
     {
-      "type": "w1",
-      "q": "appreciate",
-      "a": "appreciate",
-      "hint": "欣赏"
+      "type": "c2",
+      "q": "精*求*",
+      "a": "精益求精",
+      "hint": "追求更好"
     },
     {
-      "type": "w1",
-      "q": "approach",
-      "a": "approach",
-      "hint": "接近"
+      "type": "c2",
+      "q": "脚*实*",
+      "a": "脚踏实地",
+      "hint": "做事踏实"
     },
     {
-      "type": "w1",
-      "q": "appropriate",
-      "a": "appropriate",
-      "hint": "适当的"
+      "type": "c2",
+      "q": "实*求*",
+      "a": "实事求是",
+      "hint": "从实际出发"
     },
     {
-      "type": "w1",
-      "q": "approximate",
-      "a": "approximate",
-      "hint": "近似的"
+      "type": "c2",
+      "q": "与*俱*",
+      "a": "与时俱进",
+      "hint": "随着时代发展"
     },
     {
-      "type": "w1",
-      "q": "arbitrary",
-      "a": "arbitrary",
-      "hint": "任意的"
+      "type": "c2",
+      "q": "开*创*",
+      "a": "开拓创新",
+      "hint": "开辟创新"
     },
     {
-      "type": "w1",
-      "q": "architect",
-      "a": "architect",
-      "hint": "建筑师"
+      "type": "c2",
+      "q": "锐*进*",
+      "a": "锐意进取",
+      "hint": "意志坚决进取"
     },
     {
-      "type": "w1",
-      "q": "arise",
-      "a": "arise",
-      "hint": "出现"
+      "type": "c2",
+      "q": "勇*直*",
+      "a": "勇往直前",
+      "hint": "勇敢向前"
     },
     {
-      "type": "w1",
-      "q": "arithmetic",
-      "a": "arithmetic",
-      "hint": "算术"
+      "type": "c2",
+      "q": "奋*顾*",
+      "a": "奋不顾身",
+      "hint": "奋勇向前不顾生命"
     },
     {
-      "type": "w1",
-      "q": "arouse",
-      "a": "arouse",
-      "hint": "唤起"
+      "type": "c2",
+      "q": "舍*忘*",
+      "a": "舍生忘死",
+      "hint": "不顾生命"
     },
     {
-      "type": "w1",
-      "q": "arrange",
-      "a": "arrange",
-      "hint": "安排"
+      "type": "c2",
+      "q": "视*如*",
+      "a": "视死如归",
+      "hint": "不怕死"
     },
     {
-      "type": "w1",
-      "q": "aspiration",
-      "a": "aspiration",
-      "hint": "渴望"
+      "type": "c2",
+      "q": "宁*不*",
+      "a": "宁死不屈",
+      "hint": "宁愿死不屈服"
     },
     {
-      "type": "w1",
-      "q": "assemble",
-      "a": "assemble",
-      "hint": "组装"
+      "type": "c2",
+      "q": "临*不*",
+      "a": "临危不惧",
+      "hint": "遇到危险不畏惧"
     },
     {
-      "type": "w1",
-      "q": "assess",
-      "a": "assess",
-      "hint": "评估"
+      "type": "c2",
+      "q": "见*勇*",
+      "a": "见义勇为",
+      "hint": "看到正义勇于行动"
     }
   ]
 };
