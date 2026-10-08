@@ -99,7 +99,7 @@ const MODULES = [
     name: '云托管后端（接口 / 模型 / Sequelize 用法）',
     stages: [],
     unit: ['sequelize-operators', 'rank-stars', 'checkin-rewards', 'rank-eligibility',
-      'admin-query', 'game-names', 'seed-parity', 'grade-keys-parity']
+      'admin-query', 'game-names', 'seed-parity', 'grade-keys-parity', 'ensure-tables']
   },
   {
     id: 'pages',

@@ -86,6 +86,16 @@ async function connect() {
   await ensureDatabase();
   if (NODE_ENV === "production") {
     await sequelize.authenticate();
+    // 生产环境也把「本次新增的表 / 列 / 索引」补一遍（2026-10-08）：
+    // 用户在执行手写 SQL 时报 ETIMEDOUT（执行入口连不上库），而容器连库是通的 ——
+    // 与其让人反复试控制台，不如让服务自己补齐。只做「缺什么补什么」的幂等 DDL，
+    // 不改已有列、不删任何东西；失败只告警，不阻断启动（老功能照常）。
+    try {
+      const ensureTables = require("./ensure-tables");
+      await ensureTables(sequelize);
+    } catch (err) {
+      console.error("[db] 新增表结构补齐失败（不影响启动，新功能暂不可用）：", err.message);
+    }
     // 生产也把「形象/皮肤目录」补一遍：seedAvatars 是幂等 upsert，只写 avatars 表、
     // 不动结构、不碰用户数据 —— 这样以后上架新皮肤（改 seeders 文件）部署后自动生效，
     // 不需要人工执行 SQL。失败只告警不阻断启动（皮肤缺失不影响其它功能）。
