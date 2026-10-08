@@ -3,7 +3,8 @@
  *
  * 覆盖（7 个 data/*.json）：
  *  - JSON 可解析、结构 { grade, count, items } 合法
- *  - 条目数与 count 字段一致，14 文件合计 1250（学段按年级细分后的分配）
+ *  - 条目数与 count 字段一致，且不低于各档下限（2026-10-08 教材词表扩充后：
+ *    只拦「意外删词」，补词不会把测试打红）
  *  - 每条 type ∈ 8 种类型码、q/a/hint 字段齐备
  *  - w2/c2 的 q 中 * 数量与答案 a 自洽（去星字符按序与 a 对齐，星位可还原出 a）
  *
@@ -20,15 +21,15 @@ const s = suite('data/*.json 词库数据');
 const constants = require('../../miniprogram/utils/constants');
 const DATA_DIR = path.join(__dirname, '../../miniprogram/data');
 
-// 期望条目数见下方 EXPECTED（2026-10-08 学段按年级细分后重新分配）
-// 14 档的期望条目数（2026-10-08 按年级细分：旧的粗学段词库按「英语/汉字」分组各平分到各年级）
-// 注：两组余数叠加，g1/g2 差 2 条是正常的（76 / 74）。
-const EXPECTED = {
+// 各档条目数**下限**（2026-10-08 教材对接补词后的规模）。
+// 为什么用下限而不是精确值：词表会持续补充（每补一批就要改一次测试，纯噪音），
+// 但「某档被意外删空/删半」必须拦住 —— 那会直接让该年级出不了题。
+const MIN_ITEMS = {
   kg: 100,
-  g1: 76, g2: 74,
-  g3: 100, g4: 100, g5: 100, g6: 100,
-  g7: 67, g8: 67, g9: 66,
-  g10: 67, g11: 67, g12: 66,
+  g1: 150, g2: 150,
+  g3: 200, g4: 200, g5: 200, g6: 200,
+  g7: 130, g8: 130, g9: 130,
+  g10: 130, g11: 130, g12: 130,
   college: 200
 };
 
@@ -54,15 +55,16 @@ s.test('数据文件存在且 JSON 结构合法（grade/count/items）', () => {
   }
 });
 
-s.test('条目数与 count 字段一致，14 文件合计 1250', () => {
+s.test('条目数与 count 字段一致，且不低于各档下限', () => {
   let total = 0;
   for (const key of Object.keys(all)) {
     const { obj, items } = all[key];
     s.assert.equal(items.length, obj.count, key + ' items.length 应等于 count');
-    s.assert.equal(items.length, EXPECTED[key], key + ' 条目数应为 ' + EXPECTED[key]);
+    s.assert.ok(items.length >= MIN_ITEMS[key],
+      key + ' 条目数 ' + items.length + ' 低于下限 ' + MIN_ITEMS[key]);
     total += items.length;
   }
-  s.assert.equal(total, 1250);
+  s.assert.ok(total >= 2400, '14 档合计仅 ' + total);
   // 学段 key 与 constants.GRADES 一一对应
   s.assert.equal(Object.keys(all).length, 14);
 });

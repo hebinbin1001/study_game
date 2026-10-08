@@ -6,10 +6,13 @@ const router = express.Router();
 
 // 合法题型码（与 docs/词库格式规范.md 的 8 类型码一致）
 const TYPE_CODES = ["w1", "w2", "c1", "c2", "xhy", "zc", "fill", "trans"];
-// 合法学段 key（与端上 utils/constants.js 的 GRADES 一致）
-const GRADE_KEYS = [
-  "kindergarten", "primary12", "primary34", "primary56", "junior", "senior", "college",
-];
+// 合法学段 key（与端上 utils/constants.js 的 GRADES 一致，单一来源见 server/grade-keys.js）。
+// ⚠️ 2026-10-08 修：这里原来还写着 7 档旧 key（kindergarten/primary12/…），
+//    学段按年级拆分后，用户在「三年级」等新学段下新增/编辑词条会被服务端判非法 ——
+//    旧 key 保留只为兼容历史覆盖记录（老表里可能还有这些学段的数据）。
+const gradeKeys = require("../grade-keys");
+const LEGACY_GRADE_KEYS = ["kindergarten", "primary12", "primary34", "primary56", "junior", "senior"];
+const GRADE_KEYS = gradeKeys.GRADE_KEYS.concat(LEGACY_GRADE_KEYS);
 const ACTIONS = ["create", "patch", "disable"];
 
 /** 词条指纹：与端上 utils/bank.js 的 fingerprint() 必须完全一致 */

@@ -28,6 +28,10 @@ const achievementRouter = require("./routes/achievement");
 const reportRouter = require("./routes/report");
 const wordbankRouter = require("./routes/wordbank");
 const avatarFileRouter = require("./routes/avatar-file");
+// 2026-10-08 新增：每日挑战赛 / 赛季 / 好友 PK（异步战帖）
+const dailyChallengeRouter = require("./routes/daily-challenge");
+const seasonRouter = require("./routes/season");
+const pkRouter = require("./routes/pk");
 
 const app = express();
 
@@ -104,6 +108,12 @@ app.use("/api/achievement", openid, achievementRouter);
 app.use("/api/report", openid, reportRouter);
 // 题库（2026-09-18）：用户可编辑词条，作为闯关线题源
 app.use("/api/wordbank", openid, wordbankRouter);
+// 每日挑战赛（2026-10-08）：当天同学段同一套题，当天出榜
+app.use("/api/dailychallenge", openid, dailyChallengeRouter);
+// 赛季（2026-10-08）：自然双月一季，赛季榜 + 上赛季奖励
+app.use("/api/season", openid, seasonRouter);
+// 好友 PK（2026-10-08）：异步战帖，分享给好友打同一套题
+app.use("/api/pk", openid, pkRouter);
 // 头像图片（2026-09-19）：公开可读，不能挂 openid 中间件（<image> 不带自定义头）
 app.use("/api/avatar", avatarFileRouter);
 

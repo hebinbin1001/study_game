@@ -85,7 +85,8 @@ Page({
     shown: [],
     hasMore: false,
     // 排序 / 翻页（2026-10-08）
-    sortKey: 'py',        // 目前只有「拼音·字母序」一档
+    sortKey: 'py',        // 排序键（英文按字母、中文按拼音，构建期已补 py 字段）
+    sortDesc: false,      // 是否倒序（2026-10-08：把「只有一个选项」的排序栏变成正/倒序切换）
     totalPages: 1,
     pageNum: 1,           // 当前页（与 js 的 _page 同步；WXML 只能读 data）
     filteredTotal: 0,     // 当前筛选条件下的条数（与 totalAll 不同：那是全部）
@@ -277,12 +278,17 @@ Page({
     //   · py 是构建期补好的 —— 英文词条 = 小写本身（按字母），中文 = 全拼（按拼音）；
     //   · 取不到 py 的（用户新建、带符号的题面）排最后，别混在正常序里。
     var sortKey = d.sortKey || 'py';
+    var desc = !!d.sortDesc;
     if (sortKey === 'py') {
       list.sort(function (a, b) {
         var pa = a.py || '\uffff';   // 没有键的排最后
         var pb = b.py || '\uffff';
         if (pa === pb) return 0;
-        return pa < pb ? -1 : 1;
+        // 没有排序键的词条（用户新建、带符号的题面）无论正序倒序都沉底，
+        // 免得倒序时它们跑到列表最前面抢视线。
+        if (!a.py || !b.py) return pa < pb ? -1 : 1;
+        var cmp = pa < pb ? -1 : 1;
+        return desc ? -cmp : cmp;
       });
     }
 
@@ -299,10 +305,10 @@ Page({
     });
   },
 
-  /** 切换排序（目前只有「拼音/字母序」一档；留着 sortKey 便于以后加「掌握度优先」） */
+  /** 切换排序方向（正序 / 倒序）。sortKey 保留，便于以后加「掌握度优先」这类排序 */
   pickSort: function (e) {
-    var key = e.currentTarget.dataset.key || 'py';
-    this.setData({ sortKey: key });
+    var dir = parseInt(e.currentTarget.dataset.dir, 10) || 1;
+    this.setData({ sortKey: 'py', sortDesc: dir < 0 });
     this._page = 1;
     this._applyFilter();
   },

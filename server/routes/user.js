@@ -13,6 +13,8 @@ const {
 } = require("../db");
 const { checkContent } = require("../utils/wechat");
 const { displayName } = require("../nickname-util");
+const bookKeys = require("../book-keys");
+const { isMissingColumn } = require("../table-missing");
 
 const router = express.Router();
 
@@ -229,6 +231,42 @@ router.post("/profile", async (req, res) => {
 /**
  * POST /api/user/logout —— 退出登录（清除 token，M5）
  */
+/**
+ * POST /api/user/book —— 保存教材版本（2026-10-08 二期：教材对接）
+ *
+ * body: { book }（''=通用 / pep / wys / bjb）
+ * 说明：users.book 列需要执行 ALTER TABLE（见 docs/sql/2026-10-08-赛季与PK建表.sql）。
+ *       列还没建时降级为 saved:false —— 本地已生效，不影响使用，也不报 5000。
+ */
+router.post("/book", async (req, res) => {
+  try {
+    const openid = req.openid;
+    if (!openid) {
+      return res.send({ code: 1001, data: null, message: "未识别用户（openid 缺失）" });
+    }
+    const book = String((req.body && req.body.book) || "").trim();
+    if (!bookKeys.isValidBook(book)) {
+      return res.send({ code: 4000, data: null, message: "教材版本不合法" });
+    }
+    await sequelize.query(
+      "UPDATE users SET book = :b WHERE openid = :o",
+      { replacements: { b: book, o: openid } }
+    );
+    res.send({ code: 0, data: { saved: true, book: book } });
+  } catch (err) {
+    if (isMissingColumn(err)) {
+      console.warn("[user] users.book 列不存在，教材版本仅本地生效（执行 SQL 后自动同步）");
+      return res.send({
+        code: 0,
+        data: { saved: false, book: String((req.body && req.body.book) || "") },
+        message: "本地已生效（云端列未建）",
+      });
+    }
+    console.error("POST /api/user/book 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
 router.post("/logout", async (req, res) => {
   try {
     const user = await findUserByOpenid(req.openid);

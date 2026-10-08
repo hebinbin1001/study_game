@@ -1,28 +1,31 @@
 module.exports = {
   "grade": "g1",
   "label": "一年级",
-  "count": 76,
+  "count": 156,
   "items": [
     {
       "type": "w1",
       "q": "apple",
       "a": "apple",
       "hint": "苹果",
-      "py": "apple"
+      "py": "apple",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "banana",
       "a": "banana",
       "hint": "香蕉",
-      "py": "banana"
+      "py": "banana",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "orange",
       "a": "orange",
       "hint": "橙子",
-      "py": "orange"
+      "py": "orange",
+      "book": "wys"
     },
     {
       "type": "w1",
@@ -36,7 +39,8 @@ module.exports = {
       "q": "pear",
       "a": "pear",
       "hint": "梨",
-      "py": "pear"
+      "py": "pear",
+      "book": "wys"
     },
     {
       "type": "w1",
@@ -64,14 +68,16 @@ module.exports = {
       "q": "bread",
       "a": "bread",
       "hint": "面包",
-      "py": "bread"
+      "py": "bread",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "rice",
       "a": "rice",
       "hint": "米饭",
-      "py": "rice"
+      "py": "rice",
+      "book": "wys"
     },
     {
       "type": "w1",
@@ -92,28 +98,32 @@ module.exports = {
       "q": "fish",
       "a": "fish",
       "hint": "鱼",
-      "py": "fish"
+      "py": "fish",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "egg",
       "a": "egg",
       "hint": "鸡蛋",
-      "py": "egg"
+      "py": "egg",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "milk",
       "a": "milk",
       "hint": "牛奶",
-      "py": "milk"
+      "py": "milk",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "juice",
       "a": "juice",
       "hint": "果汁",
-      "py": "juice"
+      "py": "juice",
+      "book": "wys"
     },
     {
       "type": "w1",
@@ -127,7 +137,8 @@ module.exports = {
       "q": "water",
       "a": "water",
       "hint": "水",
-      "py": "water"
+      "py": "water",
+      "book": "wys"
     },
     {
       "type": "w1",
@@ -141,7 +152,8 @@ module.exports = {
       "q": "cake",
       "a": "cake",
       "hint": "蛋糕",
-      "py": "cake"
+      "py": "cake",
+      "book": "wys"
     },
     {
       "type": "w1",
@@ -162,7 +174,8 @@ module.exports = {
       "q": "family",
       "a": "family",
       "hint": "家庭",
-      "py": "family"
+      "py": "family",
+      "book": "wys"
     },
     {
       "type": "w1",
@@ -183,7 +196,8 @@ module.exports = {
       "q": "brother",
       "a": "brother",
       "hint": "兄弟",
-      "py": "brother"
+      "py": "brother",
+      "book": "wys"
     },
     {
       "type": "c1",
@@ -534,6 +548,646 @@ module.exports = {
       "a": "桌子",
       "hint": "桌子",
       "py": "zhuo"
+    },
+    {
+      "type": "w1",
+      "q": "pen",
+      "a": "pen",
+      "hint": "钢笔",
+      "py": "pen",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "pencil",
+      "a": "pencil",
+      "hint": "铅笔",
+      "py": "pencil",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "pencil-box",
+      "a": "pencil-box",
+      "hint": "铅笔盒",
+      "py": "pencil-box",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "book",
+      "a": "book",
+      "hint": "书",
+      "py": "book",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "bag",
+      "a": "bag",
+      "hint": "书包",
+      "py": "bag",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "ruler",
+      "a": "ruler",
+      "hint": "尺子",
+      "py": "ruler",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "eraser",
+      "a": "eraser",
+      "hint": "橡皮",
+      "py": "eraser",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "crayon",
+      "a": "crayon",
+      "hint": "蜡笔",
+      "py": "crayon",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "desk",
+      "a": "desk",
+      "hint": "书桌",
+      "py": "desk",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "chair",
+      "a": "chair",
+      "hint": "椅子",
+      "py": "chair",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "door",
+      "a": "door",
+      "hint": "门",
+      "py": "door",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "window",
+      "a": "window",
+      "hint": "窗户",
+      "py": "window",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "blackboard",
+      "a": "blackboard",
+      "hint": "黑板",
+      "py": "blackboard",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "classroom",
+      "a": "classroom",
+      "hint": "教室",
+      "py": "classroom",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "school",
+      "a": "school",
+      "hint": "学校",
+      "py": "school",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "teacher",
+      "a": "teacher",
+      "hint": "老师",
+      "py": "teacher",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "student",
+      "a": "student",
+      "hint": "学生",
+      "py": "student",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "boy",
+      "a": "boy",
+      "hint": "男孩",
+      "py": "boy",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "girl",
+      "a": "girl",
+      "hint": "女孩",
+      "py": "girl",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "friend",
+      "a": "friend",
+      "hint": "朋友",
+      "py": "friend",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "one",
+      "a": "one",
+      "hint": "一",
+      "py": "one",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "two",
+      "a": "two",
+      "hint": "二",
+      "py": "two",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "three",
+      "a": "three",
+      "hint": "三",
+      "py": "three",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "four",
+      "a": "four",
+      "hint": "四",
+      "py": "four",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "five",
+      "a": "five",
+      "hint": "五",
+      "py": "five",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "six",
+      "a": "six",
+      "hint": "六",
+      "py": "six",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "seven",
+      "a": "seven",
+      "hint": "七",
+      "py": "seven",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "eight",
+      "a": "eight",
+      "hint": "八",
+      "py": "eight",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "nine",
+      "a": "nine",
+      "hint": "九",
+      "py": "nine",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "ten",
+      "a": "ten",
+      "hint": "十",
+      "py": "ten",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "red",
+      "a": "red",
+      "hint": "红色",
+      "py": "red",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "yellow",
+      "a": "yellow",
+      "hint": "黄色",
+      "py": "yellow",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "blue",
+      "a": "blue",
+      "hint": "蓝色",
+      "py": "blue",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "green",
+      "a": "green",
+      "hint": "绿色",
+      "py": "green",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "black",
+      "a": "black",
+      "hint": "黑色",
+      "py": "black",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "white",
+      "a": "white",
+      "hint": "白色",
+      "py": "white",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "pink",
+      "a": "pink",
+      "hint": "粉色",
+      "py": "pink",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "cat",
+      "a": "cat",
+      "hint": "猫",
+      "py": "cat",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "dog",
+      "a": "dog",
+      "hint": "狗",
+      "py": "dog",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "bird",
+      "a": "bird",
+      "hint": "鸟",
+      "py": "bird",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "duck",
+      "a": "duck",
+      "hint": "鸭子",
+      "py": "duck",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "rabbit",
+      "a": "rabbit",
+      "hint": "兔子",
+      "py": "rabbit",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "monkey",
+      "a": "monkey",
+      "hint": "猴子",
+      "py": "monkey",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "tiger",
+      "a": "tiger",
+      "hint": "老虎",
+      "py": "tiger",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "panda",
+      "a": "panda",
+      "hint": "熊猫",
+      "py": "panda",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "elephant",
+      "a": "elephant",
+      "hint": "大象",
+      "py": "elephant",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "horse",
+      "a": "horse",
+      "hint": "马",
+      "py": "horse",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "cow",
+      "a": "cow",
+      "hint": "奶牛",
+      "py": "cow",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "sheep",
+      "a": "sheep",
+      "hint": "绵羊",
+      "py": "sheep",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "pig",
+      "a": "pig",
+      "hint": "猪",
+      "py": "pig",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "head",
+      "a": "head",
+      "hint": "头",
+      "py": "head",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "hand",
+      "a": "hand",
+      "hint": "手",
+      "py": "hand",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "eye",
+      "a": "eye",
+      "hint": "眼睛",
+      "py": "eye",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "ear",
+      "a": "ear",
+      "hint": "耳朵",
+      "py": "ear",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "mouth",
+      "a": "mouth",
+      "hint": "嘴",
+      "py": "mouth",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "nose",
+      "a": "nose",
+      "hint": "鼻子",
+      "py": "nose",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "foot",
+      "a": "foot",
+      "hint": "脚",
+      "py": "foot",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "arm",
+      "a": "arm",
+      "hint": "手臂",
+      "py": "arm",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "leg",
+      "a": "leg",
+      "hint": "腿",
+      "py": "leg",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "face",
+      "a": "face",
+      "hint": "脸",
+      "py": "face",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "mum",
+      "a": "mum",
+      "hint": "妈妈",
+      "py": "mum",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "dad",
+      "a": "dad",
+      "hint": "爸爸",
+      "py": "dad",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "sister",
+      "a": "sister",
+      "hint": "姐妹",
+      "py": "sister",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "grandpa",
+      "a": "grandpa",
+      "hint": "爷爷",
+      "py": "grandpa",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "grandma",
+      "a": "grandma",
+      "hint": "奶奶",
+      "py": "grandma",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "big",
+      "a": "big",
+      "hint": "大的",
+      "py": "big",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "small",
+      "a": "small",
+      "hint": "小的",
+      "py": "small",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "tall",
+      "a": "tall",
+      "hint": "高的",
+      "py": "tall",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "short",
+      "a": "short",
+      "hint": "矮的",
+      "py": "short",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "long",
+      "a": "long",
+      "hint": "长的",
+      "py": "long",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "new",
+      "a": "new",
+      "hint": "新的",
+      "py": "new",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "old",
+      "a": "old",
+      "hint": "旧的",
+      "py": "old",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "hot",
+      "a": "hot",
+      "hint": "热的",
+      "py": "hot",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "cold",
+      "a": "cold",
+      "hint": "冷的",
+      "py": "cold",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "happy",
+      "a": "happy",
+      "hint": "快乐的",
+      "py": "happy",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "sad",
+      "a": "sad",
+      "hint": "悲伤的",
+      "py": "sad",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "good",
+      "a": "good",
+      "hint": "好的",
+      "py": "good",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "nice",
+      "a": "nice",
+      "hint": "好的",
+      "py": "nice",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "cute",
+      "a": "cute",
+      "hint": "可爱的",
+      "py": "cute",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "funny",
+      "a": "funny",
+      "hint": "有趣的",
+      "py": "funny",
+      "book": "wys"
     }
   ]
 };

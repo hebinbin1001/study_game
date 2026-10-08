@@ -110,8 +110,11 @@ Page({
     // 卡片里右侧还有「换关卡」按钮，文字被挤到只剩「第 30...」——
     // 关键信息（第几关）反而看不清。现在去掉「/30」（总关数在关卡页更清楚）,
     // 通关提示也压短，留出余量。总关数信息在关卡页/进度条里仍然完整。
+    // 2026-10-08 再次收紧：加上「👑 BOSS」前缀后，卡片右侧还有「换关卡」按钮，
+    // 「玩法 · 学段 · 第 N 关」整串会顶到按钮底下。学段信息在关卡页/首页顶部都有，
+    // 这里优先保住「玩什么 + 第几关」。
     var continueHint = (contLv && contLv.isBoss ? '👑 BOSS · ' : '')
-      + (contLv ? contLv.modeLabel : '字母射击') + ' · ' + gradeLabel
+      + (contLv ? contLv.modeLabel : '字母射击')
       + ' · 第 ' + cont.level + ' 关'
       + (cont.allPassed ? '（可刷星）' : '');
 
@@ -301,6 +304,21 @@ Page({
       self.refresh();
       if (user && !user.needProfile) wx.navigateTo({ url: '/pages/daily-question/daily-question' });
     });
+  },
+
+  // 每日挑战赛：当天同学段同一套题，当天出榜（游客也能玩，登录才上榜）
+  goDailyChallenge: function () {
+    wx.navigateTo({ url: '/pages/daily-challenge/daily-challenge' });
+  },
+
+  // 赛季：自然双月一季，赛季榜 + 上赛季奖励
+  goSeason: function () {
+    wx.navigateTo({ url: '/pages/season/season' });
+  },
+
+  // 好友 PK：异步战帖（发起 → 分享 → 好友应战同一套题）
+  goPk: function () {
+    wx.navigateTo({ url: '/pages/pk/pk' });
   },
 
   // 协议全文页

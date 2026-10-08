@@ -38,6 +38,9 @@
     "pages/custom-levels/custom-levels",
     "pages/checkin/checkin",
     "pages/daily-question/daily-question",
+    "pages/daily-challenge/daily-challenge",
+    "pages/season/season",
+    "pages/pk/pk",
     "pages/achievement/achievement",
     "pages/report/report",
     "pages/share-card/share-card"

@@ -1,7 +1,7 @@
 module.exports = {
   "grade": "g10",
   "label": "高一",
-  "count": 67,
+  "count": 135,
   "items": [
     {
       "type": "w1",
@@ -471,6 +471,482 @@ module.exports = {
       "a": "见义勇为",
       "hint": "看到正义勇于行动",
       "py": "jianyong"
+    },
+    {
+      "type": "w1",
+      "q": "ability",
+      "a": "ability",
+      "hint": "能力",
+      "py": "ability"
+    },
+    {
+      "type": "w1",
+      "q": "absolute",
+      "a": "absolute",
+      "hint": "绝对的",
+      "py": "absolute"
+    },
+    {
+      "type": "w1",
+      "q": "accept",
+      "a": "accept",
+      "hint": "接受",
+      "py": "accept"
+    },
+    {
+      "type": "w1",
+      "q": "access",
+      "a": "access",
+      "hint": "访问",
+      "py": "access"
+    },
+    {
+      "type": "w1",
+      "q": "accident",
+      "a": "accident",
+      "hint": "事故",
+      "py": "accident"
+    },
+    {
+      "type": "w1",
+      "q": "accompany",
+      "a": "accompany",
+      "hint": "陪伴",
+      "py": "accompany"
+    },
+    {
+      "type": "w1",
+      "q": "account",
+      "a": "account",
+      "hint": "账户",
+      "py": "account"
+    },
+    {
+      "type": "w1",
+      "q": "achieve",
+      "a": "achieve",
+      "hint": "实现",
+      "py": "achieve"
+    },
+    {
+      "type": "w1",
+      "q": "addition",
+      "a": "addition",
+      "hint": "增加",
+      "py": "addition"
+    },
+    {
+      "type": "w1",
+      "q": "advance",
+      "a": "advance",
+      "hint": "前进",
+      "py": "advance"
+    },
+    {
+      "type": "w1",
+      "q": "advantage",
+      "a": "advantage",
+      "hint": "优势",
+      "py": "advantage"
+    },
+    {
+      "type": "w1",
+      "q": "adventure",
+      "a": "adventure",
+      "hint": "冒险",
+      "py": "adventure"
+    },
+    {
+      "type": "w1",
+      "q": "advertise",
+      "a": "advertise",
+      "hint": "做广告",
+      "py": "advertise"
+    },
+    {
+      "type": "w1",
+      "q": "advice",
+      "a": "advice",
+      "hint": "建议",
+      "py": "advice"
+    },
+    {
+      "type": "w1",
+      "q": "afford",
+      "a": "afford",
+      "hint": "负担得起",
+      "py": "afford"
+    },
+    {
+      "type": "w1",
+      "q": "aggressive",
+      "a": "aggressive",
+      "hint": "好斗的",
+      "py": "aggressive"
+    },
+    {
+      "type": "w1",
+      "q": "aid",
+      "a": "aid",
+      "hint": "援助",
+      "py": "aid"
+    },
+    {
+      "type": "w1",
+      "q": "aim",
+      "a": "aim",
+      "hint": "目标",
+      "py": "aim"
+    },
+    {
+      "type": "w1",
+      "q": "alive",
+      "a": "alive",
+      "hint": "活着的",
+      "py": "alive"
+    },
+    {
+      "type": "w1",
+      "q": "allow",
+      "a": "allow",
+      "hint": "允许",
+      "py": "allow"
+    },
+    {
+      "type": "w1",
+      "q": "amazing",
+      "a": "amazing",
+      "hint": "令人惊奇的",
+      "py": "amazing"
+    },
+    {
+      "type": "w1",
+      "q": "ambition",
+      "a": "ambition",
+      "hint": "雄心",
+      "py": "ambition"
+    },
+    {
+      "type": "w1",
+      "q": "amount",
+      "a": "amount",
+      "hint": "数量",
+      "py": "amount"
+    },
+    {
+      "type": "w1",
+      "q": "analyse",
+      "a": "analyse",
+      "hint": "分析",
+      "py": "analyse"
+    },
+    {
+      "type": "w1",
+      "q": "ancient",
+      "a": "ancient",
+      "hint": "古代的",
+      "py": "ancient"
+    },
+    {
+      "type": "w1",
+      "q": "announce",
+      "a": "announce",
+      "hint": "宣布",
+      "py": "announce"
+    },
+    {
+      "type": "w1",
+      "q": "annual",
+      "a": "annual",
+      "hint": "年度的",
+      "py": "annual"
+    },
+    {
+      "type": "w1",
+      "q": "anxiety",
+      "a": "anxiety",
+      "hint": "焦虑",
+      "py": "anxiety"
+    },
+    {
+      "type": "w1",
+      "q": "apart",
+      "a": "apart",
+      "hint": "分开",
+      "py": "apart"
+    },
+    {
+      "type": "w1",
+      "q": "apologise",
+      "a": "apologise",
+      "hint": "道歉",
+      "py": "apologise"
+    },
+    {
+      "type": "w1",
+      "q": "apparent",
+      "a": "apparent",
+      "hint": "明显的",
+      "py": "apparent"
+    },
+    {
+      "type": "w1",
+      "q": "appeal",
+      "a": "appeal",
+      "hint": "呼吁",
+      "py": "appeal"
+    },
+    {
+      "type": "w1",
+      "q": "appearance",
+      "a": "appearance",
+      "hint": "外貌",
+      "py": "appearance"
+    },
+    {
+      "type": "w1",
+      "q": "appetite",
+      "a": "appetite",
+      "hint": "食欲",
+      "py": "appetite"
+    },
+    {
+      "type": "w1",
+      "q": "applause",
+      "a": "applause",
+      "hint": "掌声",
+      "py": "applause"
+    },
+    {
+      "type": "w1",
+      "q": "apply",
+      "a": "apply",
+      "hint": "申请",
+      "py": "apply"
+    },
+    {
+      "type": "w1",
+      "q": "appoint",
+      "a": "appoint",
+      "hint": "任命",
+      "py": "appoint"
+    },
+    {
+      "type": "w1",
+      "q": "appreciate",
+      "a": "appreciate",
+      "hint": "感激",
+      "py": "appreciate"
+    },
+    {
+      "type": "w1",
+      "q": "approach",
+      "a": "approach",
+      "hint": "方法",
+      "py": "approach"
+    },
+    {
+      "type": "w1",
+      "q": "appropriate",
+      "a": "appropriate",
+      "hint": "合适的",
+      "py": "appropriate"
+    },
+    {
+      "type": "w1",
+      "q": "approve",
+      "a": "approve",
+      "hint": "批准",
+      "py": "approve"
+    },
+    {
+      "type": "w1",
+      "q": "argue",
+      "a": "argue",
+      "hint": "争论",
+      "py": "argue"
+    },
+    {
+      "type": "w1",
+      "q": "arise",
+      "a": "arise",
+      "hint": "出现",
+      "py": "arise"
+    },
+    {
+      "type": "w1",
+      "q": "arrange",
+      "a": "arrange",
+      "hint": "安排",
+      "py": "arrange"
+    },
+    {
+      "type": "w1",
+      "q": "arrest",
+      "a": "arrest",
+      "hint": "逮捕",
+      "py": "arrest"
+    },
+    {
+      "type": "w1",
+      "q": "artificial",
+      "a": "artificial",
+      "hint": "人造的",
+      "py": "artificial"
+    },
+    {
+      "type": "w1",
+      "q": "ashamed",
+      "a": "ashamed",
+      "hint": "羞愧的",
+      "py": "ashamed"
+    },
+    {
+      "type": "w1",
+      "q": "aspect",
+      "a": "aspect",
+      "hint": "方面",
+      "py": "aspect"
+    },
+    {
+      "type": "w1",
+      "q": "assess",
+      "a": "assess",
+      "hint": "评估",
+      "py": "assess"
+    },
+    {
+      "type": "w1",
+      "q": "assist",
+      "a": "assist",
+      "hint": "协助",
+      "py": "assist"
+    },
+    {
+      "type": "w1",
+      "q": "associate",
+      "a": "associate",
+      "hint": "联系",
+      "py": "associate"
+    },
+    {
+      "type": "w1",
+      "q": "assume",
+      "a": "assume",
+      "hint": "假设",
+      "py": "assume"
+    },
+    {
+      "type": "w1",
+      "q": "assure",
+      "a": "assure",
+      "hint": "保证",
+      "py": "assure"
+    },
+    {
+      "type": "w1",
+      "q": "athlete",
+      "a": "athlete",
+      "hint": "运动员",
+      "py": "athlete"
+    },
+    {
+      "type": "w1",
+      "q": "atmosphere",
+      "a": "atmosphere",
+      "hint": "气氛",
+      "py": "atmosphere"
+    },
+    {
+      "type": "w1",
+      "q": "attach",
+      "a": "attach",
+      "hint": "附上",
+      "py": "attach"
+    },
+    {
+      "type": "w1",
+      "q": "attempt",
+      "a": "attempt",
+      "hint": "尝试",
+      "py": "attempt"
+    },
+    {
+      "type": "w1",
+      "q": "attend",
+      "a": "attend",
+      "hint": "参加",
+      "py": "attend"
+    },
+    {
+      "type": "w1",
+      "q": "attitude",
+      "a": "attitude",
+      "hint": "态度",
+      "py": "attitude"
+    },
+    {
+      "type": "w1",
+      "q": "attract",
+      "a": "attract",
+      "hint": "吸引",
+      "py": "attract"
+    },
+    {
+      "type": "w1",
+      "q": "audience",
+      "a": "audience",
+      "hint": "观众",
+      "py": "audience"
+    },
+    {
+      "type": "w1",
+      "q": "authority",
+      "a": "authority",
+      "hint": "权威",
+      "py": "authority"
+    },
+    {
+      "type": "w1",
+      "q": "available",
+      "a": "available",
+      "hint": "可用的",
+      "py": "available"
+    },
+    {
+      "type": "w1",
+      "q": "average",
+      "a": "average",
+      "hint": "平均",
+      "py": "average"
+    },
+    {
+      "type": "w1",
+      "q": "avoid",
+      "a": "avoid",
+      "hint": "避免",
+      "py": "avoid"
+    },
+    {
+      "type": "w1",
+      "q": "award",
+      "a": "award",
+      "hint": "奖励",
+      "py": "award"
+    },
+    {
+      "type": "w1",
+      "q": "aware",
+      "a": "aware",
+      "hint": "意识到的",
+      "py": "aware"
+    },
+    {
+      "type": "w1",
+      "q": "ban",
+      "a": "ban",
+      "hint": "禁止",
+      "py": "ban"
     }
   ]
 };

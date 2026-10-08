@@ -214,6 +214,22 @@
 .d-b { font-size: 28rpx; font-weight: 800; color: #333A45; }
 .d-s { font-size: 22rpx; color: #8A94A6; margin-top: 4rpx; }
 
+/* 每日挑战 / 赛季 / 好友 PK 三件套 */
+.trinity { display: flex; gap: 18rpx; margin-top: 24rpx; }
+.tri {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border-radius: 26rpx;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  padding: 22rpx 8rpx;
+  text-align: center;
+}
+.tri:active { opacity: .8; }
+.tri-ic { font-size: 44rpx; line-height: 1.1; }
+.tri-b { font-size: 24rpx; font-weight: 800; color: #333A45; margin-top: 8rpx; }
+.tri-s { font-size: 18rpx; color: #8A94A6; margin-top: 4rpx; }
+
 /* 继续挑战大卡 */
 .cta {
   margin-top: 24rpx;
@@ -262,6 +278,8 @@
   opacity: .92;
   border: 2rpx solid rgba(255, 255, 255, .6);
   border-radius: 999rpx;
+  /* 半透明底：副标题被压到按钮下方时也能看清按钮边界（2026-10-08 截图复查） */
+  background: rgba(255, 255, 255, .18);
   /* 2026-09-29：内边距收紧（16→12），把宽度让给副标题 —— 它此前被截成「第 30...」 */
   padding: 6rpx 12rpx;
 }

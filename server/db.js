@@ -35,6 +35,12 @@ const UserAchievement = require("./models/user-achievement")(sequelize);
 const WordEntry = require("./models/word-entry")(sequelize);
 const WordBank = require("./models/word-bank")(sequelize);
 const AvatarBlob = require("./models/avatar-blob")(sequelize);
+// 2026-10-08：赛季 / 每日挑战 / 好友 PK 三张新表。
+// ⚠️ 生产环境不会自动 sync（NODE_ENV=production），必须先执行
+//    docs/sql/2026-10-08-赛季与PK建表.sql；路由侧对「表不存在」做了降级处理。
+const DailyScore = require("./models/daily-score")(sequelize);
+const SeasonClaim = require("./models/season-claim")(sequelize);
+const PkMatch = require("./models/pk-match")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
@@ -142,4 +148,7 @@ module.exports = {
   WordEntry,
   WordBank,
   AvatarBlob,
+  DailyScore,
+  SeasonClaim,
+  PkMatch,
 };

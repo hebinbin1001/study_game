@@ -1,7 +1,7 @@
 module.exports = {
   "grade": "g6",
   "label": "六年级",
-  "count": 100,
+  "count": 228,
   "items": [
     {
       "type": "trans",
@@ -78,14 +78,16 @@ module.exports = {
       "q": "快乐",
       "a": "happy",
       "hint": "情绪",
-      "py": "kuaile"
+      "py": "kuaile",
+      "book": "pep"
     },
     {
       "type": "trans",
       "q": "悲伤",
       "a": "sad",
       "hint": "情绪",
-      "py": "beishang"
+      "py": "beishang",
+      "book": "pep"
     },
     {
       "type": "trans",
@@ -176,28 +178,32 @@ module.exports = {
       "q": "世界",
       "a": "world",
       "hint": "名词",
-      "py": "shijie"
+      "py": "shijie",
+      "book": "pep"
     },
     {
       "type": "trans",
       "q": "城市",
       "a": "city",
       "hint": "名词",
-      "py": "chengshi"
+      "py": "chengshi",
+      "book": "pep"
     },
     {
       "type": "trans",
       "q": "国家",
       "a": "country",
       "hint": "名词",
-      "py": "guojia"
+      "py": "guojia",
+      "book": "pep"
     },
     {
       "type": "trans",
       "q": "人民",
       "a": "people",
       "hint": "名词",
-      "py": "renmin"
+      "py": "renmin",
+      "book": "pep"
     },
     {
       "type": "trans",
@@ -211,7 +217,8 @@ module.exports = {
       "q": "历史",
       "a": "history",
       "hint": "名词",
-      "py": "lishi"
+      "py": "lishi",
+      "book": "wys"
     },
     {
       "type": "c2",
@@ -470,7 +477,8 @@ module.exports = {
       "q": "They __ to the park last Sunday.",
       "a": "went",
       "hint": "他们上周日去了公园",
-      "py": "theytotheparklastsunday"
+      "py": "theytotheparklastsunday",
+      "book": "pep"
     },
     {
       "type": "fill",
@@ -631,7 +639,8 @@ module.exports = {
       "q": "We __ a new house last year.",
       "a": "bought",
       "hint": "我们去年买了新房子",
-      "py": "weanewhouselastyear"
+      "py": "weanewhouselastyear",
+      "book": "pep"
     },
     {
       "type": "zc",
@@ -752,6 +761,1030 @@ module.exports = {
         "心"
       ],
       "py": "tong"
+    },
+    {
+      "type": "w1",
+      "q": "museum",
+      "a": "museum",
+      "hint": "博物馆",
+      "py": "museum",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "post office",
+      "a": "post office",
+      "hint": "邮局",
+      "py": "post office",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "bookstore",
+      "a": "bookstore",
+      "hint": "书店",
+      "py": "bookstore",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cinema",
+      "a": "cinema",
+      "hint": "电影院",
+      "py": "cinema",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "hospital",
+      "a": "hospital",
+      "hint": "医院",
+      "py": "hospital",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "crossing",
+      "a": "crossing",
+      "hint": "十字路口",
+      "py": "crossing",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "traffic light",
+      "a": "traffic light",
+      "hint": "红绿灯",
+      "py": "traffic light",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "straight",
+      "a": "straight",
+      "hint": "直的",
+      "py": "straight",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "turn",
+      "a": "turn",
+      "hint": "转弯",
+      "py": "turn",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "left",
+      "a": "left",
+      "hint": "左边",
+      "py": "left",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "right",
+      "a": "right",
+      "hint": "右边",
+      "py": "right",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "north",
+      "a": "north",
+      "hint": "北",
+      "py": "north",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "south",
+      "a": "south",
+      "hint": "南",
+      "py": "south",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "east",
+      "a": "east",
+      "hint": "东",
+      "py": "east",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "west",
+      "a": "west",
+      "hint": "西",
+      "py": "west",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "hobby",
+      "a": "hobby",
+      "hint": "爱好",
+      "py": "hobby",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "dancing",
+      "a": "dancing",
+      "hint": "跳舞",
+      "py": "dancing",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "singing",
+      "a": "singing",
+      "hint": "唱歌",
+      "py": "singing",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "reading",
+      "a": "reading",
+      "hint": "阅读",
+      "py": "reading",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "diving",
+      "a": "diving",
+      "hint": "潜水",
+      "py": "diving",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "collecting",
+      "a": "collecting",
+      "hint": "收集",
+      "py": "collecting",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "stamp",
+      "a": "stamp",
+      "hint": "邮票",
+      "py": "stamp",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "angry",
+      "a": "angry",
+      "hint": "生气的",
+      "py": "angry",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "afraid",
+      "a": "afraid",
+      "hint": "害怕的",
+      "py": "afraid",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "worried",
+      "a": "worried",
+      "hint": "担心的",
+      "py": "worried",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "bored",
+      "a": "bored",
+      "hint": "无聊的",
+      "py": "bored",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "dictionary",
+      "a": "dictionary",
+      "hint": "词典",
+      "py": "dictionary",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "comic book",
+      "a": "comic book",
+      "hint": "漫画书",
+      "py": "comic book",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "magazine",
+      "a": "magazine",
+      "hint": "杂志",
+      "py": "magazine",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "newspaper",
+      "a": "newspaper",
+      "hint": "报纸",
+      "py": "newspaper",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "postcard",
+      "a": "postcard",
+      "hint": "明信片",
+      "py": "postcard",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "recycle",
+      "a": "recycle",
+      "hint": "回收",
+      "py": "recycle",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "reuse",
+      "a": "reuse",
+      "hint": "再利用",
+      "py": "reuse",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "plastic",
+      "a": "plastic",
+      "hint": "塑料",
+      "py": "plastic",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "glass",
+      "a": "glass",
+      "hint": "玻璃",
+      "py": "glass",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "paper",
+      "a": "paper",
+      "hint": "纸",
+      "py": "paper",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "metal",
+      "a": "metal",
+      "hint": "金属",
+      "py": "metal",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "rubbish",
+      "a": "rubbish",
+      "hint": "垃圾",
+      "py": "rubbish",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "energy",
+      "a": "energy",
+      "hint": "能源",
+      "py": "energy",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "sunlight",
+      "a": "sunlight",
+      "hint": "阳光",
+      "py": "sunlight",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "taller",
+      "a": "taller",
+      "hint": "更高的",
+      "py": "taller",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "stronger",
+      "a": "stronger",
+      "hint": "更强壮的",
+      "py": "stronger",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "older",
+      "a": "older",
+      "hint": "更年长的",
+      "py": "older",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "younger",
+      "a": "younger",
+      "hint": "更年轻的",
+      "py": "younger",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "heavier",
+      "a": "heavier",
+      "hint": "更重的",
+      "py": "heavier",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "thinner",
+      "a": "thinner",
+      "hint": "更瘦的",
+      "py": "thinner",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "bigger",
+      "a": "bigger",
+      "hint": "更大的",
+      "py": "bigger",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "smaller",
+      "a": "smaller",
+      "hint": "更小的",
+      "py": "smaller",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "saw",
+      "a": "saw",
+      "hint": "看见了",
+      "py": "saw",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "ate",
+      "a": "ate",
+      "hint": "吃了",
+      "py": "ate",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "took",
+      "a": "took",
+      "hint": "拿了",
+      "py": "took",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "rode",
+      "a": "rode",
+      "hint": "骑了",
+      "py": "rode",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "hurt",
+      "a": "hurt",
+      "hint": "受伤",
+      "py": "hurt",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "fell",
+      "a": "fell",
+      "hint": "摔倒了",
+      "py": "fell",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "learned",
+      "a": "learned",
+      "hint": "学会了",
+      "py": "learned",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "farm",
+      "a": "farm",
+      "hint": "农场",
+      "py": "farm",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "village",
+      "a": "village",
+      "hint": "村庄",
+      "py": "village",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "river",
+      "a": "river",
+      "hint": "河流",
+      "py": "river",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "lake",
+      "a": "lake",
+      "hint": "湖泊",
+      "py": "lake",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "mountain",
+      "a": "mountain",
+      "hint": "山",
+      "py": "mountain",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "forest",
+      "a": "forest",
+      "hint": "森林",
+      "py": "forest",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "island",
+      "a": "island",
+      "hint": "岛屿",
+      "py": "island",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "beach",
+      "a": "beach",
+      "hint": "海滩",
+      "py": "beach",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "desert",
+      "a": "desert",
+      "hint": "沙漠",
+      "py": "desert",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "ocean",
+      "a": "ocean",
+      "hint": "海洋",
+      "py": "ocean",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "planet",
+      "a": "planet",
+      "hint": "行星",
+      "py": "planet",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "language",
+      "a": "language",
+      "hint": "语言",
+      "py": "language",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "culture",
+      "a": "culture",
+      "hint": "文化",
+      "py": "culture",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "future",
+      "a": "future",
+      "hint": "未来",
+      "py": "future",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "dream",
+      "a": "dream",
+      "hint": "梦想",
+      "py": "dream",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "reason",
+      "a": "reason",
+      "hint": "原因",
+      "py": "reason",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "problem",
+      "a": "problem",
+      "hint": "问题",
+      "py": "problem",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "answer key",
+      "a": "answer key",
+      "hint": "答案",
+      "py": "answer key",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "notice",
+      "a": "notice",
+      "hint": "注意",
+      "py": "notice",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "believe",
+      "a": "believe",
+      "hint": "相信",
+      "py": "believe",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "decide",
+      "a": "decide",
+      "hint": "决定",
+      "py": "decide",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "improve",
+      "a": "improve",
+      "hint": "提高",
+      "py": "improve",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "protect",
+      "a": "protect",
+      "hint": "保护",
+      "py": "protect",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "save",
+      "a": "save",
+      "hint": "节省",
+      "py": "save",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "waste",
+      "a": "waste",
+      "hint": "浪费",
+      "py": "waste",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "share",
+      "a": "share",
+      "hint": "分享",
+      "py": "share",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "travel",
+      "a": "travel",
+      "hint": "旅行",
+      "py": "travel",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "invite",
+      "a": "invite",
+      "hint": "邀请",
+      "py": "invite",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "describe",
+      "a": "describe",
+      "hint": "描述",
+      "py": "describe",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "discuss",
+      "a": "discuss",
+      "hint": "讨论",
+      "py": "discuss",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "suggest",
+      "a": "suggest",
+      "hint": "建议",
+      "py": "suggest",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "celebrate",
+      "a": "celebrate",
+      "hint": "庆祝",
+      "py": "celebrate",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "prepare",
+      "a": "prepare",
+      "hint": "准备",
+      "py": "prepare",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "discover",
+      "a": "discover",
+      "hint": "发现",
+      "py": "discover",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "technology",
+      "a": "technology",
+      "hint": "科技",
+      "py": "technology",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "invention",
+      "a": "invention",
+      "hint": "发明",
+      "py": "invention",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "machine",
+      "a": "machine",
+      "hint": "机器",
+      "py": "machine",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "engine",
+      "a": "engine",
+      "hint": "发动机",
+      "py": "engine",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "screen",
+      "a": "screen",
+      "hint": "屏幕",
+      "py": "screen",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "keyboard",
+      "a": "keyboard",
+      "hint": "键盘",
+      "py": "keyboard",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "printer",
+      "a": "printer",
+      "hint": "打印机",
+      "py": "printer",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "battery",
+      "a": "battery",
+      "hint": "电池",
+      "py": "battery",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "electricity",
+      "a": "electricity",
+      "hint": "电",
+      "py": "electricity",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "signal",
+      "a": "signal",
+      "hint": "信号",
+      "py": "signal",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "network",
+      "a": "network",
+      "hint": "网络",
+      "py": "network",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "program",
+      "a": "program",
+      "hint": "程序",
+      "py": "program",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "software",
+      "a": "software",
+      "hint": "软件",
+      "py": "software",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "digital",
+      "a": "digital",
+      "hint": "数字的",
+      "py": "digital",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "smartphone",
+      "a": "smartphone",
+      "hint": "智能手机",
+      "py": "smartphone",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "application",
+      "a": "application",
+      "hint": "应用程序",
+      "py": "application",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "download",
+      "a": "download",
+      "hint": "下载",
+      "py": "download",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "upload",
+      "a": "upload",
+      "hint": "上传",
+      "py": "upload",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "password",
+      "a": "password",
+      "hint": "密码",
+      "py": "password",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "account",
+      "a": "account",
+      "hint": "账户",
+      "py": "account",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "report",
+      "a": "report",
+      "hint": "报告",
+      "py": "report",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "project",
+      "a": "project",
+      "hint": "项目",
+      "py": "project",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "research",
+      "a": "research",
+      "hint": "研究",
+      "py": "research",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "experiment",
+      "a": "experiment",
+      "hint": "实验",
+      "py": "experiment",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "biology",
+      "a": "biology",
+      "hint": "生物学",
+      "py": "biology",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "chemistry",
+      "a": "chemistry",
+      "hint": "化学",
+      "py": "chemistry",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "physics",
+      "a": "physics",
+      "hint": "物理",
+      "py": "physics",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "geography",
+      "a": "geography",
+      "hint": "地理",
+      "py": "geography",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "politics",
+      "a": "politics",
+      "hint": "政治",
+      "py": "politics",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "literature",
+      "a": "literature",
+      "hint": "文学",
+      "py": "literature",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "grammar",
+      "a": "grammar",
+      "hint": "语法",
+      "py": "grammar",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "vocabulary",
+      "a": "vocabulary",
+      "hint": "词汇",
+      "py": "vocabulary",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "pronunciation",
+      "a": "pronunciation",
+      "hint": "发音",
+      "py": "pronunciation",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "translation",
+      "a": "translation",
+      "hint": "翻译",
+      "py": "translation",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "sentence",
+      "a": "sentence",
+      "hint": "句子",
+      "py": "sentence",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "paragraph",
+      "a": "paragraph",
+      "hint": "段落",
+      "py": "paragraph",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "essay",
+      "a": "essay",
+      "hint": "文章",
+      "py": "essay",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "knowledge",
+      "a": "knowledge",
+      "hint": "知识",
+      "py": "knowledge",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "information",
+      "a": "information",
+      "hint": "信息",
+      "py": "information",
+      "book": "wys"
     }
   ]
 };

@@ -1,7 +1,7 @@
 module.exports = {
   "grade": "g11",
   "label": "高二",
-  "count": 67,
+  "count": 151,
   "items": [
     {
       "type": "w1",
@@ -471,6 +471,594 @@ module.exports = {
       "a": "achieved",
       "hint": "他实现了当医生的抱负",
       "py": "hehisambitionofbecomingadoctor"
+    },
+    {
+      "type": "w1",
+      "q": "bargain",
+      "a": "bargain",
+      "hint": "讨价还价",
+      "py": "bargain"
+    },
+    {
+      "type": "w1",
+      "q": "barrier",
+      "a": "barrier",
+      "hint": "障碍",
+      "py": "barrier"
+    },
+    {
+      "type": "w1",
+      "q": "basis",
+      "a": "basis",
+      "hint": "基础",
+      "py": "basis"
+    },
+    {
+      "type": "w1",
+      "q": "behave",
+      "a": "behave",
+      "hint": "表现",
+      "py": "behave"
+    },
+    {
+      "type": "w1",
+      "q": "belief",
+      "a": "belief",
+      "hint": "信念",
+      "py": "belief"
+    },
+    {
+      "type": "w1",
+      "q": "benefit",
+      "a": "benefit",
+      "hint": "好处",
+      "py": "benefit"
+    },
+    {
+      "type": "w1",
+      "q": "betray",
+      "a": "betray",
+      "hint": "背叛",
+      "py": "betray"
+    },
+    {
+      "type": "w1",
+      "q": "blame",
+      "a": "blame",
+      "hint": "责备",
+      "py": "blame"
+    },
+    {
+      "type": "w1",
+      "q": "boost",
+      "a": "boost",
+      "hint": "促进",
+      "py": "boost"
+    },
+    {
+      "type": "w1",
+      "q": "border",
+      "a": "border",
+      "hint": "边界",
+      "py": "border"
+    },
+    {
+      "type": "w1",
+      "q": "bother",
+      "a": "bother",
+      "hint": "打扰",
+      "py": "bother"
+    },
+    {
+      "type": "w1",
+      "q": "brief",
+      "a": "brief",
+      "hint": "简短的",
+      "py": "brief"
+    },
+    {
+      "type": "w1",
+      "q": "brilliant",
+      "a": "brilliant",
+      "hint": "杰出的",
+      "py": "brilliant"
+    },
+    {
+      "type": "w1",
+      "q": "budget",
+      "a": "budget",
+      "hint": "预算",
+      "py": "budget"
+    },
+    {
+      "type": "w1",
+      "q": "burden",
+      "a": "burden",
+      "hint": "负担",
+      "py": "burden"
+    },
+    {
+      "type": "w1",
+      "q": "calculate",
+      "a": "calculate",
+      "hint": "计算",
+      "py": "calculate"
+    },
+    {
+      "type": "w1",
+      "q": "campaign",
+      "a": "campaign",
+      "hint": "运动",
+      "py": "campaign"
+    },
+    {
+      "type": "w1",
+      "q": "capable",
+      "a": "capable",
+      "hint": "有能力的",
+      "py": "capable"
+    },
+    {
+      "type": "w1",
+      "q": "capital",
+      "a": "capital",
+      "hint": "首都",
+      "py": "capital"
+    },
+    {
+      "type": "w1",
+      "q": "career",
+      "a": "career",
+      "hint": "职业",
+      "py": "career"
+    },
+    {
+      "type": "w1",
+      "q": "casual",
+      "a": "casual",
+      "hint": "随意的",
+      "py": "casual"
+    },
+    {
+      "type": "w1",
+      "q": "category",
+      "a": "category",
+      "hint": "类别",
+      "py": "category"
+    },
+    {
+      "type": "w1",
+      "q": "cease",
+      "a": "cease",
+      "hint": "停止",
+      "py": "cease"
+    },
+    {
+      "type": "w1",
+      "q": "challenge",
+      "a": "challenge",
+      "hint": "挑战",
+      "py": "challenge"
+    },
+    {
+      "type": "w1",
+      "q": "character",
+      "a": "character",
+      "hint": "性格",
+      "py": "character"
+    },
+    {
+      "type": "w1",
+      "q": "charge",
+      "a": "charge",
+      "hint": "收费",
+      "py": "charge"
+    },
+    {
+      "type": "w1",
+      "q": "charity",
+      "a": "charity",
+      "hint": "慈善",
+      "py": "charity"
+    },
+    {
+      "type": "w1",
+      "q": "cheat",
+      "a": "cheat",
+      "hint": "欺骗",
+      "py": "cheat"
+    },
+    {
+      "type": "w1",
+      "q": "chemical",
+      "a": "chemical",
+      "hint": "化学的",
+      "py": "chemical"
+    },
+    {
+      "type": "w1",
+      "q": "circumstance",
+      "a": "circumstance",
+      "hint": "情况",
+      "py": "circumstance"
+    },
+    {
+      "type": "w1",
+      "q": "cite",
+      "a": "cite",
+      "hint": "引用",
+      "py": "cite"
+    },
+    {
+      "type": "w1",
+      "q": "civil",
+      "a": "civil",
+      "hint": "公民的",
+      "py": "civil"
+    },
+    {
+      "type": "w1",
+      "q": "claim",
+      "a": "claim",
+      "hint": "声称",
+      "py": "claim"
+    },
+    {
+      "type": "w1",
+      "q": "classify",
+      "a": "classify",
+      "hint": "分类",
+      "py": "classify"
+    },
+    {
+      "type": "w1",
+      "q": "client",
+      "a": "client",
+      "hint": "客户",
+      "py": "client"
+    },
+    {
+      "type": "w1",
+      "q": "climate",
+      "a": "climate",
+      "hint": "气候",
+      "py": "climate"
+    },
+    {
+      "type": "w1",
+      "q": "colleague",
+      "a": "colleague",
+      "hint": "同事",
+      "py": "colleague"
+    },
+    {
+      "type": "w1",
+      "q": "combine",
+      "a": "combine",
+      "hint": "结合",
+      "py": "combine"
+    },
+    {
+      "type": "w1",
+      "q": "comment",
+      "a": "comment",
+      "hint": "评论",
+      "py": "comment"
+    },
+    {
+      "type": "w1",
+      "q": "commercial",
+      "a": "commercial",
+      "hint": "商业的",
+      "py": "commercial"
+    },
+    {
+      "type": "w1",
+      "q": "commit",
+      "a": "commit",
+      "hint": "承诺",
+      "py": "commit"
+    },
+    {
+      "type": "w1",
+      "q": "committee",
+      "a": "committee",
+      "hint": "委员会",
+      "py": "committee"
+    },
+    {
+      "type": "w1",
+      "q": "communicate",
+      "a": "communicate",
+      "hint": "交流",
+      "py": "communicate"
+    },
+    {
+      "type": "w1",
+      "q": "community",
+      "a": "community",
+      "hint": "社区",
+      "py": "community"
+    },
+    {
+      "type": "w1",
+      "q": "compete",
+      "a": "compete",
+      "hint": "竞争",
+      "py": "compete"
+    },
+    {
+      "type": "w1",
+      "q": "complain",
+      "a": "complain",
+      "hint": "抱怨",
+      "py": "complain"
+    },
+    {
+      "type": "w1",
+      "q": "complex",
+      "a": "complex",
+      "hint": "复杂的",
+      "py": "complex"
+    },
+    {
+      "type": "w1",
+      "q": "concentrate",
+      "a": "concentrate",
+      "hint": "集中",
+      "py": "concentrate"
+    },
+    {
+      "type": "w1",
+      "q": "concept",
+      "a": "concept",
+      "hint": "概念",
+      "py": "concept"
+    },
+    {
+      "type": "w1",
+      "q": "concern",
+      "a": "concern",
+      "hint": "关心",
+      "py": "concern"
+    },
+    {
+      "type": "w1",
+      "q": "conclude",
+      "a": "conclude",
+      "hint": "得出结论",
+      "py": "conclude"
+    },
+    {
+      "type": "w1",
+      "q": "conduct",
+      "a": "conduct",
+      "hint": "进行",
+      "py": "conduct"
+    },
+    {
+      "type": "w1",
+      "q": "confidence",
+      "a": "confidence",
+      "hint": "信心",
+      "py": "confidence"
+    },
+    {
+      "type": "w1",
+      "q": "confirm",
+      "a": "confirm",
+      "hint": "确认",
+      "py": "confirm"
+    },
+    {
+      "type": "w1",
+      "q": "conflict",
+      "a": "conflict",
+      "hint": "冲突",
+      "py": "conflict"
+    },
+    {
+      "type": "w1",
+      "q": "confuse",
+      "a": "confuse",
+      "hint": "使困惑",
+      "py": "confuse"
+    },
+    {
+      "type": "w1",
+      "q": "connect",
+      "a": "connect",
+      "hint": "连接",
+      "py": "connect"
+    },
+    {
+      "type": "w1",
+      "q": "conscious",
+      "a": "conscious",
+      "hint": "有意识的",
+      "py": "conscious"
+    },
+    {
+      "type": "w1",
+      "q": "consequence",
+      "a": "consequence",
+      "hint": "后果",
+      "py": "consequence"
+    },
+    {
+      "type": "w1",
+      "q": "consist",
+      "a": "consist",
+      "hint": "组成",
+      "py": "consist"
+    },
+    {
+      "type": "w1",
+      "q": "constant",
+      "a": "constant",
+      "hint": "持续的",
+      "py": "constant"
+    },
+    {
+      "type": "w1",
+      "q": "construct",
+      "a": "construct",
+      "hint": "建造",
+      "py": "construct"
+    },
+    {
+      "type": "w1",
+      "q": "consult",
+      "a": "consult",
+      "hint": "咨询",
+      "py": "consult"
+    },
+    {
+      "type": "w1",
+      "q": "consume",
+      "a": "consume",
+      "hint": "消费",
+      "py": "consume"
+    },
+    {
+      "type": "w1",
+      "q": "contact",
+      "a": "contact",
+      "hint": "联系",
+      "py": "contact"
+    },
+    {
+      "type": "w1",
+      "q": "contain",
+      "a": "contain",
+      "hint": "包含",
+      "py": "contain"
+    },
+    {
+      "type": "w1",
+      "q": "contemporary",
+      "a": "contemporary",
+      "hint": "当代的",
+      "py": "contemporary"
+    },
+    {
+      "type": "w1",
+      "q": "content",
+      "a": "content",
+      "hint": "内容",
+      "py": "content"
+    },
+    {
+      "type": "w1",
+      "q": "contract",
+      "a": "contract",
+      "hint": "合同",
+      "py": "contract"
+    },
+    {
+      "type": "w1",
+      "q": "contrast",
+      "a": "contrast",
+      "hint": "对比",
+      "py": "contrast"
+    },
+    {
+      "type": "w1",
+      "q": "contribute",
+      "a": "contribute",
+      "hint": "贡献",
+      "py": "contribute"
+    },
+    {
+      "type": "w1",
+      "q": "convenient",
+      "a": "convenient",
+      "hint": "方便的",
+      "py": "convenient"
+    },
+    {
+      "type": "w1",
+      "q": "convince",
+      "a": "convince",
+      "hint": "说服",
+      "py": "convince"
+    },
+    {
+      "type": "w1",
+      "q": "cooperate",
+      "a": "cooperate",
+      "hint": "合作",
+      "py": "cooperate"
+    },
+    {
+      "type": "w1",
+      "q": "core",
+      "a": "core",
+      "hint": "核心",
+      "py": "core"
+    },
+    {
+      "type": "w1",
+      "q": "corporate",
+      "a": "corporate",
+      "hint": "公司的",
+      "py": "corporate"
+    },
+    {
+      "type": "w1",
+      "q": "correspond",
+      "a": "correspond",
+      "hint": "对应",
+      "py": "correspond"
+    },
+    {
+      "type": "w1",
+      "q": "council",
+      "a": "council",
+      "hint": "委员会",
+      "py": "council"
+    },
+    {
+      "type": "w1",
+      "q": "crash",
+      "a": "crash",
+      "hint": "碰撞",
+      "py": "crash"
+    },
+    {
+      "type": "w1",
+      "q": "credit",
+      "a": "credit",
+      "hint": "信用",
+      "py": "credit"
+    },
+    {
+      "type": "w1",
+      "q": "crisis",
+      "a": "crisis",
+      "hint": "危机",
+      "py": "crisis"
+    },
+    {
+      "type": "w1",
+      "q": "criterion",
+      "a": "criterion",
+      "hint": "标准",
+      "py": "criterion"
+    },
+    {
+      "type": "w1",
+      "q": "critical",
+      "a": "critical",
+      "hint": "关键的",
+      "py": "critical"
+    },
+    {
+      "type": "w1",
+      "q": "criticise",
+      "a": "criticise",
+      "hint": "批评",
+      "py": "criticise"
     }
   ]
 };

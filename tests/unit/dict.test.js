@@ -13,23 +13,23 @@ const s = suite('utils/dict.js');
 const d = require('../../miniprogram/utils/dict');
 const constants = require('../../miniprogram/utils/constants');
 
-// 期望条目数：与任务描述一致
-// 14 档的期望条目数（2026-10-08 按年级细分：旧的粗学段词库按「英语/汉字」分组各平分到各年级）
-// 注：两组余数叠加，g1/g2 差 2 条是正常的（76 / 74）。
-const EXPECTED = {
+// 各档条目数**下限**（2026-10-08 教材对接补词后的规模）。
+// 用下限而不是精确值：词表会持续补，但「某档被意外删空」要拦住。
+const MIN_ITEMS = {
   kg: 100,
-  g1: 76, g2: 74,
-  g3: 100, g4: 100, g5: 100, g6: 100,
-  g7: 67, g8: 67, g9: 66,
-  g10: 67, g11: 67, g12: 66,
+  g1: 150, g2: 150,
+  g3: 200, g4: 200, g5: 200, g6: 200,
+  g7: 130, g8: 130, g9: 130,
+  g10: 130, g11: 130, g12: 130,
   college: 200
 };
 
-s.test('loadByGrade：14 档均可装载且条目数与期望一致', () => {
+s.test('loadByGrade：14 档均可装载且条目数不低于下限', () => {
   for (const g of constants.GRADES) {
     d.clearCache(g.key);
     const items = d.loadByGrade(g.key);
-    s.assert.equal(items.length, EXPECTED[g.key], g.key + ' 条目数应为 ' + EXPECTED[g.key]);
+    s.assert.ok(items.length >= MIN_ITEMS[g.key],
+      g.key + ' 条目数 ' + items.length + ' 低于下限 ' + MIN_ITEMS[g.key]);
     s.assert.ok(Array.isArray(items));
   }
 });
@@ -67,15 +67,15 @@ s.test('loadByGrade：结果缓存（重复装载为同一引用），clearCache
   const c = d.loadByGrade('college');
   // 说明：Node require 对同一 JSON 路径本身有模块缓存，
   // 因此 dict.clearCache 后 loadByGrade 仍返回完整数据即可视为正常
-  s.assert.equal(c.length, 200);
+  s.assert.ok(c.length >= 200);
   s.assert.equal(typeof c[0].q, 'string');
   s.assert.equal(c[0].a.length > 0, true);
 });
 
 s.test('preloadAll：返回各学段条目数统计', () => {
   const stats = d.preloadAll();
-  for (const key of Object.keys(EXPECTED)) {
-    s.assert.equal(stats[key], EXPECTED[key]);
+  for (const key of Object.keys(MIN_ITEMS)) {
+    s.assert.ok(stats[key] >= MIN_ITEMS[key], key + ' 预装载仅 ' + stats[key]);
   }
 });
 
@@ -115,9 +115,9 @@ s.test('randomItems：数量正确、题目互不重复、不超过词库总量'
   s.assert.equal(res.length, 7);
   const qs = res.map((i) => i.q);
   s.assert.equal(new Set(qs).size, qs.length);
-  // 请求量超过词库时返回全部条目（g1 一年级共 76 条）
+  // 请求量超过词库时返回全部条目（数量随词表扩充变化，按实际装载结果比对）
   const all = d.randomItems('g1', 9999);
-  s.assert.equal(all.length, 76);
+  s.assert.equal(all.length, d.loadByGrade('g1').length);
   // 非法参数
   s.assert.equal(d.randomItems('g1', 0).length, 0);
   s.assert.equal(d.randomItems('nope', 5).length, 0);

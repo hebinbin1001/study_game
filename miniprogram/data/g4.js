@@ -1,7 +1,7 @@
 module.exports = {
   "grade": "g4",
   "label": "四年级",
-  "count": 100,
+  "count": 235,
   "items": [
     {
       "type": "w1",
@@ -43,7 +43,8 @@ module.exports = {
       "q": "be*u*i*ul",
       "a": "beautiful",
       "hint": "美丽的",
-      "py": "beuiul"
+      "py": "beuiul",
+      "book": "pep"
     },
     {
       "type": "w2",
@@ -802,6 +803,1086 @@ module.exports = {
       "a": "有货倒不出",
       "hint": "有货倒不出",
       "py": "chahulizhujiaozi"
+    },
+    {
+      "type": "w1",
+      "q": "ball",
+      "a": "ball",
+      "hint": "球",
+      "py": "ball",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "basketball",
+      "a": "basketball",
+      "hint": "篮球",
+      "py": "basketball",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "football",
+      "a": "football",
+      "hint": "足球",
+      "py": "football",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "baseball",
+      "a": "baseball",
+      "hint": "棒球",
+      "py": "baseball",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "ping-pong",
+      "a": "ping-pong",
+      "hint": "乒乓球",
+      "py": "ping-pong",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "jacket",
+      "a": "jacket",
+      "hint": "夹克",
+      "py": "jacket",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "shirt",
+      "a": "shirt",
+      "hint": "衬衫",
+      "py": "shirt",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "skirt",
+      "a": "skirt",
+      "hint": "裙子",
+      "py": "skirt",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "dress",
+      "a": "dress",
+      "hint": "连衣裙",
+      "py": "dress",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "sweater",
+      "a": "sweater",
+      "hint": "毛衣",
+      "py": "sweater",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "T-shirt",
+      "a": "T-shirt",
+      "hint": "T恤衫",
+      "py": "T-shirt",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "shorts",
+      "a": "shorts",
+      "hint": "短裤",
+      "py": "shorts",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "shoes",
+      "a": "shoes",
+      "hint": "鞋子",
+      "py": "shoes",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "socks",
+      "a": "socks",
+      "hint": "袜子",
+      "py": "socks",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "hat",
+      "a": "hat",
+      "hint": "帽子",
+      "py": "hat",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cap",
+      "a": "cap",
+      "hint": "鸭舌帽",
+      "py": "cap",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "umbrella",
+      "a": "umbrella",
+      "hint": "雨伞",
+      "py": "umbrella",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "glasses",
+      "a": "glasses",
+      "hint": "眼镜",
+      "py": "glasses",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "scarf",
+      "a": "scarf",
+      "hint": "围巾",
+      "py": "scarf",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "gloves",
+      "a": "gloves",
+      "hint": "手套",
+      "py": "gloves",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "computer",
+      "a": "computer",
+      "hint": "电脑",
+      "py": "computer",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "light",
+      "a": "light",
+      "hint": "灯",
+      "py": "light",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "fan",
+      "a": "fan",
+      "hint": "风扇",
+      "py": "fan",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "weather",
+      "a": "weather",
+      "hint": "天气",
+      "py": "weather",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "sunny",
+      "a": "sunny",
+      "hint": "晴朗的",
+      "py": "sunny",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cloudy",
+      "a": "cloudy",
+      "hint": "多云的",
+      "py": "cloudy",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "rainy",
+      "a": "rainy",
+      "hint": "下雨的",
+      "py": "rainy",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "snowy",
+      "a": "snowy",
+      "hint": "下雪的",
+      "py": "snowy",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "windy",
+      "a": "windy",
+      "hint": "有风的",
+      "py": "windy",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cold",
+      "a": "cold",
+      "hint": "寒冷的",
+      "py": "cold",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "hot",
+      "a": "hot",
+      "hint": "热的",
+      "py": "hot",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "warm",
+      "a": "warm",
+      "hint": "温暖的",
+      "py": "warm",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cool",
+      "a": "cool",
+      "hint": "凉爽的",
+      "py": "cool",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "animal",
+      "a": "animal",
+      "hint": "动物",
+      "py": "animal",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "horse",
+      "a": "horse",
+      "hint": "马",
+      "py": "horse",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cow",
+      "a": "cow",
+      "hint": "奶牛",
+      "py": "cow",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "sheep",
+      "a": "sheep",
+      "hint": "绵羊",
+      "py": "sheep",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "goat",
+      "a": "goat",
+      "hint": "山羊",
+      "py": "goat",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "hen",
+      "a": "hen",
+      "hint": "母鸡",
+      "py": "hen",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "chick",
+      "a": "chick",
+      "hint": "小鸡",
+      "py": "chick",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "tiger",
+      "a": "tiger",
+      "hint": "老虎",
+      "py": "tiger",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "lion",
+      "a": "lion",
+      "hint": "狮子",
+      "py": "lion",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "giraffe",
+      "a": "giraffe",
+      "hint": "长颈鹿",
+      "py": "giraffe",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "deer",
+      "a": "deer",
+      "hint": "鹿",
+      "py": "deer",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "wolf",
+      "a": "wolf",
+      "hint": "狼",
+      "py": "wolf",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "fox",
+      "a": "fox",
+      "hint": "狐狸",
+      "py": "fox",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "tomato",
+      "a": "tomato",
+      "hint": "西红柿",
+      "py": "tomato",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "potato",
+      "a": "potato",
+      "hint": "土豆",
+      "py": "potato",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cucumber",
+      "a": "cucumber",
+      "hint": "黄瓜",
+      "py": "cucumber",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "onion",
+      "a": "onion",
+      "hint": "洋葱",
+      "py": "onion",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "carrot",
+      "a": "carrot",
+      "hint": "胡萝卜",
+      "py": "carrot",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cabbage",
+      "a": "cabbage",
+      "hint": "白菜",
+      "py": "cabbage",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "vegetable",
+      "a": "vegetable",
+      "hint": "蔬菜",
+      "py": "vegetable",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "fruit",
+      "a": "fruit",
+      "hint": "水果",
+      "py": "fruit",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "breakfast",
+      "a": "breakfast",
+      "hint": "早餐",
+      "py": "breakfast",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "lunch",
+      "a": "lunch",
+      "hint": "午餐",
+      "py": "lunch",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "dinner",
+      "a": "dinner",
+      "hint": "晚餐",
+      "py": "dinner",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "soup",
+      "a": "soup",
+      "hint": "汤",
+      "py": "soup",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "Chinese",
+      "a": "Chinese",
+      "hint": "语文",
+      "py": "Chinese",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "English",
+      "a": "English",
+      "hint": "英语",
+      "py": "English",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "math",
+      "a": "math",
+      "hint": "数学",
+      "py": "math",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "music",
+      "a": "music",
+      "hint": "音乐",
+      "py": "music",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "art",
+      "a": "art",
+      "hint": "美术",
+      "py": "art",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "science",
+      "a": "science",
+      "hint": "科学",
+      "py": "science",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "read",
+      "a": "read",
+      "hint": "读",
+      "py": "read",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "write",
+      "a": "write",
+      "hint": "写",
+      "py": "write",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "sing",
+      "a": "sing",
+      "hint": "唱歌",
+      "py": "sing",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "dance",
+      "a": "dance",
+      "hint": "跳舞",
+      "py": "dance",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "draw",
+      "a": "draw",
+      "hint": "画画",
+      "py": "draw",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "run",
+      "a": "run",
+      "hint": "跑",
+      "py": "run",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "jump",
+      "a": "jump",
+      "hint": "跳",
+      "py": "jump",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "swim",
+      "a": "swim",
+      "hint": "游泳",
+      "py": "swim",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "listen",
+      "a": "listen",
+      "hint": "听",
+      "py": "listen",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "speak",
+      "a": "speak",
+      "hint": "说",
+      "py": "speak",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "ask",
+      "a": "ask",
+      "hint": "问",
+      "py": "ask",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "answer",
+      "a": "answer",
+      "hint": "回答",
+      "py": "answer",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "expensive",
+      "a": "expensive",
+      "hint": "昂贵的",
+      "py": "expensive",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "cheap",
+      "a": "cheap",
+      "hint": "便宜的",
+      "py": "cheap",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "pretty",
+      "a": "pretty",
+      "hint": "漂亮的",
+      "py": "pretty",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "colourful",
+      "a": "colourful",
+      "hint": "多彩的",
+      "py": "colourful",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "new",
+      "a": "new",
+      "hint": "新的",
+      "py": "new",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "old",
+      "a": "old",
+      "hint": "旧的",
+      "py": "old",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "young",
+      "a": "young",
+      "hint": "年轻的",
+      "py": "young",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "quiet",
+      "a": "quiet",
+      "hint": "安静的",
+      "py": "quiet",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "active",
+      "a": "active",
+      "hint": "活跃的",
+      "py": "active",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "homework",
+      "a": "homework",
+      "hint": "作业",
+      "py": "homework",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "lesson",
+      "a": "lesson",
+      "hint": "课程",
+      "py": "lesson",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "notebook",
+      "a": "notebook",
+      "hint": "笔记本",
+      "py": "notebook",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "storybook",
+      "a": "storybook",
+      "hint": "故事书",
+      "py": "storybook",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "schoolbag",
+      "a": "schoolbag",
+      "hint": "书包",
+      "py": "schoolbag",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "playground",
+      "a": "playground",
+      "hint": "操场",
+      "py": "playground",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "garden",
+      "a": "garden",
+      "hint": "花园",
+      "py": "garden",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "kitchen",
+      "a": "kitchen",
+      "hint": "厨房",
+      "py": "kitchen",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "bedroom",
+      "a": "bedroom",
+      "hint": "卧室",
+      "py": "bedroom",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "bathroom",
+      "a": "bathroom",
+      "hint": "浴室",
+      "py": "bathroom",
+      "book": "pep"
+    },
+    {
+      "type": "w1",
+      "q": "street",
+      "a": "street",
+      "hint": "街道",
+      "py": "street",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "road",
+      "a": "road",
+      "hint": "马路",
+      "py": "road",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "bridge",
+      "a": "bridge",
+      "hint": "桥",
+      "py": "bridge",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "bank",
+      "a": "bank",
+      "hint": "银行",
+      "py": "bank",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "hotel",
+      "a": "hotel",
+      "hint": "旅馆",
+      "py": "hotel",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "restaurant",
+      "a": "restaurant",
+      "hint": "餐厅",
+      "py": "restaurant",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "station",
+      "a": "station",
+      "hint": "车站",
+      "py": "station",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "airport",
+      "a": "airport",
+      "hint": "机场",
+      "py": "airport",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "market",
+      "a": "market",
+      "hint": "市场",
+      "py": "market",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "factory",
+      "a": "factory",
+      "hint": "工厂",
+      "py": "factory",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "office",
+      "a": "office",
+      "hint": "办公室",
+      "py": "office",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "tower",
+      "a": "tower",
+      "hint": "塔",
+      "py": "tower",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "castle",
+      "a": "castle",
+      "hint": "城堡",
+      "py": "castle",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "palace",
+      "a": "palace",
+      "hint": "宫殿",
+      "py": "palace",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "square",
+      "a": "square",
+      "hint": "广场",
+      "py": "square",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "fountain",
+      "a": "fountain",
+      "hint": "喷泉",
+      "py": "fountain",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "statue",
+      "a": "statue",
+      "hint": "雕像",
+      "py": "statue",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "stadium",
+      "a": "stadium",
+      "hint": "体育场",
+      "py": "stadium",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "pool",
+      "a": "pool",
+      "hint": "水池",
+      "py": "pool",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "tent",
+      "a": "tent",
+      "hint": "帐篷",
+      "py": "tent",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "camp",
+      "a": "camp",
+      "hint": "营地",
+      "py": "camp",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "picnic",
+      "a": "picnic",
+      "hint": "野餐",
+      "py": "picnic",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "festival",
+      "a": "festival",
+      "hint": "节日",
+      "py": "festival",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "birthday",
+      "a": "birthday",
+      "hint": "生日",
+      "py": "birthday",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "party",
+      "a": "party",
+      "hint": "聚会",
+      "py": "party",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "gift",
+      "a": "gift",
+      "hint": "礼物",
+      "py": "gift",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "candle",
+      "a": "candle",
+      "hint": "蜡烛",
+      "py": "candle",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "invitation",
+      "a": "invitation",
+      "hint": "邀请函",
+      "py": "invitation",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "envelope",
+      "a": "envelope",
+      "hint": "信封",
+      "py": "envelope",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "letter",
+      "a": "letter",
+      "hint": "信",
+      "py": "letter",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "message",
+      "a": "message",
+      "hint": "消息",
+      "py": "message",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "email",
+      "a": "email",
+      "hint": "电子邮件",
+      "py": "email",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "internet",
+      "a": "internet",
+      "hint": "互联网",
+      "py": "internet",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "website",
+      "a": "website",
+      "hint": "网站",
+      "py": "website",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "video",
+      "a": "video",
+      "hint": "视频",
+      "py": "video",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "album",
+      "a": "album",
+      "hint": "相册",
+      "py": "album",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "diary",
+      "a": "diary",
+      "hint": "日记",
+      "py": "diary",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "newspaper",
+      "a": "newspaper",
+      "hint": "报纸",
+      "py": "newspaper",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "magazine",
+      "a": "magazine",
+      "hint": "杂志",
+      "py": "magazine",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "postcard",
+      "a": "postcard",
+      "hint": "明信片",
+      "py": "postcard",
+      "book": "wys"
     }
   ]
 };

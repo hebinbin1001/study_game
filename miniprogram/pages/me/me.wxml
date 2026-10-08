@@ -58,6 +58,7 @@
       wx:key="name"
       class="menu-row"
       data-url="{{item.url}}"
+      data-action="{{item.action}}"
       bindtap="onMenuTap">
       <text class="menu-emoji">{{item.emoji}}</text>
       <text class="menu-name">{{item.name}}</text>

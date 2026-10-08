@@ -1,7 +1,7 @@
 module.exports = {
   "grade": "g8",
   "label": "初二",
-  "count": 67,
+  "count": 135,
   "items": [
     {
       "type": "w1",
@@ -471,6 +471,482 @@ module.exports = {
       "a": "is",
       "hint": "这本书很有趣",
       "py": "thebookveryinteresting"
+    },
+    {
+      "type": "w1",
+      "q": "copy",
+      "a": "copy",
+      "hint": "复制",
+      "py": "copy"
+    },
+    {
+      "type": "w1",
+      "q": "corner",
+      "a": "corner",
+      "hint": "角落",
+      "py": "corner"
+    },
+    {
+      "type": "w1",
+      "q": "cost",
+      "a": "cost",
+      "hint": "花费",
+      "py": "cost"
+    },
+    {
+      "type": "w1",
+      "q": "cough",
+      "a": "cough",
+      "hint": "咳嗽",
+      "py": "cough"
+    },
+    {
+      "type": "w1",
+      "q": "courage",
+      "a": "courage",
+      "hint": "勇气",
+      "py": "courage"
+    },
+    {
+      "type": "w1",
+      "q": "cover",
+      "a": "cover",
+      "hint": "覆盖",
+      "py": "cover"
+    },
+    {
+      "type": "w1",
+      "q": "crazy",
+      "a": "crazy",
+      "hint": "疯狂的",
+      "py": "crazy"
+    },
+    {
+      "type": "w1",
+      "q": "cross",
+      "a": "cross",
+      "hint": "穿过",
+      "py": "cross"
+    },
+    {
+      "type": "w1",
+      "q": "crowd",
+      "a": "crowd",
+      "hint": "人群",
+      "py": "crowd"
+    },
+    {
+      "type": "w1",
+      "q": "cup",
+      "a": "cup",
+      "hint": "杯子",
+      "py": "cup"
+    },
+    {
+      "type": "w1",
+      "q": "customer",
+      "a": "customer",
+      "hint": "顾客",
+      "py": "customer"
+    },
+    {
+      "type": "w1",
+      "q": "damage",
+      "a": "damage",
+      "hint": "损害",
+      "py": "damage"
+    },
+    {
+      "type": "w1",
+      "q": "danger",
+      "a": "danger",
+      "hint": "危险",
+      "py": "danger"
+    },
+    {
+      "type": "w1",
+      "q": "dark",
+      "a": "dark",
+      "hint": "黑暗的",
+      "py": "dark"
+    },
+    {
+      "type": "w1",
+      "q": "deal",
+      "a": "deal",
+      "hint": "处理",
+      "py": "deal"
+    },
+    {
+      "type": "w1",
+      "q": "decision",
+      "a": "decision",
+      "hint": "决定",
+      "py": "decision"
+    },
+    {
+      "type": "w1",
+      "q": "deep",
+      "a": "deep",
+      "hint": "深的",
+      "py": "deep"
+    },
+    {
+      "type": "w1",
+      "q": "delicious",
+      "a": "delicious",
+      "hint": "美味的",
+      "py": "delicious"
+    },
+    {
+      "type": "w1",
+      "q": "desert",
+      "a": "desert",
+      "hint": "沙漠",
+      "py": "desert"
+    },
+    {
+      "type": "w1",
+      "q": "dictionary",
+      "a": "dictionary",
+      "hint": "词典",
+      "py": "dictionary"
+    },
+    {
+      "type": "w1",
+      "q": "difference",
+      "a": "difference",
+      "hint": "不同",
+      "py": "difference"
+    },
+    {
+      "type": "w1",
+      "q": "direction",
+      "a": "direction",
+      "hint": "方向",
+      "py": "direction"
+    },
+    {
+      "type": "w1",
+      "q": "dirty",
+      "a": "dirty",
+      "hint": "脏的",
+      "py": "dirty"
+    },
+    {
+      "type": "w1",
+      "q": "disease",
+      "a": "disease",
+      "hint": "疾病",
+      "py": "disease"
+    },
+    {
+      "type": "w1",
+      "q": "distance",
+      "a": "distance",
+      "hint": "距离",
+      "py": "distance"
+    },
+    {
+      "type": "w1",
+      "q": "divide",
+      "a": "divide",
+      "hint": "分开",
+      "py": "divide"
+    },
+    {
+      "type": "w1",
+      "q": "double",
+      "a": "double",
+      "hint": "双倍",
+      "py": "double"
+    },
+    {
+      "type": "w1",
+      "q": "doubt",
+      "a": "doubt",
+      "hint": "怀疑",
+      "py": "doubt"
+    },
+    {
+      "type": "w1",
+      "q": "dream",
+      "a": "dream",
+      "hint": "梦想",
+      "py": "dream"
+    },
+    {
+      "type": "w1",
+      "q": "drive",
+      "a": "drive",
+      "hint": "驾驶",
+      "py": "drive"
+    },
+    {
+      "type": "w1",
+      "q": "drop",
+      "a": "drop",
+      "hint": "掉落",
+      "py": "drop"
+    },
+    {
+      "type": "w1",
+      "q": "dry",
+      "a": "dry",
+      "hint": "干燥的",
+      "py": "dry"
+    },
+    {
+      "type": "w1",
+      "q": "during",
+      "a": "during",
+      "hint": "在……期间",
+      "py": "during"
+    },
+    {
+      "type": "w1",
+      "q": "duty",
+      "a": "duty",
+      "hint": "责任",
+      "py": "duty"
+    },
+    {
+      "type": "w1",
+      "q": "each",
+      "a": "each",
+      "hint": "每个",
+      "py": "each"
+    },
+    {
+      "type": "w1",
+      "q": "early",
+      "a": "early",
+      "hint": "早的",
+      "py": "early"
+    },
+    {
+      "type": "w1",
+      "q": "earth",
+      "a": "earth",
+      "hint": "地球",
+      "py": "earth"
+    },
+    {
+      "type": "w1",
+      "q": "east",
+      "a": "east",
+      "hint": "东方",
+      "py": "east"
+    },
+    {
+      "type": "w1",
+      "q": "easy",
+      "a": "easy",
+      "hint": "容易的",
+      "py": "easy"
+    },
+    {
+      "type": "w1",
+      "q": "effect",
+      "a": "effect",
+      "hint": "影响",
+      "py": "effect"
+    },
+    {
+      "type": "w1",
+      "q": "effort",
+      "a": "effort",
+      "hint": "努力",
+      "py": "effort"
+    },
+    {
+      "type": "w1",
+      "q": "either",
+      "a": "either",
+      "hint": "两者之一",
+      "py": "either"
+    },
+    {
+      "type": "w1",
+      "q": "electric",
+      "a": "electric",
+      "hint": "电的",
+      "py": "electric"
+    },
+    {
+      "type": "w1",
+      "q": "empty",
+      "a": "empty",
+      "hint": "空的",
+      "py": "empty"
+    },
+    {
+      "type": "w1",
+      "q": "encourage",
+      "a": "encourage",
+      "hint": "鼓励",
+      "py": "encourage"
+    },
+    {
+      "type": "w1",
+      "q": "enemy",
+      "a": "enemy",
+      "hint": "敌人",
+      "py": "enemy"
+    },
+    {
+      "type": "w1",
+      "q": "energy",
+      "a": "energy",
+      "hint": "能量",
+      "py": "energy"
+    },
+    {
+      "type": "w1",
+      "q": "engineer",
+      "a": "engineer",
+      "hint": "工程师",
+      "py": "engineer"
+    },
+    {
+      "type": "w1",
+      "q": "enough",
+      "a": "enough",
+      "hint": "足够的",
+      "py": "enough"
+    },
+    {
+      "type": "w1",
+      "q": "enter",
+      "a": "enter",
+      "hint": "进入",
+      "py": "enter"
+    },
+    {
+      "type": "w1",
+      "q": "equal",
+      "a": "equal",
+      "hint": "平等的",
+      "py": "equal"
+    },
+    {
+      "type": "w1",
+      "q": "escape",
+      "a": "escape",
+      "hint": "逃跑",
+      "py": "escape"
+    },
+    {
+      "type": "w1",
+      "q": "especially",
+      "a": "especially",
+      "hint": "尤其",
+      "py": "especially"
+    },
+    {
+      "type": "w1",
+      "q": "event",
+      "a": "event",
+      "hint": "事件",
+      "py": "event"
+    },
+    {
+      "type": "w1",
+      "q": "exact",
+      "a": "exact",
+      "hint": "精确的",
+      "py": "exact"
+    },
+    {
+      "type": "w1",
+      "q": "example",
+      "a": "example",
+      "hint": "例子",
+      "py": "example"
+    },
+    {
+      "type": "w1",
+      "q": "excellent",
+      "a": "excellent",
+      "hint": "优秀的",
+      "py": "excellent"
+    },
+    {
+      "type": "w1",
+      "q": "except",
+      "a": "except",
+      "hint": "除了",
+      "py": "except"
+    },
+    {
+      "type": "w1",
+      "q": "excited",
+      "a": "excited",
+      "hint": "兴奋的",
+      "py": "excited"
+    },
+    {
+      "type": "w1",
+      "q": "excuse",
+      "a": "excuse",
+      "hint": "借口",
+      "py": "excuse"
+    },
+    {
+      "type": "w1",
+      "q": "exercise",
+      "a": "exercise",
+      "hint": "锻炼",
+      "py": "exercise"
+    },
+    {
+      "type": "w1",
+      "q": "expect",
+      "a": "expect",
+      "hint": "期望",
+      "py": "expect"
+    },
+    {
+      "type": "w1",
+      "q": "expensive",
+      "a": "expensive",
+      "hint": "昂贵的",
+      "py": "expensive"
+    },
+    {
+      "type": "w1",
+      "q": "experience",
+      "a": "experience",
+      "hint": "经历",
+      "py": "experience"
+    },
+    {
+      "type": "w1",
+      "q": "explain",
+      "a": "explain",
+      "hint": "解释",
+      "py": "explain"
+    },
+    {
+      "type": "w1",
+      "q": "express",
+      "a": "express",
+      "hint": "表达",
+      "py": "express"
+    },
+    {
+      "type": "w1",
+      "q": "extra",
+      "a": "extra",
+      "hint": "额外的",
+      "py": "extra"
+    },
+    {
+      "type": "w1",
+      "q": "fail",
+      "a": "fail",
+      "hint": "失败",
+      "py": "fail"
     }
   ]
 };

@@ -1,0 +1,172 @@
+<!-- 好友 PK：异步战帖 -->
+<view class="pk-page">
+
+  <view class="pk-head">
+    <button class="btn-back" bindtap="goBack">返回</button>
+    <view class="pk-head-t">
+      <view class="pk-title">🤝 好友 PK</view>
+      <view class="pk-sub">异步战帖 · 双方同一套题 · 每天最多 +10 ⭐</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="pk-card pk-loading">正在加载…</view>
+
+  <view wx:elif="{{!available}}" class="pk-card pk-empty">
+    <view class="pk-empty-emoji">🛠</view>
+    <view class="pk-empty-t">{{notReadyMsg}}</view>
+    <button class="btn-md btn-ghost pk-retry" bindtap="goLogin">重新登录/重试</button>
+  </view>
+
+  <block wx:else>
+    <!-- ============ 答题态 ============ -->
+    <block wx:if="{{phase === 'playing'}}">
+      <view class="pk-progress">
+        <view class="pk-progress-text">{{progressText}}</view>
+        <view class="pk-bar"><view class="pk-bar-in" style="width: {{idx * 100 / quiz.length}}%"></view></view>
+      </view>
+      <view class="pk-card pk-question">
+        <view class="pk-word">{{quiz[idx].word}}</view>
+        <view class="pk-qsub">{{quiz[idx].sub}}</view>
+      </view>
+      <view class="pk-opts">
+        <view
+          wx:for="{{quiz[idx].options}}"
+          wx:key="key"
+          class="pk-opt {{pickedKey === item.key ? (lastCorrect ? 'ok' : 'no') : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pick">{{item.text}}</view>
+      </view>
+    </block>
+
+    <!-- ============ 战帖已生成 ============ -->
+    <block wx:elif="{{phase === 'created'}}">
+      <view class="pk-card pk-created">
+        <view class="pk-created-emoji">📨</view>
+        <view class="pk-created-t">战帖已生成</view>
+        <view class="pk-created-s">我的成绩：{{result.scoreText}}</view>
+        <view class="pk-code">战帖码 {{code}}</view>
+        <button class="btn-lg btn-next pk-share" open-type="share">分享给好友应战</button>
+        <button class="btn-md btn-ghost pk-second" bindtap="openMatch" data-code="{{code}}">查看这张战帖</button>
+      </view>
+      <view class="pk-tip">好友点开你的分享，会用同一套题作答；他打完你就能看到胜负</view>
+    </block>
+
+    <!-- ============ 结果对比 ============ -->
+    <block wx:elif="{{phase === 'result' && match}}">
+      <view class="pk-card pk-result">
+        <view class="pk-result-emoji">{{match.outcomeEmoji}}</view>
+        <view class="pk-result-t">{{match.outcomeText}}</view>
+        <view wx:if="{{match.myReward > 0}}" class="pk-result-reward">+{{match.myReward}} ⭐</view>
+        <view class="pk-vs">
+          <view class="pk-side">
+            <view class="pk-side-name">{{match.challenger.nickname}}</view>
+            <view class="pk-side-score">{{match.challenger.scoreText}}</view>
+            <view class="pk-side-lb">发起</view>
+          </view>
+          <view class="pk-vs-mark">VS</view>
+          <view class="pk-side">
+            <view class="pk-side-name">{{match.opponent ? match.opponent.nickname : '等待应战'}}</view>
+            <view class="pk-side-score">{{match.opponent ? match.opponent.scoreText : '—'}}</view>
+            <view class="pk-side-lb">应战</view>
+          </view>
+        </view>
+        <button class="btn-md btn-ghost pk-second" bindtap="backHome">返回我的战帖</button>
+      </view>
+    </block>
+
+    <!-- ============ 首页 / 详情 ============ -->
+    <block wx:else>
+      <!-- 有战帖码：详情视图 -->
+      <block wx:if="{{match}}">
+        <view class="pk-card">
+          <view class="pk-detail-top">
+            <view class="pk-detail-mode">{{match.modeLabel}} · 第 {{match.level}} 关</view>
+            <view class="pk-detail-state">{{match.outcomeText}}</view>
+          </view>
+          <view class="pk-detail-s">{{match.role === 'challenger' ? '这是你发起的战帖' : (match.role === 'opponent' ? '这是你应战的战帖' : '好友发来的战帖')}}</view>
+
+          <view wx:if="{{match.role === 'challenger' && match.status !== 'done'}}" class="pk-body">
+            <view class="pk-my-score">我的成绩：{{match.challenger.scoreText}}</view>
+            <button class="btn-lg btn-next pk-share" open-type="share">邀请好友应战</button>
+            <view class="pk-tip">好友打完之前，看不到他的成绩</view>
+          </view>
+
+          <view wx:elif="{{match.canAccept}}" class="pk-body">
+            <view class="pk-challenge-tip">对方已完成挑战。你将用同一套题作答，先比正确率、再比用时。</view>
+            <button class="btn-lg btn-primary pk-accept" bindtap="startAccept">接受挑战</button>
+          </view>
+
+          <view wx:elif="{{match.status === 'done'}}" class="pk-body">
+            <view class="pk-vs">
+              <view class="pk-side">
+                <view class="pk-side-name">{{match.challenger.nickname}}</view>
+                <view class="pk-side-score">{{match.challenger.scoreText}}</view>
+                <view class="pk-side-lb">发起</view>
+              </view>
+              <view class="pk-vs-mark">VS</view>
+              <view class="pk-side">
+                <view class="pk-side-name">{{match.opponent ? match.opponent.nickname : '—'}}</view>
+                <view class="pk-side-score">{{match.opponent ? match.opponent.scoreText : '—'}}</view>
+                <view class="pk-side-lb">应战</view>
+              </view>
+            </view>
+          </view>
+
+          <view wx:elif="{{match.expired}}" class="pk-body">
+            <view class="pk-expired">这张战帖已经过期（超过 7 天），挑战自动作废</view>
+          </view>
+
+          <view wx:elif="{{!loggedIn}}" class="pk-body">
+            <view class="pk-expired">登录后才能应战</view>
+            <button class="btn-md btn-primary pk-accept" bindtap="goLogin">去登录</button>
+          </view>
+
+          <view wx:else class="pk-body">
+            <view class="pk-expired">这张战帖已经被其他好友应战了</view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 无战帖码：发起 + 我的战帖 -->
+      <block wx:else>
+        <view class="pk-card pk-start">
+          <view class="pk-start-emoji">🤝</view>
+          <view class="pk-start-t">发起一场好友 PK</view>
+          <view class="pk-start-s">
+            你和好友打同一套 10 题<br/>
+            胜 +3 ⭐ · 平 +1 ⭐ · 负 0 ⭐<br/>
+            每天最多靠 PK 拿 10 ⭐
+          </view>
+          <button class="btn-lg btn-primary pk-accept" bindtap="startCreate">开始出题</button>
+        </view>
+
+        <view class="pk-list-head">
+          <text class="pk-list-title">我的战帖</text>
+          <text class="pk-list-sub">{{myList.length}} 张</text>
+        </view>
+        <view wx:if="{{!loggedIn}}" class="pk-login-tip">
+          <text>登录后查看你的战帖</text>
+          <button class="btn-sm btn-ghost pk-login-btn" bindtap="goLogin">去登录</button>
+        </view>
+        <view wx:elif="{{myList.length === 0}}" class="pk-list-empty">还没有战帖，发起一场试试吧！</view>
+        <view
+          wx:for="{{myList}}"
+          wx:key="code"
+          class="pk-list-row"
+          data-code="{{item.code}}"
+          bindtap="openMatch">
+          <view class="pk-list-main">
+            <view class="pk-list-opp">{{item.opponentNickname}}</view>
+            <view class="pk-list-meta">{{item.modeLabel}} · {{item.roleText}}</view>
+          </view>
+          <view class="pk-list-right">
+            <view class="pk-list-state {{item.win ? 'win' : ''}}">{{item.stateText}}</view>
+            <view wx:if="{{item.reward > 0}}" class="pk-list-reward">+{{item.reward}} ⭐</view>
+          </view>
+        </view>
+      </block>
+    </block>
+  </block>
+
+  <view class="pk-foot">战帖 7 天内有效 · 同一张战帖只能被应战一次</view>
+</view>

@@ -1,0 +1,102 @@
+<!-- 每日挑战赛：当天同学段同一套题，当天出榜 -->
+<view class="dc-page">
+
+  <!-- 顶部 -->
+  <view class="dc-head">
+    <button class="btn-back" bindtap="goBack">返回</button>
+    <view class="dc-head-t">
+      <view class="dc-title">🎯 每日挑战赛</view>
+      <view class="dc-sub">{{dateKey}} · {{gradeLabel}} · 每天 00:00 换题</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="dc-card dc-loading">正在准备今天的题目…</view>
+
+  <view wx:elif="{{!available}}" class="dc-card dc-empty">
+    <view class="dc-empty-emoji">🛠</view>
+    <view class="dc-empty-t">{{notReadyMsg}}</view>
+    <button class="btn-md btn-ghost dc-retry" bindtap="loadInfo">重试</button>
+  </view>
+
+  <block wx:else>
+    <!-- ============ 准备态 ============ -->
+    <block wx:if="{{phase === 'idle'}}">
+      <view class="dc-card dc-hero">
+        <view class="dc-hero-emoji">🏆</view>
+        <view class="dc-hero-t">今天的题目已经出好啦</view>
+        <view class="dc-hero-s">
+          全服同学段同一套题 · {{totalQ}} 题<br/>
+          按「答对数 → 用时」排名，一人一天只记最好成绩
+        </view>
+        <button class="btn-lg btn-primary dc-start" bindtap="start">开始挑战</button>
+        <view wx:if="{{best}}" class="dc-best">
+          我的今日最好：答对 {{best.correct}}/{{best.total}} · {{best.secText}}
+          <text wx:if="{{best.rank}}"> · 第 {{best.rank}} 名</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- ============ 答题态 ============ -->
+    <block wx:elif="{{phase === 'playing'}}">
+      <view class="dc-progress">
+        <view class="dc-progress-text">{{progressText}}</view>
+        <view class="dc-bar"><view class="dc-bar-in" style="width: {{(idx) * 100 / quiz.length}}%"></view></view>
+      </view>
+
+      <view class="dc-card dc-question">
+        <view class="dc-word">{{quiz[idx].word}}</view>
+        <view class="dc-qsub">{{quiz[idx].sub}}</view>
+      </view>
+
+      <view class="dc-opts">
+        <view
+          wx:for="{{quiz[idx].options}}"
+          wx:key="key"
+          class="dc-opt {{pickedKey === item.key ? (lastCorrect ? 'ok' : 'no') : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pick">{{item.text}}</view>
+      </view>
+    </block>
+
+    <!-- ============ 结算态 ============ -->
+    <block wx:else>
+      <view class="dc-card dc-result">
+        <view class="dc-result-emoji">{{result.rate >= 90 ? '🌟' : (result.rate >= 60 ? '💪' : '📚')}}</view>
+        <view class="dc-result-t">答对 {{result.correct}} / {{result.total}}</view>
+        <view class="dc-result-s">用时 {{result.secText}} · 正确率 {{result.rate}}%</view>
+        <view wx:if="{{myRank}}" class="dc-result-rank">今日排名第 {{myRank}} 名</view>
+        <button class="btn-lg btn-primary dc-again" bindtap="again">再来一次</button>
+        <view wx:if="{{!loggedIn}}" class="dc-login-tip">
+          <text>登录后成绩才会进入排行榜</text>
+          <button class="btn-sm btn-ghost dc-login-btn" bindtap="goLogin">去登录</button>
+        </view>
+      </view>
+    </block>
+
+    <!-- ============ 今日榜 ============ -->
+    <view class="dc-rank">
+      <view class="dc-rank-head">
+        <text class="dc-rank-title">🏅 今日榜 · {{gradeLabel}}</text>
+        <text class="dc-rank-sub">共 {{top.length}} 人上榜</text>
+      </view>
+      <view wx:if="{{top.length === 0}}" class="dc-rank-empty">今天还没人挑战，抢个第一吧！</view>
+      <view
+        wx:for="{{top}}"
+        wx:key="rank"
+        class="dc-rank-row {{item.isMe ? 'me' : ''}}">
+        <view class="dc-rank-no">{{item.medal || item.rank}}</view>
+        <view class="dc-rank-avatar">
+          <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" mode="aspectFill" class="dc-avatar-img"></image>
+          <text wx:else class="dc-avatar-txt">{{item.initial}}</text>
+        </view>
+        <view class="dc-rank-name">{{item.nickname}}<text wx:if="{{item.isMe}}" class="dc-me">我</text></view>
+        <view class="dc-rank-score">
+          <text class="dc-rank-correct">{{item.correct}}/{{item.total}}</text>
+          <text class="dc-rank-time">{{item.secText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="dc-foot">每天 00:00 换新题 · 同一学段所有玩家题目一致</view>
+  </block>
+</view>

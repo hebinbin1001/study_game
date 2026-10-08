@@ -3,6 +3,16 @@ var storage = require('../../utils/storage');
 var request = require('../../utils/request');
 var auth = require('../../utils/auth');
 var art = require('../../utils/art');
+var constants = require('../../utils/constants');
+var dict = require('../../utils/dict');
+
+/** 教材版本 key → 展示名 */
+function bookNameOf(key) {
+  for (var i = 0; i < constants.BOOKS.length; i++) {
+    if (constants.BOOKS[i].key === String(key || '')) return constants.BOOKS[i].name;
+  }
+  return constants.BOOKS[0].name;
+}
 
 Page({
   data: {
@@ -19,7 +29,13 @@ Page({
       // 属于重复入口（需求 ③），已移除 —— 改资料统一走资料卡的「编辑」。
       { emoji: '👗', name: '我的形象 · 皮肤', url: '/pages/avatar/avatar' },
       { emoji: '🏆', name: '排行榜', url: '/pages/rank/rank' },
+      // 2026-10-08 新增三件套：每日挑战赛 / 赛季 / 好友 PK
+      { emoji: '🎯', name: '每日挑战赛', url: '/pages/daily-challenge/daily-challenge' },
+      { emoji: '🏅', name: '赛季', url: '/pages/season/season' },
+      { emoji: '🤝', name: '好友 PK', url: '/pages/pk/pk' },
       { emoji: '📖', name: '错题本', url: '/pages/wrong-book/wrong-book' },
+      // 教材版本（2026-10-08 二期）：只影响英语出题用哪套词表，不上榜、不影响进度
+      { emoji: '📚', name: '教材版本', action: 'book' },
       { emoji: '🏅', name: '成就勋章', url: '/pages/achievement/achievement' },
       { emoji: '📄', name: '用户协议与隐私政策', url: '/pages/agreement/agreement' }
     ]
@@ -34,10 +50,17 @@ Page({
     var u = auth.getUser();
     var nickname = (loggedIn && u && u.nickname) ? u.nickname : storage.getNickname();
     var avatarUrl = (loggedIn && u && u.avatarUrl) ? u.avatarUrl : storage.getAvatar();
+    // 菜单里的「教材版本」带上当前选择，省得用户点进去才知道选的是哪个
+    var bookLabel = bookNameOf(storage.getBook());
+    var menu = this.data.menu.map(function (m) {
+      if (m.action === 'book') return Object.assign({}, m, { name: '教材版本 · ' + bookLabel });
+      return m;
+    });
     this.setData({
       loggedIn: loggedIn,
       nickname: nickname || '',
-      avatarUrl: avatarUrl || ''
+      avatarUrl: avatarUrl || '',
+      menu: menu
     });
 
     if (!loggedIn) return;
@@ -89,9 +112,48 @@ Page({
 
   // 菜单点击
   onMenuTap: function (e) {
-    var url = e.currentTarget.dataset.url;
+    var ds = e.currentTarget.dataset || {};
+    if (ds.action === 'book') {
+      this.pickBook();
+      return;
+    }
+    var url = ds.url;
     if (!url) return;
     wx.navigateTo({ url: url });
+  },
+
+  /**
+   * 选教材版本（2026-10-08 二期：教材对接）。
+   *
+   * 只影响「出题用哪套词表」：选了人教版且该年级已有 PEP 词条 → 用 PEP 词条；
+   * 该年级 PEP 词条还不够 → 自动回退通用词表，并明确告诉用户，不让界面出现空白。
+   */
+  pickBook: function () {
+    var self = this;
+    var books = constants.BOOKS.map(function (b) {
+      return { key: b.key, name: b.name };
+    });
+    wx.showActionSheet({
+      itemList: books.map(function (b) { return b.name; }),
+      success: function (res) {
+        var picked = books[res.tapIndex];
+        if (!picked) return;
+        storage.setBook(picked.key);
+        dict.setBook(picked.key);
+        var grade = storage.getLastGrade() || constants.GRADES[0].key;
+        var stat = dict.bookStat(grade, picked.key);
+        self.refresh();
+        var tip = picked.key && stat.usingFallback
+          ? '已选 ' + picked.name + '，该年级词表补充中，先用通用词表'
+          : '已切换为 ' + picked.name;
+        wx.showToast({ title: tip, icon: 'none', duration: 2200 });
+        // 云端同步（失败静默：本地已生效，换设备时再同步）
+        if (auth.isLoggedIn()) {
+          request.post('/api/user/book', { book: picked.key }).catch(function () {});
+        }
+      },
+      fail: function () {}
+    });
   },
 
   // 资料卡点击：游客 → 登录；已登录 → 编辑资料（昵称头像页）

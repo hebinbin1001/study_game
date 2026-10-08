@@ -39,6 +39,29 @@ const GRADES = [
   { key: 'college', label: '大学',   file: 'college.js' }
 ];
 
+// ============ 一·二、教材版本枚举（2026-10-08 二期：教材对接） ============
+// 为什么要有：小学英语各地教材版本不同（人教版 PEP / 外研版 / 译林版…），
+// 家长/老师是按「自己孩子的教材」找内容的，不对接会被认为不专业。
+// 一期只做占比最高的两个版本 + 通用兜底：
+//   · 用户没选（或选了但我们词表还没补到该年级）→ 用该年级的**通用词表**；
+//   · 选了且该年级已有对应版本词条 → 用该版本词条出题。
+// 语文全国统一部编版，暂不区分版本（bjb 先占位）。
+const BOOKS = [
+  { key: '',    name: '通用词表',   desc: '不区分教材版本，用现有题库' },
+  { key: 'pep', name: '人教版 PEP', desc: '小学三年级起点（多数地区使用）' },
+  { key: 'wys', name: '外研版',     desc: '一年级起点 / 三年级起点' },
+  { key: 'bjb', name: '部编版',     desc: '语文统编教材（全国统一）' }
+];
+
+/** 教材版本 key 是否合法（空串 = 通用，合法） */
+function isValidBook(key) {
+  var k = String(key === undefined || key === null ? '' : key);
+  for (var i = 0; i < BOOKS.length; i++) {
+    if (BOOKS[i].key === k) return true;
+  }
+  return false;
+}
+
 // ============ 二、8 类型码枚举（REQ-DICT-2） ============
 // 参照 docs/词库格式规范.md 的「类型码一览」
 const TYPES = {
@@ -96,6 +119,7 @@ const STORAGE_KEYS = {
   sound: 'ww_sound_on',            // 声音开关（'1'开/'0'关，默认开）
   lastGrade: 'ww_last_grade',      // 最近一次进入的学段（首页「继续挑战」定位用）
   lastType: 'ww_last_type',        // 最近一次进入的题型分类（空 = 综合）
+  book: 'ww_book',                 // 教材版本（''=通用 / pep / wys / bjb，2026-10-08）
   challengeMigrated: 'ww_challenge_migrated' // 挑战主线存档迁移标记（一次性，见 utils/challenge.js）
 };
 
@@ -162,6 +186,8 @@ function isItemInGroup(item, groupKey) {
 
 module.exports = {
   GRADES,
+  BOOKS,
+  isValidBook,
   TYPES,
   TYPE_CODES,
   STAR_THRESHOLDS,

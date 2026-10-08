@@ -1,7 +1,7 @@
 module.exports = {
   "grade": "g9",
   "label": "初三",
-  "count": 66,
+  "count": 153,
   "items": [
     {
       "type": "w2",
@@ -464,6 +464,615 @@ module.exports = {
       "a": "多管闲事",
       "hint": "多管闲事",
       "py": "gounahaozi"
+    },
+    {
+      "type": "w1",
+      "q": "fact",
+      "a": "fact",
+      "hint": "事实",
+      "py": "fact"
+    },
+    {
+      "type": "w1",
+      "q": "fair",
+      "a": "fair",
+      "hint": "公平的",
+      "py": "fair"
+    },
+    {
+      "type": "w1",
+      "q": "famous",
+      "a": "famous",
+      "hint": "著名的",
+      "py": "famous"
+    },
+    {
+      "type": "w1",
+      "q": "fan",
+      "a": "fan",
+      "hint": "粉丝",
+      "py": "fan"
+    },
+    {
+      "type": "w1",
+      "q": "fashion",
+      "a": "fashion",
+      "hint": "时尚",
+      "py": "fashion"
+    },
+    {
+      "type": "w1",
+      "q": "fear",
+      "a": "fear",
+      "hint": "恐惧",
+      "py": "fear"
+    },
+    {
+      "type": "w1",
+      "q": "feed",
+      "a": "feed",
+      "hint": "喂养",
+      "py": "feed"
+    },
+    {
+      "type": "w1",
+      "q": "feel",
+      "a": "feel",
+      "hint": "感觉",
+      "py": "feel"
+    },
+    {
+      "type": "w1",
+      "q": "fever",
+      "a": "fever",
+      "hint": "发烧",
+      "py": "fever"
+    },
+    {
+      "type": "w1",
+      "q": "field",
+      "a": "field",
+      "hint": "田野",
+      "py": "field"
+    },
+    {
+      "type": "w1",
+      "q": "fight",
+      "a": "fight",
+      "hint": "战斗",
+      "py": "fight"
+    },
+    {
+      "type": "w1",
+      "q": "fill",
+      "a": "fill",
+      "hint": "填满",
+      "py": "fill"
+    },
+    {
+      "type": "w1",
+      "q": "film",
+      "a": "film",
+      "hint": "电影",
+      "py": "film"
+    },
+    {
+      "type": "w1",
+      "q": "final",
+      "a": "final",
+      "hint": "最后的",
+      "py": "final"
+    },
+    {
+      "type": "w1",
+      "q": "find",
+      "a": "find",
+      "hint": "找到",
+      "py": "find"
+    },
+    {
+      "type": "w1",
+      "q": "finish",
+      "a": "finish",
+      "hint": "完成",
+      "py": "finish"
+    },
+    {
+      "type": "w1",
+      "q": "fire",
+      "a": "fire",
+      "hint": "火",
+      "py": "fire"
+    },
+    {
+      "type": "w1",
+      "q": "fit",
+      "a": "fit",
+      "hint": "适合",
+      "py": "fit"
+    },
+    {
+      "type": "w1",
+      "q": "fix",
+      "a": "fix",
+      "hint": "修理",
+      "py": "fix"
+    },
+    {
+      "type": "w1",
+      "q": "flower",
+      "a": "flower",
+      "hint": "花",
+      "py": "flower"
+    },
+    {
+      "type": "w1",
+      "q": "fly",
+      "a": "fly",
+      "hint": "飞",
+      "py": "fly"
+    },
+    {
+      "type": "w1",
+      "q": "follow",
+      "a": "follow",
+      "hint": "跟随",
+      "py": "follow"
+    },
+    {
+      "type": "w1",
+      "q": "food",
+      "a": "food",
+      "hint": "食物",
+      "py": "food"
+    },
+    {
+      "type": "w1",
+      "q": "force",
+      "a": "force",
+      "hint": "力量",
+      "py": "force"
+    },
+    {
+      "type": "w1",
+      "q": "foreign",
+      "a": "foreign",
+      "hint": "外国的",
+      "py": "foreign"
+    },
+    {
+      "type": "w1",
+      "q": "forest",
+      "a": "forest",
+      "hint": "森林",
+      "py": "forest"
+    },
+    {
+      "type": "w1",
+      "q": "forget",
+      "a": "forget",
+      "hint": "忘记",
+      "py": "forget"
+    },
+    {
+      "type": "w1",
+      "q": "forgive",
+      "a": "forgive",
+      "hint": "原谅",
+      "py": "forgive"
+    },
+    {
+      "type": "w1",
+      "q": "form",
+      "a": "form",
+      "hint": "形式",
+      "py": "form"
+    },
+    {
+      "type": "w1",
+      "q": "forward",
+      "a": "forward",
+      "hint": "向前",
+      "py": "forward"
+    },
+    {
+      "type": "w1",
+      "q": "free",
+      "a": "free",
+      "hint": "自由的",
+      "py": "free"
+    },
+    {
+      "type": "w1",
+      "q": "fresh",
+      "a": "fresh",
+      "hint": "新鲜的",
+      "py": "fresh"
+    },
+    {
+      "type": "w1",
+      "q": "friendly",
+      "a": "friendly",
+      "hint": "友好的",
+      "py": "friendly"
+    },
+    {
+      "type": "w1",
+      "q": "front",
+      "a": "front",
+      "hint": "前面",
+      "py": "front"
+    },
+    {
+      "type": "w1",
+      "q": "fruit",
+      "a": "fruit",
+      "hint": "水果",
+      "py": "fruit"
+    },
+    {
+      "type": "w1",
+      "q": "full",
+      "a": "full",
+      "hint": "满的",
+      "py": "full"
+    },
+    {
+      "type": "w1",
+      "q": "fun",
+      "a": "fun",
+      "hint": "乐趣",
+      "py": "fun"
+    },
+    {
+      "type": "w1",
+      "q": "future",
+      "a": "future",
+      "hint": "未来",
+      "py": "future"
+    },
+    {
+      "type": "w1",
+      "q": "game",
+      "a": "game",
+      "hint": "游戏",
+      "py": "game"
+    },
+    {
+      "type": "w1",
+      "q": "garden",
+      "a": "garden",
+      "hint": "花园",
+      "py": "garden"
+    },
+    {
+      "type": "w1",
+      "q": "gate",
+      "a": "gate",
+      "hint": "大门",
+      "py": "gate"
+    },
+    {
+      "type": "w1",
+      "q": "gather",
+      "a": "gather",
+      "hint": "聚集",
+      "py": "gather"
+    },
+    {
+      "type": "w1",
+      "q": "general",
+      "a": "general",
+      "hint": "一般的",
+      "py": "general"
+    },
+    {
+      "type": "w1",
+      "q": "gentle",
+      "a": "gentle",
+      "hint": "温柔的",
+      "py": "gentle"
+    },
+    {
+      "type": "w1",
+      "q": "gift",
+      "a": "gift",
+      "hint": "礼物",
+      "py": "gift"
+    },
+    {
+      "type": "w1",
+      "q": "glass",
+      "a": "glass",
+      "hint": "玻璃",
+      "py": "glass"
+    },
+    {
+      "type": "w1",
+      "q": "glove",
+      "a": "glove",
+      "hint": "手套",
+      "py": "glove"
+    },
+    {
+      "type": "w1",
+      "q": "goal",
+      "a": "goal",
+      "hint": "目标",
+      "py": "goal"
+    },
+    {
+      "type": "w1",
+      "q": "gold",
+      "a": "gold",
+      "hint": "黄金",
+      "py": "gold"
+    },
+    {
+      "type": "w1",
+      "q": "grade",
+      "a": "grade",
+      "hint": "年级",
+      "py": "grade"
+    },
+    {
+      "type": "w1",
+      "q": "grand",
+      "a": "grand",
+      "hint": "宏伟的",
+      "py": "grand"
+    },
+    {
+      "type": "w1",
+      "q": "grass",
+      "a": "grass",
+      "hint": "草",
+      "py": "grass"
+    },
+    {
+      "type": "w1",
+      "q": "great",
+      "a": "great",
+      "hint": "伟大的",
+      "py": "great"
+    },
+    {
+      "type": "w1",
+      "q": "greet",
+      "a": "greet",
+      "hint": "问候",
+      "py": "greet"
+    },
+    {
+      "type": "w1",
+      "q": "ground",
+      "a": "ground",
+      "hint": "地面",
+      "py": "ground"
+    },
+    {
+      "type": "w1",
+      "q": "group",
+      "a": "group",
+      "hint": "小组",
+      "py": "group"
+    },
+    {
+      "type": "w1",
+      "q": "grow",
+      "a": "grow",
+      "hint": "生长",
+      "py": "grow"
+    },
+    {
+      "type": "w1",
+      "q": "guess",
+      "a": "guess",
+      "hint": "猜测",
+      "py": "guess"
+    },
+    {
+      "type": "w1",
+      "q": "guest",
+      "a": "guest",
+      "hint": "客人",
+      "py": "guest"
+    },
+    {
+      "type": "w1",
+      "q": "guide",
+      "a": "guide",
+      "hint": "指导",
+      "py": "guide"
+    },
+    {
+      "type": "w1",
+      "q": "habit",
+      "a": "habit",
+      "hint": "习惯",
+      "py": "habit"
+    },
+    {
+      "type": "w1",
+      "q": "hair",
+      "a": "hair",
+      "hint": "头发",
+      "py": "hair"
+    },
+    {
+      "type": "w1",
+      "q": "half",
+      "a": "half",
+      "hint": "一半",
+      "py": "half"
+    },
+    {
+      "type": "w1",
+      "q": "hall",
+      "a": "hall",
+      "hint": "大厅",
+      "py": "hall"
+    },
+    {
+      "type": "w1",
+      "q": "hand",
+      "a": "hand",
+      "hint": "手",
+      "py": "hand"
+    },
+    {
+      "type": "w1",
+      "q": "hang",
+      "a": "hang",
+      "hint": "悬挂",
+      "py": "hang"
+    },
+    {
+      "type": "w1",
+      "q": "happen",
+      "a": "happen",
+      "hint": "发生",
+      "py": "happen"
+    },
+    {
+      "type": "w1",
+      "q": "happy",
+      "a": "happy",
+      "hint": "快乐的",
+      "py": "happy"
+    },
+    {
+      "type": "w1",
+      "q": "hard",
+      "a": "hard",
+      "hint": "困难的",
+      "py": "hard"
+    },
+    {
+      "type": "w1",
+      "q": "hate",
+      "a": "hate",
+      "hint": "讨厌",
+      "py": "hate"
+    },
+    {
+      "type": "w1",
+      "q": "head",
+      "a": "head",
+      "hint": "头",
+      "py": "head"
+    },
+    {
+      "type": "w1",
+      "q": "health",
+      "a": "health",
+      "hint": "健康",
+      "py": "health"
+    },
+    {
+      "type": "w1",
+      "q": "hear",
+      "a": "hear",
+      "hint": "听见",
+      "py": "hear"
+    },
+    {
+      "type": "w1",
+      "q": "heart",
+      "a": "heart",
+      "hint": "心脏",
+      "py": "heart"
+    },
+    {
+      "type": "w1",
+      "q": "heat",
+      "a": "heat",
+      "hint": "热",
+      "py": "heat"
+    },
+    {
+      "type": "w1",
+      "q": "heavy",
+      "a": "heavy",
+      "hint": "重的",
+      "py": "heavy"
+    },
+    {
+      "type": "w1",
+      "q": "height",
+      "a": "height",
+      "hint": "高度",
+      "py": "height"
+    },
+    {
+      "type": "w1",
+      "q": "help",
+      "a": "help",
+      "hint": "帮助",
+      "py": "help"
+    },
+    {
+      "type": "w1",
+      "q": "hide",
+      "a": "hide",
+      "hint": "躲藏",
+      "py": "hide"
+    },
+    {
+      "type": "w1",
+      "q": "high",
+      "a": "high",
+      "hint": "高的",
+      "py": "high"
+    },
+    {
+      "type": "w1",
+      "q": "hill",
+      "a": "hill",
+      "hint": "小山",
+      "py": "hill"
+    },
+    {
+      "type": "w1",
+      "q": "history",
+      "a": "history",
+      "hint": "历史",
+      "py": "history"
+    },
+    {
+      "type": "w1",
+      "q": "hit",
+      "a": "hit",
+      "hint": "打击",
+      "py": "hit"
+    },
+    {
+      "type": "w1",
+      "q": "hold",
+      "a": "hold",
+      "hint": "拿着",
+      "py": "hold"
+    },
+    {
+      "type": "w1",
+      "q": "hole",
+      "a": "hole",
+      "hint": "洞",
+      "py": "hole"
+    },
+    {
+      "type": "w1",
+      "q": "holiday",
+      "a": "holiday",
+      "hint": "假日",
+      "py": "holiday"
+    },
+    {
+      "type": "w1",
+      "q": "home",
+      "a": "home",
+      "hint": "家",
+      "py": "home"
     }
   ]
 };

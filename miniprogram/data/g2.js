@@ -1,7 +1,7 @@
 module.exports = {
   "grade": "g2",
   "label": "二年级",
-  "count": 74,
+  "count": 153,
   "items": [
     {
       "type": "w1",
@@ -78,14 +78,16 @@ module.exports = {
       "q": "park",
       "a": "park",
       "hint": "公园",
-      "py": "park"
+      "py": "park",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "shop",
       "a": "shop",
       "hint": "商店",
-      "py": "shop"
+      "py": "shop",
+      "book": "wys"
     },
     {
       "type": "w1",
@@ -141,42 +143,48 @@ module.exports = {
       "q": "monday",
       "a": "monday",
       "hint": "星期一",
-      "py": "monday"
+      "py": "monday",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "sunday",
       "a": "sunday",
       "hint": "星期日",
-      "py": "sunday"
+      "py": "sunday",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "spring",
       "a": "spring",
       "hint": "春天",
-      "py": "spring"
+      "py": "spring",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "summer",
       "a": "summer",
       "hint": "夏天",
-      "py": "summer"
+      "py": "summer",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "winter",
       "a": "winter",
       "hint": "冬天",
-      "py": "winter"
+      "py": "winter",
+      "book": "wys"
     },
     {
       "type": "w1",
       "q": "morning",
       "a": "morning",
       "hint": "早晨",
-      "py": "morning"
+      "py": "morning",
+      "book": "wys"
     },
     {
       "type": "c2",
@@ -660,6 +668,638 @@ module.exports = {
         "字"
       ],
       "py": "yu"
+    },
+    {
+      "type": "w1",
+      "q": "autumn",
+      "a": "autumn",
+      "hint": "秋天",
+      "py": "autumn",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "Tuesday",
+      "a": "Tuesday",
+      "hint": "星期二",
+      "py": "Tuesday",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "Wednesday",
+      "a": "Wednesday",
+      "hint": "星期三",
+      "py": "Wednesday",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "Thursday",
+      "a": "Thursday",
+      "hint": "星期四",
+      "py": "Thursday",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "Friday",
+      "a": "Friday",
+      "hint": "星期五",
+      "py": "Friday",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "Saturday",
+      "a": "Saturday",
+      "hint": "星期六",
+      "py": "Saturday",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "afternoon",
+      "a": "afternoon",
+      "hint": "下午",
+      "py": "afternoon",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "evening",
+      "a": "evening",
+      "hint": "傍晚",
+      "py": "evening",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "night",
+      "a": "night",
+      "hint": "夜晚",
+      "py": "night",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "today",
+      "a": "today",
+      "hint": "今天",
+      "py": "today",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "tomorrow",
+      "a": "tomorrow",
+      "hint": "明天",
+      "py": "tomorrow",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "yesterday",
+      "a": "yesterday",
+      "hint": "昨天",
+      "py": "yesterday",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "bus",
+      "a": "bus",
+      "hint": "公共汽车",
+      "py": "bus",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "car",
+      "a": "car",
+      "hint": "小汽车",
+      "py": "car",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "bike",
+      "a": "bike",
+      "hint": "自行车",
+      "py": "bike",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "train",
+      "a": "train",
+      "hint": "火车",
+      "py": "train",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "plane",
+      "a": "plane",
+      "hint": "飞机",
+      "py": "plane",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "boat",
+      "a": "boat",
+      "hint": "小船",
+      "py": "boat",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "ship",
+      "a": "ship",
+      "hint": "轮船",
+      "py": "ship",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "taxi",
+      "a": "taxi",
+      "hint": "出租车",
+      "py": "taxi",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "subway",
+      "a": "subway",
+      "hint": "地铁",
+      "py": "subway",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "hat",
+      "a": "hat",
+      "hint": "帽子",
+      "py": "hat",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "coat",
+      "a": "coat",
+      "hint": "外套",
+      "py": "coat",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "shirt",
+      "a": "shirt",
+      "hint": "衬衫",
+      "py": "shirt",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "skirt",
+      "a": "skirt",
+      "hint": "裙子",
+      "py": "skirt",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "dress",
+      "a": "dress",
+      "hint": "连衣裙",
+      "py": "dress",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "shoes",
+      "a": "shoes",
+      "hint": "鞋子",
+      "py": "shoes",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "socks",
+      "a": "socks",
+      "hint": "袜子",
+      "py": "socks",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "gloves",
+      "a": "gloves",
+      "hint": "手套",
+      "py": "gloves",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "sweater",
+      "a": "sweater",
+      "hint": "毛衣",
+      "py": "sweater",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "table",
+      "a": "table",
+      "hint": "桌子",
+      "py": "table",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "bed",
+      "a": "bed",
+      "hint": "床",
+      "py": "bed",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "sofa",
+      "a": "sofa",
+      "hint": "沙发",
+      "py": "sofa",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "lamp",
+      "a": "lamp",
+      "hint": "台灯",
+      "py": "lamp",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "clock",
+      "a": "clock",
+      "hint": "钟",
+      "py": "clock",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "photo",
+      "a": "photo",
+      "hint": "照片",
+      "py": "photo",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "phone",
+      "a": "phone",
+      "hint": "电话",
+      "py": "phone",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "computer",
+      "a": "computer",
+      "hint": "电脑",
+      "py": "computer",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "radio",
+      "a": "radio",
+      "hint": "收音机",
+      "py": "radio",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "zoo",
+      "a": "zoo",
+      "hint": "动物园",
+      "py": "zoo",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "supermarket",
+      "a": "supermarket",
+      "hint": "超市",
+      "py": "supermarket",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "library",
+      "a": "library",
+      "hint": "图书馆",
+      "py": "library",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "hospital",
+      "a": "hospital",
+      "hint": "医院",
+      "py": "hospital",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "cinema",
+      "a": "cinema",
+      "hint": "电影院",
+      "py": "cinema",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "museum",
+      "a": "museum",
+      "hint": "博物馆",
+      "py": "museum",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "sing",
+      "a": "sing",
+      "hint": "唱歌",
+      "py": "sing",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "dance",
+      "a": "dance",
+      "hint": "跳舞",
+      "py": "dance",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "draw",
+      "a": "draw",
+      "hint": "画画",
+      "py": "draw",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "read",
+      "a": "read",
+      "hint": "读",
+      "py": "read",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "write",
+      "a": "write",
+      "hint": "写",
+      "py": "write",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "run",
+      "a": "run",
+      "hint": "跑",
+      "py": "run",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "jump",
+      "a": "jump",
+      "hint": "跳",
+      "py": "jump",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "swim",
+      "a": "swim",
+      "hint": "游泳",
+      "py": "swim",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "listen",
+      "a": "listen",
+      "hint": "听",
+      "py": "listen",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "speak",
+      "a": "speak",
+      "hint": "说",
+      "py": "speak",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "walk",
+      "a": "walk",
+      "hint": "走路",
+      "py": "walk",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "beautiful",
+      "a": "beautiful",
+      "hint": "美丽的",
+      "py": "beautiful",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "funny",
+      "a": "funny",
+      "hint": "滑稽的",
+      "py": "funny",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "kind",
+      "a": "kind",
+      "hint": "友善的",
+      "py": "kind",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "clever",
+      "a": "clever",
+      "hint": "聪明的",
+      "py": "clever",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "quiet",
+      "a": "quiet",
+      "hint": "安静的",
+      "py": "quiet",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "strong",
+      "a": "strong",
+      "hint": "强壮的",
+      "py": "strong",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "clean",
+      "a": "clean",
+      "hint": "干净的",
+      "py": "clean",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "dirty",
+      "a": "dirty",
+      "hint": "脏的",
+      "py": "dirty",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "hungry",
+      "a": "hungry",
+      "hint": "饥饿的",
+      "py": "hungry",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "thirsty",
+      "a": "thirsty",
+      "hint": "口渴的",
+      "py": "thirsty",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "tired",
+      "a": "tired",
+      "hint": "疲倦的",
+      "py": "tired",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "angry",
+      "a": "angry",
+      "hint": "生气的",
+      "py": "angry",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "young",
+      "a": "young",
+      "hint": "年轻的",
+      "py": "young",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "bright",
+      "a": "bright",
+      "hint": "明亮的",
+      "py": "bright",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "dark",
+      "a": "dark",
+      "hint": "黑暗的",
+      "py": "dark",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "fast",
+      "a": "fast",
+      "hint": "快的",
+      "py": "fast",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "slow",
+      "a": "slow",
+      "hint": "慢的",
+      "py": "slow",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "easy",
+      "a": "easy",
+      "hint": "容易的",
+      "py": "easy",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "hard",
+      "a": "hard",
+      "hint": "困难的",
+      "py": "hard",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "busy",
+      "a": "busy",
+      "hint": "忙碌的",
+      "py": "busy",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "free",
+      "a": "free",
+      "hint": "空闲的",
+      "py": "free",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "early",
+      "a": "early",
+      "hint": "早的",
+      "py": "early",
+      "book": "wys"
+    },
+    {
+      "type": "w1",
+      "q": "late",
+      "a": "late",
+      "hint": "晚的",
+      "py": "late",
+      "book": "wys"
     }
   ]
 };

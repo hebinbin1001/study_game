@@ -42,6 +42,13 @@ var overrideMap = null;
 // 自建题库（挂在学段下作为附加题源）；同样由 setBanks() 注入
 var bankMap = null;
 
+// 当前教材版本（2026-10-08 二期：教材对接）。'' = 通用词表。
+// 由 app.js 启动时 setBook(storage.getBook()) 注入；影响 loadByGrade 的过滤结果。
+var currentBook = '';
+// 「该版本词条至少要有这么多条才敢用它出题」——太少会让同一批词反复出现，
+// 不足时自动回退到该学段的通用词表（规划文档 5.3：不能让用户看到空白）。
+var MIN_BOOK_ITEMS = 20;
+
 // 学段 key → 静态 require 的 JS 词库模块。
 // 重要：微信小程序不支持 require .json 文件（会把路径解析成 .json.js 而失败），
 // 动态拼接路径也无法被打包分析。故词库以 data/*.js 模块形式（module.exports = {...}）
@@ -87,9 +94,10 @@ function findGradeConfig(grade) {
  * @returns {Array<Object>} 该学段的 WordItem 数组；学段不存在或文件缺失返回 []
  */
 function loadByGrade(grade) {
+  var key = cacheKeyOf(grade);
   // 命中缓存直接返回
-  if (gradeCache.hasOwnProperty(grade)) {
-    return gradeCache[grade];
+  if (gradeCache.hasOwnProperty(key)) {
+    return gradeCache[key];
   }
 
   var builtinItems = rawByGrade(grade);
@@ -97,10 +105,82 @@ function loadByGrade(grade) {
   // 合并放在 dict 出口，凡是走 dict 取题的地方（字母射击 / 拼词 / 成语 / 贪吃蛇 /
   // 连连看 / 每日一题 / 关卡页题量统计）都自动跟着用户题库走，无需各自改代码。
   var merged = bank.applyOverrides(builtinItems, grade, overrideMap, bankMap);
+  // 教材版本过滤：选了版本且该学段有足够该版本词条 → 只用该版本；否则回退通用。
+  var finalItems = filterByBook(merged, currentBook);
 
   // 缓存（覆盖层变化时由 setOverrides/refreshOverrides 统一清缓存）
-  gradeCache[grade] = merged;
-  return merged;
+  gradeCache[key] = finalItems;
+  return finalItems;
+}
+
+/** 缓存 key：学段 + 教材版本（换版本要重新过滤，不能共用一份缓存） */
+function cacheKeyOf(grade) {
+  return String(grade || '') + '|' + currentBook;
+}
+
+/**
+ * 按教材版本过滤词条。
+ *
+ * 口径（2026-10-08 二期）：
+ *   · 没有教材标签的词条 = **通用词条**，任何版本都能用（原有题库、自建词条都属于这一类）；
+ *   · 选了版本后，用「通用词条 + 该版本词条」（教材词只是补充，不会把原有内容挤掉）；
+ *   · 该版本词条还不够 MIN_BOOK_ITEMS 条 → 整个题库照旧返回（版本词表还在补充中，
+ *     界面上会提示「先用通用词表」，不让用户看到空题）。
+ *
+ * @param {Array<Object>} items 已套过用户覆盖层的词条
+ * @param {string} book 教材版本 key（空 = 不过滤）
+ * @returns {Array<Object>}
+ */
+function filterByBook(items, book) {
+  if (!book || !items || !items.length) return items;
+  var matched = [];
+  var generic = [];
+  for (var i = 0; i < items.length; i++) {
+    var b = String(items[i].book || '');
+    if (b === book) matched.push(items[i]);
+    else if (!b) generic.push(items[i]);
+  }
+  if (matched.length >= MIN_BOOK_ITEMS) return generic.concat(matched);
+  return items;
+}
+
+/**
+ * 设置当前教材版本（''=通用 / pep / wys / bjb）。
+ * 会清空出题缓存，下一次取题立即生效。
+ * @param {string} book
+ * @returns {string} 生效后的版本 key
+ */
+function setBook(book) {
+  var k = String(book || '');
+  if (k === currentBook) return currentBook;
+  currentBook = k;
+  clearCache();
+  return currentBook;
+}
+
+/** 读当前教材版本 */
+function getBook() {
+  return currentBook;
+}
+
+/**
+ * 某学段某教材版本的词条覆盖情况（端上提示「该版本词表正在补充」用）。
+ * @param {string} grade
+ * @param {string} [book] 省略则用当前版本
+ * @returns {{total:number, matched:number, usingFallback:boolean}}
+ */
+function bookStat(grade, book) {
+  var b = book === undefined || book === null ? currentBook : String(book || '');
+  var items = rawByGrade(grade);
+  var matched = 0;
+  for (var i = 0; i < items.length; i++) {
+    if (String(items[i].book || '') === b) matched++;
+  }
+  return {
+    total: items.length,
+    matched: matched,
+    usingFallback: !!b && matched < MIN_BOOK_ITEMS
+  };
 }
 
 /**
@@ -160,7 +240,11 @@ function preloadAll() {
  */
 function clearCache(grade) {
   if (grade) {
-    delete gradeCache[grade];
+    // 学段可能有多份缓存（每个教材版本一份）→ 按前缀清
+    var prefix = String(grade) + '|';
+    Object.keys(gradeCache).forEach(function (k) {
+      if (k.indexOf(prefix) === 0) delete gradeCache[k];
+    });
   } else {
     gradeCache = {};
   }
@@ -322,5 +406,10 @@ module.exports = {
   setBanks: setBanks,
   getBanks: getBanks,
   refreshOverrides: refreshOverrides,
-  findGradeConfig: findGradeConfig
+  findGradeConfig: findGradeConfig,
+  // 教材版本（2026-10-08 二期）
+  setBook: setBook,
+  getBook: getBook,
+  bookStat: bookStat,
+  MIN_BOOK_ITEMS: MIN_BOOK_ITEMS
 };

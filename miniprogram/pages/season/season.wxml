@@ -1,0 +1,92 @@
+<!-- 赛季：自然双月一季，赛季榜 + 上赛季奖励 -->
+<view class="se-page">
+
+  <view class="se-head">
+    <button class="btn-back" bindtap="goBack">返回</button>
+    <view class="se-head-t">
+      <view class="se-title">🏅 赛季</view>
+      <view class="se-sub">双月一季 · 赛季结束发奖励</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="se-card se-loading">正在加载赛季数据…</view>
+
+  <view wx:elif="{{!available}}" class="se-card se-empty">
+    <view class="se-empty-emoji">🛠</view>
+    <view class="se-empty-t">{{notReadyMsg}}</view>
+    <button class="btn-md btn-ghost se-retry" bindtap="loadInfo">重试</button>
+  </view>
+
+  <block wx:else>
+    <!-- 当前赛季 -->
+    <view class="se-card se-hero">
+      <view class="se-hero-name">{{season.name}}</view>
+      <view class="se-hero-days">距离赛季结束还有 <text class="se-days">{{season.daysLeft}}</text> 天</view>
+      <view class="se-hero-me">
+        <view class="se-me-item">
+          <view class="se-me-num">{{me.stars}}</view>
+          <view class="se-me-lb">赛季积分</view>
+        </view>
+        <view class="se-me-line"></view>
+        <view class="se-me-item">
+          <view class="se-me-num">{{me.rank > 0 ? me.rank : '—'}}</view>
+          <view class="se-me-lb">当前名次</view>
+        </view>
+      </view>
+      <view class="se-hero-tip">赛季积分 = 本赛季新获得的星星（同一关只算最高星，刷关不重复计分）</view>
+    </view>
+
+    <!-- 上赛季奖励 -->
+    <view wx:if="{{prevSeason}}" class="se-card se-prev">
+      <view class="se-prev-t">🎁 {{prevSeason.name}} 结算</view>
+      <view wx:if="{{prevSeason.claimed}}" class="se-prev-s">已领取 +{{prevSeason.rewardStars}} ⭐</view>
+      <view wx:elif="{{prevSeason.claimable}}" class="se-prev-s">
+        达到「{{prevSeason.tierLabel}}」：名次 {{prevSeason.rank || '—'}} · 可领 +{{prevSeason.rewardStars}} ⭐
+      </view>
+      <view wx:else class="se-prev-s">
+        上赛季积分 {{prevSeason.stars}}，还不够领奖（需 ≥ 10 分）
+      </view>
+      <button
+        wx:if="{{prevSeason.claimable}}"
+        class="btn-md btn-next se-claim"
+        loading="{{claiming}}"
+        bindtap="claim">领取奖励</button>
+    </view>
+
+    <!-- 奖励说明 -->
+    <view class="se-tiers">
+      <view class="se-tiers-t">🏆 赛季奖励</view>
+      <view class="se-tier-row">
+        <view wx:for="{{tiers}}" wx:key="tier" class="se-tier">
+          <view class="se-tier-label">{{item.label}}</view>
+          <view class="se-tier-star">+{{item.stars}} ⭐</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 赛季榜 -->
+    <view class="se-rank">
+      <view class="se-rank-head">
+        <text class="se-rank-title">赛季榜</text>
+        <text class="se-rank-sub">Top {{ladder.length}}</text>
+      </view>
+      <view wx:if="{{ladder.length === 0}}" class="se-rank-empty">本赛季还没有人上榜，去打一局吧！</view>
+      <view wx:for="{{ladder}}" wx:key="rank" class="se-rank-row {{item.isMe ? 'me' : ''}}">
+        <view class="se-rank-no">{{item.medal || item.rank}}</view>
+        <view class="se-rank-avatar">
+          <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" mode="aspectFill" class="se-avatar-img"></image>
+          <text wx:else class="se-avatar-txt">{{item.initial}}</text>
+        </view>
+        <view class="se-rank-name">{{item.nickname}}<text wx:if="{{item.isMe}}" class="se-me">我</text></view>
+        <view class="se-rank-stars">{{item.stars}} ⭐</view>
+      </view>
+    </view>
+
+    <view wx:if="{{!loggedIn}}" class="se-login">
+      <text>登录后才会记录你的赛季积分</text>
+      <button class="btn-sm btn-ghost se-login-btn" bindtap="goLogin">去登录</button>
+    </view>
+
+    <view class="se-foot">赛季结束后，达到奖励档位即可在本页领取（每个赛季一次）</view>
+  </block>
+</view>

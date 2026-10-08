@@ -22,6 +22,8 @@
 
   <block wx:else>
     <!-- 学段 -->
+    <view class="bk-field">
+    <text class="bk-field-label">学段</text>
     <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
       <view class="bk-row">
         <view
@@ -32,8 +34,11 @@
           bindtap="pickGrade">{{item.label}}</view>
       </view>
     </scroll-view>
+    </view>
 
     <!-- 词库：内置 + 本学段的自建库 + 新建 -->
+    <view class="bk-field">
+    <text class="bk-field-label">题库</text>
     <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
       <view class="bk-row">
         <view
@@ -45,6 +50,7 @@
         <view class="bk-chip bk-chip--new" bindtap="openCreateBank">＋ 新建题库</view>
       </view>
     </scroll-view>
+    </view>
 
     <!-- 当前自建库的管理条 -->
     <view wx:if="{{curBankIsCustom}}" class="bk-bankbar">
@@ -57,6 +63,8 @@
     </view>
 
     <!-- 题型 -->
+    <view class="bk-field">
+    <text class="bk-field-label">题型</text>
     <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
       <view class="bk-row">
         <view
@@ -67,6 +75,7 @@
           bindtap="pickType">{{item.label}}</view>
       </view>
     </scroll-view>
+    </view>
 
     <!-- 掌握状态筛选 -->
     <view class="bk-mfilters">
@@ -104,7 +113,8 @@
          所以「英文按字母、中文按拼音」用的是同一套键，一个控件就够。 -->
     <view class="bk-sortbar">
       <text class="bk-sortbar-label">排序</text>
-      <view class="bk-sort-chip {{sortKey === 'py' ? 'on' : ''}}" data-key="py" bindtap="pickSort">字母 · 拼音序</view>
+      <view class="bk-sort-chip {{sortDesc ? '' : 'on'}}" data-dir="1" bindtap="pickSort">A→Z · 正序</view>
+      <view class="bk-sort-chip {{sortDesc ? 'on' : ''}}" data-dir="-1" bindtap="pickSort">Z→A · 倒序</view>
     </view>
 
     <scroll-view class="bk-list" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">

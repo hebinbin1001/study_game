@@ -110,6 +110,26 @@
     <view class="c-switch" catchtap="goLevel">换关卡 ›</view>
   </view>
 
+  <!-- 每日挑战 / 赛季 / 好友 PK（2026-10-08 新增三件套）
+       放在「继续挑战」之后：继续挑战是主操作，不该被三个新入口挤到下面 -->
+  <view class="trinity">
+    <view class="tri" bindtap="goDailyChallenge">
+      <view class="tri-ic">🎯</view>
+      <view class="tri-b">每日挑战</view>
+      <view class="tri-s">全服同题</view>
+    </view>
+    <view class="tri" bindtap="goSeason">
+      <view class="tri-ic">🏅</view>
+      <view class="tri-b">赛季</view>
+      <view class="tri-s">双月榜</view>
+    </view>
+    <view class="tri" bindtap="goPk">
+      <view class="tri-ic">🤝</view>
+      <view class="tri-b">好友 PK</view>
+      <view class="tri-s">赢星星</view>
+    </view>
+  </view>
+
   <!-- 推荐玩法 -->
   <view class="sec">🔥 推荐玩法</view>
   <view class="rec">

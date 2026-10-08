@@ -9,7 +9,9 @@
     <button class="btn-back" bindtap="onBackTap">{{gameView === 'detail' && mode === 'game' ? '全部玩法' : '返回'}}</button>
     <view class="rank-title-area">
       <view class="rank-title">🏆 排行榜</view>
-      <view class="rank-title-sub">总榜按星星 · 玩法榜按闯关进度</view>
+      <!-- 2026-10-08 截图复查：原文案「总榜按星星 · 玩法榜按闯关进度」在标题右侧
+           被挤成两行、断在「进 / 度」中间。缩短到一行放得下。 -->
+      <view class="rank-title-sub">总榜比星星 · 玩法榜比进度</view>
     </view>
   </view>
 

@@ -99,6 +99,14 @@ STAGES.push({
   script: 'e2e/verify-bank.js'
 });
 
+// 每日挑战 / 赛季 / 好友 PK（2026-10-08 三件套）：建表未执行时页面降级不判红
+STAGES.push({
+  id: 'social',
+  layer: '端到端',
+  title: '每日挑战 / 赛季 / 好友 PK',
+  script: 'e2e/verify-daily-season-pk.js'
+});
+
 // 排行榜玩法榜改版（2026-09-18）：卡片总览 → 详情榜；旧的平铺 chips 已删除
 STAGES.push({
   id: 'rank',

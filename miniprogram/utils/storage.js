@@ -357,6 +357,24 @@ function setLastGrade(grade) {
 }
 
 /**
+ * 读「教材版本」（2026-10-08 二期：教材对接）。
+ *
+ * 只影响出题时用哪套词表：'' = 通用（默认），pep = 人教版，wys = 外研版。
+ * 该年级还没有对应版本词条时，dict 层会自动回退通用词表（不会让用户看到空白）。
+ * @returns {string} 教材版本 key
+ */
+function getBook() {
+  return String(get(STORAGE_KEYS.book) || '');
+}
+
+/** 记「教材版本」（写前只接受合法 key，非法一律落回通用） */
+function setBook(book) {
+  var constants = require('./constants');
+  var k = String(book || '');
+  set(STORAGE_KEYS.book, constants.isValidBook(k) ? k : '');
+}
+
+/**
  * 判断指定关卡是否解锁。
  *
  * 规则：第 1 关默认解锁；第 N 关（N>1）需第 N-1 关 ≥1 星。
@@ -595,6 +613,8 @@ module.exports = {
   // 学段（2026-10-08：带旧 key 归一化，供首页「继续挑战」等定位用）
   getLastGrade: getLastGrade,
   setLastGrade: setLastGrade,
+  getBook: getBook,
+  setBook: setBook,
   // 皮肤选择
   getWarriorSkin: getWarriorSkin,
   setWarriorSkin: setWarriorSkin,

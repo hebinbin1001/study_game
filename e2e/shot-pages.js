@@ -53,6 +53,10 @@ const PAGES = [
   { id: 'custom-levels', url: '/pages/custom-levels/custom-levels' },
   { id: 'checkin', url: '/pages/checkin/checkin' },
   { id: 'daily-question', url: '/pages/daily-question/daily-question' },
+  // 2026-10-08 三件套：每日挑战 / 赛季 / 好友 PK
+  { id: 'daily-challenge', url: '/pages/daily-challenge/daily-challenge' },
+  { id: 'season', url: '/pages/season/season' },
+  { id: 'pk', url: '/pages/pk/pk' },
   { id: 'result', url: '/pages/result/result?win=1&score=120&correctCount=8&totalQ=10&grade=kg&level=1' }
 ];
 

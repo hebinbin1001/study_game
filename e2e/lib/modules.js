@@ -48,7 +48,8 @@ const MODULES = [
     id: 'dict',
     name: '词库与常量（题库解析 / 校验 / 敏感词 / 学段题型）',
     stages: ['bank'],
-    unit: ['constants', 'data', 'dict', 'bank', 'level-picker', 'parser', 'validator', 'sensitive']
+    unit: ['constants', 'data', 'dict', 'bank', 'level-picker', 'parser', 'validator', 'sensitive',
+      'book-words', 'book-keys-parity']
   },
   {
     id: 'challenge',
@@ -82,14 +83,23 @@ const MODULES = [
     stages: ['m2m4', 'rank'],
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
       'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review', 'rank-badge',
-      'auth-guard', 'admin-auth', 'rel-time']
+      'auth-guard', 'admin-auth', 'rel-time',
+      // 2026-10-08 补登记：这两个一直没归到模块，跑 --module=user 时会漏掉
+      'exam-gate', 'nickname-util']
+  },
+  {
+    id: 'social',
+    name: '每日挑战 / 赛季 / 好友 PK（2026-10-08 三件套）',
+    stages: ['social'],
+    unit: ['beijing-time', 'pk-rules', 'season-rewards', 'seed-parity', 'grade-keys-parity',
+      'quick-quiz', 'day-key']
   },
   {
     id: 'server',
     name: '云托管后端（接口 / 模型 / Sequelize 用法）',
     stages: [],
     unit: ['sequelize-operators', 'rank-stars', 'checkin-rewards', 'rank-eligibility',
-      'admin-query', 'game-names']
+      'admin-query', 'game-names', 'seed-parity', 'grade-keys-parity']
   },
   {
     id: 'pages',
@@ -137,6 +147,8 @@ const STAGE_MODULE = {
   quiz: 'wordgames'
   ,
   admin: 'user'
+  ,
+  social: 'social'
 };
 
 /**
@@ -173,6 +185,11 @@ const PATH_RULES = [
     modules: ['puzzle'] },
 
   // 用户与成长
+  // 每日挑战 / 赛季 / 好友 PK（2026-10-08）：页面自成一块，但也会带动首页/我的页
+  { re: /^miniprogram\/pages\/(daily-challenge|season|pk)\//, modules: ['social', 'pages'] },
+  { re: /^miniprogram\/utils\/quick-quiz\.js$/, modules: ['social', 'dict'] },
+  { re: /^miniprogram\/utils\/day-key\.js$/, modules: ['social'] },
+  { re: /^e2e\/verify-daily-season-pk\.js$/, modules: ['social'] },
   { re: /^miniprogram\/pages\/(me|rank|achievement|avatar|nickname|wrong-book|wrong-review|checkin|daily-question|report|custom-levels|level-editor|level-share)\//,
     modules: ['user'] },
   // 管理后台（2026-09-29）：页面在端上、规则在后端，两边都得验；页面清单也要跟着跑
@@ -193,6 +210,9 @@ const PATH_RULES = [
   { re: /^art\//, modules: ['assets'] },
 
   // 后端与词库工具
+  { re: /^server\/(beijing-time|pk-rules|season-rewards|seed|grade-keys|book-keys|score-formula|reward-stars|table-missing)\.js$/,
+    modules: ['social', 'server'] },
+  { re: /^server\/routes\/(daily-challenge|season|pk)\.js$/, modules: ['social', 'server'] },
   { re: /^server\//, modules: ['server'] },
   { re: /^tools\/dict\//, modules: ['dict'] },
   // 公众号排版工具（2026-09-30）：纯 Node 侧脚本，不进小程序包，但改动要过语法 + 它自己的单测

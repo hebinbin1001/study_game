@@ -1,0 +1,134 @@
+/* 赛季页 */
+.se-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 24rpx 32rpx calc(env(safe-area-inset-bottom) + 48rpx);
+  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+}
+
+.se-head { display: flex; align-items: center; gap: 20rpx; }
+.se-head-t { flex: 1; }
+.se-title { font-size: 38rpx; font-weight: 900; color: #2c4a6b; letter-spacing: 2rpx; }
+.se-sub { font-size: 22rpx; color: #5c7f9e; margin-top: 6rpx; }
+
+.se-card {
+  background: #fff;
+  border-radius: 32rpx;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, .06), 0 18rpx 36rpx rgba(0, 0, 0, .08);
+  padding: 34rpx 32rpx;
+  margin-top: 28rpx;
+}
+.se-loading { text-align: center; color: #5c7f9e; font-size: 28rpx; }
+.se-empty { text-align: center; }
+.se-empty-emoji { font-size: 90rpx; }
+.se-empty-t { margin: 16rpx 0 28rpx; color: #5c7f9e; font-size: 28rpx; }
+.se-retry { margin: 0 auto; }
+
+/* 当前赛季 */
+.se-hero { text-align: center; }
+.se-hero-name { font-size: 40rpx; font-weight: 900; color: #2c4a6b; }
+.se-hero-days { font-size: 24rpx; color: #5c7f9e; margin-top: 8rpx; }
+.se-days { font-size: 34rpx; font-weight: 900; color: #ff8f00; }
+.se-hero-me {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 26rpx;
+  background: linear-gradient(135deg, #eaf6ff, #ffffff);
+  border-radius: 24rpx;
+  padding: 22rpx 0;
+}
+.se-me-item { flex: 1; }
+.se-me-num { font-size: 48rpx; font-weight: 900; color: #4cc9f0; }
+.se-me-lb { font-size: 22rpx; color: #8a9bb5; margin-top: 4rpx; }
+.se-me-line { width: 2rpx; height: 60rpx; background: #e2eef8; }
+.se-hero-tip { font-size: 22rpx; color: #8a9bb5; line-height: 1.6; margin-top: 18rpx; }
+
+/* 上赛季奖励 */
+.se-prev-t { font-size: 30rpx; font-weight: 900; color: #2c4a6b; }
+.se-prev-s { font-size: 24rpx; color: #5c7f9e; margin-top: 12rpx; line-height: 1.6; }
+.se-claim { margin-top: 22rpx; }
+
+/* 奖励说明 */
+.se-tiers { margin-top: 32rpx; }
+.se-tiers-t { font-size: 28rpx; font-weight: 900; color: #2c4a6b; }
+.se-tier-row { display: flex; gap: 16rpx; margin-top: 16rpx; }
+.se-tier {
+  flex: 1;
+  background: #fff;
+  border-radius: 22rpx;
+  padding: 22rpx 10rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .05);
+}
+.se-tier-label { font-size: 22rpx; font-weight: 800; color: #2c4a6b; }
+.se-tier-star { font-size: 26rpx; font-weight: 900; color: #ff8f00; margin-top: 8rpx; }
+
+/* 赛季榜 */
+.se-rank { margin-top: 32rpx; }
+.se-rank-head { display: flex; align-items: baseline; justify-content: space-between; }
+.se-rank-title { font-size: 30rpx; font-weight: 900; color: #2c4a6b; }
+.se-rank-sub { font-size: 22rpx; color: #8a9bb5; }
+.se-rank-empty {
+  margin-top: 18rpx;
+  background: rgba(255, 255, 255, .8);
+  border-radius: 24rpx;
+  padding: 36rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #8a9bb5;
+}
+.se-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 20rpx 24rpx;
+  margin-top: 14rpx;
+  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .04);
+}
+.se-rank-row.me { outline: 4rpx solid #ffb703; }
+.se-rank-no { width: 56rpx; text-align: center; font-size: 28rpx; font-weight: 900; color: #5c7f9e; }
+.se-rank-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #d8efff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.se-avatar-img { width: 100%; height: 100%; }
+.se-avatar-txt { font-size: 26rpx; font-weight: 900; color: #4cc9f0; }
+.se-rank-name {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #2c4a6b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.se-me {
+  margin-left: 10rpx;
+  font-size: 18rpx;
+  color: #fff;
+  background: #ffb703;
+  border-radius: 999rpx;
+  padding: 2rpx 12rpx;
+}
+.se-rank-stars { font-size: 28rpx; font-weight: 900; color: #ff8f00; }
+
+.se-login {
+  margin-top: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  font-size: 22rpx;
+  color: #8a9bb5;
+}
+.se-login-btn { margin: 0; }
+.se-foot { text-align: center; font-size: 22rpx; color: #8a9bb5; margin-top: 26rpx; line-height: 1.6; }

@@ -5,6 +5,9 @@ const ladder = require("../rank-ladder");
 const { dedupeStars } = require("../rank-stars");
 const { totalBonus } = require("../checkin-rewards");
 const examGate = require("../exam-gate");
+// PK / 赛季奖励星（2026-10-08）：与签到奖励同一哲学 —— 从各自表求和，不直接累加，
+// 否则会被下一次通关的「整体重算」覆盖掉。
+const rewardStars = require("../reward-stars");
 const { sequelize } = require("../db");
 
 const router = express.Router();
@@ -75,7 +78,7 @@ async function doSyncRankStars(openid) {
     attributes: ["streak"],
     raw: true,
   });
-  const stars = dedupeStars(rows) + totalBonus(checkinRows);
+  const stars = dedupeStars(rows) + totalBonus(checkinRows) + await rewardStars.bonusRewardStars(openid);
   const [record] = await RankRecord.findOrCreate({
     where: { openid },
     defaults: { openid, rankId: 1, wins: 0, stars: 0 },
