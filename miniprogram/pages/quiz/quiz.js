@@ -81,7 +81,7 @@ Page({
     this._line = ctx.line;
     this._gradeKey = (this._challenge && opt.grade)
       ? opt.grade
-      : (storage.get(constants.STORAGE_KEYS.lastGrade) || 'primary34');
+      : (storage.getLastGrade() || constants.GRADES[0].key);
     this._level = parseInt(opt.level, 10) || 0;
     this._totalQ = (ctx.params && ctx.params.count) || quiz.CONFIG.totalQ;
     this._seconds = (ctx.params && ctx.params.seconds) || quiz.CONFIG.seconds;
@@ -117,7 +117,7 @@ Page({
 
   /** 题池：首选本学段（挑战/玩法线用关卡学段），不足一局时并入其它学段 */
   _buildPool: function () {
-    var key = this._gradeKey || 'primary34';
+    var key = this._gradeKey || constants.GRADES[0].key;
     var primary = dict.loadByGrade(key);
     var pool = primary.slice();
     if (pool.length < this._totalQ) {

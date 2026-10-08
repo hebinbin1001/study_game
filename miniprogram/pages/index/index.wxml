@@ -31,11 +31,21 @@
   <view wx:if="{{!loggedIn}}" class="agree-link" bindtap="goAgreement">登录即代表同意《用户协议与隐私政策》· 点击阅读全文</view>
 
   <!--
-    2026-10-08：这里原来的「完善昵称后即可上榜」引导条**已删除**。
-    它存在的前提是「必须设昵称才能上榜」，而那道门槛已经取消 ——
-    现在注册就发默认昵称（「战士 3F2A」），登录即上榜，没有需要「补」的东西。
-    想改名去「我的 → 编辑资料」，属于可选操作，不再拿它挡人。
+    2026-10-08 两处调整：
+    ① 原来的「完善昵称后即可上榜」引导条**已删除** —— 它存在的前提是「必须设昵称才能上榜」，
+       而那道门槛已经取消（注册就发默认昵称，登录即上榜），没有需要「补」的东西了；
+    ② 换成「先选一下你的年级」引导 —— 新用户不选年级会默默落在幼儿园，
+       看到一堆对不上自己年级的题，会以为产品不行。选过一次就不再多问
+       （选完写进 lastGrade，这里就自然不显示了；复用 profilebar 的样式）。
   -->
+  <view wx:if="{{needGrade}}" class="profilebar" bindtap="goLevel">
+    <view class="pb-ic">🎒</view>
+    <view class="pb-t">
+      <view class="pb-b">先选一下你的年级</view>
+      <view class="pb-s">按年级出题更对口，选过一次就不会再问</view>
+    </view>
+    <view class="pb-btn">去选择</view>
+  </view>
 
   <!-- 资产条 -->
   <view class="asset-row">

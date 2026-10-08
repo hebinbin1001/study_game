@@ -15,7 +15,7 @@
  *
  * 内置 JSON 文件结构（data/<grade>.json）：
  *   {
- *     "grade": "kindergarten",
+ *     "grade": "kg",
  *     "label": "幼儿园",
  *     "items": [ { type, q, a, hint, d? }, ... ]
  *   }
@@ -47,18 +47,27 @@ var bankMap = null;
 // 动态拼接路径也无法被打包分析。故词库以 data/*.js 模块形式（module.exports = {...}）
 // 静态引用，key 与 GRADES.key 一一对应。
 var GRADE_DATA = {
-  kindergarten: require('../data/kindergarten.js'),
-  primary12: require('../data/primary12.js'),
-  primary34: require('../data/primary34.js'),
-  primary56: require('../data/primary56.js'),
-  junior: require('../data/junior.js'),
-  senior: require('../data/senior.js'),
+  // 2026-10-08：学段按年级细分，从 7 档扩到 14 档。
+  // ⚠️ 必须逐个静态 require（小程序不支持动态拼接路径，那样打不进包）。
+  kg: require('../data/kg.js'),
+  g1: require('../data/g1.js'),
+  g2: require('../data/g2.js'),
+  g3: require('../data/g3.js'),
+  g4: require('../data/g4.js'),
+  g5: require('../data/g5.js'),
+  g6: require('../data/g6.js'),
+  g7: require('../data/g7.js'),
+  g8: require('../data/g8.js'),
+  g9: require('../data/g9.js'),
+  g10: require('../data/g10.js'),
+  g11: require('../data/g11.js'),
+  g12: require('../data/g12.js'),
   college: require('../data/college.js')
 };
 
 /**
  * 根据学段 key 查找 GRADES 中的配置项。
- * @param {string} grade 学段 key，如 'primary34'
+ * @param {string} grade 学段 key，如 'g3'
  * @returns {Object|null} GRADES 中的配置项，未找到返回 null
  */
 function findGradeConfig(grade) {
@@ -74,7 +83,7 @@ function findGradeConfig(grade) {
  * 按学段装载对应内置 JSON 词库。
  *
  * 关联需求：REQ-DICT-4（本地装载，断网可加载）
- * @param {string} grade 学段 key，如 'kindergarten'、'primary34'
+ * @param {string} grade 学段 key，如 'kg'、'g3'
  * @returns {Array<Object>} 该学段的 WordItem 数组；学段不存在或文件缺失返回 []
  */
 function loadByGrade(grade) {
@@ -134,7 +143,7 @@ function rawByGrade(grade) {
 
 /**
  * 预装载全部学段词库到缓存（应用启动时可选调用，加速首次出题）。
- * @returns {Object} 各学段 items 数量统计，如 { kindergarten: 100, ... }
+ * @returns {Object} 各学段 items 数量统计，如 { kg: 100, g1: 75, ... }
  */
 function preloadAll() {
   var stats = {};

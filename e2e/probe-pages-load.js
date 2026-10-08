@@ -37,8 +37,8 @@ const BAD = /__wxAppCode__|wx:\/\/not-found|has not been registered|Component is
 
 /** 需要 query 参数才能正常进入的页面 */
 const URL_OF = {
-  'pages/game/game': '/pages/game/game?grade=kindergarten&level=1',
-  'pages/result/result': '/pages/result/result?win=1&score=120&correctCount=8&totalQ=10&grade=kindergarten&level=1'
+  'pages/game/game': '/pages/game/game?grade=kg&level=1',
+  'pages/result/result': '/pages/result/result?win=1&score=120&correctCount=8&totalQ=10&grade=kg&level=1'
 };
 
 function parseArgs(argv) {

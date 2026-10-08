@@ -12,10 +12,11 @@ const s = suite('utils/constants.js');
 
 const c = require('../../miniprogram/utils/constants');
 
-s.test('GRADES：7 个学段且 key/file 覆盖 7 个 JS 模块', () => {
-  s.assert.equal(c.GRADES.length, 7);
+s.test('GRADES：14 个学段（按年级细分）且 key/file 一一对应', () => {
+  s.assert.equal(c.GRADES.length, 14);
   const keys = c.GRADES.map((g) => g.key);
-  s.assert.deepEqual(keys, ['kindergarten', 'primary12', 'primary34', 'primary56', 'junior', 'senior', 'college']);
+  s.assert.deepEqual(keys, ['kg', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6',
+    'g7', 'g8', 'g9', 'g10', 'g11', 'g12', 'college']);
   for (const g of c.GRADES) {
     s.assert.ok(g.label.length > 0);
     s.assert.ok(/\.js$/.test(g.file));

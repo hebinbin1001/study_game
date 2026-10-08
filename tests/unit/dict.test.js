@@ -14,12 +14,17 @@ const d = require('../../miniprogram/utils/dict');
 const constants = require('../../miniprogram/utils/constants');
 
 // 期望条目数：与任务描述一致
+// 14 档的期望条目数（2026-10-08 按年级细分：旧的粗学段词库平分到各年级）
 const EXPECTED = {
-  kindergarten: 100, primary12: 150, primary34: 200,
-  primary56: 200, junior: 200, senior: 200, college: 200
+  kg: 100,
+  g1: 75, g2: 75,
+  g3: 100, g4: 100, g5: 100, g6: 100,
+  g7: 67, g8: 67, g9: 66,
+  g10: 67, g11: 67, g12: 66,
+  college: 200
 };
 
-s.test('loadByGrade：7 学段均可装载且条目数与期望一致', () => {
+s.test('loadByGrade：14 档均可装载且条目数与期望一致', () => {
   for (const g of constants.GRADES) {
     d.clearCache(g.key);
     const items = d.loadByGrade(g.key);
@@ -29,7 +34,7 @@ s.test('loadByGrade：7 学段均可装载且条目数与期望一致', () => {
 });
 
 s.test('loadByGrade：词条结构合法（type/q/a/hint/d）', () => {
-  const items = d.loadByGrade('primary12');
+  const items = d.loadByGrade('g1');
   for (const it of items) {
     s.assert.ok(constants.TYPE_CODES.indexOf(it.type) !== -1, '非法类型码 ' + it.type);
     s.assert.equal(typeof it.q, 'string');
@@ -46,9 +51,9 @@ s.test('loadByGrade：未知学段与缺失文件返回空数组不抛错', () =
 });
 
 s.test('findGradeConfig：命中返回配置、未命中返回 null', () => {
-  const cfg = d.findGradeConfig('senior');
+  const cfg = d.findGradeConfig('g10');
   s.assert.ok(cfg !== null);
-  s.assert.equal(cfg.key, 'senior');
+  s.assert.equal(cfg.key, 'g10');
   s.assert.equal(d.findGradeConfig('nope'), null);
 });
 
@@ -74,7 +79,7 @@ s.test('preloadAll：返回各学段条目数统计', () => {
 });
 
 s.test('randomItem：返回词条来自目标学段且不落入排除集', () => {
-  const grade = 'kindergarten';
+  const grade = 'kg';
   const items = d.loadByGrade(grade);
   const excludeQs = items.slice(0, 10).map((i) => i.q);
   for (let i = 0; i < 60; i++) {
@@ -85,7 +90,7 @@ s.test('randomItem：返回词条来自目标学段且不落入排除集', () =>
 });
 
 s.test('randomItem：exclude 支持传 item 对象并按 q 匹配', () => {
-  const grade = 'kindergarten';
+  const grade = 'kg';
   const items = d.loadByGrade(grade);
   const excludeItems = items.slice(0, 5);
   for (let i = 0; i < 40; i++) {
@@ -95,7 +100,7 @@ s.test('randomItem：exclude 支持传 item 对象并按 q 匹配', () => {
 });
 
 s.test('randomItem：排除全部题目或无可用题目时返回 null', () => {
-  const grade = 'kindergarten';
+  const grade = 'kg';
   const allQs = d.loadByGrade(grade).map((i) => i.q);
   s.assert.equal(d.randomItem(grade, allQs), null);
   s.assert.equal(d.randomItem('nope', []), null);
@@ -105,15 +110,15 @@ s.test('randomItem：排除全部题目或无可用题目时返回 null', () => 
 });
 
 s.test('randomItems：数量正确、题目互不重复、不超过词库总量', () => {
-  const res = d.randomItems('primary34', 7);
+  const res = d.randomItems('g3', 7);
   s.assert.equal(res.length, 7);
   const qs = res.map((i) => i.q);
   s.assert.equal(new Set(qs).size, qs.length);
-  // 请求量超过词库时返回全部条目（150）
-  const all = d.randomItems('primary12', 9999);
-  s.assert.equal(all.length, 150);
+  // 请求量超过词库时返回全部条目（g1 一年级共 75 条）
+  const all = d.randomItems('g1', 9999);
+  s.assert.equal(all.length, 75);
   // 非法参数
-  s.assert.equal(d.randomItems('primary12', 0).length, 0);
+  s.assert.equal(d.randomItems('g1', 0).length, 0);
   s.assert.equal(d.randomItems('nope', 5).length, 0);
 });
 

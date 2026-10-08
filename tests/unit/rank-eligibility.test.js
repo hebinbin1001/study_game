@@ -1,50 +1,60 @@
 /**
- * rank-eligibility.test.js —— 上榜门槛（2026-09-19 用户要求）
+ * rank-eligibility.test.js —— 上榜门槛（口径在 2026-10-08 反转了）
  *
- * 用户原话：「没有注册的用户不能上排行榜」。这里的「没注册」= 登录了但没设昵称
- * （没走完资料那一步）—— 他们此前会以「未命名」出现在榜上。
+ * 原规则（2026-09-19）：「没设昵称不能上榜」，本意是挡住匿名用户、让榜单读得下去。
+ * 但微信从 2022 年起不给真实昵称，让用户主动点键盘上方的「使用微信昵称」又几乎没人点 ——
+ * 结果是**把最活跃的那批人全挡在榜外**：线上 22 个用户里 16 个真人登录过、
+ * 有人玩了几十局，一个都没上榜。
  *
- * 这条规则是**查询侧**过滤（成绩照旧入库，补完昵称立刻上榜），共三处榜单 + 我的名次，
- * 任何一处漏了都会重新冒出「未命名」。用例直接扫源码把四处钉住。
+ * 现规则（2026-10-08，配合「登录即有名」）：**门槛取消**。
+ * 注册就发默认昵称（「战士 3F2A」，见 server/nickname-util.js），登录即上榜；
+ * 用户身份由 openid 保证唯一，昵称只是展示层。
+ *
+ * 所以这个用例跟着**反转**：不再要求「必须有门槛」，而是钉住「门槛不许回来」。
  */
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
 const { suite } = require('./_runner');
-const s = suite('上榜门槛（必须有昵称）');
+const s = suite('上榜门槛（2026-10-08 已取消）');
 
 const ROOT = path.resolve(__dirname, '../..');
 const SRC = fs.readFileSync(path.join(ROOT, 'server/routes/ranklist.js'), 'utf8');
+const LOGIN = fs.readFileSync(path.join(ROOT, 'server/routes/login.js'), 'utf8');
 
-s.test('统一门槛常量存在，且包含「非空昵称」判断', () => {
-  s.assert.ok(SRC.indexOf('NICKNAME_READY_SQL') >= 0, '应有统一的门槛常量');
+s.test('门槛常量已失效（恒真），不能再按昵称过滤', () => {
+  s.assert.ok(SRC.indexOf('NICKNAME_READY_SQL') >= 0, '常量保留着，将来要恢复口径只需改这一行');
   const m = /const NICKNAME_READY_SQL = "([^"]+)"/.exec(SRC);
   s.assert.ok(!!m, '常量应是一段 SQL 片段');
-  s.assert.contains(m[1], 'u.nickname IS NOT NULL');
-  s.assert.contains(m[1], "u.nickname <> ''");
+  s.assert.equal(m[1], '1=1',
+    '必须是恒真片段 —— 一旦写回昵称判断，等于又把不设昵称的活跃用户挡在榜外');
+  // 这个片段是拼在 `JOIN ... AND ${...}` 后面的，带 SQL 行尾注释会把同一行后续 SQL 一起吞掉
+  s.assert.ok(m[1].indexOf('--') < 0 && m[1].indexOf('/*') < 0, '片段里不能出现 SQL 注释');
 });
 
-s.test('三处榜单查询都 JOIN users 并按门槛过滤', () => {
-  // JOIN users u ON ... AND <门槛>  出现次数 = /progress、/progress-summary、/world（+count）
+s.test('三处榜单仍然 JOIN users（取昵称/头像用），但不再用来过滤人', () => {
   const joins = SRC.match(/JOIN users u ON /g) || [];
   s.assert.ok(joins.length >= 4,
-    '至少 4 处 JOIN 带门槛（progress / progress-summary / world 列表 / world 计数），实际 ' + joins.length);
+    '至少 4 处 JOIN（progress / progress-summary / world 列表 / world 计数），实际 ' + joins.length);
   const withGate = SRC.match(/JOIN users u ON [^\n]*NICKNAME_READY_SQL/g) || [];
-  s.assert.equal(withGate.length, joins.length, '每一处 JOIN 都必须带门槛，不能只 JOIN 不过滤');
+  s.assert.equal(withGate.length, joins.length,
+    '每处 JOIN 都带上这个常量（现在是恒真，保持写法统一）');
 });
 
-s.test('我的名次：没昵称就直接不上榜（返回 data null）', () => {
-  s.assert.ok(/if \(!user \|\| !user\.nickname\)/.test(SRC), '/me 应判断自己有没有昵称');
-  s.assert.contains(SRC, 'data: null, message: "未设置昵称，暂不上榜"');
+s.test('我的名次：不再因为「没昵称」而不返回', () => {
+  s.assert.ok(!/if \(!user \|\| !user\.nickname\)/.test(SRC), '不应再按昵称挡住自己');
+  s.assert.ok(SRC.indexOf('未设置昵称，暂不上榜') < 0, '那句提示应该已经删掉');
 });
 
-s.test('我的名次计算也用同一门槛（否则名次和别人看到的榜对不上）', () => {
-  const meSection = SRC.slice(SRC.indexOf('计算我的排名'));
-  const gates = meSection.match(/NICKNAME_READY_SQL/g) || [];
-  s.assert.ok(gates.length >= 2, '「比我高」和「同星」两段计数都要带门槛，实际 ' + gates.length);
+s.test('注册就给默认昵称（「登录即有名」的前提）', () => {
+  s.assert.contains(LOGIN, 'defaultNickname');
+  s.assert.ok(/defaults:\s*\{[^}]*nickname/.test(LOGIN), '建档时要带上默认昵称');
 });
 
-s.test('总榜不再有「未命名」兜底（上榜的人一定有昵称）', () => {
+s.test('榜单用 displayName 兜底，不再出现「未命名」', () => {
   s.assert.ok(SRC.indexOf('"未命名"') < 0, '源码里不应再出现「未命名」兜底');
+  s.assert.contains(SRC, 'displayName');
 });
+
+s.done();

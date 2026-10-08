@@ -22,7 +22,7 @@ const OUT_DIR = path.join(__dirname, 'reports', 'shots');
 
 // 玩法页（与 app.json / 玩法 tab 对齐）+ 典型内容页
 const PAGES = [
-  { id: 'game', url: '/pages/game/game?grade=kindergarten&level=1' },
+  { id: 'game', url: '/pages/game/game?grade=kg&level=1' },
   { id: 'math24', url: '/pages/math24/math24' },
   { id: 'math-balance', url: '/pages/math-balance/math-balance' },
   { id: 'math-sprint', url: '/pages/math-sprint/math-sprint' },
@@ -35,7 +35,7 @@ const PAGES = [
   { id: 'sudoku', url: '/pages/sudoku/sudoku' },
   { id: 'g2048', url: '/pages/g2048/g2048' },
   { id: 'klotski', url: '/pages/klotski/klotski' },
-  { id: 'quiz', url: '/pages/quiz/quiz?challenge=1&line=mode_quiz&grade=kindergarten&level=1' },
+  { id: 'quiz', url: '/pages/quiz/quiz?challenge=1&line=mode_quiz&grade=kg&level=1' },
   { id: 'bounce', url: '/pages/bounce/bounce' },
   { id: 'index', url: '/pages/index/index' },
   { id: 'playlist', url: '/pages/playlist/playlist' },
@@ -53,7 +53,7 @@ const PAGES = [
   { id: 'custom-levels', url: '/pages/custom-levels/custom-levels' },
   { id: 'checkin', url: '/pages/checkin/checkin' },
   { id: 'daily-question', url: '/pages/daily-question/daily-question' },
-  { id: 'result', url: '/pages/result/result?win=1&score=120&correctCount=8&totalQ=10&grade=kindergarten&level=1' }
+  { id: 'result', url: '/pages/result/result?win=1&score=120&correctCount=8&totalQ=10&grade=kg&level=1' }
 ];
 
 function parseArgs(argv) {

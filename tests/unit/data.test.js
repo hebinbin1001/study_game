@@ -3,7 +3,7 @@
  *
  * 覆盖（7 个 data/*.json）：
  *  - JSON 可解析、结构 { grade, count, items } 合法
- *  - 条目数与 count 字段一致，7 文件合计 1250（100/150/200/200/200/200/200）
+ *  - 条目数与 count 字段一致，14 文件合计 1250（学段按年级细分后的分配）
  *  - 每条 type ∈ 8 种类型码、q/a/hint 字段齐备
  *  - w2/c2 的 q 中 * 数量与答案 a 自洽（去星字符按序与 a 对齐，星位可还原出 a）
  *
@@ -20,10 +20,15 @@ const s = suite('data/*.json 词库数据');
 const constants = require('../../miniprogram/utils/constants');
 const DATA_DIR = path.join(__dirname, '../../miniprogram/data');
 
-// 期望条目数：kindergarten 100 / primary12 150 / 其余各 200
+// 期望条目数见下方 EXPECTED（2026-10-08 学段按年级细分后重新分配）
+// 14 档的期望条目数（2026-10-08 按年级细分：旧的粗学段词库平分到各年级）
 const EXPECTED = {
-  kindergarten: 100, primary12: 150, primary34: 200,
-  primary56: 200, junior: 200, senior: 200, college: 200
+  kg: 100,
+  g1: 75, g2: 75,
+  g3: 100, g4: 100, g5: 100, g6: 100,
+  g7: 67, g8: 67, g9: 66,
+  g10: 67, g11: 67, g12: 66,
+  college: 200
 };
 
 function readAll() {
@@ -48,7 +53,7 @@ s.test('数据文件存在且 JSON 结构合法（grade/count/items）', () => {
   }
 });
 
-s.test('条目数与 count 字段一致，7 文件合计 1250', () => {
+s.test('条目数与 count 字段一致，14 文件合计 1250', () => {
   let total = 0;
   for (const key of Object.keys(all)) {
     const { obj, items } = all[key];
@@ -58,7 +63,7 @@ s.test('条目数与 count 字段一致，7 文件合计 1250', () => {
   }
   s.assert.equal(total, 1250);
   // 学段 key 与 constants.GRADES 一一对应
-  s.assert.equal(Object.keys(all).length, 7);
+  s.assert.equal(Object.keys(all).length, 14);
 });
 
 s.test('词条结构：type∈8种，q/a/hint 齐备，d 为字符串数组', () => {

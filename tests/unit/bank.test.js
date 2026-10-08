@@ -14,7 +14,7 @@ const bank = require('../../miniprogram/utils/bank');
 const dict = require('../../miniprogram/utils/dict');
 const constants = require('../../miniprogram/utils/constants');
 
-const G = 'primary34';
+const G = 'g3';
 
 /** 造一份最小的「内置词库」 */
 function fakeBuiltin() {
@@ -26,10 +26,10 @@ function fakeBuiltin() {
 }
 
 s.test('指纹：学段 + 题型 + 题目，稳定且能区分', () => {
-  s.assert.equal(bank.fingerprint(G, 'c2', '*心*意'), 'primary34|c2|*心*意');
+  s.assert.equal(bank.fingerprint(G, 'c2', '*心*意'), 'g3|c2|*心*意');
   s.assert.equal(bank.fingerprint(G, 'c2', '*心*意'), bank.fingerprint(G, 'c2', '*心*意'));
   s.assert.notEqual(bank.fingerprint(G, 'c2', '*心*意'), bank.fingerprint(G, 'c2', '三*二*'));
-  s.assert.notEqual(bank.fingerprint(G, 'c2', 'x'), bank.fingerprint('junior', 'c2', 'x'));
+  s.assert.notEqual(bank.fingerprint(G, 'c2', 'x'), bank.fingerprint('g7', 'c2', 'x'));
 });
 
 s.test('停用：内置条目从结果里剔除，其余原样保留', () => {
@@ -85,7 +85,7 @@ s.test('残缺记录（缺答案/缺题目）被忽略，不影响其它条目',
 
 s.test('其它学段的改动不串台', () => {
   const ov = bank.setOverrides([
-    bank.makeEntry('disable', 'junior', 'c2', '*心*意')
+    bank.makeEntry('disable', 'g7', 'c2', '*心*意')
   ]);
   const out = bank.applyOverrides(fakeBuiltin(), G, ov);
   s.assert.equal(out.length, 3, '别的学段的停用不应影响本学段');
@@ -170,7 +170,7 @@ s.test('自建库：库暂停后不参与出题（词条仍在本地，随时开
 
 s.test('自建库：挂在别的学段的库，不影响本学段', () => {
   const banks = bank.setBanks([
-    { bankId: 'bkB', name: '初中错词', grade: 'junior', enabled: true }
+    { bankId: 'bkB', name: '初中错词', grade: 'g7', enabled: true }
   ]);
   const ov = bank.setOverrides([
     bank.makeEntry('create', G, 'c2', '*马*空', { a: '天马行空', bankId: 'bkB' })

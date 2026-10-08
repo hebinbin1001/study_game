@@ -94,7 +94,7 @@ Page({
       if (c.key === 'all') return true;
       return inSection.some(function (g) { return g.cat === c.key; });
     });
-    var grade = storage.get(constants.STORAGE_KEYS.lastGrade) || constants.GRADES[0].key;
+    var grade = storage.getLastGrade() || constants.GRADES[0].key;
     var allStars = storage.getAllStars();
     var list = inSection.filter(function (g) {
       return key === 'all' || g.cat === key;

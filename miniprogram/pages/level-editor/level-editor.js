@@ -19,18 +19,15 @@ Page({
     levelId: '',
     title: '',
     description: '',
-    grade: 'primary12',
-    gradeLabel: '小学1-2',
+    // 2026-10-08：学段按年级细分（14 档），默认落到一年级；选项直接从
+    // constants.GRADES 生成 —— 以前这里手写了一份 7 档列表，学段一改就跟不上，
+    // 是典型的「两处清单迟早对不上」。
+    grade: 'g1',
+    gradeLabel: '一年级',
     items: [],
-    gradeOptions: [
-      { value: 'kindergarten', label: '幼儿园' },
-      { value: 'primary12', label: '小学1-2' },
-      { value: 'primary34', label: '小学3-4' },
-      { value: 'primary56', label: '小学5-6' },
-      { value: 'junior', label: '初中' },
-      { value: 'senior', label: '高中' },
-      { value: 'college', label: '大学' }
-    ],
+    gradeOptions: constants.GRADES.map(function (g) {
+      return { value: g.key, label: g.label };
+    }),
     editing: false,
     saving: false,
 

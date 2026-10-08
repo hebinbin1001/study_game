@@ -56,7 +56,9 @@ Page({
     var ctx = challenge.contextOf(opt);
     this._challenge = ctx.isChallenge;
     this._line = ctx.line;
-    this._gradeKey = (this._challenge && opt.grade) ? opt.grade : (storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34');
+    // 2026-10-08：默认学段改成「动态取第一个档位」，别再硬编码旧学段 key ——
+    // 学段已经按年级细分，写死旧学段 key 会指向一个不存在的档位。
+    this._gradeKey = (this._challenge && opt.grade) ? opt.grade : (storage.getLastGrade() || CONST.GRADES[0].key);
     this._level = parseInt(opt.level, 10) || 0;
     this._roundQ = lib.ROUND_Q;
     this._rng = null;
@@ -91,7 +93,7 @@ Page({
 
   // 幼儿园/小学低年级没成语词条，靠 mergePools 自动并入其他学段
   _buildPool: function () {
-    var last = this._gradeKey || storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34';
+    var last = this._gradeKey || storage.getLastGrade() || CONST.GRADES[0].key;
     var primary = dict.loadByGrade(last);
     var others = [];
     CONST.GRADES.forEach(function (gr) {

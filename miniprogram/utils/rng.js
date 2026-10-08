@@ -16,7 +16,7 @@
 
 /**
  * 字符串 → 32 位无符号整数种子（FNV-1a）。
- * @param {string} str 任意字符串，如 'challenge:primary34:7'
+ * @param {string} str 任意字符串，如 'challenge:g3:7'
  * @returns {number} 0 ~ 4294967295
  */
 function hashSeed(str) {

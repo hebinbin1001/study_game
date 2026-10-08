@@ -148,6 +148,39 @@ check(adminRouteSrc.includes('admin-query') && adminRouteSrc.includes('searchOpe
 
 // 8) WXML 表达式里不许调用方法（2026-09-29）
 //
+// 9) 学段 key 唯一性（2026-10-08 学段按年级细分）
+//
+// 背景：学段从 7 档粗分（kindergarten / primary12 / primary34 / primary56 / junior / senior）
+// 改成 14 档按年级细分（kg / g1~g12 / college）。全项目凡是带学段的地方都要跟着改：
+// 存档 key、链接参数、题库模块名、难度配置、各种默认值… 漏一处就是
+// 「进度不显示 / 关卡打不开」这类**静默** bug。
+//
+// 所以把旧 key 钉死：除了下面两个「必须保留旧 key」的文件，别处一概不许出现。
+(function checkNoLegacyGradeKeys() {
+  const LEGACY = ['kindergarten', 'primary12', 'primary34', 'primary56', 'junior', 'senior'];
+  const ALLOW = [
+    path.join('miniprogram', 'utils', 'storage.js'),   // LEGACY_GRADE_MAP：老存档回退要按旧 key 读
+    path.join('miniprogram', 'utils', 'challenge.js')  // 老存档迁移的 LEGACY_GRADES / LEGACY_TO_NEW
+  ];
+  const bad = [];
+  const walk = (dir) => {
+    fs.readdirSync(dir, { withFileTypes: true }).forEach((e) => {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { walk(p); return; }
+      if (!/\.(js|wxml|wxss|json)$/.test(e.name)) return;
+      if (ALLOW.indexOf(p) >= 0) return;
+      const txt = fs.readFileSync(p, 'utf8');
+      LEGACY.forEach((k) => {
+        if (new RegExp('\\b' + k + '\\b').test(txt)) bad.push(path.relative('.', p) + ' ← ' + k);
+      });
+    });
+  };
+  walk('miniprogram');
+  check(bad.length === 0,
+    '学段 key 已统一为年级制，别处不许再出现旧学段字面量'
+    + (bad.length ? '（实际：' + bad.slice(0, 4).join('; ') + '）' : ''));
+})();
+//
 // 小程序的 `{{}}` 只支持简单运算，**不支持函数调用** —— 页面方法（`{{getRankEmoji(x)}}`）、
 // 数组/字符串方法（`{{item.nums.join(' ')}}`、`{{item.date.slice(5)}}`）都会**静默渲染成空**，
 // 不报错、不警告，只有肉眼或截图才看得出来。2026-09-29 一次抓到 3 处（排行榜排名徽章整列空白、

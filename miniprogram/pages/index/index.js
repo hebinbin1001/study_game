@@ -33,7 +33,8 @@ Page({
     // 排行榜行
     myRank: 0,         // 我的总榜名次（0=未上榜/游客）
     // 继续挑战（一期：显示真实进度并直达对局）
-    continueGrade: 'kindergarten',  // 目标学段 key
+    continueGrade: 'kg',             // 目标学段 key（2026-10-08 起按年级细分）
+    needGrade: false,                // 从没主动选过年级 → 首页给引导（见 onShow）
     continueLevel: 1,               // 目标关卡
     continueStars: 0,               // 该关历史最佳星级
     continueHint: '',               // 副标题：玩法 · 学段 · 第 N 关
@@ -83,7 +84,12 @@ Page({
     var streakDays = storage.get('ww_streak') || 0;
 
     // 继续挑战：按「最近一次进入的学段/题型」推导下一关（与关卡页同一口径）
-    var lastGrade = storage.get(constants.STORAGE_KEYS.lastGrade) || constants.GRADES[0].key;
+    // 2026-10-08：用 getLastGrade()（内部会把旧学段 key 归一化成新 key），
+    // 否则老用户升级后首页「继续挑战」会指向一个已经不存在的档位。
+    // 2026-10-08：用户从没主动选过年级时（getLastGrade 为空），首页要引导去选 ——
+    // 否则新用户会默默落在「幼儿园」，看到一堆对不上自己年级的题还以为产品不行。
+    var chosenGrade = storage.getLastGrade();
+    var lastGrade = chosenGrade || constants.GRADES[0].key;
     var lastType = storage.get(constants.STORAGE_KEYS.lastType) || '';
     var gradeLabel = lastGrade;
     for (var gi = 0; gi < constants.GRADES.length; gi++) {
@@ -120,6 +126,8 @@ Page({
       avatarUrl: avatarUrl,
       // 已登录但没设昵称 = 未完成注册（不上排行榜）→ 首页显示「完善昵称」引导条
       needProfile: !!(loggedIn && u && u.needProfile),
+      // 没选过年级 → 首页显示「选择你的年级」引导条（点了去关卡页选）
+      needGrade: !chosenGrade,
       totalStars: totalStars,
       localStars: totalStars,
       // 口径统一（用户拍板）：首页与我的页都展示同一个数 ——

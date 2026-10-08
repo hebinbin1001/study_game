@@ -58,7 +58,7 @@ Page({
     this._line = ctx.line;
     this._gradeKey = (this._challenge && opt.grade)
       ? opt.grade
-      : (storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34');
+      : (storage.getLastGrade() || CONST.GRADES[0].key);
     this._level = parseInt(opt.level, 10) || 0;
     this._roundQ = lib.ROUND_Q;
     this._rng = null;
@@ -93,7 +93,7 @@ Page({
 
   // 词池：首选最近学段（首页选过的），不足一局时并入其他学段，避免"开不了局"
   _buildPool: function () {
-    var last = this._gradeKey || storage.get(CONST.STORAGE_KEYS.lastGrade) || 'primary34';
+    var last = this._gradeKey || storage.getLastGrade() || CONST.GRADES[0].key;
     var primary = dict.loadByGrade(last);
     var others = [];
     CONST.GRADES.forEach(function (gr) {

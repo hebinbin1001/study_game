@@ -16,7 +16,7 @@
 
 const H = require('./lib/harness');
 
-const RESULT_URL = '/pages/result/result?grade=kindergarten&level=1&win=1'
+const RESULT_URL = '/pages/result/result?grade=kg&level=1&win=1'
   + '&score=80&correctCount=8&totalQ=10&rate=80&stars=2&maxCombo=3';
 
 H.runSuite('verify-result（结算页 · R4）', async function (miniProgram, ck) {

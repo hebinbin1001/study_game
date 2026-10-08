@@ -52,7 +52,7 @@ s.test('编排：6 款玩法轮换 + 终关 Boss，第 1 关固定字母射击',
 });
 
 s.test('编排：相邻两关不重复同一玩法（节奏轮换）', () => {
-  const rows = challenge.levelsOf('primary34');
+  const rows = challenge.levelsOf('g3');
   for (let i = 1; i < rows.length; i++) {
     s.assert.notEqual(rows[i].mode, rows[i - 1].mode, '第 ' + (i + 1) + ' 关与上一关玩法重复');
   }
@@ -71,41 +71,41 @@ s.test('模板只使用已支持挑战参数的玩法（防止半成品玩法进
 
 // ============ 2. 按年级生成不同关卡 ============
 s.test('按学段实例化：玩法相同、题量随学段变化', () => {
-  const k = challenge.levelAt('kindergarten', 3);   // 第 3 关 = 字母拼词
-  const j = challenge.levelAt('junior', 3);
+  const k = challenge.levelAt('kg', 3);   // 第 3 关 = 字母拼词
+  const j = challenge.levelAt('g7', 3);
   s.assert.equal(k.mode, j.mode, '同一关卡号玩法应一致');
   s.assert.equal(k.mode, 'wordBuild');
-  s.assert.equal(challenge.paramsOf('kindergarten', 'wordBuild').count, 6);
-  s.assert.equal(challenge.paramsOf('junior', 'wordBuild').count, 10);
+  s.assert.equal(challenge.paramsOf('kg', 'wordBuild').count, 6);
+  s.assert.equal(challenge.paramsOf('g7', 'wordBuild').count, 10);
   s.assert.notEqual(k.sub, j.sub, '副标题应体现学段差异');
   s.assert.contains(k.sub, '6 题');
 });
 
 s.test('关卡描述字段齐备且越界返回 null', () => {
-  const lv = challenge.levelAt('primary34', 4);
+  const lv = challenge.levelAt('g3', 4);
   s.assert.equal(lv.level, 4);
   s.assert.ok(!!lv.modeLabel && !!lv.modeEmoji && !!lv.page && !!lv.sub);
-  s.assert.equal(lv.seed, challenge.seedOf('primary34', 4));
-  s.assert.equal(challenge.levelAt('primary34', 0), null);
-  s.assert.equal(challenge.levelAt('primary34', 31), null);
+  s.assert.equal(lv.seed, challenge.seedOf('g3', 4));
+  s.assert.equal(challenge.levelAt('g3', 0), null);
+  s.assert.equal(challenge.levelAt('g3', 31), null);
 });
 
 s.test('跳转 URL 带齐 challenge/grade/level/seed', () => {
-  const lv = challenge.levelAt('primary12', 4);      // 第 4 关 = 词语连连看
-  const url = challenge.pageUrl(lv, 'primary12');
+  const lv = challenge.levelAt('g1', 4);      // 第 4 关 = 词语连连看
+  const url = challenge.pageUrl(lv, 'g1');
   s.assert.contains(url, '/pages/link/link?');
   s.assert.contains(url, 'challenge=1');
-  s.assert.contains(url, 'grade=primary12');
+  s.assert.contains(url, 'grade=g1');
   s.assert.contains(url, 'level=4');
   s.assert.contains(url, 'seed=' + lv.seed);
 });
 
 // ============ 3. 固定题面（种子） ============
 s.test('种子：同关恒定、不同关/不同学段不同', () => {
-  s.assert.equal(challenge.seedOf('primary34', 7), challenge.seedOf('primary34', 7));
-  s.assert.notEqual(challenge.seedOf('primary34', 7), challenge.seedOf('primary34', 8));
-  s.assert.notEqual(challenge.seedOf('primary34', 7), challenge.seedOf('junior', 7));
-  s.assert.ok(challenge.seedOf('primary34', 7) > 0, '种子应为正整数');
+  s.assert.equal(challenge.seedOf('g3', 7), challenge.seedOf('g3', 7));
+  s.assert.notEqual(challenge.seedOf('g3', 7), challenge.seedOf('g3', 8));
+  s.assert.notEqual(challenge.seedOf('g3', 7), challenge.seedOf('g7', 7));
+  s.assert.ok(challenge.seedOf('g3', 7) > 0, '种子应为正整数');
 });
 
 s.test('取题：同一关两次完全一致（重玩刷星公平）', () => {
@@ -120,20 +120,20 @@ s.test('取题：同一关两次完全一致（重玩刷星公平）', () => {
 });
 
 s.test('取题：不同关的题目组合不同', () => {
-  const a = challenge.pickItems('primary34', 1, 10).map(function (i) { return i.q; }).join(',');
-  const b = challenge.pickItems('primary34', 4, 10).map(function (i) { return i.q; }).join(',');
+  const a = challenge.pickItems('g3', 1, 10).map(function (i) { return i.q; }).join(',');
+  const b = challenge.pickItems('g3', 4, 10).map(function (i) { return i.q; }).join(',');
   s.assert.notEqual(a, b, '同一学段不同关不应出同一套题');
 });
 
 s.test('取题：题量按需、超出题库时返回实际数量', () => {
-  const items = challenge.pickItems('kindergarten', 1, 100);
-  const pool = dict.loadByGrade('kindergarten');
+  const items = challenge.pickItems('kg', 1, 100);
+  const pool = dict.loadByGrade('kg');
   s.assert.equal(items.length, Math.min(100, pool.length));
   s.assert.ok(items.length >= 1, '至少要能取到题');
 });
 
 s.test('取题：分类限定只出该类题', () => {
-  const items = challenge.pickItems('primary34', 5, 8, 'idiom');
+  const items = challenge.pickItems('g3', 5, 8, 'idiom');
   s.assert.ok(items.length > 0, '该学段应有成语题');
   items.forEach(function (it) {
     s.assert.ok(constants.isItemInGroup(it, 'idiom'), '应只出成语：' + it.q);
@@ -142,7 +142,7 @@ s.test('取题：分类限定只出该类题', () => {
 
 // ============ 4. 星级可达性护栏 ============
 s.test('星级可达性：字母射击（10 题 5 命）三档都拿得到', () => {
-  const p = challenge.paramsOf('primary34', 'shoot');
+  const p = challenge.paramsOf('g3', 'shoot');
   const r = challenge.starReachability(p.totalQ, p.lives);
   s.assert.deepEqual(r.reachable, [1, 2, 3], '1/2/3 星都应可达（旧缺陷回归点）');
   s.assert.equal(Math.round(r.minRate), 60, '通关最低正确率 60% 恰好落在 1 星档');
@@ -183,11 +183,11 @@ s.test('Boss 关：第 30 关标记 + 参数为 15 题 7 命', () => {
     s.assert.ok(lv.sub.indexOf('BOSS') === 0, 'Boss 关副标题应以 BOSS 开头，实际 = ' + lv.sub);
   });
   // 普通关不受影响
-  const normal = challenge.paramsOf('primary34', 'shoot', 25);
+  const normal = challenge.paramsOf('g3', 'shoot', 25);
   s.assert.equal(normal.totalQ, 10, '普通字母射击关仍是 10 题');
   s.assert.equal(normal.lives, 5, '普通关仍是 5 命');
   // 不传 level 时保持旧行为（老调用方向后兼容）
-  s.assert.equal(challenge.paramsOf('primary34', 'shoot').totalQ, 10, '不传 level 应按普通关参数');
+  s.assert.equal(challenge.paramsOf('g3', 'shoot').totalQ, 10, '不传 level 应按普通关参数');
 });
 
 s.test('Boss 关星级可达性：三档都拿得到（方案 A 的核心不变量）', () => {
@@ -231,14 +231,14 @@ s.test('迁移：旧字母射击星级搬到主线对应关，且幂等', () => 
 
   s.assert.equal(challenge.migrateStars(fake), true, '首次应执行迁移');
   // 旧 10 关按序号平移到主线第 1~10 关（P2 后每款玩法只有 5 关，按玩法槽位映射会丢 6~10 关）
-  s.assert.equal(mem.__stars['kindergarten@challenge@1'], 3, '旧第 1 关 → 主线第 1 关');
-  s.assert.equal(mem.__stars['kindergarten@challenge@2'], 2, '旧第 2 关 → 主线第 2 关');
-  s.assert.equal(mem.__stars['junior@challenge@10'], 1, '旧第 10 关 → 主线第 10 关');
+  s.assert.equal(mem.__stars['kg@challenge@1'], 3, '旧第 1 关 → 主线第 1 关');
+  s.assert.equal(mem.__stars['kg@challenge@2'], 2, '旧第 2 关 → 主线第 2 关');
+  s.assert.equal(mem.__stars['g7@challenge@10'], 1, '旧第 10 关 → 主线第 10 关');
   s.assert.equal(challenge.migrateStars(fake), false, '第二次调用应跳过（幂等）');
 });
 
 s.test('迁移：不覆盖已有主线星级（取历史最大值）', () => {
-  const mem = { 'primary34@challenge@1': 3, 'primary34_1': 1 };
+  const mem = { 'g3@challenge@1': 3, 'primary34_1': 1 };
   const fake = {
     get: function (k) { return mem[k]; },
     set: function (k, v) { mem[k] = v; },
@@ -249,7 +249,7 @@ s.test('迁移：不覆盖已有主线星级（取历史最大值）', () => {
     }
   };
   challenge.migrateStars(fake);
-  s.assert.equal(mem['primary34@challenge@1'], 3, '已有 3 星不应被旧的 1 星降级');
+  s.assert.equal(mem['g3@challenge@1'], 3, '已有 3 星不应被旧的 1 星降级');
 });
 
 // ============ 6. 随机源 ============

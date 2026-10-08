@@ -378,7 +378,7 @@ Page({
     // 已解锁：携带学段 + 关卡（+ 分类）参数进入游戏页
     var grade = this.data.grades[this.data.currentGradeIndex];
     // 记下本次选择，供首页「继续挑战」定位到真正要继续的关卡
-    storage.set(constants.STORAGE_KEYS.lastGrade, grade.key);
+    storage.setLastGrade(grade.key);
     storage.set(constants.STORAGE_KEYS.lastType, this.data.currentType || '');
     var url = '';
     if (this.data.isChallengeView) {

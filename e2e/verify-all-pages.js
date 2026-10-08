@@ -39,8 +39,8 @@ const PAGES = [
   { path: 'pages/me/me', name: 'me', query: '', selectors: ['.page-me', '.profile-card', '.stat-row', '.menu-card'] },
   { path: 'pages/level/level', name: 'level', query: '', selectors: ['.page-level', '.grade-tabs'] },
   // game 页带参数进入（onLoad 缺省也有容错，带参数更接近真实路径）
-  { path: 'pages/game/game', name: 'game', query: '?grade=kindergarten&level=1', selectors: ['.game-page', '.hud', '.hud-lives'] },
-  { path: 'pages/result/result', name: 'result', query: '?win=1&score=120&correctCount=8&totalQ=10&grade=kindergarten&level=1', selectors: ['.page-result', '.big-stars'] },
+  { path: 'pages/game/game', name: 'game', query: '?grade=kg&level=1', selectors: ['.game-page', '.hud', '.hud-lives'] },
+  { path: 'pages/result/result', name: 'result', query: '?win=1&score=120&correctCount=8&totalQ=10&grade=kg&level=1', selectors: ['.page-result', '.big-stars'] },
   { path: 'pages/nickname/nickname', name: 'nickname', query: '', selectors: ['.page-nickname', '.section', '.avatar-btn'] },
   { path: 'pages/avatar/avatar', name: 'avatar', query: '', selectors: ['.page-avatar', '.rank-bar', '.section-title'] },
   { path: 'pages/rank/rank', name: 'rank', query: '', selectors: ['.page-rank', '.tabs', '.btn-back'] },

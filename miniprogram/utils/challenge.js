@@ -149,13 +149,23 @@ function isBossLevel(level) {
 //   · 字母拼词：题量按学段 6~10 + 5 命 → 6 题时最低 67%、10 题时最低 60%，三档都可达
 //   · 词语连连看：按剩余命 3/2/1 给星，天然三档可达
 var GRADE_PARAMS = {
-  kindergarten: { wordBuild: { count: 6 }, idiom: { count: 5 }, match: { pairs: 6 }, snake: { words: 4 } },
-  primary12:    { wordBuild: { count: 8 }, idiom: { count: 6 }, match: { pairs: 6 }, snake: { words: 4 } },
-  primary34:    { wordBuild: { count: 8 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } },
-  primary56:    { wordBuild: { count: 8 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } },
-  junior:       { wordBuild: { count: 10 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } },
-  senior:       { wordBuild: { count: 10 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } },
-  college:      { wordBuild: { count: 10 }, idiom: { count: 8 }, match: { pairs: 8 }, snake: { words: 5 } }
+  // 2026-10-08：随「学段按年级细分」同步扩到 14 档，难度按年级**平滑**递进
+  //（每个年级只比上一个多一点，别让相邻年级的手感突然跳一档）。
+  //   count = 拼词题量 / idiom = 成语题量 / pairs = 配对对数 / words = 贪吃蛇词数
+  kg:      { wordBuild: { count: 6 },  idiom: { count: 5 },  match: { pairs: 6 },  snake: { words: 4 } },
+  g1:      { wordBuild: { count: 6 },  idiom: { count: 5 },  match: { pairs: 6 },  snake: { words: 4 } },
+  g2:      { wordBuild: { count: 8 },  idiom: { count: 6 },  match: { pairs: 6 },  snake: { words: 4 } },
+  g3:      { wordBuild: { count: 8 },  idiom: { count: 6 },  match: { pairs: 8 },  snake: { words: 5 } },
+  g4:      { wordBuild: { count: 8 },  idiom: { count: 8 },  match: { pairs: 8 },  snake: { words: 5 } },
+  g5:      { wordBuild: { count: 8 },  idiom: { count: 8 },  match: { pairs: 8 },  snake: { words: 5 } },
+  g6:      { wordBuild: { count: 10 }, idiom: { count: 8 },  match: { pairs: 8 },  snake: { words: 5 } },
+  g7:      { wordBuild: { count: 10 }, idiom: { count: 8 },  match: { pairs: 8 },  snake: { words: 6 } },
+  g8:      { wordBuild: { count: 10 }, idiom: { count: 10 }, match: { pairs: 8 },  snake: { words: 6 } },
+  g9:      { wordBuild: { count: 10 }, idiom: { count: 10 }, match: { pairs: 10 }, snake: { words: 6 } },
+  g10:     { wordBuild: { count: 12 }, idiom: { count: 10 }, match: { pairs: 10 }, snake: { words: 6 } },
+  g11:     { wordBuild: { count: 12 }, idiom: { count: 10 }, match: { pairs: 10 }, snake: { words: 6 } },
+  g12:     { wordBuild: { count: 12 }, idiom: { count: 12 }, match: { pairs: 10 }, snake: { words: 6 } },
+  college: { wordBuild: { count: 12 }, idiom: { count: 12 }, match: { pairs: 10 }, snake: { words: 6 } }
 };
 
 var DEFAULT_PARAMS = {
@@ -307,7 +317,7 @@ function levelsOfMode(gradeKey, mode) {
  * 组装玩法页跳转 URL（挑战模式）。
  * @param {Object} lv levelAt() 的结果
  * @param {string} gradeKey
- * @returns {string} 如 /pages/word-build/word-build?challenge=1&grade=primary34&level=2&seed=123
+ * @returns {string} 如 /pages/word-build/word-build?challenge=1&grade=g3&level=2&seed=123
  */
 function pageUrl(lv, gradeKey) {
   if (!lv) return '';
@@ -405,15 +415,38 @@ function starReachability(total, lives) {
  * @param {Object} storage utils/storage 模块（注入以便单测）
  * @returns {boolean} 本次是否执行了迁移
  */
+/**
+ * 旧学段 key 列表 + 「旧 → 新」映射（2026-10-08 学段按年级细分时新增）。
+ *
+ * 迁移老存档时必须按**旧 key** 去扫：老用户的星级存在 `kindergarten_1`、
+ * `primary34_3` 这种 key 上，而新的 constants.GRADES 里已经换成 `kg` / `g3` 了。
+ * 映射口径与 utils/storage.js 的 LEGACY_GRADE_MAP 保持一致（两边都改才算对）。
+ */
+var LEGACY_GRADES = ['kindergarten', 'primary12', 'primary34', 'primary56',
+  'junior', 'senior', 'college'];
+var LEGACY_TO_NEW = {
+  kindergarten: 'kg',
+  primary12: 'g1',
+  primary34: 'g3',
+  primary56: 'g5',
+  junior: 'g7',
+  senior: 'g10',
+  college: 'college'
+};
+
 function migrateStars(storage) {
   if (!storage || typeof storage.get !== 'function') return false;
   if (storage.get(constants.STORAGE_KEYS.challengeMigrated)) return false;
   var all = (typeof storage.getAllStars === 'function' ? storage.getAllStars() : {}) || {};
-  for (var g = 0; g < constants.GRADES.length; g++) {
-    var grade = constants.GRADES[g].key;
+  // 2026-10-08：学段按年级细分后，老存档的 key 前缀是**旧学段**（kindergarten_1 之类），
+  // 新的 constants.GRADES 里已经没有这些 key 了 —— 所以这里要按「旧 → 新」扫一遍再搬，
+  // 否则老用户的旧星级一颗都迁不过来。
+  for (var g = 0; g < LEGACY_GRADES.length; g++) {
+    var legacy = LEGACY_GRADES[g];
+    var grade = LEGACY_TO_NEW[legacy] || legacy;
     // 旧体系固定 10 关；`LEVELS_PER_GRADE` 保留这一口径（不要用新的 30 关）
     for (var k = 1; k <= constants.LEVELS_PER_GRADE; k++) {
-      var oldStars = all[grade + '_' + k];
+      var oldStars = all[legacy + '_' + k];
       if (typeof oldStars === 'number' && oldStars > 0) {
         storage.saveStars(grade, k, oldStars, STAR_KEY);
       }
@@ -600,7 +633,7 @@ function lineLevelsOf(gradeKey, mode) {
 
 /**
  * 玩法线跳转 URL。
- * @returns {string} 如 /pages/link/link?challenge=1&line=mode_link&grade=primary34&level=7&seed=123
+ * @returns {string} 如 /pages/link/link?challenge=1&line=mode_link&grade=g3&level=7&seed=123
  */
 function lineUrl(gradeKey, mode, level) {
   var lv = lineLevelAt(gradeKey, mode, level);

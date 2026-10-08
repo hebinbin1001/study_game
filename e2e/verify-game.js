@@ -25,7 +25,7 @@ const H = require('./lib/harness');
 const C = require('../miniprogram/utils/constants');
 const shoot = require('../miniprogram/game/shoot');
 
-const GAME_URL = '/pages/game/game?grade=kindergarten&level=1';
+const GAME_URL = '/pages/game/game?grade=kg&level=1';
 const EXPECTED_TOTAL_Q = 10;
 const INIT_LIVES = C.GAME_CONFIG.initLives;
 const LIVES_TEXT = '❤'.repeat(INIT_LIVES);

@@ -13,15 +13,30 @@
  */
 
 // ============ 一、学段枚举（7 个学段，REQ-DICT-1） ============
-// key 对应 data/ 下的内置词库 JS 模块文件名，label 为界面展示中文名
+// 学段 = 年级（2026-10-08 起按年级细分，共 14 档）。
+//
+// 为什么从 7 档改成 14 档：原来「小学1-2」「小学3-4」这种粗分，家长找内容时
+// 对不上号（看到「小学1-2」会怀疑是不是给自己孩子准备的），而且一二年级和
+// 三四年级的认知差距很大，共用一套题并不合适。
+//
+// key 对应 data/ 下的内置词库 JS 模块文件名，label 为界面展示中文名。
+// ⚠️ 改 key 会让老存档读不出来 —— 过渡期靠 utils/storage.js 的旧 key 回退兜住
+//    （见该文件里的 LEGACY_GRADE_MAP）。
 const GRADES = [
-  { key: 'kindergarten', label: '幼儿园',  file: 'kindergarten.js' },
-  { key: 'primary12',    label: '小学1-2', file: 'primary12.js' },
-  { key: 'primary34',    label: '小学3-4', file: 'primary34.js' },
-  { key: 'primary56',    label: '小学5-6', file: 'primary56.js' },
-  { key: 'junior',       label: '初中',    file: 'junior.js' },
-  { key: 'senior',       label: '高中',    file: 'senior.js' },
-  { key: 'college',      label: '大学',    file: 'college.js' }
+  { key: 'kg',      label: '幼儿园', file: 'kg.js' },
+  { key: 'g1',      label: '一年级', file: 'g1.js' },
+  { key: 'g2',      label: '二年级', file: 'g2.js' },
+  { key: 'g3',      label: '三年级', file: 'g3.js' },
+  { key: 'g4',      label: '四年级', file: 'g4.js' },
+  { key: 'g5',      label: '五年级', file: 'g5.js' },
+  { key: 'g6',      label: '六年级', file: 'g6.js' },
+  { key: 'g7',      label: '初一',   file: 'g7.js' },
+  { key: 'g8',      label: '初二',   file: 'g8.js' },
+  { key: 'g9',      label: '初三',   file: 'g9.js' },
+  { key: 'g10',     label: '高一',   file: 'g10.js' },
+  { key: 'g11',     label: '高二',   file: 'g11.js' },
+  { key: 'g12',     label: '高三',   file: 'g12.js' },
+  { key: 'college', label: '大学',   file: 'college.js' }
 ];
 
 // ============ 二、8 类型码枚举（REQ-DICT-2） ============

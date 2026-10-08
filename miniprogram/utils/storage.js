@@ -13,7 +13,7 @@
  * 存储 key 引用 constants.js 的 STORAGE_KEYS，不重复定义。
  *
  * 星级存储结构（ww_stars）：
- *   { "primary34_1": 2, "primary34_2": 3, "junior_1": 1, "primary34@idiom@1": 2, ... }
+ *   { "g3_1": 2, "g3_2": 3, "g7_1": 1, "g3@idiom@1": 2, ... }
  *   key 格式为 "<grade>_<level>"（综合/历史存档）或 "<grade>@<typeKey>@<level>"（题型分类关卡，
  *   2026-09-08 新增；value 为历史最高星级 0~3）。首页累计星星统计遍历全量即包含分类星。
  *
@@ -252,12 +252,43 @@ function getAllStars() {
  * @returns {string} "<grade>_<level>"
  */
 function starKey(grade, level, typeKey) {
-  // 分类关卡独立存档：grade@<type>@level（如 kindergarten@idiom@1）；
+  // 分类关卡独立存档：grade@<type>@level（如 kg@idiom@1）；
   // 综合/旧调用沿用 grade_level（兼容历史存档）。
   if (typeKey && typeKey !== 'all') {
     return grade + '@' + typeKey + '@' + level;
   }
   return grade + '_' + level;
+}
+
+/**
+ * 旧学段 key → 新学段 key（2026-10-08 学段按年级细分的过渡兼容）。
+ *
+ * 粗分 → 细分是一对多（旧的「小学3-4」现在拆成了三年级和四年级），
+ * 这里统一映射到该学段的**第一个年级** —— 保守选择，用户至少不会「进度归零」。
+ * college 的 key 没变，所以不在表里。
+ */
+var LEGACY_GRADE_MAP = {
+  kindergarten: 'kg',
+  primary12: 'g1',
+  primary34: 'g3',
+  primary56: 'g5',
+  junior: 'g7',
+  senior: 'g10'
+};
+
+/** 旧 key → 新 key；认不出来就原样返回（新 key 与未知 key 都走这条） */
+function normalizeGrade(grade) {
+  var g = String(grade || '');
+  return LEGACY_GRADE_MAP[g] || g;
+}
+
+/** 由新 key 反查旧 key（读老存档用）；没有对应旧 key 时返回空串 */
+function legacyGradeOf(grade) {
+  var keys = Object.keys(LEGACY_GRADE_MAP);
+  for (var i = 0; i < keys.length; i++) {
+    if (LEGACY_GRADE_MAP[keys[i]] === grade) return keys[i];
+  }
+  return '';
 }
 
 /**
@@ -272,7 +303,20 @@ function getStars(grade, level, typeKey) {
   var all = getAllStars();
   var k = starKey(grade, level, typeKey);
   var s = all[k];
-  return (typeof s === 'number' && s >= 0) ? s : 0;
+  if (typeof s === 'number' && s >= 0) return s;
+
+  // 新 key 读不到 → 回退读老存档（老存档的 key 前缀是旧学段，如 primary34@idiom@1）。
+  // 读到就顺手按新 key 回写一次：既不用批量刷库，也不用担心漏改。
+  var legacy = legacyGradeOf(String(grade || ''));
+  if (legacy) {
+    var old = all[starKey(legacy, level, typeKey)];
+    if (typeof old === 'number' && old >= 0) {
+      all[k] = old;
+      set(STORAGE_KEYS.stars, all);
+      return old;
+    }
+  }
+  return 0;
 }
 
 /**
@@ -295,6 +339,22 @@ function saveStars(grade, level, stars, typeKey) {
 }
 
 // ============ 四、关卡解锁推导（REQ-GAME-14） ============
+
+/**
+ * 读「最近进入的学段」。
+ *
+ * 2026-10-08：老值可能是旧学段 key（`primary34` 之类）—— 这里统一归一化成新 key，
+ * 否则首页「继续挑战」会指到一个已经不存在的学段（表现为卡片显示异常或直接退回第 1 关）。
+ * @returns {string} 学段 key；没有记录时返回空串，由调用方决定默认值
+ */
+function getLastGrade() {
+  return normalizeGrade(get(STORAGE_KEYS.lastGrade) || '');
+}
+
+/** 记「最近进入的学段」（写入前归一化，避免又把旧 key 存回去） */
+function setLastGrade(grade) {
+  set(STORAGE_KEYS.lastGrade, normalizeGrade(grade));
+}
 
 /**
  * 判断指定关卡是否解锁。
@@ -532,6 +592,9 @@ module.exports = {
   getUser: getUser,
   setUser: setUser,
   clearUser: clearUser,
+  // 学段（2026-10-08：带旧 key 归一化，供首页「继续挑战」等定位用）
+  getLastGrade: getLastGrade,
+  setLastGrade: setLastGrade,
   // 皮肤选择
   getWarriorSkin: getWarriorSkin,
   setWarriorSkin: setWarriorSkin,

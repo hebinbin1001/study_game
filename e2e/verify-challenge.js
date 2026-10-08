@@ -36,7 +36,7 @@ const rng = require('../miniprogram/utils/rng');
 
 const HOME_URL = '/pages/index/index';
 const LEVEL_URL = '/pages/level/level';
-const GRADE = 'primary34';          // 用例固定用一个学段，期望值可复算
+const GRADE = 'g3';          // 用例固定用一个学段，期望值可复算
 // P2 后模板（6 款轮换，每款 5 关）：1 字母射击 → 2 消消乐 → 3 字母拼词 → 4 连连看 → 5 成语 → 6 贪吃蛇
 const WB_LEVEL = 3;                 // 字母拼词
 const LINK_LEVEL = 4;               // 词语连连看
@@ -108,7 +108,7 @@ function expectMatch(gradeKey, level) {
   const pickWords = (k) => dict.loadByGrade(k)
     .filter((w) => w.type === 'w1' && /^[A-Za-z]+$/.test(String(w.q || '')));
   let words = pickWords(gradeKey);
-  if (words.length < pairs) words = pickWords('kindergarten');
+  if (words.length < pairs) words = pickWords('kg');
   const pool = rng.shuffle(words, r).slice(0, pairs);
   const cards = [];
   pool.forEach((w) => {
@@ -359,7 +359,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   console.log('[7.5/8] P3 里程碑宝箱：通 10 关可领 +10 星（幂等）');
   // 造「幼儿园已通 10 关」的存档（关卡页默认学段是幼儿园）
   const seedStars = {};
-  for (let i = 1; i <= 10; i++) seedStars['kindergarten@challenge@' + i] = 1;
+  for (let i = 1; i <= 10; i++) seedStars['kg@challenge@' + i] = 1;
   await miniProgram.callWxMethod('setStorageSync', 'ww_stars', seedStars);
   await miniProgram.callWxMethod('removeStorageSync', 'ww_chest_claimed');
   const chestPage = await H.goto(miniProgram, LEVEL_URL, 1800);
@@ -378,7 +378,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('领取后宝箱标记为已领取', chestData.chests[0].claimed === true && chestData.chests[0].claimable === false,
     '实际 = ' + JSON.stringify(chestData.chests[0]));
   const claimed = await miniProgram.callWxMethod('getStorageSync', 'ww_chest_claimed');
-  ck.check('领取记录落本地（幂等键 学段:关数）', !!(claimed && claimed['kindergarten:10']),
+  ck.check('领取记录落本地（幂等键 学段:关数）', !!(claimed && claimed['kg:10']),
     '实际 = ' + JSON.stringify(claimed));
 
   await chestPage.callMethod('claimChest', { currentTarget: { dataset: { at: 10 } } });
@@ -386,16 +386,16 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('重复领取不报错且状态不变（幂等）', (await chestPage.data()).chests[0].claimed === true);
 
   console.log('[7/8] 老存档迁移：旧字母射击星级 → 主线对应关（幂等）');
-  const shootSlots = challenge.levelsOfMode('kindergarten', 'shoot');
+  const shootSlots = challenge.levelsOfMode('kg', 'shoot');
   await miniProgram.callWxMethod('setStorageSync', 'ww_stars', { 'kindergarten_1': 3, 'kindergarten_2': 2 });
   await miniProgram.callWxMethod('removeStorageSync', 'ww_challenge_migrated');
   const home2 = await H.goto(miniProgram, HOME_URL, 1800);   // 首页 refresh 里执行迁移
   starsStore = await miniProgram.callWxMethod('getStorageSync', 'ww_stars');
-  ck.check('旧第 1 关星级迁移到主线第 1 关', starsStore['kindergarten@challenge@1'] === 3,
-    '实际 = ' + JSON.stringify(starsStore['kindergarten@challenge@1']));
+  ck.check('旧第 1 关星级迁移到主线第 1 关', starsStore['kg@challenge@1'] === 3,
+    '实际 = ' + JSON.stringify(starsStore['kg@challenge@1']));
   ck.check('旧第 2 关星级迁移到主线第 2 关（按序号平移）',
-    starsStore['kindergarten@challenge@2'] === 2,
-    '实际 = ' + JSON.stringify(starsStore['kindergarten@challenge@2']));
+    starsStore['kg@challenge@2'] === 2,
+    '实际 = ' + JSON.stringify(starsStore['kg@challenge@2']));
   const migratedFlag = await miniProgram.callWxMethod('getStorageSync', 'ww_challenge_migrated');
   ck.check('迁移标记已写入（不会重复迁移）', !!migratedFlag, '实际 = ' + JSON.stringify(migratedFlag));
 
@@ -412,7 +412,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   await miniProgram.callWxMethod('setStorageSync', 'ww_token', 'e2e-token');
   await miniProgram.callWxMethod('setStorageSync', 'ww_user', { openid: 'e2e_openid', nickname: 'E2E' });
   const bossStars = {};
-  for (let i = 1; i < challenge.BOSS_LEVEL; i++) bossStars['kindergarten@challenge@' + i] = 3;
+  for (let i = 1; i < challenge.BOSS_LEVEL; i++) bossStars['kg@challenge@' + i] = 3;
   await miniProgram.callWxMethod('setStorageSync', 'ww_stars', bossStars);
   await miniProgram.callWxMethod('removeStorageSync', 'ww_challenge_migrated');
   const home3 = await H.goto(miniProgram, HOME_URL, 1800);

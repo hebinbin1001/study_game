@@ -23,6 +23,7 @@ var shoot = require('../../game/shoot');
 var config = require('../../game/config');
 var question = require('../../game/question');
 var dict = require('../../utils/dict');
+var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
@@ -45,7 +46,8 @@ var TUTORIAL_STEPS = [
 Page({
   data: {
     // ---- 本局配置 ----
-    grade: 'kindergarten',
+    // 2026-10-08：学段按年级细分，默认值不再写死旧学段（写死会指向不存在的档位）
+    grade: constants.GRADES[0].key,
     level: 1,
     type: '',
     challenge: false,
@@ -138,7 +140,7 @@ Page({
   // ============ 生命周期 ============
   onLoad: function (options) {
     var opts = options || {};
-    var grade = opts.grade ? opts.grade : 'kindergarten';
+    var grade = opts.grade ? opts.grade : (storage.getLastGrade() || constants.GRADES[0].key);
     var level = opts.level ? parseInt(opts.level, 10) : 1;
     var type = opts.type ? opts.type : '';
 

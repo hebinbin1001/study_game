@@ -1,5 +1,5 @@
 module.exports = {
-  "grade": "kindergarten",
+  "grade": "kg",
   "label": "幼儿园",
   "count": 100,
   "items": [

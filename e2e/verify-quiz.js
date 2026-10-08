@@ -38,7 +38,7 @@ H.runSuite('verify-quiz（限时抢答）', async function (miniProgram, ck) {
     '实际 = ' + JSON.stringify(sub0) + ' / DOM = ' + JSON.stringify(sub));
 
   console.log('[3/5] 进对局：冻结计时 → 题干 + 4 个选项');
-  const page = await H.goto(miniProgram, '/pages/quiz/quiz?challenge=1&line=mode_quiz&grade=kindergarten&level=1', 1600);
+  const page = await H.goto(miniProgram, '/pages/quiz/quiz?challenge=1&line=mode_quiz&grade=kg&level=1', 1600);
   ck.check('落到限时抢答页', page.path === QUIZ_PAGE, '实际 = ' + page.path);
   ck.check('根容器渲染', !!(await H.waitForSelector(page, '.page-quiz', 8000)));
   await page.callMethod('_testStopTimer');            // 冻结倒计时，避免用例等真实秒数
@@ -48,7 +48,7 @@ H.runSuite('verify-quiz（限时抢答）', async function (miniProgram, ck) {
   ck.check('恰好 4 个选项', (d0.options || []).length === 4, '实际 = ' + (d0.options || []).length);
   ck.check('正确答案恰好一个', (d0.options || []).filter(function (o) { return o.ok; }).length === 1);
   // 注意：从进页到冻结计时之间会走掉几秒（用例 settle + 加载），所以断言「不超过参数秒数」而不是精确相等
-  const wantSecs = challenge.lineLevelAt('kindergarten', 'quiz', 1).params.seconds;
+  const wantSecs = challenge.lineLevelAt('kg', 'quiz', 1).params.seconds;
   ck.check('倒计时不超过关卡参数的秒数（且仍在走）',
     d0.timeLeft <= wantSecs && d0.timeLeft > wantSecs - 20,
     '参数 = ' + wantSecs + ' / 实际 = ' + d0.timeLeft);
@@ -90,11 +90,11 @@ H.runSuite('verify-quiz（限时抢答）', async function (miniProgram, ck) {
   ck.check('通关时星级 ≥1（全对）', !!done.win, '实际 win = ' + done.win);
 
   const stars = (await miniProgram.callWxMethod('getStorageSync', 'ww_stars')) || {};
-  ck.check('挑战星级写入 kindergarten@mode_quiz@1',
-    stars['kindergarten@mode_quiz@1'] >= 1,
-    '实际 = ' + JSON.stringify(stars['kindergarten@mode_quiz@1']));
+  ck.check('挑战星级写入 kg@mode_quiz@1',
+    stars['kg@mode_quiz@1'] >= 1,
+    '实际 = ' + JSON.stringify(stars['kg@mode_quiz@1']));
   ck.check('主线 @challenge@ 存档未被本用例改动',
-    stars['kindergarten@challenge@1'] === starsBefore['kindergarten@challenge@1']);
+    stars['kg@challenge@1'] === starsBefore['kg@challenge@1']);
 
   // 「下一关」由页面 data.showNext 驱动（按钮在 settle-pop 组件内部，选择器跨组件取不稳）
   ck.check('结算层已备好「下一关」（第 1 关不是最后一关）', done.showNext === true,

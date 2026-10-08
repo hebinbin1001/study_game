@@ -13,20 +13,20 @@ const { dedupeStars } = require('../../server/rank-stars');
 
 s.test('同一关刷多次只算一次最高星', () => {
   const rows = [
-    { game_type: 'word_warrior', grade: 'primary34', type_key: '', level: 1, stars: 1 },
-    { game_type: 'word_warrior', grade: 'primary34', type_key: '', level: 1, stars: 3 },
-    { game_type: 'word_warrior', grade: 'primary34', type_key: '', level: 1, stars: 2 }
+    { game_type: 'word_warrior', grade: 'g3', type_key: '', level: 1, stars: 1 },
+    { game_type: 'word_warrior', grade: 'g3', type_key: '', level: 1, stars: 3 },
+    { game_type: 'word_warrior', grade: 'g3', type_key: '', level: 1, stars: 2 }
   ];
   s.assert.equal(dedupeStars(rows), 3);
 });
 
 s.test('不同关卡 / 学段 / 玩法 / 题型分别计入', () => {
   const rows = [
-    { game_type: 'word_warrior', grade: 'primary34', type_key: '', level: 1, stars: 3 },
-    { game_type: 'word_warrior', grade: 'primary34', type_key: '', level: 2, stars: 2 },
-    { game_type: 'word_warrior', grade: 'primary12', type_key: '', level: 1, stars: 3 },
-    { game_type: 'link', grade: 'primary34', type_key: '', level: 1, stars: 3 },
-    { game_type: 'word_warrior', grade: 'primary34', type_key: 'idiom', level: 1, stars: 1 }
+    { game_type: 'word_warrior', grade: 'g3', type_key: '', level: 1, stars: 3 },
+    { game_type: 'word_warrior', grade: 'g3', type_key: '', level: 2, stars: 2 },
+    { game_type: 'word_warrior', grade: 'g1', type_key: '', level: 1, stars: 3 },
+    { game_type: 'link', grade: 'g3', type_key: '', level: 1, stars: 3 },
+    { game_type: 'word_warrior', grade: 'g3', type_key: 'idiom', level: 1, stars: 1 }
   ];
   s.assert.equal(dedupeStars(rows), 3 + 2 + 3 + 3 + 1);
 });
@@ -42,8 +42,8 @@ s.test('缺字段 / 脏数据安全，且星数封顶 3', () => {
 
 s.test('空关卡号不会与「无 level」混淆', () => {
   const rows = [
-    { grade: 'primary34', level: '', stars: 3 },
-    { grade: 'primary34', level: null, stars: 1 }
+    { grade: 'g3', level: '', stars: 3 },
+    { grade: 'g3', level: null, stars: 1 }
   ];
   s.assert.equal(dedupeStars(rows), 3, '同一 key（空 level）应取最高');
 });
