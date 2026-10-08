@@ -40,6 +40,9 @@
     <view wx:if="{{prevSeason}}" class="se-card se-prev">
       <view class="se-prev-t">🎁 {{prevSeason.name}} 结算</view>
       <view wx:if="{{prevSeason.claimed}}" class="se-prev-s">已领取 +{{prevSeason.rewardStars}} ⭐</view>
+      <view wx:elif="{{!prevSeason.claimReady && prevSeason.rewardStars > 0}}" class="se-prev-s">
+        达到「{{prevSeason.tierLabel}}」，奖励功能准备中，稍后开放领取
+      </view>
       <view wx:elif="{{prevSeason.claimable}}" class="se-prev-s">
         达到「{{prevSeason.tierLabel}}」：名次 {{prevSeason.rank || '—'}} · 可领 +{{prevSeason.rewardStars}} ⭐
       </view>

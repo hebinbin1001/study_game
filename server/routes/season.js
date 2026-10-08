@@ -102,9 +102,18 @@ router.get("/info", async (req, res) => {
     }
     const prevTier = seasonRewards.tierOf(prevRank, prevStars);
     let prevClaimed = false;
+    // 奖励领取记录表（season_claims）可能还没建（生产 DDL 未执行）：
+    // 这时**赛季榜照常可用**（只读 scores），只是领取功能未就绪 ——
+    // 不能因为这个可选查询把整个页面打成「功能准备中」。
+    let claimReady = true;
     if (openid) {
-      const c = await SeasonClaim.findOne({ where: { openid, seasonKey: prev.key } });
-      prevClaimed = !!c;
+      try {
+        const c = await SeasonClaim.findOne({ where: { openid, seasonKey: prev.key } });
+        prevClaimed = !!c;
+      } catch (e) {
+        if (isMissingTable(e)) claimReady = false;
+        else throw e;
+      }
     }
 
     res.send({
@@ -129,7 +138,8 @@ router.get("/info", async (req, res) => {
           tierLabel: prevTier ? prevTier.label : "",
           rewardStars: prevTier ? prevTier.stars : 0,
           claimed: prevClaimed,
-          claimable: !!prevTier && !prevClaimed,
+          claimReady: claimReady,
+          claimable: !!prevTier && !prevClaimed && claimReady,
         },
         tiers: seasonRewards.tiers(),
       },
