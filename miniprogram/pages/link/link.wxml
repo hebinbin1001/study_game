@@ -1,7 +1,7 @@
 <!-- 词语连连看（B6-5） -->
 <view class="page-link">
   <view class="g-head">
-    <button class="back-pill" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="g-title">词语连连看</view>
     <view class="g-chip" bindtap="newRound">{{gradeLabel}} · 换局</view>
   </view>

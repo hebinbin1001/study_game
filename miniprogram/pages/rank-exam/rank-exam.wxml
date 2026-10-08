@@ -56,7 +56,7 @@
         星星不会丢 —— 它们只是暂时卡住，考过就一次性生效。
       </view>
       <button class="ex-btn ex-btn--primary" bindtap="onRetry" loading="{{submitting}}">再考一次</button>
-      <view class="ex-back" bindtap="goBack">先回去练练</view>
+      <view class="btn-back" bindtap="goBack">先回去练练</view>
     </view>
   </block>
 

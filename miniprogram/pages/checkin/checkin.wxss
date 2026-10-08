@@ -9,14 +9,17 @@
 
 /* 头部 */
 .header { display: flex; align-items: center; margin-bottom: 28rpx; }
-.btn-back {
+/* 头部返回：这里刻意**不用**全局的 .btn-back 胶囊 ——
+   签到页头部是「圆形返回 + 居中标题 + 右侧占位」的三段布局，
+   换成胶囊会把标题挤偏。所以单留一个类名，和全局规范并存。 */
+.hd-back {
   width: 88rpx; height: 88rpx; padding: 0;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   font-size: 40rpx; color: #3a3a5c; font-weight: 900;
   box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.06);
 }
-.btn-back::after { border: none; }
+.hd-back::after { border: none; }
 .header-title { flex: 1; text-align: center; font-size: 36rpx; font-weight: 900; }
 .header-side { width: 88rpx; }
 

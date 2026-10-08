@@ -1,7 +1,7 @@
 <!-- 词义消消乐（B6-2）：词↔义配对消除 -->
 <view class="page-match">
   <view class="g-head">
-    <button class="back-pill" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="g-title">词义消消乐</view>
     <view class="g-chip">{{gradeLabel}}</view>
   </view>

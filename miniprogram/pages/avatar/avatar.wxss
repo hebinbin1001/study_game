@@ -129,10 +129,3 @@ button.btn-unlock::after {
   border: none;
 }
 
-.btn-back {
-  margin-top: 20rpx;
-  background: rgba(255, 255, 255, 0.9);
-  color: #3a3a5c;
-  border-radius: 40rpx;
-  font-weight: 700;
-}

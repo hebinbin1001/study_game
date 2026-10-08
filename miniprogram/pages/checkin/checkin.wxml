@@ -1,7 +1,7 @@
 <!-- 签到日历页（B2 只读：记录 + 里程碑；打卡唯一入口=每日一题） -->
 <view class="page-checkin">
   <view class="header">
-    <button class="btn-back" bindtap="goBack">‹</button>
+    <button class="hd-back" bindtap="goBack">‹</button>
     <view class="header-title">📅 签到日历</view>
     <view class="header-side"></view>
   </view>

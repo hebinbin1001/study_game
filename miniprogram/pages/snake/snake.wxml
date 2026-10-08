@@ -1,7 +1,7 @@
 <!-- 单词贪吃蛇（B6-6 成熟玩法：按序吃字母拼词） -->
 <view class="page-snake">
   <view class="g-head">
-    <button class="back-pill" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="g-title">单词贪吃蛇</view>
     <view class="g-chip">{{targetLabel}}</view>
   </view>

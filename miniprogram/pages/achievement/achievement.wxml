@@ -2,7 +2,7 @@
 <view class="page-achievement">
   <!-- 页头：返回 / 标题 / 检查解锁 -->
   <view class="header">
-    <button class="back-pill" bindtap="goBack">‹ 返回</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="header-title">成就勋章</view>
     <button class="check-pill" bindtap="checkUnlock">🔍 检查</button>
   </view>

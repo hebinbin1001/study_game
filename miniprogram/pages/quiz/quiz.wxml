@@ -3,7 +3,7 @@
 
   <!-- 顶部：倒计时 + 得分/连击/题号 -->
   <view class="qz-hud">
-    <view class="qz-back" bindtap="goBack">‹</view>
+    <view class="btn-back" bindtap="goBack">返回</view>
     <view class="qz-timer">
       <view class="qz-timer-fill {{timePercent <= 25 ? 'danger' : ''}}" style="width:{{timePercent}}%"></view>
       <text class="qz-timer-text">⏱ {{timeLeft}}s</text>

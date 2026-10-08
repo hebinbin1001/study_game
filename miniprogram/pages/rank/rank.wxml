@@ -6,7 +6,7 @@
 <view class="page-rank">
   <!-- 标题 -->
   <view class="rank-title-bar">
-    <button class="back-pill" bindtap="onBackTap">‹ {{gameView === 'detail' && mode === 'game' ? '全部玩法' : '返回'}}</button>
+    <button class="btn-back" bindtap="onBackTap">{{gameView === 'detail' && mode === 'game' ? '全部玩法' : '返回'}}</button>
     <view class="rank-title-area">
       <view class="rank-title">🏆 排行榜</view>
       <view class="rank-title-sub">总榜按星星 · 玩法榜按闯关进度</view>

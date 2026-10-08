@@ -96,7 +96,7 @@
     <view wx:if="{{!users.length && !loading}}" class="empty">没有匹配的用户</view>
     <view class="list-note">昵称可能是用户自己改的，也可能是注册时系统给的默认名（「战士 XXXX」，取 openid 后 4 位）。用户身份以 openid 为准。</view>
 
-    <button class="back" bindtap="goBack">返回</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
   </block>
   <view class="safe-gap"></view>
 </view>

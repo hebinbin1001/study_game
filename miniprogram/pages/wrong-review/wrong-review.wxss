@@ -168,29 +168,6 @@ button.btn-restart::after {
   border: none;
 }
 
-.btn-back {
-  width: 400rpx;
-  padding: 20rpx 0;
-  background: rgba(255, 255, 255, 0.9);
-  color: #3a3a5c;
-  font-size: 30rpx;
-  font-weight: 700;
-  border-radius: 40rpx;
-  line-height: 1.4;
-  border: 4rpx solid #e3edf7;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08);
-  transition: transform 0.12s;
-}
-
-.btn-back:active {
-  transform: translateY(4rpx);
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08);
-}
-
-button.btn-back::after {
-  border: none;
-}
-
 /* ============ 对/错反馈（居中弹出） ============ */
 .feedback {
   position: fixed;

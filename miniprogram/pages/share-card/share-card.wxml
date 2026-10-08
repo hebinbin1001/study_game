@@ -14,5 +14,5 @@
     <button class="btn-act btn-act--share" open-type="share" disabled="{{!tmpPath}}">转发给好友</button>
   </view>
 
-  <view class="back-link" bindtap="goBack">← 返回</view>
+  <view class="btn-back" bindtap="goBack">返回</view>
 </view>

@@ -1,7 +1,7 @@
 <!-- 2048（B6-3 固定关卡） -->
 <view class="page-2048">
   <view class="g-head">
-    <button class="back-pill" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="g-title">2048</view>
     <view class="g-chip" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + levelInfo.length + ' 关') : '选关'}}</view>
   </view>

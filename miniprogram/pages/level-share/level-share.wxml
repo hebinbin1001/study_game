@@ -1,7 +1,7 @@
 <!-- 分享/导入页（卡片化重设计） -->
 <view class="page-level-share">
   <view class="header">
-    <button class="back-pill" bindtap="goBack">‹ 返回</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="header-title">{{mode === 'share' ? '🎁 分享关卡' : '📥 导入关卡'}}</view>
   </view>
 

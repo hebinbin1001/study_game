@@ -1,7 +1,7 @@
 <!-- 单词弹弹球（B6-7）：接住释义球 -->
 <view class="page-bounce">
   <view class="bn-head">
-    <button class="back-pill" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="bn-title">单词弹弹球</view>
     <view class="bn-grade">◀ ▶ 移动篮子</view>
   </view>

@@ -6,7 +6,7 @@
 
   <!-- 顶部 -->
   <view class="bk-head">
-    <button class="bk-back" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="bk-head-t">
       <view class="bk-title">📚 题库</view>
       <view class="bk-sub">这里的词条就是闯关线的题目来源{{syncing ? ' · 同步中…' : ''}}</view>

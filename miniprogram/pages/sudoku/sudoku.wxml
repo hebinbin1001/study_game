@@ -2,7 +2,7 @@
 <view class="page-sudoku">
   <!-- 标题栏 -->
   <view class="g-head">
-    <button class="back-pill" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="g-title">数独</view>
     <view class="g-chip">{{stageLabel}}</view>
   </view>
@@ -34,7 +34,7 @@
   <block wx:else>
     <!-- HUD（公共组件） -->
     <game-hud lives="{{lives}}" extra="{{curLevel}} 关 · 错 {{mistakes}}" />
-    <view class="hud-back" bindtap="backToLevels">↩ 关卡列表</view>
+    <view class="btn-back" bindtap="backToLevels">关卡列表</view>
 
     <!-- 棋盘 -->
     <view class="board-wrap">

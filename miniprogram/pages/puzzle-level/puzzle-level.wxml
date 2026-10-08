@@ -34,5 +34,5 @@
     <view class="safe-gap"></view>
   </scroll-view>
 
-  <button class="pl-back" bindtap="goBack">返回</button>
+  <button class="btn-back" bindtap="goBack">返回</button>
 </view>

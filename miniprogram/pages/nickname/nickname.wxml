@@ -50,7 +50,7 @@
   <button class="btn btn-primary btn-save" bindtap="onSave">保存 ✨</button>
 
   <!-- 返回链接 -->
-  <view class="back-link" bindtap="goBack">← 返回</view>
+  <view class="btn-back" bindtap="goBack">返回</view>
 
   <!-- 退出登录（M5：仅已登录显示） -->
   <view wx:if="{{loggedIn}}" class="back-link logout-link" bindtap="goLogout">退出登录</view>

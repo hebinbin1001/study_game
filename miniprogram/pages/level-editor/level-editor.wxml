@@ -1,7 +1,7 @@
 <!-- 关卡编辑器页（表单卡片化重设计） -->
 <view class="page-editor">
   <view class="editor-header">
-    <button class="back-pill" bindtap="goBack">‹ 返回</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="header-title">{{editing ? '✏️ 编辑关卡' : '✨ 创建关卡'}}</view>
   </view>
 

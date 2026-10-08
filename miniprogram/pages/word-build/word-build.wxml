@@ -35,7 +35,7 @@
   </view>
 
   <view class="back">
-    <view class="btn ghost wide" bindtap="goBack">返回</view>
+    <view class="btn-back" bindtap="goBack">返回</view>
   </view>
 
   <settle-pop

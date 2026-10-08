@@ -2,7 +2,7 @@
      B4：我的关卡 / 公开广场 / 新建 / 导入 -->
 <view class="page-custom">
   <view class="hub-head">
-    <button class="back-pill" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="hub-title">🛠️ 自建关卡</view>
     <view class="hub-new" bindtap="createNew">＋ 新建</view>
   </view>

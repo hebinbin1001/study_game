@@ -1,7 +1,7 @@
 <!-- 华容道（数字智力玩法 · A 类固定关卡；纯 CSS 方块，无图片素材） -->
 <view class="page-klotski">
   <view class="k-head">
-    <button class="back-pill" bindtap="goBack">‹</button>
+    <button class="btn-back" bindtap="goBack">返回</button>
     <view class="k-title">🧩 华容道</view>
     <view class="k-chip" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + totalLevels + ' 关') : '选关'}}</view>
   </view>
