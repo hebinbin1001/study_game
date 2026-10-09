@@ -33,6 +33,27 @@
 
 /* 分类 chips */
 /* 二级分段（P3 一期）：闯关线 / 数字智力 —— 带图标的 tab 行 */
+/* 年级切换（2026-10-09）：横滑 chips，跟关卡页的学段 tab 同一套视觉 */
+.pg-grades {
+  flex: 0 0 auto;
+  width: 100%;
+  white-space: nowrap;
+  margin-top: 16rpx;
+}
+.pg-grade-row { display: flex; gap: 12rpx; padding: 2rpx 2rpx 6rpx; }
+.pg-grade {
+  flex: 0 0 auto;
+  padding: 10rpx 24rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .92);
+  color: #5c7f9e;
+  font-size: 24rpx;
+  font-weight: 800;
+  box-shadow: 0 4rpx 0 rgba(28, 53, 92, .06);
+}
+.pg-grade:active { opacity: .85; }
+.pg-grade.on { background: #ffb703; color: #ffffff; }
+
 .seg-row {
   display: flex;
   gap: 16rpx;

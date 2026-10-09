@@ -66,6 +66,13 @@ Page({
     var index = e.currentTarget.dataset.index;
     if (index === this.data.currentGradeIndex) return;
     this.setData({ currentGradeIndex: index });
+    // 2026-10-09 修（用户反馈「主页的先选年级没办法选择」）：
+    // 原来这里只切了页面内的下标，**没有把年级写回 lastGrade** ——
+    // 而首页那条「先选一下你的年级」引导条判的就是「lastGrade 是否为空」，
+    // 于是玩家明明选了年级，返回首页引导条还在，看起来就像"选了没用/点不动"。
+    // 进关卡开打时（openLevel）也会写，但那时已经晚了：玩家可能只想先选个年级。
+    var g = (this.data.grades || [])[index];
+    if (g && g.key) storage.setLastGrade(g.key);
     this.refreshLevels();
   },
 

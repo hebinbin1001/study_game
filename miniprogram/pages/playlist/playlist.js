@@ -47,6 +47,12 @@ Page({
     sections: SECTIONS,
     curSection: 'line',
     curCat: 'all',
+    // 年级切换（2026-10-09 用户拍板「弱化年级入口」）：
+    // 原来只有首页那条「先选一下你的年级」强引导，用户觉得打扰且"选了没用"；
+    // 现在改成在这儿随手可切 —— 年级本来就是"当前视图"，不该锁死在账号上。
+    grades: constants.GRADES,
+    gradeIndex: 0,
+    gradeLabel: '',
     unlockedCount: 0,
     totalCount: 0,
     sectionDesc: ''
@@ -84,6 +90,21 @@ Page({
   },
 
   /**
+   * 切换年级（2026-10-09）。
+   * 玩法线的「已通关 x/30」是按学段存的，所以切完要重算一遍卡片进度；
+   * 同时写回 lastGrade —— 首页「继续挑战」也会跟着走。
+   */
+  pickGrade: function (e) {
+    var idx = parseInt(e.currentTarget.dataset.index, 10) || 0;
+    if (idx === this.data.gradeIndex) return;
+    var g = this.data.grades[idx];
+    if (!g) return;
+    storage.setLastGrade(g.key);
+    this.setData({ gradeIndex: idx, gradeLabel: g.label });
+    this._applyCat(this.data.curCat);
+  },
+
+  /**
    * 按「分段 + 分类」过滤玩法卡，并给玩法线卡片补上进度文案。
    * 进度口径：该玩法线在当前学段的已通关关数（星级存档 <学段>@mode_<玩法>@<关卡>）。
    */
@@ -95,6 +116,11 @@ Page({
       return inSection.some(function (g) { return g.cat === c.key; });
     });
     var grade = storage.getLastGrade() || constants.GRADES[0].key;
+    // 同步年级 chip 的选中态（从首页/关卡页改过年级后回到这一页要跟上）
+    var gIdx = 0;
+    for (var gi = 0; gi < constants.GRADES.length; gi++) {
+      if (constants.GRADES[gi].key === grade) { gIdx = gi; break; }
+    }
     var allStars = storage.getAllStars();
     var list = inSection.filter(function (g) {
       return key === 'all' || g.cat === key;
@@ -113,6 +139,8 @@ Page({
       games: list,
       cats: cats,
       curCat: key,
+      gradeIndex: gIdx,
+      gradeLabel: constants.GRADES[gIdx].label,
       totalCount: inSection.length,
       unlockedCount: inSection.filter(function (g) { return g.unlocked; }).length,
       sectionDesc: (section === 'line')

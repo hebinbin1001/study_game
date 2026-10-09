@@ -10,6 +10,18 @@
     <view class="pg-num">{{unlockedCount}}/{{totalCount}}</view>
   </view>
 
+  <!-- 年级切换（2026-10-09）：随手可切，替代原来首页那条强引导的「先选年级」 -->
+  <scroll-view class="pg-grades" scroll-x="true" enable-flex="true">
+    <view class="pg-grade-row">
+      <view
+        wx:for="{{grades}}"
+        wx:key="key"
+        class="pg-grade {{gradeIndex === index ? 'on' : ''}}"
+        data-index="{{index}}"
+        bindtap="pickGrade">{{item.label}}</view>
+    </view>
+  </scroll-view>
+
   <!-- 二级分段：闯关线（有进度、按学段生成关卡）/ 数字智力（固定关卡小游戏） -->
   <view class="seg-row">
     <view

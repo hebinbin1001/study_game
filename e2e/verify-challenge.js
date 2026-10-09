@@ -174,6 +174,26 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   console.log('[2/8] 关卡页「挑战主线」视图：30 关 + 玩法标签');
   const lvPage = await H.goto(miniProgram, LEVEL_URL, 1800);
   const lvData = await lvPage.data();
+
+  // 2026-10-09 补：用户反馈「主页的先选年级没办法选择」——
+  // 关卡页切学段时没有写回 lastGrade，而首页那条引导条判的正是「lastGrade 为空」，
+  // 于是选完返回首页引导条还在，看起来像"点了没用"。
+  // 注意：在**同一个页面实例**上切（不新开页面），并在最后复位，避免影响后面的断言。
+  await miniProgram.callWxMethod('removeStorageSync', 'ww_last_grade');
+  const gradeTabs = await lvPage.$$('.grade-tab');
+  ck.check('关卡页有学段 tab', gradeTabs.length >= 2, '实际 ' + gradeTabs.length);
+  if (gradeTabs.length >= 2) {
+    await gradeTabs[1].tap();               // 点第 2 个学段（一年级）
+    await lvPage.waitFor(500);
+    const savedGrade = await miniProgram.callWxMethod('getStorageSync', 'ww_last_grade');
+    ck.check('切学段后 lastGrade 被写回（首页引导条才会消失）', !!savedGrade,
+      '实际 = ' + JSON.stringify(savedGrade));
+    const picked = await lvPage.data();
+    ck.check('页面内选中态也跟着变', picked.currentGradeIndex === 1,
+      '实际 = ' + picked.currentGradeIndex);
+    await gradeTabs[0].tap();               // 复位到第 1 档
+    await lvPage.waitFor(300);
+  }
   const rows = lvData.levels || [];
   ck.check('主线关卡数为 30', rows.length === 30, '实际 = ' + rows.length);
   ck.check('默认进入「挑战主线」视图', lvData.isChallengeView === true, '实际 = ' + lvData.isChallengeView);
