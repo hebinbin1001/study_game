@@ -49,13 +49,26 @@ const METRICS = {
   rankId: (s) => s.rankId,                     // 段位（大段位 1~8，0=还没记录）
   customLevels: (s) => s.customLevels,         // 提交过的自定义关卡数
   // —— 玩法深度（按 scores.game_type 统计通关次数；见 statsFrom）——
+  // 2026-10-09 补齐：原来只有 4 款玩法有专属成就，其余 11 款玩家拿不到任何"可炫耀目标"。
+  // 机制本来就是通用的（clearsOf(game_type)），只是数据没挂上，这里一次补齐。
   snakeClears: (s) => s.snakeClears,           // 单词贪吃蛇通关次数
   math24Clears: (s) => s.math24Clears,         // 算 24 点通关次数
   sudokuClears: (s) => s.sudokuClears,         // 数独通关次数
-  memoryClears: (s) => s.memoryClears          // 记忆矩阵通过次数
+  memoryClears: (s) => s.memoryClears,         // 记忆矩阵通过次数
+  wordWarriorClears: (s) => s.wordWarriorClears, // 字母射击
+  wordBuildClears: (s) => s.wordBuildClears,   // 字母拼词
+  linkClears: (s) => s.linkClears,             // 词语连连看
+  matchClears: (s) => s.matchClears,           // 词义消消乐
+  idiomClears: (s) => s.idiomClears,           // 成语拼字
+  quizClears: (s) => s.quizClears,             // 限时抢答
+  klotskiClears: (s) => s.klotskiClears,       // 华容道
+  onestrokeClears: (s) => s.onestrokeClears,   // 一笔画
+  g2048Clears: (s) => s.g2048Clears,           // 2048
+  sprintClears: (s) => s.sprintClears,         // 口算冲刺
+  balanceClears: (s) => s.balanceClears        // 算式天平
 };
 
-// ============ 三、成就定义（36 条） ============
+// ============ 三、成就定义（47 条） ============
 // ⚠️ id 与**美术已交付的图标文件名一一对应**（2026-09-12 第二批素材到货后反向对齐）：
 //    图标目录 miniprogram/assets/achievements/ 里已有的名字才算数，缺图的会走 emoji 兜底。
 //    新增/改名请同步 docs/美术素材需求与豆包提示词.md §5.1，否则出图会与代码对不上。
@@ -120,6 +133,21 @@ const DEFINITIONS = [
   { achievementId: "math24_master", name: "24 点高手", description: "算 24 点通关 3 次", category: "play", metric: "math24Clears", threshold: 3 },
   { achievementId: "sudoku_master", name: "数独行家", description: "数独通关 3 次", category: "play", metric: "sudokuClears", threshold: 3 },
   { achievementId: "memory_master", name: "记忆大师", description: "记忆矩阵通过 3 次", category: "play", metric: "memoryClears", threshold: 3 },
+
+  // —— 玩法深度补齐（2026-10-09）：其余 11 款玩法各一条「通关 3 次」——
+  // 阈值统一 3 次，与上面 4 条保持一致：目标是"每种玩法都玩进去"，不是刷量。
+  // 图标暂缺（/assets/achievements/<id>.png 未出图），前端走 emoji 兜底，不会裂图。
+  { achievementId: "word_warrior_master", name: "神射手", description: "字母射击通关 3 次", category: "play", metric: "wordWarriorClears", threshold: 3 },
+  { achievementId: "word_build_master", name: "拼词巧匠", description: "字母拼词通关 3 次", category: "play", metric: "wordBuildClears", threshold: 3 },
+  { achievementId: "link_master", name: "连线达人", description: "词语连连看通关 3 次", category: "play", metric: "linkClears", threshold: 3 },
+  { achievementId: "match_master", name: "配对高手", description: "词义消消乐通关 3 次", category: "play", metric: "matchClears", threshold: 3 },
+  { achievementId: "idiom_master", name: "成语通", description: "成语拼字通关 3 次", category: "play", metric: "idiomClears", threshold: 3 },
+  { achievementId: "quiz_master", name: "快手抢答", description: "限时抢答通关 3 次", category: "play", metric: "quizClears", threshold: 3 },
+  { achievementId: "klotski_master", name: "突围大师", description: "华容道通关 3 次", category: "play", metric: "klotskiClears", threshold: 3 },
+  { achievementId: "onestroke_master", name: "一笔成画", description: "一笔画通关 3 次", category: "play", metric: "onestrokeClears", threshold: 3 },
+  { achievementId: "g2048_master", name: "合成专家", description: "2048 通关 3 次", category: "play", metric: "g2048Clears", threshold: 3 },
+  { achievementId: "sprint_master", name: "口算飞人", description: "口算冲刺通关 3 次", category: "play", metric: "sprintClears", threshold: 3 },
+  { achievementId: "balance_master", name: "天平校准师", description: "算式天平通关 3 次", category: "play", metric: "balanceClears", threshold: 3 },
 ];
 
 /** 成就图标路径（图未到位时前端用 emoji 兜底） */
@@ -207,7 +235,19 @@ function statsFrom(input) {
     snakeClears: clearsOf('snake'),
     math24Clears: clearsOf('math24'),
     sudokuClears: clearsOf('sudoku'),
-    memoryClears: clearsOf('memory')
+    memoryClears: clearsOf('memory'),
+    // 2026-10-09 补齐的 11 款（game_type 取自 utils/challenge.js 的 MODES 与各页上报口径）
+    wordWarriorClears: clearsOf('word_warrior'),
+    wordBuildClears: clearsOf('word_build'),
+    linkClears: clearsOf('link'),
+    matchClears: clearsOf('match'),
+    idiomClears: clearsOf('idiom'),
+    quizClears: clearsOf('quiz'),
+    klotskiClears: clearsOf('klotski'),
+    onestrokeClears: clearsOf('onestroke'),
+    g2048Clears: clearsOf('g2048'),
+    sprintClears: clearsOf('sprint'),
+    balanceClears: clearsOf('balance')
   };
 }
 

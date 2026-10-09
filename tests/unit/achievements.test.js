@@ -34,8 +34,12 @@ function fullStats() {
       grade: 'g' + (i % 6),
       level: (i % 10) + 1,
       score: 100,
-      // 轮换玩法维度：覆盖「各玩法通关次数」类成就（P2 新增的 4 张图）
-      game_type: ['word_warrior', 'snake', 'math24', 'sudoku', 'memory'][i % 5],
+      // 轮换玩法维度：覆盖「各玩法通关次数」类成就。
+      // 2026-10-09：玩法专属成就从 4 款补到 15 款，这里必须同步覆盖全部 15 个 game_type，
+      // 否则新增的那 11 条在满级样本下仍是 locked，会被下面「无死成就」用例判红。
+      game_type: ['word_warrior', 'snake', 'math24', 'sudoku', 'memory',
+        'word_build', 'link', 'match', 'idiom', 'quiz',
+        'klotski', 'onestroke', 'g2048', 'sprint', 'balance'][i % 15],
       correct_count: 10,
       total_q: 10,
       max_combo: 10,
