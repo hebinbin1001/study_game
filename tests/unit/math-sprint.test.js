@@ -92,4 +92,33 @@ s.test('满分局可达：60 秒理想节奏下能拿到 3 星阈值', () => {
   s.assert.ok(score >= 400, '连对到底应远超 3 星阈值，实际 ' + score);
 });
 
+s.test('年级倍率：14 档严格递增（原来只写到 7 档，初一~大学会回落成基准）', () => {
+  // 2026-10-09 补：这条用例针对一个真实线上 bug —— 倍率表按旧的 7 档学段写、
+  // 上界写死 6，学段细分到 14 档后初一~大学全部走 fallback（倍率 1），
+  // 结果六年级最大数字 48、初一反而掉到 20。原来的单测从没传过 gradeIdx，所以一路绿灯。
+  const c = require('../../miniprogram/utils/constants');
+  s.assert.equal(m.GRADE_SCALE.length, c.GRADES.length, '倍率表档数必须与学段数一致');
+  for (let i = 1; i < m.GRADE_SCALE.length; i++) {
+    s.assert.ok(m.GRADE_SCALE[i] > m.GRADE_SCALE[i - 1],
+      '第 ' + (i + 1) + ' 档倍率 ' + m.GRADE_SCALE[i] + ' 应大于上一档 ' + m.GRADE_SCALE[i - 1]);
+  }
+  s.assert.equal(m.gradeScale(0), 0.6);
+  s.assert.equal(m.gradeScale(13), 2.4);
+  s.assert.equal(m.gradeScale(undefined), 1, '不传学段时保持基准倍率');
+  s.assert.equal(m.gradeScale(-1), 1);
+  s.assert.equal(m.gradeScale(99), 1, '越界时保持基准倍率');
+
+  // 高年级的出题范围必须真的比低年级大（不只是倍率表好看）
+  const maxOf = (gi) => {
+    let mx = 0;
+    for (let i = 0; i < 200; i++) {
+      const nums = (m.makeQuestion(0, gi).expr.match(/\d+/g) || []).map(Number);
+      mx = Math.max(mx, ...nums);
+    }
+    return mx;
+  };
+  s.assert.ok(maxOf(13) > maxOf(6), '大学出题范围应大于六年级（实际 ' + maxOf(13) + ' vs ' + maxOf(6) + '）');
+  s.assert.ok(maxOf(7) > maxOf(6), '初一应大于六年级（断崖回落的直接判据）');
+});
+
 s.done();

@@ -110,6 +110,8 @@
 .pcard.new .pic { filter: grayscale(1); }
 .pname { font-size: 32rpx; font-weight: 800; margin-top: 12rpx; color: #333A45; }
 .pdesc { font-size: 22rpx; color: #8A94A6; line-height: 1.45; margin-top: 6rpx; min-height: 64rpx; }
+/* 预期时长标注（2026-10-09）：比描述再淡一档，不抢主信息的注意力 */
+.pmin { color: #A9B7C7; }
 .cat-tag {
   position: absolute;
   top: 20rpx;

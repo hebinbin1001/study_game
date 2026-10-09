@@ -122,4 +122,25 @@ s.test('星级：按答对比例 90% / 70% / 40% 分三档', () => {
   s.assert.equal(g.starsFor(0, 0), 0);
 });
 
+s.test('年级倍率：14 档严格递增（与 math-sprint 同一处 bug，同步补护栏）', () => {
+  const c = require('../../miniprogram/utils/constants');
+  s.assert.equal(g.GRADE_SCALE.length, c.GRADES.length, '倍率表档数必须与学段数一致');
+  for (let i = 1; i < g.GRADE_SCALE.length; i++) {
+    s.assert.ok(g.GRADE_SCALE[i] > g.GRADE_SCALE[i - 1], '倍率表必须严格递增');
+  }
+  s.assert.equal(g.gradeScale(0), 0.6);
+  s.assert.equal(g.gradeScale(13), 2.4);
+  s.assert.equal(g.gradeScale(undefined), 1);
+  s.assert.equal(g.gradeScale(99), 1);
+  const maxOf = (gi) => {
+    let mx = 0;
+    for (let i = 0; i < 200; i++) {
+      const nums = (g.makeQuestion(9, Math.random, gi).expr.match(/\d+/g) || []).map(Number);
+      mx = Math.max(mx, ...nums);
+    }
+    return mx;
+  };
+  s.assert.ok(maxOf(13) > maxOf(6), '大学题目数字应大于六年级（实际 ' + maxOf(13) + ' vs ' + maxOf(6) + '）');
+});
+
 s.done();

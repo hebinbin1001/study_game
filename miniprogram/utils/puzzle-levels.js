@@ -76,13 +76,34 @@ function levelsOf(key) {
     });
   }
   if (k === 'sprint') {
-    return gradeLevels(function (g, i) { return '60 秒 · 连击翻倍 · 难度 ' + (i + 1) + '/7'; });
+    // 2026-10-09 修：分母原来写死 /7（7 档学段时代的残留），学段细分到 14 档后
+    // 关卡页会显示「难度 8/7 … 14/7」。改成取真实档数，以后加学段也不会再错。
+    return gradeLevels(function (g, i) {
+      return '60 秒 · 连击翻倍 · 难度 ' + (i + 1) + '/' + constants.GRADES.length;
+    });
   }
   if (k === 'balance') {
-    return gradeLevels(function (g, i) { return '加减 → 乘 → 混合 · 难度 ' + (i + 1) + '/7'; });
+    return gradeLevels(function (g, i) {
+      return '加减 → 乘 → 混合 · 难度 ' + (i + 1) + '/' + constants.GRADES.length;
+    });
   }
   if (k === 'memory') {
-    return gridLevels(3, 5, [1, 2], 'memory');
+    // 2026-10-09 修：这里的描述原本是「2×2 格 · 单个数字」这类，但引擎 game/memory-grid.js
+    // 实际是**固定 5×5**、难度来自「亮格数 3→8 + 展示时长 1.5s→0.65s」，
+    // 页面从来不读 rows/cols/digits —— 描述与玩法完全不符（玩家照描述选关会被误导）。
+    // 现在直接从引擎取，描述与玩法同源，以后调难度也不会再漂移。
+    var mg = require('../game/memory-grid');
+    var out = [];
+    var total = COUNTS.memory;
+    for (var mi = 1; mi <= total; mi++) {
+      out.push({
+        no: mi,
+        label: '第 ' + mi + ' 关',
+        sub: '亮 ' + mg.targetCount(mi) + ' 格 · ' + (mg.showMs(mi) / 1000).toFixed(1) + ' 秒',
+        params: {}
+      });
+    }
+    return out;
   }
   // 其余玩法沿用各自现成关卡表：这里只给出数量，具体题目由各页自己按关卡号取
   var total = COUNTS[k] || 0;

@@ -46,7 +46,7 @@
         bindtap="onGameTap">
         <view class="pic">{{item.icon}}</view>
         <view class="pname">{{item.name}}</view>
-        <view class="pdesc">{{item.desc}}</view>
+        <view class="pdesc">{{item.desc}}<text wx:if="{{item.minutes}}" class="pmin"> · ⏱{{item.minutes}}</text></view>
         <view wx:if="{{item.lineMode}}" class="line-tag">{{item.progressText}}</view>
         <view wx:elif="{{item.math}}" class="cat-tag">数学</view>
         <view class="pfoot">

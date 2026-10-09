@@ -27,12 +27,19 @@ function rnd(a, b, random) {
  * @returns {{expr:string, ans:number, label:string}}
  */
 /**
- * 年级档位 → 数值范围倍数（2026-09-13：数字智力关卡页按年级分档）。
- * 不传 / 非法 / -1 → 1，**保持原范围不变**（旧单测与老入口手感不受影响）。
+ * 年级档位 → 数值范围倍数（2026-09-13 加，2026-10-09 修）。
+ *
+ * ⚠️ 与 math-sprint 同一处 bug：表按旧的 7 档学段写、上界写死 6，
+ * 学段细分到 14 档后初一~大学全部回落成基准倍率（六年级最大 22 → 初一掉到 9）。
+ * 这里同步扩到 14 档，并改用 GRADE_SCALE.length 做上界。
+ *
+ * 不传 / 非法 → 1，保持老入口手感不变。
  */
+var GRADE_SCALE = [0.6, 0.7, 0.8, 0.9, 1.0, 1.15, 1.3, 1.45, 1.6, 1.75, 1.9, 2.05, 2.2, 2.4];
+
 function gradeScale(gradeIdx) {
-  if (typeof gradeIdx !== 'number' || gradeIdx < 0 || gradeIdx > 6) return 1;
-  return [0.6, 0.8, 1, 1.3, 1.6, 2, 2.4][gradeIdx];
+  if (typeof gradeIdx !== 'number' || gradeIdx < 0 || gradeIdx >= GRADE_SCALE.length) return 1;
+  return GRADE_SCALE[gradeIdx];
 }
 
 function scaled(lo, hi, scale, random) {
@@ -121,6 +128,9 @@ function starsFor(right, total) {
 
 module.exports = {
   ROUND_Q: ROUND_Q,
+  // 同 math-sprint：导出倍率表，单测直接断言单调性（2026-10-09）
+  GRADE_SCALE: GRADE_SCALE,
+  gradeScale: gradeScale,
   LIVES: LIVES,
   POINTS: POINTS,
   TILT_DEG: TILT_DEG,

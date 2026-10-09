@@ -13,13 +13,22 @@ var WRONG_PENALTY_MS = 2500; // 答错扣时
 function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
 
 /**
- * 年级档位 → 数值范围倍数（2026-09-13：数字智力关卡页按年级分档）。
- * 不传 / 非法 / -1 → 返回 1，**保持原来的出题范围完全不变**（旧单测与老入口手感不受影响）。
- * @param {number} gradeIdx 学段序号 0~6（对应 constants.GRADES）
+ * 年级档位 → 数值范围倍数（2026-09-13 加，2026-10-09 修）。
+ *
+ * ⚠️ 修的是一个「高年级反而更简单」的线上 bug：
+ *   这张表最初按**旧的 7 档学段**写的，且上界写死 `gradeIdx > 6 → return 1`。
+ *   学段按年级细分成 14 档后，初一~大学（idx 7~13）全部落进 fallback，
+ *   倍率变回基准 1 —— 实测六年级最大数字 48，初一反而掉到 20（二年级水平）。
+ *   现在扩成 14 档、上界用 SCALE.length（再加学段时倍率表会自己兜住，而不是静默回落）。
+ *
+ * 不传 / 非法 → 返回 1，保持老入口（不传学段的调用）手感不变。
+ * @param {number} gradeIdx 学段序号 0~13（对应 constants.GRADES）
  */
+var GRADE_SCALE = [0.6, 0.7, 0.8, 0.9, 1.0, 1.15, 1.3, 1.45, 1.6, 1.75, 1.9, 2.05, 2.2, 2.4];
+
 function gradeScale(gradeIdx) {
-  if (typeof gradeIdx !== 'number' || gradeIdx < 0 || gradeIdx > 6) return 1;
-  return [0.6, 0.8, 1, 1.3, 1.6, 2, 2.4][gradeIdx];
+  if (typeof gradeIdx !== 'number' || gradeIdx < 0 || gradeIdx >= GRADE_SCALE.length) return 1;
+  return GRADE_SCALE[gradeIdx];
 }
 
 /** 按倍数缩放随机上界（保底 2，避免出现 0/1 这种没意义的题面） */
@@ -119,6 +128,10 @@ function starsFor(score) {
 
 module.exports = {
   TOTAL_MS: TOTAL_MS,
+  // 导出倍率表与换算函数（2026-10-09）：单测直接断言"14 档单调不减"，
+  // 比反复随机采样出题去猜上限稳定得多（BUG-4b 的建议做法）。
+  GRADE_SCALE: GRADE_SCALE,
+  gradeScale: gradeScale,
   WRONG_PENALTY_MS: WRONG_PENALTY_MS,
   makeQuestion: makeQuestion,
   makeOptions: makeOptions,

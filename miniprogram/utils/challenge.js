@@ -591,7 +591,10 @@ function lineParams(gradeKey, mode, level) {
     // 限时抢答：题量固定 10，**用时间做难度**（答错扣 2 秒 → 越往上越紧张）。
     // 不用 lineSafeCount：这玩法不扣命，三档星级天然可达（答满 10 题全对就是 3 星）。
     out.count = 10;
-    out.seconds = Math.max(30, 60 - tier * 8);   // 60 → 52 → 44 → 36 → 30（tier 0~4）
+    // 2026-10-09 修：原来 `Math.max(30, 60 - tier*8)` 在 tier 4/5 都被 30 秒地板吃到，
+    // 于是第 21~30 关（整整 1/3 的关卡）参数完全相同、难度零递增。
+    // 改成步长 7、地板 26 → 60/53/46/39/32/26，6 档各不相同。
+    out.seconds = Math.max(26, 60 - tier * 7);
   }
   return out;
 }
