@@ -71,6 +71,11 @@ function rankOf(stars) {
   return {
     cell: cell,
     rankId: big.id,
+    // 2026-10-09 新增：大段**字符串 key**（bronze/silver/…）。
+    // users.exam_cleared_tier 存的是 key 而不是数字 id —— 段位封顶的存量修复
+    // 需要「按星数反查该补哪个大段」，用 rankId（数字）写进去会导致 capForTier 认不出、
+    // 用户依旧被封顶（单测 backfill-exam-tier 抓到的就是这个）。
+    rankKey: big.key,
     rankLevel: level,
     rankName: big.name + ' ' + level,
     // 72 级小级徽章（2026-09-12 美术交付；-256 为端上展示尺寸），

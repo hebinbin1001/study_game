@@ -96,6 +96,14 @@ async function connect() {
     } catch (err) {
       console.error("[db] 新增表结构补齐失败（不影响启动，新功能暂不可用）：", err.message);
     }
+    // 存量修复（2026-10-09）：给没考过晋级考试的老账号，按真实星数补录「已通过的大段」。
+    // 不做这一步，老账号的星星会被段位封顶卡在第一个大段上界（线上：334 星显示成 26 星）。
+    try {
+      const backfillExamTier = require("./backfill-exam-tier");
+      await backfillExamTier(sequelize);
+    } catch (err) {
+      console.error("[db] 段位封顶存量修复失败（不影响启动）：", err.message);
+    }
     // 生产也把「形象/皮肤目录」补一遍：seedAvatars 是幂等 upsert，只写 avatars 表、
     // 不动结构、不碰用户数据 —— 这样以后上架新皮肤（改 seeders 文件）部署后自动生效，
     // 不需要人工执行 SQL。失败只告警不阻断启动（皮肤缺失不影响其它功能）。
