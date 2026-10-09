@@ -8,238 +8,272 @@ module.exports = {
       "q": "ability",
       "a": "ability",
       "hint": "能力",
-      "py": "ability"
+      "py": "ability",
+      "ipa": "əbˈɪlətˌi"
     },
     {
       "type": "w1",
       "q": "absence",
       "a": "absence",
       "hint": "缺席",
-      "py": "absence"
+      "py": "absence",
+      "ipa": "ˈæbsəns"
     },
     {
       "type": "w1",
       "q": "accept",
       "a": "accept",
       "hint": "接受",
-      "py": "accept"
+      "py": "accept",
+      "ipa": "əksˈɛpt"
     },
     {
       "type": "w1",
       "q": "achieve",
       "a": "achieve",
       "hint": "实现",
-      "py": "achieve"
+      "py": "achieve",
+      "ipa": "ətʃˈiːv"
     },
     {
       "type": "w1",
       "q": "activity",
       "a": "activity",
       "hint": "活动",
-      "py": "activity"
+      "py": "activity",
+      "ipa": "æktˈɪvɪti"
     },
     {
       "type": "w1",
       "q": "actual",
       "a": "actual",
       "hint": "实际的",
-      "py": "actual"
+      "py": "actual",
+      "ipa": "ˈæktʃuːəl"
     },
     {
       "type": "w1",
       "q": "advice",
       "a": "advice",
       "hint": "建议",
-      "py": "advice"
+      "py": "advice",
+      "ipa": "ədvˈaɪs"
     },
     {
       "type": "w1",
       "q": "afford",
       "a": "afford",
       "hint": "负担得起",
-      "py": "afford"
+      "py": "afford",
+      "ipa": "əfˈɔːd"
     },
     {
       "type": "w1",
       "q": "agree",
       "a": "agree",
       "hint": "同意",
-      "py": "agree"
+      "py": "agree",
+      "ipa": "əɡrˈiː"
     },
     {
       "type": "w1",
       "q": "allow",
       "a": "allow",
       "hint": "允许",
-      "py": "allow"
+      "py": "allow",
+      "ipa": "əlˈaʊ"
     },
     {
       "type": "w1",
       "q": "ancient",
       "a": "ancient",
       "hint": "古老的",
-      "py": "ancient"
+      "py": "ancient",
+      "ipa": "ˈeɪnʃənt"
     },
     {
       "type": "w1",
       "q": "appear",
       "a": "appear",
       "hint": "出现",
-      "py": "appear"
+      "py": "appear",
+      "ipa": "əpˈiə"
     },
     {
       "type": "w1",
       "q": "arrive",
       "a": "arrive",
       "hint": "到达",
-      "py": "arrive"
+      "py": "arrive",
+      "ipa": "ərˈaɪv"
     },
     {
       "type": "w1",
       "q": "attention",
       "a": "attention",
       "hint": "注意",
-      "py": "attention"
+      "py": "attention",
+      "ipa": "ətˈɛnʃən"
     },
     {
       "type": "w1",
       "q": "attitude",
       "a": "attitude",
       "hint": "态度",
-      "py": "attitude"
+      "py": "attitude",
+      "ipa": "ˈætɪtjˌuːd"
     },
     {
       "type": "w1",
       "q": "balance",
       "a": "balance",
       "hint": "平衡",
-      "py": "balance"
+      "py": "balance",
+      "ipa": "bˈæləns"
     },
     {
       "type": "w1",
       "q": "believe",
       "a": "believe",
       "hint": "相信",
-      "py": "believe"
+      "py": "believe",
+      "ipa": "bɪlˈiːv"
     },
     {
       "type": "w1",
       "q": "benefit",
       "a": "benefit",
       "hint": "利益",
-      "py": "benefit"
+      "py": "benefit",
+      "ipa": "bˈɛnɪfˌɪt"
     },
     {
       "type": "w1",
       "q": "beyond",
       "a": "beyond",
       "hint": "超过",
-      "py": "beyond"
+      "py": "beyond",
+      "ipa": "bɪjˈɒnd"
     },
     {
       "type": "w1",
       "q": "biology",
       "a": "biology",
       "hint": "生物学",
-      "py": "biology"
+      "py": "biology",
+      "ipa": "baɪˈɒlədʒi"
     },
     {
       "type": "w1",
       "q": "border",
       "a": "border",
       "hint": "边界",
-      "py": "border"
+      "py": "border",
+      "ipa": "bˈɔːdə"
     },
     {
       "type": "w1",
       "q": "breathe",
       "a": "breathe",
       "hint": "呼吸",
-      "py": "breathe"
+      "py": "breathe",
+      "ipa": "brˈiːð"
     },
     {
       "type": "w1",
       "q": "calculate",
       "a": "calculate",
       "hint": "计算",
-      "py": "calculate"
+      "py": "calculate",
+      "ipa": "kˈælkjʊlˌeɪt"
     },
     {
       "type": "w1",
       "q": "capable",
       "a": "capable",
       "hint": "有能力的",
-      "py": "capable"
+      "py": "capable",
+      "ipa": "kˈeɪpəbəl"
     },
     {
       "type": "w1",
       "q": "career",
       "a": "career",
       "hint": "职业",
-      "py": "career"
+      "py": "career",
+      "ipa": "kərˈiə"
     },
     {
       "type": "w1",
       "q": "celebrate",
       "a": "celebrate",
       "hint": "庆祝",
-      "py": "celebrate"
+      "py": "celebrate",
+      "ipa": "sˈɛləbrˌeɪt"
     },
     {
       "type": "w1",
       "q": "century",
       "a": "century",
       "hint": "世纪",
-      "py": "century"
+      "py": "century",
+      "ipa": "sˈɛntʃəri"
     },
     {
       "type": "w1",
       "q": "certain",
       "a": "certain",
       "hint": "确定的",
-      "py": "certain"
+      "py": "certain",
+      "ipa": "sˈɜːtən"
     },
     {
       "type": "w1",
       "q": "challenge",
       "a": "challenge",
       "hint": "挑战",
-      "py": "challenge"
+      "py": "challenge",
+      "ipa": "tʃˈælɪndʒ"
     },
     {
       "type": "w1",
       "q": "character",
       "a": "character",
       "hint": "性格",
-      "py": "character"
+      "py": "character",
+      "ipa": "kˈærɪktə"
     },
     {
       "type": "w1",
       "q": "chemistry",
       "a": "chemistry",
       "hint": "化学",
-      "py": "chemistry"
+      "py": "chemistry",
+      "ipa": "kˈɛmɪstri"
     },
     {
       "type": "w1",
       "q": "choice",
       "a": "choice",
       "hint": "选择",
-      "py": "choice"
+      "py": "choice",
+      "ipa": "tʃˈɔɪs"
     },
     {
       "type": "w1",
       "q": "choose",
       "a": "choose",
       "hint": "选择",
-      "py": "choose"
+      "py": "choose",
+      "ipa": "tʃˈuːz"
     },
     {
       "type": "w1",
       "q": "climate",
       "a": "climate",
       "hint": "气候",
-      "py": "climate"
+      "py": "climate",
+      "ipa": "klˈaɪmət"
     },
     {
       "type": "c2",
@@ -477,567 +511,648 @@ module.exports = {
       "q": "about",
       "a": "about",
       "hint": "关于",
-      "py": "about"
+      "py": "about",
+      "ipa": "əbˈaʊt"
     },
     {
       "type": "w1",
       "q": "above",
       "a": "above",
       "hint": "在……上方",
-      "py": "above"
+      "py": "above",
+      "ipa": "əbˈʌv"
     },
     {
       "type": "w1",
       "q": "across",
       "a": "across",
       "hint": "穿过",
-      "py": "across"
+      "py": "across",
+      "ipa": "əkrˈɒs"
     },
     {
       "type": "w1",
       "q": "after",
       "a": "after",
       "hint": "在……之后",
-      "py": "after"
+      "py": "after",
+      "ipa": "ˈɑːftə"
     },
     {
       "type": "w1",
       "q": "again",
       "a": "again",
       "hint": "再一次",
-      "py": "again"
+      "py": "again",
+      "ipa": "əɡˈɛn"
     },
     {
       "type": "w1",
       "q": "against",
       "a": "against",
       "hint": "反对",
-      "py": "against"
+      "py": "against",
+      "ipa": "əɡˈɛnst"
     },
     {
       "type": "w1",
       "q": "ago",
       "a": "ago",
       "hint": "以前",
-      "py": "ago"
+      "py": "ago",
+      "ipa": "əɡˈəʊ"
     },
     {
       "type": "w1",
       "q": "air",
       "a": "air",
       "hint": "空气",
-      "py": "air"
+      "py": "air",
+      "ipa": "ˈeə"
     },
     {
       "type": "w1",
       "q": "alone",
       "a": "alone",
       "hint": "独自",
-      "py": "alone"
+      "py": "alone",
+      "ipa": "əlˈəʊn"
     },
     {
       "type": "w1",
       "q": "along",
       "a": "along",
       "hint": "沿着",
-      "py": "along"
+      "py": "along",
+      "ipa": "əlˈɒŋ"
     },
     {
       "type": "w1",
       "q": "already",
       "a": "already",
       "hint": "已经",
-      "py": "already"
+      "py": "already",
+      "ipa": "ɔːlrˈɛdi"
     },
     {
       "type": "w1",
       "q": "also",
       "a": "also",
       "hint": "也",
-      "py": "also"
+      "py": "also",
+      "ipa": "ˈɒlsəʊ"
     },
     {
       "type": "w1",
       "q": "although",
       "a": "although",
       "hint": "虽然",
-      "py": "although"
+      "py": "although",
+      "ipa": "ɒlðˈəʊ"
     },
     {
       "type": "w1",
       "q": "among",
       "a": "among",
       "hint": "在……之中",
-      "py": "among"
+      "py": "among",
+      "ipa": "əmˈʌŋ"
     },
     {
       "type": "w1",
       "q": "another",
       "a": "another",
       "hint": "另一个",
-      "py": "another"
+      "py": "another",
+      "ipa": "ənˈʌðə"
     },
     {
       "type": "w1",
       "q": "area",
       "a": "area",
       "hint": "地区",
-      "py": "area"
+      "py": "area",
+      "ipa": "ˈeəriə"
     },
     {
       "type": "w1",
       "q": "around",
       "a": "around",
       "hint": "在周围",
-      "py": "around"
+      "py": "around",
+      "ipa": "ərˈaʊnd"
     },
     {
       "type": "w1",
       "q": "asleep",
       "a": "asleep",
       "hint": "睡着的",
-      "py": "asleep"
+      "py": "asleep",
+      "ipa": "əslˈiːp"
     },
     {
       "type": "w1",
       "q": "awake",
       "a": "awake",
       "hint": "醒着的",
-      "py": "awake"
+      "py": "awake",
+      "ipa": "əwˈeɪk"
     },
     {
       "type": "w1",
       "q": "away",
       "a": "away",
       "hint": "离开",
-      "py": "away"
+      "py": "away",
+      "ipa": "əwˈeɪ"
     },
     {
       "type": "w1",
       "q": "baby",
       "a": "baby",
       "hint": "婴儿",
-      "py": "baby"
+      "py": "baby",
+      "ipa": "bˈeɪbi"
     },
     {
       "type": "w1",
       "q": "back",
       "a": "back",
       "hint": "后面",
-      "py": "back"
+      "py": "back",
+      "ipa": "bˈæk"
     },
     {
       "type": "w1",
       "q": "bad",
       "a": "bad",
       "hint": "坏的",
-      "py": "bad"
+      "py": "bad",
+      "ipa": "bˈæd"
     },
     {
       "type": "w1",
       "q": "band",
       "a": "band",
       "hint": "乐队",
-      "py": "band"
+      "py": "band",
+      "ipa": "bˈænd"
     },
     {
       "type": "w1",
       "q": "basic",
       "a": "basic",
       "hint": "基本的",
-      "py": "basic"
+      "py": "basic",
+      "ipa": "bˈeɪsɪk"
     },
     {
       "type": "w1",
       "q": "beat",
       "a": "beat",
       "hint": "打败",
-      "py": "beat"
+      "py": "beat",
+      "ipa": "bˈiːt"
     },
     {
       "type": "w1",
       "q": "because",
       "a": "because",
       "hint": "因为",
-      "py": "because"
+      "py": "because",
+      "ipa": "bɪkˈʌz"
     },
     {
       "type": "w1",
       "q": "become",
       "a": "become",
       "hint": "成为",
-      "py": "become"
+      "py": "become",
+      "ipa": "bɪkˈʌm"
     },
     {
       "type": "w1",
       "q": "before",
       "a": "before",
       "hint": "在……之前",
-      "py": "before"
+      "py": "before",
+      "ipa": "bɪfˈɔː"
     },
     {
       "type": "w1",
       "q": "below",
       "a": "below",
       "hint": "在下面",
-      "py": "below"
+      "py": "below",
+      "ipa": "bɪlˈəʊ"
     },
     {
       "type": "w1",
       "q": "beside",
       "a": "beside",
       "hint": "在旁边",
-      "py": "beside"
+      "py": "beside",
+      "ipa": "bɪsˈaɪd"
     },
     {
       "type": "w1",
       "q": "between",
       "a": "between",
       "hint": "在……之间",
-      "py": "between"
+      "py": "between",
+      "ipa": "bɪtwˈiːn"
     },
     {
       "type": "w1",
       "q": "birth",
       "a": "birth",
       "hint": "出生",
-      "py": "birth"
+      "py": "birth",
+      "ipa": "bˈɜːθ"
     },
     {
       "type": "w1",
       "q": "bitter",
       "a": "bitter",
       "hint": "苦的",
-      "py": "bitter"
+      "py": "bitter",
+      "ipa": "bˈɪtə"
     },
     {
       "type": "w1",
       "q": "blind",
       "a": "blind",
       "hint": "失明的",
-      "py": "blind"
+      "py": "blind",
+      "ipa": "blˈaɪnd"
     },
     {
       "type": "w1",
       "q": "block",
       "a": "block",
       "hint": "街区",
-      "py": "block"
+      "py": "block",
+      "ipa": "blˈɒk"
     },
     {
       "type": "w1",
       "q": "blood",
       "a": "blood",
       "hint": "血液",
-      "py": "blood"
+      "py": "blood",
+      "ipa": "blˈʌd"
     },
     {
       "type": "w1",
       "q": "blow",
       "a": "blow",
       "hint": "吹",
-      "py": "blow"
+      "py": "blow",
+      "ipa": "blˈəʊ"
     },
     {
       "type": "w1",
       "q": "board",
       "a": "board",
       "hint": "木板",
-      "py": "board"
+      "py": "board",
+      "ipa": "bˈɔːd"
     },
     {
       "type": "w1",
       "q": "bone",
       "a": "bone",
       "hint": "骨头",
-      "py": "bone"
+      "py": "bone",
+      "ipa": "bˈəʊn"
     },
     {
       "type": "w1",
       "q": "bottle",
       "a": "bottle",
       "hint": "瓶子",
-      "py": "bottle"
+      "py": "bottle",
+      "ipa": "bˈɒtəl"
     },
     {
       "type": "w1",
       "q": "bottom",
       "a": "bottom",
       "hint": "底部",
-      "py": "bottom"
+      "py": "bottom",
+      "ipa": "bˈɒtəm"
     },
     {
       "type": "w1",
       "q": "bowl",
       "a": "bowl",
       "hint": "碗",
-      "py": "bowl"
+      "py": "bowl",
+      "ipa": "bˈəʊl"
     },
     {
       "type": "w1",
       "q": "box",
       "a": "box",
       "hint": "盒子",
-      "py": "box"
+      "py": "box",
+      "ipa": "bˈɒks"
     },
     {
       "type": "w1",
       "q": "brain",
       "a": "brain",
       "hint": "大脑",
-      "py": "brain"
+      "py": "brain",
+      "ipa": "brˈeɪn"
     },
     {
       "type": "w1",
       "q": "branch",
       "a": "branch",
       "hint": "树枝",
-      "py": "branch"
+      "py": "branch",
+      "ipa": "brˈɑːntʃ"
     },
     {
       "type": "w1",
       "q": "break",
       "a": "break",
       "hint": "打破",
-      "py": "break"
+      "py": "break",
+      "ipa": "brˈeɪk"
     },
     {
       "type": "w1",
       "q": "bright",
       "a": "bright",
       "hint": "明亮的",
-      "py": "bright"
+      "py": "bright",
+      "ipa": "brˈaɪt"
     },
     {
       "type": "w1",
       "q": "bring",
       "a": "bring",
       "hint": "带来",
-      "py": "bring"
+      "py": "bring",
+      "ipa": "brˈɪŋ"
     },
     {
       "type": "w1",
       "q": "broad",
       "a": "broad",
       "hint": "宽阔的",
-      "py": "broad"
+      "py": "broad",
+      "ipa": "brˈɔːd"
     },
     {
       "type": "w1",
       "q": "build",
       "a": "build",
       "hint": "建造",
-      "py": "build"
+      "py": "build",
+      "ipa": "bˈɪld"
     },
     {
       "type": "w1",
       "q": "burn",
       "a": "burn",
       "hint": "燃烧",
-      "py": "burn"
+      "py": "burn",
+      "ipa": "bˈɜːn"
     },
     {
       "type": "w1",
       "q": "business",
       "a": "business",
       "hint": "生意",
-      "py": "business"
+      "py": "business",
+      "ipa": "bˈɪznəs"
     },
     {
       "type": "w1",
       "q": "busy",
       "a": "busy",
       "hint": "忙碌的",
-      "py": "busy"
+      "py": "busy",
+      "ipa": "bˈɪzi"
     },
     {
       "type": "w1",
       "q": "butter",
       "a": "butter",
       "hint": "黄油",
-      "py": "butter"
+      "py": "butter",
+      "ipa": "bˈʌtə"
     },
     {
       "type": "w1",
       "q": "button",
       "a": "button",
       "hint": "纽扣",
-      "py": "button"
+      "py": "button",
+      "ipa": "bˈʌtən"
     },
     {
       "type": "w1",
       "q": "cancel",
       "a": "cancel",
       "hint": "取消",
-      "py": "cancel"
+      "py": "cancel",
+      "ipa": "kˈænsəl"
     },
     {
       "type": "w1",
       "q": "careful",
       "a": "careful",
       "hint": "仔细的",
-      "py": "careful"
+      "py": "careful",
+      "ipa": "kˈeəfəl"
     },
     {
       "type": "w1",
       "q": "carry",
       "a": "carry",
       "hint": "携带",
-      "py": "carry"
+      "py": "carry",
+      "ipa": "kˈæri"
     },
     {
       "type": "w1",
       "q": "catch",
       "a": "catch",
       "hint": "抓住",
-      "py": "catch"
+      "py": "catch",
+      "ipa": "kˈætʃ"
     },
     {
       "type": "w1",
       "q": "cause",
       "a": "cause",
       "hint": "原因",
-      "py": "cause"
+      "py": "cause",
+      "ipa": "kˈɔːz"
     },
     {
       "type": "w1",
       "q": "centre",
       "a": "centre",
       "hint": "中心",
-      "py": "centre"
+      "py": "centre",
+      "ipa": "sˈɛntə"
     },
     {
       "type": "w1",
       "q": "chance",
       "a": "chance",
       "hint": "机会",
-      "py": "chance"
+      "py": "chance",
+      "ipa": "tʃˈɑːns"
     },
     {
       "type": "w1",
       "q": "change",
       "a": "change",
       "hint": "改变",
-      "py": "change"
+      "py": "change",
+      "ipa": "tʃˈeɪndʒ"
     },
     {
       "type": "w1",
       "q": "cheap",
       "a": "cheap",
       "hint": "便宜的",
-      "py": "cheap"
+      "py": "cheap",
+      "ipa": "tʃˈiːp"
     },
     {
       "type": "w1",
       "q": "check",
       "a": "check",
       "hint": "检查",
-      "py": "check"
+      "py": "check",
+      "ipa": "tʃˈɛk"
     },
     {
       "type": "w1",
       "q": "circle",
       "a": "circle",
       "hint": "圆圈",
-      "py": "circle"
+      "py": "circle",
+      "ipa": "sˈɜːkəl"
     },
     {
       "type": "w1",
       "q": "clear",
       "a": "clear",
       "hint": "清楚的",
-      "py": "clear"
+      "py": "clear",
+      "ipa": "klˈiə"
     },
     {
       "type": "w1",
       "q": "clever",
       "a": "clever",
       "hint": "聪明的",
-      "py": "clever"
+      "py": "clever",
+      "ipa": "klˈɛvə"
     },
     {
       "type": "w1",
       "q": "climb",
       "a": "climb",
       "hint": "攀登",
-      "py": "climb"
+      "py": "climb",
+      "ipa": "klˈaɪm"
     },
     {
       "type": "w1",
       "q": "cloud",
       "a": "cloud",
       "hint": "云",
-      "py": "cloud"
+      "py": "cloud",
+      "ipa": "klˈaʊd"
     },
     {
       "type": "w1",
       "q": "coast",
       "a": "coast",
       "hint": "海岸",
-      "py": "coast"
+      "py": "coast",
+      "ipa": "kˈəʊst"
     },
     {
       "type": "w1",
       "q": "collect",
       "a": "collect",
       "hint": "收集",
-      "py": "collect"
+      "py": "collect",
+      "ipa": "kəˈɫɛkt"
     },
     {
       "type": "w1",
       "q": "colour",
       "a": "colour",
       "hint": "颜色",
-      "py": "colour"
+      "py": "colour",
+      "ipa": "kˈʌlə"
     },
     {
       "type": "w1",
       "q": "comfortable",
       "a": "comfortable",
       "hint": "舒适的",
-      "py": "comfortable"
+      "py": "comfortable",
+      "ipa": "kˈʌmftəbəl"
     },
     {
       "type": "w1",
       "q": "common",
       "a": "common",
       "hint": "普通的",
-      "py": "common"
+      "py": "common",
+      "ipa": "kˈɒmən"
     },
     {
       "type": "w1",
       "q": "company",
       "a": "company",
       "hint": "公司",
-      "py": "company"
+      "py": "company",
+      "ipa": "kˈʌmpəni"
     },
     {
       "type": "w1",
       "q": "compare",
       "a": "compare",
       "hint": "比较",
-      "py": "compare"
+      "py": "compare",
+      "ipa": "kəmpˈeə"
     },
     {
       "type": "w1",
       "q": "complete",
       "a": "complete",
       "hint": "完成",
-      "py": "complete"
+      "py": "complete",
+      "ipa": "kəmplˈiːt"
     },
     {
       "type": "w1",
       "q": "condition",
       "a": "condition",
       "hint": "条件",
-      "py": "condition"
+      "py": "condition",
+      "ipa": "kəndˈɪʃən"
     },
     {
       "type": "w1",
       "q": "continue",
       "a": "continue",
       "hint": "继续",
-      "py": "continue"
+      "py": "continue",
+      "ipa": "kəntˈɪnjuː"
     }
   ]
 };

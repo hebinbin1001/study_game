@@ -23,6 +23,11 @@ const OUT_DIR = path.join(__dirname, 'reports', 'shots');
 // 玩法页（与 app.json / 玩法 tab 对齐）+ 典型内容页
 const PAGES = [
   { id: 'game', url: '/pages/game/game?grade=kg&level=1' },
+  // 英语词多的学段：截「音标展示」用（kg 里汉字题占比高，不一定抽得到英语题）
+  // type=word 锁定英语单词题，专门用来审查「音标展示」。
+  // 用初一（g7）而不是三年级：g7 的英语词条 100% 有音标，
+  // 三年级还混着 hot dog / pencil-case 这类词典查不到的多词短语，截图不稳定。
+  { id: 'game-en', url: '/pages/game/game?grade=g7&level=1&type=word' },
   { id: 'math24', url: '/pages/math24/math24' },
   { id: 'math-balance', url: '/pages/math-balance/math-balance' },
   { id: 'math-sprint', url: '/pages/math-sprint/math-sprint' },

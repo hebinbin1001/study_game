@@ -19,6 +19,19 @@ var auth = require('../../utils/auth');
 // 段位名（rankId 1~8，与 server/rank-ladder.js 的大段位对应，用于解锁条件文案）
 var RANK_NAMES = ['', '青铜', '白银', '黄金', '铂金', '钻石', '星耀', '王者', '荣耀王者'];
 
+/** 主色 → 浅底 rgba（8 位 hex 在部分基础库上不稳，统一换算成 rgba） */
+function tintOf(hex) {
+  var h = String(hex || '#dbe9f5').replace('#', '');
+  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  var r = parseInt(h.slice(0, 2), 16);
+  var g = parseInt(h.slice(2, 4), 16);
+  var b = parseInt(h.slice(4, 6), 16);
+  if (!isFinite(r)) r = 219;
+  if (!isFinite(g)) g = 233;
+  if (!isFinite(b)) b = 245;
+  return 'rgba(' + r + ',' + g + ',' + b + ',0.16)';
+}
+
 Page({
   data: {
     warriors: [],
@@ -55,6 +68,10 @@ Page({
     return Object.assign({}, item, {
       emoji: render.emoji,
       image: render.image || '',
+      // 主色（2026-10-09）：立绘走 CDN，弱网时卡片会先空一会儿 ——
+      // 用主色做浅底 + emoji 打底，图没到也不至于是一片白。
+      color: render.color || '#dbe9f5',
+      bg: tintOf(render.color),
       iconErr: false,
       rarityLabel: skins.getRarity(item.rarity).label
     });

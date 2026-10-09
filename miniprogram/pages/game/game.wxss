@@ -130,6 +130,14 @@
   line-height: 1.35;
   word-break: break-all;
 }
+/* 音标（2026-10-09）：比释义弱一档，用衬线字体贴近词典排版 */
+.gs-quest-ipa {
+  margin-top: 2rpx;
+  font-size: 24rpx;
+  color: #7aa7c7;
+  font-family: "Times New Roman", "Songti SC", serif;
+  letter-spacing: 1rpx;
+}
 
 /* Boss 血条 */
 .gs-hp {

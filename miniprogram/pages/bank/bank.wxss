@@ -70,6 +70,7 @@
 }
 .bk-chip.on { background: #ffb703; color: #fff; }
 .bk-chip--t { font-size: 22rpx; padding: 10rpx 22rpx; }
+.bk-chip--book { font-size: 22rpx; padding: 10rpx 22rpx; }
 .bk-chip--bank { font-size: 23rpx; padding: 10rpx 22rpx; }
 .bk-chip--bank.off { opacity: .55; }
 .bk-chip--new { font-size: 22rpx; padding: 10rpx 20rpx; background: #e6f1fb; color: #4a90d9; }
@@ -170,6 +171,16 @@
   font-weight: 800;
 }
 .bk-pill.ok { background: #e6f7ee; color: #2fa96b; }
+/* 教材标签（人教版 PEP / 外研版）—— 与掌握状态的 ok/bad 区分开，用蓝色系 */
+.bk-pill.book { background: #e6f1fb; color: #4a90d9; }
+
+/* 音标（2026-10-09）：跟在释义后面，用衬线字体更接近词典排版 */
+.bk-ipa {
+  margin-left: 12rpx;
+  font-size: 22rpx;
+  color: #7aa7c7;
+  font-family: "Times New Roman", "Songti SC", serif;
+}
 .bk-pill.bad { background: #fdeef1; color: #d4627a; }
 .bk-item-main { flex: 1 1 auto; min-width: 0; }
 .bk-item-top {

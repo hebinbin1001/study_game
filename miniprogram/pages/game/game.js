@@ -350,6 +350,8 @@ Page({
     this.setData({
       kind: round.kind,
       meaning: question.meaningText(item),
+      // 音标（2026-10-09）：英语词条构建期已补 ipa，汉字词条为空 → 模板里 wx:if 跳过
+      ipa: item.ipa || '',
       head: round.head,
       tail: round.tail,
       hasSlot: round.hasSlot,

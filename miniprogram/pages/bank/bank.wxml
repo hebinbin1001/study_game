@@ -9,7 +9,7 @@
     <button class="btn-back" bindtap="goBack">返回</button>
     <view class="bk-head-t">
       <view class="bk-title">📚 题库</view>
-      <view class="bk-sub">这里的词条就是闯关线的题目来源{{syncing ? ' · 同步中…' : ''}}</view>
+      <view class="bk-sub">闯关题目来源 · 当前教材：{{curBookName}}{{syncing ? ' · 同步中…' : ''}}</view>
     </view>
   </view>
 
@@ -77,6 +77,21 @@
     </scroll-view>
     </view>
 
+    <!-- 教材版本（2026-10-09）：让「我的 → 教材版本」的选择在题库里看得见 -->
+    <view class="bk-field">
+    <text class="bk-field-label">教材</text>
+    <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
+      <view class="bk-row">
+        <view
+          wx:for="{{bookChips}}"
+          wx:key="key"
+          class="bk-chip bk-chip--book {{bookFilter === item.key ? 'on' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pickBookFilter">{{item.label}} {{item.n}}</view>
+      </view>
+    </scroll-view>
+    </view>
+
     <!-- 掌握状态筛选 -->
     <view class="bk-mfilters">
       <view class="bk-mf {{mFilter === 'all' ? 'on' : ''}}" data-key="all" bindtap="pickMFilter">
@@ -128,9 +143,14 @@
             <text class="bk-q">{{item.q}}</text>
             <text class="bk-a">{{item.a}}</text>
           </view>
-          <view wx:if="{{item.hint}}" class="bk-hint">{{item.hint}}</view>
+          <view wx:if="{{item.hint || item.ipa}}" class="bk-hint">
+            <text>{{item.hint}}</text>
+            <!-- 音标（2026-10-09）：英语词条构建期已补，汉字词条没有 -->
+            <text wx:if="{{item.ipa}}" class="bk-ipa">/{{item.ipa}}/</text>
+          </view>
           <view class="bk-meta">
             <text class="bk-tag">{{item.typeLabel}}</text>
+            <text wx:if="{{item.bookLabel}}" class="bk-pill book">{{item.bookLabel}}</text>
             <text class="bk-src {{item.srcCls}}">{{item.srcLabel}}</text>
             <text wx:if="{{item.r}}" class="bk-pill ok">✓ {{item.r}}</text>
             <text wx:if="{{item.w}}" class="bk-pill bad">✗ {{item.w}}</text>

@@ -8,266 +8,304 @@ module.exports = {
       "q": "cat",
       "a": "cat",
       "hint": "猫",
-      "py": "cat"
+      "py": "cat",
+      "ipa": "kˈæt"
     },
     {
       "type": "w1",
       "q": "dog",
       "a": "dog",
       "hint": "狗",
-      "py": "dog"
+      "py": "dog",
+      "ipa": "dˈɒɡ"
     },
     {
       "type": "w1",
       "q": "sun",
       "a": "sun",
       "hint": "太阳",
-      "py": "sun"
+      "py": "sun",
+      "ipa": "sˈʌn"
     },
     {
       "type": "w1",
       "q": "moon",
       "a": "moon",
       "hint": "月亮",
-      "py": "moon"
+      "py": "moon",
+      "ipa": "mˈuːn"
     },
     {
       "type": "w1",
       "q": "star",
       "a": "star",
       "hint": "星星",
-      "py": "star"
+      "py": "star",
+      "ipa": "stˈɑː"
     },
     {
       "type": "w1",
       "q": "tree",
       "a": "tree",
       "hint": "树",
-      "py": "tree"
+      "py": "tree",
+      "ipa": "trˈiː"
     },
     {
       "type": "w1",
       "q": "flower",
       "a": "flower",
       "hint": "花",
-      "py": "flower"
+      "py": "flower",
+      "ipa": "ˈfɫaʊɝ"
     },
     {
       "type": "w1",
       "q": "bird",
       "a": "bird",
       "hint": "鸟",
-      "py": "bird"
+      "py": "bird",
+      "ipa": "bˈɜːd"
     },
     {
       "type": "w1",
       "q": "fish",
       "a": "fish",
       "hint": "鱼",
-      "py": "fish"
+      "py": "fish",
+      "ipa": "fˈɪʃ"
     },
     {
       "type": "w1",
       "q": "book",
       "a": "book",
       "hint": "书",
-      "py": "book"
+      "py": "book",
+      "ipa": "bˈʊk"
     },
     {
       "type": "w1",
       "q": "water",
       "a": "water",
       "hint": "水",
-      "py": "water"
+      "py": "water",
+      "ipa": "wˈɔːtə"
     },
     {
       "type": "w1",
       "q": "fire",
       "a": "fire",
       "hint": "火",
-      "py": "fire"
+      "py": "fire",
+      "ipa": "fˈaɪə"
     },
     {
       "type": "w1",
       "q": "red",
       "a": "red",
       "hint": "红色",
-      "py": "red"
+      "py": "red",
+      "ipa": "rˈɛd"
     },
     {
       "type": "w1",
       "q": "blue",
       "a": "blue",
       "hint": "蓝色",
-      "py": "blue"
+      "py": "blue",
+      "ipa": "blˈuː"
     },
     {
       "type": "w1",
       "q": "big",
       "a": "big",
       "hint": "大",
-      "py": "big"
+      "py": "big",
+      "ipa": "bˈɪɡ"
     },
     {
       "type": "w1",
       "q": "small",
       "a": "small",
       "hint": "小",
-      "py": "small"
+      "py": "small",
+      "ipa": "smˈɔːl"
     },
     {
       "type": "w1",
       "q": "up",
       "a": "up",
       "hint": "上",
-      "py": "up"
+      "py": "up",
+      "ipa": "ˈʌp"
     },
     {
       "type": "w1",
       "q": "down",
       "a": "down",
       "hint": "下",
-      "py": "down"
+      "py": "down",
+      "ipa": "dˈaʊn"
     },
     {
       "type": "w1",
       "q": "left",
       "a": "left",
       "hint": "左",
-      "py": "left"
+      "py": "left",
+      "ipa": "lˈɛft"
     },
     {
       "type": "w1",
       "q": "right",
       "a": "right",
       "hint": "右",
-      "py": "right"
+      "py": "right",
+      "ipa": "rˈaɪt"
     },
     {
       "type": "w1",
       "q": "hand",
       "a": "hand",
       "hint": "手",
-      "py": "hand"
+      "py": "hand",
+      "ipa": "hˈænd"
     },
     {
       "type": "w1",
       "q": "eye",
       "a": "eye",
       "hint": "眼睛",
-      "py": "eye"
+      "py": "eye",
+      "ipa": "ˈaɪ"
     },
     {
       "type": "w1",
       "q": "ear",
       "a": "ear",
       "hint": "耳朵",
-      "py": "ear"
+      "py": "ear",
+      "ipa": "ˈiə"
     },
     {
       "type": "w1",
       "q": "foot",
       "a": "foot",
       "hint": "脚",
-      "py": "foot"
+      "py": "foot",
+      "ipa": "fˈʊt"
     },
     {
       "type": "w1",
       "q": "door",
       "a": "door",
       "hint": "门",
-      "py": "door"
+      "py": "door",
+      "ipa": "dˈɔː"
     },
     {
       "type": "w1",
       "q": "car",
       "a": "car",
       "hint": "汽车",
-      "py": "car"
+      "py": "car",
+      "ipa": "kˈɑː"
     },
     {
       "type": "w1",
       "q": "bus",
       "a": "bus",
       "hint": "公交车",
-      "py": "bus"
+      "py": "bus",
+      "ipa": "bˈʌs"
     },
     {
       "type": "w1",
       "q": "ship",
       "a": "ship",
       "hint": "大船",
-      "py": "ship"
+      "py": "ship",
+      "ipa": "ʃˈɪp"
     },
     {
       "type": "w1",
       "q": "boat",
       "a": "boat",
       "hint": "小船",
-      "py": "boat"
+      "py": "boat",
+      "ipa": "bˈəʊt"
     },
     {
       "type": "w1",
       "q": "hat",
       "a": "hat",
       "hint": "帽子",
-      "py": "hat"
+      "py": "hat",
+      "ipa": "hˈæt"
     },
     {
       "type": "w1",
       "q": "shoe",
       "a": "shoe",
       "hint": "鞋子",
-      "py": "shoe"
+      "py": "shoe",
+      "ipa": "ʃˈuː"
     },
     {
       "type": "w1",
       "q": "cup",
       "a": "cup",
       "hint": "杯子",
-      "py": "cup"
+      "py": "cup",
+      "ipa": "kˈʌp"
     },
     {
       "type": "w1",
       "q": "pen",
       "a": "pen",
       "hint": "钢笔",
-      "py": "pen"
+      "py": "pen",
+      "ipa": "pˈɛn"
     },
     {
       "type": "w1",
       "q": "bag",
       "a": "bag",
       "hint": "书包",
-      "py": "bag"
+      "py": "bag",
+      "ipa": "bˈæɡ"
     },
     {
       "type": "w1",
       "q": "bed",
       "a": "bed",
       "hint": "床",
-      "py": "bed"
+      "py": "bed",
+      "ipa": "bˈɛd"
     },
     {
       "type": "w1",
       "q": "box",
       "a": "box",
       "hint": "盒子",
-      "py": "box"
+      "py": "box",
+      "ipa": "bˈɒks"
     },
     {
       "type": "w1",
       "q": "ball",
       "a": "ball",
       "hint": "球",
-      "py": "ball"
+      "py": "ball",
+      "ipa": "bˈɔːl"
     },
     {
       "type": "w1",
       "q": "doll",
       "a": "doll",
       "hint": "娃娃",
-      "py": "doll"
+      "py": "doll",
+      "ipa": "dˈɒl"
     },
     {
       "type": "c1",

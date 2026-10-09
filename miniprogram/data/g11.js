@@ -8,280 +8,320 @@ module.exports = {
       "q": "ambiguous",
       "a": "ambiguous",
       "hint": "模糊的",
-      "py": "ambiguous"
+      "py": "ambiguous",
+      "ipa": "æmbˈɪɡjuːəs"
     },
     {
       "type": "w1",
       "q": "amend",
       "a": "amend",
       "hint": "修正",
-      "py": "amend"
+      "py": "amend",
+      "ipa": "əmˈɛnd"
     },
     {
       "type": "w1",
       "q": "analogy",
       "a": "analogy",
       "hint": "类比",
-      "py": "analogy"
+      "py": "analogy",
+      "ipa": "ənˈælədʒi"
     },
     {
       "type": "w1",
       "q": "analyse",
       "a": "analyse",
       "hint": "分析",
-      "py": "analyse"
+      "py": "analyse",
+      "ipa": "ˈænəlˌaɪz"
     },
     {
       "type": "w1",
       "q": "ancestor",
       "a": "ancestor",
       "hint": "祖先",
-      "py": "ancestor"
+      "py": "ancestor",
+      "ipa": "ˈænsɛstə"
     },
     {
       "type": "w1",
       "q": "anniversary",
       "a": "anniversary",
       "hint": "周年",
-      "py": "anniversary"
+      "py": "anniversary",
+      "ipa": "ˌænɪvˈɜːsərˌi"
     },
     {
       "type": "w1",
       "q": "annual",
       "a": "annual",
       "hint": "年度的",
-      "py": "annual"
+      "py": "annual",
+      "ipa": "ˈænjuːəl"
     },
     {
       "type": "w1",
       "q": "anticipate",
       "a": "anticipate",
       "hint": "预期",
-      "py": "anticipate"
+      "py": "anticipate",
+      "ipa": "æntˈɪsɪpˌeɪt"
     },
     {
       "type": "w1",
       "q": "anxiety",
       "a": "anxiety",
       "hint": "焦虑",
-      "py": "anxiety"
+      "py": "anxiety",
+      "ipa": "æŋzˈaɪəti"
     },
     {
       "type": "w1",
       "q": "anyhow",
       "a": "anyhow",
       "hint": "无论如何",
-      "py": "anyhow"
+      "py": "anyhow",
+      "ipa": "ˈɛnɪhˌaʊ"
     },
     {
       "type": "w1",
       "q": "apart",
       "a": "apart",
       "hint": "分开",
-      "py": "apart"
+      "py": "apart",
+      "ipa": "əpˈɑːt"
     },
     {
       "type": "w1",
       "q": "apparent",
       "a": "apparent",
       "hint": "明显的",
-      "py": "apparent"
+      "py": "apparent",
+      "ipa": "əpˈærənt"
     },
     {
       "type": "w1",
       "q": "appeal",
       "a": "appeal",
       "hint": "呼吁",
-      "py": "appeal"
+      "py": "appeal",
+      "ipa": "əpˈiːl"
     },
     {
       "type": "w1",
       "q": "appoint",
       "a": "appoint",
       "hint": "任命",
-      "py": "appoint"
+      "py": "appoint",
+      "ipa": "əpˈɔɪnt"
     },
     {
       "type": "w1",
       "q": "appreciate",
       "a": "appreciate",
       "hint": "欣赏",
-      "py": "appreciate"
+      "py": "appreciate",
+      "ipa": "əprˈiːʃɪˌeɪt"
     },
     {
       "type": "w1",
       "q": "approach",
       "a": "approach",
       "hint": "接近",
-      "py": "approach"
+      "py": "approach",
+      "ipa": "əprˈəʊtʃ"
     },
     {
       "type": "w1",
       "q": "appropriate",
       "a": "appropriate",
       "hint": "适当的",
-      "py": "appropriate"
+      "py": "appropriate",
+      "ipa": "əˈproʊpriˌeɪt"
     },
     {
       "type": "w1",
       "q": "approximate",
       "a": "approximate",
       "hint": "近似的",
-      "py": "approximate"
+      "py": "approximate",
+      "ipa": "əˈprɑksəˌmeɪt"
     },
     {
       "type": "w1",
       "q": "arbitrary",
       "a": "arbitrary",
       "hint": "任意的",
-      "py": "arbitrary"
+      "py": "arbitrary",
+      "ipa": "ˈɑːbɪtrəri"
     },
     {
       "type": "w1",
       "q": "architect",
       "a": "architect",
       "hint": "建筑师",
-      "py": "architect"
+      "py": "architect",
+      "ipa": "ˈɑːkɪtˌɛkt"
     },
     {
       "type": "w1",
       "q": "arise",
       "a": "arise",
       "hint": "出现",
-      "py": "arise"
+      "py": "arise",
+      "ipa": "ərˈaɪz"
     },
     {
       "type": "w1",
       "q": "arithmetic",
       "a": "arithmetic",
       "hint": "算术",
-      "py": "arithmetic"
+      "py": "arithmetic",
+      "ipa": "ˌɛrɪθˈmɛtɪk"
     },
     {
       "type": "w1",
       "q": "arouse",
       "a": "arouse",
       "hint": "唤起",
-      "py": "arouse"
+      "py": "arouse",
+      "ipa": "ərˈaʊz"
     },
     {
       "type": "w1",
       "q": "arrange",
       "a": "arrange",
       "hint": "安排",
-      "py": "arrange"
+      "py": "arrange",
+      "ipa": "ərˈeɪndʒ"
     },
     {
       "type": "w1",
       "q": "aspiration",
       "a": "aspiration",
       "hint": "渴望",
-      "py": "aspiration"
+      "py": "aspiration",
+      "ipa": "ˌæspərˈeɪʃən"
     },
     {
       "type": "w1",
       "q": "assemble",
       "a": "assemble",
       "hint": "组装",
-      "py": "assemble"
+      "py": "assemble",
+      "ipa": "əsˈɛmbəl"
     },
     {
       "type": "w1",
       "q": "assess",
       "a": "assess",
       "hint": "评估",
-      "py": "assess"
+      "py": "assess",
+      "ipa": "əsˈɛs"
     },
     {
       "type": "w1",
       "q": "asset",
       "a": "asset",
       "hint": "资产",
-      "py": "asset"
+      "py": "asset",
+      "ipa": "ˈæsɛt"
     },
     {
       "type": "w1",
       "q": "assign",
       "a": "assign",
       "hint": "分配",
-      "py": "assign"
+      "py": "assign",
+      "ipa": "əsˈaɪn"
     },
     {
       "type": "w1",
       "q": "assist",
       "a": "assist",
       "hint": "协助",
-      "py": "assist"
+      "py": "assist",
+      "ipa": "əsˈɪst"
     },
     {
       "type": "w1",
       "q": "associate",
       "a": "associate",
       "hint": "联想",
-      "py": "associate"
+      "py": "associate",
+      "ipa": "əˈsoʊsiˌeɪt"
     },
     {
       "type": "w1",
       "q": "assume",
       "a": "assume",
       "hint": "假定",
-      "py": "assume"
+      "py": "assume",
+      "ipa": "əsˈuːm"
     },
     {
       "type": "w1",
       "q": "assumption",
       "a": "assumption",
       "hint": "假设",
-      "py": "assumption"
+      "py": "assumption",
+      "ipa": "əsˈʌmpʃən"
     },
     {
       "type": "w1",
       "q": "assure",
       "a": "assure",
       "hint": "保证",
-      "py": "assure"
+      "py": "assure",
+      "ipa": "əʃjˈɔː"
     },
     {
       "type": "w1",
       "q": "astronomy",
       "a": "astronomy",
       "hint": "天文学",
-      "py": "astronomy"
+      "py": "astronomy",
+      "ipa": "əstrˈɒnəmi"
     },
     {
       "type": "w1",
       "q": "atmosphere",
       "a": "atmosphere",
       "hint": "大气",
-      "py": "atmosphere"
+      "py": "atmosphere",
+      "ipa": "ˈætməsfˌiə"
     },
     {
       "type": "w1",
       "q": "attain",
       "a": "attain",
       "hint": "达到",
-      "py": "attain"
+      "py": "attain",
+      "ipa": "ətˈeɪn"
     },
     {
       "type": "w1",
       "q": "attempt",
       "a": "attempt",
       "hint": "尝试",
-      "py": "attempt"
+      "py": "attempt",
+      "ipa": "ətˈɛmpt"
     },
     {
       "type": "w1",
       "q": "attribute",
       "a": "attribute",
       "hint": "归因",
-      "py": "attribute"
+      "py": "attribute",
+      "ipa": "ˈætrəbˌjut"
     },
     {
       "type": "w1",
       "q": "audience",
       "a": "audience",
       "hint": "观众",
-      "py": "audience"
+      "py": "audience",
+      "ipa": "ˈɔːdiəns"
     },
     {
       "type": "c2",
@@ -449,7 +489,8 @@ module.exports = {
       "q": "The professor __ a lecture on quantum physics yesterday.",
       "a": "delivered",
       "hint": "教授昨天讲了量子物理讲座",
-      "py": "theprofessoralectureonquantumphysicsyesterday"
+      "py": "theprofessoralectureonquantumphysicsyesterday",
+      "ipa": "dɪlˈɪvəd"
     },
     {
       "type": "fill",
@@ -463,602 +504,688 @@ module.exports = {
       "q": "The committee __ the proposal carefully.",
       "a": "considered",
       "hint": "委员会仔细考虑了提案",
-      "py": "thecommitteetheproposalcarefully"
+      "py": "thecommitteetheproposalcarefully",
+      "ipa": "kənsˈɪdəd"
     },
     {
       "type": "fill",
       "q": "He __ his ambition of becoming a doctor.",
       "a": "achieved",
       "hint": "他实现了当医生的抱负",
-      "py": "hehisambitionofbecomingadoctor"
+      "py": "hehisambitionofbecomingadoctor",
+      "ipa": "ətʃˈiːvd"
     },
     {
       "type": "w1",
       "q": "bargain",
       "a": "bargain",
       "hint": "讨价还价",
-      "py": "bargain"
+      "py": "bargain",
+      "ipa": "bˈɑːɡɪn"
     },
     {
       "type": "w1",
       "q": "barrier",
       "a": "barrier",
       "hint": "障碍",
-      "py": "barrier"
+      "py": "barrier",
+      "ipa": "bˈærɪə"
     },
     {
       "type": "w1",
       "q": "basis",
       "a": "basis",
       "hint": "基础",
-      "py": "basis"
+      "py": "basis",
+      "ipa": "bˈeɪsɪs"
     },
     {
       "type": "w1",
       "q": "behave",
       "a": "behave",
       "hint": "表现",
-      "py": "behave"
+      "py": "behave",
+      "ipa": "bɪhˈeɪv"
     },
     {
       "type": "w1",
       "q": "belief",
       "a": "belief",
       "hint": "信念",
-      "py": "belief"
+      "py": "belief",
+      "ipa": "bɪlˈiːf"
     },
     {
       "type": "w1",
       "q": "benefit",
       "a": "benefit",
       "hint": "好处",
-      "py": "benefit"
+      "py": "benefit",
+      "ipa": "bˈɛnɪfˌɪt"
     },
     {
       "type": "w1",
       "q": "betray",
       "a": "betray",
       "hint": "背叛",
-      "py": "betray"
+      "py": "betray",
+      "ipa": "bɪtrˈeɪ"
     },
     {
       "type": "w1",
       "q": "blame",
       "a": "blame",
       "hint": "责备",
-      "py": "blame"
+      "py": "blame",
+      "ipa": "blˈeɪm"
     },
     {
       "type": "w1",
       "q": "boost",
       "a": "boost",
       "hint": "促进",
-      "py": "boost"
+      "py": "boost",
+      "ipa": "bˈuːst"
     },
     {
       "type": "w1",
       "q": "border",
       "a": "border",
       "hint": "边界",
-      "py": "border"
+      "py": "border",
+      "ipa": "bˈɔːdə"
     },
     {
       "type": "w1",
       "q": "bother",
       "a": "bother",
       "hint": "打扰",
-      "py": "bother"
+      "py": "bother",
+      "ipa": "bˈɒðə"
     },
     {
       "type": "w1",
       "q": "brief",
       "a": "brief",
       "hint": "简短的",
-      "py": "brief"
+      "py": "brief",
+      "ipa": "brˈiːf"
     },
     {
       "type": "w1",
       "q": "brilliant",
       "a": "brilliant",
       "hint": "杰出的",
-      "py": "brilliant"
+      "py": "brilliant",
+      "ipa": "brˈɪlɪənt"
     },
     {
       "type": "w1",
       "q": "budget",
       "a": "budget",
       "hint": "预算",
-      "py": "budget"
+      "py": "budget",
+      "ipa": "bˈʌdʒɪt"
     },
     {
       "type": "w1",
       "q": "burden",
       "a": "burden",
       "hint": "负担",
-      "py": "burden"
+      "py": "burden",
+      "ipa": "bˈɜːdən"
     },
     {
       "type": "w1",
       "q": "calculate",
       "a": "calculate",
       "hint": "计算",
-      "py": "calculate"
+      "py": "calculate",
+      "ipa": "kˈælkjʊlˌeɪt"
     },
     {
       "type": "w1",
       "q": "campaign",
       "a": "campaign",
       "hint": "运动",
-      "py": "campaign"
+      "py": "campaign",
+      "ipa": "kæmpˈeɪn"
     },
     {
       "type": "w1",
       "q": "capable",
       "a": "capable",
       "hint": "有能力的",
-      "py": "capable"
+      "py": "capable",
+      "ipa": "kˈeɪpəbəl"
     },
     {
       "type": "w1",
       "q": "capital",
       "a": "capital",
       "hint": "首都",
-      "py": "capital"
+      "py": "capital",
+      "ipa": "kˈæpɪtəl"
     },
     {
       "type": "w1",
       "q": "career",
       "a": "career",
       "hint": "职业",
-      "py": "career"
+      "py": "career",
+      "ipa": "kərˈiə"
     },
     {
       "type": "w1",
       "q": "casual",
       "a": "casual",
       "hint": "随意的",
-      "py": "casual"
+      "py": "casual",
+      "ipa": "kˈæʒuːəl"
     },
     {
       "type": "w1",
       "q": "category",
       "a": "category",
       "hint": "类别",
-      "py": "category"
+      "py": "category",
+      "ipa": "kˈætɪɡəri"
     },
     {
       "type": "w1",
       "q": "cease",
       "a": "cease",
       "hint": "停止",
-      "py": "cease"
+      "py": "cease",
+      "ipa": "sˈiːs"
     },
     {
       "type": "w1",
       "q": "challenge",
       "a": "challenge",
       "hint": "挑战",
-      "py": "challenge"
+      "py": "challenge",
+      "ipa": "tʃˈælɪndʒ"
     },
     {
       "type": "w1",
       "q": "character",
       "a": "character",
       "hint": "性格",
-      "py": "character"
+      "py": "character",
+      "ipa": "kˈærɪktə"
     },
     {
       "type": "w1",
       "q": "charge",
       "a": "charge",
       "hint": "收费",
-      "py": "charge"
+      "py": "charge",
+      "ipa": "ˈtʃɑrdʒ"
     },
     {
       "type": "w1",
       "q": "charity",
       "a": "charity",
       "hint": "慈善",
-      "py": "charity"
+      "py": "charity",
+      "ipa": "tʃˈærɪti"
     },
     {
       "type": "w1",
       "q": "cheat",
       "a": "cheat",
       "hint": "欺骗",
-      "py": "cheat"
+      "py": "cheat",
+      "ipa": "tʃˈiːt"
     },
     {
       "type": "w1",
       "q": "chemical",
       "a": "chemical",
       "hint": "化学的",
-      "py": "chemical"
+      "py": "chemical",
+      "ipa": "kˈɛmɪkəl"
     },
     {
       "type": "w1",
       "q": "circumstance",
       "a": "circumstance",
       "hint": "情况",
-      "py": "circumstance"
+      "py": "circumstance",
+      "ipa": "sˈɜːkəmstˌæns"
     },
     {
       "type": "w1",
       "q": "cite",
       "a": "cite",
       "hint": "引用",
-      "py": "cite"
+      "py": "cite",
+      "ipa": "sˈaɪt"
     },
     {
       "type": "w1",
       "q": "civil",
       "a": "civil",
       "hint": "公民的",
-      "py": "civil"
+      "py": "civil",
+      "ipa": "sˈɪvəl"
     },
     {
       "type": "w1",
       "q": "claim",
       "a": "claim",
       "hint": "声称",
-      "py": "claim"
+      "py": "claim",
+      "ipa": "klˈeɪm"
     },
     {
       "type": "w1",
       "q": "classify",
       "a": "classify",
       "hint": "分类",
-      "py": "classify"
+      "py": "classify",
+      "ipa": "klˈæsɪfˌaɪ"
     },
     {
       "type": "w1",
       "q": "client",
       "a": "client",
       "hint": "客户",
-      "py": "client"
+      "py": "client",
+      "ipa": "klˈaɪənt"
     },
     {
       "type": "w1",
       "q": "climate",
       "a": "climate",
       "hint": "气候",
-      "py": "climate"
+      "py": "climate",
+      "ipa": "klˈaɪmət"
     },
     {
       "type": "w1",
       "q": "colleague",
       "a": "colleague",
       "hint": "同事",
-      "py": "colleague"
+      "py": "colleague",
+      "ipa": "kˈɒliːɡ"
     },
     {
       "type": "w1",
       "q": "combine",
       "a": "combine",
       "hint": "结合",
-      "py": "combine"
+      "py": "combine",
+      "ipa": "ˈkɑmbaɪn"
     },
     {
       "type": "w1",
       "q": "comment",
       "a": "comment",
       "hint": "评论",
-      "py": "comment"
+      "py": "comment",
+      "ipa": "kˈɒmɛnt"
     },
     {
       "type": "w1",
       "q": "commercial",
       "a": "commercial",
       "hint": "商业的",
-      "py": "commercial"
+      "py": "commercial",
+      "ipa": "kəmˈɜːʃəl"
     },
     {
       "type": "w1",
       "q": "commit",
       "a": "commit",
       "hint": "承诺",
-      "py": "commit"
+      "py": "commit",
+      "ipa": "kəmˈɪt"
     },
     {
       "type": "w1",
       "q": "committee",
       "a": "committee",
       "hint": "委员会",
-      "py": "committee"
+      "py": "committee",
+      "ipa": "kəˈmɪti"
     },
     {
       "type": "w1",
       "q": "communicate",
       "a": "communicate",
       "hint": "交流",
-      "py": "communicate"
+      "py": "communicate",
+      "ipa": "kəmjˈuːnɪkˌeɪt"
     },
     {
       "type": "w1",
       "q": "community",
       "a": "community",
       "hint": "社区",
-      "py": "community"
+      "py": "community",
+      "ipa": "kəmjˈuːnɪtˌi"
     },
     {
       "type": "w1",
       "q": "compete",
       "a": "compete",
       "hint": "竞争",
-      "py": "compete"
+      "py": "compete",
+      "ipa": "kəmpˈiːt"
     },
     {
       "type": "w1",
       "q": "complain",
       "a": "complain",
       "hint": "抱怨",
-      "py": "complain"
+      "py": "complain",
+      "ipa": "kəmplˈeɪn"
     },
     {
       "type": "w1",
       "q": "complex",
       "a": "complex",
       "hint": "复杂的",
-      "py": "complex"
+      "py": "complex",
+      "ipa": "ˈkɑmpɫɛks"
     },
     {
       "type": "w1",
       "q": "concentrate",
       "a": "concentrate",
       "hint": "集中",
-      "py": "concentrate"
+      "py": "concentrate",
+      "ipa": "kˈɒnsəntrˌeɪt"
     },
     {
       "type": "w1",
       "q": "concept",
       "a": "concept",
       "hint": "概念",
-      "py": "concept"
+      "py": "concept",
+      "ipa": "kˈɒnsɛpt"
     },
     {
       "type": "w1",
       "q": "concern",
       "a": "concern",
       "hint": "关心",
-      "py": "concern"
+      "py": "concern",
+      "ipa": "kənsˈɜːn"
     },
     {
       "type": "w1",
       "q": "conclude",
       "a": "conclude",
       "hint": "得出结论",
-      "py": "conclude"
+      "py": "conclude",
+      "ipa": "kənklˈuːd"
     },
     {
       "type": "w1",
       "q": "conduct",
       "a": "conduct",
       "hint": "进行",
-      "py": "conduct"
+      "py": "conduct",
+      "ipa": "ˈkɑndəkt"
     },
     {
       "type": "w1",
       "q": "confidence",
       "a": "confidence",
       "hint": "信心",
-      "py": "confidence"
+      "py": "confidence",
+      "ipa": "kˈɒnfɪdəns"
     },
     {
       "type": "w1",
       "q": "confirm",
       "a": "confirm",
       "hint": "确认",
-      "py": "confirm"
+      "py": "confirm",
+      "ipa": "kənfˈɜːm"
     },
     {
       "type": "w1",
       "q": "conflict",
       "a": "conflict",
       "hint": "冲突",
-      "py": "conflict"
+      "py": "conflict",
+      "ipa": "ˈkɑnfɫɪkt"
     },
     {
       "type": "w1",
       "q": "confuse",
       "a": "confuse",
       "hint": "使困惑",
-      "py": "confuse"
+      "py": "confuse",
+      "ipa": "kənfjˈuːz"
     },
     {
       "type": "w1",
       "q": "connect",
       "a": "connect",
       "hint": "连接",
-      "py": "connect"
+      "py": "connect",
+      "ipa": "kənˈɛkt"
     },
     {
       "type": "w1",
       "q": "conscious",
       "a": "conscious",
       "hint": "有意识的",
-      "py": "conscious"
+      "py": "conscious",
+      "ipa": "kˈɒnʃəs"
     },
     {
       "type": "w1",
       "q": "consequence",
       "a": "consequence",
       "hint": "后果",
-      "py": "consequence"
+      "py": "consequence",
+      "ipa": "kˈɒnsɪkwəns"
     },
     {
       "type": "w1",
       "q": "consist",
       "a": "consist",
       "hint": "组成",
-      "py": "consist"
+      "py": "consist",
+      "ipa": "kənˈsɪst"
     },
     {
       "type": "w1",
       "q": "constant",
       "a": "constant",
       "hint": "持续的",
-      "py": "constant"
+      "py": "constant",
+      "ipa": "kˈɒnstənt"
     },
     {
       "type": "w1",
       "q": "construct",
       "a": "construct",
       "hint": "建造",
-      "py": "construct"
+      "py": "construct",
+      "ipa": "ˈkɑnstrəkt"
     },
     {
       "type": "w1",
       "q": "consult",
       "a": "consult",
       "hint": "咨询",
-      "py": "consult"
+      "py": "consult",
+      "ipa": "kənˈsəɫt"
     },
     {
       "type": "w1",
       "q": "consume",
       "a": "consume",
       "hint": "消费",
-      "py": "consume"
+      "py": "consume",
+      "ipa": "kənsˈuːm"
     },
     {
       "type": "w1",
       "q": "contact",
       "a": "contact",
       "hint": "联系",
-      "py": "contact"
+      "py": "contact",
+      "ipa": "ˈkɑnˌtækt"
     },
     {
       "type": "w1",
       "q": "contain",
       "a": "contain",
       "hint": "包含",
-      "py": "contain"
+      "py": "contain",
+      "ipa": "kəntˈeɪn"
     },
     {
       "type": "w1",
       "q": "contemporary",
       "a": "contemporary",
       "hint": "当代的",
-      "py": "contemporary"
+      "py": "contemporary",
+      "ipa": "kəntˈɛmpərəri"
     },
     {
       "type": "w1",
       "q": "content",
       "a": "content",
       "hint": "内容",
-      "py": "content"
+      "py": "content",
+      "ipa": "ˈkɑntɛnt"
     },
     {
       "type": "w1",
       "q": "contract",
       "a": "contract",
       "hint": "合同",
-      "py": "contract"
+      "py": "contract",
+      "ipa": "ˈkɑnˌtrækt"
     },
     {
       "type": "w1",
       "q": "contrast",
       "a": "contrast",
       "hint": "对比",
-      "py": "contrast"
+      "py": "contrast",
+      "ipa": "ˈkɑntræst"
     },
     {
       "type": "w1",
       "q": "contribute",
       "a": "contribute",
       "hint": "贡献",
-      "py": "contribute"
+      "py": "contribute",
+      "ipa": "kˈɒntrɪbjˌuːt"
     },
     {
       "type": "w1",
       "q": "convenient",
       "a": "convenient",
       "hint": "方便的",
-      "py": "convenient"
+      "py": "convenient",
+      "ipa": "kənvˈiːnɪənt"
     },
     {
       "type": "w1",
       "q": "convince",
       "a": "convince",
       "hint": "说服",
-      "py": "convince"
+      "py": "convince",
+      "ipa": "kənvˈɪns"
     },
     {
       "type": "w1",
       "q": "cooperate",
       "a": "cooperate",
       "hint": "合作",
-      "py": "cooperate"
+      "py": "cooperate",
+      "ipa": "kəʊˈɒpərˌeɪt"
     },
     {
       "type": "w1",
       "q": "core",
       "a": "core",
       "hint": "核心",
-      "py": "core"
+      "py": "core",
+      "ipa": "kˈɔː"
     },
     {
       "type": "w1",
       "q": "corporate",
       "a": "corporate",
       "hint": "公司的",
-      "py": "corporate"
+      "py": "corporate",
+      "ipa": "kˈɔːpərət"
     },
     {
       "type": "w1",
       "q": "correspond",
       "a": "correspond",
       "hint": "对应",
-      "py": "correspond"
+      "py": "correspond",
+      "ipa": "kˌɒrɪspˈɒnd"
     },
     {
       "type": "w1",
       "q": "council",
       "a": "council",
       "hint": "委员会",
-      "py": "council"
+      "py": "council",
+      "ipa": "kˈaʊnsəl"
     },
     {
       "type": "w1",
       "q": "crash",
       "a": "crash",
       "hint": "碰撞",
-      "py": "crash"
+      "py": "crash",
+      "ipa": "krˈæʃ"
     },
     {
       "type": "w1",
       "q": "credit",
       "a": "credit",
       "hint": "信用",
-      "py": "credit"
+      "py": "credit",
+      "ipa": "krˈɛdɪt"
     },
     {
       "type": "w1",
       "q": "crisis",
       "a": "crisis",
       "hint": "危机",
-      "py": "crisis"
+      "py": "crisis",
+      "ipa": "krˈaɪsɪs"
     },
     {
       "type": "w1",
       "q": "criterion",
       "a": "criterion",
       "hint": "标准",
-      "py": "criterion"
+      "py": "criterion",
+      "ipa": "kraɪtˈiərɪən"
     },
     {
       "type": "w1",
       "q": "critical",
       "a": "critical",
       "hint": "关键的",
-      "py": "critical"
+      "py": "critical",
+      "ipa": "krˈɪtɪkəl"
     },
     {
       "type": "w1",
       "q": "criticise",
       "a": "criticise",
       "hint": "批评",
-      "py": "criticise"
+      "py": "criticise",
+      "ipa": "krˈɪtɪsˌaɪz"
     }
   ]
 };

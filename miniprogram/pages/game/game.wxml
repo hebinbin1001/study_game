@@ -37,6 +37,8 @@
         <text wx:elif="{{bossName}}" class="gs-quest-stage">{{bossName}}</text>
       </view>
       <view class="gs-quest-answer">{{meaning}}</view>
+      <!-- 音标：跟着题面走，帮学生把「词」和「读音」对上（英语题才有） -->
+      <view wx:if="{{ipa}}" class="gs-quest-ipa">/{{ipa}}/</view>
     </view>
 
     <!-- Boss 血条 -->

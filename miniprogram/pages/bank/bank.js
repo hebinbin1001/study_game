@@ -19,6 +19,7 @@ var auth = require('../../utils/auth');
 var dict = require('../../utils/dict');
 var bank = require('../../utils/bank');
 var constants = require('../../utils/constants');
+var storage = require('../../utils/storage');
 
 var PAGE_SIZE = 30;
 var BASE_KEY = 'base';        // 「内置疑改」这一档的 key
@@ -52,6 +53,10 @@ function toRow(grade, item, banks) {
     // 端上直接拿它排 —— 小程序里跑不了拼音库，运行时算不出来。
     // 自建词条是用户在端上新增的，没有 py → 退回用题面本身（会排到中文之前，可接受）。
     py: item.py || String(item.q || '').toLowerCase(),
+    // 教材标签（2026-10-09）：让「我的 → 教材版本」的选择在题库里看得见
+    book: item.book || '',
+    bookLabel: bookNameOf(item.book),
+    ipa: item.ipa || '',
     d: Array.isArray(item.d) ? item.d.join(',') : (item.d || ''),
     ex: item.ex || '',
     srcLabel: label,
@@ -61,12 +66,25 @@ function toRow(grade, item, banks) {
   };
 }
 
+/** 教材版本 key → 展示名（空串 = 通用，不显示标签） */
+function bookNameOf(key) {
+  var k = String(key || '');
+  if (!k) return '';
+  for (var i = 0; i < constants.BOOKS.length; i++) {
+    if (constants.BOOKS[i].key === k) return constants.BOOKS[i].name;
+  }
+  return k;
+}
+
 Page({
   data: {
     // 筛选
     grades: [],
     gradeIndex: 0,
     gradeLabel: '',
+    bookFilter: 'all',    // 教材筛选：all / generic / pep / wys
+    bookChips: [],        // [{key,label,n}]
+    curBookName: '',      // 「我的」里选的教材版本（影响出题，这里只做提示）
     bankChips: [],        // [{key,label,off,count}] 第一个是「内置」
     curBank: BASE_KEY,
     curBankName: '内置 · 含我的改动',
@@ -226,12 +244,37 @@ Page({
     var weak = finalRows.filter(function (r) { return r.status === 'weak'; }).length;
     var learned = finalRows.filter(function (r) { return r.status === 'learned'; }).length;
 
+    // 教材版本分布（2026-10-09）：用户把「我的 → 教材版本」切成人教版后，
+    // 以前在题库页完全看不出差别（这里原本只显示内置全量）。
+    // 现在按教材标签分组统计，切换 chip 就能直接看到 人教版/外研版/通用 各有多少条。
+    var bookCount = { generic: 0 };
+    finalRows.forEach(function (r) {
+      var b = r.book || 'generic';
+      bookCount[b] = (bookCount[b] || 0) + 1;
+    });
+    var bookChips = [{ key: 'all', label: '全部', n: finalRows.length }];
+    constants.BOOKS.forEach(function (b) {
+      var key = b.key || 'generic';
+      bookChips.push({ key: key, label: b.name, n: bookCount[key] || 0 });
+    });
+    var picked = d.bookFilter || 'all';
+    // 切到别的学段后，原教材档位可能一条都没有 → 自动回到「全部」，别让用户对着空列表发呆
+    var pickedCount = null;
+    bookChips.forEach(function (c) { if (c.key === picked) pickedCount = c.n; });
+    if (picked !== 'all' && !pickedCount) picked = 'all';
+
+    var curBook = storage.getBook();
+    var curBookName = curBook ? bookNameOf(curBook) : '通用词表';
+
     var bankName = curBank === BASE_KEY
       ? '内置 · 含我的改动'
       : ((banks[curBank] && banks[curBank].name) || '自建库');
     var isCustom = curBank !== BASE_KEY;
 
     this.setData({
+      bookFilter: picked,
+      bookChips: bookChips,
+      curBookName: curBookName,
       bankChips: chips,
       curBank: curBank,
       curBankName: bankName,
@@ -267,6 +310,12 @@ Page({
         if (r.bankId) return false;
       } else if (r.bankId !== bankKey) {
         return false;
+      }
+      // 教材维度（2026-10-09）：generic = 没有教材标签的通用词条；其余按 book 精确匹配
+      var bf = d.bookFilter || 'all';
+      if (bf !== 'all') {
+        var want = bf === 'generic' ? '' : bf;
+        if (String(r.book || '') !== want) return false;
       }
       if (type && type !== 'all' && !constants.isItemInGroup(r, type)) return false;
       if (mf === 'weak' && r.status !== 'weak') return false;
@@ -309,6 +358,18 @@ Page({
   pickSort: function (e) {
     var dir = parseInt(e.currentTarget.dataset.dir, 10) || 1;
     this.setData({ sortKey: 'py', sortDesc: dir < 0 });
+    this._page = 1;
+    this._applyFilter();
+  },
+
+  /**
+   * 切换教材筛选（2026-10-09）。
+   * 这是让「我的 → 教材版本」在题库页看得见的入口：选人教版就只剩 PEP 词条，
+   * 选通用就只剩没有教材标签的原题库词条 —— 用户切换的到底是哪套词，一目了然。
+   */
+  pickBookFilter: function (e) {
+    var key = e.currentTarget.dataset.key || 'all';
+    this.setData({ bookFilter: key });
     this._page = 1;
     this._applyFilter();
   },

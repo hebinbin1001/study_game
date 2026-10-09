@@ -8,35 +8,40 @@ module.exports = {
       "q": "mostly",
       "a": "mostly",
       "hint": "主要地",
-      "py": "mostly"
+      "py": "mostly",
+      "ipa": "mˈəʊstli"
     },
     {
       "type": "w1",
       "q": "mainly",
       "a": "mainly",
       "hint": "主要地",
-      "py": "mainly"
+      "py": "mainly",
+      "ipa": "mˈeɪnli"
     },
     {
       "type": "w1",
       "q": "really",
       "a": "really",
       "hint": "真正地",
-      "py": "really"
+      "py": "really",
+      "ipa": "rˈiəli"
     },
     {
       "type": "w1",
       "q": "truly",
       "a": "truly",
       "hint": "真实地",
-      "py": "truly"
+      "py": "truly",
+      "ipa": "trˈuːli"
     },
     {
       "type": "w1",
       "q": "surely",
       "a": "surely",
       "hint": "一定地",
-      "py": "surely"
+      "py": "surely",
+      "ipa": "ʃˈɔːli"
     },
     {
       "type": "w2",
@@ -44,140 +49,160 @@ module.exports = {
       "a": "beautiful",
       "hint": "美丽的",
       "py": "beuiul",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "bjˈuːtɪfəl"
     },
     {
       "type": "w2",
       "q": "i*p*r*ant",
       "a": "important",
       "hint": "重要的",
-      "py": "iprant"
+      "py": "iprant",
+      "ipa": "ɪmpˈɔːtənt"
     },
     {
       "type": "w2",
       "q": "d*ff*r*nt",
       "a": "different",
       "hint": "不同的",
-      "py": "dffrnt"
+      "py": "dffrnt",
+      "ipa": "dˈɪfrənt"
     },
     {
       "type": "w2",
       "q": "w*n*e*ful",
       "a": "wonderful",
       "hint": "奇妙的",
-      "py": "wneful"
+      "py": "wneful",
+      "ipa": "wˈʌndəfəl"
     },
     {
       "type": "w2",
       "q": "*nt*r*st*ng",
       "a": "interesting",
       "hint": "有趣的",
-      "py": "ntrstng"
+      "py": "ntrstng",
+      "ipa": "ˈɪntrəstɪŋ"
     },
     {
       "type": "w2",
       "q": "r*m*m*er",
       "a": "remember",
       "hint": "记得",
-      "py": "rmmer"
+      "py": "rmmer",
+      "ipa": "rɪmˈɛmbə"
     },
     {
       "type": "w2",
       "q": "t*g*t*er",
       "a": "together",
       "hint": "一起",
-      "py": "tgter"
+      "py": "tgter",
+      "ipa": "təɡˈɛðə"
     },
     {
       "type": "w2",
       "q": "a*o*h*r",
       "a": "another",
       "hint": "另一个",
-      "py": "aohr"
+      "py": "aohr",
+      "ipa": "ənˈʌðə"
     },
     {
       "type": "w2",
       "q": "a*r*a*y",
       "a": "already",
       "hint": "已经",
-      "py": "aray"
+      "py": "aray",
+      "ipa": "ɔːlrˈɛdi"
     },
     {
       "type": "w2",
       "q": "*lw*ys",
       "a": "always",
       "hint": "总是",
-      "py": "lwys"
+      "py": "lwys",
+      "ipa": "ˈɔːlweɪz"
     },
     {
       "type": "w2",
       "q": "s*m*t*mes",
       "a": "sometimes",
       "hint": "有时",
-      "py": "smtmes"
+      "py": "smtmes",
+      "ipa": "sˈʌmtaɪmz"
     },
     {
       "type": "w2",
       "q": "u*u*l*y",
       "a": "usually",
       "hint": "通常",
-      "py": "uuly"
+      "py": "uuly",
+      "ipa": "jˈuːʒuːəli"
     },
     {
       "type": "w2",
       "q": "q*i*k*y",
       "a": "quickly",
       "hint": "快地",
-      "py": "qiky"
+      "py": "qiky",
+      "ipa": "kwˈɪkli"
     },
     {
       "type": "w2",
       "q": "s**wly",
       "a": "slowly",
       "hint": "慢地",
-      "py": "swly"
+      "py": "swly",
+      "ipa": "slˈəʊli"
     },
     {
       "type": "w2",
       "q": "c*r*f*l*y",
       "a": "carefully",
       "hint": "小心地",
-      "py": "crfly"
+      "py": "crfly",
+      "ipa": "kˈeəfəli"
     },
     {
       "type": "w2",
       "q": "**s*ly",
       "a": "easily",
       "hint": "容易地",
-      "py": "sly"
+      "py": "sly",
+      "ipa": "ˈiːzɪli"
     },
     {
       "type": "w2",
       "q": "h*p*i*y",
       "a": "happily",
       "hint": "快乐地",
-      "py": "hpiy"
+      "py": "hpiy",
+      "ipa": "hˈæpɪli"
     },
     {
       "type": "w2",
       "q": "s*d*y",
       "a": "sadly",
       "hint": "悲伤地",
-      "py": "sdy"
+      "py": "sdy",
+      "ipa": "sˈædli"
     },
     {
       "type": "w2",
       "q": "l**dly",
       "a": "loudly",
       "hint": "大声地",
-      "py": "ldly"
+      "py": "ldly",
+      "ipa": "lˈaʊdli"
     },
     {
       "type": "w2",
       "q": "q*i*t*y",
       "a": "quietly",
       "hint": "安静地",
-      "py": "qity"
+      "py": "qity",
+      "ipa": "kwˈaɪətli"
     },
     {
       "type": "c2",
@@ -810,7 +835,8 @@ module.exports = {
       "a": "ball",
       "hint": "球",
       "py": "ball",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "bˈɔːl"
     },
     {
       "type": "w1",
@@ -818,7 +844,8 @@ module.exports = {
       "a": "basketball",
       "hint": "篮球",
       "py": "basketball",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "bˈɑːskɪtbˌɔːl"
     },
     {
       "type": "w1",
@@ -826,7 +853,8 @@ module.exports = {
       "a": "football",
       "hint": "足球",
       "py": "football",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "fˈʊtbɔːl"
     },
     {
       "type": "w1",
@@ -834,7 +862,8 @@ module.exports = {
       "a": "baseball",
       "hint": "棒球",
       "py": "baseball",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "bˈeɪsbɔːl"
     },
     {
       "type": "w1",
@@ -842,7 +871,8 @@ module.exports = {
       "a": "ping-pong",
       "hint": "乒乓球",
       "py": "ping-pong",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈpɪŋˌpɔŋ"
     },
     {
       "type": "w1",
@@ -850,7 +880,8 @@ module.exports = {
       "a": "jacket",
       "hint": "夹克",
       "py": "jacket",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "dʒˈækɪt"
     },
     {
       "type": "w1",
@@ -858,7 +889,8 @@ module.exports = {
       "a": "shirt",
       "hint": "衬衫",
       "py": "shirt",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ʃˈɜːt"
     },
     {
       "type": "w1",
@@ -866,7 +898,8 @@ module.exports = {
       "a": "skirt",
       "hint": "裙子",
       "py": "skirt",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "skˈɜːt"
     },
     {
       "type": "w1",
@@ -874,7 +907,8 @@ module.exports = {
       "a": "dress",
       "hint": "连衣裙",
       "py": "dress",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "drˈɛs"
     },
     {
       "type": "w1",
@@ -882,7 +916,8 @@ module.exports = {
       "a": "sweater",
       "hint": "毛衣",
       "py": "sweater",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "swˈɛtə"
     },
     {
       "type": "w1",
@@ -890,7 +925,8 @@ module.exports = {
       "a": "T-shirt",
       "hint": "T恤衫",
       "py": "T-shirt",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈtiˌsɝt"
     },
     {
       "type": "w1",
@@ -898,7 +934,8 @@ module.exports = {
       "a": "shorts",
       "hint": "短裤",
       "py": "shorts",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ʃˈɔːts"
     },
     {
       "type": "w1",
@@ -906,7 +943,8 @@ module.exports = {
       "a": "shoes",
       "hint": "鞋子",
       "py": "shoes",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ʃˈuːz"
     },
     {
       "type": "w1",
@@ -914,7 +952,8 @@ module.exports = {
       "a": "socks",
       "hint": "袜子",
       "py": "socks",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "sˈɒks"
     },
     {
       "type": "w1",
@@ -922,7 +961,8 @@ module.exports = {
       "a": "hat",
       "hint": "帽子",
       "py": "hat",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "hˈæt"
     },
     {
       "type": "w1",
@@ -930,7 +970,8 @@ module.exports = {
       "a": "cap",
       "hint": "鸭舌帽",
       "py": "cap",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kˈæp"
     },
     {
       "type": "w1",
@@ -938,7 +979,8 @@ module.exports = {
       "a": "umbrella",
       "hint": "雨伞",
       "py": "umbrella",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ʌmbrˈɛlə"
     },
     {
       "type": "w1",
@@ -946,7 +988,8 @@ module.exports = {
       "a": "glasses",
       "hint": "眼镜",
       "py": "glasses",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ɡlˈɑːsɪz"
     },
     {
       "type": "w1",
@@ -954,7 +997,8 @@ module.exports = {
       "a": "scarf",
       "hint": "围巾",
       "py": "scarf",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "skˈɑːf"
     },
     {
       "type": "w1",
@@ -962,7 +1006,8 @@ module.exports = {
       "a": "gloves",
       "hint": "手套",
       "py": "gloves",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ɡlˈʌvz"
     },
     {
       "type": "w1",
@@ -970,7 +1015,8 @@ module.exports = {
       "a": "computer",
       "hint": "电脑",
       "py": "computer",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kəmpjˈuːtə"
     },
     {
       "type": "w1",
@@ -978,7 +1024,8 @@ module.exports = {
       "a": "light",
       "hint": "灯",
       "py": "light",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "lˈaɪt"
     },
     {
       "type": "w1",
@@ -986,7 +1033,8 @@ module.exports = {
       "a": "fan",
       "hint": "风扇",
       "py": "fan",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "fˈæn"
     },
     {
       "type": "w1",
@@ -994,7 +1042,8 @@ module.exports = {
       "a": "weather",
       "hint": "天气",
       "py": "weather",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "wˈɛðə"
     },
     {
       "type": "w1",
@@ -1002,7 +1051,8 @@ module.exports = {
       "a": "sunny",
       "hint": "晴朗的",
       "py": "sunny",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "sˈʌni"
     },
     {
       "type": "w1",
@@ -1010,7 +1060,8 @@ module.exports = {
       "a": "cloudy",
       "hint": "多云的",
       "py": "cloudy",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "klˈaʊdi"
     },
     {
       "type": "w1",
@@ -1018,7 +1069,8 @@ module.exports = {
       "a": "rainy",
       "hint": "下雨的",
       "py": "rainy",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "rˈeɪni"
     },
     {
       "type": "w1",
@@ -1026,7 +1078,8 @@ module.exports = {
       "a": "snowy",
       "hint": "下雪的",
       "py": "snowy",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "snˈəʊi"
     },
     {
       "type": "w1",
@@ -1034,7 +1087,8 @@ module.exports = {
       "a": "windy",
       "hint": "有风的",
       "py": "windy",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈwaɪndi"
     },
     {
       "type": "w1",
@@ -1042,7 +1096,8 @@ module.exports = {
       "a": "cold",
       "hint": "寒冷的",
       "py": "cold",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kˈəʊld"
     },
     {
       "type": "w1",
@@ -1050,7 +1105,8 @@ module.exports = {
       "a": "hot",
       "hint": "热的",
       "py": "hot",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "hˈɒt"
     },
     {
       "type": "w1",
@@ -1058,7 +1114,8 @@ module.exports = {
       "a": "warm",
       "hint": "温暖的",
       "py": "warm",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "wˈɔːm"
     },
     {
       "type": "w1",
@@ -1066,7 +1123,8 @@ module.exports = {
       "a": "cool",
       "hint": "凉爽的",
       "py": "cool",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kˈuːl"
     },
     {
       "type": "w1",
@@ -1074,7 +1132,8 @@ module.exports = {
       "a": "animal",
       "hint": "动物",
       "py": "animal",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈænɪməl"
     },
     {
       "type": "w1",
@@ -1082,7 +1141,8 @@ module.exports = {
       "a": "horse",
       "hint": "马",
       "py": "horse",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "hˈɔːs"
     },
     {
       "type": "w1",
@@ -1090,7 +1150,8 @@ module.exports = {
       "a": "cow",
       "hint": "奶牛",
       "py": "cow",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kˈaʊ"
     },
     {
       "type": "w1",
@@ -1098,7 +1159,8 @@ module.exports = {
       "a": "sheep",
       "hint": "绵羊",
       "py": "sheep",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ʃˈiːp"
     },
     {
       "type": "w1",
@@ -1106,7 +1168,8 @@ module.exports = {
       "a": "goat",
       "hint": "山羊",
       "py": "goat",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ɡˈəʊt"
     },
     {
       "type": "w1",
@@ -1114,7 +1177,8 @@ module.exports = {
       "a": "hen",
       "hint": "母鸡",
       "py": "hen",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "hˈɛn"
     },
     {
       "type": "w1",
@@ -1122,7 +1186,8 @@ module.exports = {
       "a": "chick",
       "hint": "小鸡",
       "py": "chick",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "tʃˈɪk"
     },
     {
       "type": "w1",
@@ -1130,7 +1195,8 @@ module.exports = {
       "a": "tiger",
       "hint": "老虎",
       "py": "tiger",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "tˈaɪɡə"
     },
     {
       "type": "w1",
@@ -1138,7 +1204,8 @@ module.exports = {
       "a": "lion",
       "hint": "狮子",
       "py": "lion",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "lˈaɪən"
     },
     {
       "type": "w1",
@@ -1146,7 +1213,8 @@ module.exports = {
       "a": "giraffe",
       "hint": "长颈鹿",
       "py": "giraffe",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "dʒɪrˈɑːf"
     },
     {
       "type": "w1",
@@ -1154,7 +1222,8 @@ module.exports = {
       "a": "deer",
       "hint": "鹿",
       "py": "deer",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "dˈiə"
     },
     {
       "type": "w1",
@@ -1162,7 +1231,8 @@ module.exports = {
       "a": "wolf",
       "hint": "狼",
       "py": "wolf",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "wˈʊlf"
     },
     {
       "type": "w1",
@@ -1170,7 +1240,8 @@ module.exports = {
       "a": "fox",
       "hint": "狐狸",
       "py": "fox",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "fˈɒks"
     },
     {
       "type": "w1",
@@ -1178,7 +1249,8 @@ module.exports = {
       "a": "tomato",
       "hint": "西红柿",
       "py": "tomato",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "təmˈɑːtəʊ"
     },
     {
       "type": "w1",
@@ -1186,7 +1258,8 @@ module.exports = {
       "a": "potato",
       "hint": "土豆",
       "py": "potato",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "pətˈeɪtəʊ"
     },
     {
       "type": "w1",
@@ -1194,7 +1267,8 @@ module.exports = {
       "a": "cucumber",
       "hint": "黄瓜",
       "py": "cucumber",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kjˈuːkʌmbə"
     },
     {
       "type": "w1",
@@ -1202,7 +1276,8 @@ module.exports = {
       "a": "onion",
       "hint": "洋葱",
       "py": "onion",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈʌniən"
     },
     {
       "type": "w1",
@@ -1210,7 +1285,8 @@ module.exports = {
       "a": "carrot",
       "hint": "胡萝卜",
       "py": "carrot",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kˈærət"
     },
     {
       "type": "w1",
@@ -1218,7 +1294,8 @@ module.exports = {
       "a": "cabbage",
       "hint": "白菜",
       "py": "cabbage",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kˈæbɪdʒ"
     },
     {
       "type": "w1",
@@ -1226,7 +1303,8 @@ module.exports = {
       "a": "vegetable",
       "hint": "蔬菜",
       "py": "vegetable",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "vˈɛdʒɪtəbəl"
     },
     {
       "type": "w1",
@@ -1234,7 +1312,8 @@ module.exports = {
       "a": "fruit",
       "hint": "水果",
       "py": "fruit",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "frˈuːt"
     },
     {
       "type": "w1",
@@ -1242,7 +1321,8 @@ module.exports = {
       "a": "breakfast",
       "hint": "早餐",
       "py": "breakfast",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "brˈɛkfəst"
     },
     {
       "type": "w1",
@@ -1250,7 +1330,8 @@ module.exports = {
       "a": "lunch",
       "hint": "午餐",
       "py": "lunch",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "lˈʌntʃ"
     },
     {
       "type": "w1",
@@ -1258,7 +1339,8 @@ module.exports = {
       "a": "dinner",
       "hint": "晚餐",
       "py": "dinner",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "dˈɪnə"
     },
     {
       "type": "w1",
@@ -1266,7 +1348,8 @@ module.exports = {
       "a": "soup",
       "hint": "汤",
       "py": "soup",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "sˈuːp"
     },
     {
       "type": "w1",
@@ -1274,7 +1357,8 @@ module.exports = {
       "a": "Chinese",
       "hint": "语文",
       "py": "Chinese",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "tʃaɪˈniz"
     },
     {
       "type": "w1",
@@ -1282,7 +1366,8 @@ module.exports = {
       "a": "English",
       "hint": "英语",
       "py": "English",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈɪŋɡlɪʃ"
     },
     {
       "type": "w1",
@@ -1290,7 +1375,8 @@ module.exports = {
       "a": "math",
       "hint": "数学",
       "py": "math",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "mˈæθ"
     },
     {
       "type": "w1",
@@ -1298,7 +1384,8 @@ module.exports = {
       "a": "music",
       "hint": "音乐",
       "py": "music",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "mjˈuːzɪk"
     },
     {
       "type": "w1",
@@ -1306,7 +1393,8 @@ module.exports = {
       "a": "art",
       "hint": "美术",
       "py": "art",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈɑːt"
     },
     {
       "type": "w1",
@@ -1314,7 +1402,8 @@ module.exports = {
       "a": "science",
       "hint": "科学",
       "py": "science",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "sˈaɪəns"
     },
     {
       "type": "w1",
@@ -1322,7 +1411,8 @@ module.exports = {
       "a": "read",
       "hint": "读",
       "py": "read",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈrɛd"
     },
     {
       "type": "w1",
@@ -1330,7 +1420,8 @@ module.exports = {
       "a": "write",
       "hint": "写",
       "py": "write",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "rˈaɪt"
     },
     {
       "type": "w1",
@@ -1338,7 +1429,8 @@ module.exports = {
       "a": "sing",
       "hint": "唱歌",
       "py": "sing",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "sˈɪŋ"
     },
     {
       "type": "w1",
@@ -1346,7 +1438,8 @@ module.exports = {
       "a": "dance",
       "hint": "跳舞",
       "py": "dance",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "dˈɑːns"
     },
     {
       "type": "w1",
@@ -1354,7 +1447,8 @@ module.exports = {
       "a": "draw",
       "hint": "画画",
       "py": "draw",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "drˈɔː"
     },
     {
       "type": "w1",
@@ -1362,7 +1456,8 @@ module.exports = {
       "a": "run",
       "hint": "跑",
       "py": "run",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "rˈʌn"
     },
     {
       "type": "w1",
@@ -1370,7 +1465,8 @@ module.exports = {
       "a": "jump",
       "hint": "跳",
       "py": "jump",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "dʒˈʌmp"
     },
     {
       "type": "w1",
@@ -1378,7 +1474,8 @@ module.exports = {
       "a": "swim",
       "hint": "游泳",
       "py": "swim",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "swˈɪm"
     },
     {
       "type": "w1",
@@ -1386,7 +1483,8 @@ module.exports = {
       "a": "listen",
       "hint": "听",
       "py": "listen",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "lˈɪsən"
     },
     {
       "type": "w1",
@@ -1394,7 +1492,8 @@ module.exports = {
       "a": "speak",
       "hint": "说",
       "py": "speak",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "spˈiːk"
     },
     {
       "type": "w1",
@@ -1402,7 +1501,8 @@ module.exports = {
       "a": "ask",
       "hint": "问",
       "py": "ask",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈɑːsk"
     },
     {
       "type": "w1",
@@ -1410,7 +1510,8 @@ module.exports = {
       "a": "answer",
       "hint": "回答",
       "py": "answer",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈɑːnsə"
     },
     {
       "type": "w1",
@@ -1418,7 +1519,8 @@ module.exports = {
       "a": "expensive",
       "hint": "昂贵的",
       "py": "expensive",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ɛkspˈɛnsɪv"
     },
     {
       "type": "w1",
@@ -1426,7 +1528,8 @@ module.exports = {
       "a": "cheap",
       "hint": "便宜的",
       "py": "cheap",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "tʃˈiːp"
     },
     {
       "type": "w1",
@@ -1434,7 +1537,8 @@ module.exports = {
       "a": "pretty",
       "hint": "漂亮的",
       "py": "pretty",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "prˈɪti"
     },
     {
       "type": "w1",
@@ -1442,7 +1546,8 @@ module.exports = {
       "a": "colourful",
       "hint": "多彩的",
       "py": "colourful",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kˈʌləfəl"
     },
     {
       "type": "w1",
@@ -1450,7 +1555,8 @@ module.exports = {
       "a": "new",
       "hint": "新的",
       "py": "new",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "njˈuː"
     },
     {
       "type": "w1",
@@ -1458,7 +1564,8 @@ module.exports = {
       "a": "old",
       "hint": "旧的",
       "py": "old",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈəʊld"
     },
     {
       "type": "w1",
@@ -1466,7 +1573,8 @@ module.exports = {
       "a": "young",
       "hint": "年轻的",
       "py": "young",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "jˈʌŋ"
     },
     {
       "type": "w1",
@@ -1474,7 +1582,8 @@ module.exports = {
       "a": "quiet",
       "hint": "安静的",
       "py": "quiet",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kwˈaɪət"
     },
     {
       "type": "w1",
@@ -1482,7 +1591,8 @@ module.exports = {
       "a": "active",
       "hint": "活跃的",
       "py": "active",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ˈæktɪv"
     },
     {
       "type": "w1",
@@ -1490,7 +1600,8 @@ module.exports = {
       "a": "homework",
       "hint": "作业",
       "py": "homework",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "hˈəʊmwɜːk"
     },
     {
       "type": "w1",
@@ -1498,7 +1609,8 @@ module.exports = {
       "a": "lesson",
       "hint": "课程",
       "py": "lesson",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "lˈɛsən"
     },
     {
       "type": "w1",
@@ -1506,7 +1618,8 @@ module.exports = {
       "a": "notebook",
       "hint": "笔记本",
       "py": "notebook",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "nˈəʊtbʊk"
     },
     {
       "type": "w1",
@@ -1514,7 +1627,8 @@ module.exports = {
       "a": "storybook",
       "hint": "故事书",
       "py": "storybook",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "stˈɔːrɪbˌʊk"
     },
     {
       "type": "w1",
@@ -1522,7 +1636,8 @@ module.exports = {
       "a": "schoolbag",
       "hint": "书包",
       "py": "schoolbag",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "skˈuːlbæɡ"
     },
     {
       "type": "w1",
@@ -1530,7 +1645,8 @@ module.exports = {
       "a": "playground",
       "hint": "操场",
       "py": "playground",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "plˈeɪɡraʊnd"
     },
     {
       "type": "w1",
@@ -1538,7 +1654,8 @@ module.exports = {
       "a": "garden",
       "hint": "花园",
       "py": "garden",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "ɡˈɑːdən"
     },
     {
       "type": "w1",
@@ -1546,7 +1663,8 @@ module.exports = {
       "a": "kitchen",
       "hint": "厨房",
       "py": "kitchen",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "kˈɪtʃən"
     },
     {
       "type": "w1",
@@ -1554,7 +1672,8 @@ module.exports = {
       "a": "bedroom",
       "hint": "卧室",
       "py": "bedroom",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "bˈɛdruːm"
     },
     {
       "type": "w1",
@@ -1562,7 +1681,8 @@ module.exports = {
       "a": "bathroom",
       "hint": "浴室",
       "py": "bathroom",
-      "book": "pep"
+      "book": "pep",
+      "ipa": "bˈɑːθruːm"
     },
     {
       "type": "w1",
@@ -1570,7 +1690,8 @@ module.exports = {
       "a": "street",
       "hint": "街道",
       "py": "street",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "strˈiːt"
     },
     {
       "type": "w1",
@@ -1578,7 +1699,8 @@ module.exports = {
       "a": "road",
       "hint": "马路",
       "py": "road",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "rˈəʊd"
     },
     {
       "type": "w1",
@@ -1586,7 +1708,8 @@ module.exports = {
       "a": "bridge",
       "hint": "桥",
       "py": "bridge",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "brˈɪdʒ"
     },
     {
       "type": "w1",
@@ -1594,7 +1717,8 @@ module.exports = {
       "a": "bank",
       "hint": "银行",
       "py": "bank",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "bˈæŋk"
     },
     {
       "type": "w1",
@@ -1602,7 +1726,8 @@ module.exports = {
       "a": "hotel",
       "hint": "旅馆",
       "py": "hotel",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "həʊtˈɛl"
     },
     {
       "type": "w1",
@@ -1610,7 +1735,8 @@ module.exports = {
       "a": "restaurant",
       "hint": "餐厅",
       "py": "restaurant",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "rˈɛstrɒnt"
     },
     {
       "type": "w1",
@@ -1618,7 +1744,8 @@ module.exports = {
       "a": "station",
       "hint": "车站",
       "py": "station",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "stˈeɪʃən"
     },
     {
       "type": "w1",
@@ -1626,7 +1753,8 @@ module.exports = {
       "a": "airport",
       "hint": "机场",
       "py": "airport",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "ˈeəpɔːt"
     },
     {
       "type": "w1",
@@ -1634,7 +1762,8 @@ module.exports = {
       "a": "market",
       "hint": "市场",
       "py": "market",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "mˈɑːkɪt"
     },
     {
       "type": "w1",
@@ -1642,7 +1771,8 @@ module.exports = {
       "a": "factory",
       "hint": "工厂",
       "py": "factory",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "fˈæktərˌi"
     },
     {
       "type": "w1",
@@ -1650,7 +1780,8 @@ module.exports = {
       "a": "office",
       "hint": "办公室",
       "py": "office",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "ˈɒfɪs"
     },
     {
       "type": "w1",
@@ -1658,7 +1789,8 @@ module.exports = {
       "a": "tower",
       "hint": "塔",
       "py": "tower",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "ˈtaʊɝ"
     },
     {
       "type": "w1",
@@ -1666,7 +1798,8 @@ module.exports = {
       "a": "castle",
       "hint": "城堡",
       "py": "castle",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "kˈɑːsəl"
     },
     {
       "type": "w1",
@@ -1674,7 +1807,8 @@ module.exports = {
       "a": "palace",
       "hint": "宫殿",
       "py": "palace",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "pˈælɪs"
     },
     {
       "type": "w1",
@@ -1682,7 +1816,8 @@ module.exports = {
       "a": "square",
       "hint": "广场",
       "py": "square",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "skwˈeə"
     },
     {
       "type": "w1",
@@ -1690,7 +1825,8 @@ module.exports = {
       "a": "fountain",
       "hint": "喷泉",
       "py": "fountain",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "fˈaʊntɪn"
     },
     {
       "type": "w1",
@@ -1698,7 +1834,8 @@ module.exports = {
       "a": "statue",
       "hint": "雕像",
       "py": "statue",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "stˈætʃuː"
     },
     {
       "type": "w1",
@@ -1706,7 +1843,8 @@ module.exports = {
       "a": "stadium",
       "hint": "体育场",
       "py": "stadium",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "stˈeɪdiəm"
     },
     {
       "type": "w1",
@@ -1714,7 +1852,8 @@ module.exports = {
       "a": "pool",
       "hint": "水池",
       "py": "pool",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "pˈuːl"
     },
     {
       "type": "w1",
@@ -1722,7 +1861,8 @@ module.exports = {
       "a": "tent",
       "hint": "帐篷",
       "py": "tent",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "tˈɛnt"
     },
     {
       "type": "w1",
@@ -1730,7 +1870,8 @@ module.exports = {
       "a": "camp",
       "hint": "营地",
       "py": "camp",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "kˈæmp"
     },
     {
       "type": "w1",
@@ -1738,7 +1879,8 @@ module.exports = {
       "a": "picnic",
       "hint": "野餐",
       "py": "picnic",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "pˈɪknɪk"
     },
     {
       "type": "w1",
@@ -1746,7 +1888,8 @@ module.exports = {
       "a": "festival",
       "hint": "节日",
       "py": "festival",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "fˈɛstɪvəl"
     },
     {
       "type": "w1",
@@ -1754,7 +1897,8 @@ module.exports = {
       "a": "birthday",
       "hint": "生日",
       "py": "birthday",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "bˈɜːθdeɪ"
     },
     {
       "type": "w1",
@@ -1762,7 +1906,8 @@ module.exports = {
       "a": "party",
       "hint": "聚会",
       "py": "party",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "pˈɑːti"
     },
     {
       "type": "w1",
@@ -1770,7 +1915,8 @@ module.exports = {
       "a": "gift",
       "hint": "礼物",
       "py": "gift",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "ɡˈɪft"
     },
     {
       "type": "w1",
@@ -1778,7 +1924,8 @@ module.exports = {
       "a": "candle",
       "hint": "蜡烛",
       "py": "candle",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "kˈændəl"
     },
     {
       "type": "w1",
@@ -1786,7 +1933,8 @@ module.exports = {
       "a": "invitation",
       "hint": "邀请函",
       "py": "invitation",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "ɪnvɪtˈeɪʃən"
     },
     {
       "type": "w1",
@@ -1794,7 +1942,8 @@ module.exports = {
       "a": "envelope",
       "hint": "信封",
       "py": "envelope",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "ˈɛnvəˌɫoʊp"
     },
     {
       "type": "w1",
@@ -1802,7 +1951,8 @@ module.exports = {
       "a": "letter",
       "hint": "信",
       "py": "letter",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "lˈɛtə"
     },
     {
       "type": "w1",
@@ -1810,7 +1960,8 @@ module.exports = {
       "a": "message",
       "hint": "消息",
       "py": "message",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "mˈɛsɪdʒ"
     },
     {
       "type": "w1",
@@ -1818,7 +1969,8 @@ module.exports = {
       "a": "email",
       "hint": "电子邮件",
       "py": "email",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "iˈmeɪɫ"
     },
     {
       "type": "w1",
@@ -1826,7 +1978,8 @@ module.exports = {
       "a": "internet",
       "hint": "互联网",
       "py": "internet",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "ˈɪntənˌɛt"
     },
     {
       "type": "w1",
@@ -1834,7 +1987,8 @@ module.exports = {
       "a": "website",
       "hint": "网站",
       "py": "website",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "wˈɛbsaɪt"
     },
     {
       "type": "w1",
@@ -1842,7 +1996,8 @@ module.exports = {
       "a": "video",
       "hint": "视频",
       "py": "video",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "vˈɪdɪəʊ"
     },
     {
       "type": "w1",
@@ -1850,7 +2005,8 @@ module.exports = {
       "a": "album",
       "hint": "相册",
       "py": "album",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "ˈælbəm"
     },
     {
       "type": "w1",
@@ -1858,7 +2014,8 @@ module.exports = {
       "a": "diary",
       "hint": "日记",
       "py": "diary",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "dˈaɪəri"
     },
     {
       "type": "w1",
@@ -1866,7 +2023,8 @@ module.exports = {
       "a": "newspaper",
       "hint": "报纸",
       "py": "newspaper",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "njˈuːzpeɪpə"
     },
     {
       "type": "w1",
@@ -1874,7 +2032,8 @@ module.exports = {
       "a": "magazine",
       "hint": "杂志",
       "py": "magazine",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "mˌæɡəzˈiːn"
     },
     {
       "type": "w1",
@@ -1882,7 +2041,8 @@ module.exports = {
       "a": "postcard",
       "hint": "明信片",
       "py": "postcard",
-      "book": "wys"
+      "book": "wys",
+      "ipa": "pˈəʊstkɑːd"
     }
   ]
 };

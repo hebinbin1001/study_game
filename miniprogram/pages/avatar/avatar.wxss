@@ -86,12 +86,33 @@
   margin-bottom: 14rpx;
 }
 
-/* 真实皮肤图（战士 24 套）：与 emoji 占位同高，保持卡片版式一致 */
-.avatar-img {
-  display: block;
+/* 立绘区（2026-10-09 重做）：带主色浅底的圆角容器，emoji 打底、图覆盖其上。
+   原来直接放 <image>，CDN 图在弱网下要等一两秒 —— 那段时间卡片是一片白。 */
+.avatar-art {
+  position: relative;
   width: 168rpx;
   height: 168rpx;
   margin: 0 auto 14rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.avatar-emoji--ph {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  opacity: .5;
+}
+/* 真实皮肤图（战士 24 套）：撑满立绘区，保持卡片版式一致 */
+.avatar-img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .avatar-name {
