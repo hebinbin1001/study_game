@@ -210,35 +210,20 @@ Page({
   // 并发被 loginSilently 的 _loggingIn 兜底；失败弹窗给具体错误，避免“点了没反应”。
   _doLogin: function () {
     var self = this;
-    var step = function (s) {
-      try { if (typeof console !== 'undefined') console.log('[login-step]', s); } catch (e) {}
-    };
     // 1) 协议确认（未同意过才弹；已同意直接通过）
-    step('1-ensureAgreement 开始');
     auth.ensureAgreement().then(function (agreed) {
-      step('2-ensureAgreement 返回 agreed=' + agreed);
       if (!agreed) {
-        step('2b-用户拒绝协议，保持游客');
         self._loginBusy = false;
         wx.showToast({ title: '已保持游客模式 · 需要时再登录', icon: 'none', duration: 1800 });
         return;
       }
       // 2) 显示 loading 并真正调微信登录
       wx.showLoading({ title: '登录中...', mask: false });
-      step('3-调用 wx.login/loginSilently');
       return auth.loginSilently({ skipAgreement: true }).then(function (user) {
         wx.hideLoading();
         self._loginBusy = false;
-        step('4-登录返回 user=' + !!(user));
         if (!user) return;
-        try {
-          step('4a-登录后 isLoggedIn=' + auth.isLoggedIn() + ' needProfile=' + (user && user.needProfile) +
-            ' token=' + (storage.getToken ? (storage.getToken() ? '有' : '空') : '?'));
-        } catch (e) { step('4a-诊断异常 ' + e); }
         self.refresh();
-        try {
-          step('4b-refresh后 data.loggedIn=' + self.data.loggedIn);
-        } catch (e) {}
         if (user.needProfile) {
           wx.showToast({ title: '登录成功 · 完善昵称后参与排行', icon: 'none', duration: 1500 });
           setTimeout(function () {
@@ -250,7 +235,6 @@ Page({
       }).catch(function (err) {
         wx.hideLoading();
         self._loginBusy = false;
-        step('5-登录失败 err=' + (err && (err.message || err.errMsg || JSON.stringify(err))));
         var msg = (err && (err.message || err.errMsg)) || '登录失败';
         var code = err && err.code;
         var detail = msg;
@@ -269,7 +253,6 @@ Page({
       });
     }).catch(function (e) {
       self._loginBusy = false;
-      step('ensureAgreement 异常 ' + e);
     });
   },
 
@@ -280,9 +263,6 @@ Page({
     this._loginBusy = true;
     // 注意：此处禁止在 showModal 前 wx.showToast —— toast 与 modal 共用原生弹窗层，
     // 真机上会导致协议弹窗直接 fail，即「首次进入点击登录没反应」的根因
-    try {
-      if (typeof console !== 'undefined') console.log('[login] onProfileTap 触发, loggedIn=' + auth.isLoggedIn());
-    } catch (e) {}
     if (auth.isLoggedIn()) { wx.switchTab({ url: '/pages/me/me' }); return; }
     this._doLogin();
   },

@@ -136,7 +136,6 @@ function loginSilently(opts) {
       return Promise.reject({ code: -3, message: '登录请求进行中，请稍候', isNetwork: false });
     }
     _loggingIn = true;
-    try { if (typeof console !== 'undefined') console.log('[auth] wx.login 发起'); } catch (e) {}
     return new Promise(function (resolve, reject) {
       var settled = false;
       var timer = setTimeout(function () {
