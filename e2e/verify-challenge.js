@@ -151,7 +151,23 @@ function expectSnake(gradeKey, level) {
 }
 
 H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck) {
-  // 清存档：保证「继续挑战 = 第 1 关」等断言不受历史数据影响
+  // 清存档：保证「继续挑战 = 第 1 关」等断言不受历史数据影响。
+  // ⚠️ 2026-10-17 修：`ww_stars` 是**全站所有玩法共用**的星级存档
+  // （华容道 `klotski_1`、2048、数独…都在里面）。这里直接清空会把开发者模拟器里
+  // 所有玩法的历史进度抹掉 —— 用户实测「华容道进度没了」就是这个副作用。
+  // 现在改成**先备份、跑完恢复**：测试照样隔离，真实存档不受影响。
+  const backupStars = await miniProgram.callWxMethod('getStorageSync', 'ww_stars');
+  const backupMigrated = await miniProgram.callWxMethod('getStorageSync', 'ww_challenge_migrated');
+  const restoreStorage = async function () {
+    try {
+      if (backupStars) {
+        await miniProgram.callWxMethod('setStorageSync', 'ww_stars', backupStars);
+      }
+      if (backupMigrated) {
+        await miniProgram.callWxMethod('setStorageSync', 'ww_challenge_migrated', backupMigrated);
+      }
+    } catch (e) { /* 恢复失败不影响测试结论 */ }
+  };
   await miniProgram.callWxMethod('removeStorageSync', 'ww_stars');
   await miniProgram.callWxMethod('removeStorageSync', 'ww_challenge_migrated');
 
@@ -472,4 +488,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     ck.check('全程未崩溃（停在 Boss 玩法页）',
       (await miniProgram.currentPage()).path === 'pages/game/game');
   }
+
+  // 恢复跑测试前的真实存档（见函数开头的说明）
+  await restoreStorage();
 });
