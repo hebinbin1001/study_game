@@ -43,7 +43,6 @@ const ENTRIES = [
   // —— 重做新增 ——
   { method: 'goAvatarSkin',     desc: '战士立绘 / 皮肤行 → 皮肤图鉴' },
   // —— 2026-10-18 二期：四宫格第四格 ——
-  { method: 'goPlaylist',       desc: '全部玩法 → 玩法 tab' },
   // —— 2026-10-18 全局年级：HUD 最左胶囊 ——
   { method: 'openGradePicker',  desc: '年级胶囊 → 全局年级选择器' }
 ];
@@ -236,6 +235,23 @@ s.test('关卡页顶部按入口显示视图名（主线 / 玩法名 · 30 关�
   s.assert.ok(js.indexOf('viewLabel') !== -1, '缺少 viewLabel');
   s.assert.ok(w.indexOf('{{viewLabel}}') !== -1, '顶部没有渲染 viewLabel');
   s.assert.ok(js.indexOf("'主线 30 关'") !== -1, '主线视图文案缺失');
+});
+
+// ============ 主页去掉「全部玩法」重复入口（2026-10-18） ============
+// 底部 tabBar 已有「玩法」，主页再放一格「全部玩法」只是 switchTab，纯重复。
+s.test('主页不再有「全部玩法」入口（tabBar 已有玩法）', function () {
+  const w = read('miniprogram/pages/index/index.wxml');
+  const js = read('miniprogram/pages/index/index.js');
+  s.assert.ok(w.indexOf('bindtap="goPlaylist"') === -1, '主页仍绑定 goPlaylist');
+  s.assert.ok(w.indexOf('全部玩法</view>') === -1, '主页仍渲染「全部玩法」卡片');
+  s.assert.ok(js.indexOf('goPlaylist: function') === -1, 'index.js 仍保留 goPlaylist 死方法');
+});
+
+s.test('主页入口格仍保留排行榜 / 赛季 / 好友 PK 三项', function () {
+  const w = read('miniprogram/pages/index/index.wxml');
+  ['goRank', 'goSeason', 'goPk'].forEach(function (m) {
+    s.assert.ok(w.indexOf('bindtap="' + m + '"') !== -1, '缺少入口 ' + m);
+  });
 });
 
 s.done();

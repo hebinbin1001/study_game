@@ -639,11 +639,6 @@ Page({
     if (url) wx.navigateTo({ url: url });
   },
 
-  /** 点「全部玩法」→ 玩法 tab（2026-10-18：四宫格第四格，替代原「推荐玩法」区） */
-  goPlaylist: function () {
-    wx.switchTab({ url: '/pages/playlist/playlist' });
-  },
-
   /** 点「段位」→ 段位详情（各段位门槛 / 距下一段还差多少星，第三批 · 第 8 条） */
   goRankInfo: function () {
     wx.navigateTo({ url: '/pages/rank-info/rank-info?stars=' + (this.data.totalStars || 0) });

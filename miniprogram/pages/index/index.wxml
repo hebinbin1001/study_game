@@ -6,7 +6,7 @@
        ② 战士舞台（立绘 + 名字/段位 + 等级）→ 紧接一条天空底进度条 → 一行皮肤进度
        ③ 「下一战」卡：Boss 信息条 + 出战动作**合成一张**（深色条 + 橙色动作区），不再两张主卡
        ④ 今日任务卡：今日目标进度 + 每日一题 + 每日挑战（三个「每日」收进一张）
-       ⑤ 四宫格：排行榜 / 赛季 / 好友 PK / 全部玩法
+       ⑤ 三宫格：排行榜 / 赛季 / 好友 PK
        ⑥ 「接着玩」一行：本机最常玩的一款
      原有功能入口一个不少，只是合并同类项、去掉重复展示。 -->
 <view class="page-home">
@@ -122,7 +122,9 @@
     </view>
   </view>
 
-  <!-- ⑤ 四宫格：排行榜 / 赛季 / 好友 PK / 全部玩法 -->
+  <!-- ⑤ 三宫格：排行榜 / 赛季 / 好友 PK
+       2026-10-18：删掉第四格「全部玩法」—— 它只是 switchTab 到「玩法」tab，
+       而底部 tabBar 本来就有「玩法」，属于重复入口。剩 3 个 flex:1 平分一行。 -->
   <view class="quad">
     <view class="qi" bindtap="goRank">
       <view class="qi__ic">🏆</view>
@@ -141,11 +143,6 @@
       <view class="qi__ic">🤝</view>
       <view class="qi__b">好友 PK</view>
       <view class="qi__s">赢星星</view>
-    </view>
-    <view class="qi" bindtap="goPlaylist">
-      <view class="qi__ic">🎮</view>
-      <view class="qi__b">全部玩法</view>
-      <view class="qi__s">看全部</view>
     </view>
   </view>
 
