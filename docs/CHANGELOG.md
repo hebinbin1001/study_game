@@ -5,6 +5,41 @@
 
 ---
 
+## 2026-10-18（排行榜里的英文玩法名）
+
+### 问题
+
+用户反馈「排行榜有些是英文」。玩法榜总览卡片上出现了 `quiz` / `pattern` / `clock` / `maze` / `hanoi`
+这种机器名。
+
+### 根因
+
+服务端玩法表 `server/game-names.js` 有 **19** 个 `game_type`，而排行榜页 `rank.js` 的 `GAME_META`
+只登记了 **14** 个。`loadSummary()` 里对没登记的玩法走了兜底：
+
+```js
+var meta = metaOfGame(it.game) || { label: it.game, ... };   // ← label 直接是英文 key
+```
+
+于是新增的 5 款（限时抢答 / 找规律 / 认钟表 / 算术迷宫 / 汉诺塔）全显示成英文。
+
+### 改法
+
+- `GAME_META` 补齐 5 条，名称与 `server/game-names.js` 完全一致：
+  限时抢答 ⚡（needGrade=true）、找规律 🔍、认钟表 🕐、算术迷宫 🧩、汉诺塔 🗼（其余 needGrade=false）；
+- 兜底改成**跳过**：`if (!meta) return null` + `.filter(Boolean)` —— 以后再有漏登记的玩法，
+  宁可不显示这张卡，也不把 `game_type` 摆给玩家看；
+- 排行榜详情页对这些新玩法同样可用（`metaOfKey` 能找到 → 卡片可点、筛选维度正确）。
+
+### 护栏
+
+- `tests/unit/game-names.test.js` 新增 2 条（共 7 用例 / 101 断言）：
+  ① 排行榜 `GAME_META` 必须覆盖全部后端玩法，且中文名逐字一致（漏登记即红）；
+  ② 排行榜不得登记后端不存在的玩法（避免点不进去的死卡片）；
+- `node e2e/run-all.js --no-e2e` → 7/7 PASS。
+
+---
+
 ## 2026-10-18（主页去掉「全部玩法」重复入口）
 
 ### 问题

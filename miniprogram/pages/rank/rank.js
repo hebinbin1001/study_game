@@ -24,6 +24,8 @@ var GAME_META = [
   { key: 'match', label: '词义消消乐', icon: '🃏', game: 'match', needGrade: true },
   { key: 'link', label: '词语连连看', icon: '🔗', game: 'link', needGrade: true },
   { key: 'snake', label: '单词贪吃蛇', icon: '🐍', game: 'snake', needGrade: true },
+  // 2026-10-18 补：服务端有、这里漏登记的玩法会直接显示英文 key（用户反馈「排行榜有些是英文」）
+  { key: 'quiz', label: '限时抢答', icon: '⚡', game: 'quiz', needGrade: true },
   { key: 'math24', label: '算 24 点', icon: '🧮', game: 'math24', needGrade: false },
   { key: 'sudoku', label: '数独', icon: '🔢', game: 'sudoku', needGrade: false },
   { key: 'sprint', label: '口算冲刺', icon: '⚡', game: 'sprint', needGrade: false },
@@ -31,6 +33,10 @@ var GAME_META = [
   { key: 'g2048', label: '2048', icon: '🎲', game: 'g2048', needGrade: false },
   { key: 'memory', label: '记忆矩阵', icon: '🔲', game: 'memory', needGrade: false },
   { key: 'onestroke', label: '一笔画', icon: '✏️', game: 'onestroke', needGrade: false },
+  { key: 'pattern', label: '找规律', icon: '🔍', game: 'pattern', needGrade: false },
+  { key: 'clock', label: '认钟表', icon: '🕐', game: 'clock', needGrade: false },
+  { key: 'maze', label: '算术迷宫', icon: '🧩', game: 'maze', needGrade: false },
+  { key: 'hanoi', label: '汉诺塔', icon: '🗼', game: 'hanoi', needGrade: false },
   { key: 'klotski', label: '华容道', icon: '🧩', game: 'klotski', needGrade: false }
 ];
 
@@ -135,7 +141,10 @@ Page({
       var rows = (d && d.list) || [];
       // 后端按 SUMMARY_GAMES 顺序返回；这里补上端上的图标/名称/是否有学段维度
       var list = rows.map(function (it) {
-        var meta = metaOfGame(it.game) || { label: it.game, icon: '🎮', needGrade: false, key: it.game };
+        // 找不到元信息就跳过：宁可少一张卡，也不要把 game_type 这种英文 key 摆给玩家看
+        // （覆盖性由 tests/unit/game-names.test.js 兜底）
+        var meta = metaOfGame(it.game);
+        if (!meta) return null;
         return {
           key: meta.key,
           game: it.game,
@@ -148,7 +157,7 @@ Page({
           myRank: it.myRank || 0,
           hasMe: (it.myValue || 0) > 0
         };
-      });
+      }).filter(Boolean);
       self.setData({ summaryList: list, summaryLoading: false });
     }).catch(function () { self.setData({ summaryLoading: false }); });
   },
