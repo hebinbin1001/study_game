@@ -41,7 +41,8 @@ Page({
     settleTitle: '',
     settleMsg: '',
     demoUsed: false,
-    paused: false            // 暂停弹层（game-pause 组件）
+    paused: false,           // 暂停弹层（game-pause 组件）
+    boardStyle: ''           // 自适应棋盘尺寸（见 _fitBoard），'' = 用 CSS 默认 4:5
   },
 
   onLoad: function (options) {
@@ -60,7 +61,9 @@ Page({
     if (want >= 1) this.startLevel(want);
   },
 
-  onReady: function () { this._measureBoard(); },
+  onReady: function () { this._measureBoard(); this._fitBoard(); },
+  // 横竖屏切换 / 分屏：重新算棋盘尺寸，别让方向键又被挤出去
+  onResize: function () { this._fitBoard(); },
   onUnload: function () { this._stopDemo(); },
   onHide: function () { this._stopDemo(); this._saveProgress(); },
 
@@ -152,7 +155,8 @@ Page({
     this._render();
     var self = this;
     this._boardRect = null;
-    setTimeout(function () { self._measureBoard(); }, 120);
+    // 先按可视高度定棋盘尺寸（否则小屏上方向键会被挤到屏幕外），再量一次拖拽基准
+    setTimeout(function () { self._fitBoard(); self._measureBoard(); }, 80);
     wx.showToast({
       title: '已恢复上次进度 · 第 ' + snap.level + ' 关 · ' + moves + ' 步',
       icon: 'none',
@@ -191,7 +195,8 @@ Page({
     this._render();
     // 延迟一点点再量棋盘（setData 之后元素才存在），并在拖拽时按需补量
     this._boardRect = null;
-    setTimeout(function () { self._measureBoard(); }, 120);
+    // 先按可视高度定棋盘尺寸（否则小屏上方向键会被挤到屏幕外），再量一次拖拽基准
+    setTimeout(function () { self._fitBoard(); self._measureBoard(); }, 80);
     // 开局提示：一次「把手感教给玩家」的轻提示
     wx.showToast({ title: '拖动棋子滑到尽头 · 一次滑动算 1 步', icon: 'none', duration: 1800 });
     setTimeout(function () { if (self.data.playing && self.data.moves === 0) return; }, 0);
@@ -214,6 +219,50 @@ Page({
   _withRect: function (cb) {
     if (this._boardRect && this._boardRect.width) { cb(this._boardRect); return; }
     this._measureBoard(cb);
+  },
+
+  /**
+   * 自适应棋盘尺寸（2026-10-18）。
+   *
+   * 为什么需要：整页 `disableScroll: true`，竖向放不下时**底部元素会被挤到屏幕外，
+   * 而且滑不动** —— 方向键就是这么「点了没反应」的（375×667 上一实测超出 100px）。
+   *
+   * 算法：可视高 −（HUD + 提示条 + 操作区 + 方向键）− 固定间距 = 棋盘可用高，
+   * 按 4:5 反推棋盘宽，并夹到页面内容宽。量到后把尺寸写成行内样式，
+   * 同时顺手重测一次棋盘矩形给拖拽换算用。
+   */
+  _fitBoard: function () {
+    var self = this;
+    var info = null;
+    try {
+      info = (typeof wx.getWindowInfo === 'function') ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    } catch (e) { info = null; }
+    if (!info || !info.windowWidth || !info.windowHeight) return;   // 老环境/单测桩：不折腾布局
+    var winW = info.windowWidth;
+    var winH = info.windowHeight;
+    var rpx = winW / 750;
+
+    var q = wx.createSelectorQuery();
+    q.select('.k-hud').boundingClientRect();
+    q.select('.k-tip').boundingClientRect();
+    q.select('.k-ops').boundingClientRect();
+    q.exec(function (res) {
+      var blocks = 0;
+      for (var i = 0; i < res.length; i++) {
+        if (res[i] && res[i].height) blocks += res[i].height;
+      }
+      // 固定间距（rpx）：页面顶 20 + HUD 上 18/下 12 + tip 上 14 + ops 上 14 + 底部安全 8
+      var gaps = 86 * rpx;
+      var avail = winH - blocks - gaps;
+      var maxW = winW - 48 * rpx;              // 页面左右各 24rpx
+      var minW = 220 * rpx;                    // 再小就没法玩了，宁可维持默认（允许轻微溢出）
+      var w = Math.min(maxW, avail / 1.25);
+      if (!(w > minW)) return;
+      w = Math.floor(w);
+      var style = 'width:' + w + 'px;height:' + Math.round(w * 1.25) + 'px;padding-top:0;margin:0 auto;';
+      if (style === self.data.boardStyle) return;   // 尺寸没变就别 setData（防无谓渲染）
+      self.setData({ boardStyle: style }, function () { self._measureBoard(); });
+    });
   },
 
   // ============ 渲染 ============
@@ -309,25 +358,6 @@ Page({
     this._doMove(i, d[0], d[1], steps);
   },
 
-  /**
-   * 方向键：让选中的棋子**沿这个方向滑到尽头**（与拖动同一口径：一次滑动算 1 步）。
-   *
-   * 2026-10-18 修：原来这里传 dist=1，只滑一格却也记 1 步 —— 而拖动滑多远都只算 1 步，
-   * 于是方向键天然「更亏」，玩家反馈「感觉没用」。改成传一个大数交给引擎夹到实际可滑距离，
-   * 方向键就等价于拖动（还能避免手指挡住棋子）。
-   */
-  nudge: function (e) {
-    if (!this.data.playing || this.data.over) return;
-    var i = this.data.selected;
-    if (i < 0) { wx.showToast({ title: '先点一下棋子（选中会有橙框）', icon: 'none' }); return; }
-    var dir = e.currentTarget.dataset.dir || '';
-    var map = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-    var d = map[dir];
-    if (!d) return;
-    // 9 远大于任何棋子单次可滑距离（棋盘最长 5 格），引擎会夹到 maxSlide
-    this._doMove(i, d[0], d[1], 9);
-  },
-
   // ============ 走一步 ============
   /**
    * 按「棋子左上角格位」移动（供端到端用例与将来的「局面分享/复盘」复用）。
@@ -348,6 +378,7 @@ Page({
   _doMove: function (i, dx, dy, dist) {
     var r = K.applyMove(this._pieces, i, dx, dy, dist);
     if (!r.moved) { wx.showToast({ title: '那边被挡住了', icon: 'none' }); return; }
+    var hadHint = !!this.data.hint;
     this._history.push(this._pieces);
     this._pieces = r.pieces;
     this.setData({
@@ -357,6 +388,7 @@ Page({
       selected: i
     });
     this._render();
+    if (hadHint) this._fitBoard();      // 提示条消失 → 高一点的空间还给棋盘
     if (K.isWin(this._pieces)) { this._win(); return; }
     this._saveProgress();               // 没通关才留断点（通关的残局没有续玩价值）
   },
@@ -370,6 +402,7 @@ Page({
       hint: null
     });
     this._render();
+    this._fitBoard();                   // 提示条可能收起了，重新分配高度
     this._saveProgress();               // 撤销后的局面也要存，否则下次恢复回退一步
   },
 
@@ -410,6 +443,7 @@ Page({
       hint: { from: mv.from, dx: mv.dx, dy: mv.dy, dist: mv.dist, left: sol.len }
     });
     this._render();
+    this._fitBoard();                   // 提示文案可能换行，重新分配一次高度
     wx.showToast({
       title: '把「' + (idx >= 0 ? this._pieces[idx].name : '棋子') + '」' + this._dirText(mv.dx, mv.dy) + '滑 ' + mv.dist + ' 格',
       icon: 'none',

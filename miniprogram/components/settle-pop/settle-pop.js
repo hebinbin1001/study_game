@@ -23,6 +23,9 @@ Component({
     showRetry: { type: Boolean, value: true },
     // 2026-09-18：通关后提示「下一关」——由页面传入是否还有下一关
     showNext: { type: Boolean, value: false },
+    // 2026-10-18：页面在插槽里自己给全套按钮时置 true —— 组件不再追加「再玩一次」，
+    // 否则会出现「再玩一次 + 重玩本关」两个同义按钮（华容道通关后就是这样）
+    customOps: { type: Boolean, value: false },
     nextText: { type: String, value: '' }
   },
   data: {},
