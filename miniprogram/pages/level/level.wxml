@@ -7,14 +7,15 @@
        ③ 新增「⚔️ 继续第 N 关」置顶条，点一下直接开打；
        ④ 每 5 关一个段落标题，首次进入自动滚到当前关；
        ⑤ 第 30 关 Boss 换成暗紫卡 + 立绘（映射见 utils/boss-ladder.js，与首页同源）。
-     兼容：onLevelTap / pickGrade / pickType / claimChest / goCustomLevel / goFreePlay 全部保留。 -->
+     2026-10-18：顶部「玩法线 + 题型」切换条已删除 —— 玩法在玩法 tab 已选过，
+       本页不再二次提供其它玩法入口（pickType / freeGroups 一并移除）。 -->
 <view class="page-level">
   <!-- 年级是全局学习设置（2026-10-18）：这里只显示当前年级，点一下弹选择器。
        不再放 14 个横向 tab —— 那一条比屏幕还长，且和玩法页/词库页各存了一套状态。 -->
   <view class="grade-line" bindtap="openGradePicker">
     <text class="grade-line__ic">🏫</text>
     <text class="grade-line__t">{{currentGradeLabel}}</text>
-    <text class="grade-line__s">{{isChallengeView ? '主线 30 关' : '自由玩'}}</text>
+    <text class="grade-line__s">{{viewLabel}}</text>
     <text class="grade-line__go">切换 ›</text>
   </view>
 
@@ -54,17 +55,9 @@
        本页只有两种进入方式 —— 首页进来 = 主线；玩法页带 ?mode= 进来 = 自由玩。
        「想自由玩」入口放在继续条之后，见下方。 -->
 
-  <!-- 自由玩：玩法线 + 题型 chips（只有带 mode 进来才出现） -->
-  <scroll-view wx:if="{{!isChallengeView}}" class="type-tabs" scroll-x="true" enable-flex="true">
-    <view
-      wx:for="{{freeGroups}}"
-      wx:key="key"
-      class="type-tab {{currentType === item.key ? 'on' : ''}}"
-      data-key="{{item.key}}"
-      bindtap="pickType">
-      {{item.label}}<text wx:if="{{item.line}}" class="type-count">{{item.badge}}</text><text wx:elif="{{item.count}}" class="type-count">{{item.count}}</text>
-    </view>
-  </scroll-view>
+  <!-- 2026-10-18：删掉「自由玩：玩法线 + 题型」chips 行 ——
+       玩法在上一屏（玩法 tab）已经选过了，这里再列一遍 7 条玩法线属于重复入口；
+       带 ?mode= 进来时，本页只负责「这个玩法自己的关卡」。 -->
 
   <!-- 继续当前关：省掉在 30 关列表里找关 -->
   <view wx:if="{{continueIndex >= 0}}" class="continue-bar" bindtap="tapContinue">

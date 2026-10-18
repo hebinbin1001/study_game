@@ -108,7 +108,8 @@ const PAGES = [
   {
     name: '关卡页',
     dir: 'level',
-    entries: ['openGradePicker', 'pickType', 'tapContinue', 'onLevelTap', 'claimChest', 'guestLogin', 'goCustomLevel', 'goFreePlay']
+    // 2026-10-18：pickType 随「玩法/题型切换条」一起删除（玩法已在玩法 tab 选过）
+    entries: ['openGradePicker', 'tapContinue', 'onLevelTap', 'claimChest', 'guestLogin', 'goCustomLevel', 'goFreePlay']
   },
   {
     name: '学习页',
@@ -216,6 +217,25 @@ s.test('年级收敛：五个页面都接同一套 grade-picker，且不再有�
     s.assert.ok(w.indexOf('grade-tabs') === -1, d + ' 仍有 grade-tabs 年级表');
     s.assert.ok(w.indexOf('pg-grades') === -1, d + ' 仍有 pg-grades 年级 chips');
   });
+});
+
+// ============ 关卡页去掉「二次选玩法」（2026-10-18） ============
+// 玩法在玩法 tab 已经选过一次；带 ?mode= 进来的关卡页不该再列 7 条玩法线。
+s.test('关卡页不再有玩法/题型切换条（避免二次选玩法）', function () {
+  const w = read('miniprogram/pages/level/level.wxml');
+  const js = read('miniprogram/pages/level/level.js');
+  s.assert.ok(w.indexOf('type-tabs') === -1, '关卡页仍有 type-tabs 切换条');
+  s.assert.ok(w.indexOf('bindtap="pickType"') === -1, '关卡页 wxml 仍绑 pickType');
+  s.assert.ok(js.indexOf('pickType: function') === -1, 'level.js 仍保留 pickType 死方法');
+  s.assert.ok(js.indexOf('freeGroups') === -1, 'level.js 仍构建 freeGroups');
+});
+
+s.test('关卡页顶部按入口显示视图名（主线 / 玩法名 · 30 关）', function () {
+  const js = read('miniprogram/pages/level/level.js');
+  const w = read('miniprogram/pages/level/level.wxml');
+  s.assert.ok(js.indexOf('viewLabel') !== -1, '缺少 viewLabel');
+  s.assert.ok(w.indexOf('{{viewLabel}}') !== -1, '顶部没有渲染 viewLabel');
+  s.assert.ok(js.indexOf("'主线 30 关'") !== -1, '主线视图文案缺失');
 });
 
 s.done();
