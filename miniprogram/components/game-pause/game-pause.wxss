@@ -1,29 +1,51 @@
 /* game-pause —— 统一暂停按钮与弹层 */
 
-/* ============ 右上角悬浮按钮 ============ */
-/* 固定定位：不占页面布局，任何页面都不需要改结构；页面只需让 HUD 右侧留 84rpx */
+/* ============ 暂停按钮 ============ */
+/* 2026-10-18 改版（用户反馈「右上角暂停键和战士图标难看」）：
+   旧版是「半透明白圆 + 字符 Ⅱ」——白色圆片在浅蓝天空背景上只剩一团白，
+   字符 Ⅱ 带 letter-spacing，远看像有人手写了两个「I」，不像按钮。
+   现在：深色实心圆 + 两根 view 画的圆角竖条，图标是几何图形而不是文字，
+   深浅背景上都清晰；白竖条对深底的对比度远高于浅灰字对白底。
+
+   两种定位：
+     · 默认（inline=false）—— fixed 右上角，兼容没有 HUD 行的页面；
+     · inline=true —— position:static，作为 flex item 进 HUD 行，
+       和战士徽章并排（2026-10-18「按 D 对齐」）。 */
 .gp-fab {
   position: fixed;
   top: 12rpx;
   right: 12rpx;
   z-index: 90;
-  width: 64rpx;
-  height: 64rpx;
+  flex: 0 0 auto;
+  width: 72rpx;
+  height: 72rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, .82);
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, .18);
+  background: #3a3a5c;
+  box-shadow: 0 4rpx 10rpx rgba(20, 40, 80, .22);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 7rpx;
+  box-sizing: border-box;
+  /* 进 HUD 行时与两侧胶囊垂直居中（各页 .hud 多为 align-items:stretch） */
+  align-self: center;
 }
-.gp-fab--tap { background: rgba(255, 255, 255, .98); transform: scale(.94); }
-.gp-fab-ico {
-  font-size: 26rpx;
-  font-weight: 900;
-  color: #3a3a5c;
-  letter-spacing: 2rpx;
-  /* 用「Ⅱ」而不是 emoji：深浅背景下都不会糊成一团 */
+
+/* 进 HUD 行：不再悬浮，尺寸与 warrior-badge(sm) 对齐（都是 72rpx） */
+.gp-fab--inline {
+  position: static;
+  z-index: auto;
+  box-shadow: 0 4rpx 10rpx rgba(20, 40, 80, .18);
 }
+
+.gp-fab-bar {
+  width: 6rpx;
+  height: 24rpx;
+  border-radius: 3rpx;
+  background: #fff;
+}
+
+.gp-fab--tap { transform: scale(.94); opacity: .9; }
 
 /* ============ 弹层 ============ */
 .gp-mask {

@@ -1,13 +1,16 @@
 <!-- 统一暂停按钮 + 暂停弹层（见 game-pause.js 头部说明） -->
 
-<!-- 右上角悬浮按钮：只在对局中显示（showFab）且未暂停时显示 -->
+<!-- 暂停按钮：只在对局中显示（showFab）且未暂停时显示。
+     2026-10-18 改版：图标不再用「Ⅱ」字符（看着像文字），改用两根 view 圆角竖条；
+     inline=true 时参与 HUD 行内布局（不再 fixed 悬浮），见 wxss 注释。 -->
 <view
   wx:if="{{showFab && !show}}"
-  class="gp-fab"
+  class="gp-fab {{inline ? 'gp-fab--inline' : ''}}"
   catchtap="onOpen"
   hover-class="gp-fab--tap"
   hover-stay-time="60">
-  <text class="gp-fab-ico">Ⅱ</text>
+  <view class="gp-fab-bar"></view>
+  <view class="gp-fab-bar"></view>
 </view>
 
 <!-- 暂停弹层 -->

@@ -38,6 +38,16 @@
       <view class="hud-box"><view class="h-num">{{maxTile}}</view><view class="h-lab">最大块</view></view>
       <view class="hud-box"><view class="h-num">{{score}}</view><view class="h-lab">得分</view></view>
       <view class="hud-box"><view class="h-num">{{usedSteps}}</view><view class="h-lab">步数</view></view>
+      <!-- 暂停键进 HUD 行（2026-10-18）：不再 fixed 悬浮 -->
+      <game-pause
+        inline
+        open="{{paused}}"
+        showFab="{{playing}}"
+        sub="第 {{curLevel}} 关 · {{usedSteps}} 步"
+        bind:pause="onGamePause"
+        bind:resume="onGameResume"
+        bind:restart="onGameRestart"
+        bind:quit="onGameQuit" />
     </view>
 
     <!-- 滑动操作：catchtouchmove 阻止页面跟着滚，否则竖滑可能被页面滚动吃掉手感 -->
@@ -64,16 +74,6 @@
   </settle-pop>
 
   <view class="safe-gap"></view>
-
-  <!-- 暂停 / 音效（统一组件 game-pause）：固定右上角，只在对局中出现 -->
-  <game-pause
-    open="{{paused}}"
-    showFab="{{playing}}"
-    sub="第 {{curLevel}} 关 · {{usedSteps}} 步"
-    bind:pause="onGamePause"
-    bind:resume="onGameResume"
-    bind:restart="onGameRestart"
-    bind:quit="onGameQuit" />
 </view>
 
 

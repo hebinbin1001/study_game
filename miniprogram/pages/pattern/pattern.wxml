@@ -7,6 +7,15 @@
     <view class="chip"><view class="k">题号</view><view class="v">{{qText}}</view></view>
     <view class="chip"><view class="k">答对</view><view class="v">{{rightText}}</view></view>
     <warrior-badge size="sm" />
+    <game-pause
+      inline
+      open="{{paused}}"
+      showFab="{{!settle}}"
+      sub="第 {{levelText}} 关"
+      bind:pause="onGamePause"
+      bind:resume="onGameResume"
+      bind:restart="onGameRestart"
+      bind:quit="onGameQuit" />
   </view>
 
   <view class="bar"><view class="bar-fill" style="width: {{pct}}%;"></view></view>
@@ -47,13 +56,4 @@
     show-next="{{showNext}}" next-text="下一关 ▶"
     bind:retry="onRetry" bind:next="onNext" />
 
-  <!-- 暂停 / 音效（统一组件 game-pause）：固定右上角，只在对局中出现 -->
-  <game-pause
-    open="{{paused}}"
-    showFab="{{!settle}}"
-    sub="第 {{levelText}} 关"
-    bind:pause="onGamePause"
-    bind:resume="onGameResume"
-    bind:restart="onGameRestart"
-    bind:quit="onGameQuit" />
 </view>

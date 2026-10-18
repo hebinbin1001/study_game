@@ -8,6 +8,14 @@
     <view class="hud-chip" bindtap="newRound">{{gradeLabel}} · 换局</view>
     <!-- 战士徽章：并进 HUD 行（原来 fixed 悬浮会压住棋盘/提示条） -->
     <warrior-badge size="sm" />
+    <game-pause
+      inline
+      open="{{paused}}"
+      showFab="{{!over}}"
+      bind:pause="onGamePause"
+      bind:resume="onGameResume"
+      bind:restart="onGameRestart"
+      bind:quit="onGameQuit" />
   </view>
 
   <view class="board b-tray b-in">
@@ -38,14 +46,6 @@
 
   <view class="safe-gap"></view>
 
-  <!-- 暂停 / 音效（统一组件 game-pause）：固定右上角，只在对局中出现 -->
-  <game-pause
-    open="{{paused}}"
-    showFab="{{!over}}"
-    bind:pause="onGamePause"
-    bind:resume="onGameResume"
-    bind:restart="onGameRestart"
-    bind:quit="onGameQuit" />
 </view>
 
 

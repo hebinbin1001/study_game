@@ -6,6 +6,14 @@
     <view class="hud-chip">❤{{lives}}</view>
     <view class="hud-chip">分 {{score}}</view>
     <view class="hud-chip">最高 {{best}}</view>
+    <game-pause
+      inline
+      open="{{paused}}"
+      showFab="{{!over}}"
+      bind:pause="onGamePause"
+      bind:resume="onGameResume"
+      bind:restart="onGameRestart"
+      bind:quit="onGameQuit" />
   </view>
 
   <!-- 单词目标卡 -->
@@ -41,12 +49,4 @@
 
   <view class="safe-gap"></view>
 
-  <!-- 暂停 / 音效（统一组件 game-pause）：固定右上角，只在对局中出现 -->
-  <game-pause
-    open="{{paused}}"
-    showFab="{{!over}}"
-    bind:pause="onGamePause"
-    bind:resume="onGameResume"
-    bind:restart="onGameRestart"
-    bind:quit="onGameQuit" />
 </view>
