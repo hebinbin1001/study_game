@@ -42,6 +42,16 @@
 
   <!-- ============ 对局 ============ -->
   <block wx:else>
+    <!-- 暂停 / 音效（统一组件，2026-10-18）：只在对局中出现 -->
+    <game-pause
+      open="{{paused}}"
+      showFab="{{playing && !over}}"
+      sub="第 {{curLevel}} 关 · {{moves}} 步"
+      bind:pause="onGamePause"
+      bind:resume="onGameResume"
+      bind:restart="onGameRestart"
+      bind:quit="onGameQuit" />
+
     <view class="k-hud">
       <view class="kh-box">
         <view class="kh-num">{{moves}}</view>

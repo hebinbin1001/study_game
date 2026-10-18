@@ -1,0 +1,35 @@
+<!-- 统一暂停按钮 + 暂停弹层（见 game-pause.js 头部说明） -->
+
+<!-- 右上角悬浮按钮：只在对局中显示（showFab）且未暂停时显示 -->
+<view
+  wx:if="{{showFab && !show}}"
+  class="gp-fab"
+  catchtap="onOpen"
+  hover-class="gp-fab--tap"
+  hover-stay-time="60">
+  <text class="gp-fab-ico">Ⅱ</text>
+</view>
+
+<!-- 暂停弹层 -->
+<view wx:if="{{show}}" class="gp-mask" catchtouchmove="noop" catchtap="noop">
+  <view class="gp-card" catchtap="noop">
+    <view class="gp-ico">⏸</view>
+    <view class="gp-title">已暂停</view>
+    <view wx:if="{{sub}}" class="gp-sub">{{sub}}</view>
+
+    <button class="gp-main" catchtap="onResume">继续游戏</button>
+
+    <view class="gp-row">
+      <view class="gp-mini" catchtap="onToggleSound">
+        <text class="gp-mini-ico">{{sound ? '🔊' : '🔇'}}</text>
+        <text class="gp-mini-txt">{{sound ? '音效开' : '音效关'}}</text>
+      </view>
+      <view class="gp-mini" catchtap="onRestart">
+        <text class="gp-mini-ico">↻</text>
+        <text class="gp-mini-txt">重新开始</text>
+      </view>
+    </view>
+
+    <view class="gp-quit" catchtap="onQuit">退出本关</view>
+  </view>
+</view>

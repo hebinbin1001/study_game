@@ -58,6 +58,16 @@
   </settle-pop>
 
   <view class="safe-gap"></view>
+
+  <!-- 暂停 / 音效（统一组件 game-pause）：固定右上角，只在对局中出现 -->
+  <game-pause
+    open="{{paused}}"
+    showFab="{{!over}}"
+    sub="已拼 {{round}} 个词"
+    bind:pause="onGamePause"
+    bind:resume="onGameResume"
+    bind:restart="onGameRestart"
+    bind:quit="onGameQuit" />
 </view>
 
 

@@ -40,7 +40,8 @@ Page({
     starsText: '',
     settleTitle: '',
     settleMsg: '',
-    demoUsed: false
+    demoUsed: false,
+    paused: false            // 暂停弹层（game-pause 组件）
   },
 
   onLoad: function (options) {
@@ -366,6 +367,28 @@ Page({
   },
 
   restart: function () { this.startLevel(this.data.curLevel); },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  // 华容道没有倒计时，但「演示」是自己跑的定时器 —— 暂停时必须一起停，
+  // 不然玩家暂停回来发现棋盘自己走完了。
+  onGamePause: function () {
+    this._stopDemo();
+    this.setData({ paused: true });
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.startLevel(this.data.curLevel);
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
+  },
 
   // ============ 提示 / 演示 ============
   /** 提示：从**当前局面**现算最优走法（BFS，实测最难关 <110ms），只提示下一步 */

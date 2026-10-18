@@ -95,9 +95,24 @@ Page({
   },
 
   onUnload: function () { this._stopLoops(); },
-  onHide: function () { this._stopLoops(); this._suspended = true; },
+  // 切后台 = 自动暂停（回来先停在「已暂停」，不然球已经落到底）
+  onHide: function () {
+    this._stopLoops();
+    this._suspended = true;
+    if (!this.data.over) this.setData({ paused: true });
+  },
   onShow: function () {
-    if (this._suspended && !this.data.over) { this._suspended = false; this._startLoops(); }
+    if (this._suspended && !this.data.over) {
+      this._suspended = false;
+      if (!this.data.paused) this._startLoops();
+    }
+  },
+  // 暂停 / 恢复：停掉/重启下落与生成两个 interval
+  _onPause: function () { this._stopLoops(); this._suspended = true; },
+  _onResume: function () {
+    if (this.data.over) return;
+    this._suspended = false;
+    this._startLoops();
   },
 
   // 生成一轮球：三轨各一个（正确放随机轨，其余干扰）
@@ -169,5 +184,26 @@ Page({
   goBack: function () { this._stopLoops(); wx.navigateBack(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 单词弹弹球', path: '/pages/playlist/playlist' };
+  },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.again();
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
   }
 });

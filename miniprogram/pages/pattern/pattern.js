@@ -32,6 +32,7 @@ function layoutOf(n) {
 
 Page({
   data: {
+    paused: false,          // 暂停弹层（game-pause 组件）
     levelText: '1/30',
     qText: '1/10',
     rightText: '0',
@@ -211,5 +212,26 @@ Page({
 
   onShareAppMessage: function () {
     return { title: '词力战士 - 找规律', path: '/pages/playlist/playlist' };
+  },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.start(this._lv);
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
   }
 });

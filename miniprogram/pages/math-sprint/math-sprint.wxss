@@ -109,3 +109,6 @@ page {
   color: #c2571f;
   box-shadow: 0 8rpx 0 rgba(150, 60, 30, 0.14);
 }
+
+/* 右上角固定暂停按钮让位：给 HUD 行右侧留 84rpx */
+.hud-holder { padding-right: 84rpx; }

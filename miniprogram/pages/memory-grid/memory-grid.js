@@ -37,7 +37,17 @@ Page({
     this.start(parseInt((options || {}).level, 10) || 0);
   },
   onUnload: function () { this._clearTimers(); },
-  onHide: function () { this._clearTimers(); },
+  // 切后台 = 自动暂停（记忆阶段的时间不能在人不在的时候流走）
+  onHide: function () {
+    this._clearTimers();
+    if (!this.data.settle) this.setData({ paused: true });
+  },
+  // 暂停 / 恢复：记忆阶段（watch）的定时器被清掉后没法自动翻面，恢复时重看一遍这一关
+  _onPause: function () { this._clearTimers(); },
+  _onResume: function () {
+    if (this.data.settle) return;
+    if (this.data.phase === 'watch') this._startLevel();
+  },
 
   _clearTimers: function () {
     this._timers.forEach(function (t) { clearTimeout(t); });
@@ -187,5 +197,26 @@ Page({
 
   onShareAppMessage: function () {
     return { title: '词力战士 - 记忆矩阵', path: '/pages/playlist/playlist' };
+  },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.start(this._level);
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
   }
 });

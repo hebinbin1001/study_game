@@ -15,6 +15,7 @@ var COLS = 4, PAIR = 8;
 
 Page({
   data: {
+    paused: false,          // 暂停弹层（game-pause 组件）
     gradeLabel: '',
     cards: [],       // [{i, t:'w'|'c', key, lab, gone}]
     lives: 3,
@@ -305,5 +306,26 @@ Page({
   goBack: function () { wx.navigateBack(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 词语连连看', path: '/pages/playlist/playlist' };
+  },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.again();
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
   }
 });
