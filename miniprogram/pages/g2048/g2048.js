@@ -8,6 +8,9 @@
 //     次/步），校验见 tests/unit/g2048-levels.test.js。
 // 关卡表在 data/g2048-levels.js（14 关）：关卡页与单测共用同一份
 var LEVELS = require('../../data/g2048-levels').levels;
+var game = require('../../game/tw2048');
+var storage = require('../../utils/storage');
+var resume = require('../../utils/puzzle-resume');
 // 关卡进度 + 每关最短用时（用户 2026-09-13：每关显示最短时间）
 var puzProgress = require('../../utils/puzzle-progress');
 var playReport = require('../../utils/play-report');
@@ -17,6 +20,7 @@ var playReport = require('../../utils/play-report');
 //   · 不写星级存档，只记录**最少步数**，越少越强。
 var CHALLENGE = { target: 2048 };
 var CHALLENGE_BEST_KEY = 'ww_g2048_challenge_best';
+var PAGE = 'g2048';
 
 Page({
   data: {
@@ -50,11 +54,74 @@ Page({
     // 数字智力关卡页可以指定从第几关进（?level=N）
     var want = parseInt((options || {}).level, 10) || 0;
     if (want >= 1 && want <= LEVELS.length) cur = want;
+    // 断点续玩（2026-10-18）：有没下完的局就接着下；带 ?level 且不是那一关时不抢
+    var snap = resume.load(PAGE);
+    if (snap && this._restore(snap, want)) return;
     this.loadLevel(cur);
+  },
+
+  /**
+   * 断点恢复：棋盘是 16 个数字的扁平数组（0 = 空格）。
+   * @returns {boolean} true = 已恢复
+   */
+  _restore: function (snap, want) {
+    var st = snap && snap.state;
+    if (!st || !Array.isArray(st.board) || st.board.length !== 16) return false;
+    var bad = st.board.some(function (v) { return !isFinite(v) || v < 0; });
+    if (bad) { resume.clear(PAGE); return false; }
+    var isChallenge = snap.level === 0;
+    var lv = isChallenge ? null : LEVELS[snap.level - 1];
+    if (!isChallenge && !lv) return false;
+    // 用户点的是「另一关」→ 不恢复（但存档留着，下次进来还能接着下）
+    if (want >= 1 && want !== snap.level) return false;
+
+    var board = [];
+    for (var r = 0; r < 4; r++) board.push(st.board.slice(r * 4, r * 4 + 4));
+    this._board = board;
+    var elapsed = parseInt(st.elapsedMs, 10) || 0;
+    this._levelStartAt = Date.now() - elapsed;
+
+    var target = isChallenge ? CHALLENGE.target : lv.target;
+    var par = isChallenge ? 0 : lv.par;
+    this.setData({
+      curLevel: isChallenge ? 0 : snap.level,
+      target: target, par: par, stepsLimit: 0, challenge: isChallenge,
+      playing: true, over: false, win: false,
+      cells: this._flatten(board),
+      score: parseInt(st.score, 10) || 0,
+      usedSteps: parseInt(st.usedSteps, 10) || 0,
+      maxTile: parseInt(st.maxTile, 10) || 2,
+      stars: 0, starsText: '',
+      tipText: isChallenge
+        ? '👆 滑动合成 · 冲到 2048，只比谁用得更少'
+        : '👆 滑动合成 · ' + par + ' 步内拿 3★'
+    });
+    wx.showToast({
+      title: '已恢复上次进度 · ' + (parseInt(st.usedSteps, 10) || 0) + ' 步 · 最大 ' + (parseInt(st.maxTile, 10) || 2),
+      icon: 'none',
+      duration: 1800
+    });
+    return true;
+  },
+
+  /** 把当前棋局写进断点存档（每滑一步写一次） */
+  _saveProgress: function () {
+    if (!this.data.playing || this.data.over) return;
+    var board = [];
+    this._board.forEach(function (row) { board = board.concat(row); });
+    var elapsedMs = this._levelStartAt ? Math.max(0, Date.now() - this._levelStartAt) : 0;
+    resume.save(PAGE, this.data.challenge ? 0 : this.data.curLevel, {
+      board: board,
+      score: this.data.score,
+      usedSteps: this.data.usedSteps,
+      maxTile: this.data.maxTile,
+      elapsedMs: elapsedMs
+    });
   },
 
   _start: function (no) {
     var lv = LEVELS[no - 1];
+    resume.clear(PAGE);                 // 主动开新局 → 旧断点作废
     this._board = game.newBoard();
     this.setData({
       curLevel: no, target: lv.target, par: lv.par, stepsLimit: 0, challenge: false,
@@ -67,6 +134,7 @@ Page({
 
   /** 挑战模式：目标 2048，只比最少步数 */
   startChallenge: function () {
+    resume.clear(PAGE);
     this._board = game.newBoard();
     this.setData({
       curLevel: 0, target: CHALLENGE.target, par: 0, stepsLimit: 0, challenge: true,
@@ -122,10 +190,12 @@ Page({
 
     if (maxTile >= this.data.target) { this._win(); return; }
     // 2026-10-18：步数不再判负 —— 只有棋盘无路可走才结束本局
-    if (r.gameover) this._lose(true);
+    if (r.gameover) { this._lose(true); return; }
+    this._saveProgress();               // 还没结束才留断点
   },
 
   _win: function () {
+    resume.clear(PAGE);                 // 已通关：断点不再有意义
     // 挑战模式：不写星级存档，只记「最少步数」
     if (this.data.challenge) {
       var used = this.data.usedSteps;
@@ -171,6 +241,7 @@ Page({
   },
 
   _lose: function (stuck) {
+    resume.clear(PAGE);                 // 死局没有续玩价值
     this.setData({
       playing: false, over: true, win: false, stars: 0, starsText: '',
       overMsg: stuck ? '棋盘满了 · 没有可走的路了' : '这一局结束了',
@@ -201,6 +272,9 @@ Page({
   },
 
   goBack: function () { wx.navigateBack(); },
+  // 切后台 / 退出页面时再兜底存一次（正常走子已经存过了）
+  onHide: function () { this._saveProgress(); },
+  onUnload: function () { this._saveProgress(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 2048 闯关', path: '/pages/playlist/playlist' };
   }

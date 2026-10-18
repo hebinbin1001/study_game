@@ -16,9 +16,11 @@
 var m24 = require('../../game/math24');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
+var resume = require('../../utils/puzzle-resume');
 
 // 固定关卡库（60 关）：data/math24-levels.js，自动生成、每关保证有解
 var LEVELS = require('../../data/math24-levels').levels;
+var PAGE = 'math24';
 
 function toFrac(n) { return { n: n, d: 1 }; }
 function textOf(f) { return m24.fracText(f); }
@@ -57,12 +59,76 @@ Page({
     this.setData({ ops: m24.OPS.map(function (o) { return { key: o.key, label: o.label }; }) });
     // 数字智力关卡页会带 ?level=N 指定从哪关开始
     var want = parseInt((options || {}).level, 10) || 0;
-    this.startLevel(want >= 1 && want <= LEVELS.length ? want : 1);
+    var no = (want >= 1 && want <= LEVELS.length) ? want : 1;
+    // 断点续玩（2026-10-18）：有没做完的一局就接着做（牌面是这一步一变的，不恢复就白做）
+    var snap = resume.load(PAGE);
+    if (snap && (!want || snap.level === want) && this._restore(snap)) return;
+    this.startLevel(no);
+  },
+
+  /** 断点恢复：牌面（含每张牌的分数）+ 步数 + 撤销栈（最多 5 步，够用且不撑存储） */
+  _restore: function (snap) {
+    var st = snap && snap.state;
+    if (!st || !Array.isArray(st.tiles) || !st.tiles.length || st.tiles.length > 4) return false;
+    var ok = st.tiles.every(function (t) {
+      return t && t.frac && isFinite(t.frac.n) && isFinite(t.frac.d) && t.frac.d > 0;
+    });
+    if (!ok) { resume.clear(PAGE); return false; }
+    var lv = LEVELS[snap.level - 1];
+    if (!lv) return false;
+
+    this._history = (Array.isArray(st.history) ? st.history : []).map(function (h) {
+      return {
+        tiles: (h && h.tiles ? h.tiles : []).map(function (t) { return Object.assign({}, t); }),
+        order: (h && h.order ? h.order : []).slice()
+      };
+    });
+    this._tileId = parseInt(st.tileId, 10) || 0;
+    this._pickOrder = [];
+    this._pendingOp = '';
+    var tiles = st.tiles.map(function (t) {
+      return { id: t.id, frac: { n: t.frac.n, d: t.frac.d }, text: t.text, sel: !!t.sel };
+    });
+    var picked = tiles.filter(function (t) { return t.sel; }).length;
+    this.setData({
+      curLevel: snap.level,
+      playing: true,
+      tiles: tiles,
+      picked: picked,
+      selText: picked === 2 ? this._selPreview(tiles) : '',
+      steps: parseInt(st.steps, 10) || 0,
+      hint: '接着上一次：已合并 ' + (parseInt(st.steps, 10) || 0) + ' 步',
+      deadEnd: !!st.deadEnd,
+      over: false, win: false, stars: 0, starsText: '', overMsg: '', hintText: ''
+    });
+    wx.showToast({ title: '已恢复上次进度 · 第 ' + snap.level + ' 关 · ' + (parseInt(st.steps, 10) || 0) + ' 步', icon: 'none', duration: 1600 });
+    return true;
+  },
+
+  /** 写断点：只留最近 5 步撤销栈（再多对玩家没用，还占存储） */
+  _saveProgress: function () {
+    if (this.data.over) return;
+    var hist = (this._history || []).slice(-5).map(function (h) {
+      return {
+        tiles: h.tiles.map(function (t) { return { id: t.id, frac: { n: t.frac.n, d: t.frac.d }, text: t.text, sel: !!t.sel }; }),
+        order: (h.order || []).slice()
+      };
+    });
+    resume.save(PAGE, this.data.curLevel, {
+      tiles: this.data.tiles.map(function (t) {
+        return { id: t.id, frac: { n: t.frac.n, d: t.frac.d }, text: t.text, sel: !!t.sel };
+      }),
+      steps: this.data.steps,
+      tileId: this._tileId,
+      deadEnd: !!this.data.deadEnd,
+      history: hist
+    });
   },
 
   startLevel: function (no) {
     var lv = LEVELS[no - 1];
     if (!lv) return;
+    resume.clear(PAGE);                 // 主动开新局 → 旧断点作废
     this._history = [];
     this._tileId = 0;
     this._pickOrder = [];
@@ -235,7 +301,9 @@ Page({
         picked: 0, selText: '', steps: steps, deadEnd: false,
         hint: ok ? '合并到 24，过关！' : '最后一张是 ' + textOf(val) + '，不是 24'
       });
-      if (ok) { this._win(merged.text); } else { this._deadHint(); }
+      if (ok) { this._win(merged.text); return; }
+      this._deadHint();
+      this._saveProgress();             // 差一点通关的局面也存，回来还能撤销
       return;
     }
 
@@ -251,6 +319,7 @@ Page({
       hint: reachable ? ('已合并为 ' + merged.text + '（已帮你选中，接着点一张牌继续）')
         : '这一步之后凑不出 24 了，撤销一步或重来本关'
     });
+    this._saveProgress();
   },
 
   // —— 撤销一步 ——
@@ -271,6 +340,7 @@ Page({
       deadEnd: false,
       hint: this._guide(prevPicked)
     });
+    this._saveProgress();
   },
 
   // —— 重来本关 ——
@@ -304,6 +374,7 @@ Page({
   },
 
   _win: function (exprText) {
+    resume.clear(PAGE);                 // 已通关：断点不再有意义
     // 星级：按合并步数（理论最少 3 步；超过 5 步给 2 星，超过 8 步给 1 星）
     var s = this.data.steps;
     var stars = s <= 4 ? 3 : (s <= 6 ? 2 : 1);
@@ -332,6 +403,9 @@ Page({
   goLevels: function () { this.setData({ playing: false, over: false }); },
   pickLevel: function (e) { this.startLevel(parseInt(e.currentTarget.dataset.no, 10)); },
   goBack: function () { wx.navigateBack(); },
+  // 切后台 / 退出页面时兜底存一次
+  onHide: function () { this._saveProgress(); },
+  onUnload: function () { this._saveProgress(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 算 24 点', path: '/pages/playlist/playlist' };
   }
