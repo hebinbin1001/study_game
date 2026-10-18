@@ -55,6 +55,8 @@
 }
 .pl-row.done { background: #f2fbf4; }
 .pl-row.cur { box-shadow: inset 0 0 0 4rpx #ffb703, 0 4rpx 12rpx rgba(28, 53, 92, .06); }
+/* 有「没打完的一局」的关卡：蓝框 + 「继续 ›」，和「开始/去玩」区分开 */
+.pl-row.resume { box-shadow: inset 0 0 0 4rpx #4285F4, 0 4rpx 12rpx rgba(66, 133, 244, .14); }
 .pl-row.lock { opacity: .62; }
 
 .pl-no {
@@ -80,6 +82,7 @@
 .pl-best { font-size: 20rpx; color: #2f8b4d; font-weight: 700; }
 .pl-go { font-size: 22rpx; color: #8a9bb5; margin-top: 4rpx; }
 .pl-go--cur { color: #4285F4; font-weight: 700; }
+.pl-resume { font-size: 22rpx; color: #4285F4; font-weight: 800; margin-top: 4rpx; }
 .pl-lock { font-size: 20rpx; color: #a8b3c4; }
 
 .pl-empty { text-align: center; color: #8a9bb5; font-size: 24rpx; padding: 60rpx 0; }
