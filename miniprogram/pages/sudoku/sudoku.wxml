@@ -29,7 +29,19 @@
   <!-- ============ 对局视图 ============ -->
   <block wx:else>
     <!-- HUD（公共组件） -->
-    <view class="hud-holder"><game-hud lives="{{lives}}" extra="{{curLevel}} 关 · 错 {{mistakes}}" /></view>
+    <view class="hud-holder">
+      <game-hud lives="{{lives}}" extra="{{curLevel}} 关 · 错 {{mistakes}}" />
+      <!-- 暂停键进 HUD 行（2026-10-18）：不再 fixed 悬浮 -->
+      <game-pause
+        inline
+        open="{{paused}}"
+        showFab="{{playing}}"
+        sub="第 {{curLevel}} 关 · 错 {{mistakes}} 次"
+        bind:pause="onGamePause"
+        bind:resume="onGameResume"
+        bind:restart="onGameRestart"
+        bind:quit="onGameQuit" />
+    </view>
     <view class="btn-back" bindtap="backToLevels">关卡列表</view>
 
     <!-- 棋盘 -->
@@ -68,16 +80,6 @@
   </settle-pop>
 
   <view class="safe-gap"></view>
-
-  <!-- 暂停 / 音效（统一组件 game-pause）：固定右上角，只在对局中出现 -->
-  <game-pause
-    open="{{paused}}"
-    showFab="{{playing}}"
-    sub="第 {{curLevel}} 关 · 错 {{mistakes}} 次"
-    bind:pause="onGamePause"
-    bind:resume="onGameResume"
-    bind:restart="onGameRestart"
-    bind:quit="onGameQuit" />
 </view>
 
 

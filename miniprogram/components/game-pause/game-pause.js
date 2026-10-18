@@ -20,8 +20,9 @@
  * 音效开关由组件自己落盘（constants.STORAGE_KEYS.sound），并与 game/audio 的
  * setSoundEnabled 同步 —— 全 App 只有这一个口径。
  *
- * 样式：按钮固定在**右上角**（原生导航栏下方），64rpx，半透明白底 + 投影。
- * 页面若在这个位置有 HUD，给 HUD 加 padding-right: 84rpx 让开（见各页 wxss 注释）。
+ * 样式：按钮默认定位在**右上角**（原生导航栏下方），72rpx，深色实心圆 + 白色双竖条。
+ *   inline=true 时不悬浮，作为 flex item 进入 HUD 行（与 warrior-badge 并排），
+ *   页面就不必再给 HUD 加 padding-right 让位了（2026-10-18「按 D 对齐」）。
  */
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
@@ -34,7 +35,9 @@ Component({
     // 弹层副标题，如「第 3 关 · 27 步」
     sub: { type: String, value: '' },
     // 是否显示按钮（对局中才显示）
-    showFab: { type: Boolean, value: true }
+    showFab: { type: Boolean, value: true },
+    // 2026-10-18：true = 参与 HUD 行内布局（不 fixed 悬浮）
+    inline: { type: Boolean, value: false }
   },
 
   data: {

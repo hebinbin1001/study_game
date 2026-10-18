@@ -146,5 +146,6 @@
 
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
 
-/* 右上角固定暂停按钮让位：给 HUD 行右侧留 84rpx */
-.hud-holder { padding-right: 84rpx; }
+/* 2026-10-18：暂停键进 HUD 行，不再需要右侧让位 */
+.hud-holder { display: flex; align-items: center; gap: 12rpx; }
+.hud-holder > game-hud { flex: 1 1 auto; min-width: 0; }
