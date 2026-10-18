@@ -100,7 +100,7 @@
     <view class="k-tip" wx:if="{{hint}}">
       💡 把高亮的棋子向 {{hint.dx > 0 ? '右' : (hint.dx < 0 ? '左' : (hint.dy > 0 ? '下' : '上'))}} 滑 {{hint.dist}} 格（整体最少还需 {{hint.left}} 步）
     </view>
-    <view class="k-tip dim" wx:else>拖动棋子滑到尽头 · 也可点棋子后用方向键滑 1 格</view>
+    <view class="k-tip dim" wx:else>{{selected >= 0 ? '已选中棋子 · 按方向键让它滑到底（一次算 1 步）' : '拖动棋子滑到尽头 · 或点一下棋子再按方向键'}}</view>
 
     <!-- 操作区 -->
     <view class="k-ops">
@@ -110,12 +110,12 @@
       <view class="op" bindtap="demo"><text class="op-i">▶️</text><text class="op-t">演示</text></view>
     </view>
 
-    <!-- 方向键（点选棋子后滑 1 格） -->
+    <!-- 方向键（点选棋子后按方向：沿该方向滑到尽头，与拖动同为 1 步） -->
     <view class="k-pad">
-      <view class="pad-btn up" data-dir="up" bindtap="nudge">▲</view>
-      <view class="pad-btn left" data-dir="left" bindtap="nudge">◀</view>
-      <view class="pad-btn down" data-dir="down" bindtap="nudge">▼</view>
-      <view class="pad-btn right" data-dir="right" bindtap="nudge">▶</view>
+      <view class="pad-btn up" data-dir="up" bindtap="nudge" hover-class="pad-btn--tap">▲</view>
+      <view class="pad-btn left" data-dir="left" bindtap="nudge" hover-class="pad-btn--tap">◀</view>
+      <view class="pad-btn down" data-dir="down" bindtap="nudge" hover-class="pad-btn--tap">▼</view>
+      <view class="pad-btn right" data-dir="right" bindtap="nudge" hover-class="pad-btn--tap">▶</view>
     </view>
     <view class="safe-gap"></view>
 

@@ -198,6 +198,13 @@
 .pad-btn.left { left: 4rpx; top: 108rpx; }
 .pad-btn.down { left: 91rpx; top: 108rpx; }
 .pad-btn.right { left: 178rpx; top: 108rpx; }
+/* 按下反馈：没反馈时玩家会以为按钮没生效 */
+.pad-btn--tap {
+  background: #ffb703;
+  color: #fff;
+  transform: translateY(4rpx);
+  box-shadow: 0 2rpx 0 rgba(0, 0, 0, .12);
+}
 
 /* ============ 结算按钮（settle-pop 插槽） ============ */
 .s-btns { display: flex; flex-direction: column; gap: 16rpx; width: 100%; }

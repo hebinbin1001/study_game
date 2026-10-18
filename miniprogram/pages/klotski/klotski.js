@@ -309,16 +309,23 @@ Page({
     this._doMove(i, d[0], d[1], steps);
   },
 
-  /** 方向键：让选中的棋子滑 1 格（点击兜底操作，同样记 1 步） */
+  /**
+   * 方向键：让选中的棋子**沿这个方向滑到尽头**（与拖动同一口径：一次滑动算 1 步）。
+   *
+   * 2026-10-18 修：原来这里传 dist=1，只滑一格却也记 1 步 —— 而拖动滑多远都只算 1 步，
+   * 于是方向键天然「更亏」，玩家反馈「感觉没用」。改成传一个大数交给引擎夹到实际可滑距离，
+   * 方向键就等价于拖动（还能避免手指挡住棋子）。
+   */
   nudge: function (e) {
     if (!this.data.playing || this.data.over) return;
     var i = this.data.selected;
-    if (i < 0) { wx.showToast({ title: '先点一下要移动的棋子', icon: 'none' }); return; }
+    if (i < 0) { wx.showToast({ title: '先点一下棋子（选中会有橙框）', icon: 'none' }); return; }
     var dir = e.currentTarget.dataset.dir || '';
     var map = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
     var d = map[dir];
     if (!d) return;
-    this._doMove(i, d[0], d[1], 1);
+    // 9 远大于任何棋子单次可滑距离（棋盘最长 5 格），引擎会夹到 maxSlide
+    this._doMove(i, d[0], d[1], 9);
   },
 
   // ============ 走一步 ============
