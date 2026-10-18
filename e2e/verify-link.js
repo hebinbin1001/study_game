@@ -29,6 +29,7 @@
 
 const H = require('./lib/harness');
 const linkLib = require('../miniprogram/game/link');
+const challenge = require('../miniprogram/utils/challenge');
 
 const PAGE_URL = '/pages/link/link';
 const COLS = 4;
@@ -256,9 +257,11 @@ H.runSuite('verify-link（词语连连看）', async function (miniProgram, ck) 
       }
       reshuffles++;
       console.log('        [info] 当前牌面无解 → 点「换局」重排（第 ' + reshuffles + ' 次）');
-      // 注意：头部右侧的「换局」胶囊在 2026-09-12 视觉统一后类名由 .lk-grade 改为共享类 .g-chip；
-      // 这里两个都试，避免以后换类名再让用例时好时坏（只在无解牌面时才走到这一步，很容易被忽略）。
-      const reshuffle = (await page.$('.g-chip')) || (await page.$('.lk-grade'));
+      // 2026-10-18：换局按钮现在是 HUD 里的第 3 枚胶囊（.hud-chip），文本为「<学段> · 换局」。
+      // 之前找 .g-chip 找不到 → 无解局面直接 break，表现为「一对都没消掉」的假失败。
+      // 产品侧已保证开局有解，这里仍保留重排能力以防玩家把牌面走死。
+      const chips = await page.$$('.hud-chip');
+      const reshuffle = chips && chips[2];
       if (!reshuffle) break;
       await reshuffle.tap();
       await page.waitFor(900);
@@ -322,12 +325,15 @@ H.runSuite('verify-link（词语连连看）', async function (miniProgram, ck) 
   if (data.left === 0) {
     ck.check('清空后判定过关（data.win）', data.win === true,
       '实际 win = ' + data.win + ' over = ' + data.over);
-    const overEl = await H.waitForSelector(page, '.over-mask', 8000);
-    ck.check('结算层 .over-mask 出现', !!overEl);
-    const title = await H.textOf(page, '.o-title');
-    ck.check('结算标题为「全部连上！」', title === '全部连上！', '实际 = ' + title);
-    const stars = await H.textOf(page, '.o-stars');
-    ck.check('结算星级非空', !!stars, '实际 = ' + stars);
+    // 2026-10-18：结算改成 <settle-pop> 组件，内部节点查不到 → 断言页面 data。
+    const dEnd = await page.data();
+    ck.check('结算已弹出（data.over）', dEnd.over === true);
+    ck.check('结算提示为「全部连上！」', dEnd.tip === '全部连上！', '实际 = ' + JSON.stringify(dEnd.tip));
+    // 本用例在 B 段故意错配 1 次 → 正确率 = 7/8 = 87.5%，按统一阈值（90/70/60）应是 2 星。
+    // 独立用同一公式复算，避免把「错一次仍 3 星」这种错误预期写死进用例。
+    const expectStars = challenge.starsByRightRate(PAIR_COUNT - 1, PAIR_COUNT);
+    ck.check('结算星级符合 7/8 正确率（' + expectStars + ' 星）',
+      dEnd.starsText === '⭐'.repeat(expectStars), '实际 = ' + JSON.stringify(dEnd.starsText));
   }
 
   // 收尾

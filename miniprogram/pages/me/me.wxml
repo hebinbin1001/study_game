@@ -72,10 +72,21 @@
     </view>
   </view>
 
-  <!-- 危险区（仅已登录） -->
-  <view class="danger-card" wx:if="{{loggedIn}}">
-    <view class="danger-row" bindtap="goLogout">退出登录</view>
-    <view class="danger-row danger-row--red" bindtap="goDeleteAccount">注销账号</view>
+  <!-- 账号区（仅已登录）：和上方菜单用同一套行样式，避免底部出现一块风格突兀的居中按钮 -->
+  <view class="menu-group" wx:if="{{loggedIn}}">
+    <view class="menu-group-title">账号</view>
+    <view class="menu-card">
+      <view class="menu-row" bindtap="goLogout">
+        <text class="menu-emoji">🚪</text>
+        <text class="menu-name">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-row" bindtap="goDeleteAccount">
+        <text class="menu-emoji">⚠️</text>
+        <text class="menu-name menu-name--danger">注销账号</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
   </view>
 
   <!-- 底部：协议（低频，从菜单移到这里）+ 版本号（连点 5 次进管理后台，普通用户看不到入口） -->

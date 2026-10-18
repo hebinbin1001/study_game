@@ -21,7 +21,7 @@
       class="seg-tab {{curSection === item.key ? 'on' : ''}}"
       data-key="{{item.key}}"
       bindtap="pickSection">
-      <text class="seg-ic">{{item.icon}}</text>
+      <image class="seg-ic" src="{{item.iconSrc}}" mode="aspectFit"></image>
       <text class="seg-label">{{item.label}}</text>
     </view>
   </view>
@@ -34,7 +34,10 @@
         wx:key="key"
         class="cat-chip {{curCat === item.key ? 'on' : ''}}"
         data-key="{{item.key}}"
-        bindtap="pickCat">{{item.label}}</view>
+        bindtap="pickCat">
+        <image class="cat-ic" src="{{item.iconSrc}}" mode="aspectFit"></image>
+        <text>{{item.label}}</text>
+      </view>
     </view>
   </scroll-view>
 

@@ -80,7 +80,9 @@ Page({
       fb: '',
       levelText: lv.no + '/' + hanoi.LEVELS.length,
       minText: String(hanoi.minMoves(n)),
-      bannerMain: '接着上次 · 把 ' + n + ' 个盘全移到第 3 根柱子',
+      bannerMain: (parseInt(st.steps, 10) || 0) > 0
+        ? '接着上次 · 把 ' + n + ' 个盘全移到第 3 根柱子'
+        : '把 ' + n + ' 个盘全移到第 3 根柱子',
       bannerSub: '大盘不能压在小盘上 · 最少 ' + hanoi.minMoves(n) + ' 步'
     });
     this._paint();

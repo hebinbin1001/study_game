@@ -78,7 +78,7 @@
     <view class="rep-card" wx:if="{{wrongByType.length > 0}}">
       <view class="rep-card-title">🎯 薄弱题型（错题分布）</view>
       <view class="type-row" wx:for="{{wrongByType}}" wx:key="type">
-        <text class="type-name">{{item.type}}</text>
+        <text class="type-name">{{item.typeLabel}}</text>
         <view class="type-bar-wrap">
           <view class="type-bar" style="width:{{item.percent}}%;"></view>
         </view>

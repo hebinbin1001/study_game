@@ -76,7 +76,7 @@
       <!-- 错题卡片 -->
       <view wx:elif="{{item.t === 'c'}}" class="item-card" bindtap="practiceItem" data-id="{{item.it.recordId}}">
         <view class="item-header">
-          <text class="item-type tag">{{item.it.question.type}}</text>
+          <text class="item-type tag">{{item.it.typeLabel}}</text>
           <text class="item-mastery">熟练度 {{item.it.mastery}}%</text>
         </view>
         <view class="item-question">
@@ -120,7 +120,7 @@
     <block wx:for="{{reviewed}}" wx:key="recordId">
       <view class="item-card" bindtap="practiceItem" data-id="{{item.recordId}}">
         <view class="item-header">
-          <text class="item-type tag">{{item.question.type}}</text>
+          <text class="item-type tag">{{item.typeLabel}}</text>
           <text class="item-mastery">熟练度 {{item.mastery}}% · 复习过 {{item.reviewCount}} 次</text>
         </view>
         <view class="item-question">
@@ -148,7 +148,7 @@
     <block wx:for="{{mastered}}" wx:key="recordId">
       <view class="item-card mastered">
         <view class="item-header">
-          <text class="item-type tag tag--green">{{item.question.type}}</text>
+          <text class="item-type tag tag--green">{{item.typeLabel}}</text>
           <text class="item-mastery">🏅 已掌握</text>
         </view>
         <view class="item-question">

@@ -48,6 +48,7 @@
   border-radius: 26rpx;
   display: flex; align-items: center; justify-content: center;
   font-size: 64rpx; font-weight: 900; color: #3a3a5c;
+  position: relative;
 }
 .card.used { opacity: .35; box-shadow: none; }
 
@@ -122,15 +123,48 @@
 
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
 /* ===== 合并式交互（2026-09-12 改版）新增状态 ===== */
-/* 选中态：金色环 + 上浮（用 app.wxss 的 .b-sel，原写法只设了 border-color
-   却从没声明过 border，所以在真机上一直看不出来） */
-.card.b-sel { background: linear-gradient(180deg, #fffdf6 0%, #fff4d9 100%); }
-/* 刚合并出来的结果牌：绿色环提示「这是新的牌」（原写法同样只设了 border-color
-   而没有 border，真机上只剩一层淡淡的绿底） */
+/* 2026-10-18 用户反馈：选中牌和合并结果都用「环」高亮，容易混。
+   现在选中 = 蓝环 + 左上角蓝勾；结果牌 = 绿色底 + 「结果」角标，仍可叠蓝环表示已选中。 */
+.card.b-sel {
+  background: linear-gradient(180deg, #eef5ff 0%, #dbeafe 100%);
+  box-shadow: 0 0 0 6rpx #3b82f6, 0 8rpx 0 rgba(30, 64, 175, 0.25),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+  transform: translateY(-4rpx);
+}
 .card.merged {
   background: linear-gradient(180deg, #f4fdf6 0%, #e4f7e9 100%);
-  box-shadow: 0 0 0 5rpx #7bd389, 0 6rpx 0 rgba(30, 120, 60, 0.22),
+  box-shadow: inset 0 0 0 4rpx #86efac, 0 6rpx 0 rgba(30, 120, 60, 0.22),
     inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+}
+/* 结果牌自动选中：外圈蓝（选中）+ 内圈绿（结果）同时保留 */
+.card.merged.b-sel {
+  box-shadow: 0 0 0 6rpx #3b82f6, inset 0 0 0 4rpx #86efac,
+    0 8rpx 0 rgba(30, 64, 175, 0.25), inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+}
+.tile-tag {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  z-index: 2;
+  font-size: 18rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+.tile-tag--sel {
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tile-tag--result {
+  padding: 5rpx 8rpx;
+  border-radius: 8rpx;
+  background: #22c55e;
+  color: #fff;
 }
 
 /* 右上角固定暂停按钮让位（components/game-pause）：HUD 右端不压住内容 / 战士徽章 */

@@ -733,7 +733,8 @@ function contextOf(opt) {
     if (!lineLv) return ctx;
     ctx.mode = mode;
     ctx.params = lineLv.params;
-    ctx.label = labelOf(grade) + ' · ' + lineLv.modeLabel + '第 ' + level + '/' + LEVELS_PER_GRADE + ' 关';
+    // 2026-10-18：补上分隔符。原来渲染成「限时抢答第 1/30 关」，玩法名和关卡号黏在一起。
+    ctx.label = labelOf(grade) + ' · ' + lineLv.modeLabel + ' · 第 ' + level + '/' + LEVELS_PER_GRADE + ' 关';
   }
   ctx.seed = parseInt(o.seed, 10) || (line === STAR_KEY
     ? seedOf(grade, level)

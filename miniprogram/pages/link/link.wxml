@@ -4,8 +4,8 @@
 
   <view class="hud">
     <view class="hud-chip">❤{{lives}}</view>
-    <view class="hud-chip">配对 {{matched}}/{{pairsTotal}} 对</view>
-    <view class="hud-chip" bindtap="newRound">{{gradeLabel}} · 换局</view>
+    <view class="hud-chip">配对 {{matched}}/{{pairsTotal}}</view>
+    <view class="hud-chip" bindtap="newRound">换局</view>
     <!-- 战士徽章：并进 HUD 行（原来 fixed 悬浮会压住棋盘/提示条） -->
     <warrior-badge size="sm" />
     <game-pause
@@ -17,6 +17,8 @@
       bind:restart="onGameRestart"
       bind:quit="onGameQuit" />
   </view>
+  <!-- 学段/关卡信息：只在挑战模式显示。自由玩时学段是随机抽的，单独一行白字反而像标题残留 -->
+  <view class="ctx-pill" wx:if="{{challenge}}">{{gradeLabel}}</view>
 
   <view class="board b-tray b-in">
     <view

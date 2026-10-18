@@ -1,5 +1,6 @@
 // 学习报告页（M6-D）：近 7 天学习统计 + 错题掌握概览
 var request = require('../../utils/request');
+var typeLabel = require('../../utils/type-label');
 
 Page({
   data: {
@@ -45,7 +46,13 @@ Page({
         if (rawTypes[i].count > maxC) maxC = rawTypes[i].count;
       }
       var wrongByType = rawTypes.map(function (t) {
-        return { type: t.type, count: t.count, percent: Math.round((t.count / maxC) * 100) };
+        return {
+          type: t.type,
+          // 2026-10-18：不要直接把 w1/c1/match 这类内部码丢给用户
+          typeLabel: typeLabel.labelOf(t.type),
+          count: t.count,
+          percent: Math.round((t.count / maxC) * 100)
+        };
       });
 
       self.setData({

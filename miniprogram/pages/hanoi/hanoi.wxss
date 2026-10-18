@@ -53,7 +53,10 @@ page {
   flex: 1 1 auto;
   min-height: 420rpx;
   display: flex;
-  align-items: flex-end;
+  /* 2026-10-18：原来 align-items:flex-end + .peg height:100%，百分比高度在 flex 子项里
+     算不出确定值 → 柱子 .rod 的 height:calc(100%-40rpx) 变成 0，整块题板看着是空白的。
+     改为 stretch + .rod 用 top/bottom 定位，柱子在任何屏幕尺寸下都能画出来。 */
+  align-items: stretch;
   gap: 6rpx;
   padding: 8rpx 6rpx 10rpx;
   background: #fff;
@@ -63,8 +66,7 @@ page {
 .peg {
   position: relative;
   flex: 1;
-  /* 撑满题板高度：原来写死 400rpx，在大屏上柱子只占卡片下半截，上面一大片白 */
-  height: 100%;
+  /* 高度交给父级 stretch（见 .tower 注释），不再写 height:100% */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -75,11 +77,11 @@ page {
 .rod {
   position: absolute;
   bottom: 14rpx;
+  top: 40rpx;
   left: 50%;
   margin-left: -7rpx;
   width: 14rpx;
-  /* 柱子跟着题板长：8 盘堆高 323rpx，留 40rpx 余量即可 */
-  height: calc(100% - 40rpx);
+  /* 用 top/bottom 撑满（不再用百分比 height，flex 子项里不可靠） */
   border-radius: 8rpx 8rpx 0 0;
   background: linear-gradient(180deg, #d9a06a, #8a5a34);
 }

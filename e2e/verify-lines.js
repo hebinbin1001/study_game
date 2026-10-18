@@ -126,9 +126,13 @@ async function main() {
     await pl.waitFor(600);
     const casual = await pl.data();
     ck.check('切到数字智力分段', casual.curSection === 'casual', '实际 = ' + casual.curSection);
-    ck.check('数字智力 9 款', (casual.games || []).length === 9, '实际 = ' + (casual.games || []).length);
-    ck.check('弹弹球仍在数字智力里做未解锁占位',
-      (casual.games || []).some(function (g) { return g.key === 'bounce' && !g.unlocked; }));
+    // 2026-10-18：数字智力共 13 款，其中「单词弹弹球」未开放。
+    // 玩法页已改为「未上线玩法不进网格，页脚统一说明」（playlist.js: soonText），
+    // 所以网格里只应有 12 款；弹弹球必须出现在「制作中」说明里，不能凭空消失。
+    ck.check('数字智力 12 款可玩', (casual.games || []).length === 12, '实际 = ' + (casual.games || []).length);
+    ck.check('未上线的单词弹弹球在页脚「制作中」里交代',
+      String(casual.soonText || '').indexOf('单词弹弹球') >= 0,
+      '实际 = ' + JSON.stringify(casual.soonText));
 
     // ---------- F. 最后一关不给「下一关」（放在最后：会 reLaunch，销毁前面的 page 句柄） ----------
     console.log('[6/6] 最后一关不给「下一关」');

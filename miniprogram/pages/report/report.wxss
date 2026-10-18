@@ -140,8 +140,11 @@ page {
   margin-bottom: 16rpx;
 }
 .type-name {
-  width: 120rpx;
-  font-size: 26rpx;
+  /* 2026-10-18：类型名改成中文后（如「汉字/成语挖1字」）120rpx 会折成两行，
+     名称列加宽并略收字号，保证一行放下、条形图仍然完整。 */
+  width: 200rpx;
+  font-size: 24rpx;
+  line-height: 1.25;
   font-weight: 800;
   color: #3a3a5c;
   flex-shrink: 0;

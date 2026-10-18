@@ -12,6 +12,7 @@
 'use strict';
 
 var ebbinghaus = require('./ebbinghaus');
+var typeLabel = require('./type-label');
 
 var PAGE_SIZE = 20;   // 每页条数（与后端上限 100 对齐）
 
@@ -47,6 +48,7 @@ function decorate(item) {
     recordId: it.recordId,
     questionId: it.questionId,
     question: it.question,
+    typeLabel: typeLabel.labelOf(it.question && it.question.type),
     wrongCount: it.wrongCount,
     mastery: it.mastery,
     nextReviewAt: it.nextReviewAt,
@@ -65,6 +67,7 @@ function decorateMastered(item) {
     recordId: it.recordId,
     questionId: it.questionId,
     question: it.question,
+    typeLabel: typeLabel.labelOf(it.question && it.question.type),
     wrongCount: it.wrongCount,
     mastery: it.mastery,
     reviewCount: it.reviewCount     // 「已复习」列表显示「复习过 N 次」用

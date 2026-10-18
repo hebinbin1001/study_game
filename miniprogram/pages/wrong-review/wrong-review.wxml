@@ -20,7 +20,7 @@
   <!-- 题目卡片 -->
   <view class="question-card" wx:if="{{currentItem && !completed}}">
     <view class="question-head">
-      <text class="question-type tag">👾 {{currentItem.question.type}}</text>
+      <text class="question-type tag">👾 {{typeLabel}}</text>
     </view>
 
     <!-- 题干区：随复习形态变化（M6-G） -->

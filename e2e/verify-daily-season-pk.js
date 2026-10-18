@@ -19,11 +19,18 @@ const H = require('./lib/harness');
 H.runSuite('verify-daily-season-pk（每日挑战 / 赛季 / 好友 PK）', async function (miniProgram, ck) {
   console.log('[1/4] 首页三件套入口渲染');
   const home = await H.goto(miniProgram, '/pages/index/index', 1800);
-  const tri = await H.waitForCount(home, '.tri', 3, 8000);
-  ck.check('首页有 3 个新入口卡', !!tri, tri ? ('实际 ' + tri.length) : '超时');
-  const triText = await H.textOf(home, '.trinity');
-  ck.check('入口文案包含「每日挑战 / 赛季 / 好友 PK」',
-    !!triText && triText.indexOf('每日挑战') >= 0 && triText.indexOf('赛季') >= 0 && triText.indexOf('好友 PK') >= 0,
+  // 2026-10-18：首页三宫格改版（.trinity/.tri → .quad/.qi），「每日挑战」并入今日任务卡，
+  // 三宫格现在是「排行榜 / 赛季 / 好友 PK」。
+  const tri = await H.waitForCount(home, '.qi', 3, 8000);
+  ck.check('首页有 3 个功能入口卡', !!tri, tri ? ('实际 ' + tri.length) : '超时');
+  const qiTexts = [];
+  const qiEls = await home.$$('.qi');
+  for (const el of qiEls) {
+    try { qiTexts.push(await el.text()); } catch (e) { /* 单个取不到不影响整体 */ }
+  }
+  const triText = qiTexts.join(' | ');
+  ck.check('入口文案包含「排行榜 / 赛季 / 好友 PK」',
+    triText.indexOf('排行榜') >= 0 && triText.indexOf('赛季') >= 0 && triText.indexOf('好友 PK') >= 0,
     '实际 = ' + JSON.stringify(triText));
 
   console.log('[2/4] 每日挑战赛：开始 → 答满 10 题 → 结算');

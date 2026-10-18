@@ -158,13 +158,23 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   // 现在改成**先备份、跑完恢复**：测试照样隔离，真实存档不受影响。
   const backupStars = await miniProgram.callWxMethod('getStorageSync', 'ww_stars');
   const backupMigrated = await miniProgram.callWxMethod('getStorageSync', 'ww_challenge_migrated');
+  const backupLastGrade = await miniProgram.callWxMethod('getStorageSync', 'ww_last_grade');
   const restoreStorage = async function () {
     try {
       if (backupStars) {
         await miniProgram.callWxMethod('setStorageSync', 'ww_stars', backupStars);
+      } else {
+        await miniProgram.callWxMethod('removeStorageSync', 'ww_stars');
       }
       if (backupMigrated) {
         await miniProgram.callWxMethod('setStorageSync', 'ww_challenge_migrated', backupMigrated);
+      } else {
+        await miniProgram.callWxMethod('removeStorageSync', 'ww_challenge_migrated');
+      }
+      if (backupLastGrade) {
+        await miniProgram.callWxMethod('setStorageSync', 'ww_last_grade', backupLastGrade);
+      } else {
+        await miniProgram.callWxMethod('removeStorageSync', 'ww_last_grade');
       }
     } catch (e) { /* 恢复失败不影响测试结论 */ }
   };
@@ -184,8 +194,11 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('继续卡片带玩法名（字母射击）', String(homeData.continueHint || '').indexOf('字母射击') !== -1,
     '实际 = ' + homeData.continueHint);
   ck.check('卡片 DOM 文案与 data 一致',
-    (await H.textOf(home, '.cta .c-s')) === homeData.continueHint,
-    'DOM = ' + (await H.textOf(home, '.cta .c-s')));
+    // 2026-10-18：首页「继续挑战」大卡改版成 .battle-row
+    // 2026-10-18 再修：模板会在 hint 前拼「继续上次 · 」（见 index.wxml），
+    // 断言应校验 hint 被完整包含，而不是整串相等。
+    String(await H.textOf(home, '.battle-row__s')).indexOf(homeData.continueHint) >= 0,
+    'DOM = ' + (await H.textOf(home, '.battle-row__s')));
 
   console.log('[2/8] 关卡页「挑战主线」视图：30 关 + 玩法标签');
   const lvPage = await H.goto(miniProgram, LEVEL_URL, 1800);
@@ -196,19 +209,21 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   // 于是选完返回首页引导条还在，看起来像"点了没用"。
   // 注意：在**同一个页面实例**上切（不新开页面），并在最后复位，避免影响后面的断言。
   await miniProgram.callWxMethod('removeStorageSync', 'ww_last_grade');
-  const gradeTabs = await lvPage.$$('.grade-tab');
-  ck.check('关卡页有学段 tab', gradeTabs.length >= 2, '实际 ' + gradeTabs.length);
-  if (gradeTabs.length >= 2) {
-    await gradeTabs[1].tap();               // 点第 2 个学段（一年级）
+  // 2026-10-18：关卡页的 14 个学段 tab 改成「学段行 + grade-picker 弹层」，
+  // 组件内部节点 automator 查不到 → 点学段行打开弹层，再用页面方法模拟选择，
+  // 断言落点不变：选完 lastGrade 必须被写回。
+  const gradeLine = await lvPage.$('.grade-line');
+  ck.check('关卡页有学段入口（.grade-line）', !!gradeLine);
+  if (gradeLine) {
+    await gradeLine.tap();
+    await lvPage.waitFor(500);
+    const pickerOpen = await lvPage.data();
+    ck.check('点学段行打开年级选择器', pickerOpen.gradePickerVisible === true,
+      '实际 = ' + pickerOpen.gradePickerVisible);
+    await lvPage.callMethod('onGradePick', { detail: { key: 'g1' } });
     await lvPage.waitFor(500);
     const savedGrade = await miniProgram.callWxMethod('getStorageSync', 'ww_last_grade');
-    ck.check('切学段后 lastGrade 被写回（首页引导条才会消失）', !!savedGrade,
-      '实际 = ' + JSON.stringify(savedGrade));
-    const picked = await lvPage.data();
-    ck.check('页面内选中态也跟着变', picked.currentGradeIndex === 1,
-      '实际 = ' + picked.currentGradeIndex);
-    await gradeTabs[0].tap();               // 复位到第 1 档
-    await lvPage.waitFor(300);
+    ck.check('选年级后 lastGrade 被写回', !!savedGrade, '实际 = ' + JSON.stringify(savedGrade));
   }
   const rows = lvData.levels || [];
   ck.check('主线关卡数为 30', rows.length === 30, '实际 = ' + rows.length);
@@ -355,7 +370,6 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('同一关再次进入：牌面一致',
     JSON.stringify((lkD2.cards || []).map(function (c) { return c.lab; })) === JSON.stringify(lkLabs1));
 
-  const expLink1 = expectLink(GRADE, LINK_LEVEL, 1);
   await lk2.callMethod('again');           // 换局 = 题不变、牌面重排
   await lk2.waitFor(600);
   const lkD3 = await lk2.data();
@@ -363,9 +377,16 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   const lkLabs3 = (lkD3.cards || []).map(function (c) { return c.lab; });
   ck.check('换局后词对集合不变（题不变）',
     setOf(lkLabs3) === setOf(lkLabs1));
-  ck.check('换局后牌面重排，且与独立复算（tick=1）一致',
-    JSON.stringify(lkLabs3) === JSON.stringify(expLink1),
-    '页面 = ' + JSON.stringify(lkLabs3.slice(0, 4)) + ' / 期望 = ' + JSON.stringify(expLink1.slice(0, 4)));
+  // 2026-10-18：发牌改为「洗到可解为止」，一次换局可能消耗多次洗牌，
+  // 不再能按「固定洗一次」独立复算。改为验证确定性：重进同一关再换局一次，
+  // 应得到完全相同的牌面（种子 + tick 决定，可跨设备复现）。
+  const lk3 = await H.goto(miniProgram, linkUrl, 1500);
+  await lk3.callMethod('again');
+  await lk3.waitFor(600);
+  const lkLabs4 = ((await lk3.data()).cards || []).map(function (c) { return c.lab; });
+  ck.check('换局牌面可复现（重进再换局一次，牌面一致）',
+    JSON.stringify(lkLabs4) === JSON.stringify(lkLabs3),
+    '首次 = ' + JSON.stringify(lkLabs3.slice(0, 4)) + ' / 再次 = ' + JSON.stringify(lkLabs4.slice(0, 4)));
   ck.check('换局前后牌面顺序不同（确实重排了）',
     JSON.stringify(lkLabs3) !== JSON.stringify(lkLabs1));
   ck.check('换局后牌面下标仍完整（16 张）', (lkD3.cards || []).length === 16);
@@ -393,20 +414,26 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     starsStore && starsStore[GRADE + '@challenge@' + WB_LEVEL] === 3);
 
   console.log('[7.5/8] P3 里程碑宝箱：通 10 关可领 +10 星（幂等）');
-  // 造「幼儿园已通 10 关」的存档（关卡页默认学段是幼儿园）
+  // 造「当前学段已通 10 关」的存档。
+  // 2026-10-18 修：前面 [2/8] 会把全局年级切成 g1，关卡页读的是 ww_last_grade。
+  // 之前固定按 kg 造数据 → cleared 恒为 0，宝箱永远不可领（假失败）。
+  const chestGrade = (await miniProgram.callWxMethod('getStorageSync', 'ww_last_grade')) || 'kg';
   const seedStars = {};
-  for (let i = 1; i <= 10; i++) seedStars['kg@challenge@' + i] = 1;
+  for (let i = 1; i <= 10; i++) seedStars[chestGrade + '@challenge@' + i] = 1;
   await miniProgram.callWxMethod('setStorageSync', 'ww_stars', seedStars);
   await miniProgram.callWxMethod('removeStorageSync', 'ww_chest_claimed');
   const chestPage = await H.goto(miniProgram, LEVEL_URL, 1800);
   let chestData = await chestPage.data();
+  ck.check('宝箱统计学段 = 当前关卡页学段', chestData.gradeKey === chestGrade,
+    '页面 = ' + chestData.gradeKey + ' / 造档 = ' + chestGrade);
   ck.check('关卡页渲染 3 个里程碑宝箱', (chestData.chests || []).length === 3,
     '实际 = ' + (chestData.chests || []).length);
   ck.check('通 10 关后 10 关宝箱可领取', chestData.chests[0].claimable === true,
     '实际 = ' + JSON.stringify(chestData.chests[0]));
   ck.check('20 关宝箱仍锁着（只通了 10 关）', chestData.chests[1].claimable === false,
     '实际 = ' + JSON.stringify(chestData.chests[1]));
-  ck.check('可领取的宝箱在页面上有高亮状态', !!(await chestPage.$('.chest.ready')));
+  // 2026-10-18：宝箱卡片改版成 .chest-chip（可领取态 = .ready）
+  ck.check('可领取的宝箱在页面上有高亮状态', !!(await chestPage.$('.chest-chip.ready')));
 
   await chestPage.callMethod('claimChest', { currentTarget: { dataset: { at: 10 } } });
   await chestPage.waitFor(700);
@@ -414,7 +441,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('领取后宝箱标记为已领取', chestData.chests[0].claimed === true && chestData.chests[0].claimable === false,
     '实际 = ' + JSON.stringify(chestData.chests[0]));
   const claimed = await miniProgram.callWxMethod('getStorageSync', 'ww_chest_claimed');
-  ck.check('领取记录落本地（幂等键 学段:关数）', !!(claimed && claimed['kg:10']),
+  ck.check('领取记录落本地（幂等键 学段:关数）', !!(claimed && claimed[chestGrade + ':10']),
     '实际 = ' + JSON.stringify(claimed));
 
   await chestPage.callMethod('claimChest', { currentTarget: { dataset: { at: 10 } } });
@@ -447,6 +474,8 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   console.log('[8/9] 首页「继续挑战」在通关前 29 关后指向终关 Boss');
   await miniProgram.callWxMethod('setStorageSync', 'ww_token', 'e2e-token');
   await miniProgram.callWxMethod('setStorageSync', 'ww_user', { openid: 'e2e_openid', nickname: 'E2E' });
+  // Boss 存档按幼儿园造，必须同时把全局年级切回 kg，否则首页按当前学段(g1)读进度 → 仍显示第 1 关
+  await miniProgram.callWxMethod('setStorageSync', 'ww_last_grade', 'kg');
   const bossStars = {};
   for (let i = 1; i < challenge.BOSS_LEVEL; i++) bossStars['kg@challenge@' + i] = 3;
   await miniProgram.callWxMethod('setStorageSync', 'ww_stars', bossStars);
@@ -460,8 +489,9 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('卡片文案带第 30 关', /第 30 关/.test(h3.continueHint || ''), '实际 = ' + h3.continueHint);
 
   console.log('[9/9] 点「继续挑战」→ 终关 Boss 对局（15 题 + 7 命）');
-  const ct = await home3.$('.cta .ct');
-  ck.check('找到继续挑战按钮 .cta .ct', !!ct);
+  // 2026-10-18：首页「继续挑战」改版成 .battle-row
+  const ct = await home3.$('.battle-row');
+  ck.check('找到继续挑战按钮 .battle-row', !!ct);
   if (ct) {
     await ct.tap();
     await home3.waitFor(2200);

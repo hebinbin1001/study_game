@@ -15,22 +15,28 @@ var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
 
+// 2026-10-18：分类/分段图标改为 PNG（豆包出图），走云托管静态资源。
+// 原因：原来用 emoji 当图标，部分安卓机没有对应彩色 emoji 字体 → 只看得到文字，
+// 用户反馈「几个 tab 的图标都没有」；PNG 在所有机型一致，也不占代码包 200KB 图片额度。
+var art = require('../../utils/art');
+function tabIcon(name) { return art.artUrl('/assets/ui-icons/tabs/' + name + '.png'); }
+
 var SECTIONS = [
-  { key: 'line', icon: '🎲', label: '自由玩' },
-  { key: 'casual', icon: '🧠', label: '数字智力' }
+  { key: 'line', iconSrc: tabIcon('sec_line'), label: '自由玩' },
+  { key: 'casual', iconSrc: tabIcon('sec_casual'), label: '数字智力' }
 ];
 
 // 分类 key 保持历史的「射击/配对/连线/反应/数学/智力/拼写」不变（不动存档与统计口径），
 // 只在展示文案前加图标 —— 用户反馈「这几个 tab 只有文字，缺图标」。
 var CATS = [
-  { key: 'all', label: '🎮 全部' },
-  { key: '射击', label: '🔫 射击' },
-  { key: '配对', label: '🃏 配对' },
-  { key: '连线', label: '🔗 连线' },
-  { key: '反应', label: '🐍 反应' },
-  { key: '数学', label: '🧮 数学' },
-  { key: '智力', label: '🧩 智力' },
-  { key: '拼写', label: '🔤 拼写' }
+  { key: 'all', label: '全部', iconSrc: tabIcon('cat_all') },
+  { key: '射击', label: '射击', iconSrc: tabIcon('cat_shoot') },
+  { key: '配对', label: '配对', iconSrc: tabIcon('cat_match') },
+  { key: '连线', label: '连线', iconSrc: tabIcon('cat_link') },
+  { key: '反应', label: '反应', iconSrc: tabIcon('cat_reaction') },
+  { key: '数学', label: '数学', iconSrc: tabIcon('cat_math') },
+  { key: '智力', label: '智力', iconSrc: tabIcon('cat_puzzle') },
+  { key: '拼写', label: '拼写', iconSrc: tabIcon('cat_spelling') }
 ];
 
 // 玩法目录抽到 utils/game-catalog.js（首页「推荐玩法」也用它，避免两处对不上）

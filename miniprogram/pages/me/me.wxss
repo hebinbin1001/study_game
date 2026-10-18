@@ -170,32 +170,8 @@ page {
   font-weight: 700;
 }
 
-/* 危险区 */
-.danger-card {
-  margin-top: 32rpx;
-  background: #ffffff;
-  border-radius: 32rpx;
-  overflow: hidden;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.06), 0 18rpx 36rpx rgba(0, 0, 0, 0.08);
-}
-.danger-row {
-  text-align: center;
-  height: 100rpx;
-  line-height: 100rpx;
-  font-size: 30rpx;
-  font-weight: 800;
-  color: #5c7f9e;
-  border-bottom: 2rpx solid #f2f6fb;
-}
-.danger-row:last-child {
-  border-bottom: none;
-}
-.danger-row:active {
-  background: #f6f9fd;
-}
-.danger-row--red {
-  color: #ff5a5a;
-}
+/* 账号区：复用菜单行，只给「注销账号」红色文字 */
+.menu-name--danger { color: #ff5a5a; }
 
 /* 底部：协议 + 版本号（协议从菜单移出，2026-10-17） */
 .version-row {

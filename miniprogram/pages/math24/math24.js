@@ -97,7 +97,11 @@ Page({
       picked: picked,
       selText: picked === 2 ? this._selPreview(tiles) : '',
       steps: parseInt(st.steps, 10) || 0,
-      hint: '接着上一次：已合并 ' + (parseInt(st.steps, 10) || 0) + ' 步',
+      // 2026-10-18：只有真的走过步数才提示「接着上一次」；0 步时显示操作引导，
+      // 否则新开局也会出现「接着上一次：已合并 0 步」，像没恢复成功。
+      hint: (parseInt(st.steps, 10) || 0) > 0
+        ? '接着上一次：已合并 ' + (parseInt(st.steps, 10) || 0) + ' 步'
+        : '点两张牌，再点运算符合并',
       deadEnd: !!st.deadEnd,
       over: false, win: false, stars: 0, starsText: '', overMsg: '', hintText: ''
     });

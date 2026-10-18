@@ -5,7 +5,8 @@
  *
  * 覆盖：选关页（关卡卡显示 3★ 基准 + 挑战入口）→ 关卡模式走超 par 也不判负
  *      → 进入挑战（目标 2048 / 不限步数）→ 滑动计步且不判负
- *      → 通关只记「最少步数」且不写星级存档 → 回选关页显示最佳 → 再通一次不改差最佳值。
+ *      → 挑战通关只记「最少步数」（关卡模式按步数评星）→ 回选关页显示最佳
+ *      → 再通一次不改差最佳值。
  *
  * 设计说明：2048 棋盘随机，靠"打"到 2048 不现实；这里用页面暴露的 `_win()` 模拟通关
  * （滑动、计步、失败判定都是真实逻辑，只有"凑到 2048"这一步是模拟），保证用例确定可复现。
@@ -20,10 +21,38 @@ const PAGE_URL = '/pages/g2048/g2048';
 const BEST_KEY = 'ww_g2048_challenge_best';
 
 H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async function (miniProgram, ck) {
-  await miniProgram.callWxMethod('removeStorageSync', 'ww_stars');
+  // 2026-10-18：不能整份删 ww_stars —— 它是全站所有玩法共用的星级存档，
+  // 清空会把开发者本机的华容道/24 点等进度一起抹掉（同类问题在 challenge 用例已修过）。
+  // 这里只临时摘掉 g2048_1，跑完原样恢复。
+  const backupStars = await miniProgram.callWxMethod('getStorageSync', 'ww_stars');
+  const backupBest = await miniProgram.callWxMethod('getStorageSync', BEST_KEY);
+  const backupCur = await miniProgram.callWxMethod('getStorageSync', 'ww_g2048_cur');
+  const seedStars = Object.assign({}, backupStars || {});
+  delete seedStars.g2048_1;
+  await miniProgram.callWxMethod('setStorageSync', 'ww_stars', seedStars);
   await miniProgram.callWxMethod('removeStorageSync', BEST_KEY);
   await miniProgram.callWxMethod('removeStorageSync', 'ww_g2048_cur');
+  const restoreStorage = async function () {
+    try {
+      if (backupStars && typeof backupStars === 'object') {
+        await miniProgram.callWxMethod('setStorageSync', 'ww_stars', backupStars);
+      } else {
+        await miniProgram.callWxMethod('removeStorageSync', 'ww_stars');
+      }
+      if (backupBest !== '' && backupBest != null) {
+        await miniProgram.callWxMethod('setStorageSync', BEST_KEY, backupBest);
+      } else {
+        await miniProgram.callWxMethod('removeStorageSync', BEST_KEY);
+      }
+      if (backupCur !== '' && backupCur != null) {
+        await miniProgram.callWxMethod('setStorageSync', 'ww_g2048_cur', backupCur);
+      } else {
+        await miniProgram.callWxMethod('removeStorageSync', 'ww_g2048_cur');
+      }
+    } catch (e) { /* 恢复失败不改变测试结论 */ }
+  };
 
+  try {
   console.log('[1/6] 选关页：关卡卡（3★ 基准）+ 挑战入口');
   const page = await H.goto(miniProgram, PAGE_URL, 1600);
   ck.check('进入 2048 页', (await miniProgram.currentPage()).path === 'pages/g2048/g2048');
@@ -56,6 +85,11 @@ H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async fun
   ck.check('走超 par 步数也不会判负', !(d.over === true && d.win === false),
     'over = ' + d.over + ', win = ' + d.win + ', usedSteps = ' + d.usedSteps);
   ck.check('星级在 0~3 之间', d.stars >= 0 && d.stars <= 3, 'stars = ' + d.stars);
+  // 记下关卡局实际拿到的星：挑战局不写星级，这一步写进去的值会一直保留到 [5/6]。
+  // 不能写死 3 星 —— 30 步超过 par(24) 时本来就只有 2 星（随机棋盘下两种都可能）。
+  const levelStars = d.stars;
+  ck.check('关卡模式已通关并产生星级（供存档断言）', d.win === true && levelStars > 0,
+    'win = ' + d.win + ', stars = ' + levelStars);
   await page.callMethod('goLevels');
   await page.waitFor(500);
 
@@ -81,7 +115,7 @@ H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async fun
   ck.check('未因步数上限判负（挑战模式不限步数）', d.over === false || d.win === true,
     'over = ' + d.over + ', win = ' + d.win);
 
-  console.log('[5/6] 通关：记最佳步数、不写星级存档');
+  console.log('[5/6] 通关：记最佳步数；挑战局本身不写星级');
   const usedBeforeWin = (await page.data()).usedSteps;
   await page.callMethod('_win');
   await page.waitFor(500);
@@ -94,8 +128,10 @@ H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async fun
   const best = await miniProgram.callWxMethod('getStorageSync', BEST_KEY);
   ck.check('写入最佳步数 ' + usedBeforeWin, best === usedBeforeWin, '实际 = ' + JSON.stringify(best));
   const stars = await miniProgram.callWxMethod('getStorageSync', 'ww_stars');
-  ck.check('不写星级存档（ww_stars 里没有 g2048_*）',
-    !stars || !Object.keys(stars).some(function (k) { return k.indexOf('g2048_') === 0; }),
+  // 2026-10-18：2048 已接入星级存档（每关记最快用时 + 星级）。
+  // 断言「存档值 = 关卡局实际星级」，而不是写死 3 星（步数随棋盘会变）。
+  ck.check('关卡星级已写入 g2048_1 = ' + levelStars,
+    !!(stars && stars['g2048_1'] === levelStars),
     '实际 = ' + JSON.stringify(stars));
 
   await page.callMethod('goLevels');
@@ -107,8 +143,9 @@ H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async fun
   console.log('[6/6] 再通一次用更多步：最佳步数取更小值');
   await (await page.$('.challenge-card')).tap();
   await page.waitFor(800);
-  // 多滑几次，确保这一局步数 > 第一次（第一次 8 步），用于验证「最佳只取更小值」
-  for (let i = 0; i < 14; i++) {
+  // 随机棋盘上不是每次滑动都有效，滑到确实超过第一局为止（最多 60 次，避免死循环）
+  for (let i = 0; i < 60; i++) {
+    if ((await page.data()).usedSteps > usedBeforeWin) break;
     await page.callMethod('_move', i % 4);
     await page.waitFor(60);
   }
@@ -123,4 +160,7 @@ H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async fun
     '第一次 ' + usedBeforeWin + ' → 第二次后 ' + best2);
   ck.check('全程未崩溃（仍在 2048 页）',
     (await miniProgram.currentPage()).path === 'pages/g2048/g2048');
+  } finally {
+    await restoreStorage();
+  }
 });

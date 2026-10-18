@@ -64,6 +64,9 @@ const PAGES = [
   { id: 'playlist', url: '/pages/playlist/playlist' },
   { id: 'study', url: '/pages/study/study' },
   { id: 'me', url: '/pages/me/me' },
+  // 学习报告：检查「薄弱题型（错题分布）」是否显示中文类型名
+  { id: 'report', url: '/pages/report/report' },
+  { id: 'wrong-review', url: '/pages/wrong-review/wrong-review' },
   { id: 'level', url: '/pages/level/level' },
   { id: 'level-line', url: '/pages/level/level?mode=link' },
   { id: 'puzzle-level', url: '/pages/puzzle-level/puzzle-level?mode=onestroke' },

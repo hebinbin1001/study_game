@@ -116,7 +116,7 @@ Page({
       settle: false, win: false, starsText: '', overTitle: '', overMsg: '', overHint: '', showNext: false,
       ask: false, fb: '',
       levelText: lv + '/' + maze.TOTAL_LEVELS,
-      bannerMain: '接着上次走 · 走到 🏁 出口',
+      bannerMain: (parseInt(st.steps, 10) || 0) > 0 ? '接着上次走 · 走到 🏁 出口' : '走到 🏁 出口',
       bannerSub: '共 ' + g.gateIds.length + ' 道门 · 答对才算星'
     });
     this._paint();

@@ -12,6 +12,7 @@
 //    模式仅影响当前题展示与作答形态，不改变后端 /api/wrong/review 语义。
 
 var request = require('../../utils/request');
+var typeLabel = require('../../utils/type-label');
 var audio = require('../../game/audio');
 
 var MODES = [
@@ -130,6 +131,7 @@ Page({
 
     this.setData({
       currentMode: mode,
+      typeLabel: typeLabel.labelOf(q.type),
       displayOptions: this.buildChoicePool(q),
       selectedOption: null,
       answered: false,

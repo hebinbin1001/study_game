@@ -116,7 +116,10 @@ Page({
       cards.push({ t: 'w', key: key, lab: labW2, en: w.q || w.a, hint: w.hint || '', long: labW2.length >= 8 });
       cards.push({ t: 'c', key: key, lab: labC2, en: w.q || w.a, hint: w.hint || '', long: String(labC2).length >= 8 });
     });
-    cards = this._shuffle(cards).map(function (c, i) { c.i = i; return c; });
+    // 2026-10-18 修复：4×4 满盘随机洗牌有约 1/3 的局面从一开始就无解
+    // （任意两张牌都连不上）。玩家只有点 HUD 的「换局」才能继续，体验像卡死。
+    // 这里开局先找一个「存在完整消除顺序」的牌面；极端情况下按词对相邻摆放兜底。
+    cards = this._dealSolvable(cards);
 
     this._sel = null;
     var label = this._challenge
@@ -168,6 +171,86 @@ Page({
       var t = a[i]; a[i] = a[j]; a[j] = t;
     }
     return a;
+  },
+
+  /**
+   * 发一副「一定能消完」的牌面。
+   *
+   * 为什么要做：连连看不是任意牌面都有解 —— 满盘时只有相邻/边缘可连，
+   * 随机洗牌会出现「一张都点不掉」的死局（实测约 1/3）。以前只能靠玩家自己
+   * 点「换局」，很多人会以为游戏坏了。
+   *
+   * 做法：反复洗牌并跑一次 DFS 验证（8 对规模很小）；60 次仍无解时，
+   * 退回「同一词对左右相邻」的确定性摆法 —— 每对都相邻，必然可逐对消完。
+   * @param {Array} cards 未洗牌的牌（按 词、义 成对出现）
+   * @returns {Array} 带 i 下标的牌面
+   */
+  _dealSolvable: function (cards) {
+    var self = this;
+    var tries = 0;
+    var dealt = null;
+    for (; tries < 60; tries++) {
+      dealt = this._shuffle(cards).map(function (c, i) { c.i = i; return c; });
+      if (this._hasSolution(dealt)) return dealt;
+    }
+    // 兜底：按词对相邻摆放（0-1、2-3 …），任何局面都能从左到右逐对消除
+    return cards.map(function (c, i) { c.i = i; return c; });
+  },
+
+  /**
+   * 当前牌面是否存在「消完全部牌」的顺序（纯判定，不改 data）。
+   * 只在发牌时调用，规模固定 16 张；用 budget 防止极端局面把主线程卡住。
+   * @param {Array} cards 牌面
+   * @returns {boolean}
+   */
+  _hasSolution: function (cards) {
+    var total = COLS * COLS;
+    var sim = [];
+    for (var i = 0; i < total; i++) {
+      var c = cards[i];
+      sim.push({ key: (c && !c.gone) ? c.key : null, gone: !c || !!c.gone });
+    }
+    var budget = 40000;
+
+    function gridOf() {
+      var g = [];
+      for (var r = 0; r < COLS; r++) {
+        var row = [];
+        for (var col = 0; col < COLS; col++) row.push(sim[r * COLS + col].gone ? 0 : 1);
+        g.push(row);
+      }
+      return g;
+    }
+
+    function aliveOf() {
+      var out = [];
+      for (var k = 0; k < sim.length; k++) if (!sim[k].gone) out.push(k);
+      return out;
+    }
+
+    function dfs() {
+      if (--budget < 0) return false;
+      var alive = aliveOf();
+      if (!alive.length) return true;
+      var grid = gridOf();
+      for (var x = 0; x < alive.length; x++) {
+        for (var y = x + 1; y < alive.length; y++) {
+          var ia = alive[x], ib = alive[y];
+          if (sim[ia].key !== sim[ib].key) continue;
+          if (!link.canConnect(grid,
+            Math.floor(ia / COLS), ia % COLS,
+            Math.floor(ib / COLS), ib % COLS)) continue;
+          sim[ia].gone = true;
+          sim[ib].gone = true;
+          if (dfs()) return true;
+          sim[ia].gone = false;
+          sim[ib].gone = false;
+        }
+      }
+      return false;
+    }
+
+    return dfs();
   },
 
   tapCard: function (e) {

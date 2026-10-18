@@ -86,7 +86,8 @@ H.runSuite('verify-rank（排行榜 · 玩法榜改版）', async function (mini
     'needGrade = ' + d1.curGameNeedGrade);
 
   console.log('[4/4] 左上角「全部玩法」→ 回总览');
-  const back = await page.$('.back-pill');
+  // 2026-10-18：返回按钮统一成 .btn-back（原来的 .back-pill 已并入）
+  const back = await page.$('.btn-back');
   ck.check('左上角按钮存在', !!back);
   if (back) {
     await back.tap();

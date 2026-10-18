@@ -72,7 +72,7 @@
   background: linear-gradient(135deg, #4285F4, #6AA6F5);
   color: #fff;
 }
-.seg-ic { font-size: 32rpx; }
+.seg-ic { width: 40rpx; height: 40rpx; flex-shrink: 0; }
 .seg-label { line-height: 1; }
 
 /* 分类 chips */
@@ -90,6 +90,7 @@
   box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
 }
 .cat-chip.on { background: #4285F4; color: #fff; }
+.cat-ic { width: 32rpx; height: 32rpx; margin-right: 8rpx; flex-shrink: 0; }
 
 /* 玩法网格：占满剩余高度，内部滚动 */
 .grid-scroll { flex: 1 1 auto; min-height: 0; width: 100%; }

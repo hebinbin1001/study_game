@@ -30,15 +30,15 @@
       <view class="hud-chip">第 {{curLevel}} 关</view>
       <view class="hud-chip">已合并 {{steps}} 步</view>
       <warrior-badge size="sm" />
-    <game-pause
-      inline
-      open="{{paused}}"
-      showFab="{{playing && !over}}"
-      sub="第 {{curLevel}} 关 · {{steps}} 步"
-      bind:pause="onGamePause"
-      bind:resume="onGameResume"
-      bind:restart="onGameRestart"
-      bind:quit="onGameQuit" />
+      <game-pause
+        inline
+        open="{{paused}}"
+        showFab="{{playing && !over}}"
+        sub="第 {{curLevel}} 关 · {{steps}} 步"
+        bind:pause="onGamePause"
+        bind:resume="onGameResume"
+        bind:restart="onGameRestart"
+        bind:quit="onGameQuit" />
     </view>
 
     <!-- 数字牌（点=选中；已选两张后点运算符即合并） -->
@@ -48,7 +48,12 @@
         wx:key="id"
         class="card b-face b-press {{item.sel ? 'b-sel' : ''}} {{item.justMerged ? 'merged' : ''}}"
         data-idx="{{index}}"
-        bindtap="tapTile">{{item.text}}</view>
+        bindtap="tapTile">
+        <!-- 角标：结果牌（绿）与普通选中牌（蓝勾）一眼区分，避免两种高亮混在一起 -->
+        <text wx:if="{{item.justMerged}}" class="tile-tag tile-tag--result">结果</text>
+        <text wx:elif="{{item.sel}}" class="tile-tag tile-tag--sel">✓</text>
+        {{item.text}}
+      </view>
     </view>
 
     <!-- 当前选中预览 -->
