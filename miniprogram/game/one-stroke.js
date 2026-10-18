@@ -1,46 +1,24 @@
 /**
  * game/one-stroke.js —— 一笔画引擎（纯逻辑，无 wx 依赖，可单测）
  *
- * 玩法（来自 demo g8）：每关一张图，每条线只能走一次，把所有线走完即过关；
- * 走错可以撤销一步或重置本关。关卡是固定的 5 张图（三角 → 正方形加对角线 →
- * 小房子 → 双正方形 → 五边形加五角星），每张图都满足"奇点数为 0 或 2"，
- * 因此保证存在一笔画解法（见 __tests__/one-stroke.test.js 的不变量断言）。
+ * 玩法：每关一张图，每条线只能走一次，把所有线走完即过关；
+ * 走错可以撤销一步或重置本关；每关 3 次提示。
+ *
+ * 2026-10-18 换关卡表：原来是「5 张手绘 + 29 张公式生成」（11 张长方形加对角线、
+ * 4 张折线…形状高度重复，难度也没递进）。现在改为移植 demo/一笔画小游戏.html 的
+ * **35 关手绘图形**（直线 → 三角形 → … → 中国结 → 终极挑战），难度按 12/12/11 分三档。
+ * 关卡数据在 game/one-stroke-levels.js，本文件只管规则。
  *
  * 页面渲染用「绝对定位的线 + 圆点」（不用 Canvas），坐标由 geometry() 算出，
  * 因此几何计算也可以在 Node 下单测。
- * 关联：pages/one-stroke
+ * 关联：pages/one-stroke、game/one-stroke-levels
  */
 
 'use strict';
 
-/** 关卡：nodes 为 0~100 的相对坐标，edges 为节点下标对 */
-var LEVELS = [
-  {
-    name: '三角形',
-    nodes: [[50, 14], [86, 82], [14, 82]],
-    edges: [[0, 1], [1, 2], [2, 0]]
-  },
-  {
-    name: '正方形加对角线',
-    nodes: [[18, 18], [82, 18], [82, 82], [18, 82]],
-    edges: [[0, 1], [1, 2], [2, 3], [3, 0], [0, 2]]
-  },
-  {
-    name: '小房子',
-    nodes: [[22, 84], [78, 84], [78, 48], [22, 48], [50, 14]],
-    edges: [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [2, 4]]
-  },
-  {
-    name: '两个正方形',
-    nodes: [[12, 82], [44, 82], [44, 46], [12, 46], [88, 82], [88, 46]],
-    edges: [[0, 1], [1, 2], [2, 3], [3, 0], [1, 4], [4, 5], [5, 2]]
-  },
-  {
-    name: '五边形加五角星',
-    nodes: [[50, 8], [93, 40], [76, 92], [24, 92], [7, 40]],
-    edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0], [0, 2], [2, 4], [4, 1], [1, 3], [3, 0]]
-  }
-];
+var data = require('./one-stroke-levels');
+
+var LEVELS = data.LEVELS;
 
 /** 边的唯一 key（无向，下标小在前） */
 function edgeKey(a, b) {
@@ -183,114 +161,112 @@ function geometry(level, size) {
   return { size: s, nodes: nodes, edges: edges };
 }
 
-/** 星级：按通关数（5 关制：2 / 3 / 5 关） */
-function starsFor(cleared, total) {
-  var t = total || LEVELS.length;
-  var rate = t ? cleared / t : 0;
-  if (rate >= 1) return 3;
-  if (rate >= 0.6) return 2;
-  if (rate >= 0.4) return 1;
-  return 0;
-}
-
-// ============ 关卡扩充（2026-09-13 用户反馈「关卡有点少」）============
+// ============ 提示（2026-10-18 从 demo 移植） ============
 //
-// 用规则图形参数化生成：生成后**一律用 validateLevel 过滤**（必须连通且奇点数为 0 或 2），
-// 只留下真能一笔画完的；单测 one-stroke.test.js 还会对每一关跑回溯求解，证明真有解。
-// 图形家族：圆环/多边形（偶度闭环）、奇数边形带全对角线（偶度）、尖角星（偶度闭环）、
-//          矩形环 + 一条对角线（2 个奇点）、折线路径（2 个奇点）、套环（2 个奇点）。
-function ringNodes(n, rx, ry, cx, cy, rot) {
-  var out = [];
-  for (var i = 0; i < n; i++) {
-    var a = rot + i * 2 * Math.PI / n;
-    out.push([
-      Math.round((cx + rx * Math.cos(a)) * 10) / 10,
-      Math.round((cy + ry * Math.sin(a)) * 10) / 10
-    ]);
+// demo 里「💡 提示」会高亮一条还能走的边。但随手高亮一条可能把人带进死路，
+// 提示反而害人。这里按欧拉路径的判定来选：
+//   走完这一步后，剩余图必须「连通 + 奇点数 0 或 2（且新位置是其中一端）」，
+// 也就是**这一步之后仍然存在解法**，只给出这种边。
+
+/** 剩余的边（还没走过的） */
+function remainingEdges(level, usedEdges) {
+  var used = usedEdges || {};
+  return (level.edges || []).filter(function (e) {
+    return !used[edgeKey(e[0], e[1])];
+  });
+}
+
+/**
+ * 站在 node 上，剩余图还能不能一笔走完（欧拉路径存在性判定）。
+ * @returns {boolean}
+ */
+function eulerianFrom(level, usedEdges, node) {
+  var es = remainingEdges(level, usedEdges);
+  if (!es.length) return true;
+  var deg = {};
+  var adj = {};
+  es.forEach(function (e) {
+    deg[e[0]] = (deg[e[0]] || 0) + 1;
+    deg[e[1]] = (deg[e[1]] || 0) + 1;
+    adj[e[0]] = adj[e[0]] || [];
+    adj[e[1]] = adj[e[1]] || [];
+    adj[e[0]].push(e[1]);
+    adj[e[1]].push(e[0]);
+  });
+  if (deg[node] === undefined) return false;
+  // 连通性：只要求在「还有边的点」之间连通
+  var seen = {};
+  var stack = [node];
+  seen[node] = true;
+  while (stack.length) {
+    var cur = stack.pop();
+    (adj[cur] || []).forEach(function (n) {
+      if (!seen[n]) { seen[n] = true; stack.push(n); }
+    });
   }
-  return out;
+  var nodes = Object.keys(deg);
+  for (var i = 0; i < nodes.length; i++) {
+    if (!seen[nodes[i]]) return false;
+  }
+  var odd = nodes.filter(function (n) { return deg[n] % 2 === 1; });
+  if (odd.length === 0) return true;                       // 欧拉回路：任一点都能走完
+  if (odd.length === 2) return odd.indexOf(String(node)) >= 0;  // 必须从奇点出发
+  return false;
 }
 
-function cycleEdges(n) {
-  var out = [];
-  for (var i = 0; i < n; i++) out.push([i, (i + 1) % n]);
-  return out;
-}
-
-function polyAllDiag(n) {
-  var nodes = ringNodes(n, 40, 40, 50, 50, -Math.PI / 2);
-  var edges = cycleEdges(n);
-  for (var i = 0; i < n; i++) {
-    for (var j = i + 2; j < n; j++) {
-      if (i === 0 && j === n - 1) continue;   // 相邻边已连
-      edges.push([i, j]);
+/**
+ * 提示：从 from 出发、走完仍能通关的一条边。
+ * @param {Object} level
+ * @param {Object} usedEdges
+ * @param {number} from 当前所在点
+ * @returns {{from:number,to:number,key:string,safe:boolean}|null} null = 走不动了
+ */
+function hintOf(level, usedEdges, from) {
+  var cands = remainingEdges(level, usedEdges).filter(function (e) {
+    return e[0] === from || e[1] === from;
+  });
+  if (!cands.length) return null;
+  for (var i = 0; i < cands.length; i++) {
+    var to = cands[i][0] === from ? cands[i][1] : cands[i][0];
+    var next = step(level, usedEdges, from, to);
+    if (next && eulerianFrom(level, next, to)) {
+      return { from: from, to: to, key: edgeKey(from, to), safe: true };
     }
   }
-  return { name: n + '边形加全部对角线', nodes: nodes, edges: edges };
+  // 已经走进死路了：仍给一条能走的边，但标记 safe=false，页面可以顺势提示撤销
+  var to0 = cands[0][0] === from ? cands[0][1] : cands[0][0];
+  return { from: from, to: to0, key: edgeKey(from, to0), safe: false };
 }
 
-function starLevel(points) {
-  var outer = ringNodes(points, 40, 40, 50, 50, -Math.PI / 2);
-  var inner = ringNodes(points, 15, 15, 50, 50, -Math.PI / 2 + Math.PI / points);
-  var nodes = outer.concat(inner);
-  var edges = [];
-  for (var i = 0; i < points; i++) {
-    edges.push([i, points + i]);
-    edges.push([points + i, (i + 1) % points]);
-  }
-  return { name: points + '角星', nodes: nodes, edges: edges };
+/**
+ * 还没开始画时的提示：应该从哪个点起手。
+ * 奇点数为 2 时只能从这两个点之一出发；为 0 时任意点都行。
+ * @returns {{odd:Array<number>, any:boolean}}
+ */
+function startHint(level) {
+  var odd = oddNodes(level);
+  return { odd: odd, any: odd.length === 0 };
 }
 
-function rectLoop(w, h, withDiag, name) {
-  var x0 = 50 - w / 2, x1 = 50 + w / 2, y0 = 50 - h / 2, y1 = 50 + h / 2;
-  var nodes = [[x0, y1], [x1, y1], [x1, y0], [x0, y0]];
-  var edges = cycleEdges(4).slice();
-  if (withDiag) edges.push([0, 2]);
-  return { name: name || ('长方形' + (withDiag ? '加对角线' : '')), nodes: nodes, edges: edges };
+/**
+ * 星级（2026-10-18 从 demo 移植）：按「借助了多少次帮助」折星。
+ *
+ * 一笔画没有"正确率"可算（不是答题类），所以不走 challenge.starsByRightRate；
+ * demo 的口径是「一次过 = 3 星」，这里把它量化：
+ *   · 0 次撤销/重置/提示 → 3 星
+ *   · 1~2 次 → 2 星
+ *   · 3 次以上 → 1 星（通关就有星，不存在拿 0 星）
+ * @param {number} undo 撤销次数
+ * @param {number} reset 重置次数
+ * @param {number} hints 用了几个提示
+ * @returns {number} 0~3（未通关由调用方传 0）
+ */
+function starsByAssist(undo, reset, hints) {
+  var assists = (undo || 0) + (reset || 0) + (hints || 0);
+  if (!assists) return 3;
+  if (assists <= 2) return 2;
+  return 1;
 }
-
-function zigzagLevel(n) {
-  var nodes = [];
-  for (var i = 0; i < n; i++) {
-    nodes.push([12 + i * (76 / (n - 1)), i % 2 ? 30 : 70]);
-  }
-  var edges = [];
-  for (var j = 0; j < n - 1; j++) edges.push([j, j + 1]);
-  return { name: n + '折线', nodes: nodes, edges: edges };
-}
-
-function nestedLoopLevel() {
-  var nodes = [[15, 85], [85, 85], [85, 15], [15, 15], [32, 68], [68, 68], [68, 32], [32, 32]];
-  var edges = cycleEdges(4).slice();
-  edges = edges.concat([[4, 5], [5, 6], [6, 7], [7, 4], [0, 4]]);
-  return { name: '套环', nodes: nodes, edges: edges };
-}
-
-function buildMoreLevels() {
-  var cands = [];
-  [5, 7, 9].forEach(function (n) { cands.push(polyAllDiag(n)); });
-  [5, 7, 9, 11].forEach(function (n) { cands.push(starLevel(n)); });
-  [[60, 40], [40, 60], [70, 30], [30, 70]].forEach(function (wh) {
-    cands.push(rectLoop(wh[0], wh[1], false, '长方形 ' + wh[0] + '×' + wh[1]));
-    cands.push(rectLoop(wh[0], wh[1], true, '长方形 ' + wh[0] + '×' + wh[1] + '加对角线'));
-  });
-  [5, 6, 7, 8].forEach(function (n) { cands.push(zigzagLevel(n)); });
-  cands.push(nestedLoopLevel());
-  cands.push(starLevel(6));           // 六角星（闭环，仍是一笔画）
-  cands.push({ name: '正六边形', nodes: ringNodes(6, 40, 40, 50, 50, 0), edges: cycleEdges(6) });
-  cands.push({ name: '正八边形', nodes: ringNodes(8, 40, 40, 50, 50, 0), edges: cycleEdges(8) });
-  cands.push({ name: '正十边形', nodes: ringNodes(10, 40, 40, 50, 50, 0), edges: cycleEdges(10) });
-  cands.push({ name: '正三角形', nodes: ringNodes(3, 40, 40, 50, 55, -Math.PI / 2), edges: cycleEdges(3) });
-  cands.push({ name: '正方形', nodes: ringNodes(4, 36, 36, 50, 50, Math.PI / 4), edges: cycleEdges(4) });
-  cands.push(starLevel(8));
-  [9, 10].forEach(function (n) { cands.push(zigzagLevel(n)); });
-
-  return cands.filter(function (lv) {
-    return validateLevel(lv).ok;
-  });
-}
-
-LEVELS = LEVELS.concat(buildMoreLevels());
 
 module.exports = {
   LEVELS: LEVELS,
@@ -307,5 +283,9 @@ module.exports = {
   isConnected: isConnected,
   validateLevel: validateLevel,
   geometry: geometry,
-  starsFor: starsFor
+  remainingEdges: remainingEdges,
+  eulerianFrom: eulerianFrom,
+  hintOf: hintOf,
+  startHint: startHint,
+  starsByAssist: starsByAssist
 };

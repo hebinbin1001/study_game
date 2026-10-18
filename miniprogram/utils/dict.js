@@ -145,7 +145,7 @@ function filterByBook(items, book) {
 }
 
 /**
- * 设置当前教材版本（''=通用 / pep / wys / bjb）。
+ * 设置当前教材版本（''=通用 / pep / wys；仅小学可选，初高中按中高考词汇统一）。
  * 会清空出题缓存，下一次取题立即生效。
  * @param {string} book
  * @returns {string} 生效后的版本 key

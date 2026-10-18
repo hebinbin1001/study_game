@@ -19,6 +19,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { normalizeStress, normalizeSymbols } = require('./ipa-normalize');
 
 const ROOT = path.join(__dirname, '..', '..');
 const DATA_DIR = path.join(ROOT, 'miniprogram', 'data');
@@ -37,20 +38,16 @@ function firstOf(v) {
 }
 
 /**
- * 清掉零宽字符、去掉首尾的 /，并把 IPA 词典的写法换成**教材习惯写法**：
- *   · ɹ → r：同一个音位，国内教材（DJ 音标）一律写 r，学生按教材对照时不会困惑；
- *   · ɐ → ə：英式词典用 ɐ 标 near-open central（如 abundance 的首音节），
- *     教材里对应的是 ə，不改会让学生看到课本上不存在的符号。
- *   · 去掉 '.'：IPA 词典用它标音节边界（əbˈɪlət.i），教材音标不写这个点。
+ * 把 IPA 词典的写法换成**教材（DJ）习惯写法**。
+ * 符号与重音的规则全部在 ipa-normalize.js（与 fix-ipa-stress.js 共用，
+ * 避免"新补的是对的、老数据还错"）：
+ *   · ɹ→r、ɫ→l、ɐ→ə、ɝ→ɜː、去掉音节分隔点；
+ *   · 重音符从「重读元音前」挪到「音节起首前」，单音节词不标重音。
  */
 function cleanIpa(raw) {
-  let s = firstOf(raw);
-  if (!s) return '';
-  s = String(s).replace(/[\u200b-\u200d\ufeff]/g, '');
-  s = s.replace(/ɹ/g, 'r').replace(/ɐ/g, 'ə');
-  s = s.replace(/\./g, '');
-  s = s.replace(/^\/+/, '').replace(/\/+$/, '');
-  return s.trim();
+  const first = firstOf(raw);
+  if (!first) return '';
+  return normalizeStress(normalizeSymbols(first));
 }
 
 function loadDict(file) {

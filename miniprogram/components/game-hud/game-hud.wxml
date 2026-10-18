@@ -1,5 +1,14 @@
-<view class="hud">
-  <view class="chip chip-lives">❤ {{lives}}</view>
-  <view wx:if="{{scoreText}}" class="chip chip-score">{{score}} {{scoreText}}</view>
-  <view wx:if="{{extra}}" class="chip chip-extra">{{extra}}</view>
+<!-- game-hud —— 公共对局 HUD（2026-10-17 增加战士徽章位）
+     HUD 胶囊居中，当前皮肤立绘贴在 HUD 行右端。
+     之前徽章是 fixed 定位（top:110rpx），在任何一页都会压住紧跟 HUD 的题目卡/提示条；
+     现在改成「HUD 行的一部分」，既不遮挡内容，也保住了「玩法页能看到我的战士」这个原始诉求。 -->
+<view class="gh-wrap">
+  <view class="hud">
+    <view class="chip chip-lives">❤ {{lives}}</view>
+    <view wx:if="{{scoreText}}" class="chip chip-score">{{score}} {{scoreText}}</view>
+    <view wx:if="{{extra}}" class="chip chip-extra">{{extra}}</view>
+  </view>
+  <view class="gh-badge">
+    <warrior-badge size="sm" />
+  </view>
 </view>

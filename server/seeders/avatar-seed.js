@@ -85,6 +85,18 @@ const avatars = [
   { avatarId: "boss_mech_lord",      name: "机械领主",   type: "monster", rarity: "legend", icon: "/assets/skins/boss_mech_lord.png",      unlockType: "rank",  unlockValue: 7 },
   { avatarId: "boss_magma_titan",    name: "熔岩巨兽",   type: "monster", rarity: "legend", icon: "/assets/skins/boss_magma_titan.png",    unlockType: "rank",  unlockValue: 8 },
 
+  // ===== 2026-10-17 新增：Boss 立绘 8 款（幼儿园 → 大学，与 miniprogram/utils/boss-ladder.js 对应）=====
+  // 说明：unlockType / unlockValue 必须与 miniprogram/utils/skins.js 的 LOCAL_SKINS 完全一致，
+  // 否则会出现「端上显示已解锁、服务端不给用」的错位。
+  { avatarId: "boss_mallow_king",    name: "棉花糖大魔王", type: "monster", rarity: "common", icon: "/assets/skins/boss_mallow_king.png",    unlockType: "stars", unlockValue: 60 },
+  { avatarId: "boss_block_overlord", name: "积木魔王",     type: "monster", rarity: "rare",   icon: "/assets/skins/boss_block_overlord.png", unlockType: "stars", unlockValue: 100 },
+  { avatarId: "boss_candy_witch",    name: "糖果女巫",     type: "monster", rarity: "rare",   icon: "/assets/skins/boss_candy_witch.png",    unlockType: "stars", unlockValue: 140 },
+  { avatarId: "boss_puppet_mage",    name: "木偶戏法师",   type: "monster", rarity: "epic",   icon: "/assets/skins/boss_puppet_mage.png",    unlockType: "stars", unlockValue: 220 },
+  { avatarId: "boss_sand_pharaoh",   name: "沙尘法老",     type: "monster", rarity: "epic",   icon: "/assets/skins/boss_sand_pharaoh.png",   unlockType: "rank",  unlockValue: 4 },
+  { avatarId: "boss_storm_eagle",    name: "雷霆巨鹰",     type: "monster", rarity: "epic",   icon: "/assets/skins/boss_storm_eagle.png",    unlockType: "rank",  unlockValue: 6 },
+  { avatarId: "boss_void_weaver",    name: "虚空织梦者",   type: "monster", rarity: "legend", icon: "/assets/skins/boss_void_weaver.png",    unlockType: "rank",  unlockValue: 8 },
+  { avatarId: "boss_dark_sage",      name: "暗蚀大贤者",   type: "monster", rarity: "legend", icon: "/assets/skins/boss_dark_sage.png",      unlockType: "rank",  unlockValue: 9 },
+
   // ===== 2026-09-19 新增：元素主题战士皮肤 6 款（豆包出图，走 CDN art/skins/）=====
   { avatarId: "skin-gale-ninja",      name: "疾风忍者",  type: "warrior", rarity: "rare",   icon: "/assets/skins/skin-gale-ninja.png",      unlockType: "stars", unlockValue: 400 },
   { avatarId: "skin-flame-berserker", name: "烈焰狂战",  type: "warrior", rarity: "epic",   icon: "/assets/skins/skin-flame-berserker.png", unlockType: "stars", unlockValue: 480 },

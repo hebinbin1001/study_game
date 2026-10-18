@@ -16,7 +16,7 @@ var constants = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
 
 var SECTIONS = [
-  { key: 'line', icon: '🎯', label: '闯关线' },
+  { key: 'line', icon: '🎲', label: '自由玩' },
   { key: 'casual', icon: '🧠', label: '数字智力' }
 ];
 
@@ -53,9 +53,14 @@ Page({
     grades: constants.GRADES,
     gradeIndex: 0,
     gradeLabel: '',
+    gradeKey: '',
+    gradePickerVisible: false,
     unlockedCount: 0,
     totalCount: 0,
-    sectionDesc: ''
+    sectionDesc: '',
+    // 未上线的玩法（2026-10-17）：以前它们占着网格位，把内容多推了一行；
+    // 现在移出网格，在页脚用一行「制作中」交代，玩家不会以为点不动是 bug。
+    soonText: ''
   },
 
   onLoad: function (options) {
@@ -63,6 +68,8 @@ Page({
     var section = (opt.section === 'casual') ? 'casual' : 'line';
     this.setData({ curSection: section, curCat: 'all' });
     this._applyCat('all');
+    // 没设置过年级：先弹一次选择（与关卡页同一套逻辑），避免默认落到幼儿园
+    if (!storage.getLastGrade()) this.setData({ gradePickerVisible: true });
   },
 
   onShow: function () {
@@ -89,19 +96,21 @@ Page({
     this._applyCat(key);
   },
 
-  /**
-   * 切换年级（2026-10-09）。
-   * 玩法线的「已通关 x/30」是按学段存的，所以切完要重算一遍卡片进度；
-   * 同时写回 lastGrade —— 首页「继续挑战」也会跟着走。
-   */
-  pickGrade: function (e) {
-    var idx = parseInt(e.currentTarget.dataset.index, 10) || 0;
-    if (idx === this.data.gradeIndex) return;
-    var g = this.data.grades[idx];
-    if (!g) return;
-    storage.setLastGrade(g.key);
-    this.setData({ gradeIndex: idx, gradeLabel: g.label });
+  /** 年级是全局设置（2026-10-18）：本页只读展示，点开选择器切换 */
+  openGradePicker: function () {
+    this.setData({ gradePickerVisible: true });
+  },
+  onGradeClose: function () {
+    this.setData({ gradePickerVisible: false });
+  },
+  onGradePick: function (e) {
+    var key = (e && e.detail && e.detail.key) || '';
+    if (!key) return;
+    storage.setLastGrade(key);
+    this.setData({ gradePickerVisible: false, gradeKey: key });
     this._applyCat(this.data.curCat);
+    var label = this.data.gradeLabel || '';
+    wx.showToast({ title: '已切换到' + label, icon: 'none' });
   },
 
   /**
@@ -122,7 +131,7 @@ Page({
       if (constants.GRADES[gi].key === grade) { gIdx = gi; break; }
     }
     var allStars = storage.getAllStars();
-    var list = inSection.filter(function (g) {
+    var all = inSection.filter(function (g) {
       return key === 'all' || g.cat === key;
     }).map(function (g) {
       var out = {};
@@ -131,18 +140,31 @@ Page({
       }
       if (g.lineMode) {
         var prog = challenge.lineProgress(allStars, grade, g.lineMode);
-        out.progressText = '已通关 ' + prog.cleared + '/' + challenge.LEVELS_PER_GRADE;
+        out.progressText = '已过 ' + prog.cleared + '/' + challenge.LEVELS_PER_GRADE;
+        // 绿框只代表「这条线已经全通」（2026-10-17 修）：
+        // 原来 wxml 用 unlocked 套 .done，结果 14 张已解锁卡全挂绿框，绿色失去含义。
+        out.full = prog.cleared >= challenge.LEVELS_PER_GRADE;
+        // 进度与 CTA 合成一枚胶囊，卡片底部不再堆两个标签
+        out.ctaText = '自由玩 · ' + out.progressText;
+      } else {
+        out.full = false;
+        out.ctaText = '开始';
       }
       return out;
     });
+    // 未上线的玩法不占网格位，统一交给页脚说明
+    var soon = all.filter(function (g) { return !g.unlocked; });
+    var list = all.filter(function (g) { return g.unlocked; });
     this.setData({
       games: list,
       cats: cats,
       curCat: key,
       gradeIndex: gIdx,
+      gradeKey: constants.GRADES[gIdx].key,
       gradeLabel: constants.GRADES[gIdx].label,
       totalCount: inSection.length,
       unlockedCount: inSection.filter(function (g) { return g.unlocked; }).length,
+      soonText: soon.map(function (g) { return g.icon + ' ' + g.name; }).join(' · '),
       sectionDesc: (section === 'line')
         ? '每条线 30 关 · 按学段生成'
         : '独立关卡 · 随时开玩'

@@ -14,11 +14,20 @@ var challenge = require('../../utils/challenge');
 // 推荐玩法：玩法目录 + 本机计数（玩得最多的两款，2026-09-13）
 var gameCatalog = require('../../utils/game-catalog');
 var playCounts = require('../../utils/play-counts');
+// UI 重做一期（2026-10-17 战士主题版）：首页叙事从「一堆入口」改成「养成你的战士」——
+// 视觉中心是当前皮肤立绘，下面是皮肤收集线，再往下是「下一个要打的 Boss」。
+// 等级口径（用户拍板）：战力 = 等级 = 段位阶梯的 cell（由星星数推导），不新增数值。
+var skins = require('../../utils/skins');
+var rankLadder = require('../../utils/rank-ladder');
+var bossLadder = require('../../utils/boss-ladder');
 
 Page({
   // 实例级标志（不在 data，避免渲染）；登录/协议进行中置 true，防 nudge 弹窗互顶
   _loginBusy: false,
   _nudgeTimer: null,
+  // 加载失败过的立绘 URL（2026-10-19）：按 URL 记而不是只记一个布尔量，
+  // 否则第一张图挂了之后，换成别的皮肤也永远显示 emoji（换皮肤看起来「没生效」）。
+  _imgErr: {},
 
   data: {
     loggedIn: false,
@@ -35,6 +44,11 @@ Page({
     // 继续挑战（一期：显示真实进度并直达对局）
     continueGrade: 'kg',             // 目标学段 key（2026-10-08 起按年级细分）
     needGrade: false,                // 从没主动选过年级 → 首页给引导（见 onShow）
+    // 全局年级（2026-10-18）：HUD 最左那枚胶囊，点开 = 同一个 grade-picker
+    gradeKey: '',                    // 当前年级 key（写进 grade-picker 的 value）
+    gradeLabel: '',                  // 当前年级名（胶囊文字）
+    gradeChosen: false,              // 是否主动选过（没选过 → 胶囊高亮成「选年级」）
+    gradePickerVisible: false,       // 选择器开合
     continueLevel: 1,               // 目标关卡
     continueStars: 0,               // 该关历史最佳星级
     continueHint: '',               // 副标题：玩法 · 学段 · 第 N 关
@@ -43,7 +57,32 @@ Page({
     todayQ: 0,
     todayRate: 0,      // 百分比
     dailyDone: false,  // 每日一题/签到今日完成
-    soundOn: true      // 声音开关（HUD 喇叭）
+    soundOn: true,     // 声音开关（HUD 喇叭）
+
+    // —— 战士舞台（首页视觉中心）——
+    warriorName: '我的战士',   // 当前装备皮肤的中文名
+    warriorImg: '',           // 立绘 URL（CDN；空则回退 emoji）
+    warriorEmoji: '⚔️',
+    warriorImgErr: false,     // 立绘加载失败 → 回退 emoji，避免裂图
+    lvCell: 1,                // 等级 = 段位阶梯 cell（星星推导）
+    lvPercent: 0,             // 本級进度（0~100）
+    lvNeed: 0,                // 距下一级还差多少星
+    lvNext: '',               // 下一级名称
+    rankShort: '青铜',        // 大段名（顶部胶囊用，避免长段位名撑破）
+    // —— 皮肤收集条 ——
+    skinCells: [],            // 5 格：当前皮肤 + 已拥有 + 下一个待解锁（next 金框）
+    skinOwned: 0,
+    skinTotal: 0,
+    nextSkinName: '',         // 下一个能解锁的皮肤名
+    nextSkinReq: '',          // 解锁条件文案（段位 / 星星 / 签到）
+    // —— Boss 预告 ——
+    bossName: '',
+    bossEmoji: '👹',
+    bossImg: '',
+    bossImgErr: false,
+    bossHint: '',
+    // 底部「热门玩法」：先用本机常玩兜底，随后用服务端玩法热度覆盖（见 _loadHotGames）
+    hotGames: []
   },
 
   onShow: function () {
@@ -51,6 +90,8 @@ Page({
     this.setData({ soundOn: soundOn });
     // 游客首屏不再自动弹协议；协议在用户点「登录/注册」后展示（O2）
     this.refresh();
+    // 玩法热度（6 小时缓存）；失败/游客都退回本机常玩，不影响首屏
+    this._loadHotGames();
     // 温和登录提醒延后触发（避开用户主动登录的弹窗时序，防 modal 互顶）
     var self = this;
     if (this._nudgeTimer) clearTimeout(this._nudgeTimer);
@@ -123,7 +164,12 @@ Page({
     var records = storage.get('ww_checkin_cache') || [];
     records.forEach(function (r) { if (r.date === todayKey) dailyDone = true; });
 
-    this.setData({
+    // 战士舞台 / 皮肤收集条（星星与连续天数同时决定解锁，故两者都传）
+    var hero = this._heroData(totalStars, streakDays);
+    // Boss 预告：取当前学段第 30 关的镇守 Boss（映射见 utils/boss-ladder.js）
+    var boss = bossLadder.bossOf(lastGrade);
+
+    this.setData(Object.assign({
       loggedIn: loggedIn,
       nickname: nickname,
       avatarUrl: avatarUrl,
@@ -131,6 +177,10 @@ Page({
       needProfile: !!(loggedIn && u && u.needProfile),
       // 没选过年级 → 首页显示「选择你的年级」引导条（点了去关卡页选）
       needGrade: !chosenGrade,
+      // 年级胶囊（HUD 最左）：没选过时显示「选年级」并橙色高亮
+      gradeKey: lastGrade,
+      gradeLabel: gradeLabel,
+      gradeChosen: !!chosenGrade,
       totalStars: totalStars,
       localStars: totalStars,
       // 口径统一（用户拍板）：首页与我的页都展示同一个数 ——
@@ -147,10 +197,149 @@ Page({
       continueMode: contMode,
       continueModeLabel: contLv ? contLv.modeLabel : '',
       dailyDone: dailyDone,
-      recos: this._buildRecos()
-    });
+      recos: this._buildRecos(),
+      // 先用本机常玩兜底，_loadHotGames 拿到服务端热度后会覆盖（网络慢也不会空一块）
+      hotGames: this._buildRecos(),
+      bossName: boss.name,
+      bossEmoji: boss.emoji,
+      bossImg: boss.image,
+      bossImgErr: !!(boss.image && this._imgErr && this._imgErr[boss.image]),
+      // 学段名这里不再重复（2026-10-18）：HUD 最左已经有年级胶囊，
+      // 卡片里再写一遍「幼儿园 · …」就是同一信息讲两次（二期已经因同类问题返工过）。
+      bossHint: '第 30 关镇守 · 字母射击 BOSS 关'
+    }, hero));
 
     if (loggedIn) this._fetchCloud();
+  },
+
+  /**
+   * 由星星数推导「等级 / 段位 / 皮肤收集条」。
+   *
+   * 为什么单独抽出来：星星有两个来源 —— 本机存档（游客）与云端累计星（登录后
+   * 由 _fetchCloud 回填）。两处都要按同一口径重算等级，否则登录用户会看到
+   * 等级和星星对不上（历史坑：资产条数字会变、等级不变）。
+   *
+   * @param {number} stars 累计星星
+   * @param {number} streak 连续签到天数（里程碑皮肤解锁依据）
+   * @returns {object} 可直接 setData 的部分 data
+   */
+  _heroData: function (stars, streak) {
+    var s = Math.max(0, parseInt(stars, 10) || 0);
+    var st = Math.max(0, parseInt(streak, 10) || 0);
+    var prog = rankLadder.progressOf(s);
+    var cell = prog.current.cell;
+
+    // 当前皮肤：读本机装备的 avatarId，取不到就回退默认战士（不会空白）
+    var equipped = storage.getWarriorSkin() || '';
+    var wSkin = skins.getWarriorSkin(equipped);
+
+    var warriors = [];
+    for (var i = 0; i < skins.LOCAL_SKINS.length; i++) {
+      if (skins.LOCAL_SKINS[i].type === 'warrior') warriors.push(skins.LOCAL_SKINS[i]);
+    }
+
+    var warriorName = '我的战士';
+    for (var j = 0; j < warriors.length; j++) {
+      if (warriors[j].avatarId === wSkin.id) { warriorName = warriors[j].name; break; }
+    }
+
+    // 分「已拥有 / 未解锁」——口径与 skins.LOCAL_SKINS 的 unlockType 一致
+    var self = this;
+    var owned = [];
+    var locked = [];
+    warriors.forEach(function (w) {
+      if (self._skinUnlocked(w, s, cell, st)) owned.push(w); else locked.push(w);
+    });
+
+    // 收集条 5 格：当前皮肤打头（保证玩家一眼看到「这就是我」），
+    // 再补已拥有（最多 3 格），剩余用未解锁填（第一只标金框 = 下一目标）。
+    var cells = [];
+    var used = {};
+    var cur = null;
+    // 已装备的皮肤优先（2026-10-19）：云端解锁的皮肤可能不在本地「已拥有」里
+    // （本地按星星/段位估算，云端可能有额外发放），但它既然正穿在身上，
+    // 收集条第一格就必须是它，否则会出现「立绘是狐狸、第一格却是布衣学徒」。
+    for (var k = 0; k < warriors.length; k++) {
+      if (warriors[k].avatarId === wSkin.id) { cur = warriors[k]; break; }
+    }
+    if (!cur) {
+      // 装备的皮肤不在本地清单里（更老/未知 id）→ 用默认战士当第一格
+      for (var m = 0; m < warriors.length; m++) {
+        if (warriors[m].avatarId === 'warrior_01') { cur = warriors[m]; break; }
+      }
+    }
+    if (cur) {
+      cells.push({ id: cur.avatarId, name: cur.name, img: cur.image, emoji: cur.emoji, locked: false, next: false });
+      used[cur.avatarId] = true;
+    }
+    for (var n = 0; n < owned.length && cells.length < 3; n++) {
+      if (used[owned[n].avatarId]) continue;
+      cells.push({ id: owned[n].avatarId, name: owned[n].name, img: owned[n].image, emoji: owned[n].emoji, locked: false, next: false });
+      used[owned[n].avatarId] = true;
+    }
+    // 未解锁：按清单顺序取前几只（清单本身按解锁难度从低到高排列）
+    var firstLocked = null;
+    for (var p = 0; p < locked.length && cells.length < 5; p++) {
+      var lk = locked[p];
+      cells.push({
+        id: lk.avatarId,
+        name: lk.name,
+        img: lk.image,
+        emoji: lk.emoji,
+        locked: true,
+        next: !firstLocked,
+        req: this._skinReqText(lk)
+      });
+      if (!firstLocked) firstLocked = lk;
+    }
+
+    return {
+      lvCell: cell,
+      lvPercent: prog.isMaxRank ? 100 : prog.progressPercent,
+      lvNeed: prog.starsNeeded,
+      lvNext: prog.nextName,
+      rankShort: prog.current.bigRank.name,
+      warriorName: warriorName,
+      warriorImg: wSkin.image || '',
+      // 立绘失败标记跟着 URL 走：换了皮肤就该重新试新图，
+      // 不能因为「上一张加载失败过」把之后所有皮肤都锁在 emoji 上。
+      warriorImgErr: !!(wSkin.image && this._imgErr && this._imgErr[wSkin.image]),
+      warriorEmoji: wSkin.emoji || '⚔️',
+      skinCells: cells,
+      skinOwned: owned.length,
+      skinTotal: warriors.length,
+      nextSkinName: firstLocked ? firstLocked.name : '',
+      nextSkinReq: firstLocked ? this._skinReqText(firstLocked) : ''
+    };
+  },
+
+  /**
+   * 皮肤是否已解锁（本地判定，与服务端 avatar-seed 的 unlockType 同义）。
+   * 说明：服务端是权威，但首页不改数据、只做展示，本地判定足够，
+   * 且离线/未登录时也能出正确的收集线。
+   */
+  _skinUnlocked: function (s, stars, cell, streak) {
+    var t = s.unlockType || 'free';
+    if (t === 'free') return true;
+    if (t === 'stars') return stars >= (s.unlockValue || 0);
+    if (t === 'rank') return cell >= (s.unlockValue || 1);
+    if (t === 'milestone') return streak >= (s.unlockValue || 0);
+    // 'level' = 学段全三星这类复合条件（本地无汇总数据）→ 首页按未解锁展示
+    return false;
+  },
+
+  /** 皮肤的解锁条件文案（首页收集条 / 下一目标提示用） */
+  _skinReqText: function (s) {
+    var t = s.unlockType || 'free';
+    if (t === 'free') return '免费获得';
+    if (t === 'stars') return s.unlockValue + '⭐ 解锁';
+    if (t === 'rank') {
+      var b = rankLadder.BIG_RANKS[(s.unlockValue || 1) - 1];
+      return (b ? b.name : '青铜') + ' 段位解锁';
+    }
+    if (t === 'milestone') return '连续签到 ' + s.unlockValue + ' 天';
+    if (t === 'level') return '学段全三星解锁';
+    return '达成条件解锁';
   },
 
   _fetchCloud: function () {
@@ -161,7 +350,11 @@ Page({
       if (!d) return;
       // 星星口径与「我的」页同源：都用云端累计星（登录态下两页数字必须一致）
       self.setData({ rankName: d.rankName || '' });
-      if (typeof d.stars === 'number') self.setData({ totalStars: d.stars });
+      if (typeof d.stars === 'number') {
+        // 星星变了 → 等级、进度条、皮肤收集条都要跟着重算（否则等级与星星打架）
+        self.setData(self._heroData(d.stars, self.data.streakDays));
+        self.setData({ totalStars: d.stars });
+      }
       try { storage.set('ww_rank_name', d.rankName || ''); } catch (e) {}
     }).catch(function () {});
     // 我的排名（总榜）
@@ -174,6 +367,8 @@ Page({
       if (!d) return;
       var streak = d.currentStreak || 0;
       self.setData({ streakDays: streak });
+      // 连续天数影响里程碑皮肤（连续 30/60/100… 天）→ 收集条同步重算
+      self.setData(self._heroData(self.data.totalStars, streak));
       try { storage.set('ww_streak', streak); } catch (e) {}
       var records = d.records || [];
       try { storage.set('ww_checkin_cache', records); } catch (e) {}
@@ -377,16 +572,108 @@ Page({
       .filter(function (g) { return !!g; });
   },
 
+  /**
+   * 首页「热门玩法」：服务端玩法总览里的 players（玩家人数）降序取前 2。
+   *
+   * 为什么不用本机常玩：用户 2026-10-18 要求「展示最近比较火的玩法」，
+   * 本机计数只能说明「你自己常玩」，说明不了热度。
+   * · 6 小时缓存（ww_hot_games），避免每次进首页都打一次聚合查询；
+   * · 请求失败 / 离线 / 游客 → 保留 _buildRecos 的本机兜底，不把区块变空。
+   */
+  _loadHotGames: function () {
+    var self = this;
+    var CACHE_KEY = 'ww_hot_games';
+    var TTL = 6 * 60 * 60 * 1000;
+    var cached = storage.get(CACHE_KEY);
+    if (cached && cached.at && cached.list && cached.list.length
+      && (Date.now() - cached.at) < TTL) {
+      self.setData({ hotGames: cached.list });
+      return;
+    }
+    var request = require('../../utils/request');
+    request.get('/api/ranklist/progress-summary').then(function (d) {
+      var rows = (d && d.list) || [];
+      if (!rows.length) return;
+      // game_type → 目录项：用 challenge.gameTypeOf 反查，避免再手写一套映射
+      var byType = {};
+      gameCatalog.forEach(function (g) {
+        if (g.lineMode) byType[challenge.gameTypeOf(g.lineMode)] = g;
+      });
+      var list = rows.slice()
+        .sort(function (a, b) { return (b.players || 0) - (a.players || 0); })
+        .map(function (it) { return byType[it.game]; })
+        .filter(function (g) { return !!g; })
+        .slice(0, 2)
+        .map(function (g) {
+          return { key: g.key, name: g.name, icon: g.icon, desc: g.desc, url: g.url };
+        });
+      if (!list.length) return;
+      self.setData({ hotGames: list });
+      storage.set(CACHE_KEY, { at: Date.now(), list: list });
+    }).catch(function () { /* 保留本机兜底 */ });
+  },
+
   /** 点推荐玩法卡片：按目录里的 url 跳转 */
-  goReco: function (e) {
-    var url = (e && e.currentTarget && e.currentTarget.dataset)
+  goReco: function (e) {    var url = (e && e.currentTarget && e.currentTarget.dataset)
       ? e.currentTarget.dataset.url : '';
     if (url) wx.navigateTo({ url: url });
+  },
+
+  /** 点「全部玩法」→ 玩法 tab（2026-10-18：四宫格第四格，替代原「推荐玩法」区） */
+  goPlaylist: function () {
+    wx.switchTab({ url: '/pages/playlist/playlist' });
   },
 
   /** 点「段位」→ 段位详情（各段位门槛 / 距下一段还差多少星，第三批 · 第 8 条） */
   goRankInfo: function () {
     wx.navigateTo({ url: '/pages/rank-info/rank-info?stars=' + (this.data.totalStars || 0) });
+  },
+
+  // —— 全局年级（2026-10-18）：HUD 胶囊 + grade-picker ——
+  /** 打开年级选择器（与「我的 → 当前年级」同一个组件） */
+  openGradePicker: function () {
+    this.setData({ gradePickerVisible: true });
+  },
+
+  onGradeClose: function () {
+    this.setData({ gradePickerVisible: false });
+  },
+
+  /**
+   * 选中年级：写全局设置后立刻 refresh()。
+   * 首页有一半内容依赖年级（Boss 卡、出战/继续关卡、皮肤可解锁项），
+   * 只改 data.gradeLabel 不重算会出现「年级变了但还指着旧年级的 Boss」。
+   */
+  onGradePick: function (e) {
+    var key = (e && e.detail && e.detail.key) || '';
+    if (!key) return;
+    storage.setLastGrade(key);
+    this.setData({ gradePickerVisible: false });
+    this.refresh();
+    wx.showToast({ title: '已切换到' + (this.data.gradeLabel || '新年级'), icon: 'none' });
+  },
+
+  /** 点战士立绘 / 收集条 → 换皮肤（皮肤页就是「战士图鉴」，主题驱动的核心入口） */
+  goAvatarSkin: function () {
+    wx.navigateTo({ url: '/pages/avatar/avatar' });
+  },
+
+  /** 战士立绘加载失败（CDN 不可达 / 离线）→ 回退 emoji，不留裂图 */
+  onWarriorImgError: function () {
+    // 按 URL 记失败，而不是只置一个 true：
+    // 换皮肤后 refresh() 会用新 URL 重算 warriorImgErr，新图能正常尝试。
+    var img = this.data.warriorImg;
+    if (!this._imgErr) this._imgErr = {};
+    if (img) this._imgErr[img] = true;
+    this.setData({ warriorImgErr: true });
+  },
+
+  /** Boss 立绘加载失败 → 回退 emoji */
+  onBossImgError: function () {
+    var img = this.data.bossImg;
+    if (!this._imgErr) this._imgErr = {};
+    if (img) this._imgErr[img] = true;
+    this.setData({ bossImgErr: true });
   },
 
   // 推荐玩法：字母射击→关卡选择

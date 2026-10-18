@@ -29,6 +29,7 @@ Page({
     settle: false,
     win: false,
     starsText: '',
+    hintText: '',
     overMsg: '',
     best: 0,
     challenge: false,
@@ -255,6 +256,7 @@ Page({
       win: stars >= 1,
       starsText: stars > 0 ? '⭐'.repeat(stars) : '',
       overMsg: msg,
+      hintText: challenge.starHint(this._right, total, stars >= 1, '题'),
       best: best
     });
   },

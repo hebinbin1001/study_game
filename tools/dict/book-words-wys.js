@@ -11,6 +11,12 @@
 
 module.exports = {
   g1: [
+    // 2026-10-18 全量审计：外研版一年级起点第一课就是问候语，
+    // 原来词表直接从 pen 开始，把 hello/hi/bye/goodbye 漏了。
+    ['hello', '你好'],
+    ['hi', '嗨'],
+    ['bye', '再见'],
+    ['goodbye', '再见'],
     ['pen', '钢笔'],
     ['pencil', '铅笔'],
     ['pencil-box', '铅笔盒'],
@@ -108,6 +114,12 @@ module.exports = {
   ],
 
   g2: [
+    // 2026-10-18 全量审计补：家庭成员词（uncle / aunt / cousin / baby）在
+    // 一二年级口语里就用到，原词表漏收，导致二年级"家里的人"这一主题没有词。
+    ['uncle', '叔叔'],
+    ['aunt', '阿姨'],
+    ['cousin', '表兄弟姐妹'],
+    ['baby', '婴儿'],
     ['spring', '春天'],
     ['summer', '夏天'],
     ['autumn', '秋天'],

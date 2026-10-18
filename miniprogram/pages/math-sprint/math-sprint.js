@@ -3,6 +3,7 @@
 // 关联：game/math-sprint.js（纯逻辑，可单测）
 var engineLib = require('../../game/math-sprint');
 var puzzleProgress = require('../../utils/puzzle-progress');
+var challenge = require('../../utils/challenge');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
@@ -150,6 +151,7 @@ Page({
       settle: true,
       win: stars >= 1,
       starsText: stars > 0 ? '⭐'.repeat(stars) : '',
+      hintText: challenge.starHint(this._right, total, stars >= 1, '题'),
       best: best,
       overMsg: '答对 ' + this._right + ' 题 · 答错 ' + this._wrong + ' 题\n正确率 ' + acc
         + '% · 最高连击 ' + this._maxCombo + '\n最高分 ' + best

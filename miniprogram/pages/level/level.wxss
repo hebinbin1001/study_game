@@ -11,34 +11,16 @@ page {
 }
 
 .page-level {
-  padding: 40rpx 0;
+  /* 2026-10-17：标题两行已删（导航栏已有页面名），顶部留白从 40rpx 收到 16rpx */
+  padding: 16rpx 0;
   padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
-}
-
-/* ===== 页面标题 ===== */
-.level-title {
-  font-size: 48rpx;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 8rpx;
-  text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
-  text-align: center;
-}
-.level-sub {
-  margin-top: 12rpx;
-  margin-bottom: 32rpx;
-  font-size: 24rpx;
-  color: #ffffff;
-  opacity: 0.85;
-  letter-spacing: 4rpx;
-  text-align: center;
 }
 
 /* ===== 学段 tab（卡通胶囊） ===== */
 .grade-tabs {
   white-space: nowrap;
-  padding: 0 24rpx 32rpx;
+  padding: 0 24rpx 20rpx;
   box-sizing: border-box;
 }
 .grade-tab {
@@ -66,10 +48,10 @@ page {
   box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12), 0 12rpx 24rpx rgba(255, 183, 3, 0.35);
 }
 
-/* ===== 本学段星星进度卡 ===== */
+/* ===== 本学段星星进度卡（宝箱已并进来，省掉独立一行） ===== */
 .progress-card {
-  margin: 0 32rpx 28rpx;
-  padding: 26rpx 32rpx;
+  margin: 0 32rpx 20rpx;
+  padding: 20rpx 28rpx;
   background: #ffffff;
   border-radius: 28rpx;
   box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
@@ -203,10 +185,20 @@ page {
   background: linear-gradient(180deg, #ffe08a, #ffb703);
   box-shadow: 0 2rpx 0 rgba(139, 87, 0, 0.35);
 }
-/* Boss 行：金色描边（与「继续挑战」的呼吸金边同色系，但更沉稳） */
+/* Boss 行（2026-10-17）：暗紫底 + 立绘，和首页「Boss 预告」同一套视觉。
+   以前只是金色描边 + 一枚 BOSS 小牌，和首页的 Boss 叙事完全脱节。 */
 .lvrow.boss {
-  box-shadow: 0 8rpx 0 rgba(255, 183, 3, 0.28), 0 0 0 3rpx #f0b429;
+  background: linear-gradient(120deg, #4a3060, #7a3a5e);
+  box-shadow: 0 8rpx 0 rgba(50, 20, 70, 0.35);
 }
+.lvrow.boss .lv-name { color: #ffffff; }
+.lvrow.boss .lv-t2 { color: #f0c8e0; }
+.lvrow.boss .lv-kind { background: rgba(255, 255, 255, 0.18); color: #ffe9f5; }
+.lvrow.boss .lv-star { color: rgba(255, 255, 255, 0.32); }
+.lvrow.boss .lv-star.on { color: #ffd166; }
+.lvrow.boss .lv-go,
+.lvrow.boss .lv-go--cur { color: #ffd166; }
+.lvrow.boss .lv-locktip { color: #e6cfe0; }
 .lvrow.boss .lv-no {
   background: linear-gradient(180deg, #ffb703, #e08b00);
 }
@@ -214,6 +206,23 @@ page {
 .lvrow.lock.boss .lv-no {
   background: #cfd8e3;
 }
+.lvrow.lock.boss { opacity: 0.78; }
+
+/* Boss 立绘位（普通关这里是关卡号方块） */
+.lv-boss-ava {
+  flex: 0 0 auto;
+  width: 76rpx;
+  height: 76rpx;
+  margin-right: 20rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.lv-boss-img { width: 72rpx; height: 72rpx; }
+.lv-boss-emoji { font-size: 44rpx; line-height: 1; }
 .lv-t2 {
   margin-top: 6rpx;
   font-size: 22rpx;
@@ -370,34 +379,127 @@ page {
   margin-left: 6rpx;
 }
 
-/* ============ 挑战主线里程碑宝箱（P3） ============ */
-.chest-row {
+/* ============ 自由玩入口（替代原「主线 / 自由练」分段，2026-10-18） ============ */
+.free-entry {
+  margin: 0 32rpx 20rpx;
+  padding: 18rpx 22rpx;
   display: flex;
+  align-items: center;
   gap: 14rpx;
-  margin: 16rpx 0 4rpx;
-  flex: 0 0 auto;
-}
-
-.chest {
-  flex: 1;
-  text-align: center;
-  background: #fff;
   border-radius: 24rpx;
-  padding: 18rpx 8rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .05);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 5rpx 0 rgba(20, 70, 140, 0.08);
+}
+.free-entry:active { transform: translateY(2rpx); }
+.free-entry__ic { font-size: 34rpx; flex: 0 0 auto; }
+.free-entry__t { flex: 1; min-width: 0; }
+.free-entry__b { font-size: 25rpx; font-weight: 900; color: #2f4a6b; }
+.free-entry__s {
+  margin-top: 2rpx;
+  font-size: 20rpx;
+  color: #7d93ad;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.free-entry__go { font-size: 32rpx; color: #9aaec4; flex: 0 0 auto; }
+
+/* ============ 继续当前关（置顶条） ============ */
+.continue-bar {
+  margin: 0 32rpx 20rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  color: #fff;
+  background: linear-gradient(160deg, #ffb03a, #ff9a1f);
+  box-shadow: 0 8rpx 0 #d97c00, 0 12rpx 20rpx rgba(200, 110, 0, 0.22);
+}
+.continue-bar:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 4rpx 0 #d97c00;
+}
+.cb-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cb-b {
+  font-size: 32rpx;
+  font-weight: 900;
+  text-shadow: 0 2rpx 0 rgba(160, 90, 0, 0.35);
+}
+.cb-s {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: #fff6e4;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cb-go {
+  flex: 0 0 auto;
+  font-size: 24rpx;
+  font-weight: 900;
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.24);
+  border: 2rpx solid rgba(255, 255, 255, 0.55);
 }
 
-.chest.lock { opacity: .55; }
-
-.chest.ready {
-  background: linear-gradient(135deg, #fff3d6 0%, #ffe4a8 100%);
-  outline: 6rpx solid #ffb703;
-  outline-offset: -6rpx;
+/* ============ 关卡分段标题（每 5 关一段） ============ */
+.lv-group {
+  margin: 6rpx 4rpx 10rpx;
+  font-size: 22rpx;
+  font-weight: 800;
+  color: #5c7f9e;
+  letter-spacing: 2rpx;
 }
 
-.chest.done { background: #eef7ef; }
+/* ============ 挑战主线里程碑宝箱（并进进度卡） ============ */
+.chest-strip {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+.chest-chip {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 10rpx 6rpx;
+  border-radius: 18rpx;
+  background: #f4f7fc;
+  font-size: 20rpx;
+  font-weight: 800;
+  color: #6b7f99;
+}
+.chest-chip__ic { font-size: 26rpx; line-height: 1; }
+.chest-chip__tx {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chest-chip.lock { opacity: 0.6; }
+.chest-chip.ready {
+  background: linear-gradient(135deg, #fff3d6, #ffe4a8);
+  color: #b57900;
+  box-shadow: 0 0 0 3rpx #ffb703;
+}
+.chest-chip.done { background: #eef7ef; color: #1E8E3E; }
 
-.chest-icon { font-size: 44rpx; line-height: 1; }
-.chest-label { font-size: 24rpx; font-weight: 900; color: #3a3a5c; margin-top: 8rpx; }
-.chest-sub { font-size: 20rpx; color: #8a9bb5; margin-top: 4rpx; }
-.chest.ready .chest-sub { color: #b57900; font-weight: 800; }
+/* ============ 年级只读行（2026-10-18 全局年级设置） ============ */
+.grade-line {
+  margin: 0 32rpx 16rpx;
+  padding: 16rpx 22rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 5rpx 0 rgba(20, 70, 140, 0.08);
+}
+.grade-line:active { transform: translateY(2rpx); }
+.grade-line__ic { font-size: 30rpx; flex: 0 0 auto; }
+.grade-line__t { font-size: 27rpx; font-weight: 900; color: #2f4a6b; }
+.grade-line__s { font-size: 21rpx; color: #8a9bb5; font-weight: 700; }
+.grade-line__go { margin-left: auto; font-size: 21rpx; font-weight: 800; color: #4285F4; }

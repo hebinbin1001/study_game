@@ -1,6 +1,6 @@
 // 词语连连看（B6-5）：词↔义配对消除 + 连连看路径（≤2 弯无遮挡）
 // 规则：4×4 = 8 词卡 + 8 义卡；点两张——是同一词对 且 两点连线≤2转弯不穿卡 → 消除；
-// 否则错配扣命(3❤)。清空过关（按剩余命 1-3 星）。题库出题（随机学段 w1）。
+// 否则错配扣命(3❤)。清空过关（按正确率 1-3 星，2026-10-17 统一口径）。题库出题（随机学段 w1）。
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var link = require('../../game/link');
@@ -19,11 +19,14 @@ Page({
     cards: [],       // [{i, t:'w'|'c', key, lab, gone}]
     lives: 3,
     left: 0,
+    matched: 0,        // 已配对对数（HUD 进度，2026-10-17）
+    pairsTotal: 0,
     tip: '',
     over: false,
     win: false,
     stars: 0,
     starsText: '',
+    hintText: '',          // 结算「差一点」提示（2026-10-17）
     challenge: false,      // 是否挑战主线关卡
     challengeKey: ''       // 挑战存档键（调试/测试可见）
   },
@@ -106,8 +109,11 @@ Page({
     words.forEach(function (w) {
       var key = w.q + '|' + w.a;
       // 2026-09-18 用户反馈：单词全大写不好识别，改成按词库原文显示（内置英文词条本身是小写）
-      cards.push({ t: 'w', key: key, lab: String(w.q || w.a), en: w.q || w.a, hint: w.hint || '' });
-      cards.push({ t: 'c', key: key, lab: w.hint || w.a, en: w.q || w.a, hint: w.hint || '' });
+      // 2026-10-17：长词收一档字号（同 match 页），避免 4 列格子把单词折成两行断字
+      var labW2 = String(w.q || w.a);
+      var labC2 = w.hint || w.a;
+      cards.push({ t: 'w', key: key, lab: labW2, en: w.q || w.a, hint: w.hint || '', long: labW2.length >= 8 });
+      cards.push({ t: 'c', key: key, lab: labC2, en: w.q || w.a, hint: w.hint || '', long: String(labC2).length >= 8 });
     });
     cards = this._shuffle(cards).map(function (c, i) { c.i = i; return c; });
 
@@ -120,8 +126,10 @@ Page({
       cards: cards,
       lives: 3,
       left: cards.length,
+      matched: 0,
+      pairsTotal: cards.length / 2,
       tip: '点「词」再点它的「释义」· 连线 ≤2 转弯且不穿其他牌',
-      over: false, win: false, stars: 0, starsText: ''
+      over: false, win: false, stars: 0, starsText: '', hintText: ''
     });
   },
 
@@ -203,12 +211,20 @@ Page({
       ok['cards[' + idx + '].gone'] = true;
       ok['cards[' + ia + '].sel'] = false;
       ok.left = this.data.left - 2;
+      ok.matched = this.data.matched + 1;   // HUD 进度（2026-10-17）
       this.setData(ok);
       // 注意：setData 会同步更新 this.data.left，此处不能再减 2，
       // 否则剩最后 2 张牌（1 对未消）就会提前判过关。
       if (this.data.left <= 0) {
-        var stars = challenge.starsByLives(this.data.lives);
-        this.setData({ over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), tip: '全部连上！' });
+        // 2026-10-17：星级统一按正确率（同 match）。正确率 = 正确对数 / 总对数，
+        // 错误次数 = 初始 3 命 - 剩余命（本玩法只有「错配/连线不合法」会扣命）。
+        var pairs = this.data.cards.length / 2;
+        var mistakes = 3 - this.data.lives;
+        var stars = challenge.starsByRightRate(pairs - mistakes, pairs);
+        this.setData({
+          over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), tip: '全部连上！',
+          hintText: challenge.starHint(pairs - mistakes, pairs, true, '对')
+        });
         this._saveChallengeStars(stars);
       }
     } else {
@@ -223,7 +239,10 @@ Page({
       this._flashErr([ia2, idx]);
       wx.showToast({ title: why, icon: 'none' });
       if (lives <= 0) {
-        this.setData({ over: true, win: false, starsText: '', tip: '生命耗尽 · 再来一次' });
+        this.setData({
+          over: true, win: false, starsText: '', tip: '生命耗尽 · 再来一次',
+          hintText: '还剩 ' + Math.max(0, Math.floor(this.data.left / 2)) + ' 对没消，消完才能结算'
+        });
       }
     }
   },

@@ -1,41 +1,90 @@
-/* 学习 Tab —— token 对齐 demo；O1 自适应 */
+/* 学习 Tab —— 2026-10-17 布局重排
+ * 变化：周概览压缩 → 2 张数据卡（报告正确率 / 错题待复习）→ 4 条入口（行高 108→96rpx）
+ *       → 本周薄弱题型填底。原来 6 条同权重长条 + 底部 ~350rpx 空白。
+ * 配色仍为扁平白蓝，主题收口批次再统一。 */
 .page-study {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 24rpx 32rpx 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20rpx 32rpx 0;
   background: #F5F7FB;
 }
 
+/* 周概览：两个数字并排，不再一行大字占 3 行 */
 .week-card {
   background: #fff;
   border-radius: 32rpx;
   box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  padding: 36rpx 32rpx;
-  text-align: center;
+  padding: 24rpx 28rpx;
 }
-.week-sub { font-size: 24rpx; color: #8A94A6; }
-.week-big { font-size: 60rpx; font-weight: 900; margin: 8rpx 0 4rpx; color: #333A45; }
-
-.link {
+.week-nums {
   display: flex;
   align-items: center;
-  gap: 24rpx;
+  justify-content: center;
+  gap: 28rpx;
+}
+.week-num { display: flex; align-items: baseline; gap: 6rpx; }
+.week-big { font-size: 52rpx; font-weight: 900; color: #333A45; line-height: 1.1; }
+.week-unit { font-size: 22rpx; color: #8A94A6; font-weight: 700; }
+.week-sep { width: 2rpx; height: 44rpx; background: #EDF1F8; }
+.week-sub {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #8A94A6;
+  text-align: center;
+}
+
+/* 两张数据卡：把「有数字的入口」提到第一层 */
+.stat-row { display: flex; gap: 20rpx; margin-top: 20rpx; }
+.stat-card {
+  flex: 1;
+  min-width: 0;
   background: #fff;
   border-radius: 28rpx;
   box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  padding: 26rpx 28rpx;
-  margin-top: 24rpx;
+  padding: 20rpx 22rpx;
+}
+.stat-card:active { opacity: .85; }
+.stat-top { font-size: 22rpx; font-weight: 800; color: #6B7688; }
+.stat-num {
+  margin-top: 6rpx;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #333A45;
+  line-height: 1.15;
+}
+.stat-unit { font-size: 24rpx; margin-left: 2rpx; }
+.stat-sub {
+  margin-top: 2rpx;
+  font-size: 20rpx;
+  color: #8A94A6;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 入口行 */
+.link {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  background: #fff;
+  border-radius: 26rpx;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  padding: 20rpx 24rpx;
+  margin-top: 16rpx;
   box-sizing: border-box;
 }
 .link:active { opacity: .8; }
 .li {
-  width: 84rpx;
-  height: 84rpx;
-  border-radius: 24rpx;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 22rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 44rpx;
+  font-size: 40rpx;
   background: #EEF3FD;
   flex: 0 0 auto;
 }
@@ -44,19 +93,82 @@
 .li-orange { background: #FFF3E6; }
 .li-blue { background: #E6F1FB; }
 .lt { flex: 1; min-width: 0; }
-.l-b { font-size: 30rpx; font-weight: 800; color: #333A45; }
-.l-s { font-size: 22rpx; color: #8A94A6; margin-top: 4rpx; }
-.ar { color: #C3CCDA; font-size: 36rpx; font-weight: 700; }
+.l-b { font-size: 28rpx; font-weight: 800; color: #333A45; }
+.l-s {
+  font-size: 22rpx;
+  color: #8A94A6;
+  margin-top: 4rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ar { color: #C3CCDA; font-size: 36rpx; font-weight: 700; flex: 0 0 auto; }
 
 .state-chip {
   flex: 0 0 auto;
   background: #EEF3FD;
   color: #4285F4;
   border-radius: 999rpx;
-  padding: 10rpx 24rpx;
+  padding: 10rpx 22rpx;
   font-size: 22rpx;
   font-weight: 800;
 }
 .state-chip.done { background: #E6F6EA; color: #34A853; }
 
-.safe-gap { height: calc(env(safe-area-inset-bottom) + 48rpx); }
+/* 本周薄弱：吃掉底部空白，并给「去练错题」一个直达 */
+.weak-card {
+  margin-top: 16rpx;
+  background: #fff;
+  border-radius: 26rpx;
+  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  padding: 20rpx 24rpx;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.weak-head { display: flex; align-items: center; }
+.weak-t { font-size: 26rpx; font-weight: 900; color: #333A45; }
+.weak-more {
+  margin-left: auto;
+  font-size: 22rpx;
+  font-weight: 800;
+  color: #4285F4;
+}
+.weak-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+.weak-chip {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background: #FFF3E6;
+  border-radius: 999rpx;
+  padding: 10rpx 20rpx;
+  font-size: 22rpx;
+  color: #B56500;
+  font-weight: 800;
+  max-width: 100%;
+}
+.weak-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.weak-count {
+  background: rgba(255, 152, 0, .18);
+  border-radius: 999rpx;
+  padding: 2rpx 12rpx;
+  font-size: 18rpx;
+}
+.weak-empty {
+  flex: 1 1 auto;
+  margin-top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  color: #B7C4D4;
+  line-height: 1.6;
+}
+
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); }

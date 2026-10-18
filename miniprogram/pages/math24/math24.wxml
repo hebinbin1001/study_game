@@ -1,11 +1,8 @@
 <!-- 算 24 点（合并式 · 2026-09-12 改版）：
      点两张牌 → 点运算符 → 立即合并成一张结果牌（结果自动选中）→ 最后剩一张等于 24 过关 -->
 <view class="page-24">
-  <view class="g-head">
-    <button class="btn-back" bindtap="goBack">返回</button>
-    <view class="g-title">算 24 点</view>
-    <view class="g-chip" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + levelInfo.length + ' 关') : '选关'}}</view>
-  </view>
+  <!-- 2026-10-17：删掉页内「返回 + 标题 + 选关胶囊」（原生导航栏已有返回与页面名）。
+       「第 N 关 / 选关」信息在对局 HUD 与底部「关卡列表」按钮里都有，不丢功能。 -->
 
   <!-- 选关 -->
   <block wx:if="{{!playing}}">
@@ -32,6 +29,7 @@
       <view class="hud-chip">🃏 剩 {{tiles.length}} 张</view>
       <view class="hud-chip">第 {{curLevel}} 关</view>
       <view class="hud-chip">已合并 {{steps}} 步</view>
+      <warrior-badge size="sm" />
     </view>
 
     <!-- 数字牌（点=选中；已选两张后点运算符即合并） -->
@@ -70,21 +68,16 @@
     <view class="goal">每张牌各用一次 · 每步只做一次运算（不需要括号）· 结果须恰为 24</view>
   </block>
 
-  <!-- 结算 -->
-  <view wx:if="{{over}}" class="over-mask">
-    <view class="over-card">
-      <view class="o-stars">{{win ? starsText : '💔'}}</view>
-      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '凑出 24！' : '本关失败'}}</view>
-      <view class="o-msg">{{overMsg}}</view>
-      <button wx:if="{{win}}" class="btn b1" bindtap="goNext">下一关 ▶</button>
-      <button class="btn b1" bindtap="again">再试本关</button>
-      <button class="btn b2" bindtap="goLevels">关卡列表</button>
-    </view>
-  </view>
+  <!-- 结算统一走公共组件（2026-10-17） -->
+  <settle-pop visible="{{over}}" win="{{win}}" stars-text="{{win ? starsText : ''}}"
+    title="{{win ? '凑出 24！' : '本关失败'}}" msg="{{overMsg}}"
+    hint="{{hintText}}"
+    show-next="{{win}}" next-text="下一关 ▶"
+    bind:retry="again" bind:next="goNext">
+    <button class="btn btn-ghost" bindtap="goLevels">关卡列表</button>
+  </settle-pop>
 
   <view class="safe-gap"></view>
 </view>
 
-<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
-     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
-<warrior-badge fixed="{{true}}" size="sm" />
+

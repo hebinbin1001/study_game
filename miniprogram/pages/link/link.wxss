@@ -5,7 +5,7 @@
   padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+  background: linear-gradient(180deg, #4a9fe8 0%, #7dbdf2 32%, #b9e0ff 64%, #d8efff 100%);
 }
 /* 头部/HUD 统一到 app.wxss 的 .g-head/.g-title/.g-chip/.hud/.hud-chip（2026-09-12 视觉统一） */
 .back-pill {
@@ -35,6 +35,8 @@
   font-size: 26rpx; font-weight: 800; text-align: center;
   word-break: break-all;
 }
+/* 长词收一档字号（同 match 页） */
+.tile.long { font-size: 20rpx; letter-spacing: -0.5rpx; line-height: 1.2; }
 .tile.word { color: #4285F4; font-size: 30rpx; }
 /* 词卡选中：金色环（.b-sel）+ 微暖底，和义卡区分得更清楚 */
 .tile.word.b-sel { background: linear-gradient(180deg, #fffdf6 0%, #eaf3ff 100%); }

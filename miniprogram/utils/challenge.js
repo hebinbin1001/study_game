@@ -27,8 +27,8 @@
  *     15 题 7 命 → 最低 60% → 三档重新可达 ✓
  *   单测 `challenge.test.js` 用 starReachability 把这条不变量钉死了（Boss 关也要三档可达）。
  *
- *   为什么不给连连看/消消乐做 Boss：它们棋盘固定 4×4 = 8 对，加不了题量；
- *   而它们按「剩余命 3/2/1」给星，减命会让 3 星档直接消失（详见交接单的方案 B/C）。
+ *   为什么不给连连看/消消乐做 Boss：它们棋盘固定 4×4 = 8 对，加不了题量。
+ *   （2026-10-17 起它们的星级也改成按正确率，与射击同口径；但棋盘容量仍限制加题，故不做 Boss）
  */
 
 'use strict';
@@ -64,7 +64,8 @@ var MODES = {
     label: '词语连连看',
     emoji: '🔗',
     page: '/pages/link/link',
-    starBasis: '剩余命 3/2/1'
+    // 2026-10-17 用户拍板：全玩法统一按正确率给星（原「剩余命 3/2/1」错一次就掉星，与射击不等价）
+    starBasis: '正确率 90/70/60（正确对数 / 总对数）'
   },
   match: {
     key: 'match',
@@ -72,7 +73,7 @@ var MODES = {
     label: '词义消消乐',
     emoji: '🃏',
     page: '/pages/match/match',
-    starBasis: '剩余命 3/2/1'
+    starBasis: '正确率 90/70/60（正确对数 / 总对数）'
   },
   idiom: {
     key: 'idiom',
@@ -88,7 +89,7 @@ var MODES = {
     label: '单词贪吃蛇',
     emoji: '🐍',
     page: '/pages/snake/snake',
-    starBasis: '剩余命 3/2/1'
+    starBasis: '正确率 90/70/60（拼完词数 / 尝试次数）'
   },
   // 2026-09-19 新增（一期第 4 件）：限时抢答
   quiz: {
@@ -147,7 +148,7 @@ function isBossLevel(level) {
 // 约束：题量与命数必须让 1/2/3 星三档都可达（单测 challenge.test.js 有护栏）。
 //   · 字母射击：10 题 + 5 命 → 通关最低正确率 60%，恰好落在 1 星档
 //   · 字母拼词：题量按学段 6~10 + 5 命 → 6 题时最低 67%、10 题时最低 60%，三档都可达
-//   · 词语连连看：按剩余命 3/2/1 给星，天然三档可达
+//   · 词语连连看：按正确率给星（2026-10-17 统一口径），8 对牌下 1 错 = 87.5%（2 星）、0 错 = 3 星
 var GRADE_PARAMS = {
   // 2026-10-08：随「学段按年级细分」同步扩到 14 档，难度按年级**平滑**递进
   //（每个年级只比上一个多一点，别让相邻年级的手感突然跳一档）。
@@ -368,6 +369,8 @@ function starsByRightRate(right, total) {
 
 /**
  * 按「剩余命数」折算星级（连连看这类以犯错次数定档的玩法）。
+ * @deprecated 2026-10-17 起玩法不再用它给星（用户拍板统一按正确率）。保留导出仅为兼容历史单测，
+ *             新玩法请用 starsByRightRate。
  * @param {number} lives
  * @returns {number} 0~3
  */
@@ -377,6 +380,31 @@ function starsByLives(lives) {
   if (n === 2) return 2;
   if (n === 1) return 1;
   return 0;
+}
+
+/**
+ * 「差一点」提示（2026-10-17）：星级是三档硬阈值，结算只显示结果的话，
+ * 差 1 题掉档玩家是感知不到的。这里按同一套阈值反推还差多少。
+ *
+ * @param {number} right 答对/完成的数量
+ * @param {number} total 总量
+ * @param {boolean} win 是否通关
+ * @param {string} [unit] 单位，默认「题」；配对类传「对」，贪吃蛇传「词」
+ * @returns {string} 空串表示已满星/无需提示
+ */
+function starHint(right, total, win, unit) {
+  var t = parseInt(total, 10) || 0;
+  var r = Math.max(0, parseInt(right, 10) || 0);
+  var u = unit || '题';
+  if (!t) return '';
+  // 阈值与 constants.STAR_THRESHOLDS（90/70/60）保持一致，向上取整
+  var need1 = Math.ceil(t * 0.6);
+  var need2 = Math.ceil(t * 0.7);
+  var need3 = Math.ceil(t * 0.9);
+  if (!win) return '完成 ' + need1 + ' ' + u + '就能通关，你完成了 ' + r + ' ' + u;
+  if (r >= need3) return '';
+  if (r >= need2) return '再完成 ' + (need3 - r) + ' ' + u + '就是 3 星 ⭐⭐⭐';
+  return '再完成 ' + (need2 - r) + ' ' + u + '升 2 星';
 }
 
 /**
@@ -762,6 +790,7 @@ module.exports = {
   labelOf: labelOf,
   gameTypeOf: gameTypeOf,
   starsByRightRate: starsByRightRate,
+  starHint: starHint,
   starsByLives: starsByLives,
   starReachability: starReachability,
   // 玩法线（P3 一期）：每款题库玩法一条独立 30 关关卡线

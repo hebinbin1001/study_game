@@ -125,8 +125,16 @@ page {
 }
 
 /* 功能菜单 */
+/* 菜单分组（2026-10-17）：成长 / 对战 / 学习 */
+.menu-group { margin-top: 28rpx; }
+.menu-group-title {
+  margin: 0 8rpx 10rpx;
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #8aa0b8;
+  letter-spacing: 2rpx;
+}
 .menu-card {
-  margin-top: 32rpx;
   background: #ffffff;
   border-radius: 32rpx;
   overflow: hidden;
@@ -189,9 +197,21 @@ page {
   color: #ff5a5a;
 }
 
+/* 底部：协议 + 版本号（协议从菜单移出，2026-10-17） */
+.version-row {
+  margin-top: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+.version-link {
+  font-size: 22rpx;
+  color: #6b8fb5;
+  text-decoration: underline;
+}
 .version {
   text-align: center;
-  margin-top: 48rpx;
   font-size: 22rpx;
   color: #8aa0b8;
 }

@@ -1,16 +1,21 @@
-<!-- 一笔画（玩法落地：demo g8）：每条线只能走一次，走完全部线过关 -->
+<!-- 一笔画（移植 demo/一笔画小游戏.html）：每条线只能走一次，走完全部线过关 -->
 <view class="page-one-stroke">
 
-  <!-- 本玩法不计命数，顶部换成 关卡/已走线/步数 三个信息块（沿用统一 HUD 视觉） -->
+  <!-- 本玩法不计命数，顶部换成 关卡名/已走线/步数 三个信息块（沿用统一 HUD 视觉） -->
   <view class="hud">
-    <view class="chip"><view class="k">关卡</view><view class="v">{{levelText}}</view></view>
+    <view class="chip"><view class="k">{{levelName}}</view><view class="v">{{levelText}}</view></view>
     <view class="chip"><view class="k">已走线</view><view class="v">{{edgeText}}</view></view>
     <view class="chip"><view class="k">步数</view><view class="v">{{stepText}}</view></view>
+    <warrior-badge size="sm" />
   </view>
 
   <view class="banner {{warn ? 'warn' : ''}}">
     <view class="main">{{mainText}}</view>
     <view class="sub">{{subText}}</view>
+    <!-- 进度条（demo 顶部那条）：一眼看到还差多少，比只写「3/8」直观 -->
+    <view class="bar"><view class="bar-fill" style="width: {{pct}}%;"></view></view>
+    <!-- 提示文案（起手点 / 顺着闪光线走）：放横幅里，不压棋盘圆点 -->
+    <view wx:if="{{hintTip}}" class="hint-tip">{{hintTip}}</view>
   </view>
 
   <view class="board">
@@ -19,7 +24,7 @@
       <view
         wx:for="{{edges}}"
         wx:key="key"
-        class="edge {{item.used ? 'used' : ''}}"
+        class="edge {{item.used ? 'used' : ''}} {{item.hint ? 'hint' : ''}}"
         style="{{item.style}}"></view>
       <view
         wx:for="{{nodes}}"
@@ -34,19 +39,14 @@
   </view>
 
   <view class="foot">
-    <view class="btn ghost" bindtap="onUndo">← 撤销一步</view>
-    <view class="btn ghost" bindtap="onReset">重置本关</view>
-  </view>
-  <view class="foot">
-    <view class="btn ghost" bindtap="goBack">返回</view>
+    <view class="btn ghost" bindtap="onUndo">← 撤销</view>
+    <view class="btn ghost" bindtap="onReset">↻ 重置</view>
+    <view class="btn hint {{hintLeft ? '' : 'off'}}" bindtap="onHint">💡 提示 {{hintLeft}}</view>
   </view>
 
   <settle-pop
     visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
-    title="{{win ? '全部通关！' : '再试一次'}}" msg="{{overMsg}}"
-    bind:retry="onRetry" />
+    title="{{showNext ? '过关！' : '全部通关！'}}" msg="{{overMsg}}" hint="{{overHint}}"
+    show-next="{{showNext}}" next-text="{{showNext ? '下一关 ▶' : ''}}"
+    bind:retry="onRetry" bind:next="onNext" />
 </view>
-
-<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
-     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
-<warrior-badge fixed="{{true}}" size="sm" />

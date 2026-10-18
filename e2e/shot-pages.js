@@ -28,6 +28,8 @@ const PAGES = [
   // 用初一（g7）而不是三年级：g7 的英语词条 100% 有音标，
   // 三年级还混着 hot dog / pencil-case 这类词典查不到的多词短语，截图不稳定。
   { id: 'game-en', url: '/pages/game/game?grade=g7&level=1&type=word' },
+  // Boss 关（每学段第 30 关）：用来复查「学段 → Boss 立绘」映射是否生效
+  { id: 'game-boss', url: '/pages/game/game?challenge=1&grade=kg&level=30' },
   { id: 'math24', url: '/pages/math24/math24' },
   { id: 'math-balance', url: '/pages/math-balance/math-balance' },
   { id: 'math-sprint', url: '/pages/math-sprint/math-sprint' },
@@ -40,6 +42,22 @@ const PAGES = [
   { id: 'sudoku', url: '/pages/sudoku/sudoku' },
   { id: 'g2048', url: '/pages/g2048/g2048' },
   { id: 'klotski', url: '/pages/klotski/klotski' },
+  // 一笔画（2026-10-18 换成 demo 的 35 关）：第 7 关 = 五角星，看起点/已走线/提示按钮的排版
+  { id: 'one-stroke', url: '/pages/one-stroke/one-stroke?level=7' },
+  // 最难的一关（13 点 25 线）用来确认密集图的圆点不会糊在一起
+  { id: 'one-stroke-hard', url: '/pages/one-stroke/one-stroke?level=35' },
+  // 找规律（2026-10-18 新增）：第 1 关看 6 格数字题，第 28 关看 8 格图形题（最挤的布局）
+  { id: 'pattern', url: '/pages/pattern/pattern?level=1' },
+  { id: 'pattern-hard', url: '/pages/pattern/pattern?level=28' },
+  // 认钟表（2026-10-18 新增）：第 1 关整点半点、第 30 关 24 时制（数字牌布局）
+  { id: 'clock', url: '/pages/clock/clock?level=1' },
+  { id: 'clock-hard', url: '/pages/clock/clock?level=30' },
+  // 算术迷宫（2026-10-18 新增）：第 1 关 3 道门、第 30 关 7 道门（最挤）
+  { id: 'maze', url: '/pages/maze/maze?level=1' },
+  { id: 'maze-hard', url: '/pages/maze/maze?level=30' },
+  // 汉诺塔（2026-10-18 新增）：第 1 关 3 盘、第 6 关 8 盘（最高）
+  { id: 'hanoi', url: '/pages/hanoi/hanoi?level=1' },
+  { id: 'hanoi-hard', url: '/pages/hanoi/hanoi?level=6' },
   { id: 'quiz', url: '/pages/quiz/quiz?challenge=1&line=mode_quiz&grade=kg&level=1' },
   { id: 'bounce', url: '/pages/bounce/bounce' },
   { id: 'index', url: '/pages/index/index' },

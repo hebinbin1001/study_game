@@ -1,20 +1,17 @@
 <!-- 词义消消乐（B6-2）：词↔义配对消除 -->
 <view class="page-match">
-  <view class="g-head">
-    <button class="btn-back" bindtap="goBack">返回</button>
-    <view class="g-title">词义消消乐</view>
-    <view class="g-chip">{{gradeLabel}}</view>
-  </view>
+  <!-- 2026-10-17：删掉页内「返回 + 标题」——原生导航栏已经有返回和「词义消消乐」，
+       这里再放一遍等于两个返回键、两行标题，白吃掉约 90px 首屏。 -->
 
   <!-- HUD（公共组件） -->
-  <game-hud lives="{{lives}}" extra="{{gradeLabel}} · 剩 {{left}} 卡" score="{{0}}" score-text="" />
+  <game-hud lives="{{lives}}" extra="{{hudExtra}}" score="{{0}}" score-text="" />
 
   <!-- 棋盘 4×4 -->
   <view class="board b-tray b-in">
     <view
       wx:for="{{cards}}"
       wx:key="index"
-      class="tile b-face b-press {{item.t === 'w' ? 'word' : ''}} {{item.sel ? 'b-sel' : ''}} {{item.hit ? 'hit' : ''}} {{item.gone ? 'gone' : ''}} {{item.miss ? 'miss' : ''}}"
+      class="tile b-face b-press {{item.t === 'w' ? 'word' : ''}} {{item.long ? 'long' : ''}} {{item.sel ? 'b-sel' : ''}} {{item.hit ? 'hit' : ''}} {{item.gone ? 'gone' : ''}} {{item.miss ? 'miss' : ''}}"
       data-idx="{{index}}"
       bindtap="tapCard">{{item.lab}}</view>
   </view>
@@ -24,6 +21,7 @@
   <!-- 结算（公共组件 + 自定义操作） -->
   <settle-pop visible="{{over}}" win="{{win}}" stars-text="{{starsText}}"
     title="{{win ? '全部消除！' : '生命耗尽'}}" msg="{{win ? '获得 ' + stars + ' 星 · 错 ' + mistakes + ' 次' : '再试一次一定能行！'}}"
+    hint="{{hintText}}"
     show-retry="{{!win}}" show-next="{{showNext}}" bind:next="onNext">
     <view class="s-btns">
       <button class="btn-main" bindtap="again">再来一局</button>
@@ -34,6 +32,4 @@
   <view class="safe-gap"></view>
 </view>
 
-<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
-     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
-<warrior-badge fixed="{{true}}" size="sm" />
+

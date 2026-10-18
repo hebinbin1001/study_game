@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "settle-pop": "/components/settle-pop/settle-pop"
+  },
+  "navigationBarTitleText": "认钟表",
+  "navigationBarBackgroundColor": "#F0A020",
+  "navigationBarTextStyle": "white"
+}

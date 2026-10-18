@@ -1,39 +1,29 @@
-// 2048 页（B6-3）：固定关卡——目标数字递增 + 限定步数
-// 滑动合成（支持方向键 + 触摸滑动），达到目标过关；步尽未达 / 无路可走失败。
-var game = require('../../game/tw2048');
-var storage = require('../../utils/storage');
-
-// 关卡表（10 关）：目标 32 → 512，每个目标两档（标准 / 挑战）。
+// 2048 页（B6-3）：固定关卡——目标数字递增，**不限步数**
+// 滑动合成（触摸滑动），达到目标过关；只有「棋盘无路可走」才失败。
 //
-// 步数预算是按「合并次数」推算出来的，不是拍脑袋：
-//   · 合成目标 T 至少需要 (T/2 − 1) 次合并（T=512 → 255 次）；
-//   · 一次移动最多合并 8 次（4 行 × 2），但实战平均只有约 1.2~1.5 次/步
-//     （自动对局实测：32→17 步、64→34 步、128→57 步）；
-//   · 所以步数预算必须与目标同量级增长，取 1.5 次合并/步作为「可达性下限」，
-//     再按用户反馈放宽：入门档 = 下限 × 2.2、挑战档 = 下限 × 1.6（留足试错空间）。
-//
-// 原关卡表是「线性 +6」增长（32/20 → 2048/64），而难度是翻倍增长 ——
-// 于是 1024/54、2048/64 两关在数学上不可能通过（2048 至少需要 128 步，
-// 实战约 680 步）。本次按实测模型重算，并把目标上限收到 512：
-// 1024 需要约 600 步、2048 约 1300 步（10~30 分钟一局），不适合作为关卡目标。
-// 可达性回归见 miniprogram/tests/unit/g2048-levels.test.js。
-// 关卡表搬到 data/g2048-levels.js（2026-09-13 扩充到 14 关）：关卡页与单测共用同一份
+// 2026-10-18 用户拍板取消步数硬上限（「留着有时候都过不了」）：
+//   · 步数不再判负 —— 2048 本身就是「滑到不能滑」，硬性步数只会让人卡在差一点；
+//   · 步数改用评星：≤par → 3★、≤1.5×par → 2★、其余 1★；
+//   · par 依旧按「合并次数」模型定（合成 T 至少 (T/2 − 1) 次合并，实战约 1.2~1.5
+//     次/步），校验见 tests/unit/g2048-levels.test.js。
+// 关卡表在 data/g2048-levels.js（14 关）：关卡页与单测共用同一份
 var LEVELS = require('../../data/g2048-levels').levels;
 // 关卡进度 + 每关最短用时（用户 2026-09-13：每关显示最短时间）
 var puzProgress = require('../../utils/puzzle-progress');
 var playReport = require('../../utils/play-report');
 
 // 挑战模式（2026-09-12 用户认可「保留打到 2048 的成就感」）：
-//   · 目标 2048、**不限步数**（只有「无路可走」才会失败）；
-//   · 不写星级存档（关卡体系只到 512），只记录**最少步数**，越少越强。
-var CHALLENGE = { target: 2048, stepsLimit: 999999 };
+//   · 目标 2048、只比**最少步数**；
+//   · 不写星级存档，只记录**最少步数**，越少越强。
+var CHALLENGE = { target: 2048 };
 var CHALLENGE_BEST_KEY = 'ww_g2048_challenge_best';
 
 Page({
   data: {
     curLevel: 1,
     target: 32,
-    stepsLimit: 20,
+    par: 24,          // 3★ 参考步数（不判负，只评星）
+    stepsLimit: 0,    // 恒为 0：已取消步数上限（保留字段给端到端脚本/旧存档读取）
     levelInfo: [],
     playing: false,
     cells: [],       // 4x4 扁平 [{v}]
@@ -42,12 +32,14 @@ Page({
     maxTile: 2,
     over: false,
     win: false,
-    challenge: false,        // 是否挑战模式（不限步数冲 2048）
-      challengeBest: 0,        // 挑战模式最佳步数（0 = 还没通关过）
-      bestMsText: '',          // 本关最快用时文案（关卡页/结算显示）
+    challenge: false,        // 是否挑战模式（冲 2048，只比最少步数）
+    challengeBest: 0,        // 挑战模式最佳步数（0 = 还没通关过）
+    bestMsText: '',          // 本关最快用时文案（关卡页/结算显示）
+    tipText: '',             // 底部操作提示（关卡模式带 3★ 基准步数）
     stars: 0,
     starsText: '',
-    overMsg: ''
+    overMsg: '',
+    hintText: ''
   },
 
   onLoad: function (options) {
@@ -65,24 +57,26 @@ Page({
     var lv = LEVELS[no - 1];
     this._board = game.newBoard();
     this.setData({
-      curLevel: no, target: lv.target, stepsLimit: lv.steps, challenge: false,
-      playing: true, over: false, win: false,
-      cells: this._flatten(this._board),
-      score: 0, usedSteps: 0, maxTile: 2, stars: 0, starsText: ''
-    });
-  },
-
-  /** 挑战模式：目标 2048、不限步数，只比最少步数 */
-  startChallenge: function () {
-    this._board = game.newBoard();
-    this.setData({
-      curLevel: 0, target: CHALLENGE.target, stepsLimit: CHALLENGE.stepsLimit, challenge: true,
+      curLevel: no, target: lv.target, par: lv.par, stepsLimit: 0, challenge: false,
       playing: true, over: false, win: false,
       cells: this._flatten(this._board),
       score: 0, usedSteps: 0, maxTile: 2, stars: 0, starsText: '',
+      tipText: '👆 滑动合成 · ' + lv.par + ' 步内拿 3★'
+    });
+  },
+
+  /** 挑战模式：目标 2048，只比最少步数 */
+  startChallenge: function () {
+    this._board = game.newBoard();
+    this.setData({
+      curLevel: 0, target: CHALLENGE.target, par: 0, stepsLimit: 0, challenge: true,
+      playing: true, over: false, win: false,
+      cells: this._flatten(this._board),
+      score: 0, usedSteps: 0, maxTile: 2, stars: 0, starsText: '',
+      tipText: '👆 滑动合成 · 冲到 2048，只比谁用得更少',
       challengeBest: storage.get(CHALLENGE_BEST_KEY) || 0
     });
-    wx.showToast({ title: '挑战模式：不限步数冲到 2048', icon: 'none', duration: 1800 });
+    wx.showToast({ title: '挑战模式：冲 2048，只比最少步数', icon: 'none', duration: 1800 });
   },
 
   loadLevel: function (no) {
@@ -127,11 +121,12 @@ Page({
     this.setData({ cells: flat, score: score, usedSteps: usedSteps, maxTile: maxTile });
 
     if (maxTile >= this.data.target) { this._win(); return; }
-    if (usedSteps >= this.data.stepsLimit || r.gameover) this._lose(r.gameover);
+    // 2026-10-18：步数不再判负 —— 只有棋盘无路可走才结束本局
+    if (r.gameover) this._lose(true);
   },
 
   _win: function () {
-    // 挑战模式：不写星级存档（关卡体系只到 512），只记「最少步数」
+    // 挑战模式：不写星级存档，只记「最少步数」
     if (this.data.challenge) {
       var used = this.data.usedSteps;
       var prevBest = storage.get(CHALLENGE_BEST_KEY) || 0;
@@ -144,9 +139,10 @@ Page({
       });
       return;
     }
-    // 星级：≤50%步 3 星 / ≤80% 2 星 / 其余 1 星
-    var ratio = this.data.usedSteps / this.data.stepsLimit;
-    var stars = ratio <= 0.5 ? 3 : (ratio <= 0.8 ? 2 : 1);
+    // 星级（2026-10-18 改）：相对 3★ 参考步数，≤1 倍 3★ / ≤1.5 倍 2★ / 其余 1★
+    var par = this.data.par || 0;
+    var ratio = par > 0 ? this.data.usedSteps / par : 1;
+    var stars = ratio <= 1 ? 3 : (ratio <= 1.5 ? 2 : 1);
     storage.saveStars('g2048', this.data.curLevel, stars);
     // 玩法进度榜上报（2026-09-13 补）：这一款原来不上报，玩法榜里永远空着
     playReport.reportPlay({
@@ -167,13 +163,18 @@ Page({
     this.setData({ bestMsText: '本关最快 ' + (bestMs / 1000).toFixed(1) + ' 秒' });
     var next = Math.min(this.data.curLevel + 1, LEVELS.length);
     storage.set('ww_g2048_cur', next);
-    this.setData({ playing: false, over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), overMsg: '达成 ' + this.data.target + '！' + bestText });
+    this.setData({
+      playing: false, over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars),
+      overMsg: '达成 ' + this.data.target + '！用了 ' + this.data.usedSteps + ' 步（3★ 基准 ' + par + ' 步）' + bestText,
+      hintText: ''
+    });
   },
 
   _lose: function (stuck) {
     this.setData({
       playing: false, over: true, win: false, stars: 0, starsText: '',
-      overMsg: stuck ? '没有可走的路了' : '步数用尽 · 差一点'
+      overMsg: stuck ? '棋盘满了 · 没有可走的路了' : '这一局结束了',
+      hintText: '还差 ' + Math.max(0, this.data.target - this.data.maxTile) + ' 就到目标 ' + this.data.target
     });
   },
 

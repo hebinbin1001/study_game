@@ -21,6 +21,8 @@ var auth = require('../../utils/auth');
 var challenge = require('../../utils/challenge');
 var rewards = require('../../utils/challenge-rewards');
 var request = require('../../utils/request');
+// 学段 → 镇守 Boss（第 30 关用暗紫卡 + 立绘，和首页 Boss 预告同源）
+var bossLadder = require('../../utils/boss-ladder');
 
 // 关卡规模与默认解锁数：取自 utils/constants.js（与首页「继续挑战」共用同一口径，避免漂移）
 var LEVELS_PER_GRADE = constants.LEVELS_PER_GRADE;
@@ -32,7 +34,10 @@ var LEVEL_SUB = '10 题 · 一题一次机会';
 Page({
   data: {
     grades: [],             // 学段列表（来自 GRADES，REQ-DICT-1）
-    currentGradeIndex: 0,   // 当前选中的学段下标
+    currentGradeIndex: 0,   // 当前学段下标（由全局年级 ww_last_grade 推导）
+    currentGradeLabel: '',  // 当前年级名（只读展示 + 打开选择器）
+    gradeKey: '',           // 当前年级 key（传给 grade-picker）
+    gradePickerVisible: false,
     typeGroups: [],         // 题型分类 chips（{ key,label,count }，仅含可用分类，综合恒在）
     currentType: 'all',     // 当前题型分类 key（'all' = 综合）
     currentTypeLabel: '',   // 当前分类 label（关卡行标签用）
@@ -41,8 +46,16 @@ Page({
     gradeEarnedStars: 0,    // 进度卡：当前分类已得星星数
     gradeTotalStars: 30,    // 进度卡：星星总数（10 关 × 3 星）
     gradeStarPercent: 0,    // 进度卡：星星进度百分比 0~100
-    isChallengeView: true,  // 当前是否「挑战主线」视图（综合 = 主线，具体分类 = 自由练）
-    chests: []              // 挑战主线里程碑宝箱（P3）
+    isChallengeView: true,  // true=主线视图（首页进入）；false=自由玩视图（玩法页 ?mode= 进入）
+    chests: [],             // 挑战主线里程碑宝箱（P3）
+
+    // —— 2026-10-17 头部瘦身 + 二级分段 ——
+    // 2026-10-18 入口收敛：本页不再有「主线 / 自由练」分段，
+    // 视图只由入口决定（首页=主线；玩法页 ?mode= 进来=自由玩），所以没有 viewTab 状态。
+    freeGroups: [],         // 自由玩可选的 chips（玩法线 + 题型，不含「挑战主线」）
+    continueIndex: -1,      // 「继续第 N 关」对应的 levels 下标
+    continueLabel: '',      // 例：⚔️ 继续第 12 关
+    continueSub: ''         // 例：词语连连看 · 已通关 11/30
   },
 
   onLoad: function (options) {
@@ -51,8 +64,21 @@ Page({
     var _mode = _opt.mode ? String(_opt.mode) : '';
     var _lineKey = _mode ? (_mode.indexOf('mode_') === 0 ? _mode : challenge.lineKeyOf(_mode)) : '';
     if (challenge.isLineKey(_lineKey)) this.setData({ currentType: _lineKey });
-    // 初始化学段列表（7 个学段，REQ-DICT-1）
-    this.setData({ grades: constants.GRADES });
+    // 初始化学段列表（14 个学段，REQ-DICT-1）
+    // 2026-10-18：年级变成全局学习设置，本页只读它；没设置过就先弹一次选择器
+    var grades = constants.GRADES;
+    var saved = storage.getLastGrade();
+    var idx = 0;
+    for (var gi = 0; gi < grades.length; gi++) {
+      if (grades[gi].key === saved) { idx = gi; break; }
+    }
+    this.setData({
+      grades: grades,
+      currentGradeIndex: idx,
+      currentGradeLabel: grades[idx].label,
+      gradeKey: grades[idx].key,
+      gradePickerVisible: !saved
+    });
     this.refreshLevels();
   },
 
@@ -61,19 +87,32 @@ Page({
     this.refreshLevels();
   },
 
-  // 切换学段 tab（REQ-DICT-1）
-  pickGrade: function (e) {
-    var index = e.currentTarget.dataset.index;
-    if (index === this.data.currentGradeIndex) return;
-    this.setData({ currentGradeIndex: index });
-    // 2026-10-09 修（用户反馈「主页的先选年级没办法选择」）：
-    // 原来这里只切了页面内的下标，**没有把年级写回 lastGrade** ——
-    // 而首页那条「先选一下你的年级」引导条判的就是「lastGrade 是否为空」，
-    // 于是玩家明明选了年级，返回首页引导条还在，看起来就像"选了没用/点不动"。
-    // 进关卡开打时（openLevel）也会写，但那时已经晚了：玩家可能只想先选个年级。
-    var g = (this.data.grades || [])[index];
-    if (g && g.key) storage.setLastGrade(g.key);
+  // 年级是全局设置（2026-10-18）：本页不再有 14 个 tab，只读展示 + 点开选择器
+  openGradePicker: function () {
+    this.setData({ gradePickerVisible: true });
+  },
+  onGradeClose: function () {
+    this.setData({ gradePickerVisible: false });
+  },
+  onGradePick: function (e) {
+    var key = (e && e.detail && e.detail.key) || '';
+    if (!key) return;
+    var grades = this.data.grades || [];
+    var idx = 0;
+    for (var i = 0; i < grades.length; i++) {
+      if (grades[i].key === key) { idx = i; break; }
+    }
+    storage.setLastGrade(key);
+    this._autoScrolled = false;   // 换年级后重新允许自动滚到当前关
+    this.setData({
+      currentGradeIndex: idx,
+      currentGradeLabel: grades[idx].label,
+      gradeKey: key,
+      gradePickerVisible: false
+    });
     this.refreshLevels();
+    wx.pageScrollTo({ scrollTop: 0, duration: 0 });
+    wx.showToast({ title: '已切换到' + grades[idx].label, icon: 'none' });
   },
 
   // 切换题型分类 chip
@@ -132,12 +171,17 @@ Page({
       lineChips.push({
         key: challenge.lineKeyOf(lineModeKey),
         label: lineMeta.emoji + ' ' + lineMeta.label,
-        count: LEVELS_PER_GRADE,
-        badge: lineProg.cleared + '/' + LEVELS_PER_GRADE,
+        // 玩法线是 30 关（challenge.LEVELS_PER_GRADE）；不能复用页面里的
+        // LEVELS_PER_GRADE（那是「按题型自由练」的 10 关）—— 之前这里显示成「x/10」，
+        // 与实际 30 关进度对不上（2026-10-17 截图复查发现）。
+        count: challenge.LEVELS_PER_GRADE,
+        badge: lineProg.cleared + '/' + challenge.LEVELS_PER_GRADE,
         line: true
       });
     }
     typeGroups = typeGroups.slice(0, 1).concat(lineChips, typeGroups.slice(1));
+    // 自由练的 chips = 玩法线 + 题型（去掉「挑战主线」那一枚）
+    var freeGroups = typeGroups.filter(function (g) { return g.key !== 'all'; });
 
     var typeKey = this.data.currentType;
     if (typeKey !== 'all' && !counts[typeKey] && !challenge.isLineKey(typeKey)) typeKey = 'all';
@@ -166,8 +210,31 @@ Page({
       ? Math.round(gradeEarnedStars / gradeTotalStars * 100)
       : 0;
 
+    // —— 「继续第 N 关」：当前视图里首个待挑战的行；全通关则回落到最后一个已解锁关（刷星）——
+    var continueIndex = -1;
+    for (var ci = 0; ci < levels.length; ci++) {
+      if (levels[ci].state === 'cur') { continueIndex = ci; break; }
+    }
+    if (continueIndex < 0) {
+      for (var cj = levels.length - 1; cj >= 0; cj--) {
+        if (levels[cj].unlocked) { continueIndex = cj; break; }
+      }
+    }
+    var cRow = continueIndex >= 0 ? levels[continueIndex] : null;
+    var continueLabel = '';
+    var continueSub = '';
+    if (cRow) {
+      var cSub = cRow.kindLabel || typeLabel || (this.data.grades[this.data.currentGradeIndex] || {}).label || '';
+      continueLabel = (cRow.isBoss ? '👑 Boss 战 · 第 ' : '⚔️ 继续第 ') + cRow.level + ' 关';
+      continueSub = cSub + (cRow.stars > 0 ? ' · 已通关，可刷星' : ' · 点这里直接开打');
+    }
+
     this.setData({
       typeGroups: typeGroups,
+      freeGroups: freeGroups,
+      continueIndex: continueIndex,
+      continueLabel: continueLabel,
+      continueSub: continueSub,
       currentType: typeKey,
       currentTypeLabel: typeLabel,
       levels: levels,
@@ -178,7 +245,34 @@ Page({
       isChallengeView: typeKey === 'all',
       isLineView: isLineView,
       chests: chests
-    });
+    }, function () {
+      // 首次进入自动滚到当前关（2026-10-17）：30 关长列表，否则要手动滑很久。
+      // 只做一次，返回本页时不打断用户对刚打完那一关的视线。
+      if (!this._autoScrolled) {
+        this._autoScrolled = true;
+        this._scrollToCurrent();
+      }
+    }.bind(this));
+  },
+
+  /** 主线视图底部的「想自由玩？」→ 玩法 tab（2026-10-18 入口收敛） */
+  goFreePlay: function () {
+    wx.switchTab({ url: '/pages/playlist/playlist' });
+  },
+
+  /** 滚到当前关（selector 方案，不依赖行高常量） */
+  _scrollToCurrent: function () {
+    if (this.data.continueIndex < 0) return;
+    // 只在前几屏之外才滚动：当前关在列表前 8 行时，一屏就能看到，
+    // 强行滚动反而把学段 tab / 分段选择滚出屏幕（首版 offsetTop 负值踩过这个坑）。
+    if (this.data.continueIndex < 8) return;
+    setTimeout(function () {
+      wx.pageScrollTo({
+        selector: '#lv-cur',
+        duration: 0,
+        fail: function () { /* 老基础库不支持 selector 时静默降级 */ }
+      });
+    }, 60);
   },
 
   /**
@@ -191,6 +285,7 @@ Page({
    */
   _buildChallengeRows: function (key, loggedIn) {
     var rows = challenge.levelsOf(key);
+    var boss = bossLadder.bossOf(key);
     var levels = [];
     var earnedStars = 0;
     var curIdx = -1;
@@ -214,8 +309,13 @@ Page({
         shaking: false,
         kindLabel: row.modeEmoji + ' ' + row.modeLabel,
         sub: row.sub,
-        // 终关 Boss（第 30 关）：行上加徽标、整行换成金色描边（见 level.wxss 的 .lvrow.boss）
-        isBoss: !!row.isBoss
+        // 每 5 关一个段落标题（30 关列表找关不再靠硬滑）
+        groupLabel: ((n - 1) % 5 === 0) ? ('第 ' + n + '–' + Math.min(n + 4, rows.length) + ' 关') : '',
+        // 终关 Boss（第 30 关）：暗紫卡 + 立绘，与首页 Boss 预告同一套映射
+        isBoss: !!row.isBoss,
+        bossName: row.isBoss ? boss.name : '',
+        bossImg: row.isBoss ? boss.image : '',
+        bossEmoji: row.isBoss ? boss.emoji : ''
       });
     }
     // 两遍定 state：先知道「首个已解锁但没满星」的位置，才能标出「继续挑战」
@@ -264,6 +364,7 @@ Page({
         // 同一条线里玩法固定，行上不再重复玩法名（页面副标题已经写明），只留难度摘要
         kindLabel: '',
         sub: row.sub,
+        groupLabel: ((n - 1) % 5 === 0) ? ('第 ' + n + '–' + Math.min(n + 4, rows.length) + ' 关') : '',
         isBoss: false
       });
     }
@@ -300,6 +401,7 @@ Page({
       it.state = this._stateOf(it, j === curIdx);
       it.kindLabel = typeLabel;   // 关卡标签：当前题型分类
       it.sub = LEVEL_SUB;
+      it.groupLabel = ((it.level - 1) % 5 === 0) ? ('第 ' + it.level + '–' + Math.min(it.level + 4, LEVELS_PER_GRADE) + ' 关') : '';
       it.lockTip = this._lockTipOf(it);
     }
     return { levels: levels, earnedStars: earnedStars, totalStars: LEVELS_PER_GRADE * 3 };
@@ -365,6 +467,22 @@ Page({
 
   onLevelTap: function (e) {
     var index = e.currentTarget.dataset.index;
+    this._openLevel(index);
+  },
+
+  /** 点「继续第 N 关」置顶条：直接开打当前关（不用在列表里找） */
+  tapContinue: function () {
+    var idx = this.data.continueIndex;
+    if (idx == null || idx < 0) return;
+    this._openLevel(idx);
+  },
+
+  /**
+   * 进入某一关（原 onLevelTap 主体，抽出来给「继续第 N 关」复用）。
+   * @param {number} index levels 下标
+   */
+  _openLevel: function (index) {
+    index = parseInt(index, 10);
     var card = this.data.levels[index];
     if (!card) return;
 

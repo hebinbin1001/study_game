@@ -9,7 +9,7 @@ module.exports = {
       "a": "ability",
       "hint": "能力",
       "py": "ability",
-      "ipa": "əbˈɪlətˌi"
+      "ipa": "əˈbɪlətˌi"
     },
     {
       "type": "w1",
@@ -25,7 +25,7 @@ module.exports = {
       "a": "accept",
       "hint": "接受",
       "py": "accept",
-      "ipa": "əksˈɛpt"
+      "ipa": "əkˈsɛpt"
     },
     {
       "type": "w1",
@@ -33,7 +33,7 @@ module.exports = {
       "a": "achieve",
       "hint": "实现",
       "py": "achieve",
-      "ipa": "ətʃˈiːv"
+      "ipa": "əˈtʃiːv"
     },
     {
       "type": "w1",
@@ -41,7 +41,7 @@ module.exports = {
       "a": "activity",
       "hint": "活动",
       "py": "activity",
-      "ipa": "æktˈɪvɪti"
+      "ipa": "ækˈtɪvɪti"
     },
     {
       "type": "w1",
@@ -57,7 +57,7 @@ module.exports = {
       "a": "advice",
       "hint": "建议",
       "py": "advice",
-      "ipa": "ədvˈaɪs"
+      "ipa": "ədˈvaɪs"
     },
     {
       "type": "w1",
@@ -65,7 +65,7 @@ module.exports = {
       "a": "afford",
       "hint": "负担得起",
       "py": "afford",
-      "ipa": "əfˈɔːd"
+      "ipa": "əˈfɔːd"
     },
     {
       "type": "w1",
@@ -73,7 +73,7 @@ module.exports = {
       "a": "agree",
       "hint": "同意",
       "py": "agree",
-      "ipa": "əɡrˈiː"
+      "ipa": "əˈɡriː"
     },
     {
       "type": "w1",
@@ -81,7 +81,7 @@ module.exports = {
       "a": "allow",
       "hint": "允许",
       "py": "allow",
-      "ipa": "əlˈaʊ"
+      "ipa": "əˈlaʊ"
     },
     {
       "type": "w1",
@@ -97,7 +97,7 @@ module.exports = {
       "a": "appear",
       "hint": "出现",
       "py": "appear",
-      "ipa": "əpˈiə"
+      "ipa": "əˈpiə"
     },
     {
       "type": "w1",
@@ -105,7 +105,7 @@ module.exports = {
       "a": "arrive",
       "hint": "到达",
       "py": "arrive",
-      "ipa": "ərˈaɪv"
+      "ipa": "əˈraɪv"
     },
     {
       "type": "w1",
@@ -113,7 +113,7 @@ module.exports = {
       "a": "attention",
       "hint": "注意",
       "py": "attention",
-      "ipa": "ətˈɛnʃən"
+      "ipa": "əˈtɛnʃən"
     },
     {
       "type": "w1",
@@ -129,7 +129,7 @@ module.exports = {
       "a": "balance",
       "hint": "平衡",
       "py": "balance",
-      "ipa": "bˈæləns"
+      "ipa": "ˈbæləns"
     },
     {
       "type": "w1",
@@ -137,7 +137,7 @@ module.exports = {
       "a": "believe",
       "hint": "相信",
       "py": "believe",
-      "ipa": "bɪlˈiːv"
+      "ipa": "bɪˈliːv"
     },
     {
       "type": "w1",
@@ -145,7 +145,7 @@ module.exports = {
       "a": "benefit",
       "hint": "利益",
       "py": "benefit",
-      "ipa": "bˈɛnɪfˌɪt"
+      "ipa": "ˈbɛnɪfˌɪt"
     },
     {
       "type": "w1",
@@ -153,7 +153,7 @@ module.exports = {
       "a": "beyond",
       "hint": "超过",
       "py": "beyond",
-      "ipa": "bɪjˈɒnd"
+      "ipa": "bɪˈjɒnd"
     },
     {
       "type": "w1",
@@ -169,7 +169,7 @@ module.exports = {
       "a": "border",
       "hint": "边界",
       "py": "border",
-      "ipa": "bˈɔːdə"
+      "ipa": "ˈbɔːdə"
     },
     {
       "type": "w1",
@@ -177,7 +177,7 @@ module.exports = {
       "a": "breathe",
       "hint": "呼吸",
       "py": "breathe",
-      "ipa": "brˈiːð"
+      "ipa": "briːð"
     },
     {
       "type": "w1",
@@ -185,7 +185,7 @@ module.exports = {
       "a": "calculate",
       "hint": "计算",
       "py": "calculate",
-      "ipa": "kˈælkjʊlˌeɪt"
+      "ipa": "ˈkælkjʊlˌeɪt"
     },
     {
       "type": "w1",
@@ -193,7 +193,7 @@ module.exports = {
       "a": "capable",
       "hint": "有能力的",
       "py": "capable",
-      "ipa": "kˈeɪpəbəl"
+      "ipa": "ˈkeɪpəbəl"
     },
     {
       "type": "w1",
@@ -201,7 +201,7 @@ module.exports = {
       "a": "career",
       "hint": "职业",
       "py": "career",
-      "ipa": "kərˈiə"
+      "ipa": "kəˈriə"
     },
     {
       "type": "w1",
@@ -209,7 +209,7 @@ module.exports = {
       "a": "celebrate",
       "hint": "庆祝",
       "py": "celebrate",
-      "ipa": "sˈɛləbrˌeɪt"
+      "ipa": "ˈsɛləbrˌeɪt"
     },
     {
       "type": "w1",
@@ -217,7 +217,7 @@ module.exports = {
       "a": "century",
       "hint": "世纪",
       "py": "century",
-      "ipa": "sˈɛntʃəri"
+      "ipa": "ˈsɛntʃəri"
     },
     {
       "type": "w1",
@@ -225,7 +225,7 @@ module.exports = {
       "a": "certain",
       "hint": "确定的",
       "py": "certain",
-      "ipa": "sˈɜːtən"
+      "ipa": "ˈsɜːtən"
     },
     {
       "type": "w1",
@@ -233,7 +233,7 @@ module.exports = {
       "a": "challenge",
       "hint": "挑战",
       "py": "challenge",
-      "ipa": "tʃˈælɪndʒ"
+      "ipa": "ˈtʃælɪndʒ"
     },
     {
       "type": "w1",
@@ -241,7 +241,7 @@ module.exports = {
       "a": "character",
       "hint": "性格",
       "py": "character",
-      "ipa": "kˈærɪktə"
+      "ipa": "ˈkærɪktə"
     },
     {
       "type": "w1",
@@ -249,7 +249,7 @@ module.exports = {
       "a": "chemistry",
       "hint": "化学",
       "py": "chemistry",
-      "ipa": "kˈɛmɪstri"
+      "ipa": "ˈkɛmɪstri"
     },
     {
       "type": "w1",
@@ -257,7 +257,7 @@ module.exports = {
       "a": "choice",
       "hint": "选择",
       "py": "choice",
-      "ipa": "tʃˈɔɪs"
+      "ipa": "tʃɔɪs"
     },
     {
       "type": "w1",
@@ -265,7 +265,7 @@ module.exports = {
       "a": "choose",
       "hint": "选择",
       "py": "choose",
-      "ipa": "tʃˈuːz"
+      "ipa": "tʃuːz"
     },
     {
       "type": "w1",
@@ -273,7 +273,7 @@ module.exports = {
       "a": "climate",
       "hint": "气候",
       "py": "climate",
-      "ipa": "klˈaɪmət"
+      "ipa": "ˈklaɪmət"
     },
     {
       "type": "c2",
@@ -512,7 +512,7 @@ module.exports = {
       "a": "about",
       "hint": "关于",
       "py": "about",
-      "ipa": "əbˈaʊt"
+      "ipa": "əˈbaʊt"
     },
     {
       "type": "w1",
@@ -520,7 +520,7 @@ module.exports = {
       "a": "above",
       "hint": "在……上方",
       "py": "above",
-      "ipa": "əbˈʌv"
+      "ipa": "əˈbʌv"
     },
     {
       "type": "w1",
@@ -528,7 +528,7 @@ module.exports = {
       "a": "across",
       "hint": "穿过",
       "py": "across",
-      "ipa": "əkrˈɒs"
+      "ipa": "əˈkrɒs"
     },
     {
       "type": "w1",
@@ -544,7 +544,7 @@ module.exports = {
       "a": "again",
       "hint": "再一次",
       "py": "again",
-      "ipa": "əɡˈɛn"
+      "ipa": "əˈɡɛn"
     },
     {
       "type": "w1",
@@ -552,7 +552,7 @@ module.exports = {
       "a": "against",
       "hint": "反对",
       "py": "against",
-      "ipa": "əɡˈɛnst"
+      "ipa": "əˈɡɛnst"
     },
     {
       "type": "w1",
@@ -560,7 +560,7 @@ module.exports = {
       "a": "ago",
       "hint": "以前",
       "py": "ago",
-      "ipa": "əɡˈəʊ"
+      "ipa": "əˈɡəʊ"
     },
     {
       "type": "w1",
@@ -568,7 +568,7 @@ module.exports = {
       "a": "air",
       "hint": "空气",
       "py": "air",
-      "ipa": "ˈeə"
+      "ipa": "eə"
     },
     {
       "type": "w1",
@@ -576,7 +576,7 @@ module.exports = {
       "a": "alone",
       "hint": "独自",
       "py": "alone",
-      "ipa": "əlˈəʊn"
+      "ipa": "əˈləʊn"
     },
     {
       "type": "w1",
@@ -584,7 +584,7 @@ module.exports = {
       "a": "along",
       "hint": "沿着",
       "py": "along",
-      "ipa": "əlˈɒŋ"
+      "ipa": "əˈlɒŋ"
     },
     {
       "type": "w1",
@@ -592,7 +592,7 @@ module.exports = {
       "a": "already",
       "hint": "已经",
       "py": "already",
-      "ipa": "ɔːlrˈɛdi"
+      "ipa": "ɔːlˈrɛdi"
     },
     {
       "type": "w1",
@@ -608,7 +608,7 @@ module.exports = {
       "a": "although",
       "hint": "虽然",
       "py": "although",
-      "ipa": "ɒlðˈəʊ"
+      "ipa": "ɒlˈðəʊ"
     },
     {
       "type": "w1",
@@ -616,7 +616,7 @@ module.exports = {
       "a": "among",
       "hint": "在……之中",
       "py": "among",
-      "ipa": "əmˈʌŋ"
+      "ipa": "əˈmʌŋ"
     },
     {
       "type": "w1",
@@ -624,7 +624,7 @@ module.exports = {
       "a": "another",
       "hint": "另一个",
       "py": "another",
-      "ipa": "ənˈʌðə"
+      "ipa": "əˈnʌðə"
     },
     {
       "type": "w1",
@@ -640,7 +640,7 @@ module.exports = {
       "a": "around",
       "hint": "在周围",
       "py": "around",
-      "ipa": "ərˈaʊnd"
+      "ipa": "əˈraʊnd"
     },
     {
       "type": "w1",
@@ -648,7 +648,7 @@ module.exports = {
       "a": "asleep",
       "hint": "睡着的",
       "py": "asleep",
-      "ipa": "əslˈiːp"
+      "ipa": "əˈsliːp"
     },
     {
       "type": "w1",
@@ -656,7 +656,7 @@ module.exports = {
       "a": "awake",
       "hint": "醒着的",
       "py": "awake",
-      "ipa": "əwˈeɪk"
+      "ipa": "əˈweɪk"
     },
     {
       "type": "w1",
@@ -664,7 +664,7 @@ module.exports = {
       "a": "away",
       "hint": "离开",
       "py": "away",
-      "ipa": "əwˈeɪ"
+      "ipa": "əˈweɪ"
     },
     {
       "type": "w1",
@@ -672,7 +672,7 @@ module.exports = {
       "a": "baby",
       "hint": "婴儿",
       "py": "baby",
-      "ipa": "bˈeɪbi"
+      "ipa": "ˈbeɪbi"
     },
     {
       "type": "w1",
@@ -680,7 +680,7 @@ module.exports = {
       "a": "back",
       "hint": "后面",
       "py": "back",
-      "ipa": "bˈæk"
+      "ipa": "bæk"
     },
     {
       "type": "w1",
@@ -688,7 +688,7 @@ module.exports = {
       "a": "bad",
       "hint": "坏的",
       "py": "bad",
-      "ipa": "bˈæd"
+      "ipa": "bæd"
     },
     {
       "type": "w1",
@@ -696,7 +696,7 @@ module.exports = {
       "a": "band",
       "hint": "乐队",
       "py": "band",
-      "ipa": "bˈænd"
+      "ipa": "bænd"
     },
     {
       "type": "w1",
@@ -704,7 +704,7 @@ module.exports = {
       "a": "basic",
       "hint": "基本的",
       "py": "basic",
-      "ipa": "bˈeɪsɪk"
+      "ipa": "ˈbeɪsɪk"
     },
     {
       "type": "w1",
@@ -712,7 +712,7 @@ module.exports = {
       "a": "beat",
       "hint": "打败",
       "py": "beat",
-      "ipa": "bˈiːt"
+      "ipa": "biːt"
     },
     {
       "type": "w1",
@@ -720,7 +720,7 @@ module.exports = {
       "a": "because",
       "hint": "因为",
       "py": "because",
-      "ipa": "bɪkˈʌz"
+      "ipa": "bɪˈkʌz"
     },
     {
       "type": "w1",
@@ -728,7 +728,7 @@ module.exports = {
       "a": "become",
       "hint": "成为",
       "py": "become",
-      "ipa": "bɪkˈʌm"
+      "ipa": "bɪˈkʌm"
     },
     {
       "type": "w1",
@@ -736,7 +736,7 @@ module.exports = {
       "a": "before",
       "hint": "在……之前",
       "py": "before",
-      "ipa": "bɪfˈɔː"
+      "ipa": "bɪˈfɔː"
     },
     {
       "type": "w1",
@@ -744,7 +744,7 @@ module.exports = {
       "a": "below",
       "hint": "在下面",
       "py": "below",
-      "ipa": "bɪlˈəʊ"
+      "ipa": "bɪˈləʊ"
     },
     {
       "type": "w1",
@@ -752,7 +752,7 @@ module.exports = {
       "a": "beside",
       "hint": "在旁边",
       "py": "beside",
-      "ipa": "bɪsˈaɪd"
+      "ipa": "bɪˈsaɪd"
     },
     {
       "type": "w1",
@@ -760,7 +760,7 @@ module.exports = {
       "a": "between",
       "hint": "在……之间",
       "py": "between",
-      "ipa": "bɪtwˈiːn"
+      "ipa": "bɪˈtwiːn"
     },
     {
       "type": "w1",
@@ -768,7 +768,7 @@ module.exports = {
       "a": "birth",
       "hint": "出生",
       "py": "birth",
-      "ipa": "bˈɜːθ"
+      "ipa": "bɜːθ"
     },
     {
       "type": "w1",
@@ -776,7 +776,7 @@ module.exports = {
       "a": "bitter",
       "hint": "苦的",
       "py": "bitter",
-      "ipa": "bˈɪtə"
+      "ipa": "ˈbɪtə"
     },
     {
       "type": "w1",
@@ -784,7 +784,7 @@ module.exports = {
       "a": "blind",
       "hint": "失明的",
       "py": "blind",
-      "ipa": "blˈaɪnd"
+      "ipa": "blaɪnd"
     },
     {
       "type": "w1",
@@ -792,7 +792,7 @@ module.exports = {
       "a": "block",
       "hint": "街区",
       "py": "block",
-      "ipa": "blˈɒk"
+      "ipa": "blɒk"
     },
     {
       "type": "w1",
@@ -800,7 +800,7 @@ module.exports = {
       "a": "blood",
       "hint": "血液",
       "py": "blood",
-      "ipa": "blˈʌd"
+      "ipa": "blʌd"
     },
     {
       "type": "w1",
@@ -808,7 +808,7 @@ module.exports = {
       "a": "blow",
       "hint": "吹",
       "py": "blow",
-      "ipa": "blˈəʊ"
+      "ipa": "bləʊ"
     },
     {
       "type": "w1",
@@ -816,7 +816,7 @@ module.exports = {
       "a": "board",
       "hint": "木板",
       "py": "board",
-      "ipa": "bˈɔːd"
+      "ipa": "bɔːd"
     },
     {
       "type": "w1",
@@ -824,7 +824,7 @@ module.exports = {
       "a": "bone",
       "hint": "骨头",
       "py": "bone",
-      "ipa": "bˈəʊn"
+      "ipa": "bəʊn"
     },
     {
       "type": "w1",
@@ -832,7 +832,7 @@ module.exports = {
       "a": "bottle",
       "hint": "瓶子",
       "py": "bottle",
-      "ipa": "bˈɒtəl"
+      "ipa": "ˈbɒtəl"
     },
     {
       "type": "w1",
@@ -840,7 +840,7 @@ module.exports = {
       "a": "bottom",
       "hint": "底部",
       "py": "bottom",
-      "ipa": "bˈɒtəm"
+      "ipa": "ˈbɒtəm"
     },
     {
       "type": "w1",
@@ -848,7 +848,7 @@ module.exports = {
       "a": "bowl",
       "hint": "碗",
       "py": "bowl",
-      "ipa": "bˈəʊl"
+      "ipa": "bəʊl"
     },
     {
       "type": "w1",
@@ -856,7 +856,7 @@ module.exports = {
       "a": "box",
       "hint": "盒子",
       "py": "box",
-      "ipa": "bˈɒks"
+      "ipa": "bɒks"
     },
     {
       "type": "w1",
@@ -864,7 +864,7 @@ module.exports = {
       "a": "brain",
       "hint": "大脑",
       "py": "brain",
-      "ipa": "brˈeɪn"
+      "ipa": "breɪn"
     },
     {
       "type": "w1",
@@ -872,7 +872,7 @@ module.exports = {
       "a": "branch",
       "hint": "树枝",
       "py": "branch",
-      "ipa": "brˈɑːntʃ"
+      "ipa": "brɑːntʃ"
     },
     {
       "type": "w1",
@@ -880,7 +880,7 @@ module.exports = {
       "a": "break",
       "hint": "打破",
       "py": "break",
-      "ipa": "brˈeɪk"
+      "ipa": "breɪk"
     },
     {
       "type": "w1",
@@ -888,7 +888,7 @@ module.exports = {
       "a": "bright",
       "hint": "明亮的",
       "py": "bright",
-      "ipa": "brˈaɪt"
+      "ipa": "braɪt"
     },
     {
       "type": "w1",
@@ -896,7 +896,7 @@ module.exports = {
       "a": "bring",
       "hint": "带来",
       "py": "bring",
-      "ipa": "brˈɪŋ"
+      "ipa": "brɪŋ"
     },
     {
       "type": "w1",
@@ -904,7 +904,7 @@ module.exports = {
       "a": "broad",
       "hint": "宽阔的",
       "py": "broad",
-      "ipa": "brˈɔːd"
+      "ipa": "brɔːd"
     },
     {
       "type": "w1",
@@ -912,7 +912,7 @@ module.exports = {
       "a": "build",
       "hint": "建造",
       "py": "build",
-      "ipa": "bˈɪld"
+      "ipa": "bɪld"
     },
     {
       "type": "w1",
@@ -920,7 +920,7 @@ module.exports = {
       "a": "burn",
       "hint": "燃烧",
       "py": "burn",
-      "ipa": "bˈɜːn"
+      "ipa": "bɜːn"
     },
     {
       "type": "w1",
@@ -928,7 +928,7 @@ module.exports = {
       "a": "business",
       "hint": "生意",
       "py": "business",
-      "ipa": "bˈɪznəs"
+      "ipa": "ˈbɪznəs"
     },
     {
       "type": "w1",
@@ -936,7 +936,7 @@ module.exports = {
       "a": "busy",
       "hint": "忙碌的",
       "py": "busy",
-      "ipa": "bˈɪzi"
+      "ipa": "ˈbɪzi"
     },
     {
       "type": "w1",
@@ -944,7 +944,7 @@ module.exports = {
       "a": "butter",
       "hint": "黄油",
       "py": "butter",
-      "ipa": "bˈʌtə"
+      "ipa": "ˈbʌtə"
     },
     {
       "type": "w1",
@@ -952,7 +952,7 @@ module.exports = {
       "a": "button",
       "hint": "纽扣",
       "py": "button",
-      "ipa": "bˈʌtən"
+      "ipa": "ˈbʌtən"
     },
     {
       "type": "w1",
@@ -960,7 +960,7 @@ module.exports = {
       "a": "cancel",
       "hint": "取消",
       "py": "cancel",
-      "ipa": "kˈænsəl"
+      "ipa": "ˈkænsəl"
     },
     {
       "type": "w1",
@@ -968,7 +968,7 @@ module.exports = {
       "a": "careful",
       "hint": "仔细的",
       "py": "careful",
-      "ipa": "kˈeəfəl"
+      "ipa": "ˈkeəfəl"
     },
     {
       "type": "w1",
@@ -976,7 +976,7 @@ module.exports = {
       "a": "carry",
       "hint": "携带",
       "py": "carry",
-      "ipa": "kˈæri"
+      "ipa": "ˈkæri"
     },
     {
       "type": "w1",
@@ -984,7 +984,7 @@ module.exports = {
       "a": "catch",
       "hint": "抓住",
       "py": "catch",
-      "ipa": "kˈætʃ"
+      "ipa": "kætʃ"
     },
     {
       "type": "w1",
@@ -992,7 +992,7 @@ module.exports = {
       "a": "cause",
       "hint": "原因",
       "py": "cause",
-      "ipa": "kˈɔːz"
+      "ipa": "kɔːz"
     },
     {
       "type": "w1",
@@ -1000,7 +1000,7 @@ module.exports = {
       "a": "centre",
       "hint": "中心",
       "py": "centre",
-      "ipa": "sˈɛntə"
+      "ipa": "ˈsɛntə"
     },
     {
       "type": "w1",
@@ -1008,7 +1008,7 @@ module.exports = {
       "a": "chance",
       "hint": "机会",
       "py": "chance",
-      "ipa": "tʃˈɑːns"
+      "ipa": "tʃɑːns"
     },
     {
       "type": "w1",
@@ -1016,7 +1016,7 @@ module.exports = {
       "a": "change",
       "hint": "改变",
       "py": "change",
-      "ipa": "tʃˈeɪndʒ"
+      "ipa": "tʃeɪndʒ"
     },
     {
       "type": "w1",
@@ -1024,7 +1024,7 @@ module.exports = {
       "a": "cheap",
       "hint": "便宜的",
       "py": "cheap",
-      "ipa": "tʃˈiːp"
+      "ipa": "tʃiːp"
     },
     {
       "type": "w1",
@@ -1032,7 +1032,7 @@ module.exports = {
       "a": "check",
       "hint": "检查",
       "py": "check",
-      "ipa": "tʃˈɛk"
+      "ipa": "tʃɛk"
     },
     {
       "type": "w1",
@@ -1040,7 +1040,7 @@ module.exports = {
       "a": "circle",
       "hint": "圆圈",
       "py": "circle",
-      "ipa": "sˈɜːkəl"
+      "ipa": "ˈsɜːkəl"
     },
     {
       "type": "w1",
@@ -1048,7 +1048,7 @@ module.exports = {
       "a": "clear",
       "hint": "清楚的",
       "py": "clear",
-      "ipa": "klˈiə"
+      "ipa": "ˈkliə"
     },
     {
       "type": "w1",
@@ -1056,7 +1056,7 @@ module.exports = {
       "a": "clever",
       "hint": "聪明的",
       "py": "clever",
-      "ipa": "klˈɛvə"
+      "ipa": "ˈklɛvə"
     },
     {
       "type": "w1",
@@ -1064,7 +1064,7 @@ module.exports = {
       "a": "climb",
       "hint": "攀登",
       "py": "climb",
-      "ipa": "klˈaɪm"
+      "ipa": "klaɪm"
     },
     {
       "type": "w1",
@@ -1072,7 +1072,7 @@ module.exports = {
       "a": "cloud",
       "hint": "云",
       "py": "cloud",
-      "ipa": "klˈaʊd"
+      "ipa": "klaʊd"
     },
     {
       "type": "w1",
@@ -1080,7 +1080,7 @@ module.exports = {
       "a": "coast",
       "hint": "海岸",
       "py": "coast",
-      "ipa": "kˈəʊst"
+      "ipa": "kəʊst"
     },
     {
       "type": "w1",
@@ -1088,7 +1088,7 @@ module.exports = {
       "a": "collect",
       "hint": "收集",
       "py": "collect",
-      "ipa": "kəˈɫɛkt"
+      "ipa": "kəˈlɛkt"
     },
     {
       "type": "w1",
@@ -1096,7 +1096,7 @@ module.exports = {
       "a": "colour",
       "hint": "颜色",
       "py": "colour",
-      "ipa": "kˈʌlə"
+      "ipa": "ˈkʌlə"
     },
     {
       "type": "w1",
@@ -1104,7 +1104,7 @@ module.exports = {
       "a": "comfortable",
       "hint": "舒适的",
       "py": "comfortable",
-      "ipa": "kˈʌmftəbəl"
+      "ipa": "ˈkʌmftəbəl"
     },
     {
       "type": "w1",
@@ -1112,7 +1112,7 @@ module.exports = {
       "a": "common",
       "hint": "普通的",
       "py": "common",
-      "ipa": "kˈɒmən"
+      "ipa": "ˈkɒmən"
     },
     {
       "type": "w1",
@@ -1120,7 +1120,7 @@ module.exports = {
       "a": "company",
       "hint": "公司",
       "py": "company",
-      "ipa": "kˈʌmpəni"
+      "ipa": "ˈkʌmpəni"
     },
     {
       "type": "w1",
@@ -1128,7 +1128,7 @@ module.exports = {
       "a": "compare",
       "hint": "比较",
       "py": "compare",
-      "ipa": "kəmpˈeə"
+      "ipa": "kəmˈpeə"
     },
     {
       "type": "w1",
@@ -1136,7 +1136,7 @@ module.exports = {
       "a": "complete",
       "hint": "完成",
       "py": "complete",
-      "ipa": "kəmplˈiːt"
+      "ipa": "kəmˈpliːt"
     },
     {
       "type": "w1",
@@ -1144,7 +1144,7 @@ module.exports = {
       "a": "condition",
       "hint": "条件",
       "py": "condition",
-      "ipa": "kəndˈɪʃən"
+      "ipa": "kənˈdɪʃən"
     },
     {
       "type": "w1",
@@ -1152,7 +1152,7 @@ module.exports = {
       "a": "continue",
       "hint": "继续",
       "py": "continue",
-      "ipa": "kəntˈɪnjuː"
+      "ipa": "kənˈtɪnjuː"
     }
   ]
 };

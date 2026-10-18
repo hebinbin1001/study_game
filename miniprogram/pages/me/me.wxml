@@ -13,6 +13,8 @@
           <text class="meta-chip">⭐ {{rankStars}}</text>
         </block>
         <text wx:else class="meta-chip">游客模式 · 数据仅存本机</text>
+        <!-- 年级是全局学习设置（2026-10-18）：资料卡里直接可见可点，避免藏在菜单里找不到 -->
+        <text class="meta-chip" catchtap="openGradePicker">🏫 {{gradeLabel}} ›</text>
       </view>
     </view>
     <view class="edit-hint {{loggedIn ? '' : 'hint-login'}}">{{loggedIn ? '📝 编辑' : '🔑 登录'}}</view>
@@ -51,18 +53,22 @@
     </view>
   </view>
 
-  <!-- 功能菜单 -->
-  <view class="menu-card">
-    <view
-      wx:for="{{menu}}"
-      wx:key="name"
-      class="menu-row"
-      data-url="{{item.url}}"
-      data-action="{{item.action}}"
-      bindtap="onMenuTap">
-      <text class="menu-emoji">{{item.emoji}}</text>
-      <text class="menu-name">{{item.name}}</text>
-      <text class="menu-arrow">›</text>
+  <!-- 功能菜单（2026-10-17 分组：成长 / 对战 / 学习；重复入口保留不删，只归位） -->
+  <view class="menu-group" wx:for="{{menuGroups}}" wx:for-item="grp" wx:key="title">
+    <view class="menu-group-title">{{grp.title}}</view>
+    <view class="menu-card">
+      <view
+        wx:for="{{grp.items}}"
+        wx:for-item="item"
+        wx:key="name"
+        class="menu-row"
+        data-url="{{item.url}}"
+        data-action="{{item.action}}"
+        bindtap="onMenuTap">
+        <text class="menu-emoji">{{item.emoji}}</text>
+        <text class="menu-name">{{item.name}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
     </view>
   </view>
 
@@ -72,7 +78,14 @@
     <view class="danger-row danger-row--red" bindtap="goDeleteAccount">注销账号</view>
   </view>
 
-  <!-- 连点 5 次进管理后台（隐藏入口，主流做法；普通用户看不到任何入口） -->
-  <view class="version" bindtap="onVersionTap">词力战士 · Word Warrior v1.2.0</view>
+  <!-- 底部：协议（低频，从菜单移到这里）+ 版本号（连点 5 次进管理后台，普通用户看不到入口） -->
+  <view class="version-row">
+    <text class="version-link" bindtap="goAgreement">用户协议与隐私政策</text>
+    <text class="version" bindtap="onVersionTap">词力战士 · Word Warrior v1.2.0</text>
+  </view>
   <view class="safe-gap"></view>
+
+  <!-- 全局年级选择器（2026-10-18）：年级是学习设置，只在这里和页面里的年级文字处修改 -->
+  <grade-picker visible="{{gradePickerVisible}}" value="{{gradeKey}}"
+    bind:pick="onGradePick" bind:close="onGradeClose" />
 </view>

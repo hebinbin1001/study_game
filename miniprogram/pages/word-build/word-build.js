@@ -29,6 +29,7 @@ Page({
     settle: false,
     win: false,
     starsText: '',
+    hintText: '',
     overMsg: '',
     best: 0,
     challenge: false,      // 是否挑战主线关卡（true 时成绩写 <grade>@challenge@<level>）
@@ -113,7 +114,7 @@ Page({
     this._score = 0;
     this._right = 0;
     this._hintLeft = lib.HINTS;
-    this.setData({ settle: false, win: false, starsText: '', overMsg: '', slotsCls: '' });
+    this.setData({ settle: false, win: false, starsText: '', overMsg: '', slotsCls: '', hintText: '' });
     if (!this._queue.length) {
       wx.showToast({ title: '本地词库没有可用单词', icon: 'none' });
       return;
@@ -250,6 +251,7 @@ Page({
       win: stars >= 1,
       starsText: stars > 0 ? '⭐'.repeat(stars) : '',
       overMsg: msg,
+      hintText: challenge.starHint(this._right, total, stars >= 1, '题'),
       best: best
     });
   },

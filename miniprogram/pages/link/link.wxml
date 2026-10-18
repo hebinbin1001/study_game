@@ -1,22 +1,20 @@
 <!-- 词语连连看（B6-5） -->
 <view class="page-link">
-  <view class="g-head">
-    <button class="btn-back" bindtap="goBack">返回</button>
-    <view class="g-title">词语连连看</view>
-    <view class="g-chip" bindtap="newRound">{{gradeLabel}} · 换局</view>
-  </view>
+  <!-- 2026-10-17：删掉页内「返回 + 标题」（原生导航栏已有）。原「换局」胶囊并进 HUD 行，功能不丢。 -->
 
   <view class="hud">
     <view class="hud-chip">❤{{lives}}</view>
-    <view class="hud-chip">剩 {{left}} 牌</view>
-    <view class="hud-chip">连连看配对</view>
+    <view class="hud-chip">配对 {{matched}}/{{pairsTotal}} 对</view>
+    <view class="hud-chip" bindtap="newRound">{{gradeLabel}} · 换局</view>
+    <!-- 战士徽章：并进 HUD 行（原来 fixed 悬浮会压住棋盘/提示条） -->
+    <warrior-badge size="sm" />
   </view>
 
   <view class="board b-tray b-in">
     <view
       wx:for="{{cards}}"
       wx:key="i"
-      class="tile b-face b-press {{item.t === 'w' ? 'word' : ''}} {{item.sel ? 'b-sel' : ''}} {{item.gone ? 'gone' : ''}} {{item.err ? 'err' : ''}}"
+      class="tile b-face b-press {{item.t === 'w' ? 'word' : ''}} {{item.long ? 'long' : ''}} {{item.sel ? 'b-sel' : ''}} {{item.gone ? 'gone' : ''}} {{item.err ? 'err' : ''}}"
       data-idx="{{index}}"
       bindtap="tapCard">{{item.lab}}</view>
   </view>
@@ -24,18 +22,21 @@
   <view class="tip">{{tip}}</view>
 
   <!-- 结算 -->
-  <view wx:if="{{over}}" class="over-mask">
-    <view class="over-card">
-      <view class="o-stars">{{win ? starsText : '💔'}}</view>
-      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '全部连上！' : '生命耗尽'}}</view>
-      <button wx:if="{{showNext && win}}" class="btn b2" bindtap="onNext">下一关 ▶</button>
-      <button class="btn b1" bindtap="newRound">再来一局</button>
-    </view>
-  </view>
+  <!-- 结算统一走公共组件（2026-10-17）：原来这页自己画遮罩，星星/按钮与其它玩法不一致 -->
+  <settle-pop
+    visible="{{over}}"
+    win="{{win}}"
+    stars-text="{{win ? starsText : ''}}"
+    title="{{win ? '全部连上！' : '生命耗尽'}}"
+    hint="{{hintText}}"
+    show-next="{{showNext && win}}"
+    next-text="下一关 ▶"
+    bind:retry="newRound"
+    bind:next="onNext">
+    <button class="btn btn-ghost" bindtap="goBack">返回关卡</button>
+  </settle-pop>
 
   <view class="safe-gap"></view>
 </view>
 
-<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
-     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
-<warrior-badge fixed="{{true}}" size="sm" />
+

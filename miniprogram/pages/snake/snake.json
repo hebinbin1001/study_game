@@ -1,5 +1,7 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "settle-pop": "/components/settle-pop/settle-pop"
+  },
   "disableScroll": true,
   "navigationBarTitleText": "单词贪吃蛇",
   "navigationBarBackgroundColor": "#5aa9e6",

@@ -6,7 +6,7 @@
   padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+  background: linear-gradient(180deg, #4a9fe8 0%, #7dbdf2 32%, #b9e0ff 64%, #d8efff 100%);
 }
 /* 头部/HUD 胶囊统一到 app.wxss 的 .g-head/.g-title/.g-chip/.hud/.hud-chip（2026-09-12 视觉统一） */
 .back-pill {
@@ -46,7 +46,9 @@
 .lv-no { font-size: 44rpx; font-weight: 900; color: #3a3a5c; }
 .lv-size { font-size: 20rpx; color: #8a9bb5; margin-top: 4rpx; }
 .lv-stars { position: absolute; top: 6rpx; right: 10rpx; font-size: 20rpx; color: #ffb703; font-weight: 900; }
-.lv-lock { position: absolute; font-size: 30rpx; }
+/* 锁标放右上角（2026-10-17）：绝对定位不写 top/right 会退回文档流位置，
+   正好压在关卡号上（截图里 3/4/5… 全被 🔒 盖住）。 */
+.lv-lock { position: absolute; top: 6rpx; right: 10rpx; font-size: 24rpx; }
 .lv-node.next .lv-size { color: #ff8f00; }
 
 .tip-note { flex: 0 0 auto; text-align: center; font-size: 22rpx; color: #4a6b8a; opacity: 1; margin: 0 0 8rpx; }

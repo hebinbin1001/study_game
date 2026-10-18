@@ -4,6 +4,9 @@
     <view wx:else class="o-stars">💔</view>
     <view class="o-title {{win ? '' : 'fail'}}">{{title || (win ? '通关成功！' : '再接再厉！')}}</view>
     <view wx:if="{{msg}}" class="o-msg">{{msg}}</view>
+    <!-- 「差一点」提示（2026-10-17）：星级是三档硬阈值，差 1 题就掉档，
+         这里明确告诉玩家还差多少，比只显示结果更能推动重玩。 -->
+    <view wx:if="{{hint}}" class="o-hint">{{hint}}</view>
 
     <!-- 页面自定义操作区 -->
     <view class="ops"><slot></slot></view>

@@ -86,8 +86,11 @@ s.test('口径一致性护栏：签到页阶梯与后端 MILESTONE 对齐，服�
     'daily.js 打卡后应重算段位星（而不是直接 stars +=）');
 
   // 3) 签到路由同样不得直接累加星星（会被重算覆盖）——先去掉行注释再检查，避免注释里的说明误伤
-  const stripLineComments = (src) => src.split('\n')
-    .map((line) => line.replace(/\/\/.*$/, '')).join('\n');
+  //    2026-10-18 修：原来按行 replace(/\/\/.*$/) 剥离，遇到 CRLF 行尾时 `.` 不匹配 \r、
+  //    `$` 又不匹配换行前的位置，注释根本没被剥掉 → checkin.js 里那句
+  //    「⚠️ 不再直接 stars += 奖励」的说明被当成真代码，护栏误报（文件本身是 CRLF）。
+  //    改为不依赖行尾的写法：直接吃掉每行 // 之后的全部非换行字符。
+  const stripLineComments = (src) => src.replace(/\/\/[^\r\n]*/g, '');
   const checkinSrc = fs.readFileSync(path.join(ROOT, 'server/routes/checkin.js'), 'utf8');
   s.assert.ok(stripLineComments(checkinSrc).indexOf('stars +=') < 0,
     'checkin.js 不应直接 stars += 奖励');
