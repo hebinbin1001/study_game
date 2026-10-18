@@ -335,6 +335,12 @@ Page({
 
   _nextQuestion: function () {
     if (this._over) return;
+    // 题量到顶就结算（2026-10-18 修）
+    //   原来只有 _pickItem() 返回 null 才结束 —— 那是挑战关「固定题序用完了」的情况。
+    //   自由练 / 题库关卡（level 页不带 challenge=1 进来的）题目是从词库随机取的，
+    //   只要该学段词够多就永远取得到 → 打满 10 题后还能继续，永远不结算。
+    //   用户反馈「做到超过 10 题了还是没过关」就是这个。
+    if (this._answered >= this._totalQ) { this._finish(true); return; }
     var item = this._pickItem();
     if (!item) { this._finish(true); return; }
 
