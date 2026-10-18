@@ -180,31 +180,6 @@
 .op-i { display: block; font-size: 32rpx; }
 .op-t { display: block; font-size: 20rpx; color: #5c7f9e; font-weight: 800; margin-top: 4rpx; }
 
-/* 方向键：十字布局 */
-.k-pad {
-  position: relative;
-  width: 260rpx; height: 200rpx;
-  margin: 18rpx auto 0;
-}
-.pad-btn {
-  position: absolute;
-  width: 78rpx; height: 78rpx; line-height: 78rpx; text-align: center;
-  background: rgba(255, 255, 255, .95);
-  border-radius: 20rpx;
-  font-size: 28rpx; font-weight: 900; color: #3a3a5c;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .12);
-}
-.pad-btn.up { left: 91rpx; top: 0; }
-.pad-btn.left { left: 4rpx; top: 108rpx; }
-.pad-btn.down { left: 91rpx; top: 108rpx; }
-.pad-btn.right { left: 178rpx; top: 108rpx; }
-/* 按下反馈：没反馈时玩家会以为按钮没生效 */
-.pad-btn--tap {
-  background: #ffb703;
-  color: #fff;
-  transform: translateY(4rpx);
-  box-shadow: 0 2rpx 0 rgba(0, 0, 0, .12);
-}
 
 /* ============ 结算按钮（settle-pop 插槽） ============ */
 .s-btns { display: flex; flex-direction: column; gap: 16rpx; width: 100%; }

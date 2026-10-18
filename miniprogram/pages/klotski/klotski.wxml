@@ -68,7 +68,7 @@
     </view>
 
     <!-- 棋盘：5×4；棋子用百分比定位，天然适配任意屏宽 -->
-    <view class="k-board">
+    <view class="k-board" style="{{boardStyle}}">
       <!-- 底格（出口高亮） -->
       <view
         wx:for="{{cells}}"
@@ -100,7 +100,7 @@
     <view class="k-tip" wx:if="{{hint}}">
       💡 把高亮的棋子向 {{hint.dx > 0 ? '右' : (hint.dx < 0 ? '左' : (hint.dy > 0 ? '下' : '上'))}} 滑 {{hint.dist}} 格（整体最少还需 {{hint.left}} 步）
     </view>
-    <view class="k-tip dim" wx:else>{{selected >= 0 ? '已选中棋子 · 按方向键让它滑到底（一次算 1 步）' : '拖动棋子滑到尽头 · 或点一下棋子再按方向键'}}</view>
+    <view class="k-tip dim" wx:else>拖动棋子滑到尽头 · 一次连续滑动算 1 步</view>
 
     <!-- 操作区 -->
     <view class="k-ops">
@@ -110,13 +110,7 @@
       <view class="op" bindtap="demo"><text class="op-i">▶️</text><text class="op-t">演示</text></view>
     </view>
 
-    <!-- 方向键（点选棋子后按方向：沿该方向滑到尽头，与拖动同为 1 步） -->
-    <view class="k-pad">
-      <view class="pad-btn up" data-dir="up" bindtap="nudge" hover-class="pad-btn--tap">▲</view>
-      <view class="pad-btn left" data-dir="left" bindtap="nudge" hover-class="pad-btn--tap">◀</view>
-      <view class="pad-btn down" data-dir="down" bindtap="nudge" hover-class="pad-btn--tap">▼</view>
-      <view class="pad-btn right" data-dir="right" bindtap="nudge" hover-class="pad-btn--tap">▶</view>
-    </view>
+    <!-- 2026-10-18：方向键已删除 —— 拖拽本身就是主操作，方向键既占高度又与星级口径纠缠 -->
     <view class="safe-gap"></view>
 
     <!-- 结算（公共弹层；外面裹一层页面级容器，便于端到端断言"弹层已挂载"） -->
@@ -127,7 +121,8 @@
         stars-text="{{starsText}}"
         title="{{settleTitle}}"
         msg="{{settleMsg}}"
-        show-retry="{{false}}">
+        show-retry="{{false}}"
+        custom-ops="{{true}}">
         <view class="s-btns">
           <button class="s-btn primary" bindtap="goNext" wx:if="{{curLevel < totalLevels}}">下一关 ▶</button>
           <button class="s-btn" bindtap="again">重玩本关</button>
