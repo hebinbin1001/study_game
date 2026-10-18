@@ -31,6 +31,26 @@ const iconOk = app.tabBar.list.every(
 );
 check(iconOk, 'tabBar 图标文件存在');
 
+// 1.5) 每个页面都必须有 navigationBarTitleText（2026-10-18 全量体检发现）
+//
+// 不写的话标题栏会退回 app.json 的全局默认值（本项目是「词力战士」），
+// 表现就是：进「排行榜 / 错题本 / 学习报告」这些页，顶部一律写着「词力战士」，
+// 和页面内容对不上，用户会以为进错页。这类问题不报错、不崩溃，只有肉眼看得出。
+// 体检时一次抓到 9 个页面（achievement / avatar / checkin / level-editor /
+// level-share / rank / report / wrong-book / wrong-review），这里钉住防回潮。
+(function checkPageTitles() {
+  const missing = app.pages.filter((p) => {
+    const f = `miniprogram/${p}.json`;
+    if (!fs.existsSync(f)) return true;
+    let j = null;
+    try { j = JSON.parse(fs.readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')); } catch (e) { return true; }
+    return !j.navigationBarTitleText;
+  });
+  check(missing.length === 0,
+    `每个页面都设置了 navigationBarTitleText（共 ${app.pages.length} 页）`
+    + (missing.length ? `，缺：${missing.join(', ')}` : ''));
+})();
+
 // 2) 组件文件（B5）
 ['game-hud', 'settle-pop'].forEach((c) => {
   const ok = ['js', 'json', 'wxml', 'wxss'].every((e) => fs.existsSync(`miniprogram/components/${c}/${c}.${e}`));

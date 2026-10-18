@@ -18,6 +18,7 @@
 /* 清空按钮压在输入框里（负 margin 让它在 flex 布局里不额外占位） */
 .wb-search-clear {
   flex: 0 0 auto;
+  position: relative; /* 2026-10-18：配合 ::after 扩大点击热区 */
   width: 52rpx; height: 52rpx; line-height: 52rpx; text-align: center;
   border-radius: 50%;
   background: #eef3fa;
@@ -25,6 +26,16 @@
   font-size: 26rpx;
   margin-left: -74rpx;
   margin-right: 8rpx;
+}
+/* 视觉仍是 52rpx 的小圆点，命中区放大到 88rpx（约 44px），不占布局空间 */
+.wb-search-clear::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 88rpx;
+  height: 88rpx;
+  transform: translate(-50%, -50%);
 }
 .wb-search-btn {
   flex: 0 0 auto;

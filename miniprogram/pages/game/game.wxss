@@ -28,6 +28,7 @@
 }
 .gs-icon {
   flex: 0 0 auto;
+  position: relative; /* 2026-10-18：配合 ::after 扩大点击热区 */
   width: 56rpx;
   height: 56rpx;
   border-radius: 16rpx;
@@ -38,6 +39,17 @@
   font-weight: 900;
   color: #5c7f9e;
   background: #eaf3fb;
+}
+/* 视觉仍是 56rpx 的小图标，但手指命中区放大到 88rpx（约 44px），
+   不改变排版、不影响相邻元素（伪元素不占布局空间）。 */
+.gs-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 88rpx;
+  height: 88rpx;
+  transform: translate(-50%, -50%);
 }
 .gs-dots {
   flex: 1 1 auto;
