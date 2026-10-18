@@ -1,7 +1,9 @@
 /* 数独页（B6 闯关模式） */
 .page-sudoku {
+  /* 2026-10-18：删掉 height: 100vh —— 选关视图有 60 关，比一屏长，
+     固定高度会让下半部分没有背景（用户反馈「文字超过一页，背景没跟上」）。
+     保留 min-height，短内容仍铺满一屏，长内容自然长高、背景跟着走。 */
   min-height: 100vh;
-  height: 100vh;
   box-sizing: border-box;
   padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;

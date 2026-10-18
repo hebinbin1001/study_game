@@ -5,6 +5,49 @@
 
 ---
 
+## 2026-10-18（长页面背景断层：内容超过一屏后背景没跟上）
+
+### 问题
+
+用户反馈「有些界面文字超过一页显示，背景没有跟上」——典型是成就、词库、错题本这类长列表页，
+往下滚一屏之后背景没了（白底）。
+
+### 根因
+
+`app.wxss` 的 `page` 上写了：
+
+```css
+background: linear-gradient(...);
+background-attachment: fixed;
+```
+
+微信 WebView 对 `fixed` 背景的实现与浏览器不同：**背景只按首屏视口绘制**，
+内容超过一屏后滚动出来的区域不再铺背景（iOS 上必现，Android 视机型）。
+所有「自己没有设置背景、依赖全局 page 背景」的页面（成就 / 词库 / 错题本 / 错题复习 /
+赛季 / PK / 每日挑战 / 对局页 …）都受影响。
+
+### 改法
+
+1. 删掉 `background-attachment: fixed`，让渐变跟随 `page` 高度拉伸；
+2. 补一层兜底 `background-color: #d8efff` —— 万一某些老版本 WebView 对渐变裁剪仍有偏差，
+   露出来也是浅蓝而不是刺眼的白；
+3. `sudoku` 页的 `.page-sudoku` 同时写着 `min-height: 100vh; height: 100vh`，
+   选关视图有 60 关、比一屏长，固定高度同样会截断背景 —— 删掉 `height: 100vh`，
+   保留 `min-height`，长内容自然长高。
+
+### 护栏
+
+- `e2e/check-wxss.js` 新增检查项 6：全仓 WXSS 禁止 `background-attachment: fixed`
+  （先剥注释再匹配，避免把解释这条规则的注释误判成违规）；
+- `node e2e/run-all.js --no-e2e` → 7/7 PASS（WXSS 检查 49 个文件全过）。
+
+### 说明
+
+这条是微信 WebView 的实现差异，桌面 Chrome 复现不出来，所以没有截图回归；
+建议在真机上滑一遍成就页 / 词库页确认。
+
+---
+
 ## 2026-10-18（排行榜里的英文玩法名）
 
 ### 问题

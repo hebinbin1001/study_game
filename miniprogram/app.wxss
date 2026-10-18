@@ -22,9 +22,15 @@ page {
   --gold: #ffd166;      /* 星星/成就金 */
   --danger: #ff5a5a;    /* 危险/错误红 */
 
-  /* 暖色天空渐变背景 */
+  /* 暖色天空渐变背景
+     2026-10-18：去掉 background-attachment: fixed。
+     微信 WebView（iOS 尤其明显）里固定背景只铺「首屏视口」，内容一旦超过一屏，
+     滚动出来的下半部分就没有背景（用户反馈「文字超过一页，背景没跟上」）。
+     改为跟随 page 高度拉伸，长列表页也能铺满。 */
   background: linear-gradient(180deg, #5aa9e6 0%, #a3d5ff 60%, #d8efff 100%);
-  background-attachment: fixed;
+  /* 兜底底色：万一某个老版本 WebView 对长页面渐变的裁剪仍有偏差，
+     露出来的也是浅蓝而不是刺眼的白 */
+  background-color: #d8efff;
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   color: #3a3a5c;
   font-size: 28rpx;
