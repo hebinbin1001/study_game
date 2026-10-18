@@ -49,4 +49,34 @@ s.test('nameOf：未知 key 原样返回（便于后台一眼发现新玩法没�
   s.assert.equal(names.nameOf(null), '');
 });
 
+// ============ 排行榜的玩法元信息（2026-10-18） ============
+// 用户反馈「排行榜有些是英文」：服务端 19 个玩法，排行榜页面只登记了 14 个，
+// 剩下 5 个（quiz/pattern/clock/maze/hanoi）直接渲染成 game_type 英文 key。
+// 这里把「排行榜元信息 ⊇ 后端玩法表」钉死，新增玩法忘了登记就会红。
+s.test('排行榜 GAME_META 覆盖全部后端玩法，中文名与服务端一致', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages/rank/rank.js'), 'utf8');
+  const map = {};
+  const re = /\{ key: '([^']+)', label: '([^']+)', icon: '[^']*', game: '([a-z0-9_]+)', needGrade: (true|false) \}/g;
+  let m;
+  while ((m = re.exec(src))) map[m[3]] = { label: m[2], needGrade: m[4] === 'true' };
+
+  names.GAME_TYPES.forEach((t) => {
+    s.assert.ok(map[t], t + ' 未在排行榜 GAME_META 登记 —— 榜单上会显示成英文 key');
+    s.assert.equal(map[t].label, names.GAME_NAMES[t],
+      t + ' 在排行榜叫「' + (map[t] && map[t].label) + '」，服务端叫「' + names.GAME_NAMES[t] + '」');
+  });
+});
+
+s.test('排行榜里没有服务端不认识的玩法（避免出现点不进去的死卡片）', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages/rank/rank.js'), 'utf8');
+  const games = [...src.matchAll(/game: '([a-z0-9_]+)'/g)].map((x) => x[1]);
+  games.forEach((g) => {
+    s.assert.ok(names.GAME_NAMES[g], '排行榜登记了后端没有的玩法：' + g);
+  });
+});
+
 s.done();
