@@ -11,7 +11,9 @@
  *   3) button 文字垂直居中（原生 button 默认 line-height 2.55555556 约 46px，
  *      写死 height 却不写 line-height 会让文字贴顶）；
  *   4) 半成品深色模式（只改 page 底色的 prefers-color-scheme: dark 媒体查询）；
- *   5) 组件按需注入必须开启（lazyCodeLoading: "requiredComponents"）。
+ *   5) 组件按需注入必须开启（lazyCodeLoading: "requiredComponents"）；
+ *   6) 不允许 background-attachment: fixed —— 微信 WebView（iOS 尤其）里固定背景只铺首屏，
+ *      长页面滚动出来的部分没有背景（2026-10-18 用户反馈「背景没跟上」）。
  *
  * 用法：node e2e/check-wxss.js
  * 退出码：0 全部通过；1 存在问题（逐条打印文件与行号）。
@@ -110,6 +112,21 @@ for (const file of files) {
         bad++;
       }
     }
+  }
+}
+
+// ============ 6）禁止 background-attachment: fixed（长页面背景断层）============
+// 微信 WebView 对 fixed 背景的实现与浏览器不同：背景只按首屏视口绘制，
+// 内容超过一屏后滚动出来的区域没有背景（iOS 上必现，Android 视机型）。
+// 正确做法：让背景跟随 page 高度拉伸（默认行为），或给页面根容器单独设背景。
+for (const file of files) {
+  // 先去掉注释：本仓库的注释里会解释这条规则本身，不能把它误判成违规
+  const src = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const rel = path.relative(ROOT, file);
+  if (/background-attachment\s*:\s*fixed/i.test(src)) {
+    console.log('[FAIL] ' + rel + ': 不允许 background-attachment: fixed —— '
+      + '长页面滚动后下半部分会没有背景；请删除该声明，让渐变跟随页面高度拉伸。');
+    bad++;
   }
 }
 
