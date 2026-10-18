@@ -15,7 +15,7 @@
     <view
       wx:for="{{levels}}"
       wx:key="no"
-      class="pl-row {{item.state}}"
+      class="pl-row {{item.state}} {{item.inProgress ? 'resume' : ''}}"
       data-index="{{index}}"
       bindtap="onLevelTap">
       <view class="pl-no">{{item.locked ? '🔒' : item.no}}</view>
@@ -25,7 +25,8 @@
       </view>
       <view class="pl-rt">
         <view wx:if="{{item.bestText}}" class="pl-best">{{item.bestText}}</view>
-        <view wx:if="{{item.done}}" class="pl-go">重玩 ›</view>
+        <view wx:if="{{item.inProgress}}" class="pl-resume">继续 ›</view>
+        <view wx:elif="{{item.done}}" class="pl-go">重玩 ›</view>
         <view wx:elif="{{item.locked}}" class="pl-lock">未解锁</view>
         <view wx:else class="pl-go pl-go--cur">{{item.state === 'cur' ? '开始 ›' : '去玩 ›'}}</view>
       </view>

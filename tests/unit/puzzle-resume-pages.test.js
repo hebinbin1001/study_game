@@ -22,6 +22,7 @@ global.wx = {
   removeStorageSync: function (k) { delete store[k]; },
   showToast: function () {},
   navigateBack: function () {},
+  setNavigationBarTitle: function () {},
   createSelectorQuery: function () {
     return {
       select: function () {
@@ -324,6 +325,35 @@ s.test('数独：题面 + 答案 + 已填值 + 扣命恢复', () => {
   s.assert.equal(b.data.lives, 2, '扣过的命不能回满');
   s.assert.equal(b.data.mistakes, 1);
   s.assert.deepEqual(b._answer, answer, '答案必须原样恢复，否则后面全判错');
+});
+
+// ==================== 关卡列表标记 ====================
+s.test('关卡列表把「没打完的那一关」标出来（继续 ›）', () => {
+  reset('klotski');
+  resume.save('klotski', 5, {
+    pieces: [
+      { glyph: '曹', name: '曹操', kind: 'cao', x: 1, y: 0, w: 2, h: 2 },
+      { glyph: '兵', name: '兵', kind: 's', x: 0, y: 0, w: 1, h: 1 },
+      { glyph: '兵', name: '兵', kind: 's', x: 0, y: 1, w: 1, h: 1 },
+      { glyph: '兵', name: '兵', kind: 's', x: 0, y: 2, w: 1, h: 1 },
+      { glyph: '兵', name: '兵', kind: 's', x: 0, y: 3, w: 1, h: 1 },
+      { glyph: '关', name: '关羽', kind: 'h', x: 1, y: 0, w: 2, h: 1 },
+      { glyph: '张', name: '张飞', kind: 'v', x: 3, y: 0, w: 1, h: 2 },
+      { glyph: '赵', name: '赵云', kind: 'v', x: 3, y: 2, w: 1, h: 2 }
+    ],
+    moves: 9
+  });
+  const def = loadPage('puzzle-level/puzzle-level');
+  const p = makePage(def);
+  p._mode = 'klotski';
+  p._game = { key: 'klotski', name: '华容道', icon: '', desc: '' };
+  p._refresh();
+  const row5 = p.data.levels.filter(function (r) { return r.no === 5; })[0];
+  const row4 = p.data.levels.filter(function (r) { return r.no === 4; })[0];
+  s.assert.ok(row5, '第 5 关应在列表里');
+  s.assert.true(row5.inProgress, '有断点的关卡应标记 inProgress');
+  s.assert.false(row4.inProgress, '没有断点的关卡不能误标');
+  reset('klotski');
 });
 
 // ==================== 源码级护栏 ====================

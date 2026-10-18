@@ -7,6 +7,7 @@ var catalog = require('../../utils/game-catalog');
 var puzLv = require('../../utils/puzzle-levels');
 var progress = require('../../utils/puzzle-progress');
 var storage = require('../../utils/storage');
+var resume = require('../../utils/puzzle-resume');
 
 var DEFAULT_UNLOCKED = 3;      // 前 3 关默认解锁，与题库类关卡页同口径
 
@@ -59,6 +60,8 @@ Page({
     var game = this._game;
     var rows = puzLv.levelsOf(mode);
     var cleared = progress.clearedOf(mode);
+    // 断点续玩（2026-10-18）：哪一关有「没打完的一局」，列表上标出来（点了会自动接着上一局）
+    var snapNo = resume.levelOf(mode);
     // 通关判定取两个来源的并集：
     //   · 24点/数独/华容道/2048 会把星级写进 ww_stars（key 就是玩法名）
     //   · 其余玩法用 puzzle-progress 记录
@@ -80,6 +83,7 @@ Page({
         sub: r.sub,
         done: r.done,
         locked: locked,
+        inProgress: !r.done && r.no === snapNo,
         state: r.done ? 'done' : (locked ? 'lock' : (r.no === nextNo ? 'cur' : 'open')),
         bestText: best ? ('最快 ' + (best / 1000).toFixed(1) + ' 秒') : ''
       };
