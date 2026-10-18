@@ -32,6 +32,10 @@ const GAME_NAMES = {
   g2048: '2048',
   memory: '记忆矩阵',
   onestroke: '一笔画',
+  pattern: '找规律',
+  clock: '认钟表',
+  maze: '算术迷宫',
+  hanoi: '汉诺塔',
   klotski: '华容道'
 };
 

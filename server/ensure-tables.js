@@ -98,7 +98,7 @@ const COLUMNS = [
   {
     table: 'users',
     column: 'book',
-    ddl: 'ALTER TABLE `users` ADD COLUMN `book` VARCHAR(8) NULL COMMENT \'教材版本（空=通用/pep/wys/bjb）\''
+    ddl: 'ALTER TABLE `users` ADD COLUMN `book` VARCHAR(8) NULL COMMENT \'教材版本（空=通用/pep/wys）\''
   }
 ];
 

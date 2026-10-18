@@ -1,10 +1,7 @@
 <!-- 华容道（数字智力玩法 · A 类固定关卡；纯 CSS 方块，无图片素材） -->
 <view class="page-klotski">
-  <view class="k-head">
-    <button class="btn-back" bindtap="goBack">返回</button>
-    <view class="k-title">🧩 华容道</view>
-    <view class="k-chip" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + totalLevels + ' 关') : '选关'}}</view>
-  </view>
+  <!-- 2026-10-17：删掉页内「返回 + 标题 + 选关胶囊」（原生导航栏已有返回与页面名）；
+       关卡与步数在选关分组/对局 HUD 里都有，「关卡列表」按钮也保留。 -->
 
   <!-- ============ 选关（按档位分组） ============ -->
   <block wx:if="{{!playing}}">
@@ -27,13 +24,16 @@
           data-no="{{lv.no}}"
           bindtap="pickLevel">
           <view class="kg-no">{{lv.locked ? '🔒' : lv.no}}</view>
-          <view class="kg-name">{{lv.name}}</view>
-          <view class="kg-meta">{{lv.minMoves}} 步</view>
-          <view class="kg-stars">
-            <text class="ks {{lv.starArr[0] ? 'on' : ''}}">★</text>
-            <text class="ks {{lv.starArr[1] ? 'on' : ''}}">★</text>
-            <text class="ks {{lv.starArr[2] ? 'on' : ''}}">★</text>
-          </view>
+          <!-- 锁定格只留「第 N 关」：名字/最短步数/三颗空星对未解锁玩家没有信息量（2026-10-17） -->
+          <view class="kg-name">{{lv.locked ? '第 ' + lv.no + ' 关' : lv.name}}</view>
+          <block wx:if="{{!lv.locked}}">
+            <view class="kg-meta">{{lv.minMoves}} 步</view>
+            <view class="kg-stars">
+              <text class="ks {{lv.starArr[0] ? 'on' : ''}}">★</text>
+              <text class="ks {{lv.starArr[1] ? 'on' : ''}}">★</text>
+              <text class="ks {{lv.starArr[2] ? 'on' : ''}}">★</text>
+            </view>
+          </block>
         </view>
       </view>
     </view>

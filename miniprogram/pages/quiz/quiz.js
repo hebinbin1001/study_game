@@ -271,6 +271,7 @@ Page({
       win: stars >= 1,
       starsText: stars > 0 ? '⭐'.repeat(stars) : '',
       overMsg: lines.join('\n'),
+      hintText: challenge.starHint(this._right, this._totalQ, stars >= 1, '题'),
       best: best
     });
     if (stars >= 1) audio.playWin();

@@ -1,302 +1,358 @@
-/* 首页 Tab —— UI token 对齐 demo；O1 全机型自适应（rpx 宽自适应 + 长内容滚动 + 安全区） */
+/* 首页 Tab —— 二期重构（2026-10-18）
+ *
+ * 三条用户反馈驱动的结构变化：
+ *   ① 战士区瘦身：只留立绘 + 名字/段位 + 等级 + 一条进度 + 一行皮肤，
+ *      原来 5 格皮肤条（skin-strip）不再铺开；
+ *   ② Boss 与出战合并成一张「下一战」卡（深色信息条 + 橙色动作区），
+ *      不再出现两张互相抢主视觉的大卡；
+ *   ③ 今日目标 / 每日一题 / 每日挑战 收进同一张今日任务卡。
+ *
+ * 段位只保留立绘左侧一处（点它进段位详情），HUD 不再重复。
+ * 铺满策略：page-home 仍纵向 flex + min-height:100vh，内容不足时底部留白由 safe-gap 收口。
+ */
+
 .page-home {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 16rpx 32rpx 0;
-  background: #F5F7FB;
+  display: flex;
+  flex-direction: column;
+  padding: 12rpx 24rpx 0;
+  background: linear-gradient(180deg, #4a9fe8 0%, #7dbdf2 32%, #b9e0ff 64%, #d8efff 100%);
 }
 
-/* Header */
-.head {
+/* ============ ① HUD 胶囊条（段位胶囊已移除） ============ */
+.hud-row {
   display: flex;
   align-items: center;
-  padding: 8rpx 0;
+  gap: 12rpx;
+  padding: 4rpx 0 6rpx;
 }
-.head-t { flex: 1; font-size: 40rpx; font-weight: 900; color: #333A45; }
+.hud-pill {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, .94);
+  color: #2f4a6b;
+  font-size: 22rpx;
+  font-weight: 800;
+  border-radius: 999rpx;
+  padding: 10rpx 20rpx;
+  box-shadow: 0 4rpx 0 rgba(20, 70, 140, .12);
+  white-space: nowrap;
+}
+.hud-pill__n { font-size: 26rpx; font-weight: 900; margin: 0 4rpx; }
+.hud-pill:active { transform: translateY(2rpx); }
+
+/* 年级（2026-10-18）：HUD 里唯一的「可切换项」，用蓝底白字和计数胶囊区分开，
+   避免玩家以为它跟星星一样只是个数字。 */
+.hud-pill--grade {
+  background: linear-gradient(180deg, #4a9fe8, #3b8bd6);
+  color: #fff;
+  padding-right: 14rpx;
+  box-shadow: 0 4rpx 0 rgba(20, 70, 140, .28);
+}
+.hud-pill__ic { font-size: 24rpx; margin-right: 6rpx; }
+.hud-pill__gv {
+  font-size: 23rpx;
+  font-weight: 900;
+  max-width: 150rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.hud-pill__go {
+  margin-left: 4rpx;
+  font-size: 22rpx;
+  font-weight: 900;
+  opacity: .85;
+}
+/* 没选过年级：橙色高亮，替代原来那条要滚动才看得到的引导 */
+.hud-pill--grade.is-empty {
+  background: linear-gradient(180deg, #ffb703, #f08c00);
+  box-shadow: 0 4rpx 0 rgba(190, 110, 0, .35);
+}
+.hud-sp { flex: 1; }
 .snd-btn {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 24rpx;
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 50%;
   border: none;
-  background: #fff;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  font-size: 36rpx;
-  line-height: 80rpx;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 4rpx 0 rgba(20, 70, 140, .12);
+  font-size: 30rpx;
+  /* 高度写死 → line-height 必须同值，否则文字贴顶（e2e/check-wxss.js 守这条） */
+  line-height: 68rpx;
   padding: 0;
   margin: 0;
 }
 .snd-btn::after { border: none; }
+.snd-btn:active { transform: translateY(2rpx); }
 
-/* Hero */
-.hero {
-  margin-top: 16rpx;
-  text-align: center;
-  color: #fff;
-  background: linear-gradient(160deg, #4A90E2, #7BB8F5);
-  border-radius: 40rpx;
-  padding: 40rpx 32rpx 32rpx;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-}
-.hero-av {
-  width: 140rpx;
-  height: 140rpx;
-  border-radius: 50%;
-  margin: 0 auto;
-  background: #fff;
-  border: 8rpx solid rgba(255, 255, 255, .72);
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .12);
+/* ============ ② 战士舞台（比一期矮一档） ============ */
+.w-stage { margin-top: 2rpx; }
+.w-img { width: 280rpx; height: 280rpx; }
+/* 段位名可能很长（「星耀 VII」/ 云端返回的全名），必须能省略，否则会压到立绘上 */
+.w-name, .w-rank {
+  max-width: 220rpx;
   overflow: hidden;
-  box-sizing: border-box;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.hero-img { width: 100%; height: 100%; }
-.hero-emoji { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 72rpx; }
-.hero-title { font-size: 52rpx; font-weight: 900; margin-top: 20rpx; letter-spacing: 4rpx; }
-.hero-sub { font-size: 26rpx; opacity: .92; margin-top: 6rpx; }
 
-/* 游客引导条 */
-.guestbar {
-  margin-top: 20rpx;
+/* 等级进度：直接贴舞台，天空底上不再套白卡 */
+.lv-inline {
+  margin: 2rpx 26rpx 0;
+}
+.lv-line {
+  display: flex;
+  align-items: baseline;
+  font-size: 21rpx;
+  font-weight: 800;
+  color: #ffffff;
+}
+.lv-line__t { text-shadow: 0 2rpx 0 rgba(20, 80, 150, .28); }
+.lv-line__s { margin-left: auto; color: #eaf6ff; font-weight: 700; }
+.lv-track {
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .48);
+  margin-top: 8rpx;
+  overflow: hidden;
+}
+.lv-fill {
+  height: 100%;
+  min-width: 8rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #fff2b8, #ffd166);
+  transition: width .3s;
+}
+
+/* 皮肤只留一行：收集进度 + 下一目标
+   2026-10-18 两次截图复查：深蓝字在天空底上发灰、白字又发虚 —— 改成浅白胶囊 + 深色字，最稳 */
+.skin-line {
+  align-self: center;
+  margin: 12rpx 0 0;
+  padding: 6rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .78);
+  text-align: center;
+  font-size: 21rpx;
+  font-weight: 700;
+  color: #2f5c8a;
+}
+.skin-line__n { font-weight: 900; color: #a96a00; }
+.skin-line:active { opacity: .7; }
+
+/* ============ ③ 下一战：Boss 信息 + 出战（一张卡） ============ */
+.battle {
+  margin-top: 18rpx;
+  border-radius: 30rpx;
+  padding: 20rpx;
+  background: linear-gradient(150deg, #ffc44d, #ff9d17);
+  box-shadow: 0 10rpx 0 #d98200, 0 16rpx 24rpx rgba(200, 120, 0, .22);
+}
+.boss-pill {
   display: flex;
   align-items: center;
-  gap: 16rpx;
-  background: linear-gradient(135deg, #FFF6E6, #FFF0D6);
-  border: 2rpx solid #FFE3B3;
-  border-radius: 28rpx;
-  padding: 22rpx 24rpx;
-}
-.gb-ic { font-size: 40rpx; }
-.gb-t { flex: 1; min-width: 0; }
-.gb-b { font-size: 28rpx; font-weight: 800; color: #A66A00; }
-.gb-s { font-size: 22rpx; color: #C08B4A; margin-top: 2rpx; }
-
-/* 完善资料引导条（2026-09-19）：已登录但没设昵称 = 未完成注册（不上排行榜） */
-.profilebar {
-  margin-top: 20rpx;
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  background: linear-gradient(135deg, #EEF6FF, #E3F0FF);
-  border: 2rpx solid #CFE4FB;
-  border-radius: 28rpx;
-  padding: 22rpx 24rpx;
-}
-.pb-ic { font-size: 40rpx; }
-.pb-t { flex: 1; min-width: 0; }
-.pb-b { font-size: 28rpx; font-weight: 800; color: #2C6BB3; }
-.pb-s { font-size: 22rpx; color: #6D93BD; margin-top: 2rpx; }
-.pb-btn {
-  flex-shrink: 0;
-  background: #4285F4;
+  gap: 14rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 20rpx;
+  background: rgba(58, 28, 68, .86);
   color: #fff;
+}
+.boss-pill:active { transform: translateY(2rpx); }
+.boss-pill__img { width: 84rpx; height: 84rpx; flex: 0 0 auto; }
+.boss-pill__emoji {
+  width: 84rpx;
+  height: 84rpx;
+  line-height: 84rpx;
+  text-align: center;
+  font-size: 56rpx;
+  flex: 0 0 auto;
+}
+.boss-pill__t { flex: 1; min-width: 0; }
+.boss-pill__n { font-size: 26rpx; font-weight: 900; }
+.boss-pill__s {
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  color: #f0e2f6;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.boss-pill__go { font-size: 34rpx; opacity: .7; flex: 0 0 auto; }
+
+.battle-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 20rpx;
+  color: #fff;
+}
+.battle-row:active { transform: translateY(2rpx); }
+.battle-row__ic { font-size: 52rpx; line-height: 1; flex: 0 0 auto; }
+.battle-row__t { flex: 1; min-width: 0; }
+.battle-row__b {
+  font-size: 40rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  text-shadow: 0 2rpx 0 rgba(160, 90, 0, .35);
+}
+.battle-row__s {
+  margin-top: 2rpx;
+  font-size: 21rpx;
+  color: #fff6e4;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.battle-row__stars { flex: 0 0 auto; font-size: 26rpx; font-weight: 900; color: #fff3c4; }
+.battle-row__sw {
+  flex: 0 0 auto;
+  font-size: 20rpx;
+  font-weight: 800;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .24);
+  border: 2rpx solid rgba(255, 255, 255, .55);
+}
+
+/* ============ 游客引导条 ============ */
+.guestbar {
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: rgba(255, 255, 255, .92);
+  border: 2rpx solid #ffe3b3;
+  border-radius: 24rpx;
+  padding: 18rpx 22rpx;
+  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
+}
+.guestbar:active { transform: translateY(2rpx); }
+.gb-ic { font-size: 38rpx; flex: 0 0 auto; }
+.gb-t { flex: 1; min-width: 0; }
+.gb-b { font-size: 26rpx; font-weight: 800; color: #a66a00; }
+.gb-s { font-size: 20rpx; color: #bd8b4f; margin-top: 2rpx; }
+.gb-btn {
+  flex: 0 0 auto;
+  background: #ff9a1f;
+  color: #fff;
+  border-radius: 999rpx;
+  padding: 10rpx 24rpx;
   font-size: 24rpx;
   font-weight: 800;
-  border-radius: 999rpx;
-  padding: 12rpx 26rpx;
-}
-.gb-btn {
-  background: #FF9800;
-  color: #fff;
-  border-radius: 999rpx;
-  padding: 12rpx 28rpx;
-  font-size: 26rpx;
-  font-weight: 800;
-  flex: 0 0 auto;
+  box-shadow: 0 4rpx 0 #d97c00;
 }
 .agree-link {
   text-align: center;
   font-size: 20rpx;
-  color: #9aa7bd;
-  padding: 12rpx 0 2rpx;
+  color: #6c8bb0;
+  padding: 10rpx 0 2rpx;
 }
 .agree-link:active { opacity: .7; }
 
-/* 资产条 */
-.asset-row { display: flex; gap: 20rpx; margin-top: 24rpx; }
-.asset-box {
-  flex: 1;
-  background: #fff;
-  border-radius: 28rpx;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  padding: 22rpx 8rpx;
-  text-align: center;
-  min-width: 0;
+/* ============ ④ 今日任务（目标 + 一题 + 挑战） ============ */
+.today-card {
+  margin-top: 16rpx;
+  background: rgba(255, 255, 255, .94);
+  border-radius: 26rpx;
+  padding: 20rpx 24rpx 14rpx;
+  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
 }
-.a-num {
-  font-size: 38rpx;
-  font-weight: 900;
-  color: #333A45;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.a-num--name { font-size: 32rpx; }
-.a-lab { font-size: 20rpx; color: #8A94A6; margin-top: 6rpx; }
-
-/* 通用链接行（排行/列表） */
-.link {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  margin-top: 24rpx;
-  background: #fff;
-  border-radius: 28rpx;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  padding: 24rpx 28rpx;
-}
-.link:active { opacity: .8; }
-.li {
-  width: 84rpx;
-  height: 84rpx;
-  border-radius: 24rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 44rpx;
-  background: #EEF3FD;
-  flex: 0 0 auto;
-}
-.lt { flex: 1; min-width: 0; }
-.l-b { font-size: 30rpx; font-weight: 800; color: #333A45; }
-.l-s { font-size: 22rpx; color: #8A94A6; margin-top: 4rpx; }
-.link-badge {
-  background: #EAF5FF;
-  color: #4285F4;
+.today-head { display: flex; align-items: baseline; }
+.today-t { font-size: 26rpx; font-weight: 900; color: #2f4a6b; }
+.today-s { margin-left: auto; font-size: 20rpx; color: #7d93ad; font-weight: 700; }
+.today-track {
+  height: 12rpx;
   border-radius: 999rpx;
-  padding: 8rpx 20rpx;
-  font-size: 20rpx;
-  font-weight: 800;
-  flex: 0 0 auto;
-}
-.ar { color: #C3CCDA; font-size: 36rpx; font-weight: 700; flex: 0 0 auto; }
-.ar-green { color: #34A853; }
-
-/* 今日目标卡 */
-.goal-card {
-  margin-top: 24rpx;
-  background: #fff;
-  border-radius: 28rpx;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  padding: 26rpx 28rpx;
-}
-.goal-head { display: flex; align-items: center; }
-.gt { font-size: 28rpx; font-weight: 800; color: #333A45; }
-.gsub { flex: 1; font-size: 22rpx; color: #8A94A6; text-align: right; }
-.goal-track {
-  height: 18rpx;
-  border-radius: 12rpx;
-  background: #EFF3FA;
-  margin-top: 20rpx;
+  background: #e3eefa;
+  margin-top: 14rpx;
   overflow: hidden;
 }
-.goal-fill {
+.today-fill {
   height: 100%;
-  border-radius: 12rpx;
-  background: linear-gradient(90deg, #34A853, #7BC96F);
   min-width: 6rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #3fbf5f, #7bd389);
   transition: width .3s;
 }
-.goal-foot { font-size: 22rpx; color: #8A94A6; margin-top: 14rpx; }
-
-/* 每日一题 */
-.daily {
-  margin-top: 24rpx;
-  background: #fff;
-  border-radius: 28rpx;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  padding: 24rpx 28rpx;
+.today-row {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  margin-top: 14rpx;
+  padding-top: 12rpx;
+  border-top: 2rpx dashed #e6eef8;
+  font-size: 22rpx;
+  color: #5c7f9e;
 }
-.daily:active { opacity: .8; }
-.di { font-size: 44rpx; flex: 0 0 auto; }
-.dt { flex: 1; min-width: 0; }
-.d-b { font-size: 28rpx; font-weight: 800; color: #333A45; }
-.d-s { font-size: 22rpx; color: #8A94A6; margin-top: 4rpx; }
+.today-row--nb { border-top: none; padding-top: 2rpx; }
+.today-row:active { opacity: .7; }
+.today-row__k { font-weight: 800; }
+.today-row__v { margin-left: auto; font-weight: 800; color: #c47a00; }
+.today-row__v.ok { color: #2ea56b; }
 
-/* 每日挑战 / 赛季 / 好友 PK 三件套 */
-.trinity { display: flex; gap: 18rpx; margin-top: 24rpx; }
-.tri {
+/* ============ ⑤ 四宫格（排行榜 / 赛季 / PK / 全部玩法） ============ */
+.quad { display: flex; gap: 12rpx; margin-top: 16rpx; }
+.qi {
   flex: 1;
   min-width: 0;
-  background: #fff;
-  border-radius: 26rpx;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  padding: 22rpx 8rpx;
+  background: rgba(255, 255, 255, .94);
+  border-radius: 22rpx;
+  padding: 16rpx 6rpx 14rpx;
   text-align: center;
+  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
 }
-.tri:active { opacity: .8; }
-.tri-ic { font-size: 44rpx; line-height: 1.1; }
-.tri-b { font-size: 24rpx; font-weight: 800; color: #333A45; margin-top: 8rpx; }
-.tri-s { font-size: 18rpx; color: #8A94A6; margin-top: 4rpx; }
-
-/* 继续挑战大卡 */
-.cta {
-  margin-top: 24rpx;
-  background: linear-gradient(135deg, #4285F4, #6AA6F5);
-  border-radius: 36rpx;
-  box-shadow: 0 12rpx 28rpx rgba(66, 133, 244, .28);
-  color: #fff;
-  padding: 30rpx 28rpx;
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-}
-.cta:active { opacity: .9; }
-.ci {
-  width: 88rpx;
-  height: 88rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, .25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 52rpx;
-  flex: 0 0 auto;
-}
-.ct { flex: 1; min-width: 0; }
-.c-b { font-size: 34rpx; font-weight: 800; }
-.c-s {
-  font-size: 24rpx;
-  opacity: .92;
-  margin-top: 6rpx;
+.qi:active { transform: translateY(2rpx); }
+.qi__ic { font-size: 36rpx; line-height: 1.1; }
+.qi__b { font-size: 21rpx; font-weight: 900; color: #2f4a6b; margin-top: 6rpx; }
+.qi__s {
+  font-size: 17rpx;
+  color: #7d93ad;
+  margin-top: 2rpx;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.cta .c-stars {
-  flex: 0 0 auto;
-  color: #ffe08a;
-  font-size: 28rpx;
+
+/* ============ ⑥ 热门玩法（两张卡） ============ */
+/* 底部这一段的背景已经是浅色（#d8efff），白字几乎看不见 —— 用深蓝 */
+.sec {
+  margin: 20rpx 4rpx 10rpx;
+  font-size: 24rpx;
   font-weight: 900;
+  color: #2f5c8a;
 }
-.cta .c-switch {
-  flex: 0 0 auto;
+/* 横排紧凑卡：竖排时两张卡会被 tabBar 切掉一半，横排后首屏能完整露出 */
+.hot { display: grid; grid-template-columns: 1fr 1fr; gap: 14rpx; }
+.hot-card {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(255, 255, 255, .96);
+  border-radius: 22rpx;
+  padding: 14rpx 16rpx;
+  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
+}
+.hot-card:active { transform: translateY(2rpx); }
+.hot-card__ic { font-size: 38rpx; line-height: 1; flex: 0 0 auto; }
+.hot-card__t { flex: 1; min-width: 0; }
+.hot-card__b {
   font-size: 22rpx;
-  font-weight: 800;
-  color: #fff;
-  opacity: .92;
-  border: 2rpx solid rgba(255, 255, 255, .6);
-  border-radius: 999rpx;
-  /* 半透明底：副标题被压到按钮下方时也能看清按钮边界（2026-10-08 截图复查） */
-  background: rgba(255, 255, 255, .18);
-  /* 2026-09-29：内边距收紧（16→12），把宽度让给副标题 —— 它此前被截成「第 30...」 */
-  padding: 6rpx 12rpx;
+  font-weight: 900;
+  color: #2f4a6b;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.cta .ar { color: #fff; font-size: 44rpx; font-weight: 800; opacity: .9; }
-
-/* 推荐玩法 */
-.sec { margin: 36rpx 4rpx 20rpx; font-size: 30rpx; font-weight: 800; color: #333A45; }
-.rec { display: grid; grid-template-columns: 1fr 1fr; gap: 24rpx; }
-.game {
-  background: #fff;
-  border-radius: 32rpx;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
-  padding: 30rpx 24rpx;
+.hot-card__s {
+  margin-top: 2rpx;
+  font-size: 17rpx;
+  color: #7d93ad;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.game:active { opacity: .8; }
-.ic { font-size: 68rpx; }
-.g-b { font-size: 30rpx; font-weight: 800; color: #333A45; margin-top: 12rpx; }
-.g-s { font-size: 22rpx; color: #8A94A6; line-height: 1.45; margin-top: 6rpx; }
 
-.safe-gap { height: calc(env(safe-area-inset-bottom) + 48rpx); }
+/* 底部安全区（tabBar 已由原生占位，这里只补一点呼吸空间） */
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); flex: 0 0 auto; }

@@ -45,13 +45,31 @@ const GRADES = [
 // 一期只做占比最高的两个版本 + 通用兜底：
 //   · 用户没选（或选了但我们词表还没补到该年级）→ 用该年级的**通用词表**；
 //   · 选了且该年级已有对应版本词条 → 用该版本词条出题。
-// 语文全国统一部编版，暂不区分版本（bjb 先占位）。
+//
+// 2026-10-18 拍板的两条口径：
+//   ① 只做**英语**教材版本。语文全国统一部编版、本来就不分版本，原先挂着的
+//      「部编版 bjb」是个假选项（选了不改变任何出题结果），已删除。
+//   ② 初高中**不细分版本**：初中按中考、高中按高考词汇统一出题。要细分得先补
+//      人教版/外研版初高中词表，词表没到位就给选项，只会让家长以为「选了就同步了」，
+//      所以 isBookSelectable() 把 g7~g12/college 判为不可选（入口只做说明，不给切换）。
 const BOOKS = [
   { key: '',    name: '通用词表',   desc: '不区分教材版本，用现有题库' },
   { key: 'pep', name: '人教版 PEP', desc: '小学三年级起点（多数地区使用）' },
-  { key: 'wys', name: '外研版',     desc: '一年级起点 / 三年级起点' },
-  { key: 'bjb', name: '部编版',     desc: '语文统编教材（全国统一）' }
+  { key: 'wys', name: '外研版',     desc: '一年级起点 / 三年级起点' }
 ];
+
+/** 教材版本只对小学/学前有意义（初高中统一中高考词汇） */
+const BOOK_GRADES = ['kg', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6'];
+
+/**
+ * 该年级是否可选教材版本。
+ * false 时界面只做口径说明，不再给「通用/人教版/外研版」切换（避免选了不生效）。
+ * @param {string} gradeKey 年级 key（如 g7）
+ * @returns {boolean}
+ */
+function isBookSelectable(gradeKey) {
+  return BOOK_GRADES.indexOf(String(gradeKey || '')) >= 0;
+}
 
 /** 教材版本 key 是否合法（空串 = 通用，合法） */
 function isValidBook(key) {
@@ -119,7 +137,7 @@ const STORAGE_KEYS = {
   sound: 'ww_sound_on',            // 声音开关（'1'开/'0'关，默认开）
   lastGrade: 'ww_last_grade',      // 最近一次进入的学段（首页「继续挑战」定位用）
   lastType: 'ww_last_type',        // 最近一次进入的题型分类（空 = 综合）
-  book: 'ww_book',                 // 教材版本（''=通用 / pep / wys / bjb，2026-10-08）
+  book: 'ww_book',                 // 教材版本（''=通用 / pep / wys，仅小学可选，2026-10-08）
   challengeMigrated: 'ww_challenge_migrated' // 挑战主线存档迁移标记（一次性，见 utils/challenge.js）
 };
 
@@ -187,7 +205,9 @@ function isItemInGroup(item, groupKey) {
 module.exports = {
   GRADES,
   BOOKS,
+  BOOK_GRADES,
   isValidBook,
+  isBookSelectable,
   TYPES,
   TYPE_CODES,
   STAR_THRESHOLDS,

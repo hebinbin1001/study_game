@@ -1,16 +1,13 @@
 <!-- 单词贪吃蛇（B6-6 成熟玩法：按序吃字母拼词） -->
 <view class="page-snake">
-  <view class="g-head">
-    <button class="btn-back" bindtap="goBack">返回</button>
-    <view class="g-title">单词贪吃蛇</view>
-    <view class="g-chip">{{targetLabel}}</view>
-  </view>
+  <!-- 2026-10-17：删掉页内「返回 + 标题」——原生导航栏已有；目标词卡里本来就有当前目标，重复。 -->
 
   <!-- HUD -->
   <view class="hud">
     <view class="hud-chip">❤{{lives}}</view>
     <view class="hud-chip">分 {{score}}</view>
-    <view class="hud-chip">最高 {{best}}</view>
+    <view class="hud-chip">{{targetLabel}}</view>
+    <warrior-badge size="sm" />
   </view>
 
   <!-- 目标词卡：英文 + 释义 + 拼写进度 -->
@@ -45,20 +42,22 @@
   <view class="foot-tip">👆 以蛇头为中心线：点左侧往左拐、点右侧往右拐（各 90°）· 点正前方直行 · 🟢 应拼字母 · 🔴 干扰字母</view>
 
   <!-- 结算 -->
-  <view wx:if="{{over}}" class="over-mask">
-    <view class="over-card">
-      <view class="o-stars">{{starText}}</view>
-      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '单词全拼完！' : '游戏结束'}}</view>
-      <view class="o-msg">{{tip}}</view>
-      <button wx:if="{{showNext && win}}" class="btn b1" bindtap="onNext">下一关 ▶</button>
-      <button class="btn {{showNext && win ? 'b2' : 'b1'}}" bindtap="again">再来一局</button>
-      <button class="btn b2" bindtap="goBack">返回</button>
-    </view>
-  </view>
+  <!-- 结算统一走公共组件（2026-10-17），原自绘遮罩样式与其它玩法不一致 -->
+  <settle-pop
+    visible="{{over}}"
+    win="{{win}}"
+    stars-text="{{starText}}"
+    title="{{win ? '单词全拼完！' : '游戏结束'}}"
+    msg="{{tip}}"
+    hint="{{hintText}}"
+    show-next="{{showNext && win}}"
+    next-text="下一关 ▶"
+    bind:retry="again"
+    bind:next="onNext">
+    <button class="btn btn-ghost" bindtap="goBack">返回关卡</button>
+  </settle-pop>
 
   <view class="safe-gap"></view>
 </view>
 
-<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
-     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
-<warrior-badge fixed="{{true}}" size="sm" />
+

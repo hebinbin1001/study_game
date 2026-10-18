@@ -74,10 +74,11 @@ s.test('战士皮肤：共 30 套（24 原有 + 6 元素新增），且每套都
   s.assert.equal(withImage, 30);
 });
 
-s.test('怪兽皮肤：10 套真图已接入（4 原有 + 6 新增 Boss），图片文件真实存在', () => {
+s.test('怪兽皮肤：18 套真图已接入（4 原有 + 6 Boss + 8 学段 Boss），图片文件真实存在', () => {
   const monsters = skins.LOCAL_SKINS.filter((x) => x.type === 'monster');
   // 2026-09-19：豆包出了 6 款 Boss（像素吞噬者/赤鬼将军/翡翠龙王/深海梦魇/机械领主/熔岩巨兽）→ 4 → 10
-  s.assert.equal(monsters.length, 10);
+  // 2026-10-17：补齐 14 学段映射，又到货 8 款（棉花糖大魔王 … 暗蚀大贤者）→ 18
+  s.assert.equal(monsters.length, 18);
   monsters.forEach((m) => {
     s.assert.ok(!!m.image, m.avatarId + ' 缺图片路径');
     const abs = skinFileOf(m.image);
@@ -214,13 +215,13 @@ s.test('两端目录一致：后端 seeders/avatar-seed.js 与前端 LOCAL_SKINS
   });
 });
 
-s.test('后端目录：战士 30 套 + 怪兽 10 套，id 不超长', () => {
+s.test('后端目录：战士 30 套 + 怪兽 18 套，id 不超长', () => {
   const { avatars } = require('../../server/seeders/avatar-seed');
   const warriors = avatars.filter((a) => a.type === 'warrior');
   const monsters = avatars.filter((a) => a.type === 'monster');
-  // 2026-09-19：+6 元素战士 / +6 Boss
+  // 2026-09-19：+6 元素战士 / +6 Boss；2026-10-17：+8 学段 Boss
   s.assert.equal(warriors.length, 30, '战士皮肤应 30 套，实际 ' + warriors.length);
-  s.assert.equal(monsters.length, 10, '怪兽皮肤应 10 套，实际 ' + monsters.length);
+  s.assert.equal(monsters.length, 18, '怪兽皮肤应 18 套，实际 ' + monsters.length);
   s.assert.equal(new Set(avatars.map((a) => a.avatarId)).size, avatars.length, 'avatarId 不能重复');
   avatars.forEach((a) => {
     s.assert.ok(a.avatarId.length <= 32, a.avatarId + ' 超过字段上限 32');

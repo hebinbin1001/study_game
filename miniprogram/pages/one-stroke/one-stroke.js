@@ -1,29 +1,44 @@
-// 一笔画（玩法落地：demo g8）——每条线只能走一次，把所有线走完即过关
-// 与 demo 的差异：不用 Canvas，改用「绝对定位的线 + 圆点」（坐标由引擎算，可单测）；
-// 关卡数据与走边/撤回/死路判定都在 game/one-stroke.js，页面只负责渲染与连击感。
+// 一笔画（玩法落地：demo/一笔画小游戏.html，2026-10-18 移植 35 关）
+//
+// 与 demo 的差异：
+//   · 不用 Canvas，改用「绝对定位的线 + 圆点」（坐标由引擎算，可单测）；
+//   · 关卡数据与走边/撤回/提示/星级判定都在 game/one-stroke.js + one-stroke-levels.js，
+//     页面只负责渲染与连击感。
+// demo 的三个体验点都保留了：💡 每关 3 次提示（高亮一条还能走的线）、
+// 顶部进度条、按「用了几次帮助」折星。
 var lib = require('../../game/one-stroke');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
 var progress = require('../../utils/puzzle-progress');
 
 var BOARD = 600;          // 棋盘逻辑边长（rpx），与引擎 geometry() 同一单位
-var NEXT_MS = 1000;       // 过关后停留
+var HINT_SHOW_MS = 1600;  // 提示高亮时长
+var HINT_PER_LEVEL = 3;   // 每关提示次数（与 demo 一致）
 var BEST_KEY = 'ww_onestroke_best';
 
 Page({
   data: {
-    levelText: '1/5',
-    edgeText: '',
+    levelText: '1/35',
+    levelName: '',
+    tierText: '',
+    edgeText: '0/0',
     stepText: '0',
+    pct: 0,
     mainText: '点一个点开始画',
     subText: '每条线只能走一次，把所有线走完就过关',
     warn: false,
+    hintLeft: HINT_PER_LEVEL,
+    hintKey: '',
+    hintTip: '',
+    showOdd: false,
     edges: [],
     nodes: [],
     settle: false,
     win: false,
     starsText: '',
     overMsg: '',
+    overHint: '',
+    showNext: false,
     best: 0
   },
 
@@ -31,13 +46,14 @@ Page({
   _used: {},
   _path: [],
   _steps: 0,
-  _finished: 0,
-  _totalSteps: 0,
+  _undo: 0,
+  _reset: 0,
+  _hints: 0,
   _timers: [],
 
   onLoad: function (options) {
     this.setData({ best: storage.get(BEST_KEY) || 0 });
-    // 数字智力关卡页指定关卡（?level=N → 内部下标 _li = N-1）
+    // 关卡页指定关卡（?level=N → 内部下标 _li = N-1）
     var want = parseInt((options || {}).level, 10) || 0;
     this.start(want >= 1 ? want - 1 : 0);
   },
@@ -52,55 +68,67 @@ Page({
 
   _level: function () { return lib.LEVELS[this._li]; },
 
+  /** 从头开始某一关（清掉帮助计数与提示次数） */
   start: function (startLi) {
     this._clearTimers();
-    // 可选参数：从第几关开始（内部下标）；不传 = 从第 1 关
     var li = parseInt(startLi, 10);
     this._li = (li >= 0 && li < lib.LEVELS.length) ? li : 0;
-    this._finished = 0;
-    this._totalSteps = 0;
-    this.setData({ settle: false, win: false, starsText: '', overMsg: '' });
-    this._resetLevel('点一个点开始画', '每条线只能走一次，把所有线走完就过关');
-  },
-
-  _resetLevel: function (mainText, subText) {
-    this._used = {};
-    this._path = [];
-    this._steps = 0;
-    this.setData({ warn: false });
-    this._render();
-    var lv = this._level();
+    this._undo = 0;
+    this._reset = 0;
+    this._hints = 0;
     this.setData({
-      mainText: mainText || lv.name,
-      subText: subText || ('第 ' + (this._li + 1) + ' 关：' + lv.name)
+      settle: false, win: false, starsText: '', overMsg: '', overHint: '',
+      hintLeft: HINT_PER_LEVEL, hintKey: '', hintTip: '', showOdd: false
+    });
+    var lv = this._level();
+    this._clearBoard();
+    this.setData({
+      levelName: lv.name,
+      tierText: lv.tier || '',
+      mainText: '点一个点开始画',
+      subText: '第 ' + (this._li + 1) + ' 关 · ' + lv.name + ' · ' + lv.edges.length + ' 条线'
     });
   },
 
-  // 渲染：几何由引擎算（0~100 相对坐标 → rpx），已走的线变绿、当前点变橙
+  /** 只清空画布（撤销/重置/换关都用它） */
+  _clearBoard: function () {
+    this._used = {};
+    this._path = [];
+    this._steps = 0;
+    this.setData({ warn: false, hintKey: '', hintTip: '', showOdd: false });
+    this._render();
+  },
+
+  // 渲染：几何由引擎算（0~100 相对坐标 → rpx），已走的线变绿、当前点变橙、提示线闪黄
   _render: function () {
     var lv = this._level();
     var geo = lib.geometry(lv, BOARD);
     var path = this._path;
     var cur = path.length ? path[path.length - 1] : -1;
+    var hintKey = this.data.hintKey;
+    var showOdd = this.data.showOdd;
+    var odd = showOdd ? lib.oddNodes(lv) : [];
     var edges = geo.edges.map(function (e) {
       return {
         key: e.key,
         style: 'left:' + e.left + 'rpx;top:' + e.top + 'rpx;width:' + e.len + 'rpx;transform: rotate(' + e.angle + 'deg);',
-        used: !!this._used[e.key]
+        used: !!this._used[e.key],
+        hint: e.key === hintKey
       };
     }, this);
     var nodes = geo.nodes.map(function (n, i) {
-      return {
-        style: 'left:' + n.left + 'rpx;top:' + n.top + 'rpx;',
-        cls: (i === cur ? 'cur' : '') + (path.indexOf(i) !== -1 ? ' visited' : '')
-      };
+      var cls = (i === cur ? 'cur' : '') + (path.indexOf(i) !== -1 ? ' visited' : '');
+      if (odd.indexOf(i) !== -1) cls += ' odd';
+      return { style: 'left:' + n.left + 'rpx;top:' + n.top + 'rpx;', cls: cls };
     });
+    var done = lib.usedCount(this._used);
     this.setData({
       edges: edges,
       nodes: nodes,
       levelText: (this._li + 1) + '/' + lib.LEVELS.length,
-      edgeText: lib.usedCount(this._used) + '/' + lv.edges.length,
-      stepText: String(this._steps)
+      edgeText: done + '/' + lv.edges.length,
+      stepText: String(this._steps),
+      pct: lv.edges.length ? Math.round(done / lv.edges.length * 100) : 0
     });
   },
 
@@ -144,11 +172,16 @@ Page({
     var idx = e.currentTarget.dataset.idx;
     var lv = this._level();
 
-    // 起点：随便点一个点出发
+    // 起点：随便点一个点出发（奇点数 2 时只有那两个点能走通，提示里会讲）
     if (!this._path.length) {
       this._path = [idx];
       this._steps = 0;
-      this.setData({ warn: false, mainText: '从这里出发', subText: '点相邻的点继续画，走错了可以撤销' });
+      this.setData({
+        warn: false,
+        hintKey: '', hintTip: '', showOdd: false,
+        mainText: '从这里出发',
+        subText: '点相邻的点继续画，走错了可以撤销'
+      });
       this._render();
       return;
     }
@@ -165,7 +198,7 @@ Page({
     this._used = next;
     this._path.push(idx);
     this._steps++;
-    this._totalSteps++;
+    this.setData({ hintKey: '', hintTip: '' });
     this._render();
 
     if (lib.isLevelClear(lv, this._used)) {
@@ -180,15 +213,16 @@ Page({
       warn: false,
       mainText: '继续画',
       subText: '还剩 ' + (lv.edges.length - lib.usedCount(this._used)) + ' 条线'
+        + (this.data.hintLeft < HINT_PER_LEVEL ? ' · 提示剩 ' + this.data.hintLeft + ' 次' : '')
     });
   },
 
   onUndo: function () {
     if (this._path.length < 2) {
-      var lv0 = this._level();
-      this._resetLevel('重来一次', '第 ' + (this._li + 1) + ' 关：' + lv0.name);
+      this.setData({ warn: false, mainText: '还没画线', subText: '点一个点开始，再连相邻的点' });
       return;
     }
+    this._undo++;
     var b = this._path.pop();
     var a = this._path[this._path.length - 1];
     this._used = lib.unstep(this._used, a, b);
@@ -196,65 +230,117 @@ Page({
     this._render();
     this.setData({
       warn: false,
+      hintKey: '', hintTip: '', showOdd: false,
       mainText: '已撤销一步',
       subText: '还剩 ' + (this._level().edges.length - lib.usedCount(this._used)) + ' 条线'
     });
   },
 
   onReset: function () {
+    this._reset++;
+    this._clearBoard();
+    this.setData({
+      mainText: '重来一次',
+      subText: '第 ' + (this._li + 1) + ' 关 · ' + this._level().name + ' · 提示剩 ' + this.data.hintLeft + ' 次'
+    });
+  },
+
+  /**
+   * 💡 提示（demo 的 3 次/关）。
+   *
+   * 还没起手：高亮两个奇点，告诉用户该从哪开始（不消耗次数 —— 这一步只是讲规则）；
+   * 画到一半：高亮一条「走完仍能通关」的线（引擎用欧拉路径判定筛过，不会把人带进死路）。
+   */
+  onHint: function () {
+    var self = this;
     var lv = this._level();
-    this._resetLevel('重来一次', '第 ' + (this._li + 1) + ' 关：' + lv.name);
+    var cur = this._path.length ? this._path[this._path.length - 1] : -1;
+
+    if (cur < 0) {
+      var sh = lib.startHint(lv);
+      this.setData({
+        showOdd: true,
+        hintTip: sh.any ? '这关任意点都能起手，挑一个点开始画' : '从高亮的两个点之一开始（连奇数条线的点只能当起点或终点）'
+      });
+      this._render();
+      this._later(function () {
+        self.setData({ showOdd: false, hintTip: '' });
+        self._render();
+      }, 2600);
+      return;
+    }
+
+    if (this.data.hintLeft <= 0) {
+      wx.showToast({ title: '本关提示用完了', icon: 'none' });
+      return;
+    }
+    var h = lib.hintOf(lv, this._used, cur);
+    if (!h) {
+      wx.showToast({ title: '没线可走了，先撤销一步', icon: 'none' });
+      return;
+    }
+    this._hints++;
+    this.setData({
+      hintLeft: this.data.hintLeft - 1,
+      hintKey: h.key,
+      hintTip: h.safe ? '顺着闪光的线走' : '这一步之后可能走不通，建议先撤销'
+    });
+    this._render();
+    this._later(function () {
+      self.setData({ hintKey: '', hintTip: '' });
+      self._render();
+    }, HINT_SHOW_MS);
   },
 
   _levelClear: function () {
-    var lv = this._level();
-    this._finished++;
-    // 本地关卡进度（2026-09-29 修）：原来只上报服务端、不写本地，
-    // 导致「通关了但关卡页仍显示未通关、下一关锁着」。
-    progress.markCleared('onestroke', this._li + 1);
-    this.setData({
-      warn: false,
-      mainText: lv.name + ' 完成',
-      subText: '用了 ' + this._steps + ' 步走完所有线'
-    });
-    var self = this;
-    this._later(function () {
-      if (self._li >= lib.LEVELS.length - 1) { self._finish(); return; }
-      self._li++;
-      self._resetLevel('第 ' + (self._li + 1) + ' 关：' + self._level().name, '点一个点开始画');
-    }, NEXT_MS);
-  },
-
-  _finish: function () {
     this._clearTimers();
-    var stars = lib.starsFor(this._finished, lib.LEVELS.length);
-    // 玩法进度榜上报（2026-09-13 补）：按「本局通关到第几关」上报，玩法榜据此排名
+    var lv = this._level();
+    var no = this._li + 1;
+    var stars = lib.starsByAssist(this._undo, this._reset, this._hints);
+
+    // 本地进度：关卡页据此解锁下一关、显示星级
+    progress.markCleared('onestroke', no);
+    storage.saveStars('onestroke', no, stars);
+
+    // 玩法进度榜上报（按关卡号记进度分；数字智力类没有正确率，reportPlay 会按星级反推样本）
     playReport.reportPlay({
       gameType: 'onestroke',
       grade: 'all',
-      level: Math.max(1, this._li + 1),
-      score: this._finished,
+      level: no,
+      score: no,
       stars: stars,
       maxCombo: 0
     });
+
     var best = this.data.best;
-    if (this._finished > best) {
-      best = this._finished;
+    if (no > best) {
+      best = no;
       storage.set(BEST_KEY, best);
     }
+    var last = no >= lib.LEVELS.length;
+    var uses = this._undo + this._reset + this._hints;
+    var msg = '第 ' + no + ' 关「' + lv.name + '」· ' + lv.edges.length + ' 条线 · ' + this._steps + ' 步'
+      + (uses ? '\n撤销 ' + this._undo + ' · 重置 ' + this._reset + ' · 提示 ' + this._hints : '\n一次画完，零帮助');
     this.setData({
       settle: true,
-      win: stars >= 1,
-      starsText: stars > 0 ? '⭐'.repeat(stars) : '',
-      best: best,
-      overMsg: '完成关卡 ' + this._finished + ' / ' + lib.LEVELS.length
-        + '\n总步数 ' + this._totalSteps + '\n最高通关 ' + best + ' 关'
-        + '\n小知识：连了奇数条线的点叫奇点，最多只能有两个，它们是一笔画的起点和终点。'
+      win: true,
+      hintKey: '',
+      hintTip: '',
+      showOdd: false,
+      starsText: '⭐'.repeat(stars),
+      overMsg: msg,
+      overHint: stars === 3
+        ? '三星标准：不用撤销 / 重置 / 提示。'
+        : (stars === 2 ? '少用一次帮助就能拿三星。' : '先想好起手点再画，能少走很多弯路。'),
+      showNext: !last,
+      best: best
     });
   },
 
-  onRetry: function () { this.start(); },
-  goBack: function () { wx.navigateBack(); },
+  onNext: function () {
+    if (this._li < lib.LEVELS.length - 1) this.start(this._li + 1);
+  },
+  onRetry: function () { this.start(this._li); },
 
   onShareAppMessage: function () {
     return { title: '词力战士 - 一笔画', path: '/pages/playlist/playlist' };

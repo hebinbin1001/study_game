@@ -99,6 +99,18 @@ page {
   font-size: 26rpx;
   color: #5c7f9e;
 }
+/* 「差一点」提示：与 settle-pop 的 o-hint 同款，保持两处结算视觉一致 */
+.res-hint {
+  margin: 18rpx auto 0;
+  padding: 12rpx 20rpx;
+  border-radius: 18rpx;
+  background: #FFF6E0;
+  color: #A96A00;
+  font-size: 24rpx;
+  font-weight: 800;
+  display: inline-block;
+  max-width: 92%;
+}
 
 /* ===== 统计数据卡（2×2 网格） ===== */
 .stats-grid {

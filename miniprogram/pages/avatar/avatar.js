@@ -242,19 +242,29 @@ Page({
   },
 
   // 使用形象：本地立即生效（离线可用）+ 后端同步（失败静默降级）
+  //
+  // ⚠️ 2026-10-19 修：原来按 id 前缀分支（warrior_ / monster_），
+  // 美术到货后新增的 15 套战士是 `skin-*`、8 套 Boss 是 `boss_*`，
+  // **两个分支都进不去** → 本地存储根本没写 → 返回首页时首页读旧皮肤，
+  // 用户看到的就是「换了新皮肤，主页没跟着变」。
+  // 现在统一用 skins.kindOf() 判定（以皮肤清单的 type 为准）。
   useAvatar: function (e) {
     var avatarId = e.currentTarget.dataset.avatarId;
     var self = this;
+    var kind = skins.kindOf(avatarId);
 
-    // 本地立即生效：写本地存储 + 更新使用中标记
-    if (avatarId.indexOf('warrior_') === 0) {
+    if (kind === 'warrior') {
       storage.setWarriorSkin(avatarId);
       self.setData({ currentWarrior: avatarId });
       self._markCurrent('warriors', avatarId);
-    } else if (avatarId.indexOf('monster_') === 0) {
+    } else if (kind === 'monster') {
       storage.setBossSkin(avatarId);
       self.setData({ currentMonster: avatarId });
       self._markCurrent('monsters', avatarId);
+    } else {
+      // 认不出的 id：宁可提示，也不要「点了没反应但弹了个已使用」
+      wx.showToast({ title: '该形象暂不可用', icon: 'none' });
+      return;
     }
 
     // 后端同步（失败静默：本地已生效，下次联网可重新同步）

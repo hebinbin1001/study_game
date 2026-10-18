@@ -17,6 +17,8 @@
 const { suite } = require('./_runner');
 const s = suite('挑战主线关卡表');
 
+const fs = require('fs');
+const path = require('path');
 const challenge = require('../../miniprogram/utils/challenge');
 const constants = require('../../miniprogram/utils/constants');
 const dict = require('../../miniprogram/utils/dict');
@@ -169,6 +171,32 @@ s.test('星级折算：答对率 90/70/60 与剩余命 3/2/1', () => {
   s.assert.equal(challenge.starsByLives(2), 2);
   s.assert.equal(challenge.starsByLives(1), 1);
   s.assert.equal(challenge.starsByLives(0), 0);
+});
+
+// ============ 星级口径统一（2026-10-17 用户拍板） ============
+// 消消乐 / 连连看 / 贪吃蛇原来按「剩余命 3/2/1」给星，错 1 次就掉到 2 星；
+// 而字母射击是「正确率 ≥90% 即 3 星」（10 题可错 1 题）。玩家会得出
+// 「消消乐三星更难」的结论，皮肤又按星数解锁 → 刷星都挤去射击。
+// 现在统一按正确率；这条护栏防止有人改回按命给星。
+s.test('玩法页星级口径：match / link / snake 不得再调用 starsByLives', () => {
+  ['match', 'link', 'snake'].forEach(function (d) {
+    var p = path.join(__dirname, '..', '..', 'miniprogram', 'pages', d, d + '.js');
+    var src = fs.readFileSync(p, 'utf8');
+    s.assert.ok(src.indexOf('starsByLives') === -1, d + ' 仍在按剩余命给星（应改 starsByRightRate）');
+    s.assert.ok(src.indexOf('starsByRightRate') !== -1, d + ' 未按正确率折算星级');
+  });
+});
+
+// ============ 「差一点」提示（2026-10-17 结算页） ============
+s.test('starHint：按 90/70/60 阈值反推还差多少', () => {
+  s.assert.equal(challenge.starHint(9, 10, true), '');
+  s.assert.equal(challenge.starHint(8, 10, true), '再完成 1 题就是 3 星 ⭐⭐⭐');
+  s.assert.equal(challenge.starHint(7, 10, true), '再完成 2 题就是 3 星 ⭐⭐⭐');
+  s.assert.equal(challenge.starHint(6, 10, true), '再完成 1 题升 2 星');
+  s.assert.equal(challenge.starHint(5, 10, false), '完成 6 题就能通关，你完成了 5 题');
+  s.assert.equal(challenge.starHint(3, 0, true), '', '总量 0 不提示');
+  // 配对类用「对」作单位，文案要跟着变
+  s.assert.ok(challenge.starHint(6, 8, true, '对').indexOf('对') > 0, '单位应透传');
 });
 
 // ============ 4.5 终关 Boss（方案 A：题量 ×1.5 + 命数同比例放大） ============

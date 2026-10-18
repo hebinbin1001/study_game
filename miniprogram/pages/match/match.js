@@ -2,7 +2,7 @@
 // 规则：随机学段取 8 个英文词 → 16 卡（8 词卡 + 8 中文释义卡）；
 // 点「词」再点「义」→ 匹配则成对消除（消消乐）；错配扣命（3❤），
 // 错配的两张记入本局错词（登录后上报错题本）。
-// 全消通关 → 结算星级（按剩余命）。
+// 全消通关 → 结算星级（按正确率，2026-10-17 统一口径）。
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
@@ -17,6 +17,7 @@ var PAIR_COUNT = 8; // 8 对 = 16 卡
 Page({
   data: {
     gradeLabel: '',
+    hudExtra: '',        // HUD 进度（配对 n/N 对，2026-10-17）
     cards: [],            // [{t:'w'|'c', key, lab, en}]
     lives: 3,
     mistakes: 0,
@@ -26,6 +27,7 @@ Page({
     win: false,
     stars: 0,
     starsText: '',
+    hintText: '',         // 结算「差一点」提示（2026-10-17）
     challenge: false,     // 是否挑战主线关卡（结算写 <grade>@challenge@<level> 并上报成绩）
     challengeKey: ''
   },
@@ -82,8 +84,12 @@ Page({
     pool.forEach(function (w) {
       var key = w.q + '|' + w.a;
       // 2026-09-18 用户反馈：单词全大写不好识别，改成按词库原文显示（内置英文词条本身是小写）
-      cards.push({ t: 'w', key: key, lab: String(w.q || w.a), en: w.q || w.a, hint: w.hint || '' });
-      cards.push({ t: 'c', key: key, lab: w.hint || w.a, en: w.q || w.a, hint: w.hint || '' });
+      // 2026-10-17：长词（blackboard / breakfast）在 4 列格子里会折成两行且断字难看，
+      // 打上 long 标记让样式把字号收一档（16 格宽度固定，只能从字号上让）。
+      var labW = String(w.q || w.a);
+      var labC = w.hint || w.a;
+      cards.push({ t: 'w', key: key, lab: labW, en: w.q || w.a, hint: w.hint || '', long: labW.length >= 8 });
+      cards.push({ t: 'c', key: key, lab: labC, en: w.q || w.a, hint: w.hint || '', long: String(labC).length >= 8 });
     });
     cards = this._shuffle(cards);
 
@@ -95,6 +101,7 @@ Page({
       lives: 3,
       mistakes: 0,
       left: cards.length,
+      hudExtra: '配对 0/' + (cards.length / 2) + ' 对',
       tip: '点「词」再点它的「释义」，成对消除',
       over: false,
       win: false,
@@ -152,11 +159,21 @@ Page({
       patch['cards[' + idx + '].gone'] = true;
       patch.left = this.data.left - 2;
       this.setData(patch);
+      // HUD 进度：统一成「配对 n/N 对」，不再只显示「剩 N 卡」（2026-10-17）
+      var pairsAll = this.data.cards.length / 2;
+      this.setData({
+        hudExtra: '配对 ' + Math.round((this.data.cards.length - this.data.left) / 2) + '/' + pairsAll + ' 对'
+      });
       if (this.data.left - 2 <= 0) {
-        var lives = this.data.lives;
-        var stars = challenge.starsByLives(lives);
-        this.setData({ over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), tip: '全部配对成功！' });
-        this._saveChallenge(stars, this.data.cards.length / 2 - this.data.mistakes, this.data.cards.length / 2);
+        // 2026-10-17：星级统一按正确率（原先按剩余命，错 1 次就从 3 星掉 2 星，
+        // 与字母射击「10 题错 1 题仍 3 星」不等价）。正确率 = 配对对数 / 总对数。
+        var pairs = this.data.cards.length / 2;
+        var stars = challenge.starsByRightRate(pairs - this.data.mistakes, pairs);
+        this.setData({
+          over: true, win: true, stars: stars, starsText: '⭐'.repeat(stars), tip: '全部配对成功！',
+          hintText: challenge.starHint(pairs - this.data.mistakes, pairs, true, '对')
+        });
+        this._saveChallenge(stars, pairs - this.data.mistakes, pairs);
       }
     } else {
       // 错配：扣命 + 记错词
@@ -178,7 +195,10 @@ Page({
         clr['cards[' + idxA2 + '].sel'] = false;
         self2.setData(clr);
         if (lives <= 0) {
-          self2.setData({ over: true, win: false, starsText: '', tip: '生命耗尽 · 再来一次' });
+          self2.setData({
+            over: true, win: false, starsText: '', tip: '生命耗尽 · 再来一次',
+            hintText: '还剩 ' + Math.max(0, Math.floor(self2.data.left / 2)) + ' 对没消，消完才能结算'
+          });
         }
       }, 420);
     }

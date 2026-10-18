@@ -33,6 +33,8 @@ var auth = require('../../utils/auth');
 var request = require('../../utils/request');
 var review = require('../../utils/review');
 var skins = require('../../utils/skins');
+// 学段 → 镇守 Boss（2026-10-17）：Boss 关要画「该学段的 Boss」，不是玩家装备的怪兽
+var bossLadder = require('../../utils/boss-ladder');
 
 var CONFIG = config.CONFIG;
 
@@ -176,9 +178,14 @@ Page({
       ? this._challengeItems.length : CONFIG.totalQ;
 
     // 皮肤：战士立绘 + Boss 立绘（离线兜底 emoji）
+    // 2026-10-17：Boss 关改用「学段镇守 Boss」（utils/boss-ladder.js 的 14 学段映射），
+    // 不再画玩家自己装备的怪兽 —— 否则首页说「Boss 来袭 · 赤鬼将军」，进关却是自己的小怪兽。
+    // 普通关保持原逻辑（玩家装备的怪兽），不影响自由练的观感。
+    var monsterId = storage.getBossSkin();
+    if (ctx.isBoss && ctx.grade) monsterId = bossLadder.bossOf(ctx.grade).id;
     this._skins = {
       warrior: skins.getWarriorSkin(storage.getWarriorSkin()),
-      monster: skins.getMonsterSkin(storage.getBossSkin())
+      monster: skins.getMonsterSkin(monsterId)
     };
     var wSkin = this._skins.warrior || skins.DEFAULT_WARRIOR;
     var mSkin = this._skins.monster || skins.DEFAULT_MONSTER;

@@ -5,7 +5,7 @@
   padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+  background: linear-gradient(180deg, #4a9fe8 0%, #7dbdf2 32%, #b9e0ff 64%, #d8efff 100%);
 }
 /* 头部/HUD 统一到 app.wxss 的 .g-head/.g-title/.g-chip/.hud/.hud-chip（2026-09-12 视觉统一） */
 .back-pill {
@@ -39,6 +39,8 @@
   text-align: center;
   word-break: break-all;
 }
+/* 长词（blackboard/breakfast）在 4 列格子里收一档字号，避免折成「blackboar d」 */
+.tile.long { font-size: 20rpx; letter-spacing: -0.5rpx; line-height: 1.2; }
 .tile.word { color: #4285F4; font-size: 30rpx; }
 .tile.word.b-sel { background: linear-gradient(180deg, #fffdf6 0%, #eaf3ff 100%); }
 /* 命中：先亮绿再缩没（原来只有淡出，看不出"消掉了"） */

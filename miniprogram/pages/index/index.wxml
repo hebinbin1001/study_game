@@ -1,25 +1,98 @@
-<!-- 首页 Tab（B1 UI 对齐 demo 首页；去宫格 → 大厅化）
-     结构：Header / Hero / 游客引导条 / 资产条 / 排行榜行 / 今日目标 / 每日一题 / 继续挑战 / 推荐玩法 -->
+<!-- 首页 Tab · UI 重做二期（2026-10-18 重构）
+     用户反馈三条：①「我的战士」没必要整条展示；② Boss 来袭和出战看着重复；③ 今日任务用分区版结构。
+     重构后：
+       ① HUD（🏫 年级 / ⭐ / 🔥 / 头像 / 音量）—— 段位胶囊去掉，段位只留立绘左侧一处；
+          年级放在最左（2026-10-18）：它是全站题目的总开关，首屏就能看到、能改
+       ② 战士舞台（立绘 + 名字/段位 + 等级）→ 紧接一条天空底进度条 → 一行皮肤进度
+       ③ 「下一战」卡：Boss 信息条 + 出战动作**合成一张**（深色条 + 橙色动作区），不再两张主卡
+       ④ 今日任务卡：今日目标进度 + 每日一题 + 每日挑战（三个「每日」收进一张）
+       ⑤ 四宫格：排行榜 / 赛季 / 好友 PK / 全部玩法
+       ⑥ 「接着玩」一行：本机最常玩的一款
+     原有功能入口一个不少，只是合并同类项、去掉重复展示。 -->
 <view class="page-home">
-  <!-- Header -->
-  <view class="head">
-    <view class="head-t">⚔️ 词力战士</view>
+  <!-- ① HUD 胶囊条 -->
+  <view class="hud-row">
+    <!-- 年级（2026-10-18）：年级是「现在在学哪一套题」的总开关 ——
+         主线 30 关、玩法线、词库、每日挑战、PK 全跟着它走，
+         所以放在 HUD 最左、每屏都在的位置，点开即切，不用回「我的」翻菜单。
+         没选过年级时高亮成「选年级」，替代原来那条需要滚动才能看到的引导。 -->
+    <view class="hud-pill hud-pill--grade {{gradeChosen ? '' : 'is-empty'}}"
+      bindtap="openGradePicker">
+      <text class="hud-pill__ic">🏫</text>
+      <text class="hud-pill__gv">{{gradeChosen ? gradeLabel : '选年级'}}</text>
+      <text class="hud-pill__go">›</text>
+    </view>
+    <view class="hud-pill">⭐ <text class="hud-pill__n">{{totalStars}}</text></view>
+    <view class="hud-pill">🔥 <text class="hud-pill__n">{{streakDays}}</text> 天</view>
+    <view class="hud-sp"></view>
+    <!-- 头像入口：游客→登录，已登录→「我的」tab -->
+    <button class="snd-btn" bindtap="onProfileTap" hover-class="none">{{loggedIn ? '👤' : '👥'}}</button>
     <button class="snd-btn" bindtap="toggleSound" hover-class="none">{{soundOn ? '🔊' : '🔇'}}</button>
   </view>
 
-  <!-- Hero 头图（已登录点头像进“我的”） -->
-  <view class="hero" bindtap="onProfileTap">
-    <view class="hero-av">
-      <image wx:if="{{avatarUrl}}" class="hero-img" src="{{avatarUrl}}" mode="aspectFill"></image>
-      <view wx:elif="{{loggedIn}}" class="hero-emoji">😎</view>
-      <view wx:else class="hero-emoji">⚔️</view>
+  <!-- ② 战士舞台（点立绘换皮肤；点段位看段位详情） -->
+  <view class="w-stage" bindtap="goAvatarSkin">
+    <view class="w-side w-side--left">
+      <view class="w-name">{{warriorName}}</view>
+      <view class="w-rank" catchtap="goRankInfo">🏅 {{rankName || rankShort}} ›</view>
     </view>
-    <!-- 已登录展示微信昵称（用户 2026-09-13 建议）：昵称优先，没设昵称回落品牌名 -->
-    <view class="hero-title">{{loggedIn && nickname ? nickname : '词力战士'}}</view>
-    <view class="hero-sub">{{loggedIn ? '词力战士 · 点我编辑资料' : '玩中学 · 学中记'}}</view>
+    <view class="w-side w-side--right">
+      <view class="w-lv">Lv.{{lvCell}}</view>
+      <view class="w-lv-lab">等级</view>
+    </view>
+    <image
+      wx:if="{{warriorImg && !warriorImgErr}}"
+      class="w-img"
+      src="{{warriorImg}}"
+      mode="aspectFit"
+      binderror="onWarriorImgError"></image>
+    <view wx:else class="w-emoji">{{warriorEmoji}}</view>
   </view>
 
-  <!-- 游客引导条（仅游客）：点去登录 → 先弹协议再登录；条下提供协议全文阅读 -->
+  <!-- 等级进度（贴着舞台，天空底：不再单独占一张白卡）
+       注意：这里只写 Lv，不要再带段位名 —— 段位已经在左侧出现一次，
+       写成「Lv.44 → 钻石 IX」等于把段位又讲了一遍（二期返工点）。 -->
+  <view class="lv-inline">
+    <view class="lv-line">
+      <text class="lv-line__t">Lv.{{lvCell}}{{lvNext ? '' : ' · 满级'}}</text>
+      <text class="lv-line__s">{{lvNeed > 0 ? ('再得 ' + lvNeed + '⭐ 升级') : '已达最高等级'}}</text>
+    </view>
+    <view class="lv-track"><view class="lv-fill" style="width:{{lvPercent}}%"></view></view>
+  </view>
+
+  <!-- 皮肤只留一行：收集进度 + 下一个目标（点击进图鉴） -->
+  <view class="skin-line" bindtap="goAvatarSkin">
+    <text>皮肤 <text class="skin-line__n">{{skinOwned}} / {{skinTotal}}</text>{{nextSkinName ? ' · 下一目标 ' + nextSkinName : ' · 查看图鉴'}} ›</text>
+  </view>
+
+  <!-- ③ 下一战：Boss 信息 + 出战，一张卡 -->
+  <view class="battle">
+    <view class="boss-pill" bindtap="goLevel">
+      <image
+        wx:if="{{bossImg && !bossImgErr}}"
+        class="boss-pill__img"
+        src="{{bossImg}}"
+        mode="aspectFit"
+        binderror="onBossImgError"></image>
+      <view wx:else class="boss-pill__emoji">{{bossEmoji}}</view>
+      <view class="boss-pill__t">
+        <view class="boss-pill__n">Boss 来袭 · {{bossName}}</view>
+        <view class="boss-pill__s">{{bossHint}}</view>
+      </view>
+      <view class="boss-pill__go">›</view>
+    </view>
+    <view class="battle-row" bindtap="goContinue">
+      <text class="battle-row__ic">⚔️</text>
+      <view class="battle-row__t">
+        <view class="battle-row__b">出战</view>
+        <view class="battle-row__s">{{continuePlayable ? '继续上次 · ' + continueHint : '从第 1 关开始'}}</view>
+      </view>
+      <text wx:if="{{continueStars > 0}}" class="battle-row__stars">★{{continueStars}}</text>
+      <view class="battle-row__sw" catchtap="goLevel">换关卡</view>
+    </view>
+  </view>
+
+  <!-- 游客引导条（仅游客）：点去登录 → 先弹协议再登录 -->
   <view wx:if="{{!loggedIn}}" class="guestbar" bindtap="onProfileTap">
     <view class="gb-ic">👤</view>
     <view class="gb-t">
@@ -30,111 +103,74 @@
   </view>
   <view wx:if="{{!loggedIn}}" class="agree-link" bindtap="goAgreement">登录即代表同意《用户协议与隐私政策》· 点击阅读全文</view>
 
-  <!--
-    2026-10-09 用户拍板「弱化年级入口」：原来这里有一条「先选一下你的年级」强引导条，
-    用户反馈"感觉没啥用"—— 它确实是打扰：年级只影响题库类玩法与口算/天平，
-    而且新用户还没看到任何内容就被要求先做选择。
-    现在改为在**玩法页顶部**随手可切（pages/playlist 的年级 chips），
-    关卡页本来也有学段 tab；两处切换都会写 lastGrade，首页「继续挑战」跟着走。
-  -->
-
-  <!-- 资产条 -->
-  <view class="asset-row">
-    <view class="asset-box">
-      <view class="a-num">{{totalStars}}</view>
-      <view class="a-lab">⭐ {{starsLabel}}</view>
+  <!-- ④ 今日任务：今日目标 + 每日一题 + 每日挑战（一张卡三行） -->
+  <view class="today-card">
+    <view class="today-head">
+      <view class="today-t">🎯 今日任务</view>
+      <view class="today-s">{{loggedIn ? ('已答 ' + todayQ + ' 题') : '登录后查看'}}</view>
     </view>
-    <view class="asset-box" bindtap="goRankInfo">
-      <view class="a-num a-num--name">{{loggedIn ? (rankName || '青铜') : '游客'}}</view>
-      <view class="a-lab">🎖 段位</view>
+    <view class="today-track">
+      <view class="today-fill" style="width: {{todayQ >= 10 ? 100 : (todayQ * 10)}}%;"></view>
     </view>
-    <view class="asset-box">
-      <view class="a-num">{{streakDays}} 天</view>
-      <view class="a-lab">🔥 连续</view>
+    <view class="today-row" bindtap="goDaily">
+      <text class="today-row__k">📌 每日一题</text>
+      <text class="today-row__v {{dailyDone ? 'ok' : ''}}">{{dailyDone ? ('已签 · 连续 ' + streakDays + ' 天') : '未签到 · 答完即签'}}</text>
+    </view>
+    <view class="today-row today-row--nb" bindtap="goDailyChallenge">
+      <text class="today-row__k">⚡ 每日挑战</text>
+      <text class="today-row__v">全服同题 ›</text>
     </view>
   </view>
 
-  <!-- 排行榜行 -->
-  <view class="link" bindtap="goRank">
-    <view class="li">🏆</view>
-    <view class="lt">
-      <view class="l-b">排行榜</view>
-      <view class="l-s">
-        <block wx:if="{{loggedIn}}">{{myRank > 0 ? ('我的排名 第 ' + myRank + ' 名') : '全服榜单 · 登录即上榜'}}</block>
-        <block wx:else>全服榜单 · 登录后上榜</block>
+  <!-- ⑤ 四宫格：排行榜 / 赛季 / 好友 PK / 全部玩法 -->
+  <view class="quad">
+    <view class="qi" bindtap="goRank">
+      <view class="qi__ic">🏆</view>
+      <view class="qi__b">排行榜</view>
+      <view class="qi__s">
+        <block wx:if="{{loggedIn}}">{{myRank > 0 ? ('第 ' + myRank + ' 名') : '全服'}}</block>
+        <block wx:else>登录后上榜</block>
       </view>
     </view>
-    <view class="link-badge">TOP 100</view>
-    <view class="ar">›</view>
-  </view>
-
-  <!-- 今日目标 / 学习进度 -->
-  <view class="goal-card">
-    <view class="goal-head">
-      <view class="gt">🎯 今日目标</view>
-      <view class="gsub">{{loggedIn ? ('已答 ' + todayQ + ' 题' + (todayQ ? ' · 正确 ' + todayRate + '%' : '')) : '登录后查看'}}</view>
+    <view class="qi" bindtap="goSeason">
+      <view class="qi__ic">🏅</view>
+      <view class="qi__b">赛季</view>
+      <view class="qi__s">双月榜</view>
     </view>
-    <view class="goal-track">
-      <view class="goal-fill" style="width: {{todayQ >= 10 ? 100 : (todayQ * 10)}}%;"></view>
+    <view class="qi" bindtap="goPk">
+      <view class="qi__ic">🤝</view>
+      <view class="qi__b">好友 PK</view>
+      <view class="qi__s">赢星星</view>
     </view>
-    <view class="goal-foot">{{dailyDone ? '每日一题已完成 · 今日已签 ✓' : '完成每日一题即签到 · 目标 10 题'}}</view>
-  </view>
-
-  <!-- 每日一题 · 签到 -->
-  <view class="daily" bindtap="goDaily">
-    <view class="di">📌</view>
-    <view class="dt">
-      <view class="d-b">每日一题</view>
-      <view class="d-s">{{dailyDone ? '今日已签 ✓ · 连续 ' + streakDays + ' 天' : '今日未答 · 答完即签到'}}</view>
-    </view>
-    <view class="ar ar-green">{{dailyDone ? '✓' : '›'}}</view>
-  </view>
-
-  <!-- 继续挑战（一期：显示真实进度，点击直达该关对局；右上角「换关卡」进关卡页） -->
-  <view class="cta">
-    <view class="ci">⚔️</view>
-    <view class="ct" bindtap="goContinue">
-      <view class="c-b">继续挑战</view>
-      <view class="c-s">{{continueHint}}</view>
-    </view>
-    <view wx:if="{{continueStars > 0}}" class="c-stars">★{{continueStars}}</view>
-    <view class="c-switch" catchtap="goLevel">换关卡 ›</view>
-  </view>
-
-  <!-- 每日挑战 / 赛季 / 好友 PK（2026-10-08 新增三件套）
-       放在「继续挑战」之后：继续挑战是主操作，不该被三个新入口挤到下面 -->
-  <view class="trinity">
-    <view class="tri" bindtap="goDailyChallenge">
-      <view class="tri-ic">🎯</view>
-      <view class="tri-b">每日挑战</view>
-      <view class="tri-s">全服同题</view>
-    </view>
-    <view class="tri" bindtap="goSeason">
-      <view class="tri-ic">🏅</view>
-      <view class="tri-b">赛季</view>
-      <view class="tri-s">双月榜</view>
-    </view>
-    <view class="tri" bindtap="goPk">
-      <view class="tri-ic">🤝</view>
-      <view class="tri-b">好友 PK</view>
-      <view class="tri-s">赢星星</view>
+    <view class="qi" bindtap="goPlaylist">
+      <view class="qi__ic">🎮</view>
+      <view class="qi__b">全部玩法</view>
+      <view class="qi__s">看全部</view>
     </view>
   </view>
 
-  <!-- 推荐玩法 -->
-  <view class="sec">🔥 推荐玩法</view>
-  <view class="rec">
+  <!-- ⑥ 热门玩法：服务端 players 降序前 2（失败时退回本机常玩）
+       原来这里是「接着玩」一行 —— 它其实指向本机最常玩的玩法，和「出战（继续上次进度）」
+       不是同一件事，用户 2026-10-18 指出重复，已删掉那一行。 -->
+  <view wx:if="{{hotGames.length}}" class="sec">🔥 热门玩法</view>
+  <view wx:if="{{hotGames.length}}" class="hot">
     <view
-      class="game"
-      wx:for="{{recos}}"
+      class="hot-card"
+      wx:for="{{hotGames}}"
       wx:key="key"
       bindtap="goReco"
       data-url="{{item.url}}">
-      <view class="ic">{{item.icon}}</view>
-      <view class="g-b">{{item.name}}</view>
-      <view class="g-s">{{item.desc}}</view>
+      <view class="hot-card__ic">{{item.icon}}</view>
+      <view class="hot-card__t">
+        <view class="hot-card__b">{{item.name}}</view>
+        <view class="hot-card__s">{{item.desc}}</view>
+      </view>
     </view>
   </view>
 
   <view class="safe-gap"></view>
+
+  <!-- 全局年级选择器（与「我的 → 当前年级」同一个组件，2026-10-18） -->
+  <grade-picker visible="{{gradePickerVisible}}" value="{{gradeKey}}"
+    bind:pick="onGradePick" bind:close="onGradeClose" />
 </view>

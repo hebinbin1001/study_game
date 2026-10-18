@@ -9,7 +9,7 @@ module.exports = {
       "a": "abundance",
       "hint": "丰富",
       "py": "abundance",
-      "ipa": "əbˈʌndəns"
+      "ipa": "əˈbʌndəns"
     },
     {
       "type": "w1",
@@ -17,7 +17,7 @@ module.exports = {
       "a": "acquisition",
       "hint": "获得",
       "py": "acquisition",
-      "ipa": "əkwɪsˈɪʃən"
+      "ipa": "əkwɪˈsɪʃən"
     },
     {
       "type": "w1",
@@ -25,7 +25,7 @@ module.exports = {
       "a": "administer",
       "hint": "管理",
       "py": "administer",
-      "ipa": "ədmˈɪnɪstə"
+      "ipa": "ədˈmɪnɪstə"
     },
     {
       "type": "w1",
@@ -49,7 +49,7 @@ module.exports = {
       "a": "alleviate",
       "hint": "缓解",
       "py": "alleviate",
-      "ipa": "əlˈiːvɪˌeɪt"
+      "ipa": "əˈliːvɪˌeɪt"
     },
     {
       "type": "w1",
@@ -57,7 +57,7 @@ module.exports = {
       "a": "ambiguous",
       "hint": "模糊的",
       "py": "ambiguous",
-      "ipa": "æmbˈɪɡjuːəs"
+      "ipa": "æmˈbɪɡjuːəs"
     },
     {
       "type": "w1",
@@ -65,7 +65,7 @@ module.exports = {
       "a": "analogy",
       "hint": "类比",
       "py": "analogy",
-      "ipa": "ənˈælədʒi"
+      "ipa": "əˈnælədʒi"
     },
     {
       "type": "w1",
@@ -73,7 +73,7 @@ module.exports = {
       "a": "anonymous",
       "hint": "匿名的",
       "py": "anonymous",
-      "ipa": "ənˈɒnəməs"
+      "ipa": "əˈnɒnəməs"
     },
     {
       "type": "w1",
@@ -81,7 +81,7 @@ module.exports = {
       "a": "anticipate",
       "hint": "预期",
       "py": "anticipate",
-      "ipa": "æntˈɪsɪpˌeɪt"
+      "ipa": "ænˈtɪsɪpˌeɪt"
     },
     {
       "type": "w1",
@@ -97,7 +97,7 @@ module.exports = {
       "a": "ascend",
       "hint": "上升",
       "py": "ascend",
-      "ipa": "əsˈɛnd"
+      "ipa": "əˈsɛnd"
     },
     {
       "type": "w1",
@@ -105,7 +105,7 @@ module.exports = {
       "a": "aspiration",
       "hint": "渴望",
       "py": "aspiration",
-      "ipa": "ˌæspərˈeɪʃən"
+      "ipa": "ˌæspəˈreɪʃən"
     },
     {
       "type": "w1",
@@ -113,7 +113,7 @@ module.exports = {
       "a": "assertion",
       "hint": "断言",
       "py": "assertion",
-      "ipa": "əsˈɜːʃən"
+      "ipa": "əˈsɜːʃən"
     },
     {
       "type": "w1",
@@ -121,7 +121,7 @@ module.exports = {
       "a": "assessment",
       "hint": "评估",
       "py": "assessment",
-      "ipa": "əsˈɛsmənt"
+      "ipa": "əˈsɛsmənt"
     },
     {
       "type": "w1",
@@ -137,7 +137,7 @@ module.exports = {
       "a": "assimilate",
       "hint": "同化",
       "py": "assimilate",
-      "ipa": "əsˈɪmɪlˌeɪt"
+      "ipa": "əˈsɪmɪlˌeɪt"
     },
     {
       "type": "w1",
@@ -145,7 +145,7 @@ module.exports = {
       "a": "attorney",
       "hint": "律师",
       "py": "attorney",
-      "ipa": "ətˈɜːni"
+      "ipa": "əˈtɜːni"
     },
     {
       "type": "w1",
@@ -161,7 +161,7 @@ module.exports = {
       "a": "authentic",
       "hint": "真正的",
       "py": "authentic",
-      "ipa": "ɔːθˈɛntɪk"
+      "ipa": "ɔːˈθɛntɪk"
     },
     {
       "type": "w1",
@@ -169,7 +169,7 @@ module.exports = {
       "a": "autonomy",
       "hint": "自治",
       "py": "autonomy",
-      "ipa": "ɔːtˈɒnəmi"
+      "ipa": "ɔːˈtɒnəmi"
     },
     {
       "type": "w1",
@@ -177,7 +177,7 @@ module.exports = {
       "a": "benchmark",
       "hint": "基准",
       "py": "benchmark",
-      "ipa": "bˈɛntʃmɑːk"
+      "ipa": "ˈbɛntʃmɑːk"
     },
     {
       "type": "w1",
@@ -185,7 +185,7 @@ module.exports = {
       "a": "benevolent",
       "hint": "仁慈的",
       "py": "benevolent",
-      "ipa": "bənˈɛvələnt"
+      "ipa": "bəˈnɛvələnt"
     },
     {
       "type": "w1",
@@ -193,7 +193,7 @@ module.exports = {
       "a": "benign",
       "hint": "良性的",
       "py": "benign",
-      "ipa": "bɪnˈaɪn"
+      "ipa": "bɪˈnaɪn"
     },
     {
       "type": "w1",
@@ -201,7 +201,7 @@ module.exports = {
       "a": "bewilder",
       "hint": "使迷惑",
       "py": "bewilder",
-      "ipa": "bɪwˈɪldə"
+      "ipa": "bɪˈwɪldə"
     },
     {
       "type": "w1",
@@ -209,7 +209,7 @@ module.exports = {
       "a": "bias",
       "hint": "偏见",
       "py": "bias",
-      "ipa": "bˈaɪəs"
+      "ipa": "ˈbaɪəs"
     },
     {
       "type": "w1",
@@ -217,7 +217,7 @@ module.exports = {
       "a": "blockade",
       "hint": "封锁",
       "py": "blockade",
-      "ipa": "blɒkˈeɪd"
+      "ipa": "blɒˈkeɪd"
     },
     {
       "type": "w1",
@@ -225,7 +225,7 @@ module.exports = {
       "a": "boycott",
       "hint": "抵制",
       "py": "boycott",
-      "ipa": "bˈɔɪkɒt"
+      "ipa": "ˈbɔɪkɒt"
     },
     {
       "type": "w1",
@@ -233,7 +233,7 @@ module.exports = {
       "a": "bureaucracy",
       "hint": "官僚主义",
       "py": "bureaucracy",
-      "ipa": "bjɔːrˈɒkrəsˌi"
+      "ipa": "bjɔːˈrɒkrəsˌi"
     },
     {
       "type": "w1",
@@ -241,7 +241,7 @@ module.exports = {
       "a": "candidate",
       "hint": "候选人",
       "py": "candidate",
-      "ipa": "kˈændɪdˌeɪt"
+      "ipa": "ˈkændɪdˌeɪt"
     },
     {
       "type": "w1",
@@ -249,7 +249,7 @@ module.exports = {
       "a": "catalyst",
       "hint": "催化剂",
       "py": "catalyst",
-      "ipa": "kˈætəlˌɪst"
+      "ipa": "ˈkætəlˌɪst"
     },
     {
       "type": "w1",
@@ -257,7 +257,7 @@ module.exports = {
       "a": "cater",
       "hint": "迎合",
       "py": "cater",
-      "ipa": "kˈeɪtə"
+      "ipa": "ˈkeɪtə"
     },
     {
       "type": "w1",
@@ -265,7 +265,7 @@ module.exports = {
       "a": "censorship",
       "hint": "审查",
       "py": "censorship",
-      "ipa": "sˈɛnsəʃˌɪp"
+      "ipa": "ˈsɛnsəʃˌɪp"
     },
     {
       "type": "w1",
@@ -273,7 +273,7 @@ module.exports = {
       "a": "coherent",
       "hint": "连贯的",
       "py": "coherent",
-      "ipa": "kəʊhˈiərənt"
+      "ipa": "kəʊˈhiərənt"
     },
     {
       "type": "w1",
@@ -281,7 +281,7 @@ module.exports = {
       "a": "coincide",
       "hint": "同时发生",
       "py": "coincide",
-      "ipa": "kˌəʊɪnsˈaɪd"
+      "ipa": "kˌəʊɪnˈsaɪd"
     },
     {
       "type": "w1",
@@ -289,7 +289,7 @@ module.exports = {
       "a": "collaborate",
       "hint": "合作",
       "py": "collaborate",
-      "ipa": "kəlˈæbərˌeɪt"
+      "ipa": "kəˈlæbərˌeɪt"
     },
     {
       "type": "w1",
@@ -297,7 +297,7 @@ module.exports = {
       "a": "commodity",
       "hint": "商品",
       "py": "commodity",
-      "ipa": "kəmˈɒdɪti"
+      "ipa": "kəˈmɒdɪti"
     },
     {
       "type": "w1",
@@ -305,7 +305,7 @@ module.exports = {
       "a": "compatible",
       "hint": "兼容的",
       "py": "compatible",
-      "ipa": "kəmpˈætəbəl"
+      "ipa": "kəmˈpætəbəl"
     },
     {
       "type": "w1",
@@ -313,7 +313,7 @@ module.exports = {
       "a": "compensate",
       "hint": "补偿",
       "py": "compensate",
-      "ipa": "kˈɒmpənsˌeɪt"
+      "ipa": "ˈkɒmpənsˌeɪt"
     },
     {
       "type": "w1",
@@ -321,7 +321,7 @@ module.exports = {
       "a": "complement",
       "hint": "补充",
       "py": "complement",
-      "ipa": "kˈɒmplɪmənt"
+      "ipa": "ˈkɒmplɪmənt"
     },
     {
       "type": "w1",
@@ -329,7 +329,7 @@ module.exports = {
       "a": "comply",
       "hint": "遵守",
       "py": "comply",
-      "ipa": "kəmplˈaɪ"
+      "ipa": "kəmˈplaɪ"
     },
     {
       "type": "w1",
@@ -337,7 +337,7 @@ module.exports = {
       "a": "compulsory",
       "hint": "强制的",
       "py": "compulsory",
-      "ipa": "kəmpˈʌlsərˌi"
+      "ipa": "kəmˈpʌlsərˌi"
     },
     {
       "type": "w1",
@@ -345,7 +345,7 @@ module.exports = {
       "a": "conceive",
       "hint": "构想",
       "py": "conceive",
-      "ipa": "kənsˈiːv"
+      "ipa": "kənˈsiːv"
     },
     {
       "type": "w1",
@@ -353,7 +353,7 @@ module.exports = {
       "a": "confer",
       "hint": "商讨",
       "py": "confer",
-      "ipa": "kənfˈɜː"
+      "ipa": "kənˈfɜː"
     },
     {
       "type": "w1",
@@ -361,7 +361,7 @@ module.exports = {
       "a": "conform",
       "hint": "遵从",
       "py": "conform",
-      "ipa": "kənfˈɔːm"
+      "ipa": "kənˈfɔːm"
     },
     {
       "type": "w1",
@@ -369,7 +369,7 @@ module.exports = {
       "a": "confront",
       "hint": "面对",
       "py": "confront",
-      "ipa": "kənfrˈʌnt"
+      "ipa": "kənˈfrʌnt"
     },
     {
       "type": "w1",
@@ -385,7 +385,7 @@ module.exports = {
       "a": "conscience",
       "hint": "良心",
       "py": "conscience",
-      "ipa": "kˈɒnʃəns"
+      "ipa": "ˈkɒnʃəns"
     },
     {
       "type": "w1",
@@ -393,7 +393,7 @@ module.exports = {
       "a": "consensus",
       "hint": "共识",
       "py": "consensus",
-      "ipa": "kənsˈɛnsəs"
+      "ipa": "kənˈsɛnsəs"
     },
     {
       "type": "w1",
@@ -401,7 +401,7 @@ module.exports = {
       "a": "constitute",
       "hint": "构成",
       "py": "constitute",
-      "ipa": "kˈɒnstɪtjˌuːt"
+      "ipa": "ˈkɒnstɪtjˌuːt"
     },
     {
       "type": "w1",
@@ -409,7 +409,7 @@ module.exports = {
       "a": "contemplate",
       "hint": "沉思",
       "py": "contemplate",
-      "ipa": "kˈɒntɪmplˌeɪt"
+      "ipa": "ˈkɒntɪmplˌeɪt"
     },
     {
       "type": "w1",
@@ -417,7 +417,7 @@ module.exports = {
       "a": "contempt",
       "hint": "轻视",
       "py": "contempt",
-      "ipa": "kəntˈɛmpt"
+      "ipa": "kənˈtɛmpt"
     },
     {
       "type": "w1",
@@ -425,7 +425,7 @@ module.exports = {
       "a": "contend",
       "hint": "竞争",
       "py": "contend",
-      "ipa": "kəntˈɛnd"
+      "ipa": "kənˈtɛnd"
     },
     {
       "type": "w1",
@@ -433,7 +433,7 @@ module.exports = {
       "a": "contingent",
       "hint": "因事而变的",
       "py": "contingent",
-      "ipa": "kəntˈɪndʒənt"
+      "ipa": "kənˈtɪndʒənt"
     },
     {
       "type": "w1",
@@ -441,7 +441,7 @@ module.exports = {
       "a": "contradict",
       "hint": "反驳",
       "py": "contradict",
-      "ipa": "kˌɒntrədˈɪkt"
+      "ipa": "kˌɒntrəˈdɪkt"
     },
     {
       "type": "w1",
@@ -449,7 +449,7 @@ module.exports = {
       "a": "controversy",
       "hint": "争议",
       "py": "controversy",
-      "ipa": "kˈɒntrəvˌɜːsi"
+      "ipa": "ˈkɒntrəvˌɜːsi"
     },
     {
       "type": "w1",
@@ -457,7 +457,7 @@ module.exports = {
       "a": "converge",
       "hint": "汇聚",
       "py": "converge",
-      "ipa": "kənvˈɜːdʒ"
+      "ipa": "kənˈvɜːdʒ"
     },
     {
       "type": "w1",
@@ -465,7 +465,7 @@ module.exports = {
       "a": "convey",
       "hint": "传达",
       "py": "convey",
-      "ipa": "kənvˈeɪ"
+      "ipa": "kənˈveɪ"
     },
     {
       "type": "w1",
@@ -481,7 +481,7 @@ module.exports = {
       "a": "corporate",
       "hint": "公司的",
       "py": "corporate",
-      "ipa": "kˈɔːpərət"
+      "ipa": "ˈkɔːpərət"
     },
     {
       "type": "w1",
@@ -489,7 +489,7 @@ module.exports = {
       "a": "correlate",
       "hint": "相关",
       "py": "correlate",
-      "ipa": "kˈɒrɪlˌeɪt"
+      "ipa": "ˈkɒrɪlˌeɪt"
     },
     {
       "type": "w1",
@@ -497,7 +497,7 @@ module.exports = {
       "a": "correspondence",
       "hint": "通信",
       "py": "correspondence",
-      "ipa": "kˌɒrɪspˈɒndəns"
+      "ipa": "kˌɒrɪˈspɒndəns"
     },
     {
       "type": "w1",
@@ -505,7 +505,7 @@ module.exports = {
       "a": "credibility",
       "hint": "可信度",
       "py": "credibility",
-      "ipa": "krˌɛdɪbˈɪlɪti"
+      "ipa": "krˌɛdɪˈbɪlɪti"
     },
     {
       "type": "w1",
@@ -513,7 +513,7 @@ module.exports = {
       "a": "criterion",
       "hint": "标准",
       "py": "criterion",
-      "ipa": "kraɪtˈiərɪən"
+      "ipa": "kraɪˈtiərɪən"
     },
     {
       "type": "w1",
@@ -521,7 +521,7 @@ module.exports = {
       "a": "crucial",
       "hint": "关键的",
       "py": "crucial",
-      "ipa": "krˈuːʃəl"
+      "ipa": "ˈkruːʃəl"
     },
     {
       "type": "w1",
@@ -529,7 +529,7 @@ module.exports = {
       "a": "culminate",
       "hint": "达到顶点",
       "py": "culminate",
-      "ipa": "kˈʌlmɪnˌeɪt"
+      "ipa": "ˈkʌlmɪnˌeɪt"
     },
     {
       "type": "w1",
@@ -537,7 +537,7 @@ module.exports = {
       "a": "cultivate",
       "hint": "培养",
       "py": "cultivate",
-      "ipa": "kˈʌltɪvˌeɪt"
+      "ipa": "ˈkʌltɪvˌeɪt"
     },
     {
       "type": "w1",
@@ -545,7 +545,7 @@ module.exports = {
       "a": "cumulative",
       "hint": "累积的",
       "py": "cumulative",
-      "ipa": "kjˈuːmjʊlətˌɪv"
+      "ipa": "ˈkjuːmjʊlətˌɪv"
     },
     {
       "type": "w1",
@@ -553,7 +553,7 @@ module.exports = {
       "a": "curriculum",
       "hint": "课程",
       "py": "curriculum",
-      "ipa": "kʌrˈɪkjʊləm"
+      "ipa": "kʌˈrɪkjʊləm"
     },
     {
       "type": "w1",
@@ -561,7 +561,7 @@ module.exports = {
       "a": "customary",
       "hint": "习惯的",
       "py": "customary",
-      "ipa": "kˈʌstəməri"
+      "ipa": "ˈkʌstəməri"
     },
     {
       "type": "w1",
@@ -569,7 +569,7 @@ module.exports = {
       "a": "dazzle",
       "hint": "使目眩",
       "py": "dazzle",
-      "ipa": "dˈæzəl"
+      "ipa": "ˈdæzəl"
     },
     {
       "type": "w1",
@@ -577,7 +577,7 @@ module.exports = {
       "a": "decentralize",
       "hint": "分权",
       "py": "decentralize",
-      "ipa": "dɪˈsɛntrəˌɫaɪz"
+      "ipa": "dɪˈsɛntrəˌlaɪz"
     },
     {
       "type": "w1",
@@ -585,7 +585,7 @@ module.exports = {
       "a": "deduce",
       "hint": "推论",
       "py": "deduce",
-      "ipa": "dɪdjˈuːs"
+      "ipa": "dɪˈdjuːs"
     },
     {
       "type": "w1",
@@ -593,7 +593,7 @@ module.exports = {
       "a": "deficiency",
       "hint": "缺乏",
       "py": "deficiency",
-      "ipa": "dɪfˈɪʃənsi"
+      "ipa": "dɪˈfɪʃənsi"
     },
     {
       "type": "w1",
@@ -601,7 +601,7 @@ module.exports = {
       "a": "deficit",
       "hint": "赤字",
       "py": "deficit",
-      "ipa": "dˈɛfɪsˌɪt"
+      "ipa": "ˈdɛfɪsˌɪt"
     },
     {
       "type": "w1",
@@ -609,7 +609,7 @@ module.exports = {
       "a": "deliberately",
       "hint": "故意地",
       "py": "deliberately",
-      "ipa": "dɪlˈɪbərətli"
+      "ipa": "dɪˈlɪbərətli"
     },
     {
       "type": "w1",
@@ -617,7 +617,7 @@ module.exports = {
       "a": "denounce",
       "hint": "谴责",
       "py": "denounce",
-      "ipa": "dɪnˈaʊns"
+      "ipa": "dɪˈnaʊns"
     },
     {
       "type": "w1",
@@ -625,7 +625,7 @@ module.exports = {
       "a": "depict",
       "hint": "描绘",
       "py": "depict",
-      "ipa": "dɪpˈɪkt"
+      "ipa": "dɪˈpɪkt"
     },
     {
       "type": "w1",
@@ -633,7 +633,7 @@ module.exports = {
       "a": "deplete",
       "hint": "耗尽",
       "py": "deplete",
-      "ipa": "dɪplˈiːt"
+      "ipa": "dɪˈpliːt"
     },
     {
       "type": "w1",
@@ -641,7 +641,7 @@ module.exports = {
       "a": "depreciate",
       "hint": "贬值",
       "py": "depreciate",
-      "ipa": "dɪprˈiːʃɪˌeɪt"
+      "ipa": "dɪˈpriːʃɪˌeɪt"
     },
     {
       "type": "w1",
@@ -649,7 +649,7 @@ module.exports = {
       "a": "deprive",
       "hint": "剥夺",
       "py": "deprive",
-      "ipa": "dɪprˈaɪv"
+      "ipa": "dɪˈpraɪv"
     },
     {
       "type": "w2",
@@ -657,7 +657,7 @@ module.exports = {
       "a": "abundance",
       "hint": "丰富",
       "py": "audne",
-      "ipa": "əbˈʌndəns"
+      "ipa": "əˈbʌndəns"
     },
     {
       "type": "w2",
@@ -665,7 +665,7 @@ module.exports = {
       "a": "acquisition",
       "hint": "获得",
       "py": "aqiiin",
-      "ipa": "əkwɪsˈɪʃən"
+      "ipa": "əkwɪˈsɪʃən"
     },
     {
       "type": "w2",
@@ -681,7 +681,7 @@ module.exports = {
       "a": "alleviate",
       "hint": "缓解",
       "py": "alvae",
-      "ipa": "əlˈiːvɪˌeɪt"
+      "ipa": "əˈliːvɪˌeɪt"
     },
     {
       "type": "w2",
@@ -689,7 +689,7 @@ module.exports = {
       "a": "ambiguous",
       "hint": "模糊的",
       "py": "abgos",
-      "ipa": "æmbˈɪɡjuːəs"
+      "ipa": "æmˈbɪɡjuːəs"
     },
     {
       "type": "w2",
@@ -697,7 +697,7 @@ module.exports = {
       "a": "analogy",
       "hint": "类比",
       "py": "aaoy",
-      "ipa": "ənˈælədʒi"
+      "ipa": "əˈnælədʒi"
     },
     {
       "type": "w2",
@@ -705,7 +705,7 @@ module.exports = {
       "a": "anonymous",
       "hint": "匿名的",
       "py": "nnyms",
-      "ipa": "ənˈɒnəməs"
+      "ipa": "əˈnɒnəməs"
     },
     {
       "type": "w2",
@@ -713,7 +713,7 @@ module.exports = {
       "a": "anticipate",
       "hint": "预期",
       "py": "atcpt",
-      "ipa": "æntˈɪsɪpˌeɪt"
+      "ipa": "ænˈtɪsɪpˌeɪt"
     },
     {
       "type": "w2",
@@ -729,7 +729,7 @@ module.exports = {
       "a": "aspiration",
       "hint": "渴望",
       "py": "sprtn",
-      "ipa": "ˌæspərˈeɪʃən"
+      "ipa": "ˌæspəˈreɪʃən"
     },
     {
       "type": "w2",
@@ -737,7 +737,7 @@ module.exports = {
       "a": "assessment",
       "hint": "评估",
       "py": "assmn",
-      "ipa": "əsˈɛsmənt"
+      "ipa": "əˈsɛsmənt"
     },
     {
       "type": "w2",
@@ -745,7 +745,7 @@ module.exports = {
       "a": "assimilate",
       "hint": "同化",
       "py": "ssmlt",
-      "ipa": "əsˈɪmɪlˌeɪt"
+      "ipa": "əˈsɪmɪlˌeɪt"
     },
     {
       "type": "w2",
@@ -761,7 +761,7 @@ module.exports = {
       "a": "authentic",
       "hint": "真正的",
       "py": "atetc",
-      "ipa": "ɔːθˈɛntɪk"
+      "ipa": "ɔːˈθɛntɪk"
     },
     {
       "type": "w2",
@@ -769,7 +769,7 @@ module.exports = {
       "a": "autonomy",
       "hint": "自治",
       "py": "tnmy",
-      "ipa": "ɔːtˈɒnəmi"
+      "ipa": "ɔːˈtɒnəmi"
     },
     {
       "type": "w2",
@@ -777,7 +777,7 @@ module.exports = {
       "a": "benchmark",
       "hint": "基准",
       "py": "bnhak",
-      "ipa": "bˈɛntʃmɑːk"
+      "ipa": "ˈbɛntʃmɑːk"
     },
     {
       "type": "w2",
@@ -785,7 +785,7 @@ module.exports = {
       "a": "benevolent",
       "hint": "仁慈的",
       "py": "bnvln",
-      "ipa": "bənˈɛvələnt"
+      "ipa": "bəˈnɛvələnt"
     },
     {
       "type": "w2",
@@ -793,7 +793,7 @@ module.exports = {
       "a": "bewilder",
       "hint": "使迷惑",
       "py": "bwldr",
-      "ipa": "bɪwˈɪldə"
+      "ipa": "bɪˈwɪldə"
     },
     {
       "type": "w2",
@@ -801,7 +801,7 @@ module.exports = {
       "a": "blockade",
       "hint": "封锁",
       "py": "blckd",
-      "ipa": "blɒkˈeɪd"
+      "ipa": "blɒˈkeɪd"
     },
     {
       "type": "w2",
@@ -809,7 +809,7 @@ module.exports = {
       "a": "boycott",
       "hint": "抵制",
       "py": "byctt",
-      "ipa": "bˈɔɪkɒt"
+      "ipa": "ˈbɔɪkɒt"
     },
     {
       "type": "trans",
@@ -817,7 +817,7 @@ module.exports = {
       "a": "abundance",
       "hint": "名词",
       "py": "fengfu",
-      "ipa": "əbˈʌndəns"
+      "ipa": "əˈbʌndəns"
     },
     {
       "type": "trans",
@@ -825,7 +825,7 @@ module.exports = {
       "a": "acquisition",
       "hint": "名词",
       "py": "huode",
-      "ipa": "əkwɪsˈɪʃən"
+      "ipa": "əkwɪˈsɪʃən"
     },
     {
       "type": "trans",
@@ -841,7 +841,7 @@ module.exports = {
       "a": "alleviate",
       "hint": "动词",
       "py": "huanjie",
-      "ipa": "əlˈiːvɪˌeɪt"
+      "ipa": "əˈliːvɪˌeɪt"
     },
     {
       "type": "trans",
@@ -849,7 +849,7 @@ module.exports = {
       "a": "ambiguous",
       "hint": "形容词",
       "py": "mohude",
-      "ipa": "æmbˈɪɡjuːəs"
+      "ipa": "æmˈbɪɡjuːəs"
     },
     {
       "type": "trans",
@@ -857,7 +857,7 @@ module.exports = {
       "a": "analogy",
       "hint": "名词",
       "py": "leibi",
-      "ipa": "ənˈælədʒi"
+      "ipa": "əˈnælədʒi"
     },
     {
       "type": "trans",
@@ -865,7 +865,7 @@ module.exports = {
       "a": "anonymous",
       "hint": "形容词",
       "py": "nimingde",
-      "ipa": "ənˈɒnəməs"
+      "ipa": "əˈnɒnəməs"
     },
     {
       "type": "trans",
@@ -873,7 +873,7 @@ module.exports = {
       "a": "anticipate",
       "hint": "动词",
       "py": "yuqi",
-      "ipa": "æntˈɪsɪpˌeɪt"
+      "ipa": "ænˈtɪsɪpˌeɪt"
     },
     {
       "type": "trans",
@@ -889,7 +889,7 @@ module.exports = {
       "a": "aspiration",
       "hint": "名词",
       "py": "kewang",
-      "ipa": "ˌæspərˈeɪʃən"
+      "ipa": "ˌæspəˈreɪʃən"
     },
     {
       "type": "trans",
@@ -897,7 +897,7 @@ module.exports = {
       "a": "assessment",
       "hint": "名词",
       "py": "pinggu",
-      "ipa": "əsˈɛsmənt"
+      "ipa": "əˈsɛsmənt"
     },
     {
       "type": "trans",
@@ -905,7 +905,7 @@ module.exports = {
       "a": "assimilate",
       "hint": "动词",
       "py": "tonghua",
-      "ipa": "əsˈɪmɪlˌeɪt"
+      "ipa": "əˈsɪmɪlˌeɪt"
     },
     {
       "type": "trans",
@@ -921,7 +921,7 @@ module.exports = {
       "a": "authentic",
       "hint": "形容词",
       "py": "zhenzhengde",
-      "ipa": "ɔːθˈɛntɪk"
+      "ipa": "ɔːˈθɛntɪk"
     },
     {
       "type": "trans",
@@ -929,7 +929,7 @@ module.exports = {
       "a": "autonomy",
       "hint": "名词",
       "py": "zizhi",
-      "ipa": "ɔːtˈɒnəmi"
+      "ipa": "ɔːˈtɒnəmi"
     },
     {
       "type": "trans",
@@ -937,7 +937,7 @@ module.exports = {
       "a": "benchmark",
       "hint": "名词",
       "py": "jizhun",
-      "ipa": "bˈɛntʃmɑːk"
+      "ipa": "ˈbɛntʃmɑːk"
     },
     {
       "type": "trans",
@@ -945,7 +945,7 @@ module.exports = {
       "a": "benevolent",
       "hint": "形容词",
       "py": "rencide",
-      "ipa": "bənˈɛvələnt"
+      "ipa": "bəˈnɛvələnt"
     },
     {
       "type": "trans",
@@ -953,7 +953,7 @@ module.exports = {
       "a": "benign",
       "hint": "形容词",
       "py": "liangxingde",
-      "ipa": "bɪnˈaɪn"
+      "ipa": "bɪˈnaɪn"
     },
     {
       "type": "trans",
@@ -961,7 +961,7 @@ module.exports = {
       "a": "bewilder",
       "hint": "动词",
       "py": "shimihuo",
-      "ipa": "bɪwˈɪldə"
+      "ipa": "bɪˈwɪldə"
     },
     {
       "type": "trans",
@@ -969,7 +969,7 @@ module.exports = {
       "a": "bias",
       "hint": "名词",
       "py": "pianjian",
-      "ipa": "bˈaɪəs"
+      "ipa": "ˈbaɪəs"
     },
     {
       "type": "trans",
@@ -977,7 +977,7 @@ module.exports = {
       "a": "blockade",
       "hint": "名词",
       "py": "fengsuo",
-      "ipa": "blɒkˈeɪd"
+      "ipa": "blɒˈkeɪd"
     },
     {
       "type": "trans",
@@ -985,7 +985,7 @@ module.exports = {
       "a": "boycott",
       "hint": "动词",
       "py": "dizhi",
-      "ipa": "bˈɔɪkɒt"
+      "ipa": "ˈbɔɪkɒt"
     },
     {
       "type": "trans",
@@ -993,7 +993,7 @@ module.exports = {
       "a": "bureaucracy",
       "hint": "名词",
       "py": "guanliaozhuyi",
-      "ipa": "bjɔːrˈɒkrəsˌi"
+      "ipa": "bjɔːˈrɒkrəsˌi"
     },
     {
       "type": "trans",
@@ -1001,7 +1001,7 @@ module.exports = {
       "a": "candidate",
       "hint": "名词",
       "py": "houxuanren",
-      "ipa": "kˈændɪdˌeɪt"
+      "ipa": "ˈkændɪdˌeɪt"
     },
     {
       "type": "trans",
@@ -1009,7 +1009,7 @@ module.exports = {
       "a": "catalyst",
       "hint": "名词",
       "py": "cuihuaji",
-      "ipa": "kˈætəlˌɪst"
+      "ipa": "ˈkætəlˌɪst"
     },
     {
       "type": "trans",
@@ -1017,7 +1017,7 @@ module.exports = {
       "a": "cater",
       "hint": "动词",
       "py": "yinghe",
-      "ipa": "kˈeɪtə"
+      "ipa": "ˈkeɪtə"
     },
     {
       "type": "trans",
@@ -1025,7 +1025,7 @@ module.exports = {
       "a": "censorship",
       "hint": "名词",
       "py": "shencha",
-      "ipa": "sˈɛnsəʃˌɪp"
+      "ipa": "ˈsɛnsəʃˌɪp"
     },
     {
       "type": "trans",
@@ -1033,7 +1033,7 @@ module.exports = {
       "a": "coherent",
       "hint": "形容词",
       "py": "lianguande",
-      "ipa": "kəʊhˈiərənt"
+      "ipa": "kəʊˈhiərənt"
     },
     {
       "type": "trans",
@@ -1041,7 +1041,7 @@ module.exports = {
       "a": "coincide",
       "hint": "动词",
       "py": "tongshifasheng",
-      "ipa": "kˌəʊɪnsˈaɪd"
+      "ipa": "kˌəʊɪnˈsaɪd"
     },
     {
       "type": "trans",
@@ -1049,7 +1049,7 @@ module.exports = {
       "a": "collaborate",
       "hint": "动词",
       "py": "hezuo",
-      "ipa": "kəlˈæbərˌeɪt"
+      "ipa": "kəˈlæbərˌeɪt"
     },
     {
       "type": "trans",
@@ -1057,7 +1057,7 @@ module.exports = {
       "a": "commodity",
       "hint": "名词",
       "py": "shangpin",
-      "ipa": "kəmˈɒdɪti"
+      "ipa": "kəˈmɒdɪti"
     },
     {
       "type": "trans",
@@ -1065,7 +1065,7 @@ module.exports = {
       "a": "compatible",
       "hint": "形容词",
       "py": "jianrongde",
-      "ipa": "kəmpˈætəbəl"
+      "ipa": "kəmˈpætəbəl"
     },
     {
       "type": "trans",
@@ -1073,7 +1073,7 @@ module.exports = {
       "a": "compensate",
       "hint": "动词",
       "py": "buchang",
-      "ipa": "kˈɒmpənsˌeɪt"
+      "ipa": "ˈkɒmpənsˌeɪt"
     },
     {
       "type": "trans",
@@ -1081,7 +1081,7 @@ module.exports = {
       "a": "complement",
       "hint": "动词",
       "py": "buchong",
-      "ipa": "kˈɒmplɪmənt"
+      "ipa": "ˈkɒmplɪmənt"
     },
     {
       "type": "trans",
@@ -1089,7 +1089,7 @@ module.exports = {
       "a": "comply",
       "hint": "动词",
       "py": "zunshou",
-      "ipa": "kəmplˈaɪ"
+      "ipa": "kəmˈplaɪ"
     },
     {
       "type": "trans",
@@ -1097,7 +1097,7 @@ module.exports = {
       "a": "compulsory",
       "hint": "形容词",
       "py": "qiangzhide",
-      "ipa": "kəmpˈʌlsərˌi"
+      "ipa": "kəmˈpʌlsərˌi"
     },
     {
       "type": "trans",
@@ -1105,7 +1105,7 @@ module.exports = {
       "a": "conceive",
       "hint": "动词",
       "py": "gouxiang",
-      "ipa": "kənsˈiːv"
+      "ipa": "kənˈsiːv"
     },
     {
       "type": "trans",
@@ -1113,7 +1113,7 @@ module.exports = {
       "a": "confer",
       "hint": "动词",
       "py": "shangtao",
-      "ipa": "kənfˈɜː"
+      "ipa": "kənˈfɜː"
     },
     {
       "type": "trans",
@@ -1121,7 +1121,7 @@ module.exports = {
       "a": "conform",
       "hint": "动词",
       "py": "zuncong",
-      "ipa": "kənfˈɔːm"
+      "ipa": "kənˈfɔːm"
     },
     {
       "type": "c2",
@@ -1277,7 +1277,7 @@ module.exports = {
       "a": "validated",
       "hint": "科学家通过严格实验验证了假设",
       "py": "scientiststhehypothesisthroughrigorousexperimentation",
-      "ipa": "vˈælɪdˌeɪtɪd"
+      "ipa": "ˈvælɪdˌeɪtɪd"
     },
     {
       "type": "fill",
@@ -1285,7 +1285,7 @@ module.exports = {
       "a": "exerted",
       "hint": "经济政策对市场产生重大影响",
       "py": "theeconomicpolicyasubstantialimpactonthemarket",
-      "ipa": "ɛɡzˈɜːtɪd"
+      "ipa": "ɛɡˈzɜːtɪd"
     },
     {
       "type": "fill",
@@ -1293,7 +1293,7 @@ module.exports = {
       "a": "analyzed",
       "hint": "研究人员分析数据以识别潜在模式",
       "py": "researchersthedatatoidentifyunderlyingpatterns",
-      "ipa": "ˈænəˌɫaɪzd"
+      "ipa": "ˈænəˌlaɪzd"
     },
     {
       "type": "fill",
@@ -1301,7 +1301,7 @@ module.exports = {
       "a": "constitutes",
       "hint": "该理论构成我们认识的根本转变",
       "py": "thetheoryafundamentalshiftinourunderstanding",
-      "ipa": "kˈɒnstɪtjˌuːts"
+      "ipa": "ˈkɒnstɪtjˌuːts"
     },
     {
       "type": "fill",
@@ -1309,7 +1309,7 @@ module.exports = {
       "a": "considered",
       "hint": "我们考虑了这一发现对未来研究的意义",
       "py": "wetheimplicationsofthisdiscoveryforfutureresearch",
-      "ipa": "kənsˈɪdəd"
+      "ipa": "kənˈsɪdəd"
     },
     {
       "type": "fill",
@@ -1317,7 +1317,7 @@ module.exports = {
       "a": "yielded",
       "hint": "实验以惊人精度产生预测结果",
       "py": "theexperimentthepredictedresultswithremarkableaccuracy",
-      "ipa": "jˈiːldɪd"
+      "ipa": "ˈjiːldɪd"
     },
     {
       "type": "fill",
@@ -1325,7 +1325,7 @@ module.exports = {
       "a": "restored",
       "hint": "学者将手稿恢复原貌",
       "py": "scholarsthemanuscripttoitsoriginalform",
-      "ipa": "rɪstˈɔːd"
+      "ipa": "rɪˈstɔːd"
     },
     {
       "type": "fill",
@@ -1333,7 +1333,7 @@ module.exports = {
       "a": "endorsed",
       "hint": "委员会经深入审议后支持了提案",
       "py": "thecommitteetheproposalafterextensivedeliberation",
-      "ipa": "ɛndˈɔːsd"
+      "ipa": "ɛnˈdɔːsd"
     },
     {
       "type": "fill",
@@ -1341,7 +1341,7 @@ module.exports = {
       "a": "supplanted",
       "hint": "新技术在许多行业取代了传统方法",
       "py": "thenewtechnologytraditionalmethodsinmanyindustries",
-      "ipa": "səplˈæntɪd"
+      "ipa": "səˈplæntɪd"
     },
     {
       "type": "fill",
@@ -1349,7 +1349,7 @@ module.exports = {
       "a": "substantiated",
       "hint": "他用大量证据证实了论点",
       "py": "hehisargumentwithsubstantialevidence",
-      "ipa": "səbstˈænʃɪˌeɪtɪd"
+      "ipa": "səbˈstænʃɪˌeɪtɪd"
     },
     {
       "type": "fill",
@@ -1357,7 +1357,7 @@ module.exports = {
       "a": "revealed",
       "hint": "调查揭露了财务记录的几处差异",
       "py": "theinvestigationseveraldiscrepanciesinthefinancialrecords",
-      "ipa": "rɪvˈiːld"
+      "ipa": "rɪˈviːld"
     },
     {
       "type": "fill",
@@ -1365,7 +1365,7 @@ module.exports = {
       "a": "established",
       "hint": "研究人员确立了两个变量的相关性",
       "py": "researchersthecorrelationbetweenthetwovariables",
-      "ipa": "ɪstˈæblɪʃt"
+      "ipa": "ɪˈstæblɪʃt"
     },
     {
       "type": "fill",
@@ -1373,7 +1373,7 @@ module.exports = {
       "a": "aims",
       "hint": "政策旨在减少教育系统不平等",
       "py": "thepolicytoreduceinequalityintheeducationsystem",
-      "ipa": "ˈeɪmz"
+      "ipa": "eɪmz"
     },
     {
       "type": "fill",
@@ -1381,7 +1381,7 @@ module.exports = {
       "a": "study",
       "hint": "科学家研究气候变化对海洋生态系统的影响",
       "py": "scientiststheeffectsofclimatechangeonmarineecosystems",
-      "ipa": "stˈʌdi"
+      "ipa": "ˈstʌdi"
     },
     {
       "type": "fill",
@@ -1389,7 +1389,7 @@ module.exports = {
       "a": "established",
       "hint": "条约确立了两国边界",
       "py": "thetreatythebordersbetweenthetwonations",
-      "ipa": "ɪstˈæblɪʃt"
+      "ipa": "ɪˈstæblɪʃt"
     },
     {
       "type": "fill",
@@ -1397,7 +1397,7 @@ module.exports = {
       "a": "assessed",
       "hint": "经济学家评估通胀对消费者购买力的影响",
       "py": "economiststheimpactofinflationonconsumerpurchasingpower",
-      "ipa": "əsˈɛst"
+      "ipa": "əˈsɛst"
     },
     {
       "type": "fill",
@@ -1405,7 +1405,7 @@ module.exports = {
       "a": "tasked",
       "hint": "教授给学生布置了挑战性作业",
       "py": "theprofessorthestudentswithachallengingassignment",
-      "ipa": "tˈɑːskt"
+      "ipa": "tɑːskt"
     },
     {
       "type": "fill",
@@ -1413,7 +1413,7 @@ module.exports = {
       "a": "developed",
       "hint": "研究人员开发了解决问题的新方法",
       "py": "researchersanovelapproachtosolvingtheproblem",
-      "ipa": "dɪvˈɛləpt"
+      "ipa": "dɪˈvɛləpt"
     },
     {
       "type": "fill",
@@ -1437,7 +1437,7 @@ module.exports = {
       "a": "identified",
       "hint": "科学家确定了该病的遗传基础",
       "py": "scientiststhegeneticbasisofthedisease",
-      "ipa": "aɪdˈɛntɪfˌaɪd"
+      "ipa": "aɪˈdɛntɪfˌaɪd"
     },
     {
       "type": "fill",
@@ -1445,7 +1445,7 @@ module.exports = {
       "a": "examined",
       "hint": "研究考察了饮食与健康的关系",
       "py": "thestudytherelationshipbetweendietandhealth",
-      "ipa": "ɛɡzˈæmɪnd"
+      "ipa": "ɛɡˈzæmɪnd"
     },
     {
       "type": "fill",
@@ -1453,7 +1453,7 @@ module.exports = {
       "a": "requires",
       "hint": "新法律要求公民更多回收",
       "py": "thenewlawcitizenstorecyclemore",
-      "ipa": "rɪkwˈaɪəz"
+      "ipa": "rɪˈkwaɪəz"
     },
     {
       "type": "fill",
@@ -1461,7 +1461,7 @@ module.exports = {
       "a": "published",
       "hint": "研究团队在著名期刊发表了成果",
       "py": "theresearchteamthefindingsinaprestigiousjournal",
-      "ipa": "pˈʌblɪʃt"
+      "ipa": "ˈpʌblɪʃt"
     },
     {
       "type": "fill",
@@ -1469,7 +1469,7 @@ module.exports = {
       "a": "contemplated",
       "hint": "哲学家沉思意识的本质",
       "py": "thephilosopherthenatureofconsciousness",
-      "ipa": "kˈɒntɪmplˌeɪtɪd"
+      "ipa": "ˈkɒntɪmplˌeɪtɪd"
     },
     {
       "type": "fill",
@@ -1477,7 +1477,7 @@ module.exports = {
       "a": "confirmed",
       "hint": "实验证实了假设的有效性",
       "py": "theexperimentthevalidityofthehypothesis",
-      "ipa": "kənfˈɜːmd"
+      "ipa": "kənˈfɜːmd"
     },
     {
       "type": "fill",
@@ -1485,7 +1485,7 @@ module.exports = {
       "a": "described",
       "hint": "作者生动详细地描述了历史事件",
       "py": "theauthorthehistoricaleventsinvividdetail",
-      "ipa": "dɪskrˈaɪbd"
+      "ipa": "dɪˈskraɪbd"
     },
     {
       "type": "fill",
@@ -1493,7 +1493,7 @@ module.exports = {
       "a": "reviewed",
       "hint": "委员会做决定前审查了报告",
       "py": "thecommitteethereportbeforemakingadecision",
-      "ipa": "rɪvjˈuːd"
+      "ipa": "rɪˈvjuːd"
     },
     {
       "type": "fill",
@@ -1501,7 +1501,7 @@ module.exports = {
       "a": "seeks",
       "hint": "新政策寻求提高教育质量",
       "py": "thenewpolicytoimprovethequalityofeducation",
-      "ipa": "sˈiːks"
+      "ipa": "siːks"
     },
     {
       "type": "fill",
@@ -1509,7 +1509,7 @@ module.exports = {
       "a": "investigated",
       "hint": "研究人员调查社交媒体对心理健康的影响",
       "py": "researcherstheimpactofsocialmediaonmentalhealth",
-      "ipa": "ɪnvˈɛstɪɡˌeɪtɪd"
+      "ipa": "ɪnˈvɛstɪɡˌeɪtɪd"
     },
     {
       "type": "fill",
@@ -1517,7 +1517,7 @@ module.exports = {
       "a": "demonstrated",
       "hint": "研究证明运动改善认知功能",
       "py": "thestudythatexerciseimprovescognitivefunction",
-      "ipa": "dˈɛmənstrˌeɪtɪd"
+      "ipa": "ˈdɛmənstrˌeɪtɪd"
     },
     {
       "type": "fill",
@@ -1533,7 +1533,7 @@ module.exports = {
       "a": "shows",
       "hint": "数据显示两个因素强相关",
       "py": "thedataastrongcorrelationbetweenthetwofactors",
-      "ipa": "ʃˈəʊz"
+      "ipa": "ʃəʊz"
     },
     {
       "type": "fill",
@@ -1541,7 +1541,7 @@ module.exports = {
       "a": "acknowledged",
       "hint": "政府承认经济改革的必要",
       "py": "thegovernmenttheneedforeconomicreform",
-      "ipa": "əknˈɒlɪdʒd"
+      "ipa": "əkˈnɒlɪdʒd"
     },
     {
       "type": "fill",
@@ -1549,7 +1549,7 @@ module.exports = {
       "a": "discovered",
       "hint": "科学家发现了一种新蝴蝶",
       "py": "scientistsanewspeciesofbutterfly",
-      "ipa": "dɪskˈʌvəd"
+      "ipa": "dɪˈskʌvəd"
     },
     {
       "type": "fill",
@@ -1557,7 +1557,7 @@ module.exports = {
       "a": "raised",
       "hint": "研究提出了关于宇宙起源的新问题",
       "py": "theresearchnewquestionsabouttheoriginoftheuniverse",
-      "ipa": "rˈeɪzd"
+      "ipa": "reɪzd"
     },
     {
       "type": "fill",
@@ -1565,7 +1565,7 @@ module.exports = {
       "a": "accepted",
       "hint": "委员会略作修改后接受了提案",
       "py": "thecommitteetheproposalwithminormodifications",
-      "ipa": "əksˈɛptɪd"
+      "ipa": "əkˈsɛptɪd"
     },
     {
       "type": "fill",
@@ -1573,7 +1573,7 @@ module.exports = {
       "a": "paves",
       "hint": "新技术为未来创新铺平道路",
       "py": "thenewtechnologythewayforfutureinnovations",
-      "ipa": "pˈeɪvz"
+      "ipa": "peɪvz"
     },
     {
       "type": "fill",
@@ -1581,7 +1581,7 @@ module.exports = {
       "a": "evaluated",
       "hint": "研究评估了新疗法的有效性",
       "py": "thestudytheeffectivenessofthenewtreatment",
-      "ipa": "ɪvˈæljuːˌeɪtɪd"
+      "ipa": "ɪˈvæljuːˌeɪtɪd"
     }
   ]
 };

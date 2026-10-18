@@ -71,9 +71,9 @@ const MODULES = [
   },
   {
     id: 'puzzle',
-    name: '数字智力（24点 / 数独 / 华容道 / 2048 / 天平 / 口算 / 记忆 / 一笔画）',
+    name: '数字智力（24点 / 数独 / 华容道 / 2048 / 天平 / 口算 / 记忆 / 一笔画 / 找规律 / 认钟表 / 迷宫 / 汉诺塔）',
     stages: ['math24', 'klotski', 'g2048', 'puzzleLevel'],
-    unit: ['balance', 'math-sprint', 'memory-grid', 'one-stroke', 'math24-levels',
+    unit: ['balance', 'math-sprint', 'memory-grid', 'one-stroke', 'pattern', 'clock', 'maze', 'hanoi', 'math24-levels',
       'klotski', 'klotski-levels', 'g2048-levels', 'sudoku-stages', 'puzzle-levels',
       'sprint-balance-grade']
   },
@@ -105,7 +105,7 @@ const MODULES = [
     id: 'pages',
     name: '页面渲染回归与真机黑屏探针（35 页）',
     stages: ['pages', 'load'],
-    unit: ['play-counts']
+    unit: ['play-counts', 'index-entries']
   },
   {
     id: 'tools',
@@ -178,10 +178,11 @@ const PATH_RULES = [
   { re: /^miniprogram\/pages\/playlist\//, modules: ['wordgames', 'puzzle', 'pages'] },
 
   // 数字智力
-  { re: /^miniprogram\/game\/(klotski|math24|math-sprint|memory-grid|one-stroke|sudoku|tw2048|balance)\.js$/,
+  // one-stroke-levels：2026-10-18 从 demo 移植的 35 关关卡表，改它必须跑 puzzle
+  { re: /^miniprogram\/game\/(klotski|math24|math-sprint|memory-grid|one-stroke(-levels)?|pattern|clock|maze|hanoi|sudoku|tw2048|balance)\.js$/,
     modules: ['puzzle'] },
   { re: /^miniprogram\/data\//, modules: ['puzzle', 'dict'] },
-  { re: /^miniprogram\/pages\/(math24|math-sprint|memory-grid|math-balance|one-stroke|sudoku|g2048|klotski|bounce)\//,
+  { re: /^miniprogram\/pages\/(math24|math-sprint|memory-grid|math-balance|one-stroke|pattern|clock|maze|hanoi|sudoku|g2048|klotski|bounce)\//,
     modules: ['puzzle'] },
 
   // 用户与成长

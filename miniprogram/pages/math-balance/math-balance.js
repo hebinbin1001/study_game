@@ -6,6 +6,7 @@ var lib = require('../../game/balance');
 var constants = require('../../utils/constants');
 var playReport = require('../../utils/play-report');
 var puzzleProgress = require('../../utils/puzzle-progress');
+var challenge = require('../../utils/challenge');
 var storage = require('../../utils/storage');
 
 var BEST_KEY = 'ww_balance_best';
@@ -177,6 +178,7 @@ Page({
       settle: true,
       win: stars >= 1,
       starsText: stars > 0 ? '⭐'.repeat(stars) : '',
+      hintText: challenge.starHint(this._right, lib.ROUND_Q, stars >= 1, '题'),
       best: best,
       overMsg: '答对 ' + this._right + ' / ' + lib.ROUND_Q + ' 题\n本局得分 '
         + this._score + '\n最高分 ' + best

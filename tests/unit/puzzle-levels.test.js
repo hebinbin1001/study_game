@@ -51,8 +51,34 @@ s.test('固定关卡表玩法：数量与现成数据一致', () => {
   s.assert.equal(lv.levelsOf('math24').length, 60);
   s.assert.equal(lv.levelsOf('sudoku').length, 60);
   s.assert.equal(lv.levelsOf('klotski').length, 30);
-  s.assert.equal(lv.levelsOf('onestroke').length, 34);
-  s.assert.equal(lv.totalOf('onestroke'), 34);
+  s.assert.equal(lv.levelsOf('onestroke').length, 35);
+  s.assert.equal(lv.totalOf('onestroke'), 35);
+  s.assert.equal(lv.levelsOf('pattern').length, 30);
+  s.assert.equal(lv.totalOf('pattern'), 30);
+});
+
+s.test('找规律：关卡页描述与引擎档位同源（不接年级）', () => {
+  const pat = require('../../miniprogram/game/pattern');
+  const list = lv.levelsOf('pattern');
+  list.forEach(function (it, i) {
+    const info = pat.tierOf(i + 1);
+    s.assert.contains(it.label, info.name, '第 ' + (i + 1) + ' 关档位名与引擎不一致');
+    s.assert.contains(it.sub, info.desc, '第 ' + (i + 1) + ' 关题型描述与引擎不一致');
+    s.assert.contains(it.sub, String(pat.QUESTIONS_PER_LEVEL), '题量与引擎不一致');
+    // 关卡页的 params 里不能出现 grade —— 数字智力按关号出题，不按年级
+    s.assert.equal(Object.prototype.hasOwnProperty.call(it.params, 'grade'), false);
+  });
+});
+
+s.test('一笔画：关卡名/难度/线数取自引擎（2026-10-18 换成 demo 的 35 关）', () => {
+  const os = require('../../miniprogram/game/one-stroke');
+  const list = lv.levelsOf('onestroke');
+  list.forEach(function (it, i) {
+    const raw = os.LEVELS[i];
+    s.assert.contains(it.label, raw.name, '第 ' + (i + 1) + ' 关名字与引擎不一致');
+    s.assert.contains(it.sub, String(raw.edges.length), '第 ' + (i + 1) + ' 关线数与引擎不一致');
+    s.assert.contains(it.sub, raw.tier, '第 ' + (i + 1) + ' 关难度档与引擎不一致');
+  });
 });
 
 s.test('2048：关卡表来自 data/g2048-levels.js（14 关），但不设上限', () => {

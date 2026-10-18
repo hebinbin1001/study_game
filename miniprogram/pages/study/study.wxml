@@ -1,33 +1,43 @@
-<!-- 学习 Tab（B1 UI 对齐 demo 学习页；O1 自适应） -->
+<!-- 学习 Tab（2026-10-17 布局重排）
+     原来：周概览 + 6 条同样式长条 —— 报告/错题本这两个有数据的入口被压成普通行，
+           底部还空着约 350rpx。
+     现在：周概览 → 2 张数据卡（报告正确率 / 错题待复习）→ 4 条入口 → 本周薄弱题型填底。
+     兼容：6 个入口方法与跳转全部不变。 -->
 <view class="page-study">
   <!-- 本周概览 -->
   <view class="week-card">
-    <view class="week-sub">本周学习</view>
-    <view class="week-big">{{streakDays}} 天 · {{totalStars}} ⭐</view>
-    <view class="week-sub">{{checkedToday ? '今日已签 ✓' : '今日未签'}} · 正确率稳步上升</view>
-  </view>
-
-  <!-- 学习报告 -->
-  <view class="link" bindtap="goReport">
-    <view class="li">📈</view>
-    <view class="lt">
-      <view class="l-b">学习报告</view>
-      <view class="l-s">答题量 / 正确率 / 薄弱题型</view>
+    <view class="week-nums">
+      <view class="week-num">
+        <text class="week-big">{{streakDays}}</text>
+        <text class="week-unit">天</text>
+      </view>
+      <view class="week-sep"></view>
+      <view class="week-num">
+        <text class="week-big">{{totalStars}}</text>
+        <text class="week-unit">⭐</text>
+      </view>
     </view>
-    <view class="ar">›</view>
+    <view class="week-sub">{{checkedToday ? '今日已签 ✓' : '今日未签'}} · 连续学习不断档</view>
   </view>
 
-  <!-- 错题本 -->
-  <view class="link" bindtap="goWrongBook">
-    <view class="li">📕</view>
-    <view class="lt">
-      <view class="l-b">错题本</view>
-      <view class="l-s">待复习 {{wrongCount}} 道 · 艾宾浩斯复习</view>
+  <!-- 数据卡：学习报告 / 错题本（把数字提到第一层） -->
+  <view class="stat-row">
+    <view class="stat-card" bindtap="goReport">
+      <view class="stat-top">📈 学习报告</view>
+      <view class="stat-num">
+        <block wx:if="{{avgRate >= 0}}">{{avgRate}}<text class="stat-unit">%</text></block>
+        <block wx:else>--</block>
+      </view>
+      <view class="stat-sub">{{avgRate >= 0 ? '近 7 天正确率' : '登录后查看'}}</view>
     </view>
-    <view class="ar">›</view>
+    <view class="stat-card" bindtap="goWrongBook">
+      <view class="stat-top">📕 错题本</view>
+      <view class="stat-num">{{loggedIn ? wrongCount : '--'}}</view>
+      <view class="stat-sub">{{loggedIn ? '待复习 · 艾宾浩斯' : '登录后同步'}}</view>
+    </view>
   </view>
 
-  <!-- 每日一题 · 签到（完成即今日签到；B2 接入真实每日一题） -->
+  <!-- 入口行（行高从 108rpx 收到 96rpx） -->
   <view class="link daily-link" bindtap="goDaily">
     <view class="li li-green">📌</view>
     <view class="lt">
@@ -37,7 +47,6 @@
     <view class="state-chip {{checkedToday ? 'done' : ''}}">{{checkedToday ? '已签' : '去答题'}}</view>
   </view>
 
-  <!-- 签到记录 / 里程碑日历 -->
   <view class="link" bindtap="goCheckin">
     <view class="li li-purple">📅</view>
     <view class="lt">
@@ -47,7 +56,6 @@
     <view class="ar">›</view>
   </view>
 
-  <!-- 题库（2026-09-18）：查看各学段词汇，可编辑/新增/删除；这里就是闯关线的题源 -->
   <view class="link" bindtap="goBank">
     <view class="li li-blue">📚</view>
     <view class="lt">
@@ -57,7 +65,6 @@
     <view class="ar">›</view>
   </view>
 
-  <!-- 自建关卡（原「自定义题库」改名，2026-09-18：避免与新的「题库」页撞名） -->
   <view class="link" bindtap="goCustom">
     <view class="li li-orange">🛠️</view>
     <view class="lt">
@@ -65,6 +72,22 @@
       <view class="l-s">用题库里的词挑 10 题组一关 · 可提交审核/分享给别人玩</view>
     </view>
     <view class="ar">›</view>
+  </view>
+
+  <!-- 本周薄弱题型：用错题分布填满底部（数据来自 /api/report/range 的 wrongByType）。
+       没有数据时也保留这张卡 —— 否则游客/新用户底部又会空出一大片。 -->
+  <view class="weak-card">
+    <view class="weak-head">
+      <text class="weak-t">🎯 本周薄弱</text>
+      <text wx:if="{{weakList.length > 0}}" class="weak-more" bindtap="goWrongBook">去练错题 ›</text>
+    </view>
+    <view wx:if="{{weakList.length > 0}}" class="weak-row">
+      <view class="weak-chip" wx:for="{{weakList}}" wx:key="code">
+        <text class="weak-name">{{item.label}}</text>
+        <text class="weak-count">{{item.count}}</text>
+      </view>
+    </view>
+    <view wx:else class="weak-empty">{{loggedIn ? '本周还没有错题记录 · 继续保持' : '登录后查看薄弱题型'}}</view>
   </view>
 
   <view class="safe-gap"></view>

@@ -82,8 +82,11 @@ Page({
     grades: [],
     gradeIndex: 0,
     gradeLabel: '',
+    gradeKey: '',
+    gradePickerVisible: false,
     bookFilter: 'all',    // 教材筛选：all / generic / pep / wys
     bookChips: [],        // [{key,label,n}]
+    bookSelectable: true, // 当前年级能否选版本（初高中统一，不展示教材筛选）
     curBookName: '',      // 「我的」里选的教材版本（影响出题，这里只做提示）
     bankChips: [],        // [{key,label,off,count}] 第一个是「内置」
     curBank: BASE_KEY,
@@ -145,9 +148,17 @@ Page({
     var sheetTypes = constants.TYPE_CODES.map(function (c) {
       return { code: c, name: constants.TYPES[c].name };
     });
+    // 年级跟随全局设置（2026-10-18）：词库不再自己维护一份学段
+    var saved = storage.getLastGrade();
+    var gIdx = 0;
+    for (var gi = 0; gi < grades.length; gi++) {
+      if (grades[gi].key === saved) { gIdx = gi; break; }
+    }
     this.setData({
       grades: grades,
-      gradeLabel: grades[0].label,
+      gradeIndex: gIdx,
+      gradeKey: grades[gIdx].key,
+      gradeLabel: grades[gIdx].label,
       types: types,
       sheetTypeOptions: sheetTypes
     });
@@ -247,24 +258,33 @@ Page({
     // 教材版本分布（2026-10-09）：用户把「我的 → 教材版本」切成人教版后，
     // 以前在题库页完全看不出差别（这里原本只显示内置全量）。
     // 现在按教材标签分组统计，切换 chip 就能直接看到 人教版/外研版/通用 各有多少条。
+    //
+    // 2026-10-18：初高中不区分版本（中考/高考词汇统一），这时不展示教材筛选 ——
+    // 否则会摆出「人教版 0 / 外研版 0」两枚空 chip，纯噪音，还让人以为同步失败。
+    var bookSelectable = constants.isBookSelectable(g);
     var bookCount = { generic: 0 };
     finalRows.forEach(function (r) {
       var b = r.book || 'generic';
       bookCount[b] = (bookCount[b] || 0) + 1;
     });
     var bookChips = [{ key: 'all', label: '全部', n: finalRows.length }];
-    constants.BOOKS.forEach(function (b) {
-      var key = b.key || 'generic';
-      bookChips.push({ key: key, label: b.name, n: bookCount[key] || 0 });
-    });
-    var picked = d.bookFilter || 'all';
+    if (bookSelectable) {
+      constants.BOOKS.forEach(function (b) {
+        var key = b.key || 'generic';
+        bookChips.push({ key: key, label: b.name, n: bookCount[key] || 0 });
+      });
+    }
+    var picked = (d.bookFilter || 'all');
+    if (!bookSelectable) picked = 'all';
     // 切到别的学段后，原教材档位可能一条都没有 → 自动回到「全部」，别让用户对着空列表发呆
     var pickedCount = null;
     bookChips.forEach(function (c) { if (c.key === picked) pickedCount = c.n; });
     if (picked !== 'all' && !pickedCount) picked = 'all';
 
     var curBook = storage.getBook();
-    var curBookName = curBook ? bookNameOf(curBook) : '通用词表';
+    var curBookName = !bookSelectable
+      ? '初高中统一（不分版本）'
+      : (curBook ? bookNameOf(curBook) : '通用词表');
 
     var bankName = curBank === BASE_KEY
       ? '内置 · 含我的改动'
@@ -274,6 +294,7 @@ Page({
     this.setData({
       bookFilter: picked,
       bookChips: bookChips,
+      bookSelectable: bookSelectable,
       curBookName: curBookName,
       bankChips: chips,
       curBank: curBank,
@@ -384,9 +405,27 @@ Page({
   },
 
   // ============ 筛选交互 ============
-  pickGrade: function (e) {
-    var i = parseInt(e.currentTarget.dataset.index, 10) || 0;
-    this.setData({ gradeIndex: i, gradeLabel: this.data.grades[i].label, curBank: BASE_KEY });
+  // 年级是全局设置（2026-10-18）：词库页只读展示 + 点开选择器
+  openGradePicker: function () {
+    this.setData({ gradePickerVisible: true });
+  },
+  onGradeClose: function () {
+    this.setData({ gradePickerVisible: false });
+  },
+  onGradePick: function (e) {
+    var key = (e && e.detail && e.detail.key) || '';
+    if (!key) return;
+    var grades = this.data.grades || [];
+    var idx = 0;
+    for (var i = 0; i < grades.length; i++) { if (grades[i].key === key) { idx = i; break; } }
+    storage.setLastGrade(key);
+    this.setData({
+      gradeIndex: idx,
+      gradeKey: key,
+      gradeLabel: grades[idx].label,
+      gradePickerVisible: false,
+      curBank: BASE_KEY
+    });
     this._render();
   },
 

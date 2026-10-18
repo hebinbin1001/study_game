@@ -371,3 +371,17 @@
 .bk-pager-btn:active { transform: translateY(3rpx); }
 .bk-pager-btn.dis { color: #b8c4d4; background: #f2f5f9; box-shadow: none; }
 .bk-pager-info { font-size: 22rpx; color: #6b87a3; font-weight: 700; }
+
+/* ============ 年级只读行（2026-10-18 全局年级设置） ============ */
+.bk-grade-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: #eef4fb;
+}
+.bk-grade-line:active { opacity: .75; }
+.bk-grade-ic { font-size: 24rpx; }
+.bk-grade-tx { font-size: 24rpx; font-weight: 900; color: #2f4a6b; }
+.bk-grade-go { font-size: 20rpx; font-weight: 800; color: #4285F4; }

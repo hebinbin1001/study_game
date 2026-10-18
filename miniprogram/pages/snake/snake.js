@@ -6,7 +6,7 @@
 //   - 蛇吃到「当前应拼字母」→ 记入拼写（+分、蛇 +1 格、刷新该字母食物），继续拼下一个字母
 //   - 蛇吃到干扰字母 → 扣 1 命（该食物作废）；撞墙/撞身 → 扣 1 命
 //   - 拼完当前词 → 换下一个目标词；共拼完 WORDS_PER_ROUND 个词即通关
-//   - 3 命用尽则结束；按正确命中率/剩余命给 1-3 星
+//   - 3 命用尽则结束；按正确率（拼完词数/尝试次数）给 1-3 星
 // 触屏：相对转向 —— 以蛇头朝向为中心线，点左/右侧拐 90°、点正前方直行、点正后不掉头（无实体方向键，也不支持滑动）。
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
@@ -48,6 +48,7 @@ Page({
     tip: '',
     best: 0,
     starText: '',
+    hintText: '',          // 结算「差一点」提示（2026-10-17）
     round: 0,            // 已拼完词数
     targetLabel: '',     // 第 x/y 词
     challenge: false,    // 是否挑战主线关卡
@@ -86,11 +87,14 @@ Page({
     this._words = this._loadWords();
     this._roundWords = this._pickRoundWords();
     this._score = 0;
+    // 2026-10-17：星级改按正确率（拼完词数 / 尝试次数），错误 = 吃错字母 + 撞墙；
+    // 原来按剩余命，错 1 次就掉 2 星，与射击「错 1 题仍 3 星」不等价。
+    this._errors = 0;
     this._lives = LIVES;
     this._wordIdx = -1;
     this._snake = this._newSnake();
     this._dir = 1;
-    this.setData({ best: best, score: 0, lives: LIVES, over: false, win: false, round: 0, starText: '' });
+    this.setData({ best: best, score: 0, lives: LIVES, over: false, win: false, round: 0, starText: '', hintText: '' });
     this._nextWord();
     this._render();
     this._graceUntil = Date.now() + START_GRACE;   // 开局缓冲：先给玩家反应时间再起步
@@ -281,6 +285,7 @@ Page({
       this._foods.splice(fi, 1);
       this._snake.unshift({ r: nr, c: nc });
       this._snake.pop();
+      this._errors++;
       this._lives--;
       this.setData({ lives: this._lives });
       wx.showToast({ title: '吃错字母「' + food.ch + '」', icon: 'none' });
@@ -297,6 +302,7 @@ Page({
   },
 
   _hurt: function (why) {
+    this._errors++;
     this._lives--;
     this.setData({ lives: this._lives });
     wx.showToast({ title: why + ' · 命-1', icon: 'none' });
@@ -328,11 +334,15 @@ Page({
 
   _win: function () {
     this._stopLoop();
-    var stars = challenge.starsByLives(this._lives);
+    // 正确率 = 拼完词数 / (拼完词数 + 错误次数)；以「词」为计数单位，
+    // 与消消乐/连连看「对数」的颗粒度一致（都以一次完整配对为一个单位）。
+    var done = this._roundWords.length;
+    var stars = challenge.starsByRightRate(done, done + (this._errors || 0));
     if (this._score > this.data.best) storage.set('ww_snake_best', this._score);
     var best = Math.max(this.data.best, this._score);
     this.setData({
       over: true, win: true, starText: '⭐'.repeat(stars),
+      hintText: challenge.starHint(done, done + (this._errors || 0), true, '词'),
       score: this._score, best: best,
       tip: '拼完 ' + this._roundWords.length + ' 词 · 得分 ' + this._score
     });
@@ -356,7 +366,11 @@ Page({
     this._stopLoop();
     var best = Math.max(this.data.best, this._score);
     if (this._score > this.data.best) storage.set('ww_snake_best', this._score);
-    this.setData({ over: true, win: false, starText: '', score: this._score, best: best, tip: '生命耗尽 · 拼了 ' + this._wordIdx + '/' + this._roundWords.length + ' 词' });
+    this.setData({
+      over: true, win: false, starText: '', score: this._score, best: best,
+      tip: '生命耗尽 · 拼了 ' + this._wordIdx + '/' + this._roundWords.length + ' 词',
+      hintText: '还剩 ' + Math.max(0, this._roundWords.length - this._wordIdx) + ' 词没拼完'
+    });
   },
 
   // ===== 触屏控制 =====

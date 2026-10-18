@@ -9,7 +9,7 @@ module.exports = {
       "a": "cat",
       "hint": "猫",
       "py": "cat",
-      "ipa": "kˈæt"
+      "ipa": "kæt"
     },
     {
       "type": "w1",
@@ -17,7 +17,7 @@ module.exports = {
       "a": "dog",
       "hint": "狗",
       "py": "dog",
-      "ipa": "dˈɒɡ"
+      "ipa": "dɒɡ"
     },
     {
       "type": "w1",
@@ -25,7 +25,7 @@ module.exports = {
       "a": "sun",
       "hint": "太阳",
       "py": "sun",
-      "ipa": "sˈʌn"
+      "ipa": "sʌn"
     },
     {
       "type": "w1",
@@ -33,7 +33,7 @@ module.exports = {
       "a": "moon",
       "hint": "月亮",
       "py": "moon",
-      "ipa": "mˈuːn"
+      "ipa": "muːn"
     },
     {
       "type": "w1",
@@ -41,7 +41,7 @@ module.exports = {
       "a": "star",
       "hint": "星星",
       "py": "star",
-      "ipa": "stˈɑː"
+      "ipa": "stɑː"
     },
     {
       "type": "w1",
@@ -49,7 +49,7 @@ module.exports = {
       "a": "tree",
       "hint": "树",
       "py": "tree",
-      "ipa": "trˈiː"
+      "ipa": "triː"
     },
     {
       "type": "w1",
@@ -57,7 +57,7 @@ module.exports = {
       "a": "flower",
       "hint": "花",
       "py": "flower",
-      "ipa": "ˈfɫaʊɝ"
+      "ipa": "ˈflaʊɜː"
     },
     {
       "type": "w1",
@@ -65,7 +65,7 @@ module.exports = {
       "a": "bird",
       "hint": "鸟",
       "py": "bird",
-      "ipa": "bˈɜːd"
+      "ipa": "bɜːd"
     },
     {
       "type": "w1",
@@ -73,7 +73,7 @@ module.exports = {
       "a": "fish",
       "hint": "鱼",
       "py": "fish",
-      "ipa": "fˈɪʃ"
+      "ipa": "fɪʃ"
     },
     {
       "type": "w1",
@@ -81,7 +81,7 @@ module.exports = {
       "a": "book",
       "hint": "书",
       "py": "book",
-      "ipa": "bˈʊk"
+      "ipa": "bʊk"
     },
     {
       "type": "w1",
@@ -89,7 +89,7 @@ module.exports = {
       "a": "water",
       "hint": "水",
       "py": "water",
-      "ipa": "wˈɔːtə"
+      "ipa": "ˈwɔːtə"
     },
     {
       "type": "w1",
@@ -97,7 +97,7 @@ module.exports = {
       "a": "fire",
       "hint": "火",
       "py": "fire",
-      "ipa": "fˈaɪə"
+      "ipa": "ˈfaɪə"
     },
     {
       "type": "w1",
@@ -105,7 +105,7 @@ module.exports = {
       "a": "red",
       "hint": "红色",
       "py": "red",
-      "ipa": "rˈɛd"
+      "ipa": "rɛd"
     },
     {
       "type": "w1",
@@ -113,7 +113,7 @@ module.exports = {
       "a": "blue",
       "hint": "蓝色",
       "py": "blue",
-      "ipa": "blˈuː"
+      "ipa": "bluː"
     },
     {
       "type": "w1",
@@ -121,7 +121,7 @@ module.exports = {
       "a": "big",
       "hint": "大",
       "py": "big",
-      "ipa": "bˈɪɡ"
+      "ipa": "bɪɡ"
     },
     {
       "type": "w1",
@@ -129,7 +129,7 @@ module.exports = {
       "a": "small",
       "hint": "小",
       "py": "small",
-      "ipa": "smˈɔːl"
+      "ipa": "smɔːl"
     },
     {
       "type": "w1",
@@ -137,7 +137,7 @@ module.exports = {
       "a": "up",
       "hint": "上",
       "py": "up",
-      "ipa": "ˈʌp"
+      "ipa": "ʌp"
     },
     {
       "type": "w1",
@@ -145,7 +145,7 @@ module.exports = {
       "a": "down",
       "hint": "下",
       "py": "down",
-      "ipa": "dˈaʊn"
+      "ipa": "daʊn"
     },
     {
       "type": "w1",
@@ -153,7 +153,7 @@ module.exports = {
       "a": "left",
       "hint": "左",
       "py": "left",
-      "ipa": "lˈɛft"
+      "ipa": "lɛft"
     },
     {
       "type": "w1",
@@ -161,7 +161,7 @@ module.exports = {
       "a": "right",
       "hint": "右",
       "py": "right",
-      "ipa": "rˈaɪt"
+      "ipa": "raɪt"
     },
     {
       "type": "w1",
@@ -169,7 +169,7 @@ module.exports = {
       "a": "hand",
       "hint": "手",
       "py": "hand",
-      "ipa": "hˈænd"
+      "ipa": "hænd"
     },
     {
       "type": "w1",
@@ -177,7 +177,7 @@ module.exports = {
       "a": "eye",
       "hint": "眼睛",
       "py": "eye",
-      "ipa": "ˈaɪ"
+      "ipa": "aɪ"
     },
     {
       "type": "w1",
@@ -193,7 +193,7 @@ module.exports = {
       "a": "foot",
       "hint": "脚",
       "py": "foot",
-      "ipa": "fˈʊt"
+      "ipa": "fʊt"
     },
     {
       "type": "w1",
@@ -201,7 +201,7 @@ module.exports = {
       "a": "door",
       "hint": "门",
       "py": "door",
-      "ipa": "dˈɔː"
+      "ipa": "dɔː"
     },
     {
       "type": "w1",
@@ -209,7 +209,7 @@ module.exports = {
       "a": "car",
       "hint": "汽车",
       "py": "car",
-      "ipa": "kˈɑː"
+      "ipa": "kɑː"
     },
     {
       "type": "w1",
@@ -217,7 +217,7 @@ module.exports = {
       "a": "bus",
       "hint": "公交车",
       "py": "bus",
-      "ipa": "bˈʌs"
+      "ipa": "bʌs"
     },
     {
       "type": "w1",
@@ -225,7 +225,7 @@ module.exports = {
       "a": "ship",
       "hint": "大船",
       "py": "ship",
-      "ipa": "ʃˈɪp"
+      "ipa": "ʃɪp"
     },
     {
       "type": "w1",
@@ -233,7 +233,7 @@ module.exports = {
       "a": "boat",
       "hint": "小船",
       "py": "boat",
-      "ipa": "bˈəʊt"
+      "ipa": "bəʊt"
     },
     {
       "type": "w1",
@@ -241,7 +241,7 @@ module.exports = {
       "a": "hat",
       "hint": "帽子",
       "py": "hat",
-      "ipa": "hˈæt"
+      "ipa": "hæt"
     },
     {
       "type": "w1",
@@ -249,7 +249,7 @@ module.exports = {
       "a": "shoe",
       "hint": "鞋子",
       "py": "shoe",
-      "ipa": "ʃˈuː"
+      "ipa": "ʃuː"
     },
     {
       "type": "w1",
@@ -257,7 +257,7 @@ module.exports = {
       "a": "cup",
       "hint": "杯子",
       "py": "cup",
-      "ipa": "kˈʌp"
+      "ipa": "kʌp"
     },
     {
       "type": "w1",
@@ -265,7 +265,7 @@ module.exports = {
       "a": "pen",
       "hint": "钢笔",
       "py": "pen",
-      "ipa": "pˈɛn"
+      "ipa": "pɛn"
     },
     {
       "type": "w1",
@@ -273,7 +273,7 @@ module.exports = {
       "a": "bag",
       "hint": "书包",
       "py": "bag",
-      "ipa": "bˈæɡ"
+      "ipa": "bæɡ"
     },
     {
       "type": "w1",
@@ -281,7 +281,7 @@ module.exports = {
       "a": "bed",
       "hint": "床",
       "py": "bed",
-      "ipa": "bˈɛd"
+      "ipa": "bɛd"
     },
     {
       "type": "w1",
@@ -289,7 +289,7 @@ module.exports = {
       "a": "box",
       "hint": "盒子",
       "py": "box",
-      "ipa": "bˈɒks"
+      "ipa": "bɒks"
     },
     {
       "type": "w1",
@@ -297,7 +297,7 @@ module.exports = {
       "a": "ball",
       "hint": "球",
       "py": "ball",
-      "ipa": "bˈɔːl"
+      "ipa": "bɔːl"
     },
     {
       "type": "w1",
@@ -305,7 +305,7 @@ module.exports = {
       "a": "doll",
       "hint": "娃娃",
       "py": "doll",
-      "ipa": "dˈɒl"
+      "ipa": "dɒl"
     },
     {
       "type": "c1",

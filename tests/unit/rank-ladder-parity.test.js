@@ -17,9 +17,12 @@ const be = require('../../server/rank-ladder');
 
 s.test('规模一致：9 大段 × 9 小级 = 81 级（2026-10-08 起含「学神」）', () => {
   s.assert.equal(fe.TOTAL_CELLS, 81);
-  s.assert.equal(fe.BIG_RANKS.length, 8);
+  // 2026-10-18 修：这里原来写死 8，是「学神」上线前的旧断言 ——
+  // 标题与 TOTAL_CELLS 都按 9 段算，只有这一条没跟着改，导致护栏长期误报。
+  s.assert.equal(fe.BIG_RANKS.length, 9);
   s.assert.equal(fe.LEVELS_PER_RANK, 9);
   s.assert.equal(be.TOTAL_CELLS, 81);
+  s.assert.equal(be.BIG_RANKS.length, 9);
 });
 
 s.test('逐级累计门槛与后端完全一致', () => {

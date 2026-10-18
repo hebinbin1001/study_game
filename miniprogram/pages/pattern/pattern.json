@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "settle-pop": "/components/settle-pop/settle-pop"
+  },
+  "navigationBarTitleText": "找规律",
+  "navigationBarBackgroundColor": "#7C6CF0",
+  "navigationBarTextStyle": "white"
+}

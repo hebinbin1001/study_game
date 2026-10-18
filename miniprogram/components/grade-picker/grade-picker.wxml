@@ -1,0 +1,25 @@
+<!-- 全局年级选择器：半屏弹层，14 个年级两列网格 -->
+<view wx:if="{{visible}}" class="gp-mask" catchtap="onClose">
+  <view class="gp-sheet" catchtap="noop">
+    <view class="gp-head">
+      <view class="gp-title">选择年级</view>
+      <view class="gp-sub">切换后会显示该年级的关卡与题目，已有进度都会保留</view>
+    </view>
+
+    <scroll-view class="gp-scroll" scroll-y="true">
+      <view class="gp-grid">
+        <view
+          wx:for="{{grades}}"
+          wx:key="key"
+          class="gp-item {{item.key === value ? 'on' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="onPick">
+          <text class="gp-label">{{item.label}}</text>
+          <text wx:if="{{item.key === value}}" class="gp-check">✓</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="gp-cancel" bindtap="onClose">取消</view>
+  </view>
+</view>

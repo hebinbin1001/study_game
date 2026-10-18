@@ -172,6 +172,21 @@ button.btn {
   box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.18);
 }
 
+/* 结算弹层里的次要操作（返回关卡 / 关卡列表）
+ * 2026-10-17：各页的 .b1/.b2 配色本来就不一致（有的 b1 橙、有的 b1 灰），
+ * 放进统一弹层会花；这里给一个固定浅灰款，**不依赖各页局部样式**。 */
+.btn-ghost {
+  width: 100%;
+  height: 92rpx;
+  margin-top: 18rpx;
+  border-radius: 46rpx;
+  background: #eef2f8;
+  color: #5c7f9e;
+  font-size: 30rpx;
+  font-weight: 900;
+  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.06);
+}
+
 /* 主按钮（大号，常用于「开始游戏」） */
 .btn-primary {
   width: 480rpx;
@@ -465,6 +480,256 @@ button.btn {
   border-radius: 30rpx;
 }
 .gate-bar .gate-btn::after { border: none; }
+
+/* ==========================================================================
+   战士主题 · UI 重做一期（2026-10-17）
+
+   产品目标（用户拍板）：用「主题 + 玩法」吸引玩家 —— 战士皮肤 / Boss 立绘
+   这套资产以前只在皮肤页躺着，首页和对局页几乎不露脸。现在把它们放到台前：
+     首页   = 战士舞台（当前皮肤立绘）+ 皮肤收集条 + Boss 预告卡 + 出战大按钮
+     对局页 = 战士 VS Boss 双血条，答题即战斗
+     结算页 = 击败演出 + 「下一款皮肤还差多少」的钩子
+
+   口径（用户 2026-10-17 拍板）：
+     ① 等级 = 段位阶梯的 cell（1~72），由星星数推导（utils/rank-ladder.js），不新增数值；
+     ② 皮肤解锁按段位（rank）与成就（milestone）展示条件文案；
+     ③ Boss 奖励体系不动；
+     ④ 布局要求「整屏铺满」—— 页面 flex 纵向撑满，末屏模块 flex:1 吃掉剩余高度，
+        不留大片空白（下方 .page-fill / .fill-1 就是干这个的）。
+   ========================================================================== */
+
+/* ---- 主题 token（与 demo/ui-redesign/style-h-theme.html 同一套） ---- */
+page {
+  --sky-top: #4a9fe8;      /* 天空顶 */
+  --sky-mid: #8fcbf7;      /* 天空中 */
+  --sky-bot: #d8efff;      /* 天空底 */
+  --cta: #ff9a1f;          /* 主操作橙 */
+  --cta-deep: #d97c00;     /* 橙色底影（按压感） */
+  --win: #3fbf5f;          /* 成功/下一关绿 */
+  --boss-bg1: #3b2a5e;     /* Boss 场景暗紫顶 */
+  --boss-bg2: #c98ab8;     /* Boss 场景紫粉底 */
+  --gold: #ffd166;         /* 星星/解锁金 */
+  --ink: #3a3a5c;
+  --ink-sub: #8a9bb5;
+}
+
+/* ---- 铺满布局基类：页面纵向撑满，末屏用 .fill-1 吃掉剩余高度 ---- */
+.page-fill {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+.fill-1 { flex: 1 1 auto; min-height: 0; }
+
+/* ---- 战士舞台（首页视觉中心：当前装备的皮肤立绘） ---- */
+.w-stage {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  padding: 12rpx 0 0;
+}
+/* 舞台光晕：立绘脚下的一圈浅色，让战士「站」在页面上而不是浮着 */
+.w-stage::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 24rpx;
+  width: 300rpx;
+  height: 76rpx;
+  margin-left: -150rpx;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, .85), rgba(255, 255, 255, 0) 70%);
+}
+.w-img {
+  position: relative;
+  z-index: 1;
+  width: 330rpx;
+  height: 330rpx;
+}
+.w-emoji {
+  position: relative;
+  z-index: 1;
+  font-size: 150rpx;
+  line-height: 1;
+}
+.w-side {
+  position: absolute;
+  top: 44%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.w-side--right { right: 0; align-items: flex-end; }
+/* 左侧标签必须显式 left:0 —— 绝对定位不写 left/right 会退回到文档流位置，
+   在小屏上会压到立绘身上（首页真机复查踩过）。 */
+.w-side--left { left: 0; }
+.w-name {
+  max-width: 240rpx;
+  background: #fff;
+  color: #3a5a80;
+  font-size: 26rpx;
+  font-weight: 900;
+  border-radius: 999rpx;
+  padding: 6rpx 20rpx;
+  box-shadow: 0 4rpx 0 rgba(20, 70, 140, .12);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.w-rank {
+  margin-top: 8rpx;
+  background: linear-gradient(160deg, #ffe9b8, #ffd166);
+  color: #8a5a00;
+  font-size: 20rpx;
+  font-weight: 900;
+  border-radius: 999rpx;
+  padding: 4rpx 16rpx;
+}
+.w-lv {
+  font-size: 52rpx;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 3rpx 0 rgba(20, 80, 150, .35);
+}
+.w-lv-lab { font-size: 20rpx; color: #e8f4ff; margin-top: 4rpx; }
+
+/* ---- 皮肤收集条 ---- */
+.skin-strip {
+  width: 100%;
+  background: rgba(255, 255, 255, .92);
+  border-radius: 22rpx;
+  padding: 14rpx 18rpx;
+  box-sizing: border-box;
+  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
+}
+.skin-strip__head {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  font-weight: 900;
+  color: #3a5a80;
+}
+.skin-strip__prog {
+  margin-left: auto;
+  font-size: 20rpx;
+  color: #8a9bb5;
+  font-weight: 700;
+}
+.skin-strip__row { display: flex; gap: 12rpx; margin-top: 12rpx; }
+.skin-cell {
+  flex: 1 1 0;
+  height: 88rpx;
+  border-radius: 16rpx;
+  background: #eaf3fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.skin-cell__img { width: 76rpx; height: 76rpx; }
+.skin-cell--locked { background: #eef2f8; }
+.skin-cell--locked .skin-cell__img { filter: grayscale(1) brightness(.55); }
+.skin-cell--next { box-shadow: 0 0 0 4rpx #ffb703; }
+.skin-cell__lock { font-size: 32rpx; }
+
+/* ---- Boss 预告卡 ---- */
+.boss-card {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 24rpx;
+  padding: 16rpx 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: linear-gradient(120deg, #4a3060, #7a3a5e);
+  box-shadow: 0 8rpx 0 rgba(50, 20, 70, .35);
+  color: #fff;
+}
+.boss-card__img { width: 110rpx; height: 110rpx; flex: 0 0 auto; }
+.boss-card__emoji { font-size: 72rpx; flex: 0 0 auto; }
+.boss-card__t { flex: 1; min-width: 0; }
+.boss-card__name {
+  font-size: 30rpx;
+  font-weight: 900;
+  text-shadow: 0 2rpx 0 rgba(0, 0, 0, .3);
+  display: block;
+}
+.boss-card__sub {
+  font-size: 22rpx;
+  color: #f0c8e0;
+  display: block;
+  margin-top: 4rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.boss-card__go { font-size: 44rpx; font-weight: 900; opacity: .9; }
+
+/* ---- 对局：战士 VS Boss 双血条 ---- */
+.vs-bar {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  width: 100%;
+}
+.vs-side { flex: 1; text-align: center; min-width: 0; }
+.vs-ava {
+  width: 120rpx;
+  height: 120rpx;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .15);
+  border: 4rpx solid rgba(255, 255, 255, .5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.vs-ava--boss { border-color: #ffb0d0; }
+.vs-ava__img { width: 104rpx; height: 104rpx; }
+.vs-name {
+  font-size: 22rpx;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 6rpx;
+  text-shadow: 0 2rpx 0 rgba(0, 0, 0, .25);
+}
+.vs-mid {
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #ffd166;
+  text-shadow: 0 2rpx 0 rgba(0, 0, 0, .3);
+}
+.hp {
+  margin-top: 8rpx;
+  height: 18rpx;
+  border-radius: 999rpx;
+  background: rgba(0, 0, 0, .25);
+  overflow: hidden;
+}
+.hp__fill { height: 100%; border-radius: 999rpx; }
+.hp__fill--me { background: linear-gradient(90deg, #7bd389, #4caf50); }
+.hp__fill--boss { background: linear-gradient(90deg, #ff8a8a, #f23050); }
+
+/* ---- 结算：下一款皮肤解锁钩子 ---- */
+.unlock-bar {
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(120deg, #fff8e0, #ffedc2);
+  border: 3rpx solid #ffd166;
+  border-radius: 22rpx;
+  padding: 14rpx 18rpx;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  box-shadow: 0 6rpx 0 rgba(180, 130, 0, .15);
+}
+.unlock-bar__img { width: 88rpx; height: 88rpx; flex: 0 0 auto; }
+.unlock-bar__t { flex: 1; min-width: 0; font-size: 22rpx; color: #8a5a00; line-height: 1.5; }
+.unlock-bar__t b { font-size: 26rpx; display: block; }
 
 /* ============ 深色模式兜底：已移除（2026-09-12） ============
    背景：这里原先有一段 `@media (prefers-color-scheme: dark)`，只把 page 底色改成近黑 (#12171f)、

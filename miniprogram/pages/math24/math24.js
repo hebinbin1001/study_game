@@ -44,7 +44,8 @@ Page({
     win: false,
     stars: 0,
     starsText: '',
-    overMsg: ''
+    overMsg: '',
+    hintText: ''
   },
 
   _history: [],         // 撤销栈（存 tiles 快照）
@@ -79,7 +80,7 @@ Page({
       steps: 0,
       hint: '点两张牌 → 点一个运算符 → 合并成一个新数',
       deadEnd: false,
-      over: false, win: false, stars: 0, starsText: '', overMsg: ''
+      over: false, win: false, stars: 0, starsText: '', overMsg: '', hintText: ''
     });
   },
 

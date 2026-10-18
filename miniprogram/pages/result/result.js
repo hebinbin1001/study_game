@@ -29,6 +29,7 @@ Page({
     totalQ: 10,             // 总题数
     maxCombo: 0,            // 最高连击数（结算数据卡展示，REQ-GAME-15）
     ratePercent: 0,         // 正确率百分比
+    hintText: '',            // 「差一点」提示（2026-10-17）
     grade: '',              // 学段 key
     level: 1,               // 关卡序号
     wrongItems: [],         // R4：本局错题回顾 [{ word, hint, ex }]
@@ -111,6 +112,7 @@ Page({
         totalQ: totalQ,
         maxCombo: maxCombo,
         ratePercent: ratePercent,
+        hintText: challenge.starHint(correctCount, totalQ, false, '题'),
         grade: grade,
         level: level
       });
@@ -136,6 +138,7 @@ Page({
       totalQ: totalQ,
       maxCombo: maxCombo,
       ratePercent: ratePercent,
+      hintText: challenge.starHint(correctCount, totalQ, true, '题'),
       grade: grade,
       level: level,
       // 「下一关」（2026-09-18 用户要求）：只有挑战/玩法线、且不是最后一关才显示

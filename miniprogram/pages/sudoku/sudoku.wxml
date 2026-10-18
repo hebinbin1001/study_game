@@ -1,11 +1,7 @@
 <!-- 数独页（B6 闯关模式：4×4→6×6→9×9 难度递增给定递减） -->
 <view class="page-sudoku">
-  <!-- 标题栏 -->
-  <view class="g-head">
-    <button class="btn-back" bindtap="goBack">返回</button>
-    <view class="g-title">数独</view>
-    <view class="g-chip">{{stageLabel}}</view>
-  </view>
+  <!-- 2026-10-17：删掉页内「返回 + 标题 + 难度胶囊」（原生导航栏已有返回与页面名）。
+       难度在选关卡与棋盘尺寸上都能看出来，stageLabel 不再单独占一行。 -->
 
   <!-- ============ 关卡选择视图 ============ -->
   <block wx:if="{{!playing}}">
@@ -74,6 +70,4 @@
   <view class="safe-gap"></view>
 </view>
 
-<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
-     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
-<warrior-badge fixed="{{true}}" size="sm" />
+

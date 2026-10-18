@@ -18,6 +18,8 @@ Component({
     starsText: { type: String, value: '' },
     title: { type: String, value: '' },
     msg: { type: String, value: '' },
+    // 2026-10-17：「差一点」提示（如「再答对 1 题就是 3 星」），由页面用 utils/challenge.starHint 算好传入
+    hint: { type: String, value: '' },
     showRetry: { type: Boolean, value: true },
     // 2026-09-18：通关后提示「下一关」——由页面传入是否还有下一关
     showNext: { type: Boolean, value: false },

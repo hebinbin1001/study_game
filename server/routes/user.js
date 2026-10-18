@@ -234,7 +234,7 @@ router.post("/profile", async (req, res) => {
 /**
  * POST /api/user/book —— 保存教材版本（2026-10-08 二期：教材对接）
  *
- * body: { book }（''=通用 / pep / wys / bjb）
+ * body: { book }（''=通用 / pep / wys；2026-10-18 删除 bjb 部编版）
  * 说明：users.book 列需要执行 ALTER TABLE（见 docs/sql/2026-10-08-赛季与PK建表.sql）。
  *       列还没建时降级为 saved:false —— 本地已生效，不影响使用，也不报 5000。
  */

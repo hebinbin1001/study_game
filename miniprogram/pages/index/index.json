@@ -1,5 +1,7 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "grade-picker": "/components/grade-picker/grade-picker"
+  },
   "navigationBarTitleText": "词力战士",
   "navigationBarBackgroundColor": "#5aa9e6",
   "navigationBarTextStyle": "white",

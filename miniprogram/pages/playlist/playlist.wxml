@@ -1,28 +1,19 @@
-<!-- 玩法 Tab（P3 一期：顶部二级分段「闯关线 / 数字智力」；O1 自适应：flex 列 + 安全区） -->
+<!-- 玩法 Tab（2026-10-17 布局收敛：4 层筛选 → 2 层）
+     原结构：蓝信息条 → 年级 chips → 二级分段 → 分类 chips ≈ 380rpx 才见到卡片。
+     现在：年级 + 已解锁计数合并成一行 → 二级分段 → 分类 chips ≈ 236rpx。
+     兼容：所有入口/跳转不变；未上线玩法移出网格，页脚一行交代。 -->
 <view class="page-play">
-  <!-- 顶部信息条（按当前分段统计） -->
-  <view class="pgbar">
-    <view class="pg-ic">🎮</view>
-    <view class="pg-t">
-      <view class="pg-b">{{totalCount}} 款玩法</view>
-      <view class="pg-s">{{sectionDesc}} · 已解锁 {{unlockedCount}}</view>
+  <!-- 年级 + 已解锁计数：年级是全局设置（2026-10-18），这里只读展示，点开可切换 -->
+  <view class="pg-top">
+    <view class="pg-grade-line" bindtap="openGradePicker">
+      <text class="pg-grade-ic">🏫</text>
+      <text class="pg-grade-tx">{{gradeLabel}}</text>
+      <text class="pg-grade-go">切换 ›</text>
     </view>
-    <view class="pg-num">{{unlockedCount}}/{{totalCount}}</view>
+    <view class="pg-count">{{unlockedCount}}/{{totalCount}}</view>
   </view>
 
-  <!-- 年级切换（2026-10-09）：随手可切，替代原来首页那条强引导的「先选年级」 -->
-  <scroll-view class="pg-grades" scroll-x="true" enable-flex="true">
-    <view class="pg-grade-row">
-      <view
-        wx:for="{{grades}}"
-        wx:key="key"
-        class="pg-grade {{gradeIndex === index ? 'on' : ''}}"
-        data-index="{{index}}"
-        bindtap="pickGrade">{{item.label}}</view>
-    </view>
-  </scroll-view>
-
-  <!-- 二级分段：闯关线（有进度、按学段生成关卡）/ 数字智力（固定关卡小游戏） -->
+  <!-- 二级分段：闯关线（有进度、按学段生成）/ 数字智力（固定关卡小游戏） -->
   <view class="seg-row">
     <view
       wx:for="{{sections}}"
@@ -53,21 +44,28 @@
       <view
         wx:for="{{games}}"
         wx:key="key"
-        class="pcard {{item.unlocked ? 'done' : 'new'}}"
+        class="pcard {{item.full ? 'full' : ''}}"
         data-key="{{item.key}}"
         bindtap="onGameTap">
+        <!-- 绿框只给「这条线 30 关全通」，普通已解锁不再描边（2026-10-17 修语义） -->
+        <view wx:if="{{item.full}}" class="full-badge">全通</view>
+        <view wx:if="{{item.math}}" class="cat-tag">数学</view>
         <view class="pic">{{item.icon}}</view>
         <view class="pname">{{item.name}}</view>
         <view class="pdesc">{{item.desc}}<text wx:if="{{item.minutes}}" class="pmin"> · ⏱{{item.minutes}}</text></view>
-        <view wx:if="{{item.lineMode}}" class="line-tag">{{item.progressText}}</view>
-        <view wx:elif="{{item.math}}" class="cat-tag">数学</view>
         <view class="pfoot">
-          <view class="tag {{item.unlocked ? '' : 'off'}}">{{item.unlocked ? (item.lineMode ? '去闯关' : '开始') : '未解锁'}}</view>
+          <view class="tag">{{item.ctaText}}</view>
           <view class="arr">›</view>
         </view>
       </view>
     </view>
-    <view class="foot-note">{{curSection === 'line' ? '每条线 30 关 · 通关解锁下一关' : '更多玩法持续上新 · 敬请期待'}}</view>
+    <!-- 未上线玩法：一行交代，不再占网格位 -->
+    <view wx:if="{{soonText}}" class="foot-note">{{soonText}} · 制作中，敬请期待</view>
+    <view wx:else class="foot-note">{{curSection === 'line' ? '每条线 30 关 · 通关解锁下一关' : '更多玩法持续上新 · 敬请期待'}}</view>
     <view class="safe-gap"></view>
   </scroll-view>
+
+  <!-- 全局年级选择器：与「我的 → 当前年级」同一个组件 -->
+  <grade-picker visible="{{gradePickerVisible}}" value="{{gradeKey}}"
+    bind:pick="onGradePick" bind:close="onGradeClose" />
 </view>

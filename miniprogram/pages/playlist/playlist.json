@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "grade-picker": "/components/grade-picker/grade-picker"
+  },
   "navigationBarTitleText": "玩法"
 }

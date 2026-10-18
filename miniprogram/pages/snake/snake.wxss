@@ -5,7 +5,7 @@
   padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+  background: linear-gradient(180deg, #4a9fe8 0%, #7dbdf2 32%, #b9e0ff 64%, #d8efff 100%);
 }
 /* 头部/HUD 统一到 app.wxss 的 .g-head/.g-title/.g-chip/.hud/.hud-chip（2026-09-12 视觉统一） */
 .back-pill {

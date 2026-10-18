@@ -1,16 +1,13 @@
 <!-- 2048（B6-3 固定关卡） -->
 <view class="page-2048">
-  <view class="g-head">
-    <button class="btn-back" bindtap="goBack">返回</button>
-    <view class="g-title">2048</view>
-    <view class="g-chip" bindtap="goLevels">{{playing ? ('第 ' + curLevel + '/' + levelInfo.length + ' 关') : '选关'}}</view>
-  </view>
+  <!-- 2026-10-17：删掉页内「返回 + 标题 + 选关胶囊」（原生导航栏已有返回与页面名）。
+       关卡信息在对局 HUD 的「目标/最大块/得分/步数」与底部「关卡列表」里都有。 -->
 
   <!-- 选关 -->
   <block wx:if="{{!playing}}">
     <view class="intro">
       <view class="i-t">滑动合成目标数字</view>
-      <view class="i-s">关卡目标逐步提升：32 → 64 → … → 2048，步数限定</view>
+      <view class="i-s">目标逐步提升：32 → 64 → … → 2048 · 不限步数，步数越少星星越多</view>
     </view>
     <view class="levels">
       <view
@@ -20,15 +17,15 @@
         data-no="{{item.no}}"
         bindtap="pickLevel">
         <view class="lv-target">{{item.target}}</view>
-        <view class="lv-steps">{{item.steps}} 步</view>
+        <view class="lv-steps">3★ {{item.par}} 步</view>
       </view>
     </view>
 
-    <!-- 挑战模式（不限步数冲到 2048，只比最少步数） -->
+    <!-- 挑战模式（冲 2048，只比最少步数） -->
     <view class="challenge-card" bindtap="startChallenge">
       <view class="cc-left">
         <view class="cc-title">🏆 挑战模式</view>
-        <view class="cc-sub">不限步数冲到 2048 · 只比谁用得更少</view>
+        <view class="cc-sub">冲 2048 · 不限步数，只比谁用得更少</view>
       </view>
       <view class="cc-best">{{challengeBest > 0 ? ('最佳 ' + challengeBest + ' 步') : '来试试'}}</view>
     </view>
@@ -40,7 +37,7 @@
       <view class="hud-box"><view class="h-num">{{target}}</view><view class="h-lab">目标</view></view>
       <view class="hud-box"><view class="h-num">{{maxTile}}</view><view class="h-lab">最大块</view></view>
       <view class="hud-box"><view class="h-num">{{score}}</view><view class="h-lab">得分</view></view>
-      <view class="hud-box"><view class="h-num">{{stepsLimit - usedSteps}}</view><view class="h-lab">剩余步</view></view>
+      <view class="hud-box"><view class="h-num">{{usedSteps}}</view><view class="h-lab">步数</view></view>
     </view>
 
     <!-- 滑动操作：catchtouchmove 阻止页面跟着滚，否则竖滑可能被页面滚动吃掉手感 -->
@@ -54,24 +51,19 @@
         class="cell c{{item.v}} b-face">{{item.v || ''}}</view>
     </view>
 
-    <view class="tip">👆 朝上下左右滑动棋盘 · 相同数字合体</view>
+    <view class="tip">{{tipText}}</view>
   </block>
 
-  <!-- 结算 -->
-  <view wx:if="{{over}}" class="over-mask">
-    <view class="over-card">
-      <view class="o-stars">{{win ? starsText : '💔'}}</view>
-      <view class="o-title {{win ? '' : 'fail'}}">{{win ? '过关！' : '未达成'}}</view>
-      <view class="o-msg">{{overMsg}}</view>
-      <button wx:if="{{win}}" class="btn b1" bindtap="goNext">下一关 ▶</button>
-      <button class="btn b2" bindtap="again">再试一次</button>
-      <button class="btn b2" bindtap="goLevels">关卡列表</button>
-    </view>
-  </view>
+  <!-- 结算统一走公共组件（2026-10-17） -->
+  <settle-pop visible="{{over}}" win="{{win}}" stars-text="{{win ? starsText : ''}}"
+    title="{{win ? '过关！' : '未达成'}}" msg="{{overMsg}}"
+    hint="{{hintText}}"
+    show-next="{{win}}" next-text="下一关 ▶"
+    bind:retry="again" bind:next="goNext">
+    <button class="btn btn-ghost" bindtap="goLevels">关卡列表</button>
+  </settle-pop>
 
   <view class="safe-gap"></view>
 </view>
 
-<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
-     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
-<warrior-badge fixed="{{true}}" size="sm" />
+

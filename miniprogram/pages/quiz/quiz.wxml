@@ -1,9 +1,8 @@
 <!-- 限时抢答（2026-09-19 新增玩法）：倒计时内看释义抢词，答错扣 2 秒 -->
 <view class="page-quiz">
 
-  <!-- 顶部：倒计时 + 得分/连击/题号 -->
+  <!-- 顶部：倒计时 + 得分/连击/题号（2026-10-17：删掉页内「返回」，原生导航栏已有） -->
   <view class="qz-hud">
-    <view class="btn-back" bindtap="goBack">返回</view>
     <view class="qz-timer">
       <view class="qz-timer-fill {{timePercent <= 25 ? 'danger' : ''}}" style="width:{{timePercent}}%"></view>
       <text class="qz-timer-text">⏱ {{timeLeft}}s</text>
@@ -42,10 +41,9 @@
   <settle-pop
     visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
     title="{{win ? '抢答完成！' : '时间到！'}}" msg="{{overMsg}}"
+    hint="{{hintText}}"
     showNext="{{showNext}}"
     bind:retry="onRetry" bind:next="onNext" />
 </view>
 
-<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
-     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
-<warrior-badge fixed="{{true}}" size="sm" />
+

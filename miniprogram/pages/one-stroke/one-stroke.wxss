@@ -34,6 +34,21 @@ page {
 .banner .sub { margin-top: 8rpx; font-size: 24rpx; color: #6b8b86; min-height: 34rpx; }
 .banner.warn .main { color: #d97706; }
 
+/* 进度条（demo 顶部那条）：已走线 / 总边数 */
+.bar {
+  margin-top: 14rpx;
+  height: 12rpx;
+  border-radius: 6rpx;
+  background: #e6f0ee;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 6rpx;
+  background: linear-gradient(90deg, #7fe0a8, #12a08c);
+  transition: width 0.25s ease;
+}
+
 .board {
   background: #fff;
   border-radius: 36rpx;
@@ -57,6 +72,16 @@ page {
   background: #34A853;
   box-shadow: 0 0 12rpx rgba(52, 168, 83, 0.45);
 }
+/* 提示线：黄色呼吸，1.6 秒后自动消失（demo 的 hintEdge） */
+.edge.hint {
+  background: #fbbf24;
+  box-shadow: 0 0 20rpx rgba(251, 191, 36, 0.85);
+  animation: hintPulse 0.7s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
 
 .node {
   position: absolute;
@@ -79,12 +104,31 @@ page {
   transition: all 0.14s ease;
 }
 .node.visited .dot { background: #12a08c; }
+/* 起手提示：奇点镀金圈（连奇数条线的点只能当起点/终点） */
+.node.odd .dot {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 8rpx rgba(251, 191, 36, 0.25), 0 0 20rpx rgba(251, 191, 36, 0.7);
+}
 .node.cur .dot {
   width: 46rpx;
   height: 46rpx;
   background: #ff9f1c;
   border-color: #e08a00;
   box-shadow: 0 0 16rpx rgba(255, 159, 28, 0.6);
+}
+
+/* 提示文案（起手点 / 顺着闪光线走）：放横幅里，不压棋盘圆点 */
+.hint-tip {
+  margin: 14rpx auto 0;
+  max-width: 540rpx;
+  padding: 10rpx 22rpx;
+  border-radius: 30rpx;
+  background: #fff9e0;
+  color: #a16207;
+  font-size: 23rpx;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 4rpx 12rpx rgba(161, 98, 7, 0.14);
 }
 
 .foot { display: flex; gap: 16rpx; }
@@ -105,4 +149,16 @@ page {
   background: #fff;
   color: #12a08c;
   box-shadow: 0 8rpx 0 rgba(15, 80, 75, 0.18);
+}
+/* 💡 提示（demo 的黄色主按钮）：用完就变成灰白，一眼看出没次数了 */
+.btn.hint {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #fff;
+  box-shadow: 0 8rpx 0 #d97706;
+  font-size: 28rpx;
+}
+.btn.hint.off {
+  background: #f2f5f4;
+  color: #b3c4c1;
+  box-shadow: 0 8rpx 0 rgba(15, 80, 75, 0.08);
 }

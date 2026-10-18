@@ -1,4 +1,6 @@
 {
   "component": true,
-  "usingComponents": {}
+  "usingComponents": {
+    "warrior-badge": "/components/warrior-badge/index"
+  }
 }

@@ -73,6 +73,16 @@ const SKIN_RENDER = {
   boss_mech_lord:      { emoji: '🤖', color: '#3EC6FF', image: '/assets/skins/boss_mech_lord.png' },
   boss_magma_titan:    { emoji: '🌋', color: '#FF6B3D', image: '/assets/skins/boss_magma_titan.png' },
 
+  // —— 2026-10-17 新增：Boss 立绘 8 款（幼儿园 → 大学，与 utils/boss-ladder.js 的学段映射一一对应）——
+  boss_mallow_king:    { emoji: '🍬', color: '#FFB3D1', image: '/assets/skins/boss_mallow_king.png' },
+  boss_block_overlord: { emoji: '🧱', color: '#FFCF3D', image: '/assets/skins/boss_block_overlord.png' },
+  boss_candy_witch:    { emoji: '🍭', color: '#C98AF2', image: '/assets/skins/boss_candy_witch.png' },
+  boss_puppet_mage:    { emoji: '🎭', color: '#C08A5A', image: '/assets/skins/boss_puppet_mage.png' },
+  boss_sand_pharaoh:   { emoji: '🏺', color: '#E8C56B', image: '/assets/skins/boss_sand_pharaoh.png' },
+  boss_storm_eagle:    { emoji: '🦅', color: '#5A9BF2', image: '/assets/skins/boss_storm_eagle.png' },
+  boss_void_weaver:    { emoji: '🌌', color: '#8A6BF2', image: '/assets/skins/boss_void_weaver.png' },
+  boss_dark_sage:      { emoji: '📕', color: '#4A4A6E', image: '/assets/skins/boss_dark_sage.png' },
+
   // —— 2026-09-19 新增：元素主题战士 6 款 ——
   'skin-gale-ninja':      { emoji: '🌀', color: '#2EE6A8', image: '/assets/skins/skin-gale-ninja.png' },
   'skin-flame-berserker': { emoji: '🔥', color: '#FF5F5F', image: '/assets/skins/skin-flame-berserker.png' },
@@ -140,6 +150,16 @@ const LOCAL_SKINS = [
   { avatarId: 'boss_mech_lord',      name: '机械领主',   type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 7,   emoji: '🤖', color: '#3EC6FF', image: '/assets/skins/boss_mech_lord.png' },
   { avatarId: 'boss_magma_titan',    name: '熔岩巨兽',   type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 8,   emoji: '🌋', color: '#FF6B3D', image: '/assets/skins/boss_magma_titan.png' },
 
+  // —— 2026-10-17 新增：Boss 立绘 8 款（幼儿园 → 大学；稀有度/解锁阈值与 avatar-seed 保持一致）——
+  { avatarId: 'boss_mallow_king',    name: '棉花糖大魔王', type: 'monster', rarity: 'common', unlockType: 'stars', unlockValue: 60,  emoji: '🍬', color: '#FFB3D1', image: '/assets/skins/boss_mallow_king.png' },
+  { avatarId: 'boss_block_overlord', name: '积木魔王',     type: 'monster', rarity: 'rare',   unlockType: 'stars', unlockValue: 100, emoji: '🧱', color: '#FFCF3D', image: '/assets/skins/boss_block_overlord.png' },
+  { avatarId: 'boss_candy_witch',    name: '糖果女巫',     type: 'monster', rarity: 'rare',   unlockType: 'stars', unlockValue: 140, emoji: '🍭', color: '#C98AF2', image: '/assets/skins/boss_candy_witch.png' },
+  { avatarId: 'boss_puppet_mage',    name: '木偶戏法师',   type: 'monster', rarity: 'epic',   unlockType: 'stars', unlockValue: 220, emoji: '🎭', color: '#C08A5A', image: '/assets/skins/boss_puppet_mage.png' },
+  { avatarId: 'boss_sand_pharaoh',   name: '沙尘法老',     type: 'monster', rarity: 'epic',   unlockType: 'rank',  unlockValue: 4,   emoji: '🏺', color: '#E8C56B', image: '/assets/skins/boss_sand_pharaoh.png' },
+  { avatarId: 'boss_storm_eagle',    name: '雷霆巨鹰',     type: 'monster', rarity: 'epic',   unlockType: 'rank',  unlockValue: 6,   emoji: '🦅', color: '#5A9BF2', image: '/assets/skins/boss_storm_eagle.png' },
+  { avatarId: 'boss_void_weaver',    name: '虚空织梦者',   type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 8,   emoji: '🌌', color: '#8A6BF2', image: '/assets/skins/boss_void_weaver.png' },
+  { avatarId: 'boss_dark_sage',      name: '暗蚀大贤者',   type: 'monster', rarity: 'legend', unlockType: 'rank',  unlockValue: 9,   emoji: '📕', color: '#4A4A6E', image: '/assets/skins/boss_dark_sage.png' },
+
   // —— 2026-09-19 新增：元素主题战士 6 款（豆包出图）——
   { avatarId: 'skin-gale-ninja',      name: '疾风忍者',   type: 'warrior', rarity: 'rare',   unlockType: 'stars', unlockValue: 400, emoji: '🌀', color: '#2EE6A8', image: '/assets/skins/skin-gale-ninja.png' },
   { avatarId: 'skin-flame-berserker', name: '烈焰狂战',   type: 'warrior', rarity: 'epic',   unlockType: 'stars', unlockValue: 480, emoji: '🔥', color: '#FF5F5F', image: '/assets/skins/skin-flame-berserker.png' },
@@ -166,6 +186,36 @@ const RARITY = {
 
 // ============ 查询函数 ============
 
+// avatarId → 'warrior' | 'monster'（直接取 LOCAL_SKINS 的 type，不靠字符串前缀猜）
+var KIND_BY_ID = {};
+LOCAL_SKINS.forEach(function (s) { KIND_BY_ID[s.avatarId] = s.type; });
+
+/**
+ * 判断一个 avatarId 是「战士」还是「怪兽」。
+ *
+ * 为什么不能各页面自己写 `id.indexOf('warrior_') === 0`：
+ *   2026-10-19 用户报「换了新皮肤，主页没跟着变」——根因就是 avatar 页的
+ *   useAvatar 只认 `warrior_` / `monster_` 两个前缀，而美术到货后新增的 15 套
+ *   战士叫 `skin-*`、8 套 Boss 叫 `boss_*`，**两个分支都进不去** →
+ *   本地存储没写 → 首页 onShow 读到的还是旧皮肤（后端同步成功也没用，页面先读本地）。
+ *
+ * 现在统一以 LOCAL_SKINS 的 type 为准（新增皮肤只要进了清单就自动正确），
+ * 清单里没有的 id（云端新增、本地还没同步）再按前缀兜底，兜底顺序与旧版一致。
+ *
+ * @param {string} avatarId
+ * @returns {'warrior'|'monster'|''} 空串 = 认不出的 id
+ */
+function kindOf(avatarId) {
+  if (!avatarId) return '';
+  var t = KIND_BY_ID[avatarId];
+  if (t === 'warrior' || t === 'monster') return t;
+  if (avatarId.indexOf('warrior_') === 0
+    || avatarId.indexOf('milestone_') === 0
+    || avatarId.indexOf('skin-') === 0) return 'warrior';
+  if (avatarId.indexOf('monster_') === 0 || avatarId.indexOf('boss_') === 0) return 'monster';
+  return '';
+}
+
 /**
  * 按 avatarId 取皮肤渲染信息（图片 + emoji + 主色）。
  * 未匹配返回默认怪兽渲染（安全的通用回退）。
@@ -185,10 +235,9 @@ function getSkinRender(avatarId) {
  */
 function getWarriorSkin(avatarId) {
   const r = SKIN_RENDER[avatarId];
-  const isWarrior = !!r && (avatarId.indexOf('warrior_') === 0
-    || avatarId.indexOf('milestone_') === 0
-    || avatarId.indexOf('skin-') === 0);
-  if (isWarrior) return { id: avatarId, emoji: r.emoji, color: r.color, image: r.image };
+  if (r && kindOf(avatarId) === 'warrior') {
+    return { id: avatarId, emoji: r.emoji, color: r.color, image: r.image };
+  }
   return DEFAULT_WARRIOR;
 }
 
@@ -201,8 +250,8 @@ function getMonsterSkin(avatarId) {
   const r = SKIN_RENDER[avatarId];
   // 2026-09-19：新增的 Boss 立绘 id 用 `boss_` 前缀（monster_01~04 是早期 4 张），
   // 两个前缀都算「怪兽类」，否则新 Boss 会被静默回退成默认小怪兽。
-  const isMonster = !!r && (avatarId.indexOf('monster_') === 0 || avatarId.indexOf('boss_') === 0);
-  if (isMonster) {
+  // 2026-10-19：改用 kindOf() 统一判定（同一个 bug 也让 avatar 页写不进 boss_* 皮肤）。
+  if (r && kindOf(avatarId) === 'monster') {
     // 注意：这里必须把 image 一起带出去 —— 引擎是拿 G.monsterSkin.image 去预加载真图的，
     // 漏掉这个字段会「静默退回 emoji」（2026-09-12 接入怪兽美术时真踩过，端到端当场抓到）。
     return { id: avatarId, emoji: r.emoji, color: r.color, image: r.image };
@@ -265,6 +314,7 @@ module.exports = {
   DEFAULT_MONSTER,
   RARITY,
   getSkinRender,
+  kindOf,
   getWarriorSkin,
   getMonsterSkin,
   getRarity,

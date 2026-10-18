@@ -42,6 +42,10 @@ const PAGE_OF = {
   g2048: 'pages/g2048/g2048',
   memory: 'pages/memory-grid/memory-grid',
   onestroke: 'pages/one-stroke/one-stroke',
+  pattern: 'pages/pattern/pattern',
+  clock: 'pages/clock/clock',
+  maze: 'pages/maze/maze',
+  hanoi: 'pages/hanoi/hanoi',
   klotski: 'pages/klotski/klotski'
 };
 
