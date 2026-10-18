@@ -9,6 +9,9 @@ var hanoi = require('../../game/hanoi');
 var storage = require('../../utils/storage');
 var progress = require('../../utils/puzzle-progress');
 var playReport = require('../../utils/play-report');
+var resume = require('../../utils/puzzle-resume');
+
+var PAGE = 'hanoi';
 
 Page({
   data: {
@@ -36,13 +39,67 @@ Page({
   _hist: [],
 
   onLoad: function (options) {
-    var want = parseInt((options || {}).level, 10) || 1;
-    this.start(want);
+    var want = parseInt((options || {}).level, 10) || 0;
+    // 断点续玩（2026-10-18）：盘面 + 步数一起恢复；撤销栈不存（返回后重新攒）
+    var snap = resume.load(PAGE);
+    if (snap && (!want || snap.level === want) && this._restore(snap)) return;
+    this.start(want >= 1 ? want : 1);
+  },
+  onHide: function () { this._saveProgress(); },
+  onUnload: function () { this._saveProgress(); },
+
+  // ============ 断点续玩（2026-10-18） ============
+  /** 恢复三根柱子上的盘子分布 + 步数 */
+  _restore: function (snap) {
+    var st = snap && snap.state;
+    if (!st || !Array.isArray(st.state) || st.state.length !== 3) return false;
+    var lv = hanoi.levelOf(snap.level);
+    if (!lv) return false;
+    var n = lv.n;
+    var seen = {};
+    var ok = st.state.every(function (rod) {
+      if (!Array.isArray(rod)) return false;
+      return rod.every(function (d) {
+        if (!(d >= 1 && d <= n) || seen[d]) return false;
+        seen[d] = 1;
+        return true;
+      });
+    });
+    if (!ok) { resume.clear(PAGE); return false; }
+    if (Object.keys(seen).length !== n) { resume.clear(PAGE); return false; }
+
+    this._lv = lv.no;
+    this._n = n;
+    this._state = st.state.map(function (r) { return r.slice(); });
+    this._steps = parseInt(st.steps, 10) || 0;
+    this._sel = -1;
+    this._hist = [];
+    this.setData({
+      settle: false, win: false, starsText: '', overTitle: '', overMsg: '', overHint: '', showNext: false,
+      fb: '',
+      levelText: lv.no + '/' + hanoi.LEVELS.length,
+      minText: String(hanoi.minMoves(n)),
+      bannerMain: '接着上次 · 把 ' + n + ' 个盘全移到第 3 根柱子',
+      bannerSub: '大盘不能压在小盘上 · 最少 ' + hanoi.minMoves(n) + ' 步'
+    });
+    this._paint();
+    wx.showToast({ title: '已恢复上次进度 · 第 ' + lv.no + ' 关 · ' + this._steps + ' 步', icon: 'none', duration: 1600 });
+    return true;
+  },
+
+  /** 把三根柱子的盘面写进断点存档（每走一步 / 撤销都写） */
+  _saveProgress: function () {
+    if (this.data.settle || !this._state) return;
+    resume.save(PAGE, this._lv, {
+      state: this._state.map(function (r) { return r.slice(); }),
+      steps: this._steps
+    });
   },
 
   /** 开始某一关 */
   start: function (no) {
     var lv = hanoi.levelOf(no);
+    resume.clear(PAGE);                 // 主动开新局 → 旧断点作废
     this._lv = lv.no;
     this._n = lv.n;
     this._state = hanoi.initial(lv.n);
@@ -124,7 +181,8 @@ Page({
     this.setData({ fb: '', bannerMain: '再想想下一步', bannerSub: '最少 ' + hanoi.minMoves(this._n) + ' 步就能完成' });
     this._paint();
 
-    if (hanoi.isSolved(this._state, this._n)) this._finish();
+    if (hanoi.isSolved(this._state, this._n)) { this._finish(); return; }
+    this._saveProgress();               // 没通关才留断点
   },
 
   _hint: function (main, sub) {
@@ -144,6 +202,7 @@ Page({
     this._sel = -1;
     this.setData({ fb: '', bannerMain: '已撤销一步', bannerSub: '' });
     this._paint();
+    this._saveProgress();
   },
 
   onReset: function () {
@@ -152,6 +211,7 @@ Page({
 
   /** 完成：按步数倍率折星 */
   _finish: function () {
+    resume.clear(PAGE);                 // 已完成：断点不再有意义
     var lv = this._lv;
     var min = hanoi.minMoves(this._n);
     var stars = hanoi.starsFor(min, this._steps);

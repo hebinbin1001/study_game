@@ -6,6 +6,9 @@
 var sudoku = require('../../game/sudoku');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
+var resume = require('../../utils/puzzle-resume');
+
+var PAGE = 'sudoku';
 
 // 关卡 → (阶数, 给定数)：难度递增、给定递减。
 // 题库不需要外部素材：game/sudoku.js 已是「生成终盘 + 按唯一解校验挖洞」的生成器，
@@ -30,6 +33,19 @@ function stageOf(level) {
     if (level >= STAGES[i].from && level <= STAGES[i].to) return STAGES[i];
   }
   return STAGES[STAGES.length - 1];
+}
+
+/** 校验断点存档里的二维数组是不是 n×n 的数字矩阵（脏数据不恢复，避免棋盘渲染错位） */
+function isGrid(g, n) {
+  if (!Array.isArray(g) || g.length !== n) return false;
+  for (var i = 0; i < n; i++) {
+    if (!Array.isArray(g[i]) || g[i].length !== n) return false;
+    for (var j = 0; j < n; j++) {
+      var v = g[i][j];
+      if (!isFinite(v) || v < 0 || v > n) return false;
+    }
+  }
+  return true;
 }
 
 Page({
@@ -66,6 +82,81 @@ Page({
     var want = parseInt((options || {}).level, 10) || 0;
     if (want >= 1 && want <= TOTAL_LEVELS) this.setData({ curLevel: want });
     this.refreshStage();
+    // 断点续玩（2026-10-18）：先恢复没做完的那一局（题面是随机生成的，不恢复就得换题重来）
+    var snap = resume.load(PAGE);
+    if (snap && (!want || snap.level === want) && this._restore(snap)) return;
+    // ?level 进来直接开局（原来只高亮不开始，从关卡页点进来会停在列表上）
+    if (want >= 1 && want <= TOTAL_LEVELS) this.startLevel(want);
+  },
+
+  /**
+   * 断点恢复：数独题面是随机生成的，必须把「题面 + 答案 + 已填值」一起存，
+   * 否则重进就是另一道题。
+   * @returns {boolean} true = 已恢复
+   */
+  _restore: function (snap) {
+    var st = snap && snap.state;
+    var n = st && parseInt(st.n, 10);
+    if (!(n === 4 || n === 6 || n === 9)) return false;
+    if (!isGrid(st.puzzle, n) || !isGrid(st.answer, n) || !isGrid(st.values, n)) {
+      resume.clear(PAGE);
+      return false;
+    }
+    this._answer = st.answer;
+    this._puzzle = st.puzzle;
+    var cells = [];
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < n; j++) {
+        var given = st.puzzle[i][j] > 0;
+        cells.push({ r: i, c: j, v: st.values[i][j] || 0, given: given, sel: false, err: false });
+      }
+    }
+    this.setData({
+      playing: true, settle: false, win: false,
+      n: n,
+      stageLabel: n + '×' + n,
+      curLevel: snap.level,
+      grid: cells,
+      lives: Math.max(1, parseInt(st.lives, 10) || LIVES),
+      mistakes: parseInt(st.mistakes, 10) || 0,
+      doneCells: parseInt(st.doneCells, 10) || 0,
+      totalCells: this._countEmpty(st.puzzle, n),
+      sel: null, stars: 0, starsText: ''
+    });
+    wx.showToast({ title: '已恢复上次进度 · 第 ' + snap.level + ' 关', icon: 'none', duration: 1600 });
+    return true;
+  },
+
+  /** 空心格数（= 需要填的格子总数） */
+  _countEmpty: function (puzzle, n) {
+    var c = 0;
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < n; j++) if (!(puzzle[i][j] > 0)) c++;
+    }
+    return c;
+  },
+
+  /** 把「题面 + 答案 + 已填值 + 扣命情况」写进断点存档 */
+  _saveProgress: function () {
+    if (!this.data.playing || this.data.settle) return;
+    var n = this.data.n;
+    if (!n || !this._puzzle || !this._answer) return;
+    var values = [];
+    var grid = this.data.grid;
+    for (var i = 0; i < n; i++) {
+      var row = [];
+      for (var j = 0; j < n; j++) row.push(grid[i * n + j] ? (grid[i * n + j].v || 0) : 0);
+      values.push(row);
+    }
+    resume.save(PAGE, this.data.curLevel, {
+      n: n,
+      puzzle: this._puzzle,
+      answer: this._answer,
+      values: values,
+      lives: this.data.lives,
+      mistakes: this.data.mistakes,
+      doneCells: this.data.doneCells
+    });
   },
 
   loadLevels: function () {
@@ -110,6 +201,7 @@ Page({
   // 开始本关
   startLevel: function (no) {
     var st = stageOf(no);
+    resume.clear(PAGE);                 // 主动开新局 → 旧断点作废
     var r = sudoku.generate(st.n, st.givens);
     if (!r) { wx.showToast({ title: '生成失败，重试', icon: 'none' }); return; }
     this._answer = r.answer;
@@ -177,7 +269,8 @@ Page({
       ok['grid[' + idx + '].sel'] = false;
       ok.doneCells = this.data.doneCells + 1;
       this.setData(ok);
-      if (this.data.doneCells + 1 >= this.data.totalCells) this._win();
+      if (this.data.doneCells + 1 >= this.data.totalCells) { this._win(); return; }
+      this._saveProgress();
     } else {
       // 错误：扣命，闪烁
       var lives = this.data.lives - 1;
@@ -192,11 +285,13 @@ Page({
         clear['grid[' + idx + '].err'] = false;
         self.setData(clear);
       }, 350);
-      if (lives <= 0) this._lose();
+      if (lives <= 0) { this._lose(); return; }
+      this._saveProgress();             // 扣命后的局面也要存，重进不会回到 3 条命
     }
   },
 
   _win: function () {
+    resume.clear(PAGE);                 // 已通关：断点不再有意义
     // 星级：0 错 3 星 / ≤2 错 2 星 / 其余 1 星
     var m = this.data.mistakes;
     var stars = m === 0 ? 3 : (m <= 2 ? 2 : 1);
@@ -218,6 +313,7 @@ Page({
   },
 
   _lose: function () {
+    resume.clear(PAGE);                 // 生命耗尽：这一局结束了
     this.setData({ settle: true, win: false, stars: 0, starsText: '', playing: false, overMsg: '生命耗尽 · 再来一次吧' });
   },
 
@@ -235,5 +331,8 @@ Page({
     this.loadLevels();
     this.setData({ playing: false, settle: false });
   },
-  goBack: function () { wx.navigateBack(); }
+  goBack: function () { wx.navigateBack(); },
+  // 切后台 / 退出页面时兜底存一次（正常填字已经存过了）
+  onHide: function () { this._saveProgress(); },
+  onUnload: function () { this._saveProgress(); }
 });

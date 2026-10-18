@@ -14,6 +14,7 @@ var K = require('../../game/klotski');
 var playReport = require('../../utils/play-report');
 var LEVELS = require('../../data/klotski-levels');
 var storage = require('../../utils/storage');
+var resume = require('../../utils/puzzle-resume');
 
 var PAGE = 'klotski';
 var CUR_KEY = 'ww_klotski_cur';   // 上次玩到第几关（选关页默认高亮）
@@ -51,12 +52,16 @@ Page({
     this.setData({ levelGroups: this._buildGroups() });
     // 数字智力关卡页可指定从第几关开始（?level=N）
     var want = parseInt((options || {}).level, 10) || 0;
+    // 断点续玩（2026-10-18）：先看有没有「没走完的一局」。
+    // 带 ?level 时只恢复**同一关**（用户点的就是别的关，别抢）；不带则恢复最近一局。
+    var snap = resume.load(PAGE);
+    if (snap && (!want || snap.level === want) && this._restore(snap)) return;
     if (want >= 1) this.startLevel(want);
   },
 
   onReady: function () { this._measureBoard(); },
   onUnload: function () { this._stopDemo(); },
-  onHide: function () { this._stopDemo(); },
+  onHide: function () { this._stopDemo(); this._saveProgress(); },
 
   // ============ 选关 ============
   /** 30 关按档位分组，并附上星级与解锁状态（上一关 ≥1 星才解锁） */
@@ -96,12 +101,73 @@ Page({
     this.startLevel(no);
   },
 
+  // ============ 断点续玩（2026-10-18） ============
+  /**
+   * 把当前局面写进断点存档（每走一步 / 撤销一步都写一次，用户切后台被杀也不丢）。
+   * 只存「恢复局面必须的东西」：棋子坐标 + 步数 + 是否用过演示。
+   * 撤销栈不存 —— 恢复后 canUndo 为 false，玩家重新开始攒（比把整条历史塞进存储划算）。
+   */
+  _saveProgress: function () {
+    if (!this.data.playing || this.data.over) return;
+    resume.save(PAGE, this.data.curLevel, {
+      pieces: this._pieces.map(function (p) {
+        return { glyph: p.glyph, name: p.name, kind: p.kind, x: p.x, y: p.y, w: p.w, h: p.h };
+      }),
+      moves: this.data.moves,
+      demoUsed: !!this.data.demoUsed
+    });
+  },
+
+  /**
+   * 用断点存档恢复对局。
+   * @returns {boolean} true = 已恢复；false = 存档不可用（调用方回退到正常开局）
+   */
+  _restore: function (snap) {
+    var st = snap && snap.state;
+    var lv = snap && LEVELS.levels[snap.level - 1];
+    if (!lv || !st || !Array.isArray(st.pieces) || !st.pieces.length) return false;
+    // 棋子数量不对（标准 10 子，留点余量）→ 存档已损坏，清掉别让它每次都来捣乱
+    if (st.pieces.length < 8) { resume.clear(PAGE); return false; }
+    // 校验：坐标必须是棋盘内的整数格 —— 脏数据宁可不恢复，也不能恢复出叠子/越界的怪局面
+    var valid = st.pieces.every(function (p) {
+      return p && typeof p.glyph === 'string' && isFinite(p.x) && isFinite(p.y)
+        && p.x >= 0 && p.x < K.COLS && p.y >= 0 && p.y < K.ROWS;
+    });
+    if (!valid) { resume.clear(PAGE); return false; }
+
+    this._stopDemo();
+    this._pieces = st.pieces.map(function (p) {
+      return { glyph: p.glyph, name: p.name, kind: p.kind, x: p.x, y: p.y, w: p.w, h: p.h };
+    });
+    this._history = [];                 // 撤销栈不进存档（见 _saveProgress 注释）
+    var moves = parseInt(st.moves, 10) || 0;
+    storage.set(CUR_KEY, snap.level);
+    this.setData({
+      playing: true, over: false, win: false, stars: 0, starsText: '',
+      curLevel: snap.level, levelName: lv.name, tier: lv.tier, minMoves: lv.minMoves,
+      moves: moves, selected: -1, hint: null, canUndo: false,
+      demoUsed: !!st.demoUsed
+    });
+    this._render();
+    var self = this;
+    this._boardRect = null;
+    setTimeout(function () { self._measureBoard(); }, 120);
+    wx.showToast({
+      title: '已恢复上次进度 · 第 ' + snap.level + ' 关 · ' + moves + ' 步',
+      icon: 'none',
+      duration: 1800
+    });
+    return true;
+  },
+
   // ============ 开局 ============
   startLevel: function (no) {
     var self = this;
     var lv = LEVELS.levels[no - 1];
     if (!lv) return;
     this._stopDemo();
+    // 主动开新局 → 旧断点作废（不然下次进来会被「上一局的残局」顶掉新开的这一局）
+    resume.clear(PAGE);
     this._pieces = K.parseGrid(lv.grid);
     this._history = [];
     storage.set(CUR_KEY, no);
@@ -283,7 +349,8 @@ Page({
       selected: i
     });
     this._render();
-    if (K.isWin(this._pieces)) this._win();
+    if (K.isWin(this._pieces)) { this._win(); return; }
+    this._saveProgress();               // 没通关才留断点（通关的残局没有续玩价值）
   },
 
   undo: function () {
@@ -295,6 +362,7 @@ Page({
       hint: null
     });
     this._render();
+    this._saveProgress();               // 撤销后的局面也要存，否则下次恢复回退一步
   },
 
   restart: function () { this.startLevel(this.data.curLevel); },
@@ -369,6 +437,7 @@ Page({
   // ============ 结算 ============
   _win: function () {
     this._stopDemo();
+    resume.clear(PAGE);                 // 已通关：断点不再有意义
     var stars = this.data.demoUsed ? 0 : K.starsFor(this.data.minMoves, this.data.moves);
     if (!this.data.demoUsed) {
       storage.saveStars(PAGE, this.data.curLevel, stars);

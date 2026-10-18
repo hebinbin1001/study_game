@@ -12,6 +12,9 @@ var skins = require('../../utils/skins');
 var progress = require('../../utils/puzzle-progress');
 var playReport = require('../../utils/play-report');
 var challenge = require('../../utils/challenge');
+var resume = require('../../utils/puzzle-resume');
+
+var PAGE = 'maze';
 
 // 棋盘可用宽度（rpx）：页面 750 − 左右 padding 32×2 = 686，再减棋盘 padding 8×2 = 670
 // 取 654 = 109 × 6，格子整除，右侧不会留一条细缝。
@@ -63,15 +66,78 @@ Page({
   _timer: null,
 
   onLoad: function (options) {
-    var want = parseInt((options || {}).level, 10) || 1;
+    var want = parseInt((options || {}).level, 10) || 0;
     try {
       var w = skins.getWarriorSkin(storage.getWarriorSkin() || '');
       if (w && w.emoji) this._hero = w.emoji;
     } catch (e) { /* 皮肤模块异常不该挡玩法 */ }
-    this.start(want);
+    // 断点续玩（2026-10-18）：迷宫是随机生成的，恢复必须连 seed 一起还原，
+    // 否则「同一个位置」会是另一张地图 —— 那比重新开始更糟。
+    var snap = resume.load(PAGE);
+    if (snap && (!want || snap.level === want) && this._restore(snap)) return;
+    this.start(want >= 1 ? want : 1);
   },
-  onUnload: function () { this._clearTimer(); },
-  onHide: function () { this._clearTimer(); },
+  onUnload: function () { this._clearTimer(); this._saveProgress(); },
+  onHide: function () { this._clearTimer(); this._saveProgress(); },
+
+  // ============ 断点续玩（2026-10-18） ============
+  /**
+   * 恢复：seed（地图）+ 位置 + 步数 + 剩余机会 + 门/宝箱状态 + 已问过的题。
+   * 题目按 seed+格子号确定性生成，这里把已生成的题一并存下来，保证重进后同一道门还是同一题。
+   */
+  _restore: function (snap) {
+    var st = snap && snap.state;
+    if (!st) return false;
+    var lv = parseInt(st.lv, 10);
+    if (!(lv >= 1 && lv <= maze.TOTAL_LEVELS)) return false;
+    var seed = parseInt(st.seed, 10);
+    if (!(seed > 0)) return false;
+    var g;
+    try { g = maze.gen(lv, seed); } catch (e) { resume.clear(PAGE); return false; }
+    var pos = parseInt(st.pos, 10);
+    if (!(pos >= 0 && pos < g.cells.length)) { resume.clear(PAGE); return false; }
+
+    this._lv = lv;
+    this._seed = seed;
+    this._g = g;
+    this._pos = pos;
+    this._steps = parseInt(st.steps, 10) || 0;
+    this._lives = Math.max(1, Math.min(LIFE_MAX, parseInt(st.lives, 10) || LIFE_MAX));
+    this._gateState = (st.gateState && typeof st.gateState === 'object') ? st.gateState : {};
+    this._chestOpen = (st.chestOpen && typeof st.chestOpen === 'object') ? st.chestOpen : {};
+    this._qs = (st.qs && typeof st.qs === 'object') ? st.qs : {};
+    this._visited = (st.visited && typeof st.visited === 'object') ? st.visited : {};
+    this._visited[pos] = 1;
+    this._asking = null;
+    this._locked = false;
+
+    this.setData({
+      settle: false, win: false, starsText: '', overTitle: '', overMsg: '', overHint: '', showNext: false,
+      ask: false, fb: '',
+      levelText: lv + '/' + maze.TOTAL_LEVELS,
+      bannerMain: '接着上次走 · 走到 🏁 出口',
+      bannerSub: '共 ' + g.gateIds.length + ' 道门 · 答对才算星'
+    });
+    this._paint();
+    wx.showToast({ title: '已恢复上次进度 · 第 ' + lv + ' 关 · ' + this._steps + ' 步', icon: 'none', duration: 1600 });
+    return true;
+  },
+
+  /** 把当前局面写进断点存档（每走一格 / 答完一题都写） */
+  _saveProgress: function () {
+    if (this.data.settle || !this._g) return;
+    resume.save(PAGE, this._lv, {
+      lv: this._lv,
+      seed: this._seed,
+      pos: this._pos,
+      steps: this._steps,
+      lives: this._lives,
+      gateState: this._gateState,
+      chestOpen: this._chestOpen,
+      qs: this._qs,
+      visited: this._visited
+    });
+  },
 
   _clearTimer: function () {
     if (this._timer) { clearTimeout(this._timer); this._timer = null; }
@@ -80,6 +146,7 @@ Page({
   /** 开始某一关（重玩换 seed → 换一张迷宫） */
   start: function (no) {
     this._clearTimer();
+    resume.clear(PAGE);                 // 主动开新局 → 旧断点作废（重玩换 seed，旧档已对不上）
     var lv = parseInt(no, 10) || 1;
     if (lv < 1) lv = 1;
     if (lv > maze.TOTAL_LEVELS) lv = maze.TOTAL_LEVELS;
@@ -158,6 +225,7 @@ Page({
 
     var cell = this._g.cells[idx];
     this.setData({ fb: '', bannerMain: '走到 🏁 出口', bannerSub: '共 ' + this._g.gateIds.length + ' 道门 · 答对才算星' });
+    this._saveProgress();               // 走一格就存（走进终点会被 _finish 清掉，不留残局）
 
     if (cell.kind === 'gate' && this._gateState[idx] === 0) {
       this._askFor('gate', idx);
@@ -248,6 +316,7 @@ Page({
       self._locked = false;
       self.setData({ ask: false });
       self._asking = null;
+      self._saveProgress();             // 答题结果（门开/扣命）也要落盘
       if (self._lives <= 0) { self._finish(false); return; }
       self._paint();
       // 站在终点（宝箱/门正好在终点格？不会，但兜底）
@@ -267,6 +336,7 @@ Page({
   /** 结算：走到出口 or 机会耗尽 */
   _finish: function (reached) {
     this._clearTimer();
+    resume.clear(PAGE);                 // 这一局结束了（通关或机会耗尽），断点作废
     this._locked = true;
     var self = this;
     var g = this._g;

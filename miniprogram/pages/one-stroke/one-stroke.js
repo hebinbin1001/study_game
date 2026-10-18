@@ -10,6 +10,9 @@ var lib = require('../../game/one-stroke');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
 var progress = require('../../utils/puzzle-progress');
+var resume = require('../../utils/puzzle-resume');
+
+var PAGE = 'one-stroke';
 
 var BOARD = 600;          // 棋盘逻辑边长（rpx），与引擎 geometry() 同一单位
 var HINT_SHOW_MS = 1600;  // 提示高亮时长
@@ -55,10 +58,64 @@ Page({
     this.setData({ best: storage.get(BEST_KEY) || 0 });
     // 关卡页指定关卡（?level=N → 内部下标 _li = N-1）
     var want = parseInt((options || {}).level, 10) || 0;
+    // 断点续玩（2026-10-18）：先恢复画到一半的线（一笔画的路径状态没法靠重来还原）
+    var snap = resume.load(PAGE);
+    if (snap && (!want || snap.level === want) && this._restore(snap)) return;
     this.start(want >= 1 ? want - 1 : 0);
   },
-  onUnload: function () { this._clearTimers(); },
-  onHide: function () { this._clearTimers(); },
+  onUnload: function () { this._clearTimers(); this._saveProgress(); },
+  onHide: function () { this._clearTimers(); this._saveProgress(); },
+
+  // ============ 断点续玩 ============
+  /**
+   * 恢复：关卡下标 + 已走路径 + 已用边 + 步数 + 剩余提示次数。
+   * 路径点序就足以重放出 `_used`，但这里直接存 `_used`，省一次重算也避免口径走偏。
+   */
+  _restore: function (snap) {
+    var st = snap && snap.state;
+    if (!st || !Array.isArray(st.path)) return false;
+    var li = parseInt(st.li, 10);
+    if (!(li >= 0 && li < lib.LEVELS.length)) return false;
+    var lv = lib.LEVELS[li];
+    var maxNode = lv.nodes.length;
+    // 校验路径：每个点都要是这一关里存在的点，否则渲染会越界
+    var bad = st.path.some(function (i) { return !(i >= 0 && i < maxNode); });
+    if (bad) { resume.clear(PAGE); return false; }
+    if (st.path.length && st.path[0] >= maxNode) return false;
+
+    this._li = li;
+    this._path = st.path.slice();
+    this._used = (st.used && typeof st.used === 'object') ? st.used : {};
+    this._steps = parseInt(st.steps, 10) || 0;
+    this._undo = 0;
+    this._reset = 0;
+    this._hints = parseInt(st.hints, 10) || 0;
+    this.setData({
+      settle: false, win: false, starsText: '', overMsg: '', overHint: '',
+      hintLeft: Math.max(0, parseInt(st.hintLeft, 10)),
+      hintKey: '', hintTip: '', showOdd: false, warn: false,
+      levelName: lv.name,
+      tierText: lv.tier || '',
+      mainText: '接着上次的画',
+      subText: '已走 ' + lib.usedCount(this._used) + '/' + lv.edges.length + ' 条线'
+    });
+    this._render();
+    wx.showToast({ title: '已恢复上次进度 · 第 ' + (li + 1) + ' 关', icon: 'none', duration: 1600 });
+    return true;
+  },
+
+  /** 把当前路径写进断点存档（每画一条线 / 撤销一次都写） */
+  _saveProgress: function () {
+    if (!this._path.length || this.data.settle) return;
+    resume.save(PAGE, this._li + 1, {
+      li: this._li,
+      path: this._path.slice(),
+      used: this._used,
+      steps: this._steps,
+      hintLeft: this.data.hintLeft,
+      hints: this._hints
+    });
+  },
 
   _clearTimers: function () {
     this._timers.forEach(function (t) { clearTimeout(t); });
@@ -73,6 +130,7 @@ Page({
     this._clearTimers();
     var li = parseInt(startLi, 10);
     this._li = (li >= 0 && li < lib.LEVELS.length) ? li : 0;
+    resume.clear(PAGE);                 // 主动开新局 → 旧断点作废
     this._undo = 0;
     this._reset = 0;
     this._hints = 0;
@@ -200,6 +258,7 @@ Page({
     this._steps++;
     this.setData({ hintKey: '', hintTip: '' });
     this._render();
+    this._saveProgress();               // 每接一个点存一次（通关会立刻 clear，不留残局）
 
     if (lib.isLevelClear(lv, this._used)) {
       this._levelClear();
@@ -234,10 +293,12 @@ Page({
       mainText: '已撤销一步',
       subText: '还剩 ' + (this._level().edges.length - lib.usedCount(this._used)) + ' 条线'
     });
+    this._saveProgress();
   },
 
   onReset: function () {
     this._reset++;
+    resume.clear(PAGE);                 // 清空重来：断点也一并作废，避免下次恢复出撤销前的残线
     this._clearBoard();
     this.setData({
       mainText: '重来一次',
@@ -294,6 +355,7 @@ Page({
 
   _levelClear: function () {
     this._clearTimers();
+    resume.clear(PAGE);                 // 已通关：断点不再有意义
     var lv = this._level();
     var no = this._li + 1;
     var stars = lib.starsByAssist(this._undo, this._reset, this._hints);
