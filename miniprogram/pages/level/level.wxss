@@ -345,39 +345,8 @@ page {
 }
 
 /* ===== 题型分类 chips（题型分类关卡，2026-09-08） ===== */
-.type-tabs {
-  white-space: nowrap;
-  padding: 0 24rpx 24rpx;
-  box-sizing: border-box;
-}
-.type-tab {
-  display: inline-block;
-  height: 64rpx;
-  line-height: 64rpx;
-  padding: 0 28rpx;
-  margin-right: 16rpx;
-  border-radius: 32rpx;
-  background: rgba(255, 255, 255, 0.72);
-  color: #5c7f9e;
-  font-size: 26rpx;
-  font-weight: 800;
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.06);
-  transition: all 0.12s;
-}
-.type-tab:active {
-  transform: translateY(3rpx);
-  box-shadow: 0 1rpx 0 rgba(0, 0, 0, 0.06);
-}
-.type-tab.on {
-  color: #ffffff;
-  background: #7bd389;
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08), 0 8rpx 16rpx rgba(123, 211, 137, 0.35);
-}
-.type-count {
-  font-size: 20rpx;
-  opacity: 0.85;
-  margin-left: 6rpx;
-}
+/* 2026-10-18：玩法/题型切换条已删除，对应样式一并移除（见 .wxml 顶部说明） */
+
 
 /* ============ 自由玩入口（替代原「主线 / 自由练」分段，2026-10-18） ============ */
 .free-entry {

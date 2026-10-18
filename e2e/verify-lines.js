@@ -40,12 +40,8 @@ async function main() {
     const lvData = await lvPage.data();
     ck.check('当前视图是词语连连看玩法线', lvData.currentType === 'mode_link',
       '实际 = ' + lvData.currentType);
-    const lineChips = (lvData.typeGroups || []).filter(function (t) {
-      return String(t.key || '').indexOf('mode_') === 0;
-    });
-    // 2026-09-19：新增「限时抢答」→ 玩法线 6 → 7 条
-    ck.check('顶部 chips 里有 7 条玩法线', lineChips.length === 7,
-      '实际 = ' + lineChips.length + '（' + lineChips.map(function (t) { return t.key; }).join(',') + '）');
+    // 2026-10-18：顶部「玩法/题型切换条」已删除 —— 玩法在玩法 tab 已选过，
+    // 关卡页不再重复提供其它玩法入口，所以这里不再断言 7 条玩法线 chip。
     ck.check('玩法线关卡共 30 关', (lvData.levels || []).length === 30,
       '实际 = ' + (lvData.levels || []).length);
     ck.check('关卡行带难度摘要', !!(lvData.levels && lvData.levels[0] && lvData.levels[0].sub),

@@ -46,13 +46,13 @@ Page({
     gradeEarnedStars: 0,    // 进度卡：当前分类已得星星数
     gradeTotalStars: 30,    // 进度卡：星星总数（10 关 × 3 星）
     gradeStarPercent: 0,    // 进度卡：星星进度百分比 0~100
-    isChallengeView: true,  // true=主线视图（首页进入）；false=自由玩视图（玩法页 ?mode= 进入）
+    isChallengeView: true,  // true=主线视图（首页进入）；false=某个玩法线视图（玩法页 ?mode= 进入）
+    viewLabel: '主线 30 关', // 顶部年级行右侧的视图说明：主线 / <玩法名> · 30 关
     chests: [],             // 挑战主线里程碑宝箱（P3）
 
     // —— 2026-10-17 头部瘦身 + 二级分段 ——
     // 2026-10-18 入口收敛：本页不再有「主线 / 自由练」分段，
     // 视图只由入口决定（首页=主线；玩法页 ?mode= 进来=自由玩），所以没有 viewTab 状态。
-    freeGroups: [],         // 自由玩可选的 chips（玩法线 + 题型，不含「挑战主线」）
     continueIndex: -1,      // 「继续第 N 关」对应的 levels 下标
     continueLabel: '',      // 例：⚔️ 继续第 12 关
     continueSub: ''         // 例：词语连连看 · 已通关 11/30
@@ -116,24 +116,6 @@ Page({
   },
 
   // 切换题型分类 chip
-  pickType: function (e) {
-    var key = e.currentTarget.dataset.key;
-    if (!key || key === this.data.currentType) return;
-    var groups = this.data.typeGroups || [];
-    var label = '';
-    var count = 0;
-    for (var i = 0; i < groups.length; i++) {
-      if (groups[i].key === key) { label = groups[i].label; count = groups[i].count; break; }
-    }
-    // 可用但不足一关（1..9 题）：提示且不切换
-    if (key !== 'all' && count > 0 && count < 10) {
-      wx.showToast({ title: '该学段「' + (label || key) + '」仅 ' + count + ' 题，暂不满一关', icon: 'none', duration: 1500 });
-      return;
-    }
-    this.setData({ currentType: key });
-    this.refreshLevels();
-  },
-
   // 刷新当前学段 + 分类的关卡列表（REQ-GAME-13/14、游客限制、分类维度）
   refreshLevels: function () {
     var grade = this.data.grades[this.data.currentGradeIndex];
@@ -160,28 +142,9 @@ Page({
       }
     }
     // ② 当前分类在切换学段后不可用 → 回退综合
-    // 玩法线 chips（P3 一期）：6 款题库玩法各一条独立 30 关线，插在「挑战主线」之后；
-    // badge 显示该线已通关数（题型分类 chip 仍显示题库题量）
-    var allStars = storage.getAllStars();
-    var lineChips = [];
-    for (var lm = 0; lm < challenge.LINE_MODES.length; lm++) {
-      var lineModeKey = challenge.LINE_MODES[lm];
-      var lineMeta = challenge.MODES[lineModeKey];
-      var lineProg = challenge.lineProgress(allStars, key, lineModeKey);
-      lineChips.push({
-        key: challenge.lineKeyOf(lineModeKey),
-        label: lineMeta.emoji + ' ' + lineMeta.label,
-        // 玩法线是 30 关（challenge.LEVELS_PER_GRADE）；不能复用页面里的
-        // LEVELS_PER_GRADE（那是「按题型自由练」的 10 关）—— 之前这里显示成「x/10」，
-        // 与实际 30 关进度对不上（2026-10-17 截图复查发现）。
-        count: challenge.LEVELS_PER_GRADE,
-        badge: lineProg.cleared + '/' + challenge.LEVELS_PER_GRADE,
-        line: true
-      });
-    }
-    typeGroups = typeGroups.slice(0, 1).concat(lineChips, typeGroups.slice(1));
-    // 自由练的 chips = 玩法线 + 题型（去掉「挑战主线」那一枚）
-    var freeGroups = typeGroups.filter(function (g) { return g.key !== 'all'; });
+    // 2026-10-18：不再构建「玩法线 chips」——玩法已在上一屏（玩法 tab）选过，
+    // 本页再列 7 条玩法线是重复入口。typeGroups 仍保留在 data 里（e2e 断言与
+    // 「该学段有哪些题型」的历史口径在用），只是不再渲染成切换条。
 
     var typeKey = this.data.currentType;
     if (typeKey !== 'all' && !counts[typeKey] && !challenge.isLineKey(typeKey)) typeKey = 'all';
@@ -231,12 +194,16 @@ Page({
 
     this.setData({
       typeGroups: typeGroups,
-      freeGroups: freeGroups,
       continueIndex: continueIndex,
       continueLabel: continueLabel,
       continueSub: continueSub,
       currentType: typeKey,
       currentTypeLabel: typeLabel,
+      viewLabel: (typeKey === 'all')
+        ? '主线 30 关'
+        : (isLineView
+          ? ((challenge.MODES[challenge.lineMode(typeKey)] || {}).label || '玩法') + ' · 30 关'
+          : '自由玩'),
       levels: levels,
       loggedIn: loggedIn,
       gradeEarnedStars: gradeEarnedStars,
