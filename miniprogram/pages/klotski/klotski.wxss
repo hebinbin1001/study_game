@@ -69,7 +69,8 @@
 .ks.on { color: #ffb703; }
 
 /* ============ HUD ============ */
-.k-hud { display: flex; gap: 14rpx; margin: 18rpx 0 12rpx; flex: 0 0 auto; }
+/* 右侧留 84rpx：给右上角固定的暂停按钮让位（见 components/game-pause） */
+.k-hud { display: flex; gap: 14rpx; margin: 18rpx 84rpx 12rpx 0; flex: 0 0 auto; }
 .kh-box {
   flex: 1;
   background: rgba(255, 255, 255, .94);

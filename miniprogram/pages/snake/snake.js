@@ -217,12 +217,21 @@ Page({
     if (this._timer) { clearInterval(this._timer); clearTimeout(this._timer); this._timer = null; }
   },
   onUnload: function () { this._stopLoop(); },
-  onHide: function () { this._stopLoop(); },
+  // 切后台 = 自动暂停（回来弹「已暂停」，不会一睁眼就已经撞死）
+  onHide: function () {
+    this._stopLoop();
+    if (this.data.round > 0 && !this.data.over) this.setData({ paused: true });
+  },
+  // 暂停 / 恢复：停掉/重启帧循环
+  _onPause: function () { this._stopLoop(); },
+  _onResume: function () { if (!this.data.over) this._startLoop(); },
   onReady: function () {
     this._refreshBoardRect();
   },
 
   onShow: function () {
+    // 暂停中不要自动续跑（回来应该是「已暂停」弹层，等玩家点继续）
+    if (this.data.paused) return;
     if (!this._timer && this.data.round > 0 && !this.data.over) this._startLoop();
   },
 
@@ -468,5 +477,26 @@ Page({
   goBack: function () { this._stopLoop(); wx.navigateBack(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 单词贪吃蛇', path: '/pages/playlist/playlist' };
+  },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.again();
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
   }
 });

@@ -1,7 +1,7 @@
 <!-- 记忆矩阵（玩法落地：demo g7）：亮格记忆 + 5×5 网格 -->
 <view class="page-memory">
 
-  <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />
+  <view class="hud-holder"><game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" /></view>
 
   <view class="banner {{phase === 'watch' ? 'watch' : ''}}">
     <view class="main">{{mainText}}</view>
@@ -22,6 +22,16 @@
     title="{{win ? '本局结束' : '再接再厉'}}" msg="{{overMsg}}"
     showNext="{{showNext}}" nextText="下一关（难度更高）▶"
     bind:retry="onRetry" bind:next="onNext" />
+
+  <!-- 暂停 / 音效（统一组件 game-pause）：固定右上角，只在对局中出现 -->
+  <game-pause
+    open="{{paused}}"
+    showFab="{{!settle}}"
+    sub="第 {{hudText}}"
+    bind:pause="onGamePause"
+    bind:resume="onGameResume"
+    bind:restart="onGameRestart"
+    bind:quit="onGameQuit" />
 </view>
 
 

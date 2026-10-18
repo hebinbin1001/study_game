@@ -334,5 +334,26 @@ Page({
   goBack: function () { wx.navigateBack(); },
   // 切后台 / 退出页面时兜底存一次（正常填字已经存过了）
   onHide: function () { this._saveProgress(); },
-  onUnload: function () { this._saveProgress(); }
+  onUnload: function () { this._saveProgress(); },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.again();
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
+  }
 });

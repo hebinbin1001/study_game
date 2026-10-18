@@ -97,7 +97,7 @@ math-balance / memory-grid / one-stroke / sudoku / klotski / quiz）；另外 5 
 
 ---
 
-## 十一、实施记录（2026-10-17 已完成 ①④⑥⑦，②③⑤ 未做）
+## 十一、实施记录（2026-10-17 已完成 ①④⑥⑦；2026-10-18 完成 ②；③⑤ 未做）
 
 ### 已做
 
@@ -107,10 +107,10 @@ math-balance / memory-grid / one-stroke / sudoku / klotski / quiz）；另外 5 
 | ① 结算层统一 | link / snake / bounce / math24 / g2048 五个自绘遮罩全部换成 `settle-pop`；新增全局 `.btn-ghost` 作为「返回关卡 / 关卡列表」次要按钮，避免各页 `.b1/.b2` 配色打架 |
 | ④ 进度统一 | match：「配对 n/N 对」（原「剩 N 卡」）；link：「配对 n/N 对」（原「剩 N 牌」）；snake：「第 n/N 词」（原 targetLabel 藏在被删掉的页内头部里，等于丢了，现在移进 HUD） |
 | ⑦ 零散 | 华容道锁定格只显示「🔒 第 N 关」，不再显示名字/最短步数/三颗空星 |
+| ② 统一暂停/音量（2026-10-18） | 新增 `components/game-pause`（右上角 ⏸ + 弹层：继续 / 音效开关 / 重新开始 / 退出本关），接入 **14 个玩法页**：klotski、g2048、sudoku、math24、one-stroke、maze、hanoi、pattern、clock、math-sprint、memory-grid、link、snake、bounce；字母射击原本自带暂停/音量，保留原实现不走组件。切后台自动暂停：math-sprint 停倒计时、snake/bounce 停帧循环、memory-grid 在记忆阶段清定时器并在恢复时重看一遍、g2048 把后台时间从「用时」里扣掉 |
 
 ### 未做（原因）
 
-- **② 统一暂停/音量**：要给 16 个页面各接一个组件，改动面最大；建议单独一批做，先抽 `game-pause` 组件再逐页接。
 - **③ 4×4 棋盘留白**：棋盘受 4 列宽度限制，纵向空白是数学必然（4 行 × 正方形 = 高度上限），
   压不掉；能做的只有「空白里放信息」，属设计取舍，等确认要不要加进度条/计时再动。
 - **⑤ 错误反馈三段式**：涉及 16 个页面的答题流程与题库 `hint` 字段，风险高于收益，建议排在暂停之后。
@@ -120,3 +120,9 @@ math-balance / memory-grid / one-stroke / sudoku / klotski / quiz）；另外 5 
 - `node tests/unit/challenge.test.js` → 24/24（含新增 `starHint` 用例）
 - `node e2e/run-all.js --module=challenge,pages --no-e2e` → 5/5 PASS
 - 截图：`settle-link / settle-match / settle-klotski`（HUD 进度、锁定格简化）
+- ② 暂停/音量（2026-10-18）：
+  - `node tests/unit/game-pause.test.js` → 7/7（开关落盘、事件、open 自动弹出、14 页接线护栏）
+  - `node e2e/run-all.js --no-e2e` → 7/7 PASS
+  - 布局：`demo/pause-preview.html` 6 屏（375/430 × 汉诺塔式 HUD、game-hud、2048 四格 + 320 小屏）
+    页内几何自检 **6/6**：按钮不出界、不压 HUD 任何子元素、HUD 不横向溢出；
+    截图 `e2e/reports/pause-layout.png`

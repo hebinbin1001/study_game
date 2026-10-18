@@ -1,0 +1,104 @@
+/* game-pause —— 统一暂停按钮与弹层 */
+
+/* ============ 右上角悬浮按钮 ============ */
+/* 固定定位：不占页面布局，任何页面都不需要改结构；页面只需让 HUD 右侧留 84rpx */
+.gp-fab {
+  position: fixed;
+  top: 12rpx;
+  right: 12rpx;
+  z-index: 90;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .82);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, .18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gp-fab--tap { background: rgba(255, 255, 255, .98); transform: scale(.94); }
+.gp-fab-ico {
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+  letter-spacing: 2rpx;
+  /* 用「Ⅱ」而不是 emoji：深浅背景下都不会糊成一团 */
+}
+
+/* ============ 弹层 ============ */
+.gp-mask {
+  position: fixed;
+  left: 0; right: 0; top: 0; bottom: 0;
+  z-index: 200;
+  background: rgba(20, 24, 40, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 60rpx;
+  box-sizing: border-box;
+}
+
+.gp-card {
+  width: 100%;
+  max-width: 560rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  padding: 44rpx 40rpx 32rpx;
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, .28);
+}
+
+.gp-ico { font-size: 56rpx; line-height: 1; }
+.gp-title {
+  margin-top: 12rpx;
+  font-size: 38rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+}
+.gp-sub {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8a9bb5;
+}
+
+.gp-main {
+  margin-top: 32rpx;
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 24rpx;
+  background: #4285F4;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 800;
+  border: none;
+}
+.gp-main::after { border: none; }
+
+.gp-row {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+.gp-mini {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 88rpx;
+  border-radius: 24rpx;
+  background: #f2f5fb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rpx;
+}
+.gp-mini-ico { font-size: 30rpx; line-height: 1.1; }
+.gp-mini-txt { font-size: 22rpx; color: #5c6b85; font-weight: 700; }
+
+.gp-quit {
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  color: #98a4b8;
+  padding: 10rpx 0;
+}

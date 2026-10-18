@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-    "settle-pop": "/components/settle-pop/settle-pop"
+    "settle-pop": "/components/settle-pop/settle-pop",
+    "game-pause": "/components/game-pause/game-pause"
   },
   "navigationBarTitleText": "认钟表",
   "navigationBarBackgroundColor": "#F0A020",

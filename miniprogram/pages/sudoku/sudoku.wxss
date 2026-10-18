@@ -143,3 +143,6 @@
 .btn-main::after, .btn-ghost::after { border: none; }
 
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
+
+/* 右上角固定暂停按钮让位：给 HUD 行右侧留 84rpx */
+.hud-holder { padding-right: 84rpx; }

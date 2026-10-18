@@ -52,4 +52,14 @@
     title="{{overTitle}}" msg="{{overMsg}}" hint="{{overHint}}"
     show-next="{{showNext}}" next-text="下一关 ▶"
     bind:retry="onRetry" bind:next="onNext" />
+
+  <!-- 暂停 / 音效（统一组件 game-pause）：固定右上角，只在对局中出现 -->
+  <game-pause
+    open="{{paused}}"
+    showFab="{{!settle}}"
+    sub="第 {{levelText}} 关 · {{stepText}} 步"
+    bind:pause="onGamePause"
+    bind:resume="onGameResume"
+    bind:restart="onGameRestart"
+    bind:quit="onGameQuit" />
 </view>

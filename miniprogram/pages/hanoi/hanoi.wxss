@@ -155,3 +155,6 @@ page {
   color: #8e4f68;
   opacity: 0.9;
 }
+
+/* 右上角固定暂停按钮让位（components/game-pause）：HUD 右端不压住内容 / 战士徽章 */
+.hud { padding-right: 84rpx; }

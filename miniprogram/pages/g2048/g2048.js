@@ -24,6 +24,7 @@ var PAGE = 'g2048';
 
 Page({
   data: {
+    paused: false,          // 暂停弹层（game-pause 组件）
     curLevel: 1,
     target: 32,
     par: 24,          // 3★ 参考步数（不判负，只评星）
@@ -273,9 +274,47 @@ Page({
 
   goBack: function () { wx.navigateBack(); },
   // 切后台 / 退出页面时再兜底存一次（正常走子已经存过了）
-  onHide: function () { this._saveProgress(); },
+  onHide: function () {
+    this._pausedAt = Date.now();        // 后台这段时间不算「用时」
+    this._saveProgress();
+  },
+  onShow: function () {
+    // 暂停期间不计入本关用时（否则切出去接个电话，最快纪录就废了）
+    if (this._pausedAt) {
+      this._levelStartAt = (this._levelStartAt || Date.now()) + (Date.now() - this._pausedAt);
+      this._pausedAt = 0;
+    }
+  },
+  _onPause: function () { this._pausedAt = Date.now(); },
+  _onResume: function () {
+    if (this._pausedAt) {
+      this._levelStartAt = (this._levelStartAt || Date.now()) + (Date.now() - this._pausedAt);
+      this._pausedAt = 0;
+    }
+  },
   onUnload: function () { this._saveProgress(); },
   onShareAppMessage: function () {
     return { title: '词力战士 - 2048 闯关', path: '/pages/playlist/playlist' };
+  },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.again();
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
   }
 });

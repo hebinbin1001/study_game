@@ -1,7 +1,8 @@
 {
   "usingComponents": {
     "game-hud": "/components/game-hud/game-hud",
-    "settle-pop": "/components/settle-pop/settle-pop"
+    "settle-pop": "/components/settle-pop/settle-pop",
+    "game-pause": "/components/game-pause/game-pause"
   },
   "navigationBarTitleText": "口算冲刺",
   "navigationBarBackgroundColor": "#ff7a59",

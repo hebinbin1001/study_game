@@ -68,3 +68,6 @@
 .btn.b1 { background: #eef2f8; color: #5c7f9e; box-shadow: 0 10rpx 0 rgba(0,0,0,.06); }
 
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
+
+/* 右上角固定暂停按钮让位（components/game-pause）：HUD 右端不压住内容 / 战士徽章 */
+.hud { padding-right: 84rpx; }

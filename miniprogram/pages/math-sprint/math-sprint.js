@@ -53,7 +53,20 @@ Page({
   },
 
   onUnload: function () { this._stop(); },
-  onHide: function () { this._stop(); },
+  // 切后台 = 自动暂停：倒计时不能在人不在的时候继续走（用户 2026-10-18 要求）
+  onHide: function () {
+    this._stop();
+    if (!this.data.settle) this.setData({ paused: true });
+  },
+
+  // 暂停 / 恢复：停掉/重启 100ms 的倒计时 interval（剩余时间在 _remain 里，天然冻结）
+  _onPause: function () { this._stop(); },
+  _onResume: function () {
+    if (this.data.settle) return;
+    this._running = true;
+    var self = this;
+    if (!this._timer) this._timer = setInterval(function () { self._tick(); }, 100);
+  },
 
   _stop: function () {
     if (this._timer) { clearInterval(this._timer); this._timer = null; }
@@ -181,5 +194,26 @@ Page({
 
   onShareAppMessage: function () {
     return { title: '词力战士 - 口算冲刺 60 秒', path: '/pages/playlist/playlist' };
+  },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.start();
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
   }
 });
