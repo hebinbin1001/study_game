@@ -5,6 +5,7 @@ const { URL } = require("url");
 const { User } = require("../db");
 const { CODE, OPENID_RE } = require("../constants");
 const { defaultNickname, displayName } = require("../nickname-util");
+const { isBanned } = require("../admin-controls");
 
 const router = express.Router();
 
@@ -121,6 +122,13 @@ router.post("/", async (req, res) => {
     }
 
     const openid = await resolveOpenid(jsCode, gwOpenid);
+    if (await isBanned(openid)) {
+      return res.send({
+        code: 4003,
+        data: null,
+        message: "账号已被管理员暂停，请联系管理员",
+      });
+    }
 
     // 登录即注册：openid 建档
     const [user, created] = await User.findOrCreate({

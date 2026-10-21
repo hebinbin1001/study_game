@@ -13,6 +13,8 @@
 var request = require('../../utils/request');
 var storage = require('../../utils/storage');
 var relTime = require('../../utils/rel-time');
+var constants = require('../../utils/constants');
+var GAME_CATALOG = require('../../utils/game-catalog');
 
 var PASSCODE_KEY = 'ww_admin_passcode';
 
@@ -21,6 +23,11 @@ var SORT_OPTIONS = [
   { key: 'active', label: '最近活跃' },
   { key: 'stars', label: '段位星数' },
   { key: 'created', label: '注册时间' }
+];
+var REVIEW_TABS = [
+  { key: 'pending', label: '待审核' },
+  { key: 'approved', label: '已通过' },
+  { key: 'rejected', label: '已拒绝' }
 ];
 
 /** 玩法热度只展开前 N 款，其余收成一行合计（避免把页面撑得很长） */
@@ -31,7 +38,8 @@ function decorateUsers(list) {
   return (list || []).map(function (u) {
     return Object.assign({}, u, {
       lastActiveText: u.lastActiveAt ? relTime.relTime(u.lastActiveAt) : '未上报',
-      createdText: relTime.relTime(u.createdAt) || '未知'
+      createdText: relTime.relTime(u.createdAt) || '未知',
+      banActionText: u.banned ? '解除' : '拉黑'
     });
   });
 }
@@ -53,7 +61,16 @@ Page({
     loadWarn: '',          // 列表异常提示（排序降级 / 加载失败）——空串 = 一切正常
     myOpenid: '',
     myOpenidMasked: '',
-    adminBy: ''
+    adminBy: '',
+    reviewTabs: REVIEW_TABS,
+    reviewStatus: 'pending',
+    reviewLevels: [],
+    reviewLoading: false,
+    reviewingId: '',
+    gameControls: [],
+    bannedControls: [],
+    controlsLoading: false,
+    controlBusy: ''
   },
 
   onLoad: function () {
@@ -89,6 +106,8 @@ Page({
       }
       self.loadStats();
       self.loadUsers(true);
+      self.loadReviews();
+      self.loadControls();
     }).catch(function (err) {
       self.setData({ checking: false });
       wx.showToast({ title: (err && err.message) || '校验失败', icon: 'none' });
@@ -193,6 +212,208 @@ Page({
   },
 
   onMore: function () { this.loadUsers(false); },
+
+  /** 运营控制：玩法入口开关 + 当前黑名单摘要 */
+  loadControls: function () {
+    var self = this;
+    if (this.data.controlsLoading) return;
+    this.setData({ controlsLoading: true });
+    request.get('/api/admin/controls?passcode=' + encodeURIComponent(this.data.passcode || ''))
+      .then(function (d) {
+        var paused = (d && d.paused) || [];
+        var banned = (d && d.banned) || [];
+        var pausedMap = {};
+        paused.forEach(function (x) { pausedMap[x.gameKey] = x.reason || ''; });
+        var controls = GAME_CATALOG.filter(function (g) {
+          return g.unlocked;
+        }).map(function (g) {
+          return {
+            key: g.key,
+            name: g.name,
+            icon: g.icon,
+            paused: Object.prototype.hasOwnProperty.call(pausedMap, g.key),
+            reason: pausedMap[g.key] || ''
+          };
+        });
+        self.setData({
+          gameControls: controls,
+          bannedControls: banned,
+          controlsLoading: false
+        });
+      })
+      .catch(function () {
+        self.setData({ controlsLoading: false });
+      });
+  },
+
+  toggleGamePause: function (e) {
+    var self = this;
+    var key = e.currentTarget.dataset.key;
+    var item = (this.data.gameControls || []).find(function (g) { return g.key === key; });
+    if (!item || this.data.controlBusy) return;
+    var nextPaused = !item.paused;
+    if (!nextPaused) {
+      this._setGamePause(key, false, '');
+      return;
+    }
+    wx.showModal({
+      title: '暂停「' + item.name + '」',
+      editable: true,
+      placeholderText: '填写暂停原因（可选，用户不可见）',
+      success: function (res) {
+        if (res.confirm) self._setGamePause(key, true, res.content || '');
+      }
+    });
+  },
+
+  _setGamePause: function (gameKey, paused, reason) {
+    var self = this;
+    this.setData({ controlBusy: gameKey });
+    request.post('/api/admin/game-pause?passcode=' + encodeURIComponent(this.data.passcode || ''), {
+      gameKey: gameKey,
+      paused: paused,
+      reason: reason
+    }).then(function () {
+      self.setData({ controlBusy: '' });
+      wx.showToast({ title: paused ? '已暂停入口' : '已恢复入口', icon: 'success' });
+      self.loadControls();
+    }).catch(function (err) {
+      self.setData({ controlBusy: '' });
+      wx.showToast({ title: (err && err.message) || '操作失败', icon: 'none' });
+    });
+  },
+
+  toggleUserBan: function (e) {
+    var self = this;
+    var openid = e.currentTarget.dataset.openid;
+    var row = (this.data.users || []).find(function (u) { return u.openid === openid; });
+    var banned = !!(row && row.banned);
+    var nickname = (row && row.nickname) || '该用户';
+    if (!openid || this.data.controlBusy) return;
+    if (banned) {
+      wx.showModal({
+        title: '解除限制',
+        content: '恢复「' + nickname + '」的登录和游戏权限？',
+        success: function (res) {
+          if (res.confirm) self._setUserBan(openid, false, '');
+        }
+      });
+      return;
+    }
+    wx.showModal({
+      title: '拉黑用户',
+      editable: true,
+      placeholderText: '填写原因（仅管理员可见）',
+      success: function (res) {
+        if (res.confirm) self._setUserBan(openid, true, res.content || '');
+      }
+    });
+  },
+
+  _setUserBan: function (openid, banned, reason) {
+    var self = this;
+    this.setData({ controlBusy: openid });
+    request.post('/api/admin/user-ban?passcode=' + encodeURIComponent(this.data.passcode || ''), {
+      openid: openid,
+      banned: banned,
+      reason: reason
+    }).then(function () {
+      self.setData({ controlBusy: '' });
+      wx.showToast({ title: banned ? '已拉黑' : '已解除', icon: 'success' });
+      self.loadUsers(true);
+      self.loadControls();
+    }).catch(function (err) {
+      self.setData({ controlBusy: '' });
+      wx.showToast({ title: (err && err.message) || '操作失败', icon: 'none' });
+    });
+  },
+
+  /** 关卡审核：待审核 / 已通过 / 已拒绝 */
+  loadReviews: function () {
+    var self = this;
+    if (this.data.reviewLoading) return;
+    this.setData({ reviewLoading: true });
+    var status = this.data.reviewStatus || 'pending';
+    request.get('/api/level/reviews?status=' + encodeURIComponent(status)
+      + '&passcode=' + encodeURIComponent(this.data.passcode || '')).then(function (d) {
+      var list = Array.isArray(d) ? d : ((d && d.list) || []);
+      var gradeMap = {};
+      (constants.GRADES || []).forEach(function (g) { gradeMap[g.key] = g.label; });
+      var statusText = { pending: '待审核', approved: '已通过', rejected: '已拒绝' };
+      var rows = list.map(function (l) {
+        var items = Array.isArray(l.items) ? l.items : [];
+        return {
+          levelId: l.levelId,
+          title: l.title || '未命名关卡',
+          description: l.description || '',
+          gradeLabel: gradeMap[l.grade] || l.grade || '未知学段',
+          totalQ: parseInt(l.totalQ, 10) || items.length,
+          status: l.status || status,
+          statusText: statusText[l.status || status] || l.status || '',
+          shareCode: l.shareCode || '',
+          authorOpenidMasked: l.authorOpenidMasked || '',
+          createdText: l.createdAt ? (relTime.relTime(l.createdAt) || '未知') : '未知',
+          itemsText: items.slice(0, 2).map(function (it) {
+            return (it.q || '') + ' → ' + (it.a || '');
+          }).join('；')
+        };
+      });
+      self.setData({ reviewLevels: rows, reviewLoading: false });
+    }).catch(function (err) {
+      self.setData({ reviewLevels: [], reviewLoading: false });
+      wx.showToast({ title: (err && err.message) || '审核列表加载失败', icon: 'none' });
+    });
+  },
+
+  onReviewTab: function (e) {
+    var key = e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.key;
+    if (!key || key === this.data.reviewStatus) return;
+    this.setData({ reviewStatus: key, reviewLevels: [], reviewLoading: false });
+    this.loadReviews();
+  },
+
+  approveLevel: function (e) {
+    var self = this;
+    var id = e.currentTarget.dataset.id;
+    if (!id || this.data.reviewingId) return;
+    wx.showModal({
+      title: '通过关卡',
+      content: '通过后会进入公开关卡广场，所有玩家都可以玩。确认通过？',
+      success: function (res) { if (res.confirm) self._submitReview(id, 'approved', ''); }
+    });
+  },
+
+  rejectLevel: function (e) {
+    var self = this;
+    var id = e.currentTarget.dataset.id;
+    if (!id || this.data.reviewingId) return;
+    wx.showModal({
+      title: '拒绝关卡',
+      editable: true,
+      placeholderText: '填写拒绝原因（可选）',
+      success: function (res) {
+        if (res.confirm) self._submitReview(id, 'rejected', res.content || '');
+      }
+    });
+  },
+
+  _submitReview: function (levelId, status, comment) {
+    var self = this;
+    this.setData({ reviewingId: levelId });
+    request.post('/api/level/review', {
+      levelId: levelId,
+      status: status,
+      comment: comment,
+      passcode: this.data.passcode
+    }).then(function () {
+      self.setData({ reviewingId: '' });
+      wx.showToast({ title: status === 'approved' ? '已通过' : '已拒绝', icon: 'success' });
+      self.loadReviews();
+    }).catch(function (err) {
+      self.setData({ reviewingId: '' });
+      wx.showToast({ title: (err && err.message) || '审核失败', icon: 'none' });
+    });
+  },
 
   goBack: function () { wx.navigateBack(); }
 });

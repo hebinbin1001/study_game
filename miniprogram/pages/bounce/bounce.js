@@ -10,12 +10,13 @@
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
+var playReport = require('../../utils/play-report');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var COLS = 3;
 var LIVES = 3;
-var FALL_MS = 14;     // 下落步进
-var SPAWN_MS = 1100;  // 生成新球间隔
+var FALL_MS = 28;     // 下落步进（约 3.6 秒落到底，留出读题与移动时间）
+var SPAWN_MS = 1700;  // 生成新球间隔
 
 Page({
   data: {
@@ -53,8 +54,22 @@ Page({
 
   _loadWords: function () {
     var grade = GRADES[Math.floor(Math.random() * GRADES.length)];
-    var all = dict.filterByGroup(grade.key, 'w1');
-    if (all.length < 8) all = dict.loadByGrade(grade.key).filter(function (w) { return w.type === 'w1'; });
+    var all = dict.loadByGrade(grade.key).filter(function (w) {
+      return w.type === 'w1'
+        && /^[A-Za-z]+$/.test(String(w.q || ''))
+        && !!String(w.hint || '').trim();
+    });
+    // 某个学段的纯英文词不足时，从其他学段补足；词语、成语和挖空题不进球场。
+    if (all.length < 8) {
+      all = [];
+      for (var i = 0; i < GRADES.length && all.length < 24; i++) {
+        all = all.concat(dict.loadByGrade(GRADES[i].key).filter(function (w) {
+          return w.type === 'w1'
+            && /^[A-Za-z]+$/.test(String(w.q || ''))
+            && !!String(w.hint || '').trim();
+        }));
+      }
+    }
     return all;
   },
 
@@ -135,7 +150,7 @@ Page({
     var drop = [];
     for (var i = 0; i < balls.length; i++) {
       var b = balls[i];
-      b.y += 1.1;
+      b.y += 0.8;
       if (b.y >= 96) {
         // 落到底部：判定接住与否
         var caught = (b.col === this.data.basket);
@@ -177,6 +192,13 @@ Page({
     var best = this.data.best;
     if (this._score > best) { best = this._score; storage.set('ww_bounce_best', this._score); }
     var stars = this._score >= 100 ? 3 : (this._score >= 50 ? 2 : 1);
+    playReport.reportPlay({
+      gameType: 'bounce',
+      grade: 'all',
+      level: 1,
+      score: this._score,
+      stars: stars
+    });
     this.setData({ over: true, score: this._score, best: best, starsText: '⭐'.repeat(stars), tip: '命尽 · 得分 ' + this._score });
   },
 

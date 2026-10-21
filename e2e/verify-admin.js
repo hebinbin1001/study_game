@@ -55,6 +55,9 @@ H.runSuite('verify-admin（管理后台 · 昵称与上榜口径）', async func
     ck.check('未通过校验时只显示口令门', !!(await admin.$('.gate')));
     ck.check('未通过校验时不渲染用户列表', (await admin.$$('.urow')).length === 0);
   }
+  ck.check('管理页已具备关卡审核三态（待审核 / 已通过 / 已拒绝）',
+    (d0.reviewTabs || []).length === 3,
+    '实际 = ' + JSON.stringify((d0.reviewTabs || []).map(function (t) { return t.key; })));
 
   // 两条进入路径：① 环境变量给了口令；② 本机之前输过口令（管理页会记住，d0.ready 已为真）。
   // 都没有 → 跳过需要权限的断言（不判红），因为这类失败是环境问题、不是代码问题。
@@ -103,6 +106,18 @@ H.runSuite('verify-admin（管理后台 · 昵称与上榜口径）', async func
       (d1.stats.gameHeatTop || []).every(function (g) {
         return typeof g.pct === 'number' && typeof g.label === 'string' && g.label;
       }));
+    ck.check('运营控制区块已渲染', !!(await admin.$('.control-card')));
+    const controlState = await H.waitForData(admin, function (d) {
+      return !d.controlsLoading && (d.gameControls || []).length >= 10;
+    }, 12000, 'admin controls loaded');
+    ck.check('玩法入口开关列表已加载', !!controlState,
+      '实际 = ' + (controlState && controlState.gameControls || []).length);
+    ck.check('黑名单摘要是数组（允许为空）',
+      Array.isArray(controlState && controlState.bannedControls));
+    ck.check('玩法开关行数量与数据一致',
+      (await admin.$$('.game-control-row')).length === ((controlState && controlState.gameControls) || []).length);
+    ck.check('关卡审核区块已渲染', !!(await admin.$('.review-tabs')));
+    ck.check('审核列表是数组（允许为空）', Array.isArray(d1.reviewLevels));
   }
 
   // ---------- [4] 用户列表：排序 / 头像 / 计数 ----------

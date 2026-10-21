@@ -84,7 +84,23 @@ CREATE TABLE IF NOT EXISTS `pk_matches` (
 
 
 -- ------------------------------------------------------------
--- 四、性能索引（可选，但赛季聚合会按时间扫 scores，建议加）
+-- 四、管理员运营控制表（拉黑用户 / 暂停玩法入口）
+-- ctype + target 唯一；target 为 openid 或玩法 key
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `admin_controls` (
+  `id`        INT NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `ctype`     VARCHAR(16) NOT NULL COMMENT 'ban_user / pause_game',
+  `target`    VARCHAR(64) NOT NULL COMMENT 'openid 或玩法 key',
+  `value`     VARCHAR(255) NULL COMMENT '原因',
+  `createdAt` DATETIME NOT NULL COMMENT '创建时间',
+  `updatedAt` DATETIME NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_admin_control` (`ctype`, `target`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员运营控制';
+
+
+-- ------------------------------------------------------------
+-- 五、性能索引（可选，但赛季聚合会按时间扫 scores，建议加）
 --
 -- MySQL 不支持 CREATE INDEX IF NOT EXISTS；若该索引已存在会报 1061 Duplicate key name，
 -- 属正常现象，忽略即可。也可先执行下面这条查询确认是否已存在：
@@ -93,7 +109,7 @@ CREATE TABLE IF NOT EXISTS `pk_matches` (
 ALTER TABLE `scores` ADD INDEX `idx_scores_created` (`createdAt`);
 
 -- ------------------------------------------------------------
--- 五、教材版本列（二期：教材对接，2026-10-08）
+-- 六、教材版本列（二期：教材对接，2026-10-08）
 --
 -- 用途：记住用户选的教材版本（''=通用 / pep=人教版 / wys=外研版 / bjb=部编版），
 --       换设备后仍生效。列没建时接口自动降级为「仅本地生效」，不影响使用。
@@ -104,10 +120,11 @@ ALTER TABLE `users` ADD COLUMN `book` VARCHAR(8) NULL COMMENT '教材版本（�
 
 
 -- ------------------------------------------------------------
--- 六、执行后自检
+-- 七、执行后自检
 -- ------------------------------------------------------------
 -- SELECT COUNT(*) FROM daily_scores;
 -- SELECT COUNT(*) FROM season_claims;
 -- SELECT COUNT(*) FROM pk_matches;
+-- SELECT COUNT(*) FROM admin_controls;
 -- SHOW INDEX FROM scores WHERE Key_name = 'idx_scores_created';
 -- SHOW COLUMNS FROM users LIKE 'book';

@@ -25,6 +25,8 @@ const { fn, col } = require("sequelize");
 const { User, Score, RankRecord, sequelize } = require("../db");
 const ladder = require("../rank-ladder");
 const { checkAdmin, pickWxNickname, maskOpenid } = require("../admin-auth");
+const { AdminControl } = require("../db");
+const adminControls = require("../admin-controls");
 const { dedupeStars } = require("../rank-stars");
 const adminQuery = require("../admin-query");
 const { GAME_NAMES } = require("../game-names");
@@ -117,7 +119,10 @@ async function orderedUserIds(openids, sort, limit, offset) {
 /** 管理员校验中间件：不通过统一返回 4003（前端据此提示「口令无效」） */
 async function requireAdmin(req, res, next) {
   try {
-    const passcode = (req.get && req.get("x-admin-passcode")) || req.query.passcode || "";
+    const passcode = (req.get && req.get("x-admin-passcode"))
+      || req.query.passcode
+      || (req.body && req.body.passcode)
+      || "";
     // 微信名白名单（ADMIN_WX_NICKNAMES）：取用户存下的微信名；没有 wx_nickname 列/值时用展示昵称兜底
     const names = await nicknamesOf(req.openid);
     const wxNickname = names.wx;
@@ -224,6 +229,62 @@ router.get("/stats", requireAdmin, async (req, res) => {
   }
 });
 
+/** 运营控制列表：拉黑用户 + 暂停玩法入口 */
+router.get("/controls", requireAdmin, async (req, res) => {
+  const data = await adminControls.listControls();
+  res.send({ code: 0, data: data });
+});
+
+/** 拉黑 / 解除拉黑用户（openid） */
+router.post("/user-ban", requireAdmin, async (req, res) => {
+  try {
+    const body = req.body || {};
+    const openid = String(body.openid || "").trim();
+    if (!openid) return res.send({ code: 4000, data: null, message: "openid 缺失" });
+    if (body.banned) {
+      const [row, created] = await AdminControl.findOrCreate({
+        where: { ctype: "ban_user", target: openid },
+        defaults: { value: String(body.reason || "").slice(0, 255) },
+      });
+      if (!created) {
+        row.value = String(body.reason || "").slice(0, 255);
+        await row.save();
+      }
+    } else {
+      await AdminControl.destroy({ where: { ctype: "ban_user", target: openid } });
+    }
+    res.send({ code: 0, data: { success: true } });
+  } catch (err) {
+    console.error("POST /api/admin/user-ban 失败：", err);
+    res.send({ code: 5000, data: null, message: "控制表未就绪或写入失败，请重启云托管服务自动建表" });
+  }
+});
+
+/** 暂停 / 恢复玩法入口（玩法 key，白名单取自服务端 GAME_NAMES） */
+router.post("/game-pause", requireAdmin, async (req, res) => {
+  try {
+    const body = req.body || {};
+    const gameKey = String(body.gameKey || "").trim();
+    if (!GAME_NAMES[gameKey]) return res.send({ code: 4000, data: null, message: "未知玩法 key" });
+    if (body.paused) {
+      const [row, created] = await AdminControl.findOrCreate({
+        where: { ctype: "pause_game", target: gameKey },
+        defaults: { value: String(body.reason || "").slice(0, 255) },
+      });
+      if (!created) {
+        row.value = String(body.reason || "").slice(0, 255);
+        await row.save();
+      }
+    } else {
+      await AdminControl.destroy({ where: { ctype: "pause_game", target: gameKey } });
+    }
+    res.send({ code: 0, data: { success: true, gameKey, paused: !!body.paused } });
+  } catch (err) {
+    console.error("POST /api/admin/game-pause 失败：", err);
+    res.send({ code: 5000, data: null, message: "控制表未就绪或写入失败，请重启云托管服务自动建表" });
+  }
+});
+
 /**
  * GET /api/admin/users —— 用户列表（含完整昵称与微信名，仅管理员）
  *
@@ -316,6 +377,9 @@ router.get("/users", requireAdmin, async (req, res) => {
     });
     const scoreMap = new Map(scoreAgg.map((r) => [r.user_id, r]));
     const rankMap = new Map(ranks.map((r) => [r.openid, r]));
+    const banRows = await AdminControl.findAll({ where: { ctype: "ban_user" }, raw: true })
+      .catch(function () { return []; });
+    const banMap = new Map(banRows.map(function (r) { return [r.target, r.value || ""]; }));
 
     const list = users.map((u) => {
       const s = scoreMap.get(u.id) || {};
@@ -324,7 +388,11 @@ router.get("/users", requireAdmin, async (req, res) => {
       return {
         nickname: u.nickname || "未命名",             // 管理员可见完整昵称
         avatarUrl: u.avatar_url || "",                // 头像（此前查了却没返回，列表一直是空的）
+        openid: u.openid,                             // 仅管理员可见，用于拉黑/解除
         openidMasked: maskOpenid(u.openid),           // openid 打码展示
+        isSelf: u.openid === req.openid,
+        banned: banMap.has(u.openid),
+        banReason: banMap.get(u.openid) || "",
         createdAt: u.createdAt,
         lastActiveAt: s.last || null,
         scoreCount: Number(s.cnt) || 0,

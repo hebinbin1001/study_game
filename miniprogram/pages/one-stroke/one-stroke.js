@@ -1,11 +1,4 @@
-// 一笔画（玩法落地：demo/一笔画小游戏.html，2026-10-18 移植 35 关）
-//
-// 与 demo 的差异：
-//   · 不用 Canvas，改用「绝对定位的线 + 圆点」（坐标由引擎算，可单测）；
-//   · 关卡数据与走边/撤回/提示/星级判定都在 game/one-stroke.js + one-stroke-levels.js，
-//     页面只负责渲染与连击感。
-// demo 的三个体验点都保留了：💡 每关 3 次提示（高亮一条还能走的线）、
-// 顶部进度条、按「用了几次帮助」折星。
+// 一笔画：页面只负责渲染与交互；关卡/规则/提示在 game/one-stroke*.js。
 var lib = require('../../game/one-stroke');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
@@ -140,12 +133,17 @@ Page({
     });
     var lv = this._level();
     this._clearBoard();
+    var odd = lib.oddNodes(lv);
     this.setData({
       levelName: lv.name,
       tierText: lv.tier || '',
-      mainText: '点一个点开始画',
-      subText: '第 ' + (this._li + 1) + ' 关 · ' + lv.name + ' · ' + lv.edges.length + ' 条线'
+      showOdd: odd.length === 2,
+      mainText: odd.length === 2 ? '从闪光的点起笔' : '点一个点开始画',
+      subText: odd.length === 2
+        ? '这关有 2 个奇点，必须从其中一个开始 · ' + lv.edges.length + ' 条线'
+        : '第 ' + (this._li + 1) + ' 关 · ' + lv.name + ' · ' + lv.edges.length + ' 条线'
     });
+    this._render();
   },
 
   /** 只清空画布（撤销/重置/换关都用它） */
@@ -190,14 +188,7 @@ Page({
     });
   },
 
-  /**
-   * 手指滑动画线（用户 2026-09-13 反馈：只能点，期望轨迹贴合）。
-   *
-   * 做法：touchstart/touchmove 拿到触点 → 换算成棋盘 rpx 坐标 → 找**最近的点**，
-   *      落在吸附半径内就直接当「点了这个点」处理（复用 tapNode 的全部规则：
-   *      起点、可走、走错提示、撤销栈都一致，不做第二套逻辑）。
-   * 防重复：滑完手指抬起时系统还会补一个 tap，所以滑动后 300ms 内的真实点击忽略。
-   */
+  /** 手指滑动：触点吸附到最近节点，复用 tapNode 规则 */
   onSlide: function (e) {
     var t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
     if (!t) return;
@@ -230,8 +221,19 @@ Page({
     var idx = e.currentTarget.dataset.idx;
     var lv = this._level();
 
-    // 起点：随便点一个点出发（奇点数 2 时只有那两个点能走通，提示里会讲）
+    // 起点：奇点数为 2 时必须从奇点出发，否则这关一定画不完
     if (!this._path.length) {
+      var odd = lib.oddNodes(lv);
+      if (odd.length === 2 && odd.indexOf(idx) < 0) {
+        this.setData({
+          warn: true,
+          showOdd: true,
+          mainText: '这个点不能起笔',
+          subText: '请从闪光的两个奇点之一开始'
+        });
+        this._render();
+        return;
+      }
       this._path = [idx];
       this._steps = 0;
       this.setData({
@@ -262,6 +264,15 @@ Page({
 
     if (lib.isLevelClear(lv, this._used)) {
       this._levelClear();
+      return;
+    }
+    // 还剩线，但从当前点已经不存在完整欧拉路径了 → 尽早提示撤销，别让玩家画到最后才发现无解
+    if (!lib.eulerianFrom(lv, this._used, idx)) {
+      this.setData({
+        warn: true,
+        mainText: '这条路走不通了',
+        subText: '撤销一步，换个方向试试'
+      });
       return;
     }
     if (lib.freeCountFrom(lv, this._used, idx) === 0) {
@@ -300,18 +311,18 @@ Page({
     this._reset++;
     resume.clear(PAGE);                 // 清空重来：断点也一并作废，避免下次恢复出撤销前的残线
     this._clearBoard();
+    var odd = lib.oddNodes(this._level());
     this.setData({
-      mainText: '重来一次',
-      subText: '第 ' + (this._li + 1) + ' 关 · ' + this._level().name + ' · 提示剩 ' + this.data.hintLeft + ' 次'
+      showOdd: odd.length === 2,
+      mainText: odd.length === 2 ? '从闪光的点重新起笔' : '重来一次',
+      subText: odd.length === 2
+        ? '这关必须从两个奇点之一开始 · 提示剩 ' + this.data.hintLeft + ' 次'
+        : '第 ' + (this._li + 1) + ' 关 · ' + this._level().name + ' · 提示剩 ' + this.data.hintLeft + ' 次'
     });
+    this._render();
   },
 
-  /**
-   * 💡 提示（demo 的 3 次/关）。
-   *
-   * 还没起手：高亮两个奇点，告诉用户该从哪开始（不消耗次数 —— 这一步只是讲规则）；
-   * 画到一半：高亮一条「走完仍能通关」的线（引擎用欧拉路径判定筛过，不会把人带进死路）。
-   */
+  /** 提示：未起手时高亮有效起点；进行中高亮一条仍能通关的边 */
   onHint: function () {
     var self = this;
     var lv = this._level();

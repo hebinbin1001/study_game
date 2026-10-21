@@ -4,7 +4,7 @@
 
   <!-- HUD -->
   <view class="hud">
-    <view class="hud-chip">❤{{lives}}</view>
+    <view class="hud-chip">❤️ {{lives}}</view>
     <view class="hud-chip">分 {{score}}</view>
     <view class="hud-chip">{{targetLabel}}</view>
     <warrior-badge size="sm" />

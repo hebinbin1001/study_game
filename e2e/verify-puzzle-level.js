@@ -78,6 +78,40 @@ async function main() {
     ck.check('算式天平第 1 档 = 幼儿园（题型行带学段名）',
       String(bld.trend || '').indexOf('幼儿园') >= 0, '实际 = ' + bld.trend);
 
+    // [5.5] 一笔画：有 2 个奇点时，必须从奇点起笔；点偶点不能开局
+    console.log('[5.5] 一笔画有效起点（奇点高亮 / 偶点起笔被拦）');
+    const osBackup = await mp.callWxMethod('getStorageSync', 'ww_resume_one-stroke');
+    await mp.callWxMethod('removeStorageSync', 'ww_resume_one-stroke');
+    const osStart = await H.goto(mp, '/pages/one-stroke/one-stroke?level=6', 1800);
+    let osD = await H.waitForData(osStart, function (d) {
+      return (d.nodes || []).length > 0;
+    }, 10000, 'onestroke-start');
+    ck.check('一笔画：有奇点的关卡提示「从闪光的点起笔」',
+      !!osD && osD.mainText === '从闪光的点起笔',
+      '实际 = ' + (osD && osD.mainText));
+    const oddNodes = (osD.nodes || []).map(function (n, i) { return /odd/.test(n.cls) ? i : -1; })
+      .filter(function (i) { return i >= 0; });
+    ck.check('一笔画：开局高亮 2 个奇点', oddNodes.length === 2,
+      '实际 = ' + JSON.stringify(oddNodes));
+    if (oddNodes.length === 2) {
+      const even = (osD.nodes || []).findIndex(function (n) { return !/odd/.test(n.cls); });
+      if (even >= 0) {
+        await osStart.callMethod('tapNode', { currentTarget: { dataset: { idx: even } } });
+        await osStart.waitFor(250);
+        osD = await osStart.data();
+        ck.check('一笔画：偶点起笔被拦下并提示',
+          osD.warn === true && osD.mainText === '这个点不能起笔',
+          'warn = ' + osD.warn + ', main = ' + osD.mainText);
+      }
+      await osStart.callMethod('tapNode', { currentTarget: { dataset: { idx: oddNodes[0] } } });
+      await osStart.waitFor(250);
+      osD = await osStart.data();
+      ck.check('一笔画：奇点可正常开局',
+        osD.warn === false && osD.mainText === '从这里出发',
+        'warn = ' + osD.warn + ', main = ' + osD.mainText);
+    }
+    if (osBackup) await mp.callWxMethod('setStorageSync', 'ww_resume_one-stroke', osBackup);
+
     // [6] 通关 → 关卡页更新 + 下一关解锁（2026-09-29 用户反馈的缺陷回归点）
     //
     // 背景：一笔画/口算/天平/记忆矩阵 这 4 款当时只上报服务端、**不写本地进度**，

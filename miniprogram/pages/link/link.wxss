@@ -8,12 +8,19 @@
   background: linear-gradient(180deg, #4a9fe8 0%, #7dbdf2 32%, #b9e0ff 64%, #d8efff 100%);
 }
 /* 头部/HUD 统一到 app.wxss 的 .g-head/.g-title/.g-chip/.hud/.hud-chip（2026-09-12 视觉统一） */
-.page-link .hud { flex-wrap: nowrap; }
+.page-link .hud { flex-wrap: nowrap; gap: 12rpx; }
 .page-link .hud-chip {
   white-space: nowrap;
-  font-size: 22rpx;
-  padding: 0 14rpx;
+  font-size: 26rpx;
+  padding: 0 20rpx;
+  min-height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
 }
+.heart { font-size: 30rpx; line-height: 1; }
+.pair-num { font-size: 30rpx; font-weight: 900; color: #2d4a7a; }
 .ctx-pill {
   flex: 0 0 auto;
   align-self: center;

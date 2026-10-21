@@ -1,4 +1,4 @@
-/* 算术迷宫（数字智力第 11 款）—— 靛蓝石墙主题，与数独（亮蓝）/ 一笔画（青绿）/ 找规律（紫）/ 认钟表（橙）区分 */
+/* 词义迷宫（数字智力第 11 款）—— 靛蓝石墙主题，与数独（亮蓝）/ 一笔画（青绿）/ 找规律（紫）/ 认钟表（橙）区分 */
 page {
   background: linear-gradient(180deg, #3f5b8b 0%, #6d8ab8 30%, #d6e2f2 62%, #f4f8fd 100%);
   min-height: 100vh;
@@ -93,6 +93,12 @@ page {
   z-index: 2;
 }
 .cell.cur .ico { font-size: 54rpx; }
+/* 未答的门轻轻呼吸，走到出口时能一眼看到还差哪几道 */
+.cell.gate-lock { background: #fff8e8; }
+.cell.gate-lock .ico { animation: gatePulse 1.4s ease-in-out infinite; }
+@keyframes gatePulse {
+  50% { transform: scale(1.12); filter: drop-shadow(0 0 6rpx #ffb703); }
+}
 
 .ico { font-size: 46rpx; line-height: 1; }
 
@@ -119,12 +125,19 @@ page {
   box-shadow: 0 24rpx 60rpx rgba(0, 0, 0, 0.28);
 }
 .ask-title { font-size: 26rpx; color: #7d8fb0; font-weight: 700; }
-.ask-expr {
-  margin-top: 10rpx;
-  font-size: 68rpx;
+.ask-prompt {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #7d8fb0;
+}
+.ask-word {
+  margin-top: 8rpx;
+  font-size: 54rpx;
   font-weight: 900;
   color: #2f4a7a;
   letter-spacing: 2rpx;
+  line-height: 1.2;
+  word-break: break-word;
 }
 .ask-opts {
   margin-top: 24rpx;
@@ -133,7 +146,8 @@ page {
   gap: 18rpx;
 }
 .ask-opt {
-  height: 108rpx;
+  min-height: 96rpx;
+  padding: 14rpx 10rpx;
   box-sizing: border-box;
   border: 4rpx solid #eef2fa;
   border-radius: 24rpx;
@@ -141,9 +155,12 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 42rpx;
+  font-size: 28rpx;
   font-weight: 900;
   color: #2f4a7a;
+  line-height: 1.35;
+  text-align: center;
+  word-break: break-word;
 }
 .ask-opt.ok {
   background: #e9fbef;

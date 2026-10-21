@@ -29,6 +29,68 @@
       —— 此时用户星星会涨、段位不动，请检查后端日志。
     </view>
 
+    <!-- 运营控制：玩法入口开关 + 黑名单摘要 -->
+    <view class="sec-title">运营控制</view>
+    <view class="control-card">
+      <view class="control-head">
+        <view>
+          <view class="control-title">玩法入口</view>
+          <view class="control-sub">暂停后玩法页隐藏入口，成绩上报同时停止</view>
+        </view>
+        <text class="control-count">{{gameControls.length}} 款</text>
+      </view>
+      <view wx:if="{{controlsLoading}}" class="control-empty">控制列表加载中…</view>
+      <view wx:else class="game-control-list">
+        <view wx:for="{{gameControls}}" wx:key="key" class="game-control-row">
+          <view class="gc-main">
+            <text class="gc-icon">{{item.icon}}</text>
+            <view class="gc-copy">
+              <text class="gc-name">{{item.name}}</text>
+              <text class="gc-state {{item.paused ? 'is-paused' : ''}}">{{item.paused ? '已暂停入口' : '开放中'}}</text>
+            </view>
+          </view>
+          <button
+            class="gc-btn {{item.paused ? 'resume' : 'pause'}}"
+            data-key="{{item.key}}"
+            loading="{{controlBusy === item.key}}"
+            bindtap="toggleGamePause">{{item.paused ? '恢复' : '暂停'}}</button>
+        </view>
+      </view>
+      <view class="banned-summary">
+        黑名单 {{bannedControls.length}} 人
+        <text>可在下方用户列表逐人解除</text>
+      </view>
+    </view>
+
+    <!-- 关卡审核：自建关卡提交后必须有人通过，才会进入公开广场 -->
+    <view class="sec-title">关卡审核 <text class="review-count">{{reviewLevels.length}}</text></view>
+    <view class="review-tabs">
+      <view
+        wx:for="{{reviewTabs}}"
+        wx:key="key"
+        class="review-tab {{reviewStatus === item.key ? 'on' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onReviewTab">{{item.label}}</view>
+    </view>
+    <view wx:if="{{reviewLoading}}" class="empty">审核列表加载中…</view>
+    <view wx:elif="{{!reviewLevels.length}}" class="empty">暂无当前状态的关卡</view>
+    <view wx:else>
+      <view wx:for="{{reviewLevels}}" wx:key="levelId" class="review-card">
+        <view class="rv-head">
+          <text class="rv-title">{{item.title}}</text>
+          <text class="rv-status {{item.status}}">{{item.statusText}}</text>
+        </view>
+        <view class="rv-meta">{{item.gradeLabel}} · {{item.totalQ}} 题 · {{item.createdText}}</view>
+        <view wx:if="{{item.description}}" class="rv-desc">{{item.description}}</view>
+        <view wx:if="{{item.itemsText}}" class="rv-items">{{item.itemsText}}</view>
+        <view class="rv-meta rv-id">{{item.authorOpenidMasked}}<text wx:if="{{item.shareCode}}"> · 分享码 {{item.shareCode}}</text></view>
+        <view wx:if="{{reviewStatus === 'pending'}}" class="rv-actions">
+          <button class="rv-btn rv-pass" data-id="{{item.levelId}}" loading="{{reviewingId === item.levelId}}" bindtap="approveLevel">通过</button>
+          <button class="rv-btn rv-reject" data-id="{{item.levelId}}" loading="{{reviewingId === item.levelId}}" bindtap="rejectLevel">拒绝</button>
+        </view>
+      </view>
+    </view>
+
     <!-- 段位分布 -->
     <view class="sec-title">我的身份（配 ADMIN_OPENIDS 白名单用）</view>
     <view class="me-card">
@@ -88,8 +150,17 @@
           <text class="u-chip">库 {{item.stars}} · 现算 {{item.starsDeduped}} · 流水 {{item.starsRaw}}</text>
           <text wx:if="{{item.stars !== item.starsDeduped}}" class="u-chip u-chip--bad">同步未生效</text>
           <text class="u-chip">{{item.scoreCount}} 局</text>
+          <text wx:if="{{item.banned}}" class="u-chip u-chip--ban">已拉黑</text>
         </view>
         <view class="u-meta">{{item.openidMasked}} · 注册 {{item.createdText}} · 最近上报 {{item.lastActiveText}}</view>
+        <view wx:if="{{item.banned && item.banReason}}" class="u-ban-reason">原因：{{item.banReason}}</view>
+        <view wx:if="{{!item.isSelf}}" class="u-actions">
+          <button
+            class="u-ban-btn {{item.banned ? 'is-resume' : ''}}"
+            data-openid="{{item.openid}}"
+            loading="{{controlBusy === item.openid}}"
+            bindtap="toggleUserBan">{{item.banActionText}}</button>
+        </view>
       </view>
     </view>
     <view wx:if="{{hasMore}}" class="more" bindtap="onMore">{{loading ? '加载中…' : '加载更多'}}</view>

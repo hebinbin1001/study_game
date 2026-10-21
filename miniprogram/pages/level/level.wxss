@@ -141,12 +141,12 @@ page {
   justify-content: center;
   font-size: 36rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: #3a3a5c;
   background: #cfe0f2;
 }
-.lvrow.done .lv-no { background: #34A853; }
-.lvrow.cur .lv-no { background: #ff9800; }
-.lvrow.lock .lv-no { background: #cfd8e3; font-size: 32rpx; }
+.lvrow.done .lv-no { background: #1e7a3c; color: #fff; }
+.lvrow.cur .lv-no { background: #c2410c; color: #fff; }
+.lvrow.lock .lv-no { background: #e3e9f2; color: #5b6b82; font-size: 32rpx; }
 
 /* 中：题型标签 + 第 N 关 / 副说明 */
 .lv-mid {
@@ -347,31 +347,6 @@ page {
 /* ===== 题型分类 chips（题型分类关卡，2026-09-08） ===== */
 /* 2026-10-18：玩法/题型切换条已删除，对应样式一并移除（见 .wxml 顶部说明） */
 
-
-/* ============ 自由玩入口（替代原「主线 / 自由练」分段，2026-10-18） ============ */
-.free-entry {
-  margin: 0 32rpx 20rpx;
-  padding: 18rpx 22rpx;
-  display: flex;
-  align-items: center;
-  gap: 14rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 5rpx 0 rgba(20, 70, 140, 0.08);
-}
-.free-entry:active { transform: translateY(2rpx); }
-.free-entry__ic { font-size: 34rpx; flex: 0 0 auto; }
-.free-entry__t { flex: 1; min-width: 0; }
-.free-entry__b { font-size: 25rpx; font-weight: 900; color: #2f4a6b; }
-.free-entry__s {
-  margin-top: 2rpx;
-  font-size: 20rpx;
-  color: #7d93ad;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.free-entry__go { font-size: 32rpx; color: #9aaec4; flex: 0 0 auto; }
 
 /* ============ 继续当前关（置顶条） ============ */
 .continue-bar {

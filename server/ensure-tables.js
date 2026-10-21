@@ -90,6 +90,20 @@ const TABLES = [
       ' KEY `idx_pk_opponent` (`opponentOpenid`),' +
       ' KEY `idx_pk_finished` (`status`, `finishedAt`)' +
       ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=\'好友PK战帖\''
+  },
+  {
+    name: 'admin_controls',
+    ddl:
+      'CREATE TABLE IF NOT EXISTS `admin_controls` (' +
+      ' `id` INT NOT NULL AUTO_INCREMENT COMMENT \'主键\',' +
+      ' `ctype` VARCHAR(16) NOT NULL COMMENT \'ban_user / pause_game\',' +
+      ' `target` VARCHAR(64) NOT NULL COMMENT \'openid 或玩法 key\',' +
+      ' `value` VARCHAR(255) NULL COMMENT \'原因\',' +
+      ' `createdAt` DATETIME NOT NULL COMMENT \'创建时间\',' +
+      ' `updatedAt` DATETIME NOT NULL COMMENT \'更新时间\',' +
+      ' PRIMARY KEY (`id`),' +
+      ' UNIQUE KEY `uniq_admin_control` (`ctype`, `target`)' +
+      ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=\'管理员运营控制\''
   }
 ];
 

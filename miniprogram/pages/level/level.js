@@ -222,11 +222,6 @@ Page({
     }.bind(this));
   },
 
-  /** 主线视图底部的「想自由玩？」→ 玩法 tab（2026-10-18 入口收敛） */
-  goFreePlay: function () {
-    wx.switchTab({ url: '/pages/playlist/playlist' });
-  },
-
   /** 滚到当前关（selector 方案，不依赖行高常量） */
   _scrollToCurrent: function () {
     if (this.data.continueIndex < 0) return;

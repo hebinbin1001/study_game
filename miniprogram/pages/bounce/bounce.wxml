@@ -3,7 +3,7 @@
   <!-- 2026-10-17：删掉页内「返回 + 标题」（原生导航栏已有）；操作提示并进 HUD 行。 -->
 
   <view class="hud">
-    <view class="hud-chip">❤{{lives}}</view>
+    <view class="hud-chip">❤️ {{lives}}</view>
     <view class="hud-chip">分 {{score}}</view>
     <view class="hud-chip">最高 {{best}}</view>
     <game-pause

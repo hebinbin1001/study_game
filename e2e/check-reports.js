@@ -46,16 +46,19 @@ const PAGE_OF = {
   clock: 'pages/clock/clock',
   maze: 'pages/maze/maze',
   hanoi: 'pages/hanoi/hanoi',
-  klotski: 'pages/klotski/klotski'
+  klotski: 'pages/klotski/klotski',
+  bounce: 'pages/bounce/bounce'
 };
 
 /** 字母射击的成绩在结算页上报（reportScore → /api/score） */
 const VIA_RESULT = ['shoot'];
+// 无尽模式按单局最高分结算，没有关卡进度可写。
+const ENDLESS = ['bounce'];
 
 let bad = 0;
 
 catalog.forEach(function (g) {
-  if (!g.unlocked) return;                 // 未开放玩法（弹弹球占位）不要求
+  if (!g.unlocked) return;                 // 未开放玩法不要求上报
   const rel = PAGE_OF[g.key];
   if (!rel) {
     console.log('[FAIL] ' + g.key + '（' + g.name + '）没有登记页面路径，请补 e2e/check-reports.js 的 PAGE_OF');
@@ -104,6 +107,7 @@ catalog.forEach(function (g) {
   if (!g.unlocked) return;
   const rel = PAGE_OF[g.key];
   if (!rel) return;                                    // 缺页面路径上一条规则已经报过
+  if (ENDLESS.indexOf(g.key) >= 0) return;
   if (writesLocalProgress(rel)) return;
   console.log('[FAIL] ' + g.key + '（' + g.name + '）通关后不写本机进度 —— '
     + (g.section === 'casual'

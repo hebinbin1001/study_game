@@ -173,18 +173,7 @@ Page({
     return a;
   },
 
-  /**
-   * 发一副「一定能消完」的牌面。
-   *
-   * 为什么要做：连连看不是任意牌面都有解 —— 满盘时只有相邻/边缘可连，
-   * 随机洗牌会出现「一张都点不掉」的死局（实测约 1/3）。以前只能靠玩家自己
-   * 点「换局」，很多人会以为游戏坏了。
-   *
-   * 做法：反复洗牌并跑一次 DFS 验证（8 对规模很小）；60 次仍无解时，
-   * 退回「同一词对左右相邻」的确定性摆法 —— 每对都相邻，必然可逐对消完。
-   * @param {Array} cards 未洗牌的牌（按 词、义 成对出现）
-   * @returns {Array} 带 i 下标的牌面
-   */
+  /** 发一副一定能消完的牌面；DFS 验证，极端情况按词对相邻兜底 */
   _dealSolvable: function (cards) {
     var self = this;
     var tries = 0;
@@ -197,12 +186,7 @@ Page({
     return cards.map(function (c, i) { c.i = i; return c; });
   },
 
-  /**
-   * 当前牌面是否存在「消完全部牌」的顺序（纯判定，不改 data）。
-   * 只在发牌时调用，规模固定 16 张；用 budget 防止极端局面把主线程卡住。
-   * @param {Array} cards 牌面
-   * @returns {boolean}
-   */
+  /** 当前牌面是否可完全消除（发牌时调用，budget 防卡死） */
   _hasSolution: function (cards) {
     var total = COLS * COLS;
     var sim = [];

@@ -35,9 +35,10 @@ var GAME_META = [
   { key: 'onestroke', label: '一笔画', icon: '✏️', game: 'onestroke', needGrade: false },
   { key: 'pattern', label: '找规律', icon: '🔍', game: 'pattern', needGrade: false },
   { key: 'clock', label: '认钟表', icon: '🕐', game: 'clock', needGrade: false },
-  { key: 'maze', label: '算术迷宫', icon: '🧩', game: 'maze', needGrade: false },
+  { key: 'maze', label: '词义迷宫', icon: '🧩', game: 'maze', needGrade: false },
   { key: 'hanoi', label: '汉诺塔', icon: '🗼', game: 'hanoi', needGrade: false },
-  { key: 'klotski', label: '华容道', icon: '🧩', game: 'klotski', needGrade: false }
+  { key: 'klotski', label: '华容道', icon: '🧩', game: 'klotski', needGrade: false },
+  { key: 'bounce', label: '单词弹弹球', icon: '🏐', game: 'bounce', needGrade: false }
 ];
 
 function metaOfGame(gameType) {

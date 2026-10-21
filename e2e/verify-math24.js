@@ -24,6 +24,9 @@ H.runSuite('verify-math24（算 24 点 · 合并式）', async function (miniPro
   const page = await H.goto(miniProgram, URL, 1800);
   ck.check('进入算 24 点页', (await miniProgram.currentPage()).path === 'pages/math24/math24');
   ck.check('根容器 .page-24 已渲染', !!(await H.waitForSelector(page, '.page-24', 8000)));
+  // 算 24 点会恢复上次断点；用例必须从第 1 关新局开始，否则上次的半局牌面会让初始断言假失败。
+  await page.callMethod('startLevel', 1);
+  await page.waitFor(500);
 
   console.log('[2/7] 初始态：4 张牌、无选中、无结算');
   let d = await page.data();

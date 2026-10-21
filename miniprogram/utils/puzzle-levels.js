@@ -139,8 +139,8 @@ function levelsOf(key) {
     return cout;
   }
   if (k === 'maze') {
-    // 2026-10-18：档位/门数与出题同源（game/maze.js 的 tierOf），
-    // 关卡页显示「第 20 关 · 进阶 / 两步混合运算 · 6 道门 · 6×6」。
+    // 2026-10-21：词义迷宫，档位/门数与出题同源（game/maze.js 的 tierOf），
+    // 关卡页显示「第 20 关 · 挑战 / 成语 · 词义辨析 · 6 道门 · 6×6」。
     var mz = require('../game/maze');
     var mout = [];
     for (var mi = 1; mi <= mz.TOTAL_LEVELS; mi++) {

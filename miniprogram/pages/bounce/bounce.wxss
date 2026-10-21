@@ -72,8 +72,14 @@
   word-break: break-all;
   box-sizing: border-box;
 }
-.ball.ok { background: #7bd389; color: #fff; box-shadow: 0 6rpx 0 rgba(0,0,0,.08); }
-.ball.bad { background: #ff8fae; color: #fff; box-shadow: 0 6rpx 0 rgba(0,0,0,.08); }
+/* 正确/错误球必须同色：否则玩家会靠颜色作答，词义本身失去意义。 */
+.ball.ok, .ball.bad {
+  background: #fff7df;
+  border: 2rpx solid #ffc857;
+  color: #3a3a5c;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.08);
+  box-sizing: border-box;
+}
 .basket {
   position: absolute;
   bottom: 4rpx;

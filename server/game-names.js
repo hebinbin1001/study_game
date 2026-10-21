@@ -34,9 +34,10 @@ const GAME_NAMES = {
   onestroke: '一笔画',
   pattern: '找规律',
   clock: '认钟表',
-  maze: '算术迷宫',
+  maze: '词义迷宫',
   hanoi: '汉诺塔',
-  klotski: '华容道'
+  klotski: '华容道',
+  bounce: '单词弹弹球'
 };
 
 /** 全部玩法 key（顺序同 GAME_NAMES） */

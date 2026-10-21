@@ -66,25 +66,25 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "assets/tab/tab-home.png",
+        "iconPath": "assets/tab/tab-home-off.png",
         "selectedIconPath": "assets/tab/tab-home.png"
       },
       {
         "pagePath": "pages/playlist/playlist",
         "text": "玩法",
-        "iconPath": "assets/tab/tab-play.png",
+        "iconPath": "assets/tab/tab-play-off.png",
         "selectedIconPath": "assets/tab/tab-play.png"
       },
       {
         "pagePath": "pages/study/study",
         "text": "学习",
-        "iconPath": "assets/tab/tab-study.png",
+        "iconPath": "assets/tab/tab-study-off.png",
         "selectedIconPath": "assets/tab/tab-study.png"
       },
       {
         "pagePath": "pages/me/me",
         "text": "我的",
-        "iconPath": "assets/tab/tab-me.png",
+        "iconPath": "assets/tab/tab-me-off.png",
         "selectedIconPath": "assets/tab/tab-me.png"
       }
     ]

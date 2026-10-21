@@ -30,6 +30,8 @@ const iconOk = app.tabBar.list.every(
   (t) => fs.existsSync(`miniprogram/${t.iconPath}`) && fs.existsSync(`miniprogram/${t.selectedIconPath}`)
 );
 check(iconOk, 'tabBar 图标文件存在');
+const tabStateOk = app.tabBar.list.every((t) => t.iconPath !== t.selectedIconPath);
+check(tabStateOk, 'tabBar 选中/未选中图标必须不同（防止选中态消失）');
 
 // 1.5) 每个页面都必须有 navigationBarTitleText（2026-10-18 全量体检发现）
 //
@@ -57,7 +59,7 @@ check(iconOk, 'tabBar 图标文件存在');
   check(ok, `组件 ${c} 四件套齐全`);
 });
 
-// 3) 玩法 tab：14 款（含华容道），跳转 URL 存在，弹弹球为未解锁占位
+// 3) 玩法 tab：全部已开放玩法跳转 URL 存在，弹弹球走独立无尽模式页
 // 玩法目录已抽到 utils/game-catalog.js（2026-09-13）：清单断言看目录文件，
 // 再单独校验玩法 tab 确实引用这份公共目录（防止两处又各写一份）。
 const src = fs.readFileSync('miniprogram/utils/game-catalog.js', 'utf8');
@@ -74,12 +76,13 @@ check(/key: 'klotski'[^}]*puzzle-level\?mode=klotski/.test(src.replace(/\s+/g, '
 // 第三批 · 第 4 条 a：数字智力类统一「先关卡页、再进游戏」
 const casualEntries = src.match(/section: 'casual'[^}]*url: '([^']+)'/g) || [];
 check(casualEntries.length >= 8, '数字智力类至少 8 款有 url（实际 ' + casualEntries.length + '）');
-check(casualEntries.every((e) => e.indexOf('url: \'/pages/puzzle-level/puzzle-level?mode=') >= 0),
-  '数字智力类全部走关卡页 puzzle-level', casualEntries.length + ' 款');
-const bounceUnlocked = /key: 'bounce',[^}]*unlocked: false/.test(src.replace(/\s+/g, ' '));
-check(bounceUnlocked, '弹弹球为未解锁占位(维持现状)');
-const bounceGoesToPage = src.includes("'/pages/bounce/bounce'");
-check(!bounceGoesToPage || !/key: 'bounce'[^}]*url:/.test(src), '弹弹球无 url(不可进入)');
+const casualNeedsLevelPage = src.match(/key: '(?!bounce')[^']+'[^}]*section: 'casual'[^}]*url: '([^']+)'/g) || [];
+check(casualNeedsLevelPage.every((e) => e.indexOf('url: \'/pages/puzzle-level/puzzle-level?mode=') >= 0),
+  '除无尽模式弹弹球外，数字智力类全部走关卡页 puzzle-level', casualNeedsLevelPage.length + ' 款');
+const bounceUnlocked = /key: 'bounce',[^}]*unlocked: true/.test(src.replace(/\s+/g, ' '));
+check(bounceUnlocked, '弹弹球已开放');
+check(/key: 'bounce',[^}]*url: '\/pages\/bounce\/bounce'/.test(src.replace(/\s+/g, ' ')),
+  '弹弹球入口指向玩法页');
 
 // 4) 每日一题 / checkin / 排行榜 / 自定义 关键页存在
 ['daily-question', 'checkin', 'rank', 'custom-levels', 'bank', 'sudoku', 'match', 'link', 'snake', 'math24', 'g2048', 'klotski', 'agreement'].forEach((pg) => {

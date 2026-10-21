@@ -91,6 +91,19 @@ s.test('关卡自检能抓出坏数据（奇点数 4 / 孤立点 / 越界边）'
   s.assert.false(g.validateLevel(null).ok);
 });
 
+s.test('起点规则：有 2 个奇点时只能从奇点起笔（其余起点必无解）', () => {
+  g.LEVELS.forEach(function (item, i) {
+    const odd = g.startHint(item).odd;
+    item.nodes.forEach(function (n, node) {
+      if (g.degreeOf(item, node) === 0) return;
+      const canStart = g.eulerianFrom(item, {}, node);
+      const expected = odd.length === 0 || odd.indexOf(node) >= 0;
+      s.assert.equal(canStart, expected,
+        '第 ' + (i + 1) + ' 关「' + item.name + '」点 ' + node + ' 起笔判定错误');
+    });
+  });
+});
+
 s.test('每关都存在一笔画解法（回溯求解，步数 = 边数）', () => {
   g.LEVELS.forEach(function (item) {
     const path = findEulerPath(item);

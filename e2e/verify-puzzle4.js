@@ -4,7 +4,7 @@
  * verify-puzzle4.js —— 数字智力「四款新玩法」端到端冒烟（2026-10-18）
  *
  * 为什么有这个文件：
- *   找规律 / 认钟表 / 算术迷宫 / 汉诺塔 四款上线时只有引擎单测 + demo 预览页布局验收，
+ *   找规律 / 认钟表 / 词义迷宫 / 汉诺塔 四款上线时只有引擎单测 + demo 预览页布局验收，
  *   没进过真实的开发者工具 —— 引擎算得对，不代表页面接得对（?level 不生效、
  *   选项没绑定、点了不翻页、移动判定接反，这些都只有真跑一局才知道）。
  *
@@ -13,7 +13,7 @@
  *              → 强制结算 → 写 pattern_N 星级、0 星时标题不能是「全部通关！」
  *   B. 认钟表：1 档画表盘且指针角度合法；24→12 时制那档不画表盘（否则表盘剧透答案）
  *              → 点选后题号推进
- *   C. 算术迷宫：6×6=36 格、英雄所在格存在 → 沿无墙方向走一步（计步或弹出门题）
+ *   C. 词义迷宫：6×6=36 格、英雄所在格存在 → 沿无墙方向走一步（计步或弹出门题）
  *   D. 汉诺塔：3 柱、第 2 关 4 盘（最少 15 步）→ A→B 合法计步 → 大盘压小盘被拒 → 撤销回退
  *
  * 运行：node e2e/verify-puzzle4.js
@@ -102,14 +102,17 @@ async function main() {
       d.faceShow === false && !!d.faceText,
       'faceShow = ' + d.faceShow + ', faceText = ' + d.faceText);
 
-    // ============ C. 算术迷宫 ============
-    console.log('[3/4] 算术迷宫：36 格 / 英雄格 / 走一步');
+    // ============ C. 词义迷宫 ============
+    console.log('[3/4] 词义迷宫：36 格 / 英雄格 / 走一步');
     const m = await H.goto(mp, '/pages/maze/maze?level=1', 2400);
     d = await m.data();
     ck.check('迷宫：?level=1 生效', d.levelText === '1/30', '实际 = ' + d.levelText);
     ck.check('迷宫：6×6=36 格', (d.cells || []).length === 36,
       '实际 = ' + (d.cells || []).length);
     ck.check('迷宫：开局 0 步', String(d.stepText) === '0', '实际 = ' + d.stepText);
+    const endCell = (d.cells || []).filter(function (c) { return c.ico === '🔒'; });
+    ck.check('迷宫：出口初始锁定（🔒）', endCell.length === 1,
+      '锁格 = ' + endCell.length);
     const mazeCells = await H.withTimeout(m.$$('.board .cell'), 8000, 'maze .cell');
     ck.check('迷宫：格子都渲染出来了', (mazeCells || []).length === 36,
       '实际 = ' + (mazeCells || []).length);
@@ -133,9 +136,12 @@ async function main() {
         Number(d.stepText) > 0 || d.ask === true,
         'stepText = ' + d.stepText + ', ask = ' + d.ask);
       if (d.ask) {
-        ck.check('迷宫：门题有算式与 4 个选项',
-          !!d.askText && (d.askOptions || []).length === 4,
+        ck.check('迷宫：门题有词面/提示与 4 个释义选项',
+          !!d.askText && !!d.askPrompt && (d.askOptions || []).length === 4,
           'askText = ' + d.askText + ', opts = ' + (d.askOptions || []).length);
+        ck.check('迷宫：选项是释义文本（不是数字算式）',
+          (d.askOptions || []).every(function (o) { return typeof o.v === 'string' && !/^[0-9+\-−×÷()\s]+$/.test(o.v); }),
+          JSON.stringify((d.askOptions || []).map(function (o) { return o.v; })));
       }
     }
 

@@ -41,7 +41,7 @@ module.exports = [
   { key: 'klotski', name: '华容道', icon: '🧩', desc: '滑动突围 · 30 关经典', cat: '智力', section: 'casual', unlocked: true, minutes: '3~10 分钟', url: '/pages/puzzle-level/puzzle-level?mode=klotski' },
   { key: 'pattern', name: '找规律', icon: '🔍', desc: '找出下一个数 · 30 关', cat: '数学', section: 'casual', math: true, unlocked: true, minutes: '2~3 分钟', url: '/pages/puzzle-level/puzzle-level?mode=pattern' },
   { key: 'clock', name: '认钟表', icon: '🕐', desc: '看表算时间 · 30 关', cat: '数学', section: 'casual', math: true, unlocked: true, minutes: '2~3 分钟', url: '/pages/puzzle-level/puzzle-level?mode=clock' },
-  { key: 'maze', name: '算术迷宫', icon: '🧩', desc: '边走边算 · 30 关', cat: '数学', section: 'casual', math: true, unlocked: true, minutes: '2~4 分钟', url: '/pages/puzzle-level/puzzle-level?mode=maze' },
+  { key: 'maze', name: '词义迷宫', icon: '🧩', desc: '看词选义 · 答完门开出口', cat: '智力', section: 'casual', unlocked: true, minutes: '2~4 分钟', url: '/pages/puzzle-level/puzzle-level?mode=maze' },
   { key: 'hanoi', name: '汉诺塔', icon: '🗼', desc: '移动圆盘 · 6 关', cat: '数学', section: 'casual', math: true, unlocked: true, minutes: '1~3 分钟', url: '/pages/puzzle-level/puzzle-level?mode=hanoi' },
-  { key: 'bounce', name: '单词弹弹球', icon: '🏐', desc: '暂无成熟玩法案例 · 敬请期待', cat: '反应', section: 'casual', unlocked: false }
+  { key: 'bounce', name: '单词弹弹球', icon: '🏐', desc: '移动篮子 · 接住正确释义', cat: '反应', section: 'casual', unlocked: true, minutes: '1~3 分钟', url: '/pages/bounce/bounce' }
 ];

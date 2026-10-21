@@ -40,18 +40,18 @@
           <view class="avatar-status">
             <block wx:if="{{item.unlocked}}">
               <text class="status-unlocked">已解锁</text>
-              <block wx:if="{{!item.currentUsed}}">
-                <button class="btn-use" bindtap="useAvatar" data-avatar-id="{{item.avatarId}}">使用</button>
-              </block>
-              <block wx:else>
-                <text class="status-using">使用中</text>
-              </block>
+              <text wx:if="{{item.currentUsed}}" class="status-using">正在使用</text>
             </block>
             <block wx:else>
               <text class="status-locked">{{item.canUnlock ? '可解锁' : '未解锁'}}</text>
-              <text style="display:block;font-size:20rpx;line-height:1.35;color:{{item.canUnlock ? '#7bd389' : '#8a9bb5'}};font-weight:600;margin-top:4rpx;padding:0 8rpx;">{{item.unlockHint}}</text>
-              <button wx:if="{{!item.milestone}}" class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">{{item.canUnlock ? '立即解锁' : '解锁'}}</button>
+              <text class="avatar-unlock-note {{item.canUnlock ? 'can-unlock' : ''}}">{{item.unlockHint}}</text>
             </block>
+          </view>
+          <view class="avatar-action">
+            <button wx:if="{{item.unlocked && !item.currentUsed}}" class="btn-use" bindtap="useAvatar" data-avatar-id="{{item.avatarId}}">使用</button>
+            <text wx:elif="{{item.unlocked && item.currentUsed}}" class="action-current">使用中</text>
+            <button wx:elif="{{!item.milestone}}" class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">{{item.canUnlock ? '立即解锁' : '解锁'}}</button>
+            <text wx:else class="action-auto">自动解锁</text>
           </view>
         </view>
       </block>
@@ -65,37 +65,38 @@
       <block wx:for="{{monsters}}" wx:key="avatarId">
         <view class="avatar-item {{item.currentUsed ? 'active' : ''}}" data-avatar-id="{{item.avatarId}}">
           <view class="avatar-rarity {{item.rarity}}">{{item.rarityLabel}}</view>
-          <!-- 怪兽美术未交付，这里始终走 emoji 兜底分支；保留同样的图片分支便于后续直接接图 -->
-          <image
-            wx:if="{{item.image && !item.iconErr}}"
-            class="avatar-img"
-            src="{{item.image}}"
-            mode="aspectFit"
-            data-id="{{item.avatarId}}"
-            binderror="onIconError" />
-          <text wx:else class="avatar-emoji">{{item.emoji}}</text>
+          <view class="avatar-art" style="background: {{item.bg}}">
+            <text class="avatar-emoji avatar-emoji--ph">{{item.emoji}}</text>
+            <image
+              wx:if="{{item.image && !item.iconErr}}"
+              class="avatar-img"
+              src="{{item.image}}"
+              mode="aspectFit"
+              data-id="{{item.avatarId}}"
+              binderror="onIconError" />
+          </view>
           <view class="avatar-name">{{item.name}}</view>
           <view class="avatar-status">
             <block wx:if="{{item.unlocked}}">
               <text class="status-unlocked">已解锁</text>
-              <block wx:if="{{!item.currentUsed}}">
-                <button class="btn-use" bindtap="useAvatar" data-avatar-id="{{item.avatarId}}">使用</button>
-              </block>
-              <block wx:else>
-                <text class="status-using">使用中</text>
-              </block>
+              <text wx:if="{{item.currentUsed}}" class="status-using">正在使用</text>
             </block>
             <block wx:else>
               <text class="status-locked">{{item.canUnlock ? '可解锁' : '未解锁'}}</text>
-              <text style="display:block;font-size:20rpx;line-height:1.35;color:{{item.canUnlock ? '#7bd389' : '#8a9bb5'}};font-weight:600;margin-top:4rpx;padding:0 8rpx;">{{item.unlockHint}}</text>
-              <button wx:if="{{!item.milestone}}" class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">{{item.canUnlock ? '立即解锁' : '解锁'}}</button>
+              <text class="avatar-unlock-note {{item.canUnlock ? 'can-unlock' : ''}}">{{item.unlockHint}}</text>
             </block>
+          </view>
+          <view class="avatar-action">
+            <button wx:if="{{item.unlocked && !item.currentUsed}}" class="btn-use" bindtap="useAvatar" data-avatar-id="{{item.avatarId}}">使用</button>
+            <text wx:elif="{{item.unlocked && item.currentUsed}}" class="action-current">使用中</text>
+            <button wx:elif="{{!item.milestone}}" class="btn-unlock" bindtap="unlockAvatar" data-avatar-id="{{item.avatarId}}">{{item.canUnlock ? '立即解锁' : '解锁'}}</button>
+            <text wx:else class="action-auto">自动解锁</text>
           </view>
         </view>
       </block>
     </view>
   </view>
 
-  <!-- 返回按钮 -->
-  <button class="btn-back" bindtap="goBack">返回</button>
+  <!-- 底部安全区：皮肤墙最后一行/使用按钮不要贴住 Home 指示条 -->
+  <view class="safe-gap"></view>
 </view>

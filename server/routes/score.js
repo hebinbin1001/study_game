@@ -2,6 +2,7 @@ const express = require("express");
 const { User, Score } = require("../db");
 // 复用 rank 路由里挂的「重算段位星」实现（每关历史最高星去重），见 rank.js 的说明
 const rankRouter = require("./rank");
+const { isBanned, pausedGames } = require("../admin-controls");
 const {
   CODE,
   SCORE_PER_QUESTION,
@@ -109,6 +110,21 @@ router.post("/", async (req, res) => {
         code: CODE.USER_UNKNOWN,
         data: null,
         message: "未识别用户（openid 缺失）",
+      });
+    }
+    if (await isBanned(req.openid)) {
+      return res.send({
+        code: CODE.USER_UNKNOWN,
+        data: null,
+        message: "账号已被管理员暂停，请联系管理员",
+      });
+    }
+    const paused = await pausedGames();
+    if (paused.indexOf(record.game_type) >= 0) {
+      return res.send({
+        code: CODE.SCORE_INVALID,
+        data: null,
+        message: "该玩法已暂停开放",
       });
     }
 

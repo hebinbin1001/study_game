@@ -97,30 +97,47 @@ page {
 /* 统计三格 */
 .stat-row {
   display: flex;
-  gap: 20rpx;
+  gap: 16rpx;
   margin-top: 28rpx;
 }
 .stat-box {
   flex: 1;
   background: #ffffff;
   border-radius: 24rpx;
-  padding: 22rpx 8rpx;
+  padding: 16rpx 8rpx 14rpx;
+  min-height: 142rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
   min-width: 0;
 }
+.stat-box:active { transform: translateY(2rpx); }
+.stat-ic {
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 44rpx;
+  font-size: 32rpx;
+  text-align: center;
+}
 .stat-num {
-  font-size: 36rpx;
+  max-width: 100%;
+  margin-top: 4rpx;
+  font-size: 34rpx;
   font-weight: 900;
   color: #3a3a5c;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.stat-box--rank .stat-num { font-size: 28rpx; }
 .stat-lab {
-  font-size: 20rpx;
-  color: #8A94A6;
-  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #6b7688;
+  margin-top: 4rpx;
   white-space: nowrap;
 }
 
@@ -193,7 +210,8 @@ page {
 }
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); }
 .rank-badge {
-  width: 56rpx;
-  height: 56rpx;
-  margin-bottom: 4rpx;
+  width: 44rpx;
+  height: 44rpx;
+  display: block;
+  margin: 0 auto;
 }

@@ -41,6 +41,7 @@ const AvatarBlob = require("./models/avatar-blob")(sequelize);
 const DailyScore = require("./models/daily-score")(sequelize);
 const SeasonClaim = require("./models/season-claim")(sequelize);
 const PkMatch = require("./models/pk-match")(sequelize);
+const AdminControl = require("./models/admin-control")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
@@ -169,4 +170,5 @@ module.exports = {
   DailyScore,
   SeasonClaim,
   PkMatch,
+  AdminControl,
 };

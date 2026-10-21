@@ -21,6 +21,7 @@ const adminRouter = require("./routes/admin");
 const ranklistRouter = require("./routes/ranklist");
 const levelRouter = require("./routes/level");
 const levelReviewRouter = require("./routes/level-review");
+const adminControls = require("./admin-controls");
 const wrongRouter = require("./routes/wrong");
 const checkinRouter = require("./routes/checkin");
 const dailyRouter = require("./routes/daily");
@@ -87,6 +88,15 @@ if (ART_DIR) {
 
 // 挂载路由（业务路由统一先经过 openid 中间件解析用户身份）
 app.use("/api/health", healthRouter);
+// 公开的玩法入口状态：管理端暂停某玩法后，玩法 tab 不再展示该入口
+app.get("/api/game-status", async (req, res) => {
+  try {
+    const paused = await adminControls.pausedGames();
+    res.send({ code: 0, data: { paused } });
+  } catch (e) {
+    res.send({ code: 0, data: { paused: [] } });
+  }
+});
 // 登录接口不需要鉴权（用 code 换 openid）
 app.use("/api/login", loginRouter);
 // 小程序码生成（不需要用户身份，供分享海报合成调用）

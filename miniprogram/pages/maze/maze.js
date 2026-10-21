@@ -1,12 +1,7 @@
-// 算术迷宫（数字智力第 11 款，2026-10-18 新增）
-//
-// 口径（复核意见 §1.3 / §2.3 / §2.2）：
-//   · **必须有岔路**：引擎 braid 拆掉死胡同形成回路，死胡同里放宝箱（答对回一次机会，
-//     并把答错的门重新打开 = 一次"橡皮擦"），走支路才有意义；
-//   · **星级按正确率**：分母固定为本关门数（不是"答过的题数"），绕路跳过门只会掉星；
-//   · **不接年级**：难度只靠关卡序号，上报统一 grade:'all'；
-//   · 30 关封顶（30×3=90 星），星星只记最高。
+// 词义迷宫：门必须答完才开出口；星按正确率；题目取当前学段词库。
 var maze = require('../../game/maze');
+var dict = require('../../utils/dict');
+var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var skins = require('../../utils/skins');
 var progress = require('../../utils/puzzle-progress');
@@ -16,8 +11,7 @@ var resume = require('../../utils/puzzle-resume');
 
 var PAGE = 'maze';
 
-// 棋盘可用宽度（rpx）：页面 750 − 左右 padding 32×2 = 686，再减棋盘 padding 8×2 = 670
-// 取 654 = 109 × 6，格子整除，右侧不会留一条细缝。
+// 棋盘 654rpx = 109rpx × 6，宽度整除
 var BOARD_W = 654;
 var LIFE_MAX = 3;
 
@@ -32,12 +26,14 @@ Page({
     bannerMain: '',
     bannerSub: '',
     fb: '',
+    gradeLabel: '',
     size: maze.SIZE,
     boardW: BOARD_W,
     cellW: Math.floor(BOARD_W / maze.SIZE),
     cells: [],
     ask: false,
     askTitle: '',
+    askPrompt: '',
     askText: '',
     askOptions: [],
     askTip: '',
@@ -64,29 +60,52 @@ Page({
   _asking: null,
   _locked: false,
   _hero: '⚔️',
+  _gradeKey: 'kg',
+  _gradeLabel: '幼儿园',
+  _pool: [],
   _timer: null,
 
   onLoad: function (options) {
     var want = parseInt((options || {}).level, 10) || 0;
+    this._loadWordPool();
     try {
       var w = skins.getWarriorSkin(storage.getWarriorSkin() || '');
       if (w && w.emoji) this._hero = w.emoji;
     } catch (e) { /* 皮肤模块异常不该挡玩法 */ }
-    // 断点续玩（2026-10-18）：迷宫是随机生成的，恢复必须连 seed 一起还原，
-    // 否则「同一个位置」会是另一张地图 —— 那比重新开始更糟。
+    // 恢复必须连 seed 一起还原
     var snap = resume.load(PAGE);
     if (snap && (!want || snap.level === want) && this._restore(snap)) return;
     this.start(want >= 1 ? want : 1);
+  },
+
+  /** 当前学段词库；不足 8 条时并入全部学段，保证四选一有干扰项 */
+  _loadWordPool: function () {
+    var key = storage.getLastGrade() || 'kg';
+    var grades = constants.GRADES || [];
+    var label = '';
+    for (var i = 0; i < grades.length; i++) {
+      if (grades[i].key === key) { label = grades[i].label; break; }
+    }
+    this._gradeKey = key;
+    this._gradeLabel = label || '幼儿园';
+    var list = [];
+    try { list = dict.loadByGrade(key) || []; } catch (e) { list = []; }
+    if (list.length < 8) {
+      list = [];
+      grades.forEach(function (g) {
+        try { list = list.concat(dict.loadByGrade(g.key) || []); } catch (e) { /* 跳过坏库 */ }
+      });
+    }
+    this._pool = list;
+    this.setData({ gradeLabel: this._gradeLabel });
   },
   onUnload: function () { this._clearTimer(); this._saveProgress(); },
   onHide: function () { this._clearTimer(); this._saveProgress(); },
 
   // ============ 断点续玩（2026-10-18） ============
-  /**
-   * 恢复：seed（地图）+ 位置 + 步数 + 剩余机会 + 门/宝箱状态 + 已问过的题。
-   * 题目按 seed+格子号确定性生成，这里把已生成的题一并存下来，保证重进后同一道门还是同一题。
-   */
+  /** 恢复 seed/位置/步数/命/门状态/缓存题目 */
   _restore: function (snap) {
+    var self = this;
     var st = snap && snap.state;
     if (!st) return false;
     var lv = parseInt(st.lv, 10);
@@ -105,6 +124,9 @@ Page({
     this._steps = parseInt(st.steps, 10) || 0;
     this._lives = Math.max(1, Math.min(LIFE_MAX, parseInt(st.lives, 10) || LIFE_MAX));
     this._gateState = (st.gateState && typeof st.gateState === 'object') ? st.gateState : {};
+    g.gateIds.forEach(function (i) {
+      if (!(self._gateState[i] >= 1)) self._gateState[i] = 0;
+    });
     this._chestOpen = (st.chestOpen && typeof st.chestOpen === 'object') ? st.chestOpen : {};
     this._qs = (st.qs && typeof st.qs === 'object') ? st.qs : {};
     this._visited = (st.visited && typeof st.visited === 'object') ? st.visited : {};
@@ -115,9 +137,10 @@ Page({
     this.setData({
       settle: false, win: false, starsText: '', overTitle: '', overMsg: '', overHint: '', showNext: false,
       ask: false, fb: '',
+      gradeLabel: this._gradeLabel,
       levelText: lv + '/' + maze.TOTAL_LEVELS,
-      bannerMain: (parseInt(st.steps, 10) || 0) > 0 ? '接着上次走 · 走到 🏁 出口' : '走到 🏁 出口',
-      bannerSub: '共 ' + g.gateIds.length + ' 道门 · 答对才算星'
+      bannerMain: (parseInt(st.steps, 10) || 0) > 0 ? '接着上次走 · 答完门再出口' : '答完所有门，出口才会开',
+      bannerSub: this._gradeLabel + '词库 · ' + g.gateIds.length + ' 道门 · 答对 ≥60%'
     });
     this._paint();
     wx.showToast({ title: '已恢复上次进度 · 第 ' + lv + ' 关 · ' + this._steps + ' 步', icon: 'none', duration: 1600 });
@@ -146,6 +169,7 @@ Page({
 
   /** 开始某一关（重玩换 seed → 换一张迷宫） */
   start: function (no) {
+    var self = this;
     this._clearTimer();
     resume.clear(PAGE);                 // 主动开新局 → 旧断点作废（重玩换 seed，旧档已对不上）
     var lv = parseInt(no, 10) || 1;
@@ -158,6 +182,7 @@ Page({
     this._steps = 0;
     this._lives = LIFE_MAX;
     this._gateState = {};
+    this._g.gateIds.forEach(function (i) { self._gateState[i] = 0; });
     this._chestOpen = {};
     this._qs = {};
     this._asking = null;
@@ -168,9 +193,10 @@ Page({
     this.setData({
       settle: false, win: false, starsText: '', overTitle: '', overMsg: '', overHint: '', showNext: false,
       ask: false, fb: '',
+      gradeLabel: this._gradeLabel,
       levelText: lv + '/' + maze.TOTAL_LEVELS,
-      bannerMain: '走到 🏁 出口',
-      bannerSub: '共 ' + this._g.gateIds.length + ' 道门 · 答对才算星'
+      bannerMain: '答完所有门，出口才会开',
+      bannerSub: this._gradeLabel + '词库 · 共 ' + this._g.gateIds.length + ' 道门 · 答对 ≥60%'
     });
     this._paint();
   },
@@ -180,7 +206,13 @@ Page({
     var self = this;
     var g = this._g;
     var right = 0;
-    g.gateIds.forEach(function (i) { if (self._gateState[i] === 1) right++; });
+    var attempted = 0;
+    g.gateIds.forEach(function (i) {
+      if (self._gateState[i] === 1) right++;
+      if (self._gateState[i] === 1 || self._gateState[i] === 2) attempted++;
+    });
+    var total = g.gateIds.length;
+    var allAttempted = attempted >= total;
 
     var cells = g.cells.map(function (c, i) {
       var w = maze.wallFlags(c);
@@ -190,20 +222,25 @@ Page({
 
       var ico = '';
       if (i === self._pos) ico = self._hero;
-      else if (c.kind === 'end') ico = '🏁';
+      else if (c.kind === 'end') ico = allAttempted ? '🏁' : '🔒';
       else if (c.kind === 'start') ico = '🚩';
       else if (c.kind === 'gate') ico = self._gateState[i] === 1 ? '✅' : (self._gateState[i] === 2 ? '❌' : '🚪');
       else if (c.kind === 'chest') ico = self._chestOpen[i] ? '✨' : '🎁';
 
+      if (c.kind === 'gate' && self._gateState[i] !== 1 && self._gateState[i] !== 2) cls += ' gate-lock';
       return { kn: w.n, ke: w.e, ks: w.s, kw: w.w, cls: cls, ico: ico };
     });
 
     this.setData({
       cells: cells,
-      pct: Math.round(right / g.gateIds.length * 100),
-      gateText: right + '/' + g.gateIds.length,
+      pct: total ? Math.round(right / total * 100) : 0,
+      gateText: attempted + '/' + total,
       hearts: '❤️'.repeat(Math.max(0, this._lives)) + '🤍'.repeat(Math.max(0, LIFE_MAX - this._lives)),
-      stepText: String(this._steps)
+      stepText: String(this._steps),
+      bannerMain: allAttempted ? '出口已开 · 走到 🏁' : '答完所有门，出口才会开',
+      bannerSub: allAttempted
+        ? ('答对 ' + right + '/' + total + ' 道门 · 走到出口')
+        : ('已答 ' + attempted + '/' + total + ' 道 · 答对 ' + right + ' 道')
     });
   },
 
@@ -225,10 +262,10 @@ Page({
     this._visited[idx] = 1;
 
     var cell = this._g.cells[idx];
-    this.setData({ fb: '', bannerMain: '走到 🏁 出口', bannerSub: '共 ' + this._g.gateIds.length + ' 道门 · 答对才算星' });
+    this.setData({ fb: '' });
     this._saveProgress();               // 走一格就存（走进终点会被 _finish 清掉，不留残局）
 
-    if (cell.kind === 'gate' && this._gateState[idx] === 0) {
+    if (cell.kind === 'gate' && !this._gateState[idx]) {
       this._askFor('gate', idx);
       return;
     }
@@ -238,6 +275,20 @@ Page({
       return;
     }
     if (cell.kind === 'end') {
+      var attempted = 0;
+      var self = this;
+      this._g.gateIds.forEach(function (i) {
+        if (self._gateState[i] === 1 || self._gateState[i] === 2) attempted++;
+      });
+      if (attempted < this._g.gateIds.length) {
+        this._paint();
+        this.setData({
+          bannerMain: '出口还锁着',
+          bannerSub: '还有 ' + (this._g.gateIds.length - attempted) + ' 道门没答',
+          fb: 'bad'
+        });
+        return;
+      }
       this._paint();
       this._finish(true);
       return;
@@ -250,13 +301,22 @@ Page({
     var key = kind + ':' + idx;
     if (!this._qs[key]) {
       var salt = kind === 'chest' ? 7717 : 13;
-      this._qs[key] = maze.genQuestion(this._lv, (this._seed + idx * 104729 + salt) >>> 0);
+      this._qs[key] = maze.genWordQuestion(
+        this._lv,
+        (this._seed + idx * 104729 + salt) >>> 0,
+        this._pool
+      );
     }
     var q = this._qs[key];
+    if (!q) {
+      wx.showToast({ title: '词库不足，请先切换学段', icon: 'none' });
+      return;
+    }
     this._asking = { kind: kind, idx: idx };
     this.setData({
       ask: true,
       askTitle: kind === 'chest' ? '宝箱 · 答对回一次机会' : ('第 ' + (this._gateNo(idx)) + ' 道门'),
+      askPrompt: q.prompt,
       askText: q.text,
       askOptions: q.options.map(function (o) { return { v: o.v, cls: '' }; }),
       askTip: '答错扣 1 次机会',
@@ -297,7 +357,7 @@ Page({
     } else {
       this._lives--;
       if (this._asking.kind === 'gate') this._gateState[this._asking.idx] = 2;
-      tip = this._lives > 0 ? ('答错了 · 正确答案 ' + q.answer) : '机会用完了';
+      tip = this._lives > 0 ? ('答错了 · 正确答案：' + q.answer) : '机会用完了';
     }
 
     this.setData({
@@ -372,7 +432,7 @@ Page({
       settle: true,
       win: win,
       starsText: win ? '⭐'.repeat(stars) : '',
-      overTitle: win ? (last ? '全部通关！' : '走出迷宫！') : '',
+      overTitle: win ? (last ? '全部通关！' : '走出迷宫！') : (reached ? '还差一点' : '机会用完了'),
       overMsg: msg,
       overHint: reachHint(right, total, reached, this._lives),
       showNext: win && !last
@@ -386,7 +446,7 @@ Page({
   noop: function () { },
 
   onShareAppMessage: function () {
-    return { title: '词力战士 - 算术迷宫', path: '/pages/playlist/playlist' };
+    return { title: '词力战士 - 词义迷宫', path: '/pages/playlist/playlist' };
   },
 
   // ============ 暂停 / 音效（统一组件 game-pause） ============
@@ -417,10 +477,7 @@ Page({
  */
 function reachHint(right, total, reached, lives) {
   if (!reached) return '机会用完了，再试一次吧';
-  if (right >= total) return '';
-  var need = Math.ceil(total * 0.9);
-  if (right < need) {
-    return '答对 ' + need + '/' + total + ' 道门就能拿 3 星（还差 ' + (need - right) + ' 道）';
-  }
+  var need = Math.ceil(total * 0.6);
+  if (right < need) return '答对 ' + right + '/' + total + '，需要达到 60% 才能过关';
   return '';
 }

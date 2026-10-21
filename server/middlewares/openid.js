@@ -20,6 +20,19 @@
 
 const { CODE, OPENID_RE } = require("../constants");
 const { User } = require("../db");
+const { isBanned } = require("../admin-controls");
+
+async function continueWithOpenid(req, res, next, value) {
+  req.openid = value;
+  if (value && await isBanned(value)) {
+    return res.send({
+      code: CODE.USER_UNKNOWN,
+      data: null,
+      message: "账号已被管理员暂停，请联系管理员",
+    });
+  }
+  next();
+}
 
 /**
  * 解析 Authorization: Bearer <token> → openid。
@@ -38,8 +51,7 @@ module.exports = async (req, res, next) => {
     // ① 标准登录态：Bearer token 优先
     const tokenOpenid = await resolveByToken(req);
     if (tokenOpenid) {
-      req.openid = tokenOpenid;
-      return next();
+      return continueWithOpenid(req, res, next, tokenOpenid);
     }
 
     // ② 网关注入 / 联调 / e2e：格式合法的 x-wx-openid 即采用（网关已兜底防伪）
@@ -52,8 +64,7 @@ module.exports = async (req, res, next) => {
           message: "openid 格式非法",
         });
       }
-      req.openid = openid;
-      return next();
+      return continueWithOpenid(req, res, next, openid);
     }
 
     // ③ 匿名：置空放行，业务路由按 code=1001 处理（游客/离线）

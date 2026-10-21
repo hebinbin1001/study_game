@@ -51,9 +51,7 @@
     </view>
   </view>
 
-  <!-- 本页不再有「挑战主线 / 自由练」分段（2026-10-18 入口收敛）：
-       本页只有两种进入方式 —— 首页进来 = 主线；玩法页带 ?mode= 进来 = 自由玩。
-       「想自由玩」入口放在继续条之后，见下方。 -->
+  <!-- 本页不再有「挑战主线 / 自由练」分段：首页进来 = 主线；玩法页带 ?mode= 进来 = 自由玩。 -->
 
   <!-- 2026-10-18：删掉「自由玩：玩法线 + 题型」chips 行 ——
        玩法在上一屏（玩法 tab）已经选过了，这里再列一遍 7 条玩法线属于重复入口；
@@ -66,16 +64,6 @@
       <text class="cb-s">{{continueSub}}</text>
     </view>
     <view class="cb-go">开打 ›</view>
-  </view>
-
-  <!-- 自由玩入口：主线页的主操作是「继续」，次要入口放它后面 -->
-  <view wx:if="{{isChallengeView}}" class="free-entry" bindtap="goFreePlay">
-    <text class="free-entry__ic">🎲</text>
-    <view class="free-entry__t">
-      <view class="free-entry__b">想自由玩？</view>
-      <view class="free-entry__s">去「玩法」挑一款，不用按主线顺序</view>
-    </view>
-    <text class="free-entry__go">›</text>
   </view>
 
   <!-- 关卡列表（每 5 关一段；当前关带 id 供自动滚动定位） -->

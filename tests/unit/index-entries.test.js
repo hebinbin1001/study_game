@@ -108,7 +108,7 @@ const PAGES = [
     name: '关卡页',
     dir: 'level',
     // 2026-10-18：pickType 随「玩法/题型切换条」一起删除（玩法已在玩法 tab 选过）
-    entries: ['openGradePicker', 'tapContinue', 'onLevelTap', 'claimChest', 'guestLogin', 'goCustomLevel', 'goFreePlay']
+    entries: ['openGradePicker', 'tapContinue', 'onLevelTap', 'claimChest', 'guestLogin', 'goCustomLevel']
   },
   {
     name: '学习页',
@@ -186,13 +186,14 @@ s.test('战士徽章不再用 fixed 悬浮（会压住 HUD / 题目卡）', func
 // ============ 入口收敛：主线只从首页进（2026-10-18） ============
 // 规则（用户拍板）：主线只能从首页进入；玩法页进去的都是自由玩。
 // 落地方式：关卡页不再提供「主线 / 自由练」横跳，视图由入口的 ?mode= 决定。
-s.test('关卡页不再提供「主线 / 自由练」横跳，只留去自由玩的入口', function () {
+s.test('关卡页不再提供「主线 / 自由练」横跳，也不再有「想自由玩」入口', function () {
   const w = read('miniprogram/pages/level/level.wxml');
   const js = read('miniprogram/pages/level/level.js');
   s.assert.ok(w.indexOf('view-seg') === -1, '关卡页仍有分段容器 view-seg');
   s.assert.ok(w.indexOf('pickView') === -1, '关卡页仍有分段切换 pickView');
   s.assert.ok(js.indexOf('pickView') === -1, 'level.js 仍保留 pickView 死方法');
-  s.assert.ok(w.indexOf('goFreePlay') !== -1, '关卡页缺少「去自由玩」的入口');
+  s.assert.ok(w.indexOf('goFreePlay') === -1, '关卡页仍有「想自由玩」入口');
+  s.assert.ok(w.indexOf('free-entry') === -1, '关卡页仍渲染自由玩卡片');
 });
 
 s.test('主线入口唯一：除首页外，跳关卡页必须带 ?mode=（否则会落到主线）', function () {

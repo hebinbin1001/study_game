@@ -20,6 +20,9 @@ var MODES = [
   { key: 'listen', label: '听音选义' },
   { key: 'meaning', label: '看中文选词' }
 ];
+var READY_MODES = MODES.filter(function (m) {
+  return m.key !== 'listen' || audio.isTTSReady();
+});
 
 // 英语型题型（speak 语言判断用）
 var EN_TYPES = ['en', 'w1', 'w2', 'fill', 'trans'];
@@ -49,7 +52,7 @@ Page({
     correctCount: 0,
     totalCount: 0,
     // M6-G
-    modes: MODES,
+    modes: READY_MODES,
     currentMode: 'original',
     showQ: true,        // 是否显示题面 q
     showListen: false,  // 是否听音形态（隐藏题面）

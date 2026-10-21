@@ -32,24 +32,25 @@
   <!-- 统计三格 -->
   <view class="stat-row">
     <view class="stat-box">
+      <view class="stat-ic">⭐</view>
       <view class="stat-num">{{loggedIn ? rankStars : '-'}}</view>
-      <view class="stat-lab">⭐ 累计星星</view>
+      <view class="stat-lab">累计星星</view>
     </view>
-    <view class="stat-box">
+    <view class="stat-box stat-box--rank" bindtap="goRankInfo">
       <image
         wx:if="{{loggedIn && rankIcon}}"
         class="rank-badge"
         src="{{rankIcon}}"
         mode="aspectFit"
         binderror="onRankIconError"></image>
-      <view bindtap="goRankInfo">
-        <view class="stat-num">{{loggedIn ? rankName || '-' : '-'}}</view>
-        <view class="stat-lab">🎖 段位 ›</view>
-      </view>
+      <view wx:else class="stat-ic">🎖</view>
+      <view class="stat-num">{{loggedIn ? rankName || '-' : '-'}}</view>
+      <view class="stat-lab">段位 ›</view>
     </view>
     <view class="stat-box">
+      <view class="stat-ic">🏅</view>
       <view class="stat-num">{{loggedIn ? wins : '-'}}</view>
-      <view class="stat-lab">🏅 胜场</view>
+      <view class="stat-lab">胜场</view>
     </view>
   </view>
 

@@ -3,8 +3,8 @@
   <!-- 2026-10-17：删掉页内「返回 + 标题」（原生导航栏已有）。原「换局」胶囊并进 HUD 行，功能不丢。 -->
 
   <view class="hud">
-    <view class="hud-chip">❤{{lives}}</view>
-    <view class="hud-chip">配对 {{matched}}/{{pairsTotal}}</view>
+    <view class="hud-chip"><text class="heart">❤️</text><text>{{lives}}</text></view>
+    <view class="hud-chip">配对 <text class="pair-num">{{matched}}/{{pairsTotal}}</text></view>
     <view class="hud-chip" bindtap="newRound">换局</view>
     <!-- 战士徽章：并进 HUD 行（原来 fixed 悬浮会压住棋盘/提示条） -->
     <warrior-badge size="sm" />

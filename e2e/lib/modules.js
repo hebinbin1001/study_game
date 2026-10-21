@@ -65,9 +65,9 @@ const MODULES = [
   },
   {
     id: 'wordgames',
-    name: '题库类玩法（连连看 / 消消乐 / 拼词 / 成语 / 贪吃蛇 / 抢答）',
-    stages: ['link', 'snake', 'quiz'],
-    unit: ['word-build', 'quiz', 'quiz-bank']
+    name: '题库类玩法（连连看 / 消消乐 / 拼词 / 成语 / 贪吃蛇 / 弹弹球 / 抢答）',
+    stages: ['link', 'snake', 'bounce', 'quiz'],
+    unit: ['word-build', 'quiz', 'quiz-bank', 'bounce']
   },
   {
     id: 'puzzle',
@@ -128,6 +128,7 @@ const STAGE_MODULE = {
   math24: 'puzzle',
   link: 'wordgames',
   snake: 'wordgames',
+  bounce: 'wordgames',
   klotski: 'puzzle',
   g2048: 'puzzle',
   challenge: 'challenge',
@@ -182,7 +183,8 @@ const PATH_RULES = [
   { re: /^miniprogram\/game\/(klotski|math24|math-sprint|memory-grid|one-stroke(-levels)?|pattern|clock|maze|hanoi|sudoku|tw2048|balance)\.js$/,
     modules: ['puzzle'] },
   { re: /^miniprogram\/data\//, modules: ['puzzle', 'dict'] },
-  { re: /^miniprogram\/pages\/(math24|math-sprint|memory-grid|math-balance|one-stroke|pattern|clock|maze|hanoi|sudoku|g2048|klotski|bounce)\//,
+  { re: /^miniprogram\/pages\/bounce\//, modules: ['wordgames'] },
+  { re: /^miniprogram\/pages\/(math24|math-sprint|memory-grid|math-balance|one-stroke|pattern|clock|maze|hanoi|sudoku|g2048|klotski)\//,
     modules: ['puzzle'] },
 
   // 用户与成长

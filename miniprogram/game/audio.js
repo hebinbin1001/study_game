@@ -38,6 +38,11 @@ function getTTS() {
   }
 }
 
+/** 当前运行环境是否能真正发音（插件未声明/未授权时页面应隐藏听音形态） */
+function isTTSReady() {
+  return !!getTTS();
+}
+
 /** 语言映射：兼容 'en-US'/'zh-CN' 风格 → 插件 'en_US'/'zh_CN' */
 function mapLang(lang) {
   if (!lang) return 'zh_CN';
@@ -145,6 +150,7 @@ function playWin() {
 module.exports = {
   speak,
   speakByItem,
+  isTTSReady,
   EN_TYPES,
   playCorrect,
   playWrong,

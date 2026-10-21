@@ -7,7 +7,7 @@
  * 开发者工具的截图接口在工具更新后可用了（此前多次超时）。
  *
  * 用法：
- *   node e2e/shot-pages.js                  # 截默认页（玩法 14 款 + 关键内容页）
+ *   node e2e/shot-pages.js                  # 截默认页（全部已开放玩法 + 关键内容页）
  *   node e2e/shot-pages.js --only=math24    # 只截指定页面（逗号分隔）
  *   node e2e/shot-pages.js --prefix=after   # 文件名前缀（改前/改后对比）
  *
@@ -52,7 +52,7 @@ const PAGES = [
   // 认钟表（2026-10-18 新增）：第 1 关整点半点、第 30 关 24 时制（数字牌布局）
   { id: 'clock', url: '/pages/clock/clock?level=1' },
   { id: 'clock-hard', url: '/pages/clock/clock?level=30' },
-  // 算术迷宫（2026-10-18 新增）：第 1 关 3 道门、第 30 关 7 道门（最挤）
+  // 词义迷宫（2026-10-21 重做）：第 1 关 3 道门、第 30 关 7 道门（最挤）
   { id: 'maze', url: '/pages/maze/maze?level=1' },
   { id: 'maze-hard', url: '/pages/maze/maze?level=30' },
   // 汉诺塔（2026-10-18 新增）：第 1 关 3 盘、第 6 关 8 盘（最高）

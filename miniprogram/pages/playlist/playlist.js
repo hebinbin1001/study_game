@@ -14,6 +14,7 @@
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
+var request = require('../../utils/request');
 
 // 2026-10-18：分类/分段图标改为 PNG（豆包出图），走云托管静态资源。
 // 原因：原来用 emoji 当图标，部分安卓机没有对应彩色 emoji 字体 → 只看得到文字，
@@ -67,6 +68,8 @@ Page({
     // 未上线的玩法（2026-10-17）：以前它们占着网格位，把内容多推了一行；
     // 现在移出网格，在页脚用一行「制作中」交代，玩家不会以为点不动是 bug。
     soonText: ''
+    ,
+    pausedGames: []      // 管理端暂停的玩法 key
   },
 
   onLoad: function (options) {
@@ -79,8 +82,20 @@ Page({
   },
 
   onShow: function () {
-    // 从玩法线打完回来要刷新「已通关 x/30」进度
-    this._applyCat(this.data.curCat);
+    // 从玩法线打完回来要刷新「已通关 x/30」进度；同时拉管理端暂停状态
+    this._loadGameStatus();
+  },
+
+  /** 管理端可以暂停某个玩法入口；失败时按「全部开放」降级 */
+  _loadGameStatus: function () {
+    var self = this;
+    request.get('/api/game-status').then(function (d) {
+      self.setData({ pausedGames: (d && d.paused) || [] });
+      self._applyCat(self.data.curCat);
+    }).catch(function () {
+      self.setData({ pausedGames: [] });
+      self._applyCat(self.data.curCat);
+    });
   },
 
   // 切换二级分段：闯关线 / 数字智力
@@ -126,9 +141,11 @@ Page({
   _applyCat: function (key) {
     var section = this.data.curSection;
     var inSection = gamesOfSection(section);
+    var paused = this.data.pausedGames || [];
+    var available = inSection.filter(function (g) { return paused.indexOf(g.key) < 0; });
     var cats = CATS.filter(function (c) {
       if (c.key === 'all') return true;
-      return inSection.some(function (g) { return g.cat === c.key; });
+      return available.some(function (g) { return g.cat === c.key; });
     });
     var grade = storage.getLastGrade() || constants.GRADES[0].key;
     // 同步年级 chip 的选中态（从首页/关卡页改过年级后回到这一页要跟上）
@@ -137,7 +154,7 @@ Page({
       if (constants.GRADES[gi].key === grade) { gIdx = gi; break; }
     }
     var allStars = storage.getAllStars();
-    var all = inSection.filter(function (g) {
+    var all = available.filter(function (g) {
       return key === 'all' || g.cat === key;
     }).map(function (g) {
       var out = {};
@@ -168,8 +185,8 @@ Page({
       gradeIndex: gIdx,
       gradeKey: constants.GRADES[gIdx].key,
       gradeLabel: constants.GRADES[gIdx].label,
-      totalCount: inSection.length,
-      unlockedCount: inSection.filter(function (g) { return g.unlocked; }).length,
+      totalCount: available.length,
+      unlockedCount: available.filter(function (g) { return g.unlocked; }).length,
       soonText: soon.map(function (g) { return g.icon + ' ' + g.name; }).join(' · '),
       sectionDesc: (section === 'line')
         ? '每条线 30 关 · 按学段生成'

@@ -77,6 +77,51 @@
 .list-meta { font-size: 22rpx; color: #8a9bb5; margin-top: 14rpx; }
 .list-note { font-size: 20rpx; color: #a8b3c4; line-height: 1.6; margin-top: 18rpx; }
 
+.control-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 22rpx;
+  box-shadow: 0 6rpx 16rpx rgba(28, 53, 92, .08);
+}
+.control-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20rpx; }
+.control-title { font-size: 28rpx; font-weight: 900; color: #3a3a5c; }
+.control-sub { margin-top: 6rpx; font-size: 21rpx; line-height: 1.5; color: #8a9bb5; }
+.control-count {
+  flex: 0 0 auto; padding: 6rpx 14rpx; border-radius: 999rpx;
+  background: #eef4ff; color: #2e6fd6; font-size: 21rpx; font-weight: 800;
+}
+.control-empty { padding: 28rpx 0 12rpx; text-align: center; color: #8a9bb5; font-size: 23rpx; }
+.game-control-list {
+  display: flex; flex-wrap: wrap; gap: 12rpx; margin-top: 18rpx;
+}
+.game-control-row {
+  flex: 1 1 calc(50% - 6rpx); min-width: 290rpx;
+  display: flex; align-items: center; justify-content: space-between; gap: 12rpx;
+  padding: 14rpx; border-radius: 18rpx; background: #f7faff;
+  box-sizing: border-box;
+}
+.gc-main { display: flex; align-items: center; gap: 10rpx; min-width: 0; }
+.gc-icon { flex: 0 0 auto; font-size: 32rpx; }
+.gc-copy { display: flex; flex-direction: column; min-width: 0; }
+.gc-name {
+  max-width: 176rpx; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  color: #3a3a5c; font-size: 23rpx; font-weight: 800;
+}
+.gc-state { margin-top: 2rpx; color: #2f8b4d; font-size: 19rpx; font-weight: 700; }
+.gc-state.is-paused { color: #b45309; }
+.gc-btn {
+  flex: 0 0 88rpx; width: 88rpx; height: 54rpx; line-height: 54rpx;
+  margin: 0; padding: 0; border-radius: 999rpx; font-size: 21rpx; font-weight: 900;
+}
+.gc-btn::after, .u-ban-btn::after { border: none; }
+.gc-btn.pause { background: #fff0e8; color: #b45309; }
+.gc-btn.resume { background: #e7f7ec; color: #1e7a3c; }
+.banned-summary {
+  margin-top: 16rpx; padding-top: 14rpx; border-top: 1rpx solid #edf1f7;
+  color: #5c7f9e; font-size: 22rpx; font-weight: 800;
+}
+.banned-summary text { margin-left: 8rpx; color: #a0aec0; font-size: 20rpx; font-weight: 500; }
+
 .search { display: flex; gap: 12rpx; }
 .search-input { flex: 1; height: 76rpx; background: #fff; border-radius: 18rpx; padding: 0 20rpx; font-size: 26rpx; }
 .search-btn {
@@ -105,10 +150,53 @@
 .u-sub { display: flex; gap: 10rpx; margin-top: 10rpx; flex-wrap: wrap; }
 .u-chip { font-size: 20rpx; color: #5c7f9e; background: #eef3fa; border-radius: 999rpx; padding: 4rpx 14rpx; }
 .u-chip--bad { color: #c0392b; background: #fdecea; font-weight: 700; }
+.u-chip--ban { color: #b42318; background: #fee4e2; font-weight: 800; }
 .u-meta { font-size: 20rpx; color: #a8b3c4; margin-top: 10rpx; }
+.u-ban-reason { margin-top: 8rpx; color: #b42318; font-size: 21rpx; line-height: 1.4; }
+.u-actions { display: flex; justify-content: flex-end; margin-top: 12rpx; }
+.u-ban-btn {
+  width: 112rpx; height: 56rpx; line-height: 56rpx;
+  margin: 0; padding: 0; border-radius: 999rpx;
+  background: #fff0e8; color: #b42318; font-size: 22rpx; font-weight: 900;
+}
+.u-ban-btn.is-resume { background: #e7f7ec; color: #1e7a3c; }
 .more { text-align: center; color: #2e6fd6; font-size: 26rpx; padding: 24rpx 0; }
 .empty { text-align: center; color: #8a9bb5; font-size: 24rpx; padding: 40rpx 0; }
 .back {
   margin-top: 24rpx; height: 88rpx; line-height: 88rpx; border-radius: 44rpx;
   background: #fff; color: #5c7f9e; font-size: 28rpx; font-weight: 700;
 }
+
+/* ===== 关卡审核 ===== */
+.review-count { margin-left: 8rpx; font-size: 22rpx; color: #4285F4; }
+.review-tabs { display: flex; gap: 12rpx; margin: 12rpx 0 16rpx; }
+.review-tab {
+  padding: 10rpx 24rpx; border-radius: 999rpx; background: #ffffff;
+  color: #5c7f9e; font-size: 24rpx; font-weight: 800;
+  box-shadow: 0 4rpx 12rpx rgba(28, 53, 92, .06);
+}
+.review-tab.on { background: #4285F4; color: #ffffff; }
+.review-card {
+  background: #ffffff; border-radius: 24rpx; padding: 20rpx 24rpx;
+  margin-bottom: 16rpx; box-shadow: 0 6rpx 16rpx rgba(28, 53, 92, .08);
+}
+.rv-head { display: flex; align-items: center; gap: 12rpx; }
+.rv-title {
+  flex: 1; min-width: 0; font-size: 28rpx; font-weight: 900; color: #3a3a5c;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.rv-status { flex: 0 0 auto; padding: 4rpx 12rpx; border-radius: 999rpx; font-size: 20rpx; font-weight: 800; }
+.rv-status.pending { background: #fff4d6; color: #a16207; }
+.rv-status.approved { background: #e7f7ec; color: #1e7a3c; }
+.rv-status.rejected { background: #fff0f0; color: #c2410c; }
+.rv-meta { margin-top: 8rpx; font-size: 22rpx; color: #8a9bb5; }
+.rv-desc { margin-top: 8rpx; font-size: 24rpx; color: #5c7f9e; line-height: 1.4; }
+.rv-items {
+  margin-top: 8rpx; padding: 10rpx 12rpx; border-radius: 12rpx;
+  background: #f7faff; font-size: 22rpx; color: #3a3a5c; line-height: 1.4;
+}
+.rv-id { font-size: 20rpx; }
+.rv-actions { display: flex; gap: 16rpx; margin-top: 14rpx; }
+.rv-btn { flex: 1; margin: 0; padding: 0; height: 72rpx; line-height: 72rpx; border-radius: 16rpx; font-size: 26rpx; font-weight: 900; }
+.rv-pass { background: #e7f7ec; color: #1e7a3c; }
+.rv-reject { background: #fff0f0; color: #c2410c; }

@@ -1,19 +1,6 @@
 /**
- * game/maze.js —— 「算术迷宫」引擎（2026-10-18 新增，数字智力第 11 款）
- *
- * 复核意见 §1.3 / §2.3 的两条硬要求，这里都落地了：
- *   ① **必须有岔路**。DFS 回溯生成的是完美迷宫（任意两格路径唯一），玩家没有选择，
- *      实质是"沿唯一路线连答口算题"。所以生成后做 **braid**（拆掉部分死胡同的墙形成回路），
- *      并在死胡同里放 **宝箱**（答对回一次机会）——"走哪条"才有意义。
- *   ② **星级按正确率**，不自创"用时折星"。分母固定为**本关门数**（不是"答过的题数"），
- *      这样绕路跳过门不但不加分，反而会因为少答而掉星 —— 速通和全清形成真实权衡。
- *
- * 其他口径：
- *   · 不接年级（数字智力统一 grade:'all'），难度只靠关卡序号；
- *   · 30 关封顶（30 × 3 = 90 星），星星会被首页 getAllStars() 汇总；
- *   · 6×6 固定棋盘：格子约 109rpx（≈54px），手指点得准，且一屏放得下不用滚。
- *
- * 纯逻辑、无 wx 依赖（可 Node 单测）。
+ * game/maze.js —— 词义迷宫引擎（纯逻辑，无 wx 依赖）
+ * 6×6 / 30 关；braid 造回路，死胡同放宝箱；门题由页面传入词库生成。
  */
 'use strict';
 
@@ -33,12 +20,19 @@ var DIRS = [
   { bit: W, opp: E, dr: 0, dc: -1 }
 ];
 
+// 2026-10-21：从「算术迷宫」重做为「词义迷宫」。
+// 门题改成词/成语 → 中文释义；难度只控制词长与题型，不再出算术题。
 var TIERS = [
-  { from: 1, to: 6, name: '入门', desc: '20 以内加减', gates: 3, ops: { add: 3, sub: 2 } },
-  { from: 7, to: 12, name: '简单', desc: '100 以内加减', gates: 4, ops: { add: 3, sub: 3 } },
-  { from: 13, to: 18, name: '中等', desc: '表内乘除', gates: 5, ops: { add: 1, mul: 3, div: 2 } },
-  { from: 19, to: 24, name: '进阶', desc: '两步混合运算', gates: 6, ops: { mul: 2, two: 3 } },
-  { from: 25, to: 30, name: '挑战', desc: '两位数与括号', gates: 7, ops: { two: 2, big: 3 } }
+  { from: 1, to: 6, name: '启蒙', desc: '常见短词 · 词义配对', gates: 3,
+    types: { w1: 1, c1: 1 }, maxLen: 6 },
+  { from: 7, to: 12, name: '基础', desc: '常用词 · 4~8 个字母', gates: 4,
+    types: { w1: 1, c1: 1, w2: 1 }, maxLen: 8 },
+  { from: 13, to: 18, name: '进阶', desc: '长单词 · 常用成语', gates: 5,
+    types: { w1: 1, w2: 1, c1: 1, c2: 1, trans: 1 }, minLen: 3 },
+  { from: 19, to: 24, name: '挑战', desc: '成语 · 词义辨析', gates: 6,
+    types: { w2: 1, c2: 1, xhy: 1, trans: 1 }, minLen: 3 },
+  { from: 25, to: 30, name: '大师', desc: '长词 · 易混释义', gates: 7,
+    types: { c2: 1, xhy: 1, w2: 1 }, minLen: 4 }
 ];
 
 // ============ 随机数 ============
@@ -72,18 +66,6 @@ function shuffled(arr, rnd) {
   return a;
 }
 
-function pickWeighted(weights, rnd) {
-  var keys = Object.keys(weights);
-  var total = 0;
-  keys.forEach(function (k) { total += weights[k]; });
-  var x = rnd() * total;
-  for (var i = 0; i < keys.length; i++) {
-    x -= weights[keys[i]];
-    if (x < 0) return keys[i];
-  }
-  return keys[keys.length - 1];
-}
-
 // ============ 档位 ============
 
 function clampLevel(level) {
@@ -111,7 +93,7 @@ function tierOf(level) {
     name: t.name,
     desc: t.desc,
     gates: t.gates,
-    ops: Object.keys(t.ops)
+    types: t.types
   };
 }
 
@@ -243,19 +225,14 @@ function loopCount(cells) {
   return edgeCount(cells) - (cells.length - 1);
 }
 
-/**
- * 兜底：如果 braid 之后一个回路都没有（所有死胡同恰好都是宝箱/起点/终点），
- * 随机再拆一堵内墙。没有这一步，个别种子会生成"完美迷宫"，
- * 复核意见 §2.3 的"必须有岔路"就不成立了。
- */
+/** 兜底：braid 后仍无回路时，随机再拆一堵内墙（不碰宝箱/起点/终点） */
 function ensureLoop(cells, keep, rnd) {
   if (loopCount(cells) > 0) return 0;
   var cands = [];
   for (var i = 0; i < cells.length; i++) {
     if (keep[i]) continue;
     var c = cells[i];
-    // 只拆"格子内部的墙"，外墙拆了会开到棋盘外面
-    // 同样不能拆到 keep 那一侧（否则宝箱会被打通成走廊）
+    // 只拆内墙，且不碰保留格
     if ((c.walls & E) && inGrid(c.r, c.c + 1) && !keep[i + 1]) cands.push({ a: i, b: i + 1 });
     if ((c.walls & S) && inGrid(c.r + 1, c.c) && !keep[i + SIZE]) cands.push({ a: i, b: i + SIZE });
   }
@@ -275,13 +252,7 @@ function openings(cell) {
   return n;
 }
 
-/**
- * braid：把一部分死胡同的另一面墙也砸开，形成回路。
- *
- * 这是本玩法"有选择"的关键。比例 0.45：太低玩家还是在走唯一路线，
- * 太高迷宫会变成一片空地（岔路反而失去意义）。
- * 宝箱格不拆（拆了宝箱就在通路正中，不再是"绕路才拿得到"）。
- */
+/** braid：打通除宝箱/起点/终点外的死胡同，形成回路 */
 function braid(cells, keep, rnd) {
   var order = shuffled(range(cells.length), rnd);
   for (var i = 0; i < order.length; i++) {
@@ -289,11 +260,7 @@ function braid(cells, keep, rnd) {
     if (keep[idx]) continue;
     var cell = cells[idx];
     if (openings(cell) !== 1) continue;
-    // 除宝箱格外的死胡同**全部**打通（拆哪面墙随机，不是"拆不拆"随机）。
-    // 早期版本按 45% 概率拆，实测关 1/20/30 都是 0 环——"有选择"这条直接落空；
-    // 留 0.1% 跳过也不行，个别种子会剩一个无主死胡同。全拆之后单测可以直接断言
-    // "braid 后只剩宝箱 + 起点 + 终点那几个死胡同"。
-    // 找一堵还能拆的墙（连到格子内的邻居，且当前是墙）
+    // 除保留格外全部打通，保证至少有一条绕路
     var cands = [];
     for (var k = 0; k < DIRS.length; k++) {
       var d = DIRS[k];
@@ -302,8 +269,7 @@ function braid(cells, keep, rnd) {
       var nc = cell.c + d.dc;
       if (!inGrid(nr, nc)) continue;
       var nb = idxOf(nr, nc);
-      // 不能拆到宝箱 / 起点 / 终点那一侧：拆了宝箱就变成通路正中，
-      // 不再是"绕到尽头才拿得到"，keep 也就白设了。
+      // 不拆保留格（宝箱/起点/终点）
       if (keep[nb]) continue;
       cands.push(nb);
     }
@@ -318,10 +284,7 @@ function range(n) {
   return out;
 }
 
-/**
- * 在主路径上均匀取 k 个"门"（排除起点终点）。
- * 均匀而不是随机：随机容易在开头挤三个门、后半段一个都没有，难度曲线会抖。
- */
+/** 在主路径上均匀取 k 个门（排除起点终点） */
 function pickGates(path, k) {
   var mid = path.slice(1, path.length - 1);
   if (!mid.length) return [];
@@ -347,123 +310,92 @@ function pickChests(cells, path, max) {
   return cands.slice(0, max);
 }
 
-// ============ 口算题 ============
+// ============ 词义题（只取词/成语 → 中文释义的 4 类） ============
+var WORD_TYPES = { w1: 1, w2: 1, c1: 1, c2: 1 };
 
-/**
- * 生成一道口算题。
- * @returns {{ text:string, answer:number, options:[{v,ok}] }}
- */
-function genQuestion(level, seed) {
-  var ti = tierIndex(clampLevel(level));
-  var weights = TIERS[ti].ops;
+function normalizeWordItem(item) {
+  var q = String(item && item.q || '').trim();
+  var a = String(item && item.a || '').trim();
+  var hint = String(item && item.hint || '').trim();
+  var type = String(item && item.type || '');
+  if (!q || !WORD_TYPES[type] || !hint) return null;
+  var text = q.indexOf('*') >= 0 ? (a || q.replace(/\*/g, '')) : q;
+  text = String(text || '').trim();
+  if (!text) return null;
+  // hint 必须是释义，不能是词本身
+  if (hint === text || hint === a) return null;
+  return { q: text, answer: hint, type: type, a: a };
+}
+
+function wordCandidates(pool, level) {
+  var tier = TIERS[tierIndex(level)];
+  var all = [];
+  var seenQ = {};
+  var seenA = {};
+  (pool || []).forEach(function (raw) {
+    var w = normalizeWordItem(raw);
+    if (!w || seenQ[w.q] || seenA[w.answer]) return;
+    seenQ[w.q] = 1;
+    seenA[w.answer] = 1;
+    all.push(w);
+  });
+  if (!all.length) return [];
+  var preferred = all.filter(function (w) {
+    if (!tier.types[w.type]) return false;
+    var len = w.q.length;
+    if (tier.maxLen && len > tier.maxLen) return false;
+    if (tier.minLen && len < tier.minLen) return false;
+    return true;
+  });
+  // 词不够时退回全量
+  return preferred.length >= 8 ? preferred : all;
+}
+
+function promptOf(type) {
+  return (type === 'c1' || type === 'c2') ? '选出正确的意思' : '选出正确的中文释义';
+}
+
+/** 生成一道词义题；同 seed 同题 */
+function genWordQuestion(level, seed, pool) {
   var rnd = rng(seed || 1);
-  var op = pickWeighted(weights, rnd);
-  var a;
-  var b;
-  var c;
-  var ans;
-  var text;
-  var wrongs;
-
-  if (op === 'add') {
-    var cap = ti <= 0 ? 18 : 90;
-    a = randInt(rnd, 2, cap);
-    b = randInt(rnd, 1, ti <= 0 ? Math.max(1, 20 - a) : Math.max(1, 100 - a));
-    ans = a + b;
-    text = a + ' + ' + b;
-    wrongs = [ans + 1, ans - 1, ans + 10, ans - 10, ans + 2];
-  } else if (op === 'sub') {
-    var capS = ti <= 0 ? 20 : 100;
-    a = randInt(rnd, 5, capS);
-    b = randInt(rnd, 1, a - 1);
-    ans = a - b;
-    text = a + ' − ' + b;
-    wrongs = [ans + 1, ans - 1, ans + 10, ans - 10, a + b];
-  } else if (op === 'mul') {
-    a = randInt(rnd, 2, ti <= 2 ? 9 : 9);
-    b = randInt(rnd, 2, 9);
-    ans = a * b;
-    text = a + ' × ' + b;
-    wrongs = [ans + a, ans - a, ans + 1, ans - 1, ans + b];
-  } else if (op === 'div') {
-    b = randInt(rnd, 2, 9);
-    ans = randInt(rnd, 2, 9);
-    a = b * ans;
-    text = a + ' ÷ ' + b;
-    wrongs = [ans + 1, ans - 1, ans + 2, ans + b, ans * b];
-  } else if (op === 'two') {
-    // 两步：a × b + c 或 a × b − c（都在表内乘法范围内）
-    a = randInt(rnd, 2, 9);
-    b = randInt(rnd, 2, 9);
-    c = randInt(rnd, 1, 9);
-    if (rnd() < 0.5) {
-      ans = a * b + c;
-      text = a + ' × ' + b + ' + ' + c;
-      wrongs = [a * b, ans + 1, ans - 1, ans + 10];
-    } else {
-      ans = a * b - c;
-      if (ans <= 0) { ans = a * b + c; text = a + ' × ' + b + ' + ' + c; }
-      else text = a + ' × ' + b + ' − ' + c;
-      wrongs = [a * b, ans + 1, ans - 1, ans + 10];
-    }
-  } else {
-    // big：两位数 × 一位数，或带括号的加法
-    if (rnd() < 0.5) {
-      a = randInt(rnd, 11, 25);
-      b = randInt(rnd, 2, 6);
-      ans = a * b;
-      text = a + ' × ' + b;
-      wrongs = [ans + a, ans - a, ans + 10, ans - 10];
-    } else {
-      a = randInt(rnd, 12, 38);
-      b = randInt(rnd, 12, 38);
-      c = randInt(rnd, 2, 6);
-      ans = (a + b) * c;
-      text = '(' + a + ' + ' + b + ') × ' + c;
-      wrongs = [a + b, ans + c, ans - c, ans + 10];
-    }
-  }
-
-  // 选项：正确答案 + 3 个"像但不对"的（错规则/邻近），四项互异且都为正整数
+  var cands = wordCandidates(pool, level);
+  if (cands.length < 4) return null;
+  var target = cands[randInt(rnd, 0, cands.length - 1)];
+  var others = shuffled(cands.filter(function (w) {
+    return w.q !== target.q && w.answer !== target.answer;
+  }), rnd);
   var picked = [];
-  for (var i = 0; i < wrongs.length && picked.length < 3; i++) {
-    var v = wrongs[i];
-    if (!(typeof v === 'number') || !isFinite(v) || v <= 0 || v % 1 !== 0) continue;
-    if (v === ans || picked.indexOf(v) >= 0) continue;
-    picked.push(v);
+  for (var i = 0; i < others.length && picked.length < 3; i++) {
+    if (picked.indexOf(others[i].answer) < 0) picked.push(others[i].answer);
   }
-  var fill = 1;
-  while (picked.length < 3 && fill < 60) {
-    var v2 = ans + fill;
-    if (v2 !== ans && picked.indexOf(v2) < 0) picked.push(v2);
-    fill++;
-  }
-
-  var options = [{ v: ans, ok: true }];
-  picked.forEach(function (v3) { options.push({ v: v3, ok: false }); });
-
-  return { text: text, answer: ans, options: shuffled(options, rnd) };
+  if (picked.length < 3) return null;
+  var options = [{ v: target.answer, ok: true }];
+  picked.forEach(function (v) { options.push({ v: v, ok: false }); });
+  return {
+    text: target.q,
+    prompt: promptOf(target.type),
+    answer: target.answer,
+    options: shuffled(options, rnd),
+    type: target.type
+  };
 }
 
 /** 一整关的门题（与门一一对应，按门在主路径上的先后排） */
-function genQuestions(level, seed, n) {
+function genWordQuestions(level, seed, n, pool) {
   var count = parseInt(n, 10) || TIERS[tierIndex(level)].gates;
   var base = seed || (clampLevel(level) * 7919 + 13);
   var out = [];
   for (var i = 0; i < count; i++) {
-    out.push(genQuestion(level, (base + i * 104729) >>> 0));
+    var q = genWordQuestion(level, (base + i * 104729) >>> 0, pool);
+    if (!q) return [];
+    out.push(q);
   }
   return out;
 }
 
 // ============ 主入口 ============
 
-/**
- * 生成一局迷宫。
- * @param {number} level 1~30
- * @param {number} seed  同 seed 同局（页面"重玩"换 seed）
- * @returns {{ level, size, tierName, gatesNum, cells, start, end, path, chests, gateIds }}
- */
+/** 生成一局迷宫；同 seed 同局 */
 function gen(level, seed) {
   var lv = clampLevel(level);
   var ti = tierIndex(lv);
@@ -475,7 +407,7 @@ function gen(level, seed) {
   var gateIds = pickGates(path, tier.gates);
   var chests = pickChests(cells, path, 2);
 
-  // braid 不能动宝箱（否则宝箱变成通路正中，绕路的意义就没了）
+  // 宝箱/起点/终点不参与 braid
   var keep = {};
   chests.forEach(function (i) { keep[i] = 1; });
   keep[startIdx()] = 1;
@@ -483,10 +415,10 @@ function gen(level, seed) {
   braid(cells, keep, rnd);
   ensureLoop(cells, keep, rnd);
 
-  // 重新算一次主路径：braid 可能造出更短的路线，关卡提示与单测都用这条
+  // braid 后重算主路径
   path = bfsPath(cells, startIdx(), endIdx());
 
-  // 标记格子类型（页面按 kind 渲染图标）
+  // 标记格子类型
   cells[startIdx()].kind = 'start';
   cells[endIdx()].kind = 'end';
   gateIds.forEach(function (i) { cells[i].kind = 'gate'; });
@@ -540,8 +472,8 @@ module.exports = {
   tierOf: tierOf,
   tierIndex: tierIndex,
   gen: gen,
-  genQuestion: genQuestion,
-  genQuestions: genQuestions,
+  genWordQuestion: genWordQuestion,
+  genWordQuestions: genWordQuestions,
   canMove: canMove,
   neighborsOf: neighborsOf,
   bfsPath: bfsPath,
