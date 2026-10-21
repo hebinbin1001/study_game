@@ -63,13 +63,18 @@ H.runSuite('verify-rank（排行榜 · 玩法榜改版）', async function (mini
   await page.waitFor(1200);
 
   console.log('[2/4] 总览：玩法卡片列表（' + EXPECTED_GAMES + ' 款）+ 旧的平铺 chips 已删除');
-  const cards = await H.waitForCount(page, '.gcard', MIN_GAMES, 15000);
-  ck.check('玩法卡片数量覆盖当前可用玩法', !!cards
-    && cards.length >= MIN_GAMES && cards.length <= EXPECTED_GAMES,
-    cards ? ('实际 ' + cards.length + ' / 目标 ' + EXPECTED_GAMES) : '超时');
+  const d0 = await H.waitForData(page, function (d) {
+    const n = (d.summaryList || []).length;
+    return n >= MIN_GAMES && n <= EXPECTED_GAMES;
+  }, 15000, 'summary list loaded');
+  const cards = await page.$$('.gcard');
+  ck.check('玩法卡片数量覆盖当前可用玩法', !!d0
+    && cards.length === (d0.summaryList || []).length,
+    '卡片 ' + cards.length + ' / 数据 ' + ((d0 && d0.summaryList) || []).length
+      + ' / 目标 ' + EXPECTED_GAMES);
+  if (!d0) return;
   ck.check('旧的一行玩法 chips（.gchip）已不存在（溢出根因已消除）',
     (await page.$$('.gchip')).length === 0);
-  const d0 = await page.data();
   ck.check('页面处于总览视图', d0.gameView === 'overview', '实际 = ' + d0.gameView);
   const summaryCount = (d0.summaryList || []).length;
   ck.check('总览数据条数覆盖当前可用玩法',
