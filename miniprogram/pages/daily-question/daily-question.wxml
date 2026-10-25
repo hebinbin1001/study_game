@@ -15,7 +15,8 @@
     <view class="done-title">今日签到成功！</view>
     <view class="done-sub">每日一题已完成 · 明日再来，连续 {{streak}} 天</view>
     <view wx:if="{{rewardStars > 0}}" class="done-gain">本次获得 +{{rewardStars}}⭐</view>
-    <button class="btn-main" bindtap="goBack">返回首页</button>
+    <button class="btn-main" bindtap="goCheckin">查看签到日历</button>
+    <button class="btn-ghost" bindtap="goBack">返回首页</button>
   </view>
 
   <!-- 答题态 -->
@@ -37,6 +38,8 @@
 
     <view wx:if="{{triedWrong}}" class="tip-wrong">选错啦，再试一次；答对才算今日签到哦</view>
     <button wx:if="{{triedWrong}}" class="btn-ghost" bindtap="retry">换一题试试</button>
+    <view wx:if="{{submitFailed}}" class="tip-wrong">签到提交失败，本次尚未计入签到，请重试。</view>
+    <button wx:if="{{submitFailed}}" class="btn-main" loading="{{submitting}}" bindtap="retrySubmit">重新提交签到</button>
   </block>
 
   <!-- 里程碑日历（轨道 B 皮肤档） -->

@@ -25,6 +25,13 @@ s.test('todayKey：月份/日期补零', () => {
   s.assert.equal(T.todayKey('2026-01-05T12:00:00+08:00'), '2026-01-05');
 });
 
+s.test('dayKeyOffset：昨天/明天按北京时间自然日计算', () => {
+  const early = '2026-10-08T00:30:00+08:00';
+  s.assert.equal(T.dayKeyOffset(-1, early), '2026-10-07');
+  s.assert.equal(T.dayKeyOffset(1, early), '2026-10-09');
+  s.assert.equal(T.dayKeyOffset(-1, '2026-03-01T01:00:00+08:00'), '2026-02-28');
+});
+
 s.test('seasonOf：自然双月一季（1-2 / 3-4 / … / 11-12）', () => {
   s.assert.equal(T.seasonOf('2026-01-15T12:00:00+08:00').key, '2026-S1');
   s.assert.equal(T.seasonOf('2026-02-28T23:00:00+08:00').key, '2026-S1');

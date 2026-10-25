@@ -104,6 +104,22 @@ const TABLES = [
       ' PRIMARY KEY (`id`),' +
       ' UNIQUE KEY `uniq_admin_control` (`ctype`, `target`)' +
       ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=\'管理员运营控制\''
+  },
+  {
+    name: 'milestone_claims',
+    ddl:
+      'CREATE TABLE IF NOT EXISTS `milestone_claims` (' +
+      ' `id` CHAR(36) NOT NULL COMMENT \'主键\',' +
+      ' `openid` VARCHAR(64) NOT NULL COMMENT \'用户标识\',' +
+      ' `day` INT NOT NULL COMMENT \'连续天数里程碑\',' +
+      ' `reward` VARCHAR(32) NOT NULL DEFAULT \'\' COMMENT \'奖励类型\',' +
+      ' `avatarId` VARCHAR(32) NOT NULL DEFAULT \'\' COMMENT \'皮肤标识\',' +
+      ' `stars` INT NOT NULL DEFAULT 0 COMMENT \'奖励星数\',' +
+      ' `createdAt` DATETIME NOT NULL COMMENT \'创建时间\',' +
+      ' PRIMARY KEY (`id`),' +
+      ' UNIQUE KEY `uniq_milestone_openid_day` (`openid`, `day`),' +
+      ' KEY `idx_milestone_openid` (`openid`)' +
+      ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=\'每日一题里程碑领取记录\''
   }
 ];
 

@@ -3,6 +3,8 @@ const { CheckinRecord, MilestoneClaim, UserAvatar, Avatar } = require("../db");
 // 签到奖励口径（2026-09-13 重标）：每天 1 星 + 里程碑当天一次性额外 2/5/8/15，见 server/checkin-rewards.js
 const { rewardForStreak } = require("../checkin-rewards");
 const rankRouter = require("./rank");
+const time = require("../beijing-time");
+const { isMissingTable } = require("../table-missing");
 
 const router = express.Router();
 
@@ -20,15 +22,14 @@ const MILESTONE_SKINS = [
 
 /** 复用签到核心：完成每日一题 → 今日签到（轨道 A 送星，规则与现状 checkin 一致） */
 async function doDailyCheckin(openid) {
-  const today = new Date();
-  const todayDate = today.toISOString().split("T")[0];
+  const todayDate = time.todayKey();
   const existing = await CheckinRecord.findOne({ where: { openid, date: todayDate } });
-  if (existing) return { already: true };
+  if (existing) {
+    return { already: true, date: todayDate, streak: existing.streak };
+  }
 
   // 昨日 → 连续天数
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayDate = yesterday.toISOString().split("T")[0];
+  const yesterdayDate = time.dayKeyOffset(-1);
   const yRec = await CheckinRecord.findOne({ where: { openid, date: yesterdayDate } });
   let streak = 1;
   if (yRec) streak = yRec.streak + 1;
@@ -75,14 +76,19 @@ router.get("/status", async (req, res) => {
     if (!openid) {
       return res.send({ code: 1001, data: null, message: "未识别用户（openid 缺失）" });
     }
-    const today = new Date();
-    const todayDate = today.toISOString().split("T")[0];
+    const todayDate = time.todayKey();
 
     const todayRec = await CheckinRecord.findOne({ where: { openid, date: todayDate } });
     const streak = todayRec ? todayRec.streak : 0;
     const answeredToday = !!todayRec;
 
-    const claims = await MilestoneClaim.findAll({ where: { openid } });
+    let claims = [];
+    try {
+      claims = await MilestoneClaim.findAll({ where: { openid } });
+    } catch (err) {
+      // 里程碑表尚未迁移时，普通签到仍应可用；部署后补表会自动恢复皮肤进度。
+      if (!isMissingTable(err)) console.error("读取里程碑领取记录失败：", err);
+    }
     const claimedSet = new Set(claims.map((c) => c.day));
 
     const milestones = MILESTONE_SKINS.map((m) => ({
@@ -120,8 +126,13 @@ router.post("/answer", async (req, res) => {
     if (c.already) {
       return res.send({ code: 0, data: { ok: true, already: true, streak: c.streak || 0, rewards: [] } });
     }
-    // 领取已达成里程碑皮肤
-    const rewards = await claimMilestoneSkins(openid, c.streak);
+    // 领取已达成里程碑皮肤；皮肤补发失败不能让已经成功的签到回滚成 500。
+    let rewards = [];
+    try {
+      rewards = await claimMilestoneSkins(openid, c.streak);
+    } catch (err) {
+      if (!isMissingTable(err)) console.error("发放里程碑皮肤失败：", err);
+    }
 
     res.send({
       code: 0,

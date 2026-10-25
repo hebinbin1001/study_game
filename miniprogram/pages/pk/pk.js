@@ -78,6 +78,10 @@ function shapeMatch(m) {
     status: m.status,
     winner: m.winner,
     expired: m.expired,
+    createdAt: m.createdAt,
+    expiresAt: m.expiresAt,
+    createdText: m.createdText,
+    expireText: m.expireText,
     role: m.role,
     canAccept: m.canAccept,
     sharePath: m.sharePath,
@@ -184,7 +188,10 @@ Page({
             oppScore: it.oppScore,
             stateText: stateText,
             win: it.status === 'done' && it.iWin,
-            reward: it.myReward || 0
+            reward: it.myReward || 0,
+            createdText: it.createdText || '',
+            expireText: it.expireText || '',
+            canAccept: !!it.canAccept
           };
         })
       });
@@ -209,6 +216,10 @@ Page({
   startAccept: function () {
     var m = this.data.match;
     if (!m) return;
+    if (m.expired || !m.canAccept) {
+      wx.showToast({ title: m.expired ? '战帖已超过 3 天，不能应战' : '这张战帖当前不可应战', icon: 'none' });
+      return;
+    }
     if (!this._requireLogin()) return;
     this._mode = 'accept';
     this._grade = m.grade;

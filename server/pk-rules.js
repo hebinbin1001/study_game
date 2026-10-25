@@ -20,7 +20,7 @@ var PK_REWARD = { win: 3, draw: 1, lose: 0 };
 /** 每人每天靠 PK 最多拿到的星 */
 var PK_DAILY_CAP = 10;
 /** 战帖有效期（天）：过期不可应战 */
-var PK_EXPIRE_DAYS = 7;
+var PK_EXPIRE_DAYS = 3;
 
 /**
  * 单份成绩的合法性归一化。

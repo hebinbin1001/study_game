@@ -97,6 +97,13 @@ H.runSuite('verify-daily-season-pk（每日挑战 / 赛季 / 好友 PK）', asyn
   const pk = await H.goto(miniProgram, '/pages/pk/pk', 1500);
   ck.check('PK 页根容器渲染', !!(await H.waitForSelector(pk, '.pk-page', 8000)));
   const pkData = await pk.data();
+  ck.check('PK 页面明确 3 天有效期',
+    String(await H.textOf(pk, '.pk-foot') || '').indexOf('3 天内有效') >= 0);
+  ck.check('我的战帖列表项带发起时间和有效期',
+    (pkData.myList || []).every(function (it) {
+      return typeof it.createdText === 'string' && typeof it.expireText === 'string'
+        && !!it.createdText && !!it.expireText;
+    }));
   if (pkData.available === false) {
     ck.check('服务端未就绪时降级为「准备中」（不白屏）',
       !!(await H.waitForSelector(pk, '.pk-empty', 5000)));

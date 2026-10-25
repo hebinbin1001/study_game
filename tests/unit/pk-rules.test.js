@@ -69,10 +69,12 @@ s.test('scoreOf：答对为主，用时短有加分', () => {
   s.assert.true(P.scoreOf({ correct: 9, total: 10, ms: 1000 }) < P.scoreOf({ correct: 10, total: 10, ms: 600000 }));
 });
 
-s.test('isExpired：超过 7 天算过期', () => {
+s.test('isExpired：超过 3 天算过期', () => {
+  s.assert.equal(P.PK_EXPIRE_DAYS, 3);
   const now = new Date('2026-10-08T12:00:00+08:00').getTime();
-  s.assert.false(P.isExpired(new Date(now - 3 * 24 * 3600 * 1000), now));
-  s.assert.true(P.isExpired(new Date(now - 8 * 24 * 3600 * 1000), now));
+  s.assert.false(P.isExpired(new Date(now - 2 * 24 * 3600 * 1000), now));
+  s.assert.false(P.isExpired(new Date(now - 3 * 24 * 3600 * 1000), now), '整 3 天边界仍可应战');
+  s.assert.true(P.isExpired(new Date(now - 3 * 24 * 3600 * 1000 - 1), now));
   s.assert.false(P.isExpired('不是时间', now));
 });
 

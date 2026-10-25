@@ -80,12 +80,12 @@ const MODULES = [
   {
     id: 'user',
     name: '用户与成长（段位 / 成就 / 皮肤 / 错题本 / 复习 / 签到）',
-    stages: ['m2m4', 'rank'],
+    stages: ['m2m4', 'rank', 'dailyCheckin'],
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
       'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review', 'rank-badge',
       'auth-guard', 'admin-auth', 'rel-time',
       // 2026-10-08 补登记：这两个一直没归到模块，跑 --module=user 时会漏掉
-      'exam-gate', 'nickname-util', 'ranklist-sql-alias']
+      'exam-gate', 'nickname-util', 'ranklist-sql-alias', 'pk-ui', 'daily-checkin-flow']
   },
   {
     id: 'social',
@@ -149,6 +149,8 @@ const STAGE_MODULE = {
   ,
   admin: 'user'
   ,
+  dailyCheckin: 'user'
+  ,
   social: 'social'
 };
 
@@ -193,6 +195,7 @@ const PATH_RULES = [
   { re: /^miniprogram\/utils\/quick-quiz\.js$/, modules: ['social', 'dict'] },
   { re: /^miniprogram\/utils\/day-key\.js$/, modules: ['social'] },
   { re: /^e2e\/verify-daily-season-pk\.js$/, modules: ['social'] },
+  { re: /^e2e\/verify-daily-checkin\.js$/, modules: ['user'] },
   { re: /^miniprogram\/pages\/(me|rank|achievement|avatar|nickname|wrong-book|wrong-review|checkin|daily-question|report|custom-levels|level-editor|level-share)\//,
     modules: ['user'] },
   // 管理后台（2026-09-29）：页面在端上、规则在后端，两边都得验；页面清单也要跟着跑
@@ -216,6 +219,7 @@ const PATH_RULES = [
   { re: /^server\/(beijing-time|pk-rules|season-rewards|seed|grade-keys|book-keys|score-formula|reward-stars|table-missing)\.js$/,
     modules: ['social', 'server'] },
   { re: /^server\/routes\/(daily-challenge|season|pk)\.js$/, modules: ['social', 'server'] },
+  { re: /^server\/routes\/(daily|checkin)\.js$/, modules: ['user', 'server'] },
   // 排行榜后端：页面在 user 模块，SQL 规则也在那里验
   { re: /^server\/routes\/ranklist\.js$/, modules: ['user', 'server'] },
   { re: /^server\//, modules: ['server'] },

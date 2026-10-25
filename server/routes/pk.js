@@ -48,6 +48,18 @@ function todayRange() {
   return { start, end: new Date(start.getTime() + 24 * 3600 * 1000) };
 }
 
+function pad2(n) {
+  return n < 10 ? "0" + n : String(n);
+}
+
+/** 战帖时间展示：月-日 时:分（按用户/服务器所在时区展示，绝对时间仍由 ISO 字段保证） */
+function dateTimeText(value) {
+  const d = new Date(value);
+  if (!isFinite(d.getTime())) return "";
+  const p = time.beijingParts(d);
+  return pad2(p.m + 1) + "-" + pad2(p.d) + " " + pad2(p.hh) + ":" + pad2(p.mm);
+}
+
 /** 某用户今天通过 PK 已经拿到的星（用于每日上限封顶） */
 async function todayEarned(openid) {
   if (!openid) return 0;
@@ -74,6 +86,7 @@ function shapeMatch(row, openid, full) {
   const isOpponent = row.opponentOpenid === openid;
   const role = isChallenger ? "challenger" : (isOpponent ? "opponent" : "guest");
   const expired = pkRules.isExpired(row.createdAt);
+  const expiresAt = new Date(new Date(row.createdAt).getTime() + pkRules.PK_EXPIRE_DAYS * 24 * 3600 * 1000);
   const canAccept = row.status === "open" && !expired && !!openid
     && !isChallenger && (!row.opponentOpenid || isOpponent);
   const data = {
@@ -90,6 +103,9 @@ function shapeMatch(row, openid, full) {
     canAccept,
     sharePath: "/pages/pk/pk?code=" + row.code,
     createdAt: row.createdAt,
+    expiresAt,
+    createdText: dateTimeText(row.createdAt),
+    expireText: expired ? "已于 " + dateTimeText(expiresAt) + " 过期" : dateTimeText(expiresAt) + " 前有效",
     challenger: {
       nickname: row.challengerNick,
       correct: row.challengerCorrect,
@@ -240,7 +256,10 @@ router.get("/my", async (req, res) => {
         iWin,
         isDraw: m.winner === "draw",
         myReward,
-        createdAt: m.createdAt
+        createdAt: m.createdAt,
+        expiresAt: m.expiresAt,
+        createdText: m.createdText,
+        expireText: m.expireText
       };
     });
     res.send({ code: 0, data: { available: true, list } });

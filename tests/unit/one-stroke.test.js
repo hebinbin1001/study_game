@@ -75,6 +75,35 @@ s.test('关卡合法：每关都连通，且奇点数为 0 或 2（欧拉路径�
   });
 });
 
+s.test('几何无歧义：线不能穿过另一节点，也不能重复/零长度', () => {
+  g.LEVELS.forEach(function (item, i) {
+    s.assert.deepEqual(g.geometryIssues(item), [],
+      '第 ' + (i + 1) + ' 关「' + item.name + '」存在交点未拆边或重复线');
+  });
+  const bad = {
+    name: '穿点',
+    nodes: [[20, 50], [80, 50], [50, 50]],
+    edges: [[0, 1], [0, 2]]
+  };
+  s.assert.equal(g.geometryIssues(bad)[0].type, 'edge_through_node');
+  s.assert.false(g.validateLevel(bad).ok, '穿点关卡必须判定为几何歧义');
+});
+
+s.test('第 8 关提示可以从头走到尾，不再出现“看起来无解”', () => {
+  const cross = g.LEVELS[7];
+  const starts = g.startHint(cross).odd;
+  let cur = starts.length ? starts[0] : 0;
+  let used = {};
+  let guard = 0;
+  while (!g.isLevelClear(cross, used) && guard++ < cross.edges.length) {
+    const h = g.hintOf(cross, used, cur);
+    s.assert.ok(h && h.safe, '第 8 关第 ' + (guard + 1) + ' 步没有安全提示');
+    used = g.step(cross, used, h.from, h.to);
+    cur = h.to;
+  }
+  s.assert.true(g.isLevelClear(cross, used));
+});
+
 s.test('关卡自检能抓出坏数据（奇点数 4 / 孤立点 / 越界边）', () => {
   // 三条边共用一个中心点：中心 3 度 + 三个端点各 1 度 → 4 个奇点，一笔画不成立
   const bad = {

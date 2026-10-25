@@ -84,8 +84,13 @@
             <view class="pk-detail-state">{{match.outcomeText}}</view>
           </view>
           <view class="pk-detail-s">{{match.role === 'challenger' ? '这是你发起的战帖' : (match.role === 'opponent' ? '这是你应战的战帖' : '好友发来的战帖')}}</view>
+          <view class="pk-detail-time">发起：{{match.createdText}} · {{match.expireText}}</view>
 
-          <view wx:if="{{match.role === 'challenger' && match.status !== 'done'}}" class="pk-body">
+          <view wx:if="{{match.expired}}" class="pk-body">
+            <view class="pk-expired">这张战帖已经过期（超过 3 天），无法继续应战</view>
+          </view>
+
+          <view wx:elif="{{match.role === 'challenger' && match.status !== 'done'}}" class="pk-body">
             <view class="pk-my-score">我的成绩：{{match.challenger.scoreText}}</view>
             <button class="btn-lg btn-next pk-share" open-type="share">邀请好友应战</button>
             <view class="pk-tip">好友打完之前，看不到他的成绩</view>
@@ -110,10 +115,6 @@
                 <view class="pk-side-lb">应战</view>
               </view>
             </view>
-          </view>
-
-          <view wx:elif="{{match.expired}}" class="pk-body">
-            <view class="pk-expired">这张战帖已经过期（超过 7 天），挑战自动作废</view>
           </view>
 
           <view wx:elif="{{!loggedIn}}" class="pk-body">
@@ -158,6 +159,7 @@
           <view class="pk-list-main">
             <view class="pk-list-opp">{{item.opponentNickname}}</view>
             <view class="pk-list-meta">{{item.modeLabel}} · {{item.roleText}}</view>
+            <view class="pk-list-time">发起 {{item.createdText}} · {{item.expireText}}</view>
           </view>
           <view class="pk-list-right">
             <view class="pk-list-state {{item.win ? 'win' : ''}}">{{item.stateText}}</view>
@@ -168,5 +170,5 @@
     </block>
   </block>
 
-  <view class="pk-foot">战帖 7 天内有效 · 同一张战帖只能被应战一次</view>
+  <view class="pk-foot">战帖 3 天内有效 · 到期后不能应战 · 同一张战帖只能被应战一次</view>
 </view>

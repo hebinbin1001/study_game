@@ -108,6 +108,14 @@ STAGES.push({
   script: 'e2e/verify-daily-season-pk.js'
 });
 
+// 每日一题 → 今日签到 → 日历回显（用户反馈：答完题无法签到）
+STAGES.push({
+  id: 'dailyCheckin',
+  layer: '端到端',
+  title: '每日一题签到链路（答题 / 落库 / 日历回显）',
+  script: 'e2e/verify-daily-checkin.js'
+});
+
 // 排行榜玩法榜改版（2026-09-18）：卡片总览 → 详情榜；旧的平铺 chips 已删除
 STAGES.push({
   id: 'rank',

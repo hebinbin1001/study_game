@@ -51,6 +51,19 @@ function todayKey(date) {
   return p.y + '-' + pad2(p.m + 1) + '-' + pad2(p.d);
 }
 
+/**
+ * 北京时间相对今天偏移若干天的日期 key。
+ * 签到连续天数、PK 有效期等「自然日」口径统一使用，避免容器时区影响。
+ * @param {number} days 偏移天数（昨天 = -1）
+ * @param {Date|number|string} [date]
+ * @returns {string}
+ */
+function dayKeyOffset(days, date) {
+  var p = beijingParts(date);
+  var d = new Date(Date.UTC(p.y, p.m, p.d + (parseInt(days, 10) || 0)));
+  return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate());
+}
+
 /** 由北京时间的年月日构造对应的 UTC 时间点（当天 00:00 北京时间） */
 function beijingMidnightUtc(y, m, d) {
   return new Date(Date.UTC(y, m, d) - BEIJING_OFFSET);
@@ -132,6 +145,7 @@ module.exports = {
   SEASON_MONTHS: SEASON_MONTHS,
   beijingParts: beijingParts,
   todayKey: todayKey,
+  dayKeyOffset: dayKeyOffset,
   isSeasonKey: isSeasonKey,
   seasonOf: seasonOf,
   seasonAt: seasonAt,

@@ -23,6 +23,8 @@ Page({
     picked: '',          // 已选 key（''未选）
     correct: false,      // 上一答是否对
     triedWrong: false,   // 是否答错过（显示“再试”）
+    submitting: false,   // 是否正在提交签到
+    submitFailed: false, // 提交失败时保留重试入口，不能伪装成已签到
     // 里程碑
     milestones: [],      // [{day, avatarId, reached, claimed, emoji}]
     rewards: []          // 本次发放（[{day, skinName}]）
@@ -131,8 +133,13 @@ Page({
       self.setData({ picked: '', triedWrong: true });
       return;
     }
+    if (this.data.submitting) return;
+    this.setData({ submitting: true, submitFailed: false });
     request.post('/api/daily/answer', { correct: true }).then(function (d) {
-      if (!d) return;
+      if (!d) {
+        self.setData({ submitting: false, submitFailed: true, picked: '' });
+        return;
+      }
       var rewards = d.milestones || [];
       self.setData({
         answered: true,
@@ -140,7 +147,9 @@ Page({
         rewardStars: d.rewardStars || 0,
         rewards: rewards,
         picked: '',
-        correct: true
+        correct: true,
+        submitting: false,
+        submitFailed: false
       });
       if (d.already) {
         wx.showToast({ title: '今日已签到 ✓', icon: 'none' });
@@ -159,10 +168,20 @@ Page({
         });
       }
     }).catch(function () {
-      // 弱网：本地记为已答，提示稍后同步（打卡后端幂等，下次进页自动补）
-      self.setData({ answered: true, correct: true, picked: '' });
-      wx.showToast({ title: '已答对（网络待同步）', icon: 'none' });
+      // 服务端未确认签到前绝不能本地标记“已签到”，否则用户会失去重试入口。
+      self.setData({
+        answered: false,
+        correct: true,
+        picked: '',
+        submitting: false,
+        submitFailed: true
+      });
+      wx.showToast({ title: '签到提交失败，请重试', icon: 'none' });
     });
+  },
+
+  retrySubmit: function () {
+    if (!this.data.answered && this.data.correct) this._submit(true);
   },
 
   // 重新出题：答错可换题再挑战（不打卡，直到答对）
@@ -173,6 +192,10 @@ Page({
 
   goBack: function () {
     wx.switchTab({ url: '/pages/index/index' });
+  },
+
+  goCheckin: function () {
+    wx.navigateTo({ url: '/pages/checkin/checkin' });
   },
 
   onShareAppMessage: function () {

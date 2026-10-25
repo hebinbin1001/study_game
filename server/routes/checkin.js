@@ -4,6 +4,7 @@ const { CheckinRecord, RankRecord, User, Score } = require("../db");
 // 签到奖励口径（2026-09-13 重标）：每天 1 星 + 里程碑 2/5/8/15，见 server/checkin-rewards.js
 const { rewardForStreak } = require("../checkin-rewards");
 const rankRouter = require("./rank");
+const time = require("../beijing-time");
 
 const router = express.Router();
 
@@ -13,8 +14,7 @@ const router = express.Router();
  * @returns {Promise<Object>} { already } 或 { recordId,date,streak,rewardStars,already:false }
  */
 async function doCheckin(openid) {
-  const today = new Date();
-  const todayDate = today.toISOString().split("T")[0];
+  const todayDate = time.todayKey();
 
   const existing = await CheckinRecord.findOne({
     where: { openid, date: todayDate },
@@ -22,9 +22,7 @@ async function doCheckin(openid) {
   if (existing) return { already: true };
 
   // 昨日记录 → 连续天数
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayDate = yesterday.toISOString().split("T")[0];
+  const yesterdayDate = time.dayKeyOffset(-1);
   const yesterdayRecord = await CheckinRecord.findOne({
     where: { openid, date: yesterdayDate },
   });
@@ -95,8 +93,8 @@ router.post("/auto", async (req, res) => {
     }
 
     // 今日是否完成学习（存在成绩记录）
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+    const p = time.beijingParts();
+    const startOfToday = time.beijingMidnightUtc(p.y, p.m, p.d);
     const todayScore = await Score.count({
       where: { user_id: user.id, createdAt: { [Op.gte]: startOfToday } },
     });
@@ -144,15 +142,12 @@ router.get("/", async (req, res) => {
     });
 
     // 当前连续天数：今天已签取今天，否则看昨天
-    const today = new Date();
-    const todayDate = today.toISOString().split("T")[0];
+    const todayDate = time.todayKey();
     const todayRecord = records.find((r) => r.date === todayDate);
 
     let currentStreak = todayRecord ? todayRecord.streak : 0;
     if (!todayRecord) {
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayDate = yesterday.toISOString().split("T")[0];
+      const yesterdayDate = time.dayKeyOffset(-1);
       const yesterdayRecord = records.find((r) => r.date === yesterdayDate);
       if (yesterdayRecord) currentStreak = yesterdayRecord.streak;
     }

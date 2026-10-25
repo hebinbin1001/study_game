@@ -118,6 +118,45 @@ function isConnected(level) {
   return Object.keys(seen).length === total;
 }
 
+/** 点 p 是否落在线段 a-b 上（含端点） */
+function pointOnSegment(a, b, p) {
+  if (!a || !b || !p) return false;
+  var cross = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
+  if (Math.abs(cross) > 1e-6) return false;
+  var dot = (p[0] - a[0]) * (p[0] - b[0]) + (p[1] - a[1]) * (p[1] - b[1]);
+  return dot <= 1e-6;
+}
+
+/**
+ * 几何歧义自检。
+ * 一笔画里“线段穿过另一颗节点，但图数据没有在该点拆边”会让画面看起来连通、
+ * 实际却按两条不同的边计算，玩家会误以为无解。此类关卡禁止上线。
+ * @returns {Array<{type:string,edge:number,node:number}>}
+ */
+function geometryIssues(level) {
+  var issues = [];
+  var seen = {};
+  (level && level.edges || []).forEach(function (e, ei) {
+    if (!e || e[0] === e[1]) {
+      issues.push({ type: 'zero_length', edge: ei, node: e ? e[0] : -1 });
+      return;
+    }
+    var key = edgeKey(e[0], e[1]);
+    if (seen[key] !== undefined) {
+      issues.push({ type: 'duplicate_edge', edge: ei, node: seen[key] });
+    } else {
+      seen[key] = ei;
+    }
+    (level.nodes || []).forEach(function (p, ni) {
+      if (ni === e[0] || ni === e[1]) return;
+      if (pointOnSegment(level.nodes[e[0]], level.nodes[e[1]], p)) {
+        issues.push({ type: 'edge_through_node', edge: ei, node: ni });
+      }
+    });
+  });
+  return issues;
+}
+
 /**
  * 关卡自检：连通 + 奇点数为 0 或 2（欧拉路径存在条件）。
  * @returns {{ok:boolean, reason:string}}
@@ -130,6 +169,18 @@ function validateLevel(level) {
     return e[0] < 0 || e[0] >= level.nodes.length || e[1] < 0 || e[1] >= level.nodes.length;
   });
   if (bad.length) return { ok: false, reason: '存在越界边' };
+  var geoIssues = geometryIssues(level);
+  if (geoIssues.length) {
+    var first = geoIssues[0];
+    return {
+      ok: false,
+      reason: first.type === 'duplicate_edge'
+        ? '存在重复边'
+        : (first.type === 'zero_length'
+          ? '存在零长度边'
+          : '第 ' + (first.edge + 1) + ' 条线穿过节点 ' + (first.node + 1) + '，需在交点拆边')
+    };
+  }
   if (!isConnected(level)) return { ok: false, reason: '图不连通' };
   var odd = oddNodes(level);
   if (odd.length !== 0 && odd.length !== 2) return { ok: false, reason: '奇点数 ' + odd.length + '（应为 0 或 2）' };
@@ -281,6 +332,7 @@ module.exports = {
   degreeOf: degreeOf,
   oddNodes: oddNodes,
   isConnected: isConnected,
+  geometryIssues: geometryIssues,
   validateLevel: validateLevel,
   geometry: geometry,
   remainingEdges: remainingEdges,
