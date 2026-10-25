@@ -38,6 +38,11 @@ Page({
     monsters: [],
     currentWarrior: '',
     currentMonster: '',
+    activeTab: 'warrior',
+    warriorUnlocked: 0,
+    monsterUnlocked: 0,
+    warriorTotal: 0,
+    monsterTotal: 0,
     rankInfo: null,
     loading: false,
     // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
@@ -59,6 +64,28 @@ Page({
           wx.showToast({ title: '登录后才能使用形象系统', icon: 'none' });
         }
       });
+  },
+
+  switchSkinTab: function (e) {
+    var tab = e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.tab;
+    if (tab !== 'warrior' && tab !== 'monster') return;
+    if (tab === this.data.activeTab) return;
+    this.setData({ activeTab: tab });
+    if (typeof wx !== 'undefined' && wx.pageScrollTo) {
+      wx.pageScrollTo({ scrollTop: 0, duration: 180 });
+    }
+  },
+
+  _syncTabStats: function (warriors, monsters) {
+    var countOwned = function (list) {
+      return (list || []).filter(function (it) { return it.unlocked; }).length;
+    };
+    this.setData({
+      warriorUnlocked: countOwned(warriors),
+      monsterUnlocked: countOwned(monsters),
+      warriorTotal: (warriors || []).length,
+      monsterTotal: (monsters || []).length
+    });
   },
 
   // 给后端返回的形象项附加「图片 + emoji 兜底 + 稀有度中文标签」
@@ -163,6 +190,7 @@ Page({
         currentMonster: self._findCurrent(monsters),
         loading: false
       });
+      self._syncTabStats(warriors, monsters);
     }).catch(function () {
       // 后端不可达（离线/无 openid）：用本地清单兜底，避免皮肤页空白
       self.setData({ loading: false });
@@ -207,6 +235,7 @@ Page({
       currentWarrior: localWarrior,
       currentMonster: localBoss
     });
+    self._syncTabStats(warriors, monsters);
   },
 
   // 加载段位信息（/api/rank/info 为段位信息接口，路径正确）
@@ -283,6 +312,10 @@ Page({
     var patch = {};
     patch[key] = list;
     this.setData(patch);
+    this._syncTabStats(
+      key === 'warriors' ? list : this.data.warriors,
+      key === 'monsters' ? list : this.data.monsters
+    );
   },
 
   // 返回首页

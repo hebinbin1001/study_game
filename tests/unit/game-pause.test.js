@@ -188,4 +188,17 @@ s.test('战士徽章视觉改版：去白底 + 金边 + 立绘放大（源码护
   s.assert.match(bare, /\.wb-img\s*\{[^}]*bottom:\s*-6rpx/, '立绘应贴底（竖长全身像做成半身像）');
 });
 
+s.test('固定操作按钮统一提供点击、确认、返回、暂停、下一关音频函数', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/game/audio.js'), 'utf8');
+  ['playUiClick', 'playUiConfirm', 'playUiBack', 'playUiPause', 'playUiNext'].forEach(function (name) {
+    s.assert.contains(src, 'function ' + name);
+  });
+  const pause = fs.readFileSync(path.join(__dirname, '../../miniprogram/components/game-pause/game-pause.js'), 'utf8');
+  s.assert.contains(pause, 'audio.playUiPause()');
+  s.assert.contains(pause, 'audio.playUiConfirm()');
+  s.assert.contains(pause, 'audio.playUiBack()');
+});
+
 s.done();

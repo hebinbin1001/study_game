@@ -208,6 +208,18 @@ Page({
     }
   },
 
+  onGameIconError: function (e) {
+    var key = e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.key;
+    if (!key) return;
+    var games = this.data.games || [];
+    for (var i = 0; i < games.length; i++) {
+      if (games[i].key === key) {
+        this.setData({ ['games[' + i + '].iconSrc']: '' });
+        break;
+      }
+    }
+  },
+
   onShareAppMessage: function () {
     return { title: '词力战士 - 15 款玩法合集', path: '/pages/playlist/playlist' };
   }

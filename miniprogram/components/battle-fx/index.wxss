@@ -13,6 +13,20 @@
   background: radial-gradient(circle at 50% 45%, rgba(255,255,255,.76), rgba(255,250,207,.2) 25%, transparent 62%);
   animation: bfx-flash .56s ease-out forwards;
 }
+.bfx-finisher-art {
+  position: absolute;
+  left: var(--target-x);
+  top: var(--target-y);
+  z-index: 5;
+  width: 560rpx;
+  height: 560rpx;
+  margin: -280rpx 0 0 -280rpx;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 34rpx var(--skin-color));
+  transform: scale(.62) rotate(-5deg);
+  animation: bfx-finisher .82s cubic-bezier(.18,.8,.22,1) forwards;
+}
 .bfx-aura {
   position: absolute;
   left: var(--target-x);
@@ -211,6 +225,12 @@
   0% { opacity: 0; }
   20% { opacity: .9; }
   100% { opacity: 0; }
+}
+@keyframes bfx-finisher {
+  0% { opacity: 0; transform: scale(.46) rotate(-10deg); }
+  18% { opacity: .94; }
+  58% { opacity: .82; transform: scale(1.06) rotate(2deg); }
+  100% { opacity: 0; transform: scale(1.2) rotate(5deg); }
 }
 @keyframes bfx-aura {
   0% { opacity: .85; transform: scale(.34); }

@@ -65,7 +65,17 @@ const METRICS = {
   onestrokeClears: (s) => s.onestrokeClears,   // 一笔画
   g2048Clears: (s) => s.g2048Clears,           // 2048
   sprintClears: (s) => s.sprintClears,         // 口算冲刺
-  balanceClears: (s) => s.balanceClears        // 算式天平
+  balanceClears: (s) => s.balanceClears,       // 算式天平
+  letterBubbleClears: (s) => s.letterBubbleClears, // Boss 补字母泡泡龙
+  patternClears: (s) => s.patternClears,       // 找规律
+  clockClears: (s) => s.clockClears,           // 认钟表
+  mazeClears: (s) => s.mazeClears,             // 词义迷宫
+  hanoiClears: (s) => s.hanoiClears,           // 汉诺塔
+  distinctGameTypes: (s) => s.distinctGameTypes, // 已通关的不同玩法数
+  dailyTop3: (s) => s.dailyTop3,               // 每日挑战达到前三
+  seasonTop10: (s) => s.seasonTop10,           // 赛季排名达到前十
+  pkWins: (s) => s.pkWins,                     // 好友 PK 胜场
+  ownedSkins: (s) => s.ownedSkins              // 已拥有皮肤数
 };
 
 // ============ 三、成就定义（47 条） ============
@@ -148,6 +158,20 @@ const DEFINITIONS = [
   { achievementId: "g2048_master", name: "合成专家", description: "2048 通关 3 次", category: "play", metric: "g2048Clears", threshold: 3 },
   { achievementId: "sprint_master", name: "口算飞人", description: "口算冲刺通关 3 次", category: "play", metric: "sprintClears", threshold: 3 },
   { achievementId: "balance_master", name: "天平校准师", description: "算式天平通关 3 次", category: "play", metric: "balanceClears", threshold: 3 },
+
+  // —— 2026-10-25 新增：数字智力扩充 + 长期目标 ——
+  { achievementId: "letter_bubble_master", name: "泡泡龙大师", description: "Boss 补字母泡泡龙通关 3 次", category: "play", metric: "letterBubbleClears", threshold: 3 },
+  { achievementId: "pattern_master", name: "规律侦探", description: "找规律通关 3 次", category: "play", metric: "patternClears", threshold: 3 },
+  { achievementId: "clock_master", name: "时间达人", description: "认钟表通关 3 次", category: "play", metric: "clockClears", threshold: 3 },
+  { achievementId: "maze_master", name: "迷宫破解者", description: "词义迷宫通关 3 次", category: "play", metric: "mazeClears", threshold: 3 },
+  { achievementId: "hanoi_master", name: "汉诺塔大师", description: "汉诺塔通关 3 次", category: "play", metric: "hanoiClears", threshold: 3 },
+  { achievementId: "game_variety_10", name: "十项全能", description: "通关 10 种不同玩法", category: "play", metric: "distinctGameTypes", threshold: 10 },
+  { achievementId: "game_variety_all", name: "玩法收藏家", description: "通关全部 20 种玩法", category: "play", metric: "distinctGameTypes", threshold: 20 },
+  { achievementId: "three_star_ten", name: "三星进阶", description: "10 个不同关卡拿到三星", category: "level", metric: "perfectLevels", threshold: 10 },
+  { achievementId: "daily_top_3", name: "每日三甲", description: "每日挑战进入前三名", category: "play", metric: "dailyTop3", threshold: 1 },
+  { achievementId: "season_top_10", name: "赛季十强", description: "赛季排名进入前十名", category: "play", metric: "seasonTop10", threshold: 1 },
+  { achievementId: "pk_win_10", name: "PK 十胜", description: "好友 PK 累计获胜 10 次", category: "play", metric: "pkWins", threshold: 10 },
+  { achievementId: "skin_collect_12", name: "皮肤收藏家", description: "累计拥有 12 款皮肤", category: "custom", metric: "ownedSkins", threshold: 12 },
 ];
 
 /** 成就图标路径（图未到位时前端用 emoji 兜底） */
@@ -210,6 +234,13 @@ function statsFrom(input) {
   // 玩法深度：按 scores.game_type 统计「通关次数」（stars>=1）。
   // 2026-09-12（挑战主线 P2）起各玩法都会上报成绩，这 4 项才有意义。
   const clearsOf = (gt) => scores.filter((s) => String(s.game_type) === gt && Number(s.stars) >= 1).length;
+  const clearedTypes = {};
+  scores.forEach((s) => {
+    const key = String(s.game_type || '');
+    if (key && Number(s.stars) >= 1) clearedTypes[key] = 1;
+  });
+  const dailyBestRank = Number(src.dailyBestRank) || 0;
+  const seasonRank = Number(src.seasonRank) || 0;
 
   return {
     totalCorrect: totalCorrect,
@@ -247,7 +278,17 @@ function statsFrom(input) {
     onestrokeClears: clearsOf('onestroke'),
     g2048Clears: clearsOf('g2048'),
     sprintClears: clearsOf('sprint'),
-    balanceClears: clearsOf('balance')
+    balanceClears: clearsOf('balance'),
+    letterBubbleClears: clearsOf('letter_bubble'),
+    patternClears: clearsOf('pattern'),
+    clockClears: clearsOf('clock'),
+    mazeClears: clearsOf('maze'),
+    hanoiClears: clearsOf('hanoi'),
+    distinctGameTypes: Object.keys(clearedTypes).length,
+    dailyTop3: dailyBestRank > 0 && dailyBestRank <= 3 ? 1 : 0,
+    seasonTop10: seasonRank > 0 && seasonRank <= 10 ? 1 : 0,
+    pkWins: Number(src.pkWins) || 0,
+    ownedSkins: Number(src.ownedSkinCount) || 0
   };
 }
 

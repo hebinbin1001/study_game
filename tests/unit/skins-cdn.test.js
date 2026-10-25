@@ -39,11 +39,18 @@ s.test('包内只留两张默认立绘（离线兜底），其余不再进包', 
 });
 
 s.test('CDN 目录 art/skins 备齐全部立绘（28 旧 + 12 新 = 40）', () => {
-  s.assert.ok(artFiles.length >= 40, 'art/skins 应至少 40 张，实际 ' + artFiles.length);
+  s.assert.ok(artFiles.length >= 56, 'art/skins 应至少 56 张，实际 ' + artFiles.length);
   // 12 张新立绘必须都在
   ['boss_pixel_devourer', 'boss_jade_dragon', 'boss_crimson_ogre', 'boss_abyss_kraken',
     'boss_mech_lord', 'boss_magma_titan', 'skin-flame-berserker', 'skin-tide-druid',
     'skin-gale-ninja', 'skin-thunder-lancer', 'skin-radiant-paladin', 'skin-void-assassin'
+  ].forEach((n) => {
+    s.assert.ok(artFiles.indexOf(n + '.png') >= 0, 'art/skins 缺少 ' + n + '.png');
+  });
+  [
+    'skin-season-champion', 'skin-medal-scholar', 'skin-geometry-mage',
+    'skin-compass-ranger', 'boss-nine-grid', 'boss-molten-colossus',
+    'boss-sand-time-beast', 'boss-ink-dragon'
   ].forEach((n) => {
     s.assert.ok(artFiles.indexOf(n + '.png') >= 0, 'art/skins 缺少 ' + n + '.png');
   });

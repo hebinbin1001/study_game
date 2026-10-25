@@ -27,6 +27,7 @@
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
 var audio = require('../../game/audio');
+var uiIcons = require('../../utils/ui-icons');
 
 Component({
   properties: {
@@ -42,7 +43,9 @@ Component({
 
   data: {
     show: false,
-    sound: true
+    sound: true,
+    icons: {},
+    pauseIconErr: false
   },
 
   observers: {
@@ -54,7 +57,7 @@ Component({
   lifetimes: {
     attached: function () {
       var on = storage.get(constants.STORAGE_KEYS.sound) !== '0';
-      this.setData({ sound: on });
+      this.setData({ sound: on, icons: uiIcons.urls() });
       audio.setSoundEnabled(on);
     }
   },
@@ -62,21 +65,25 @@ Component({
   methods: {
     /** 点右上角 ⏸ */
     onOpen: function () {
+      audio.playUiPause();
       this.setData({ show: true });
       this.triggerEvent('pause');
     },
 
     onResume: function () {
+      audio.playUiConfirm();
       this.setData({ show: false });
       this.triggerEvent('resume');
     },
 
     onRestart: function () {
+      audio.playUiNext();
       this.setData({ show: false });
       this.triggerEvent('restart');
     },
 
     onQuit: function () {
+      audio.playUiBack();
       this.setData({ show: false });
       this.triggerEvent('quit');
     },
@@ -89,6 +96,10 @@ Component({
       this.setData({ sound: next });
       if (next) audio.playCorrect();     // 开的时候响一声，让用户确认生效
       this.triggerEvent('soundchange', { on: next });
+    },
+
+    onPauseIconError: function () {
+      this.setData({ pauseIconErr: true });
     },
 
     /** 弹层内的空点击不冒泡到页面 */

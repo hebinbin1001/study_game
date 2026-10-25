@@ -91,6 +91,20 @@ s.test('皮肤按元素分为不同攻击视觉', () => {
   });
 });
 
+s.test('终结技按八元素加载独立透明特效，普通命中不加载大图', () => {
+  const js = read('miniprogram/components/battle-fx/index.js');
+  const wxml = read('miniprogram/components/battle-fx/index.wxml');
+  const wxss = read('miniprogram/components/battle-fx/index.wxss');
+  s.assert.contains(js, "'/assets/fx/finisher/' + fx + '.png'");
+  s.assert.contains(wxml, "modeClass === 'finish' && finisherImg");
+  s.assert.contains(wxml, 'binderror="onFinisherImgError"');
+  s.assert.contains(wxss, '@keyframes bfx-finisher');
+  ['steel', 'beast', 'wind', 'thunder', 'flame', 'nature', 'arcane', 'shine'].forEach(function (kind) {
+    const file = path.join(__dirname, '../../art/fx/finisher/' + kind + '.png');
+    s.assert.ok(fs.existsSync(file), '缺少终结技素材 ' + kind + '.png');
+  });
+});
+
 s.test('对抗型字词玩法接入战斗反馈层', () => {
   const catalog = require('../../miniprogram/utils/game-catalog');
   const PAGE_OF = {

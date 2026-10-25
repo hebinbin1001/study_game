@@ -9,18 +9,34 @@
   catchtap="onOpen"
   hover-class="gp-fab--tap"
   hover-stay-time="60">
-  <view class="gp-fab-bar"></view>
-  <view class="gp-fab-bar"></view>
+  <image
+    wx:if="{{icons.pause && !pauseIconErr}}"
+    class="gp-fab-img"
+    src="{{icons.pause}}"
+    mode="aspectFit"
+    binderror="onPauseIconError"></image>
+  <block wx:else>
+    <view class="gp-fab-bar"></view>
+    <view class="gp-fab-bar"></view>
+  </block>
 </view>
 
 <!-- 暂停弹层 -->
 <view wx:if="{{show}}" class="gp-mask" catchtouchmove="noop" catchtap="noop">
   <view class="gp-card" catchtap="noop">
-    <view class="gp-ico">⏸</view>
+    <image
+      wx:if="{{icons.pause && !pauseIconErr}}"
+      class="gp-ico-img"
+      src="{{icons.pause}}"
+      mode="aspectFit"></image>
+    <view wx:else class="gp-ico">⏸</view>
     <view class="gp-title">已暂停</view>
     <view wx:if="{{sub}}" class="gp-sub">{{sub}}</view>
 
-    <button class="gp-main" catchtap="onResume">继续游戏</button>
+    <button class="gp-main" catchtap="onResume">
+      <image wx:if="{{icons.resume}}" class="gp-btn-icon" src="{{icons.resume}}" mode="aspectFit"></image>
+      <text>继续游戏</text>
+    </button>
 
     <view class="gp-row">
       <view class="gp-mini" catchtap="onToggleSound">
@@ -28,11 +44,15 @@
         <text class="gp-mini-txt">{{sound ? '音效开' : '音效关'}}</text>
       </view>
       <view class="gp-mini" catchtap="onRestart">
-        <text class="gp-mini-ico">↻</text>
+        <image wx:if="{{icons.retry}}" class="gp-mini-img" src="{{icons.retry}}" mode="aspectFit"></image>
+        <text wx:else class="gp-mini-ico">↻</text>
         <text class="gp-mini-txt">重新开始</text>
       </view>
     </view>
 
-    <view class="gp-quit" catchtap="onQuit">退出本关</view>
+    <view class="gp-quit" catchtap="onQuit">
+      <image wx:if="{{icons.back}}" class="gp-mini-img" src="{{icons.back}}" mode="aspectFit"></image>
+      <text>退出本关</text>
+    </view>
   </view>
 </view>

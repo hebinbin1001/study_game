@@ -4,6 +4,12 @@
   style="{{targetStyle}}"
   aria-hidden="true">
   <view class="bfx-flash"></view>
+  <image
+    wx:if="{{modeClass === 'finish' && finisherImg}}"
+    class="bfx-finisher-art skin-{{skinFx}}"
+    src="{{finisherImg}}"
+    mode="aspectFit"
+    binderror="onFinisherImgError"></image>
   <view class="bfx-aura"></view>
   <view class="bfx-speed-line speed-a"></view>
   <view class="bfx-speed-line speed-b"></view>

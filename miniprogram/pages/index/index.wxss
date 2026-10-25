@@ -336,6 +336,7 @@
 }
 .hot-card:active { transform: translateY(2rpx); }
 .hot-card__ic { font-size: 38rpx; line-height: 1; flex: 0 0 auto; }
+  .hot-card__img { width: 58rpx; height: 58rpx; flex: 0 0 auto; }
 .hot-card__t { flex: 1; min-width: 0; }
 .hot-card__b {
   font-size: 22rpx;

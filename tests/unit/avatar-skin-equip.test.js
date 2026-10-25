@@ -205,4 +205,15 @@ s.test('首页 refresh：Boss 立绘失败标记同样按 URL 记', () => {
   s.assert.true(!!page._imgErr['https://cdn.example.com/nope.png'], '应记录这个 URL 失败');
 });
 
+s.test('皮肤页提供战士 / Boss 双页签，切换后只展示对应列表', () => {
+  const wxml = fs.readFileSync(path.join(ROOT, 'miniprogram/pages/avatar/avatar.wxml'), 'utf8');
+  s.assert.contains(wxml, 'data-tab="warrior"');
+  s.assert.contains(wxml, 'data-tab="monster"');
+  s.assert.contains(wxml, "activeTab === 'warrior'");
+  s.assert.contains(wxml, "activeTab === 'monster'");
+  const page = loadPage('miniprogram/pages/avatar/avatar.js');
+  page.switchSkinTab({ currentTarget: { dataset: { tab: 'monster' } } });
+  s.assert.equal(page.data.activeTab, 'monster');
+});
+
 s.done();

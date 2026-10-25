@@ -8,10 +8,126 @@ const {
   WrongRecord,
   CheckinRecord,
   CustomLevel,
+  PkMatch,
+  UserAvatar,
+  Avatar,
+  sequelize,
 } = require("../db");
 const achievements = require("../achievements");
+const time = require("../beijing-time");
 
 const router = express.Router();
+
+async function bestDailyRank(openid) {
+  if (!openid) return 0;
+  try {
+    const [rows] = await sequelize.query(
+      `SELECT MIN(rnk) AS bestRank
+         FROM (
+           SELECT (
+             SELECT COUNT(*) + 1
+               FROM daily_scores x
+              WHERE x.dateKey = d.dateKey
+                AND x.grade = d.grade
+                AND (
+                  x.correct > d.correct
+                  OR (x.correct = d.correct AND x.durationMs < d.durationMs)
+                  OR (
+                    x.correct = d.correct
+                    AND x.durationMs = d.durationMs
+                    AND x.createdAt < d.createdAt
+                  )
+                )
+           ) AS rnk
+             FROM daily_scores d
+            WHERE d.openid = :openid
+         ) t`,
+      { replacements: { openid } }
+    );
+    return parseInt(rows[0] && rows[0].bestRank, 10) || 0;
+  } catch (err) {
+    console.warn("[achievement] 每日挑战名次暂不可用：", err && err.message);
+    return 0;
+  }
+}
+
+async function currentSeasonRank(openid) {
+  if (!openid) return 0;
+  try {
+    const season = time.seasonOf();
+    const [mine] = await sequelize.query(
+      `SELECT COALESCE(SUM(t.mx), 0) AS stars
+         FROM (
+           SELECT MAX(s.stars) AS mx
+             FROM scores s
+             JOIN users u ON u.id = s.user_id
+            WHERE u.openid = :openid
+              AND s.createdAt >= :start
+              AND s.createdAt < :end
+            GROUP BY s.game_type, s.grade, s.type_key, s.level
+         ) t`,
+      { replacements: { openid, start: season.start, end: season.endExclusive } }
+    );
+    const myStars = parseInt(mine[0] && mine[0].stars, 10) || 0;
+    if (myStars <= 0) return 0;
+    const [higher] = await sequelize.query(
+      `SELECT COUNT(*) AS n
+         FROM (
+           SELECT SUM(t.mx) AS stars
+             FROM (
+               SELECT s.user_id, MAX(s.stars) AS mx
+                 FROM scores s
+                WHERE s.createdAt >= :start
+                  AND s.createdAt < :end
+                GROUP BY s.user_id, s.game_type, s.grade, s.type_key, s.level
+             ) t
+            GROUP BY t.user_id
+         ) all_users
+        WHERE all_users.stars > :myStars`,
+      { replacements: { start: season.start, end: season.endExclusive, myStars } }
+    );
+    return (parseInt(higher[0] && higher[0].n, 10) || 0) + 1;
+  } catch (err) {
+    console.warn("[achievement] 赛季名次暂不可用：", err && err.message);
+    return 0;
+  }
+}
+
+async function pkWinCount(openid) {
+  if (!openid) return 0;
+  try {
+    return await PkMatch.count({
+      where: {
+        status: "done",
+        [Op.or]: [
+          { challengerOpenid: openid, winner: "challenger" },
+          { opponentOpenid: openid, winner: "opponent" },
+        ],
+      },
+    });
+  } catch (err) {
+    console.warn("[achievement] PK 胜场暂不可用：", err && err.message);
+    return 0;
+  }
+}
+
+async function ownedSkinCount(openid) {
+  if (!openid) return 0;
+  try {
+    const [owned, free] = await Promise.all([
+      UserAvatar.findAll({ where: { openid }, attributes: ["avatarId"], raw: true }),
+      Avatar.findAll({ where: { unlockType: "free" }, attributes: ["avatarId"], raw: true }),
+    ]);
+    const ids = {};
+    owned.concat(free).forEach((row) => {
+      if (row && row.avatarId) ids[row.avatarId] = 1;
+    });
+    return Object.keys(ids).length;
+  } catch (err) {
+    console.warn("[achievement] 皮肤收藏数暂不可用：", err && err.message);
+    return 0;
+  }
+}
 
 /**
  * 成就体系（2026-09-12 需求④ 扩充到 30+）
@@ -38,7 +154,17 @@ const router = express.Router();
 async function loadStats(openid) {
   const user = await User.findOne({ where: { openid } });
 
-  const [rankRecord, scores, wrongRecords, checkins, customLevelCount] = await Promise.all([
+  const [
+    rankRecord,
+    scores,
+    wrongRecords,
+    checkins,
+    customLevelCount,
+    dailyBestRank,
+    seasonRank,
+    pkWins,
+    ownedSkins,
+  ] = await Promise.all([
     RankRecord.findOne({ where: { openid } }),
     user
       ? Score.findAll({ where: { user_id: user.id }, order: [["createdAt", "ASC"]] })
@@ -47,6 +173,10 @@ async function loadStats(openid) {
     CheckinRecord.findAll({ where: { openid } }),
     // 自定义关卡表用的是 authorOpenid（不是 openid）；被拒的草稿不计入
     CustomLevel.count({ where: { authorOpenid: openid, status: { [Op.ne]: "rejected" } } }),
+    bestDailyRank(openid),
+    currentSeasonRank(openid),
+    pkWinCount(openid),
+    ownedSkinCount(openid),
   ]);
 
   return achievements.statsFrom({
@@ -69,6 +199,10 @@ async function loadStats(openid) {
     })),
     checkins: checkins.map((c) => ({ date: c.date, streak: c.streak })),
     customLevelCount: customLevelCount,
+    dailyBestRank: dailyBestRank,
+    seasonRank: seasonRank,
+    pkWins: pkWins,
+    ownedSkinCount: ownedSkins,
   });
 }
 

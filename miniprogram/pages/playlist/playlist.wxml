@@ -53,7 +53,14 @@
         <!-- 绿框只给「这条线 30 关全通」，普通已解锁不再描边（2026-10-17 修语义） -->
         <view wx:if="{{item.full}}" class="full-badge">全通</view>
         <view wx:if="{{item.math}}" class="cat-tag">数学</view>
-        <view class="pic">{{item.icon}}</view>
+        <image
+          wx:if="{{item.iconSrc}}"
+          class="pic-img"
+          src="{{item.iconSrc}}"
+          mode="aspectFit"
+          data-key="{{item.key}}"
+          binderror="onGameIconError"></image>
+        <view wx:else class="pic">{{item.icon}}</view>
         <view class="pname">{{item.name}}</view>
         <view class="pdesc">{{item.desc}}<text wx:if="{{item.minutes}}" class="pmin"> · ⏱{{item.minutes}}</text></view>
         <view class="pfoot">

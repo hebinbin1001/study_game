@@ -1,3 +1,6 @@
+var audio = require('../../game/audio');
+var uiIcons = require('../../utils/ui-icons');
+
 /**
  * settle-pop —— 公共结算弹层（B5 外壳抽取）
  * 用法：
@@ -28,12 +31,21 @@ Component({
     customOps: { type: Boolean, value: false },
     nextText: { type: String, value: '' }
   },
-  data: {},
+  data: {
+    icons: {}
+  },
+  lifetimes: {
+    attached: function () {
+      this.setData({ icons: uiIcons.urls() });
+    }
+  },
   methods: {
     onRetry() {
+      audio.playUiNext();
       this.triggerEvent('retry');
     },
     onNext() {
+      audio.playUiNext();
       this.triggerEvent('next');
     },
     onTapBubble() {

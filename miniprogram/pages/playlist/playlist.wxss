@@ -127,6 +127,12 @@
   font-weight: 900;
 }
 .pic { font-size: 68rpx; line-height: 1.1; }
+.pic-img {
+  display: block;
+  width: 104rpx;
+  height: 104rpx;
+  margin: 2rpx 0 4rpx;
+}
 .pname { font-size: 32rpx; font-weight: 800; margin-top: 10rpx; color: #333A45; }
 .pdesc { font-size: 22rpx; color: #8A94A6; line-height: 1.45; margin-top: 6rpx; min-height: 64rpx; }
 /* 预期时长标注：比描述再淡一档，不抢主信息 */

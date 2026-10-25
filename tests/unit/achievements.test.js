@@ -39,7 +39,8 @@ function fullStats() {
       // 否则新增的那 11 条在满级样本下仍是 locked，会被下面「无死成就」用例判红。
       game_type: ['word_warrior', 'snake', 'math24', 'sudoku', 'memory',
         'word_build', 'link', 'match', 'idiom', 'quiz',
-        'klotski', 'onestroke', 'g2048', 'sprint', 'balance'][i % 15],
+        'klotski', 'onestroke', 'g2048', 'sprint', 'balance',
+        'letter_bubble', 'pattern', 'clock', 'maze', 'hanoi'][i % 20],
       correct_count: 10,
       total_q: 10,
       max_combo: 10,
@@ -52,6 +53,10 @@ function fullStats() {
     wrongRecords: Array.from({ length: 60 }, function () { return { mastery: 100, reviewCount: 3 }; }),
     checkins: Array.from({ length: 130 }, function (_, i) { return { date: '2026-01-01', streak: i + 1 }; }),
     customLevelCount: 9,
+    dailyBestRank: 1,
+    seasonRank: 1,
+    pkWins: 10,
+    ownedSkinCount: 12,
   });
 }
 
@@ -220,6 +225,32 @@ s.test('statsFrom：按 game_type 统计各玩法通关次数（P2 玩法类成�
   s.assert.equal(st.sudokuClears, 1);
   s.assert.equal(st.math24Clears, 1);
   s.assert.equal(st.memoryClears, 1);
+});
+
+s.test('statsFrom：新增玩法、玩法广度与长期目标指标可判定', () => {
+  const st = achievements.statsFrom({
+    scores: [
+      { game_type: 'letter_bubble', stars: 1 },
+      { game_type: 'pattern', stars: 2 },
+      { game_type: 'clock', stars: 3 },
+      { game_type: 'maze', stars: 1 },
+      { game_type: 'hanoi', stars: 1 },
+    ],
+    dailyBestRank: 3,
+    seasonRank: 10,
+    pkWins: 10,
+    ownedSkinCount: 12,
+  });
+  s.assert.equal(st.letterBubbleClears, 1);
+  s.assert.equal(st.patternClears, 1);
+  s.assert.equal(st.clockClears, 1);
+  s.assert.equal(st.mazeClears, 1);
+  s.assert.equal(st.hanoiClears, 1);
+  s.assert.equal(st.distinctGameTypes, 5);
+  s.assert.equal(st.dailyTop3, 1);
+  s.assert.equal(st.seasonTop10, 1);
+  s.assert.equal(st.pkWins, 10);
+  s.assert.equal(st.ownedSkins, 12);
 });
 
 // ============ 5. evaluate ============

@@ -34,6 +34,7 @@ Component({
     bossImgOk: true,
     textSafe: '',
     skinFx: 'steel',
+    finisherImg: '',
     targetStyle: ''
   },
 
@@ -64,6 +65,7 @@ Component({
         warriorImg: art.artUrl(skin.image || ''),
         warriorEmoji: skin.emoji || '🛡',
         skinFx: fx,
+        finisherImg: art.artUrl('/assets/fx/finisher/' + fx + '.png'),
         skinColor: (skin && skin.color) || '#8bdfff'
       });
       this._syncTarget();
@@ -129,6 +131,10 @@ Component({
 
     onBossImgError: function () {
       this.setData({ bossImgOk: false });
+    },
+
+    onFinisherImgError: function () {
+      this.setData({ finisherImg: '' });
     }
   }
 });

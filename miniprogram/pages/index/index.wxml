@@ -157,7 +157,14 @@
       wx:key="key"
       bindtap="goReco"
       data-url="{{item.url}}">
-      <view class="hot-card__ic">{{item.icon}}</view>
+      <image
+        wx:if="{{item.iconSrc}}"
+        class="hot-card__img"
+        src="{{item.iconSrc}}"
+        mode="aspectFit"
+        data-key="{{item.key}}"
+        binderror="onHotIconError"></image>
+      <view wx:else class="hot-card__ic">{{item.icon}}</view>
       <view class="hot-card__t">
         <view class="hot-card__b">{{item.name}}</view>
         <view class="hot-card__s">{{item.desc}}</view>

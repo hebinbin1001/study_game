@@ -19,7 +19,9 @@
  */
 'use strict';
 
-module.exports = [
+var art = require('./art');
+
+var GAMES = [
   // minutes（2026-10-09 加）：小程序是碎片场景，玩家点进去之前该知道要不要坐下来玩。
   // 之前华容道（可能十几分钟）和 60 秒的口算冲刺在卡片上长得一样，没有预期管理。
   { key: 'shoot', name: '字母射击', icon: '🔫', desc: '挖空补词 · 打跑怪兽', cat: '射击', section: 'line', lineMode: 'shoot', unlocked: true, minutes: '约 1 分钟', url: '/pages/level/level?mode=shoot' },
@@ -46,3 +48,26 @@ module.exports = [
   { key: 'hanoi', name: '汉诺塔', icon: '🗼', desc: '移动圆盘 · 6 关', cat: '数学', section: 'casual', math: true, unlocked: true, minutes: '1~3 分钟', url: '/pages/puzzle-level/puzzle-level?mode=hanoi' },
   { key: 'bounce', name: '单词弹弹球', icon: '🏐', desc: '移动篮子 · 接住正确释义', cat: '反应', section: 'casual', unlocked: true, minutes: '1~3 分钟', url: '/pages/bounce/bounce' }
 ];
+
+var ICON_KEYS = {
+  sudoku: 1,
+  math24: 1,
+  sprint: 1,
+  balance: 1,
+  g2048: 1,
+  memory: 1,
+  onestroke: 1,
+  klotski: 1,
+  pattern: 1,
+  clock: 1,
+  maze: 1,
+  hanoi: 1
+};
+
+GAMES.forEach(function (game) {
+  if (ICON_KEYS[game.key]) {
+    game.iconSrc = art.artUrl('/assets/game-icons/' + game.key + '.png');
+  }
+});
+
+module.exports = GAMES;

@@ -16,8 +16,31 @@
     </view>
   </view>
 
+  <view class="skin-tabs">
+    <view
+      class="skin-tab {{activeTab === 'warrior' ? 'on' : ''}}"
+      data-tab="warrior"
+      bindtap="switchSkinTab">
+      <view class="skin-tab__icon warrior">⚔</view>
+      <view class="skin-tab__copy">
+        <text class="skin-tab__title">战士</text>
+        <text class="skin-tab__meta">{{warriorUnlocked}}/{{warriorTotal}} 已拥有</text>
+      </view>
+    </view>
+    <view
+      class="skin-tab {{activeTab === 'monster' ? 'on' : ''}}"
+      data-tab="monster"
+      bindtap="switchSkinTab">
+      <view class="skin-tab__icon monster">☠</view>
+      <view class="skin-tab__copy">
+        <text class="skin-tab__title">Boss</text>
+        <text class="skin-tab__meta">{{monsterUnlocked}}/{{monsterTotal}} 已拥有</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 战士皮肤区 -->
-  <view class="avatar-section">
+  <view class="avatar-section" wx:if="{{activeTab === 'warrior'}}">
     <view class="section-title">战士皮肤</view>
     <view class="avatar-list">
       <block wx:for="{{warriors}}" wx:key="avatarId">
@@ -59,7 +82,7 @@
   </view>
 
   <!-- 怪兽皮肤区 -->
-  <view class="avatar-section">
+  <view class="avatar-section" wx:if="{{activeTab === 'monster'}}">
     <view class="section-title">怪兽皮肤</view>
     <view class="avatar-list">
       <block wx:for="{{monsters}}" wx:key="avatarId">

@@ -60,7 +60,7 @@ function skinFileOf(image) {
 s.test('战士皮肤：共 30 套（24 原有 + 6 元素新增），且每套都指向真实存在的立绘图', () => {
   const warriors = skins.LOCAL_SKINS.filter((x) => x.type === 'warrior');
   // 2026-09-19：豆包出了 6 款元素主题战士（火/水/风/雷/光/暗）→ 24 → 30
-  s.assert.equal(warriors.length, 30, '战士皮肤应为 30 套，实际 ' + warriors.length);
+  s.assert.equal(warriors.length, 34, '战士皮肤应为 34 套，实际 ' + warriors.length);
   let withImage = 0;
   warriors.forEach((w) => {
     s.assert.ok(!!w.image, w.avatarId + ' 缺图片路径');
@@ -71,14 +71,14 @@ s.test('战士皮肤：共 30 套（24 原有 + 6 元素新增），且每套都
     s.assert.ok(fs.statSync(abs).size > 1024, w.avatarId + ' 图片过小（可能是占位）：' + w.image);
     withImage++;
   });
-  s.assert.equal(withImage, 30);
+  s.assert.equal(withImage, 34);
 });
 
 s.test('怪兽皮肤：18 套真图已接入（4 原有 + 6 Boss + 8 学段 Boss），图片文件真实存在', () => {
   const monsters = skins.LOCAL_SKINS.filter((x) => x.type === 'monster');
   // 2026-09-19：豆包出了 6 款 Boss（像素吞噬者/赤鬼将军/翡翠龙王/深海梦魇/机械领主/熔岩巨兽）→ 4 → 10
   // 2026-10-17：补齐 14 学段映射，又到货 8 款（棉花糖大魔王 … 暗蚀大贤者）→ 18
-  s.assert.equal(monsters.length, 18);
+  s.assert.equal(monsters.length, 22);
   monsters.forEach((m) => {
     s.assert.ok(!!m.image, m.avatarId + ' 缺图片路径');
     const abs = skinFileOf(m.image);
@@ -220,8 +220,8 @@ s.test('后端目录：战士 30 套 + 怪兽 18 套，id 不超长', () => {
   const warriors = avatars.filter((a) => a.type === 'warrior');
   const monsters = avatars.filter((a) => a.type === 'monster');
   // 2026-09-19：+6 元素战士 / +6 Boss；2026-10-17：+8 学段 Boss
-  s.assert.equal(warriors.length, 30, '战士皮肤应 30 套，实际 ' + warriors.length);
-  s.assert.equal(monsters.length, 18, '怪兽皮肤应 18 套，实际 ' + monsters.length);
+  s.assert.equal(warriors.length, 34, '战士皮肤应 34 套，实际 ' + warriors.length);
+  s.assert.equal(monsters.length, 22, '怪兽皮肤应 22 套，实际 ' + monsters.length);
   s.assert.equal(new Set(avatars.map((a) => a.avatarId)).size, avatars.length, 'avatarId 不能重复');
   avatars.forEach((a) => {
     s.assert.ok(a.avatarId.length <= 32, a.avatarId + ' 超过字段上限 32');

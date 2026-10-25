@@ -96,6 +96,17 @@ const SKIN_RENDER = {
 // ⚠️ 必须从 SKIN_RENDER 取字段（含 image）—— 曾经这里手写漏了 monster 的 image，
 // 导致「玩家没主动选过怪兽皮肤时」（storage 返回空串 → 走这个默认）对局里永远只有 emoji、
 // 真图加载不出来（2026-09-12 由 verify-game 的「怪兽真图已被 canvas 解码」断言抓到）。
+Object.assign(SKIN_RENDER, {
+  'skin-season-champion': { emoji: '🏆', color: '#4C8FE8', image: '/assets/skins/skin-season-champion.png' },
+  'skin-medal-scholar': { emoji: '📘', color: '#536CCB', image: '/assets/skins/skin-medal-scholar.png' },
+  'skin-geometry-mage': { emoji: '🔺', color: '#4FC8C0', image: '/assets/skins/skin-geometry-mage.png' },
+  'skin-compass-ranger': { emoji: '🧭', color: '#5DBE88', image: '/assets/skins/skin-compass-ranger.png' },
+  'boss-nine-grid': { emoji: '🔷', color: '#4FAFD8', image: '/assets/skins/boss-nine-grid.png' },
+  'boss-molten-colossus': { emoji: '🌋', color: '#E56B45', image: '/assets/skins/boss-molten-colossus.png' },
+  'boss-sand-time-beast': { emoji: '⏳', color: '#D9AD58', image: '/assets/skins/boss-sand-time-beast.png' },
+  'boss-ink-dragon': { emoji: '🐉', color: '#3B4E75', image: '/assets/skins/boss-ink-dragon.png' }
+});
+
 const DEFAULT_WARRIOR = {
   id: 'warrior_01',
   emoji: SKIN_RENDER.warrior_01.emoji,
@@ -177,6 +188,17 @@ const LOCAL_SKINS = [
 ];
 
 // ============ 稀有度元数据（供形象页 UI 展示） ============
+LOCAL_SKINS.push(
+  { avatarId: 'skin-compass-ranger', name: '罗盘游侠', type: 'warrior', rarity: 'rare', unlockType: 'stars', unlockValue: 540, emoji: '🧭', color: '#5DBE88', image: '/assets/skins/skin-compass-ranger.png' },
+  { avatarId: 'skin-geometry-mage', name: '几何法师', type: 'warrior', rarity: 'epic', unlockType: 'stars', unlockValue: 650, emoji: '🔺', color: '#4FC8C0', image: '/assets/skins/skin-geometry-mage.png' },
+  { avatarId: 'skin-medal-scholar', name: '勋章学者', type: 'warrior', rarity: 'legend', unlockType: 'stars', unlockValue: 760, emoji: '📘', color: '#536CCB', image: '/assets/skins/skin-medal-scholar.png' },
+  { avatarId: 'skin-season-champion', name: '赛季冠军', type: 'warrior', rarity: 'legend', unlockType: 'rank', unlockValue: 9, emoji: '🏆', color: '#4C8FE8', image: '/assets/skins/skin-season-champion.png' },
+  { avatarId: 'boss-nine-grid', name: '九宫守卫', type: 'monster', rarity: 'rare', unlockType: 'stars', unlockValue: 580, emoji: '🔷', color: '#4FAFD8', image: '/assets/skins/boss-nine-grid.png' },
+  { avatarId: 'boss-molten-colossus', name: '熔核巨像', type: 'monster', rarity: 'legend', unlockType: 'stars', unlockValue: 820, emoji: '🌋', color: '#E56B45', image: '/assets/skins/boss-molten-colossus.png' },
+  { avatarId: 'boss-sand-time-beast', name: '时间沙兽', type: 'monster', rarity: 'epic', unlockType: 'rank', unlockValue: 8, emoji: '⏳', color: '#D9AD58', image: '/assets/skins/boss-sand-time-beast.png' },
+  { avatarId: 'boss-ink-dragon', name: '墨影龙', type: 'monster', rarity: 'legend', unlockType: 'rank', unlockValue: 9, emoji: '🐉', color: '#3B4E75', image: '/assets/skins/boss-ink-dragon.png' }
+);
+
 const RARITY = {
   common: { label: '普通', color: '#8a9bb5' },
   rare:   { label: '稀有', color: '#4cc9f0' },

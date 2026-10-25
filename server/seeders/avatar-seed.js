@@ -173,6 +173,21 @@ const avatars = [
  * 初始化形象数据
  * @param {import('sequelize').Sequelize} sequelize
  */
+const NEW_AVATARS = [
+  { avatarId: "skin-compass-ranger", name: "罗盘游侠", type: "warrior", rarity: "rare", icon: "/assets/skins/skin-compass-ranger.png", unlockType: "stars", unlockValue: 540 },
+  { avatarId: "skin-geometry-mage", name: "几何法师", type: "warrior", rarity: "epic", icon: "/assets/skins/skin-geometry-mage.png", unlockType: "stars", unlockValue: 650 },
+  { avatarId: "skin-medal-scholar", name: "勋章学者", type: "warrior", rarity: "legend", icon: "/assets/skins/skin-medal-scholar.png", unlockType: "stars", unlockValue: 760 },
+  { avatarId: "skin-season-champion", name: "赛季冠军", type: "warrior", rarity: "legend", icon: "/assets/skins/skin-season-champion.png", unlockType: "rank", unlockValue: 9 },
+  { avatarId: "boss-nine-grid", name: "九宫守卫", type: "monster", rarity: "rare", icon: "/assets/skins/boss-nine-grid.png", unlockType: "stars", unlockValue: 580 },
+  { avatarId: "boss-molten-colossus", name: "熔核巨像", type: "monster", rarity: "legend", icon: "/assets/skins/boss-molten-colossus.png", unlockType: "stars", unlockValue: 820 },
+  { avatarId: "boss-sand-time-beast", name: "时间沙兽", type: "monster", rarity: "epic", icon: "/assets/skins/boss-sand-time-beast.png", unlockType: "rank", unlockValue: 8 },
+  { avatarId: "boss-ink-dragon", name: "墨影龙", type: "monster", rarity: "legend", icon: "/assets/skins/boss-ink-dragon.png", unlockType: "rank", unlockValue: 9 }
+];
+
+if (!avatars.some((item) => item.avatarId === NEW_AVATARS[0].avatarId)) {
+  avatars.push(...NEW_AVATARS);
+}
+
 async function seedAvatars(sequelize) {
   const Avatar = require("../models/avatar")(sequelize);
 

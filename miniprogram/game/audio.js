@@ -147,6 +147,35 @@ function playWin() {
   }
 }
 
+/** 固定按钮轻点击：短、低音量，不抢占题型反馈 */
+function playUiClick() {
+  tone(620, 0.055, 'triangle', 0.10);
+}
+
+/** 确认 / 继续 */
+function playUiConfirm() {
+  tone(740, 0.07, 'triangle', 0.13);
+  tone(988, 0.10, 'triangle', 0.12, 0.06);
+}
+
+/** 返回 / 退出 */
+function playUiBack() {
+  tone(520, 0.08, 'sine', 0.12);
+  tone(360, 0.11, 'sine', 0.10, 0.06);
+}
+
+/** 暂停 */
+function playUiPause() {
+  tone(440, 0.08, 'sine', 0.11);
+  tone(330, 0.10, 'sine', 0.09, 0.06);
+}
+
+/** 下一关 */
+function playUiNext() {
+  tone(660, 0.08, 'triangle', 0.12);
+  tone(880, 0.12, 'triangle', 0.13, 0.07);
+}
+
 module.exports = {
   speak,
   speakByItem,
@@ -156,5 +185,10 @@ module.exports = {
   playWrong,
   playCombo,
   playWin,
+  playUiClick,
+  playUiConfirm,
+  playUiBack,
+  playUiPause,
+  playUiNext,
   setSoundEnabled
 };

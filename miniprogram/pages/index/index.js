@@ -605,7 +605,14 @@ Page({
         .filter(function (g) { return !!g; })
         .slice(0, 2)
         .map(function (g) {
-          return { key: g.key, name: g.name, icon: g.icon, desc: g.desc, url: g.url };
+          return {
+            key: g.key,
+            name: g.name,
+            icon: g.icon,
+            iconSrc: g.iconSrc || '',
+            desc: g.desc,
+            url: g.url
+          };
         });
       if (!list.length) return;
       self.setData({ hotGames: list });
@@ -617,6 +624,18 @@ Page({
   goReco: function (e) {    var url = (e && e.currentTarget && e.currentTarget.dataset)
       ? e.currentTarget.dataset.url : '';
     if (url) wx.navigateTo({ url: url });
+  },
+
+  onHotIconError: function (e) {
+    var key = e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.key;
+    if (!key) return;
+    var list = this.data.hotGames || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].key === key) {
+        this.setData({ ['hotGames[' + i + '].iconSrc']: '' });
+        break;
+      }
+    }
   },
 
   /** 点「段位」→ 段位详情（各段位门槛 / 距下一段还差多少星，第三批 · 第 8 条） */
