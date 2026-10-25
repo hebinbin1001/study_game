@@ -199,8 +199,11 @@ const PATH_RULES = [
   { re: /^miniprogram\/utils\/day-key\.js$/, modules: ['social'] },
   { re: /^e2e\/verify-daily-season-pk\.js$/, modules: ['social'] },
   { re: /^e2e\/verify-daily-checkin\.js$/, modules: ['user'] },
+  { re: /^e2e\/verify-bank\.js$/, modules: ['dict', 'user'] },
+  { re: /^e2e\/verify-wrong-book-ux\.js$/, modules: ['user'] },
   { re: /^miniprogram\/pages\/(me|rank|achievement|avatar|nickname|wrong-book|wrong-review|checkin|daily-question|report|custom-levels|level-editor|level-share)\//,
     modules: ['user'] },
+  { re: /^miniprogram\/pages\/bank\//, modules: ['dict', 'user'] },
   // 管理后台（2026-09-29）：页面在端上、规则在后端，两边都得验；页面清单也要跟着跑
   { re: /^miniprogram\/pages\/admin\//, modules: ['user', 'server', 'pages'] },
   { re: /^miniprogram\/utils\/(storage|auth|skins|review|wrong-book-view|achievement-view|rel-time)\.js$/,
@@ -223,6 +226,7 @@ const PATH_RULES = [
     modules: ['social', 'server'] },
   { re: /^server\/routes\/(daily-challenge|season|pk)\.js$/, modules: ['social', 'server'] },
   { re: /^server\/routes\/(daily|checkin)\.js$/, modules: ['user', 'server'] },
+  { re: /^server\/wrong-book\.js$/, modules: ['user', 'server'] },
   // 排行榜后端：页面在 user 模块，SQL 规则也在那里验
   { re: /^server\/routes\/ranklist\.js$/, modules: ['user', 'server'] },
   { re: /^server\//, modules: ['server'] },
