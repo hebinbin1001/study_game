@@ -6,10 +6,10 @@
 
   <!-- 顶部 -->
   <view class="bk-head">
-    <button class="btn-back" bindtap="goBack">返回</button>
+    <button class="bank-nav-back" bindtap="onHeaderBack">‹</button>
     <view class="bk-head-t">
-      <view class="bk-title">📚 题库</view>
-      <view class="bk-sub">闯关题目来源 · 当前教材：{{curBookName}}{{syncing ? ' · 同步中…' : ''}}</view>
+      <view class="bk-title">{{viewMode === 'library' ? '词库书架' : '词库详情'}}</view>
+      <view class="bk-sub">{{viewMode === 'library' ? '先选词库，再浏览和编辑词条' : activeLibraryLabel}} · {{syncing ? '同步中…' : curBookName}}</view>
     </view>
   </view>
 
@@ -31,20 +31,41 @@
     </view>
     </view>
 
-    <!-- 词库：内置 + 本学段的自建库 + 新建 -->
-    <view class="bk-field">
-    <text class="bk-field-label">题库</text>
-    <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
-      <view class="bk-row">
-        <view
-          wx:for="{{bankChips}}"
-          wx:key="key"
-          class="bk-chip bk-chip--bank {{curBank === item.key ? 'on' : ''}} {{item.off ? 'off' : ''}}"
-          data-key="{{item.key}}"
-          bindtap="pickBank">{{item.label}}{{item.off ? '（已暂停）' : ''}}</view>
-        <view class="bk-chip bk-chip--new" bindtap="openCreateBank">＋ 新建题库</view>
+    <block wx:if="{{viewMode === 'library'}}">
+      <view class="library-intro">
+        <view class="library-intro-title">{{gradeLabel}} · 选择词库</view>
+        <view class="library-intro-sub">先进入一个词库，再浏览、搜索或编辑词条</view>
       </view>
-    </scroll-view>
+      <scroll-view class="library-scroll" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
+        <view class="library-grid">
+          <view wx:for="{{libraryCards}}" wx:key="key" class="library-card"
+            data-key="{{item.key}}" bindtap="openLibrary">
+            <view class="library-card-top">
+              <text class="library-emoji">{{item.emoji}}</text>
+              <text class="library-total">{{item.total}} 词</text>
+            </view>
+            <view class="library-name">{{item.label}}</view>
+            <view class="library-desc">{{item.desc}}</view>
+            <view class="library-bar"><view class="library-bar-in" style="width: {{item.progress}}%;"></view></view>
+            <view class="library-meta">已掌握 {{item.learned}} · 薄弱 {{item.weak}}</view>
+          </view>
+          <view class="library-card library-add" bindtap="openCreateBank">
+            <text class="library-add-icon">＋</text>
+            <text class="library-add-title">新建题库</text>
+            <text class="library-add-sub">整理自己的专题词表</text>
+          </view>
+        </view>
+        <view class="safe-gap"></view>
+      </scroll-view>
+    </block>
+
+    <block wx:else>
+    <view class="detail-head">
+      <text class="detail-back" bindtap="goLibraryShelf">‹ 全部词库</text>
+      <view class="detail-title-wrap">
+        <text class="detail-title">{{activeLibraryLabel}}</text>
+        <text class="detail-sub">共 {{totalAll}} 条 · 薄弱 {{weakCount}}</text>
+      </view>
     </view>
 
     <!-- 当前自建库的管理条 -->
@@ -68,22 +89,6 @@
           class="bk-chip bk-chip--t {{curType === item.key ? 'on' : ''}}"
           data-key="{{item.key}}"
           bindtap="pickType">{{item.label}}</view>
-      </view>
-    </scroll-view>
-    </view>
-
-    <!-- 教材版本（2026-10-09）：让「我的 → 教材版本」的选择在题库里看得见
-         2026-10-18：初高中不区分版本，这一行整段隐藏（否则只有 0 条的空 chip） -->
-    <view class="bk-field" wx:if="{{bookSelectable}}">
-    <text class="bk-field-label">教材</text>
-    <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
-      <view class="bk-row">
-        <view
-          wx:for="{{bookChips}}"
-          wx:key="key"
-          class="bk-chip bk-chip--book {{bookFilter === item.key ? 'on' : ''}}"
-          data-key="{{item.key}}"
-          bindtap="pickBookFilter">{{item.label}} {{item.n}}</view>
       </view>
     </scroll-view>
     </view>
@@ -153,10 +158,7 @@
           </view>
         </view>
         <view class="bk-item-act">
-          <view class="bk-btn-mini" data-k="{{item.k}}" bindtap="openEdit">编辑</view>
-          <view wx:if="{{item.disabled}}" class="bk-btn-mini ok" data-k="{{item.k}}" bindtap="restoreItem">恢复</view>
-          <view wx:elif="{{item.isBuiltin}}" class="bk-btn-mini no" data-k="{{item.k}}" bindtap="disableItem">停用</view>
-          <view wx:else class="bk-btn-mini no" data-k="{{item.k}}" bindtap="deleteItem">删除</view>
+          <view class="bk-btn-more" data-k="{{item.k}}" bindtap="openItemMore">···</view>
         </view>
       </view>
 
@@ -176,6 +178,7 @@
 
     <!-- 新增 -->
     <view class="bk-fab" bindtap="openCreate">＋ 新增词条</view>
+    </block>
   </block>
 
   <!-- ============ 词条编辑弹层 ============ -->

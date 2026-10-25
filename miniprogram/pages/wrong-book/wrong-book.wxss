@@ -76,10 +76,81 @@
 
 /* 错题本列表页（wrong-book）—— 暖色天空卡通风（与 app.wxss 全局主题一致） */
 .page-wrong-book {
-  padding: 20rpx 30rpx 60rpx;
+  padding: 20rpx 28rpx calc(48rpx + env(safe-area-inset-bottom));
   min-height: 100vh;
   box-sizing: border-box;
   color: #3a3a5c;
+}
+
+.book-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14rpx 4rpx 16rpx;
+}
+.book-title-sub { flex: 1; font-size: 22rpx; color: rgba(255,255,255,.92); }
+.book-head-count {
+  flex: 0 0 auto; padding: 10rpx 20rpx; border-radius: 999rpx;
+  background: rgba(255,255,255,.88); color: #3c6484; font-size: 22rpx; font-weight: 800;
+}
+
+.plan-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx;
+  border-radius: 28rpx;
+  background: #fff;
+  box-shadow: 0 8rpx 0 rgba(0,0,0,.08), 0 16rpx 30rpx rgba(0,0,0,.08);
+}
+.plan-main { flex: 1; min-width: 0; }
+.plan-kicker { font-size: 21rpx; color: #6b87a3; font-weight: 800; }
+.plan-value { margin-top: 2rpx; font-size: 25rpx; color: #3a3a5c; font-weight: 800; }
+.plan-num { font-size: 52rpx; line-height: 1.05; color: #ff7a45; font-weight: 900; }
+.plan-sub { margin-top: 6rpx; font-size: 21rpx; color: #7c94aa; }
+.plan-btn {
+  flex: 0 0 190rpx;
+  width: 190rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  margin: 0;
+  padding: 0;
+  border-radius: 40rpx;
+  background: #2f80ed;
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+.plan-btn::after { border: none; }
+.plan-btn[disabled] { background: #d9e4ef; color: #8fa3b5; }
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+.filter-btn {
+  flex: 1;
+  min-width: 0;
+  height: 66rpx;
+  line-height: 66rpx;
+  padding: 0 20rpx;
+  border-radius: 18rpx;
+  background: rgba(255,255,255,.92);
+  color: #42637f;
+  font-size: 23rpx;
+  font-weight: 800;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.filter-clear {
+  flex: 0 0 auto;
+  padding: 14rpx 18rpx;
+  color: #2f80ed;
+  font-size: 22rpx;
+  font-weight: 800;
 }
 
 /* ============ 页面标题 ============ */
@@ -242,6 +313,17 @@
   font-weight: 700;
 }
 
+.answer-peek {
+  display: inline-block;
+  margin-top: 6rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: #eef5fb;
+  color: #6b87a3;
+  font-size: 21rpx;
+  font-weight: 700;
+}
+
 .item-meta {
   display: flex;
   flex-wrap: wrap;
@@ -289,6 +371,48 @@
   border-radius: 20rpx;
   font-weight: 800;
 }
+
+.meta-more {
+  margin-left: 8rpx;
+  width: 54rpx;
+  text-align: center;
+  font-size: 26rpx;
+  line-height: 42rpx;
+  color: #7c94aa;
+  background: #eef3fa;
+  border-radius: 999rpx;
+  font-weight: 900;
+}
+
+.filter-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(20, 38, 55, .48);
+}
+.filter-sheet {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28rpx 28rpx calc(34rpx + env(safe-area-inset-bottom));
+  border-radius: 30rpx 30rpx 0 0;
+  background: #fff;
+}
+.filter-head { display: flex; align-items: center; justify-content: space-between; }
+.filter-title { font-size: 32rpx; font-weight: 900; color: #2f4a6b; }
+.filter-close { font-size: 25rpx; font-weight: 800; color: #2f80ed; padding: 8rpx 4rpx; }
+.filter-label { margin: 24rpx 0 12rpx; font-size: 22rpx; font-weight: 800; color: #7b93ad; }
+.filter-chips { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.filter-chip {
+  padding: 13rpx 22rpx;
+  border-radius: 999rpx;
+  background: #f0f5fa;
+  color: #5c7f9e;
+  font-size: 23rpx;
+  font-weight: 800;
+}
+.filter-chip.on { background: #2f80ed; color: #fff; }
 
 /* 熟练度进度条：复用全局 .progress-bar / .progress-bar__fill */
 .item-card .progress-bar {

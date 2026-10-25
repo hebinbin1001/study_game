@@ -24,6 +24,8 @@ const MAX_PAGE_SIZE = 100;      // 单页上限（防止一次拉爆）
 // 既不在已掌握里、看上去也还挂在待复习，缺少一档「我练过了」的成就感。
 const SCOPES = ["pending", "mastered", "reviewed", "all"];
 const DEFAULT_SCOPE = "pending";
+const SORTS = ["due", "wrong", "mastery"];
+const DEFAULT_SORT = "due";
 
 /**
  * 计算下次复习时间（与前端 utils/ebbinghaus.js 同一算法）。
@@ -69,7 +71,9 @@ function isLegacyQuery(query) {
   const hasPage = q.page !== undefined && q.page !== "";
   const hasSize = q.pageSize !== undefined && q.pageSize !== "";
   const hasScope = q.scope !== undefined && q.scope !== "";
-  return !hasPage && !hasSize && !hasScope;
+  const hasType = q.type !== undefined && q.type !== "";
+  const hasSort = q.sort !== undefined && q.sort !== "";
+  return !hasPage && !hasSize && !hasScope && !hasType && !hasSort;
 }
 
 /**
@@ -86,7 +90,8 @@ function parsePaging(query) {
   // q：关键字（2026-10-08 新增，空 = 不过滤）。它不是分页参数，搭车返回只是省一个入参。
   const out = {
     ok: true, page: 1, pageSize: DEFAULT_PAGE_SIZE,
-    scope: DEFAULT_SCOPE, q: String(q.q || "").trim(), message: "",
+    scope: DEFAULT_SCOPE, q: String(q.q || "").trim(),
+    type: String(q.type || "").trim(), sort: DEFAULT_SORT, message: "",
   };
 
   if (q.page !== undefined && q.page !== "") {
@@ -116,6 +121,21 @@ function parsePaging(query) {
       return out;
     }
     out.scope = q.scope;
+  }
+
+  if (out.type && !/^[a-z0-9_]{1,16}$/.test(out.type)) {
+    out.ok = false;
+    out.message = "type 格式非法";
+    return out;
+  }
+
+  if (q.sort !== undefined && q.sort !== "") {
+    if (SORTS.indexOf(q.sort) === -1) {
+      out.ok = false;
+      out.message = "sort 只能是 " + SORTS.join("/");
+      return out;
+    }
+    out.sort = q.sort;
   }
 
   return out;
@@ -155,6 +175,39 @@ function filterByKeyword(records, q) {
     const hay = (String(r.question || "") + " " + String(r.answer || "")).toLowerCase();
     return hay.indexOf(kw) >= 0;
   });
+}
+
+/** 按词条类型码过滤（w1 / c1 / xhy …） */
+function filterByType(records, type) {
+  const list = Array.isArray(records) ? records : [];
+  const key = String(type || "").trim();
+  if (!key) return list.slice();
+  return list.filter(function (r) {
+    return String((r.question && r.question.type) || "") === key;
+  });
+}
+
+/** 列表排序：到期优先 / 错得最多 / 熟练度最低 */
+function sortRecords(records, sort) {
+  const list = (records || []).slice();
+  const key = SORTS.indexOf(sort) >= 0 ? sort : DEFAULT_SORT;
+  list.sort(function (a, b) {
+    if (key === "wrong") {
+      return ((Number(b.wrongCount) || 0) - (Number(a.wrongCount) || 0))
+        || ((Number(a.mastery) || 0) - (Number(b.mastery) || 0));
+    }
+    if (key === "mastery") {
+      return ((Number(a.mastery) || 0) - (Number(b.mastery) || 0))
+        || ((Number(b.wrongCount) || 0) - (Number(a.wrongCount) || 0));
+    }
+    const at = new Date(a.nextReviewAt).getTime();
+    const bt = new Date(b.nextReviewAt).getTime();
+    if (!isFinite(at) && !isFinite(bt)) return 0;
+    if (!isFinite(at)) return 1;
+    if (!isFinite(bt)) return -1;
+    return at - bt;
+  });
+  return list;
 }
 
 /**
@@ -221,8 +274,15 @@ function buildListResponse(records, query) {
   const scoped = filterByScope(list, paging.scope);
   // ⚠️ 顺序不能反：先按 scope 切、再按关键字筛、最后分页。
   // 反过来的话 total / hasMore 会按「未过滤」的集合算，翻页就会出现空页。
-  const filtered = filterByKeyword(scoped, paging.q);
-  const pageData = paginate(filtered, paging.page, paging.pageSize);
+  const typed = filterByType(scoped, paging.type);
+  const filtered = filterByKeyword(typed, paging.q);
+  const sorted = sortRecords(filtered, paging.sort);
+  const pageData = paginate(sorted, paging.page, paging.pageSize);
+  const now = Date.now();
+  const dueToday = split.pending.filter(function (r) {
+    const t = new Date(r.nextReviewAt).getTime();
+    return isFinite(t) && t <= now;
+  }).length;
   return {
     items: pageData.items,
     page: pageData.page,
@@ -235,6 +295,7 @@ function buildListResponse(records, query) {
       pending: split.pending.length,
       mastered: split.mastered.length,
       reviewed: split.reviewed.length,
+      dueToday,
     },
   };
 }
@@ -245,12 +306,16 @@ module.exports = {
   MAX_PAGE_SIZE,
   SCOPES,
   DEFAULT_SCOPE,
+  SORTS,
+  DEFAULT_SORT,
   calculateNextReview,
   isLegacyQuery,
   parsePaging,
   splitScope,
   filterByScope,
   filterByKeyword,
+  filterByType,
+  sortRecords,
   paginate,
   buildListResponse,
 };

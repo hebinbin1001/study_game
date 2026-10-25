@@ -7,11 +7,9 @@
     <button class="gate-btn" bindtap="onGateLogin">去登录</button>
   </view>
 
-  <!-- 页面标题 -->
-  <view class="book-title-bar">
-    <view class="book-title-emoji">📖</view>
-    <view class="book-title">错题本</view>
-    <view class="book-title-sub">打败小怪兽，错题变星星</view>
+  <view class="book-head">
+    <view class="book-title-sub">先复习到期题，再整理已掌握</view>
+    <view class="book-head-count">{{stats.total}} 题</view>
   </view>
 
   <!-- 统计卡 -->
@@ -30,35 +28,34 @@
     <view class="wb-search-btn" bindtap="onSearch">搜索</view>
   </view>
 
-  <view class="stats-bar">
-    <view class="stat-item">
-      <text class="stat-emoji">📚</text>
-      <text class="stat-number">{{stats.total}}</text>
-      <text class="stat-label">总错题</text>
+  <view class="plan-card">
+    <view class="plan-main">
+      <view class="plan-kicker">今日复习计划</view>
+      <view class="plan-value"><text class="plan-num">{{stats.dueToday}}</text> 题到期</view>
+      <view class="plan-sub">待复习 {{stats.pending}} · 已掌握 {{stats.mastered}} · {{planMastery}}%</view>
     </view>
-    <view class="stat-item pending">
-      <text class="stat-emoji">⏰</text>
-      <text class="stat-number">{{stats.pending}}</text>
-      <text class="stat-label">待复习</text>
-    </view>
-    <view class="stat-item mastered">
-      <text class="stat-emoji">🏆</text>
-      <text class="stat-number">{{stats.mastered}}</text>
-      <text class="stat-label">已掌握</text>
-    </view>
+    <button class="plan-btn" disabled="{{stats.pending === 0}}" bindtap="startReview">
+      {{planButtonText}}
+    </button>
   </view>
 
   <!-- 标签切换 -->
   <view class="tabs">
     <view class="tab {{activeTab === 'pending' ? 'active' : ''}}" data-tab="pending" bindtap="switchTab">
-      待复习 ({{stats.pending}})
+      待复习 {{stats.pending}}
     </view>
     <view class="tab {{activeTab === 'reviewed' ? 'active' : ''}}" data-tab="reviewed" bindtap="switchTab">
-      已复习 ({{stats.reviewed}})
+      复习中 {{stats.reviewed}}
     </view>
     <view class="tab {{activeTab === 'mastered' ? 'active' : ''}}" data-tab="mastered" bindtap="switchTab">
-      已掌握 ({{stats.mastered}})
+      已掌握 {{stats.mastered}}
     </view>
+  </view>
+
+  <view class="filter-row">
+    <view class="filter-btn" bindtap="openFilter">题型：{{typeLabelNow}}</view>
+    <view class="filter-btn" bindtap="openFilter">排序：{{sortLabelNow}}</view>
+    <view wx:if="{{curType || sortKey !== 'due'}}" class="filter-clear" bindtap="clearFilters">重置</view>
   </view>
 
   <!-- 加载失败提示（点击重试） -->
@@ -81,14 +78,15 @@
         </view>
         <view class="item-question">
           <text class="question-text">{{item.it.question.q}}</text>
-          <text class="question-answer">答案：{{item.it.question.a}}</text>
+          <text wx:if="{{item.it.showAnswer}}" class="question-answer">答案：{{item.it.question.a}}</text>
+          <text wx:else class="answer-peek" data-id="{{item.it.recordId}}" catchtap="toggleAnswer">点击查看答案</text>
         </view>
         <view class="item-meta">
           <text class="meta-text">错误 {{item.it.wrongCount}} 次</text>
           <text class="meta-text">{{item.it.reviewStageText}}</text>
           <text class="meta-text">{{item.it.nextReviewText}}</text>
-          <text class="meta-go">练这道题 ›</text>
-          <text class="meta-del" catchtap="removeItem" data-id="{{item.it.recordId}}">移除</text>
+          <text class="meta-go">开始练习 →</text>
+          <text class="meta-more" data-id="{{item.it.recordId}}" catchtap="openItemMore">···</text>
         </view>
         <view class="progress-bar">
           <view class="progress-bar__fill" style="width: {{item.it.reviewProgress * 20}}%"></view>
@@ -125,18 +123,24 @@
         </view>
         <view class="item-question">
           <text class="question-text">{{item.question.q}}</text>
-          <text class="question-answer">答案：{{item.question.a}}</text>
+          <text wx:if="{{item.showAnswer}}" class="question-answer">答案：{{item.question.a}}</text>
+          <text wx:else class="answer-peek" data-id="{{item.recordId}}" catchtap="toggleAnswer">点击查看答案</text>
         </view>
         <view class="item-meta">
           <text class="meta-text">错误 {{item.wrongCount}} 次</text>
-          <text class="meta-go">练这道题 ›</text>
-          <text class="meta-del" catchtap="removeItem" data-id="{{item.recordId}}">移除</text>
+          <text class="meta-go">开始练习 →</text>
+          <text class="meta-more" data-id="{{item.recordId}}" catchtap="openItemMore">···</text>
         </view>
         <view class="progress-bar">
           <view class="progress-bar__fill" style="width: {{item.mastery}}%"></view>
         </view>
       </view>
     </block>
+    <view wx:if="{{totalPages > 1}}" class="wb-pager">
+      <view class="wb-pager-btn {{page <= 1 || loading ? 'dis' : ''}}" data-dir="-1" bindtap="goPage">上一页</view>
+      <view class="wb-pager-info">第 {{page}} / {{totalPages}} 页</view>
+      <view class="wb-pager-btn {{page >= totalPages || loading ? 'dis' : ''}}" data-dir="1" bindtap="goPage">下一页</view>
+    </view>
     <view class="empty-state" wx:if="{{reviewed.length === 0}}">
       <view class="empty-text">还没有复习过的题</view>
       <view class="empty-text">答对过的错题会出现在这里</view>
@@ -153,11 +157,12 @@
         </view>
         <view class="item-question">
           <text class="question-text">{{item.question.q}}</text>
-          <text class="question-answer">答案：{{item.question.a}}</text>
+          <text wx:if="{{item.showAnswer}}" class="question-answer">答案：{{item.question.a}}</text>
+          <text wx:else class="answer-peek" data-id="{{item.recordId}}" catchtap="toggleAnswer">点击查看答案</text>
         </view>
         <view class="item-meta">
           <text class="meta-text">错误 {{item.wrongCount}} 次</text>
-          <text class="meta-del" catchtap="removeItem" data-id="{{item.recordId}}">移除</text>
+          <text class="meta-more" data-id="{{item.recordId}}" catchtap="openItemMore">···</text>
         </view>
       </view>
     </block>
@@ -174,6 +179,24 @@
     </view>
   </view>
 
-  <!-- 返回按钮 -->
-  <button class="btn-back" bindtap="goBack">返回</button>
+  <view wx:if="{{filterShow}}" class="filter-mask" bindtap="closeFilter">
+    <view class="filter-sheet" catchtap="noop">
+      <view class="filter-head">
+        <text class="filter-title">筛选错题</text>
+        <text class="filter-close" bindtap="closeFilter">完成</text>
+      </view>
+      <view class="filter-label">题型</view>
+      <view class="filter-chips">
+        <view wx:for="{{typeOptions}}" wx:key="key"
+          class="filter-chip {{curType === item.key ? 'on' : ''}}"
+          data-key="{{item.key}}" bindtap="pickType">{{item.label}}</view>
+      </view>
+      <view class="filter-label">排序</view>
+      <view class="filter-chips">
+        <view class="filter-chip {{sortKey === 'due' ? 'on' : ''}}" data-key="due" bindtap="pickSort">按到期时间</view>
+        <view class="filter-chip {{sortKey === 'wrong' ? 'on' : ''}}" data-key="wrong" bindtap="pickSort">按错误次数</view>
+        <view class="filter-chip {{sortKey === 'mastery' ? 'on' : ''}}" data-key="mastery" bindtap="pickSort">按熟练度</view>
+      </view>
+    </view>
+  </view>
 </view>

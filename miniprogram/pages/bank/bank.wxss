@@ -16,6 +16,21 @@
   align-items: center;
   gap: 16rpx;
 }
+.bank-nav-back {
+  flex: 0 0 68rpx;
+  width: 68rpx;
+  height: 68rpx;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.92);
+  color: #2f5470;
+  font-size: 46rpx;
+  font-weight: 900;
+  line-height: 64rpx;
+  box-shadow: 0 6rpx 0 rgba(0,0,0,.06);
+}
+.bank-nav-back::after { border: none; }
 .bk-back {
   width: 64rpx;
   height: 64rpx;
@@ -30,6 +45,68 @@
 }
 .bk-title { font-size: 38rpx; font-weight: 900; color: #2f5470; }
 .bk-sub { margin-top: 4rpx; font-size: 22rpx; color: #6d8aa5; }
+
+.library-intro { margin: 24rpx 6rpx 16rpx; }
+.library-intro-title { font-size: 32rpx; font-weight: 900; color: #2f5470; }
+.library-intro-sub { margin-top: 6rpx; font-size: 22rpx; color: #6d8aa5; }
+.library-scroll { flex: 1 1 auto; min-height: 0; }
+.library-grid { display: flex; flex-wrap: wrap; gap: 16rpx; align-content: flex-start; }
+.library-card {
+  flex: 0 0 calc(50% - 8rpx);
+  width: calc(50% - 8rpx);
+  min-height: 244rpx;
+  box-sizing: border-box;
+  padding: 20rpx;
+  border-radius: 26rpx;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 7rpx 0 rgba(0,0,0,.05), 0 14rpx 26rpx rgba(27,65,98,.07);
+}
+.library-card-top { display: flex; align-items: center; justify-content: space-between; }
+.library-emoji { font-size: 38rpx; }
+.library-total {
+  padding: 5rpx 12rpx; border-radius: 999rpx;
+  background: #eef5fb; color: #6d8aa5; font-size: 19rpx; font-weight: 800;
+}
+.library-name { margin-top: 12rpx; font-size: 27rpx; font-weight: 900; color: #2f5470; }
+.library-desc { margin-top: 5rpx; font-size: 20rpx; color: #7b93ad; line-height: 1.45; }
+.library-bar {
+  height: 12rpx; margin-top: 17rpx; border-radius: 999rpx;
+  background: #e8f0f7; overflow: hidden;
+}
+.library-bar-in { height: 100%; border-radius: 999rpx; background: linear-gradient(90deg,#55b4f5,#2f80ed); }
+.library-meta { margin-top: 9rpx; font-size: 19rpx; color: #6d8aa5; }
+.library-add {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.68); border: 2rpx dashed rgba(47,128,237,.35); box-shadow: none;
+}
+.library-add-icon { font-size: 48rpx; color: #2f80ed; font-weight: 700; }
+.library-add-title { margin-top: 4rpx; font-size: 25rpx; color: #2f5470; font-weight: 900; }
+.library-add-sub { margin-top: 6rpx; font-size: 19rpx; color: #7b93ad; text-align: center; }
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin: 20rpx 2rpx 12rpx;
+}
+.detail-back {
+  flex: 0 0 auto;
+  padding: 10rpx 16rpx 10rpx 0;
+  font-size: 23rpx;
+  color: #2f80ed;
+  font-weight: 800;
+}
+.detail-title-wrap { flex: 1; min-width: 0; }
+.detail-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #2f5470;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.detail-sub { display: block; margin-top: 3rpx; font-size: 20rpx; color: #7b93ad; }
 
 /* 横向 chip 行 */
 .bk-field {
@@ -234,6 +311,17 @@
 }
 .bk-btn-mini.no { background: #fdeef1; color: #d4627a; }
 .bk-btn-mini.ok { background: #e6f7ee; color: #2fa96b; }
+.bk-btn-more {
+  width: 62rpx;
+  height: 62rpx;
+  line-height: 62rpx;
+  text-align: center;
+  border-radius: 50%;
+  background: #eef5fb;
+  color: #6d8aa5;
+  font-size: 28rpx;
+  font-weight: 900;
+}
 
 .bk-more {
   margin: 6rpx auto 20rpx;

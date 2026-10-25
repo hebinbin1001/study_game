@@ -23,7 +23,7 @@ var PAGE_SIZE = 20;   // 每页条数（与后端上限 100 对齐）
  * @param {number} [pageSize]
  * @returns {string}
  */
-function listUrl(scope, page, pageSize, q) {
+function listUrl(scope, page, pageSize, q, opts) {
   // 三种 scope：pending / mastered / reviewed（已复习 = 答对过但没满 100）
   var s = (scope === 'mastered' || scope === 'reviewed') ? scope : 'pending';
   var p = Math.max(1, parseInt(page, 10) || 1);
@@ -33,6 +33,9 @@ function listUrl(scope, page, pageSize, q) {
   // 在端上筛等于"只在已加载的 20 条里找"，用户会以为搜不到。
   var kw = String(q == null ? '' : q).trim();
   if (kw) url += '&q=' + encodeURIComponent(kw);
+  var o = opts || {};
+  if (o.type) url += '&type=' + encodeURIComponent(String(o.type));
+  if (o.sort) url += '&sort=' + encodeURIComponent(String(o.sort));
   return url;
 }
 
@@ -57,6 +60,8 @@ function decorate(item) {
     reviewProgress: ebbinghaus.getReviewProgress(it.mastery),
     reviewStageText: ebbinghaus.getReviewStageText(it.reviewCount),
     nextReviewText: nextText
+    ,
+    showAnswer: false
   };
 }
 
@@ -71,6 +76,8 @@ function decorateMastered(item) {
     wrongCount: it.wrongCount,
     mastery: it.mastery,
     reviewCount: it.reviewCount     // 「已复习」列表显示「复习过 N 次」用
+    ,
+    showAnswer: false
   };
 }
 
@@ -118,7 +125,8 @@ function applyPage(state, page, reset) {
     var patch = {
       stats: {
         total: counts.total, pending: counts.pending,
-        mastered: counts.mastered, reviewed: counts.reviewed
+        mastered: counts.mastered, reviewed: counts.reviewed,
+        dueToday: counts.dueToday || 0
       },
       page: data.page || 1,
       totalPages: totalPages,
@@ -139,7 +147,8 @@ function applyPage(state, page, reset) {
     visibleN: pending.length,
     stats: {
       total: counts.total, pending: counts.pending,
-      mastered: counts.mastered, reviewed: counts.reviewed
+      mastered: counts.mastered, reviewed: counts.reviewed,
+      dueToday: counts.dueToday || 0
     },
     page: data.page || 1,
     totalPages: totalPages,
@@ -171,7 +180,8 @@ function applyLegacy(data) {
       total: d.total || (pending.length + mastered.length),
       pending: pending.length,
       mastered: mastered.length,
-      reviewed: 0            // 老服务端没有「已复习」这一档，占位避免页面读到 undefined
+      reviewed: 0,           // 老服务端没有「已复习」这一档，占位避免页面读到 undefined
+      dueToday: 0
     }
   };
 }
@@ -201,7 +211,7 @@ function removeRecord(state, recordId) {
     return true;
   });
   var dropped = (hadPending || hadMastered || hadReviewed) ? 1 : 0;
-  var stats = s.stats || { total: 0, pending: 0, mastered: 0, reviewed: 0 };
+  var stats = s.stats || { total: 0, pending: 0, mastered: 0, reviewed: 0, dueToday: 0 };
   var renderList = groupPending(pending);
   return {
     pending: pending,
@@ -215,7 +225,8 @@ function removeRecord(state, recordId) {
       total: Math.max(0, (stats.total || 0) - dropped),
       pending: Math.max(0, (stats.pending || 0) - (hadPending ? 1 : 0)),
       mastered: Math.max(0, (stats.mastered || 0) - (hadMastered ? 1 : 0)),
-      reviewed: Math.max(0, (stats.reviewed || 0) - (hadReviewed ? 1 : 0))
+      reviewed: Math.max(0, (stats.reviewed || 0) - (hadReviewed ? 1 : 0)),
+      dueToday: Math.max(0, (stats.dueToday || 0) - (hadPending ? 1 : 0))
     }
   };
 }

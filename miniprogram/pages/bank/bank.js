@@ -78,6 +78,10 @@ function bookNameOf(key) {
 
 Page({
   data: {
+    viewMode: 'library',
+    libraryCards: [],
+    activeLibraryKey: 'book:all',
+    activeLibraryLabel: '',
     // 筛选
     grades: [],
     gradeIndex: 0,
@@ -140,6 +144,99 @@ Page({
   _all: [],       // 当前筛选范围内的全部行
   _page: 1,
   _mastery: {},   // questionId → {w,r,m}
+
+  _rowsForBank: function (g, bankKey, raw, ov) {
+    var rows = [];
+    if (bankKey === BASE_KEY) {
+      var baseMerged = bank.applyOverrides(raw, g, ov, {});
+      var disabled = [];
+      raw.forEach(function (it) {
+        var e = ov[bank.entryKey('', g, it.type, it.q)];
+        if (e && e.action === 'disable') {
+          disabled.push(Object.assign({}, it, { _disabled: true }));
+        }
+      });
+      return baseMerged.concat(disabled);
+    }
+    Object.keys(ov).forEach(function (k) {
+      var e = ov[k];
+      if (bank.scopeOf(e) !== bankKey || e.action !== 'create') return;
+      rows.push({
+        type: e.type, q: e.q, a: e.a, hint: e.hint, ex: e.ex, d: e.d,
+        _user: true, _bankId: bankKey
+      });
+    });
+    return rows;
+  },
+
+  _decorateRows: function (g, rows, banks) {
+    return (rows || []).map(function (it) {
+      var m = this._masteryOf(g, it);
+      var row = toRow(g, it, banks);
+      row.w = m.w;
+      row.r = m.r;
+      row.m = m.m;
+      row.status = statusOf(m);
+      return row;
+    }, this);
+  },
+
+  _summary: function (rows) {
+    var list = rows || [];
+    return {
+      total: list.length,
+      weak: list.filter(function (r) { return r.status === 'weak'; }).length,
+      learned: list.filter(function (r) { return r.status === 'learned'; }).length,
+      progress: list.length
+        ? Math.round(list.filter(function (r) { return r.status === 'learned'; }).length / list.length * 100)
+        : 0
+    };
+  },
+
+  _buildLibraryCards: function (g, raw, ov, banks) {
+    var baseRows = this._decorateRows(g, this._rowsForBank(g, BASE_KEY, raw, ov), banks);
+    var cards = [];
+    var all = this._summary(baseRows);
+    cards.push(Object.assign({
+      key: 'book:all', mode: 'book', bookFilter: 'all', bankKey: BASE_KEY,
+      label: '全部词库', desc: '内置词汇 + 我的改动', emoji: '📚'
+    }, all));
+
+    if (constants.isBookSelectable(g)) {
+      constants.BOOKS.forEach(function (b) {
+        var key = b.key || '';
+        var rows = baseRows.filter(function (r) { return String(r.book || '') === key; });
+        if (!rows.length) return;
+        // 没有独立教材词时，「通用词表」与「全部词库」是同一批词，不重复展示。
+        if (!key && rows.length === baseRows.length) return;
+        cards.push(Object.assign({
+          key: 'book:' + (key || 'generic'),
+          mode: 'book',
+          bookFilter: key || 'generic',
+          bankKey: BASE_KEY,
+          label: b.name,
+          desc: key ? '教材同步词库' : '无教材标签的通用词',
+          emoji: '📘'
+        }, this._summary(rows)));
+      }, this);
+    }
+
+    Object.keys(banks).forEach(function (id) {
+      var b = banks[id];
+      if (b.grade !== g) return;
+      var rows = this._decorateRows(g, this._rowsForBank(g, id, raw, ov), banks);
+      cards.push(Object.assign({
+        key: 'bank:' + id,
+        mode: 'bank',
+        bankKey: id,
+        bookFilter: 'all',
+        label: b.name,
+        desc: b.enabled ? '我的自建题库' : '已暂停出题',
+        emoji: '📒'
+      }, this._summary(rows)));
+    }, this);
+    return cards;
+  },
 
   // ============ 生命周期 ============
   onLoad: function () {
@@ -215,40 +312,9 @@ Page({
     if (curBank !== BASE_KEY && !banks[curBank]) curBank = BASE_KEY;
     if (curBank !== BASE_KEY && banks[curBank] && banks[curBank].grade !== g) curBank = BASE_KEY;
 
-    var rows = [];
-    if (curBank === BASE_KEY) {
-      // 内置档：内置 ⊕ 学段级改动（新增/改写/停用），停用的单独补出来供恢复
-      var baseMerged = bank.applyOverrides(raw, g, ov, {});
-      var disabled = [];
-      raw.forEach(function (it) {
-        var e = ov[bank.entryKey('', g, it.type, it.q)];
-        if (e && e.action === 'disable') {
-          disabled.push(Object.assign({}, it, { _disabled: true }));
-        }
-      });
-      rows = baseMerged.concat(disabled);
-    } else {
-      // 自建库档：**只展示库内词条本身**（哪怕与内置同题也照常显示；
-      // 出题时由 bank.applyOverrides 去重，不会在同一关出重复题）
-      Object.keys(ov).forEach(function (k) {
-        var e = ov[k];
-        if (bank.scopeOf(e) !== curBank || e.action !== 'create') return;
-        rows.push({
-          type: e.type, q: e.q, a: e.a, hint: e.hint, ex: e.ex, d: e.d,
-          _user: true, _bankId: curBank
-        });
-      });
-    }
-
-    var finalRows = rows.map(function (it) {
-      var m = this._masteryOf(g, it);
-      var row = toRow(g, it, banks);
-      row.w = m.w;
-      row.r = m.r;
-      row.m = m.m;
-      row.status = statusOf(m);
-      return row;
-    }, this);
+    var rows = this._rowsForBank(g, curBank, raw, ov);
+    var finalRows = this._decorateRows(g, rows, banks);
+    var libraryCards = this._buildLibraryCards(g, raw, ov, banks);
 
     var mine = 0;
     finalRows.forEach(function (r) { if (r.srcCls === 'mine') mine += 1; });
@@ -290,8 +356,15 @@ Page({
       ? '内置 · 含我的改动'
       : ((banks[curBank] && banks[curBank].name) || '自建库');
     var isCustom = curBank !== BASE_KEY;
+    var activeLibraryKey = curBank === BASE_KEY
+      ? ('book:' + (picked === 'all' ? 'all' : picked))
+      : ('bank:' + curBank);
+    var activeCard = libraryCards.filter(function (c) { return c.key === activeLibraryKey; })[0];
 
     this.setData({
+      libraryCards: libraryCards,
+      activeLibraryKey: activeLibraryKey,
+      activeLibraryLabel: activeCard ? activeCard.label : bankName,
       bookFilter: picked,
       bookChips: bookChips,
       bookSelectable: bookSelectable,
@@ -424,9 +497,34 @@ Page({
       gradeKey: key,
       gradeLabel: grades[idx].label,
       gradePickerVisible: false,
-      curBank: BASE_KEY
+      curBank: BASE_KEY,
+      bookFilter: 'all',
+      viewMode: 'library'
     });
     this._render();
+  },
+
+  openLibrary: function (e) {
+    var key = e.currentTarget.dataset.key || 'book:all';
+    if (key.indexOf('bank:') === 0) {
+      this.setData({
+        curBank: key.slice(5),
+        bookFilter: 'all',
+        viewMode: 'detail'
+      });
+    } else {
+      var book = key.slice(5);
+      this.setData({
+        curBank: BASE_KEY,
+        bookFilter: book || 'all',
+        viewMode: 'detail'
+      });
+    }
+    this._render();
+  },
+
+  goLibraryShelf: function () {
+    this.setData({ viewMode: 'library' });
   },
 
   pickBank: function (e) {
@@ -469,6 +567,14 @@ Page({
     wx.navigateBack();
   },
 
+  onHeaderBack: function () {
+    if (this.data.viewMode === 'detail') {
+      this.goLibraryShelf();
+      return;
+    }
+    this.goBack();
+  },
+
   // ============ 词条编辑 ============
   openCreate: function () {
     var t = this.data.curType;
@@ -500,6 +606,34 @@ Page({
       sheetBuiltin: row.isBuiltin,
       sheetTitle: row.isBuiltin ? '编辑内置词条' : ('编辑「' + row.srcLabel + '」词条'),
       fType: row.type, fQ: row.q, fA: row.a, fHint: row.hint, fD: row.d, fEx: row.ex
+    });
+  },
+
+  openItemMore: function (e) {
+    var key = e.currentTarget.dataset.k;
+    var row = this._rowOf(key);
+    if (!row) return;
+    var self = this;
+    var actions = [{ label: '编辑', act: 'edit' }];
+    if (row.disabled) {
+      actions.push({ label: '恢复', act: 'restore' });
+    } else if (row.isBuiltin) {
+      actions.push({ label: '停用', act: 'disable' });
+      actions.push({ label: '撤销改动', act: 'remove' });
+    } else {
+      actions.push({ label: '删除', act: 'remove' });
+    }
+    wx.showActionSheet({
+      itemList: actions.map(function (x) { return x.label; }),
+      success: function (res) {
+        var act = actions[res.tapIndex];
+        if (!act) return;
+        var ev = { currentTarget: { dataset: { k: key } } };
+        if (act.act === 'edit') self.openEdit(ev);
+        else if (act.act === 'restore') self.restoreItem(ev);
+        else if (act.act === 'disable') self.disableItem(ev);
+        else self.deleteItem(ev);
+      }
     });
   },
 
@@ -637,7 +771,14 @@ Page({
     var local = { bankId: bankId, name: name, grade: grade, enabled: true };
     bank.upsertBankLocal(local);
     dict.refreshOverrides();
-    this.setData({ bankSheetShow: false, curBank: bankId, gradeIndex: d.bGradeIndex, gradeLabel: d.grades[d.bGradeIndex].label });
+    this.setData({
+      bankSheetShow: false,
+      curBank: bankId,
+      bookFilter: 'all',
+      viewMode: 'detail',
+      gradeIndex: d.bGradeIndex,
+      gradeLabel: d.grades[d.bGradeIndex].label
+    });
     this._render();
     wx.showToast({ title: isRename ? '已改名' : '已新建题库', icon: 'none' });
 
@@ -684,7 +825,7 @@ Page({
         if (!r.confirm) return;
         bank.removeBankLocal(bankId);
         dict.refreshOverrides();
-        self.setData({ curBank: BASE_KEY });
+        self.setData({ curBank: BASE_KEY, bookFilter: 'all', viewMode: 'library' });
         self._render();
         wx.showToast({ title: '已删除', icon: 'none' });
         request.request({

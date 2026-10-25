@@ -33,27 +33,37 @@ H.runSuite('verify-bank（题库）', async function (miniProgram, ck) {
   ck.check('题库页根容器 .bk-page 已渲染', !!(await H.waitForSelector(page, '.bk-page', 8000)));
   ck.check('顶部标题区 .bk-head 已渲染', !!(await H.waitForSelector(page, '.bk-head', 8000)));
 
-  // 2026-09-18 二次改版：自建库 + 掌握状态筛选 + 新建题库入口
+  // 2026-10-25：题库改成「词库书架 → 词库详情」两层
   const data0 = await page.data();
   if (!data0.needLogin) {
-    ck.check('词库选择 chips 已渲染（内置档）',
-      (await page.$$('.bk-chip--bank')).length >= 1, '实际 ' + (await page.$$('.bk-chip--bank')).length);
-    ck.check('有「＋ 新建题库」入口', !!(await page.$('.bk-chip--new')));
-    ck.check('掌握状态筛选 3 档（全部/薄弱/已掌握）', (await page.$$('.bk-mf')).length === 3,
-      '实际 ' + (await page.$$('.bk-mf')).length);
-    const allCount = data0.totalAll;
-    const weakBtn = await page.$('.bk-mf.weak');
-    if (weakBtn) {
-      await weakBtn.tap();
-      await page.waitFor(400);
-      const dWeak = await page.data();
-      ck.check('切到「薄弱」筛选后不崩且计数不超过全部',
-        dWeak.mFilter === 'weak' && (dWeak.shown || []).length <= allCount,
-        'weak shown = ' + (dWeak.shown || []).length + ' / all = ' + allCount);
-      await (await page.$('.bk-mf')).tap();
-      await page.waitFor(300);
+    ck.check('词库书架首层已渲染', (await page.$$('.library-card')).length >= 1,
+      '实际 ' + (await page.$$('.library-card')).length);
+    ck.check('书架包含「新建题库」入口', !!(await page.$('.library-add')));
+    const firstLibrary = await page.$('.library-card');
+    if (firstLibrary) {
+      await firstLibrary.tap();
+      await page.waitFor(500);
+      const detailData = await page.data();
+      ck.check('点词库卡进入详情层', detailData.viewMode === 'detail', '实际 = ' + detailData.viewMode);
+      ck.check('详情层掌握状态筛选 3 档', (await page.$$('.bk-mf')).length === 3,
+        '实际 ' + (await page.$$('.bk-mf')).length);
+      ck.check('详情层词条列表已渲染', (await page.$$('.bk-item')).length > 0);
+      const allCount = detailData.totalAll;
+      const weakBtn = await page.$('.bk-mf.weak');
+      if (weakBtn) {
+        await weakBtn.tap();
+        await page.waitFor(300);
+        const dWeak = await page.data();
+        ck.check('切到「薄弱」后计数不超过全部',
+          dWeak.mFilter === 'weak' && (dWeak.shown || []).length <= allCount,
+          'weak shown = ' + (dWeak.shown || []).length + ' / all = ' + allCount);
+        await (await page.$('.bk-mf')).tap();
+        await page.waitFor(250);
+      }
+      await (await page.$('.detail-back')).tap();
+      await page.waitFor(350);
     }
-    const newBank = await page.$('.bk-chip--new');
+    const newBank = await page.$('.library-add');
     if (newBank) {
       await newBank.tap();
       await page.waitFor(400);
@@ -74,7 +84,7 @@ H.runSuite('verify-bank（题库）', async function (miniProgram, ck) {
       (await page.$$('.bk-item')).length === 0);
   } else {
     // 模拟器若已带登录态（开发者工具登录过），退化为校验列表可用
-    ck.check('已登录态：词条列表已渲染', (await page.$$('.bk-item')).length > 0);
+    ck.check('已登录态：至少展示一个词库卡', (await page.$$('.library-card')).length > 0);
   }
 
   console.log('[4/4] 学习 tab 也有题库入口');

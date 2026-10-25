@@ -71,6 +71,7 @@ Page({
   onLoad: function (options) {
     var opt = options || {};
     this._only = opt.only ? String(opt.only) : '';
+    this._dueOnly = String(opt.due || '') === '1';
   },
 
   // 加载待复习题目
@@ -78,6 +79,13 @@ Page({
     var self = this;
     request.get('/api/wrong/list').then(function (data) {
       var pending = data.pending || [];
+      if (self._dueOnly) {
+        var now = Date.now();
+        pending = pending.filter(function (it) {
+          var t = new Date(it.nextReviewAt).getTime();
+          return isFinite(t) && t <= now;
+        });
+      }
       // 单题练习：只留这一道；已被移除/已掌握时下面会走「已完成」空态
       if (self._only) {
         pending = pending.filter(function (it) {

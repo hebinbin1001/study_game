@@ -116,6 +116,13 @@ STAGES.push({
   script: 'e2e/verify-daily-checkin.js'
 });
 
+STAGES.push({
+  id: 'wrongBookUx',
+  layer: '端到端',
+  title: '错题本工作台（计划卡 / 答案收起 / 筛选）',
+  script: 'e2e/verify-wrong-book-ux.js'
+});
+
 // 排行榜玩法榜改版（2026-09-18）：卡片总览 → 详情榜；旧的平铺 chips 已删除
 STAGES.push({
   id: 'rank',

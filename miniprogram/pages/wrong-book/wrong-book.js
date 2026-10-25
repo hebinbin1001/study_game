@@ -13,6 +13,7 @@
 
 var request = require('../../utils/request');
 var view = require('../../utils/wrong-book-view');
+var constants = require('../../utils/constants');
 // M5 T2.3：受限页直入门禁（未登录不拉数据，页内引导登录）
 var auth = require('../../utils/auth');
 
@@ -29,9 +30,17 @@ Page({
     page: 1,               // 当前已加载到第几页（针对 activeTab）
     totalPages: 1,         // 总页数（翻页控件用）
     q: '',                 // 搜索关键字（2026-10-08：错题本支持搜索）
+    typeOptions: [],
+    curType: '',
+    typeLabelNow: '全部题型',
+    sortKey: 'due',
+    sortLabelNow: '按到期时间',
+    filterShow: false,
     moreCount: 0,          // 「加载更多」还可以加载多少条
     hasMore: false,
-    stats: { total: 0, pending: 0, mastered: 0, reviewed: 0 },
+    stats: { total: 0, pending: 0, mastered: 0, reviewed: 0, dueToday: 0 },
+    planMastery: 0,
+    planButtonText: '开始复习',
     reviewed: [],          // 已复习：答对过但熟练度未满 100 的题（2026-09-13 新增口径）
     loading: false,
     loadingMore: false,
@@ -40,6 +49,17 @@ Page({
     // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
     needLogin: false,
     gateText: ''
+  },
+
+  onLoad: function () {
+    var typeOptions = [{ key: '', label: '全部题型' }];
+    (constants.TYPE_CODES || []).forEach(function (code) {
+      typeOptions.push({
+        key: code,
+        label: (constants.TYPES[code] && constants.TYPES[code].name) || code
+      });
+    });
+    this.setData({ typeOptions: typeOptions });
   },
 
   onShow: function () {
@@ -80,16 +100,23 @@ Page({
 
     self.setData({ loading: true, page: page, loadError: '' });
 
-    request.get(view.listUrl(scope, page, PAGE_N, this.data.q)).then(function (data) {
+    request.get(view.listUrl(scope, page, PAGE_N, this.data.q, {
+      type: this.data.curType,
+      sort: this.data.sortKey
+    })).then(function (data) {
       // 老服务端兼容：没有 items 字段说明返回的是老的 { pending, mastered, total }
       if (!data || !data.items) {
-        return self.setData(Object.assign(view.applyLegacy(data), {
+        var legacyPatch = Object.assign(view.applyLegacy(data), {
           loading: false, loadingMore: false, loadError: ''
-        }));
+        });
+        Object.assign(legacyPatch, self._planPatch(legacyPatch.stats));
+        return self.setData(legacyPatch);
       }
       // 翻页一律按「替换」处理（原来 isReset=false 是追加，现在没有追加语义了）
-      self.setData(Object.assign(view.applyPage(self.data, data, true),
-        { loading: false, loadingMore: false, loadError: '' }));
+      var patch = Object.assign(view.applyPage(self.data, data, true),
+        { loading: false, loadingMore: false, loadError: '' });
+      Object.assign(patch, self._planPatch(patch.stats));
+      self.setData(patch);
     }).catch(function (err) {
       // 诊断日志：失败不再静默
       if (typeof console !== 'undefined' && console.warn) {
@@ -119,6 +146,93 @@ Page({
     this.loadWrongBook(true);
   },
 
+  _masteryPct: function (stats) {
+    var s = stats || {};
+    var total = Number(s.total) || 0;
+    return total ? Math.round((Number(s.mastered) || 0) / total * 100) : 0;
+  },
+
+  _planPatch: function (stats) {
+    var s = stats || {};
+    return {
+      planMastery: this._masteryPct(s),
+      planButtonText: Number(s.dueToday) > 0
+        ? ('复习今日 ' + s.dueToday + ' 题')
+        : (Number(s.pending) > 0 ? '复习薄弱题' : '今日已完成')
+    };
+  },
+
+  openFilter: function () {
+    this.setData({ filterShow: true });
+  },
+
+  closeFilter: function () {
+    this.setData({ filterShow: false });
+  },
+
+  noop: function () {},
+
+  pickType: function (e) {
+    var key = e.currentTarget.dataset.key || '';
+    var label = '全部题型';
+    (this.data.typeOptions || []).some(function (t) {
+      if (t.key === key) { label = t.label; return true; }
+      return false;
+    });
+    this.setData({ curType: key, typeLabelNow: label, filterShow: false });
+    this.loadWrongBook(true);
+  },
+
+  pickSort: function (e) {
+    var key = e.currentTarget.dataset.key || 'due';
+    var labels = { due: '按到期时间', wrong: '按错误次数', mastery: '按熟练度' };
+    this.setData({ sortKey: key, sortLabelNow: labels[key] || labels.due, filterShow: false });
+    this.loadWrongBook(true);
+  },
+
+  clearFilters: function () {
+    this.setData({
+      curType: '',
+      typeLabelNow: '全部题型',
+      sortKey: 'due',
+      sortLabelNow: '按到期时间',
+      filterShow: false
+    });
+    this.loadWrongBook(true);
+  },
+
+  toggleAnswer: function (e) {
+    var recordId = e.currentTarget.dataset.id;
+    if (!recordId) return;
+    var patch = {};
+    var tab = this.data.activeTab;
+    var listKey = tab === 'pending' ? 'pending' : tab;
+    var list = (this.data[listKey] || []).map(function (it) {
+      return it.recordId === recordId
+        ? Object.assign({}, it, { showAnswer: !it.showAnswer })
+        : it;
+    });
+    patch[listKey] = list;
+    if (tab === 'pending') {
+      patch.renderList = view.groupPending(list);
+      patch.visible = patch.renderList;
+    }
+    this.setData(patch);
+  },
+
+  openItemMore: function (e) {
+    var id = e.currentTarget.dataset.id;
+    if (!id) return;
+    var self = this;
+    wx.showActionSheet({
+      itemList: ['查看/隐藏答案', '移出错题本'],
+      success: function (res) {
+        if (res.tapIndex === 0) self.toggleAnswer({ currentTarget: { dataset: { id: id } } });
+        if (res.tapIndex === 1) self._confirmRemove(id);
+      }
+    });
+  },
+
   /** 翻页：上一页 / 下一页（替换式，不追加） */
   goPage: function (e) {
     var dir = parseInt(e.currentTarget.dataset.dir, 10);
@@ -145,9 +259,13 @@ Page({
    * 幂等：接口对「已删除/不存在」返回 removed=0，这里都按成功处理。
    */
   removeItem: function (e) {
-    var self = this;
     var recordId = e.currentTarget.dataset.id;
     if (!recordId) return;
+    this._confirmRemove(recordId);
+  },
+
+  _confirmRemove: function (recordId) {
+    var self = this;
 
     wx.showModal({
       title: '移出错题本',
@@ -173,7 +291,8 @@ Page({
 
   // 开始复习
   startReview: function () {
-    wx.navigateTo({ url: '/pages/wrong-review/wrong-review' });
+    var due = Number(this.data.stats.dueToday) > 0;
+    wx.navigateTo({ url: '/pages/wrong-review/wrong-review' + (due ? '?due=1' : '') });
   },
 
   /**

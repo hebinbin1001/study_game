@@ -42,7 +42,7 @@ const PAGES = [
   {
     path: 'pages/wrong-book/wrong-book',
     name: 'wrong-book',
-    selectors: ['.page-wrong-book', '.stats-bar', '.tabs']
+    selectors: ['.page-wrong-book', '.plan-card', '.filter-row', '.tabs']
   },
   {
     path: 'pages/wrong-review/wrong-review',

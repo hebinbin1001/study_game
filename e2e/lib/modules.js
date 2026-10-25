@@ -80,12 +80,13 @@ const MODULES = [
   {
     id: 'user',
     name: '用户与成长（段位 / 成就 / 皮肤 / 错题本 / 复习 / 签到）',
-    stages: ['m2m4', 'rank', 'dailyCheckin'],
+    stages: ['m2m4', 'rank', 'dailyCheckin', 'wrongBookUx'],
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
       'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review', 'rank-badge',
       'auth-guard', 'admin-auth', 'rel-time',
       // 2026-10-08 补登记：这两个一直没归到模块，跑 --module=user 时会漏掉
-      'exam-gate', 'nickname-util', 'ranklist-sql-alias', 'pk-ui', 'daily-checkin-flow']
+      'exam-gate', 'nickname-util', 'ranklist-sql-alias', 'pk-ui', 'daily-checkin-flow',
+      'study-pages-ux']
   },
   {
     id: 'social',
@@ -150,6 +151,8 @@ const STAGE_MODULE = {
   admin: 'user'
   ,
   dailyCheckin: 'user'
+  ,
+  wrongBookUx: 'user'
   ,
   social: 'social'
 };
