@@ -1,26 +1,41 @@
-<!-- 错题本列表页 -->
+<!-- 错题本列表页
+     2026-10-25 信息架构重排（本轮）：
+       改造前：标题行 + 搜索 + 计划卡 + 3 tab + 筛选行 = 5 块控件压在列表上方，
+              且「待复习 N」「已掌握 N」在计划卡和 tab 里各出现一次。
+       改造后：顶栏（返回/标题/搜索/筛选）+ 一行分段（统计与 tab 二合一）= 2 行，
+              主操作「开始复习」固定在底部；筛选（题型/排序）收进 ⋯ 弹层。
+     ⚠️ 刻意保留的既有特性（别改回去）：
+       · 答案默认收起，点「点击查看答案」才显示（2026-09-13 定的，E2E 有断言）
+       · 搜索走服务端（wrong-book-view.listUrl 的 q 参数），端上只加载一页
+       · 翻页是「替换式」不是「加载更多」（2026-10-08 定的）
+       · 移除单条走 ⋯ 动作面板，不占卡片主视线
+-->
 <view class="page-wrong-book">
-  <!-- M5 T2.3 门禁：直接 URL / 分享链接进来且未登录时，先引导登录（不请求数据） -->
+  <!-- 门禁：直接 URL / 分享链接进来且未登录时，先引导登录（不请求数据） -->
   <view class="gate-bar" wx:if="{{needLogin}}">
     <text class="gate-emoji">🔒</text>
     <text class="gate-text">{{gateText}}</text>
     <button class="gate-btn" bindtap="onGateLogin">去登录</button>
   </view>
 
-  <view class="book-head">
-    <view class="book-title-sub">先复习到期题，再整理已掌握</view>
-    <view class="book-head-count">{{stats.total}} 题</view>
+  <!-- 顶栏：返回 / 标题 / 搜索 / 筛选 -->
+  <view class="wb-head">
+    <view class="wb-back" bindtap="goBack">‹</view>
+    <view class="wb-head-t">
+      <view class="wb-title">错题本</view>
+      <view class="wb-head-sub">共 {{stats.total}} 题 · 已掌握 {{planMastery}}%</view>
+    </view>
+    <view class="wb-icon {{searchOpen ? 'on' : ''}}" bindtap="toggleSearch">🔍</view>
+    <view class="wb-icon filter-btn" bindtap="openFilter">⋯</view>
   </view>
 
-  <!-- 统计卡 -->
-  <!-- 搜索（2026-10-08）：错题攒多了以后要能按关键字找。
-       ⚠️ 搜索是**服务端**做的（见 wrong-book-view.listUrl 的 q 参数）——
-       端上只加载了一页，在端上筛等于「只在已加载的 20 条里找」，用户会以为搜不到。 -->
-  <view class="wb-search">
+  <!-- 搜索（默认收起；点 🔍 展开）。搜索是服务端做的，见 wrong-book-view.listUrl 的 q 参数 -->
+  <view class="wb-search" wx:if="{{searchOpen}}">
     <input
       class="wb-search-input"
       placeholder="搜题目 / 答案"
       value="{{q}}"
+      focus="{{searchOpen}}"
       bindinput="onSearchInput"
       bindconfirm="onSearch"
       confirm-type="search" />
@@ -28,34 +43,23 @@
     <view class="wb-search-btn" bindtap="onSearch">搜索</view>
   </view>
 
-  <view class="plan-card">
-    <view class="plan-main">
-      <view class="plan-kicker">今日复习计划</view>
-      <view class="plan-value"><text class="plan-num">{{stats.dueToday}}</text> 题到期</view>
-      <view class="plan-sub">待复习 {{stats.pending}} · 已掌握 {{stats.mastered}} · {{planMastery}}%</view>
+  <!-- 一行分段：统计与 tab 合并（原来「计划卡 + 3 tab」两块，数字重复两遍） -->
+  <view class="wb-chips">
+    <view class="wb-chip {{activeTab === 'pending' ? 'on' : ''}}" data-tab="pending" bindtap="switchTab">
+      待复习 <text class="wb-chip-n">{{stats.pending}}</text>
     </view>
-    <button class="plan-btn" disabled="{{stats.pending === 0}}" bindtap="startReview">
-      {{planButtonText}}
-    </button>
-  </view>
-
-  <!-- 标签切换 -->
-  <view class="tabs">
-    <view class="tab {{activeTab === 'pending' ? 'active' : ''}}" data-tab="pending" bindtap="switchTab">
-      待复习 {{stats.pending}}
+    <view class="wb-chip {{activeTab === 'reviewed' ? 'on' : ''}}" data-tab="reviewed" bindtap="switchTab">
+      复习中 <text class="wb-chip-n">{{stats.reviewed}}</text>
     </view>
-    <view class="tab {{activeTab === 'reviewed' ? 'active' : ''}}" data-tab="reviewed" bindtap="switchTab">
-      复习中 {{stats.reviewed}}
-    </view>
-    <view class="tab {{activeTab === 'mastered' ? 'active' : ''}}" data-tab="mastered" bindtap="switchTab">
-      已掌握 {{stats.mastered}}
+    <view class="wb-chip {{activeTab === 'mastered' ? 'on' : ''}}" data-tab="mastered" bindtap="switchTab">
+      已掌握 <text class="wb-chip-n">{{stats.mastered}}</text>
     </view>
   </view>
 
-  <view class="filter-row">
-    <view class="filter-btn" bindtap="openFilter">题型：{{typeLabelNow}}</view>
-    <view class="filter-btn" bindtap="openFilter">排序：{{sortLabelNow}}</view>
-    <view wx:if="{{curType || sortKey !== 'due'}}" class="filter-clear" bindtap="clearFilters">重置</view>
+  <!-- 筛选生效时的提示条（题型/排序不是默认值才显示） -->
+  <view wx:if="{{curType || sortKey !== 'due'}}" class="wb-filter-tip">
+    <text>已筛选：{{typeLabelNow}} · {{sortLabelNow}}</text>
+    <text class="wb-filter-reset" bindtap="clearFilters">重置</text>
   </view>
 
   <!-- 加载失败提示（点击重试） -->
@@ -65,37 +69,37 @@
     <view class="empty-text">点这里重试</view>
   </view>
 
-  <!-- 待复习列表（按到期分组 + 分批加载，错题多时更友好） -->
+  <!-- ============ 待复习 ============ -->
   <view class="list" wx:if="{{activeTab === 'pending'}}">
     <block wx:for="{{visible}}" wx:key="index">
       <!-- 分组标题行（已到期 / 明天 / N天后） -->
-      <view wx:if="{{item.t === 'g'}}" style="padding:18rpx 12rpx 4rpx;font-size:24rpx;font-weight:800;color:#8a9bb5;">⏰ {{item.text}}</view>
+      <view wx:if="{{item.t === 'g'}}" class="wb-group">{{item.text}}</view>
       <!-- 错题卡片 -->
-      <view wx:elif="{{item.t === 'c'}}" class="item-card" bindtap="practiceItem" data-id="{{item.it.recordId}}">
-        <view class="item-header">
-          <text class="item-type tag">{{item.it.typeLabel}}</text>
-          <text class="item-mastery">熟练度 {{item.it.mastery}}%</text>
-        </view>
-        <view class="item-question">
-          <text class="question-text">{{item.it.question.q}}</text>
+      <view wx:elif="{{item.t === 'c'}}" class="item-card"
+            bindtap="practiceItem" data-id="{{item.it.recordId}}"
+            bindlongpress="openItemMore">
+        <view class="q-main">
+          <view class="q-top">
+            <text class="item-type tag">{{item.it.typeLabel}}</text>
+            <text wx:if="{{item.it.mastery > 0}}" class="q-mastery">{{item.it.mastery}}%</text>
+          </view>
+          <view class="q-text">{{item.it.question.q}}</view>
           <text wx:if="{{item.it.showAnswer}}" class="question-answer">答案：{{item.it.question.a}}</text>
           <text wx:else class="answer-peek" data-id="{{item.it.recordId}}" catchtap="toggleAnswer">点击查看答案</text>
+          <view class="q-meta">
+            <text>错 {{item.it.wrongCount}} 次</text>
+            <text class="q-sep">·</text>
+            <text>{{item.it.reviewStageText}}</text>
+            <text class="q-sep">·</text>
+            <text>{{item.it.nextReviewText}}</text>
+          </view>
+          <view wx:if="{{item.it.mastery > 0}}" class="q-bar"><view class="q-bar-in" style="width: {{item.it.mastery}}%"></view></view>
         </view>
-        <view class="item-meta">
-          <text class="meta-text">错误 {{item.it.wrongCount}} 次</text>
-          <text class="meta-text">{{item.it.reviewStageText}}</text>
-          <text class="meta-text">{{item.it.nextReviewText}}</text>
-          <text class="meta-go">开始练习 →</text>
-          <text class="meta-more" data-id="{{item.it.recordId}}" catchtap="openItemMore">···</text>
-        </view>
-        <view class="progress-bar">
-          <view class="progress-bar__fill" style="width: {{item.it.reviewProgress * 20}}%"></view>
-        </view>
+        <view class="q-side">›</view>
       </view>
     </block>
 
-    <!-- 翻页（2026-10-08）：原来是「加载更多」追加式，改成翻页替换式 ——
-         追加式想回头看第 3 页得从头再加载，也看不出自己翻到哪了。 -->
+    <!-- 翻页（替换式；与后端 scope+page 对齐） -->
     <view wx:if="{{totalPages > 1}}" class="wb-pager">
       <view class="wb-pager-btn {{page <= 1 || loading ? 'dis' : ''}}" data-dir="-1" bindtap="goPage">上一页</view>
       <view class="wb-pager-info">第 {{page}} / {{totalPages}} 页</view>
@@ -106,34 +110,32 @@
       <view class="empty-emoji">📝</view>
       <view class="empty-text">暂无待复习题目，太棒啦！</view>
     </view>
-    <!-- 原来这里还要求 !hasMore（「加载完才能开始复习」）——
-         改成翻页后 hasMore 的语义变成「还有下一页」，这个条件会把按钮永久藏起来。 -->
-    <button class="btn-review" wx:if="{{pending.length > 0}}" bindtap="startReview">✏️ 开始复习</button>
+
+    <view wx:if="{{pending.length > 0}}" class="wb-hint">长按错题卡可查看答案 / 移出错题本</view>
   </view>
 
-  <!-- 已掌握列表 -->
-  <!-- 已复习列表：复习过（答对过）但熟练度还没满 100 的题（用户 2026-09-13 新增口径） -->
+  <!-- ============ 复习中（答对过但熟练度未满 100） ============ -->
   <view class="list" wx:if="{{activeTab === 'reviewed'}}">
     <view class="list-tip">这些题你已经复习过、但熟练度还没满 100%；继续复习满 100% 就会进「已掌握」</view>
     <block wx:for="{{reviewed}}" wx:key="recordId">
-      <view class="item-card" bindtap="practiceItem" data-id="{{item.recordId}}">
-        <view class="item-header">
-          <text class="item-type tag">{{item.typeLabel}}</text>
-          <text class="item-mastery">熟练度 {{item.mastery}}% · 复习过 {{item.reviewCount}} 次</text>
-        </view>
-        <view class="item-question">
-          <text class="question-text">{{item.question.q}}</text>
+      <view class="item-card" bindtap="practiceItem" data-id="{{item.recordId}}"
+            bindlongpress="openItemMore">
+        <view class="q-main">
+          <view class="q-top">
+            <text class="item-type tag">{{item.typeLabel}}</text>
+            <text wx:if="{{item.mastery > 0}}" class="q-mastery">{{item.mastery}}%</text>
+          </view>
+          <view class="q-text">{{item.question.q}}</view>
           <text wx:if="{{item.showAnswer}}" class="question-answer">答案：{{item.question.a}}</text>
           <text wx:else class="answer-peek" data-id="{{item.recordId}}" catchtap="toggleAnswer">点击查看答案</text>
+          <view class="q-meta">
+            <text>错 {{item.wrongCount}} 次</text>
+            <text class="q-sep">·</text>
+            <text>已复习 {{item.reviewCount}} 次</text>
+          </view>
+          <view wx:if="{{item.mastery > 0}}" class="q-bar"><view class="q-bar-in" style="width: {{item.mastery}}%"></view></view>
         </view>
-        <view class="item-meta">
-          <text class="meta-text">错误 {{item.wrongCount}} 次</text>
-          <text class="meta-go">开始练习 →</text>
-          <text class="meta-more" data-id="{{item.recordId}}" catchtap="openItemMore">···</text>
-        </view>
-        <view class="progress-bar">
-          <view class="progress-bar__fill" style="width: {{item.mastery}}%"></view>
-        </view>
+        <view class="q-side">›</view>
       </view>
     </block>
     <view wx:if="{{totalPages > 1}}" class="wb-pager">
@@ -147,26 +149,26 @@
     </view>
   </view>
 
+  <!-- ============ 已掌握 ============ -->
   <view class="list" wx:if="{{activeTab === 'mastered'}}">
     <view class="list-tip">熟练度满 100%（连续答对 5 次）才进入「已掌握」；答对但还没满的题会顺延复习时间，仍留在「待复习」</view>
     <block wx:for="{{mastered}}" wx:key="recordId">
-      <view class="item-card mastered">
-        <view class="item-header">
-          <text class="item-type tag tag--green">{{item.typeLabel}}</text>
-          <text class="item-mastery">🏅 已掌握</text>
-        </view>
-        <view class="item-question">
-          <text class="question-text">{{item.question.q}}</text>
+      <view class="item-card mastered" bindlongpress="openItemMore" data-id="{{item.recordId}}">
+        <view class="q-main">
+          <view class="q-top">
+            <text class="item-type tag tag--green">{{item.typeLabel}}</text>
+            <text class="q-mastery ok">🏅 已掌握</text>
+          </view>
+          <view class="q-text">{{item.question.q}}</view>
           <text wx:if="{{item.showAnswer}}" class="question-answer">答案：{{item.question.a}}</text>
           <text wx:else class="answer-peek" data-id="{{item.recordId}}" catchtap="toggleAnswer">点击查看答案</text>
+          <view class="q-meta">
+            <text>错 {{item.wrongCount}} 次</text>
+          </view>
         </view>
-        <view class="item-meta">
-          <text class="meta-text">错误 {{item.wrongCount}} 次</text>
-          <text class="meta-more" data-id="{{item.recordId}}" catchtap="openItemMore">···</text>
-        </view>
+        <view class="q-side">›</view>
       </view>
     </block>
-    <!-- 翻页（同待复习 tab） -->
     <view wx:if="{{totalPages > 1}}" class="wb-pager">
       <view class="wb-pager-btn {{page <= 1 || loading ? 'dis' : ''}}" data-dir="-1" bindtap="goPage">上一页</view>
       <view class="wb-pager-info">第 {{page}} / {{totalPages}} 页</view>
@@ -179,6 +181,12 @@
     </view>
   </view>
 
+  <!-- ============ 底部固定主操作（唯一主 CTA） ============ -->
+  <view class="wb-foot" wx:if="{{activeTab === 'pending' && pending.length > 0}}">
+    <button class="btn-review" bindtap="startReview">{{planButtonText}}</button>
+  </view>
+
+  <!-- ============ 筛选弹层（题型 + 排序） ============ -->
   <view wx:if="{{filterShow}}" class="filter-mask" bindtap="closeFilter">
     <view class="filter-sheet" catchtap="noop">
       <view class="filter-head">

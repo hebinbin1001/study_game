@@ -473,3 +473,55 @@
 .bk-grade-ic { font-size: 24rpx; }
 .bk-grade-tx { font-size: 24rpx; font-weight: 900; color: #2f4a6b; }
 .bk-grade-go { font-size: 20rpx; font-weight: 800; color: #4285F4; }
+
+/* ===== 2026-10-25 详情层信息架构重排：顶栏图标 / 筛选入口 / 瘦身词条行 / 筛选弹层 ===== */
+.detail-icon {
+  flex: 0 0 auto;
+  width: 60rpx; height: 60rpx;
+  line-height: 60rpx; text-align: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  color: #4a6b8a;
+  font-size: 26rpx; font-weight: 900;
+  box-shadow: 0 4rpx 0 rgba(47, 96, 145, .16);
+}
+.detail-icon:active { transform: translateY(3rpx); }
+.detail-icon.on { background: #4a90d9; color: #fff; box-shadow: 0 4rpx 0 #2f6ba8; }
+
+/* 筛选入口：固定在掌握状态那行右侧，不参与三等分
+   （⚠️ 刻意不叫 .bk-mf：E2E 断言 .bk-mf 恰为 3 个） */
+.bk-mf-filter {
+  flex: 0 0 118rpx;
+  text-align: center;
+  padding: 12rpx 0;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, .92);
+  color: #4a6b8a;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+.bk-mf-filter.on { background: #ffb703; color: #fff; }
+
+/* 词条副行：答案与释义合成一行（原来 q / a / hint 各占一处，英文词会显示成「apple apple」） */
+.bk-sub {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #5c7f9e;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bk-sub .bk-a { font-size: 24rpx; font-weight: 800; color: #2fa96b; }
+.bk-sub .bk-sep { opacity: .5; }
+
+/* 筛选弹层（与错题本同一套视觉） */
+.filter-mask { position: fixed; inset: 0; z-index: 70; display: flex; align-items: flex-end; background: rgba(20, 38, 55, .48); }
+.filter-sheet { width: 100%; box-sizing: border-box; padding: 28rpx 28rpx calc(34rpx + env(safe-area-inset-bottom)); border-radius: 30rpx 30rpx 0 0; background: #fff; }
+.filter-head { display: flex; align-items: center; justify-content: space-between; }
+.filter-title { font-size: 32rpx; font-weight: 900; color: #2f4a6b; }
+.filter-close { font-size: 25rpx; font-weight: 800; color: #2f80ed; padding: 8rpx 4rpx; }
+.filter-label { margin: 24rpx 0 12rpx; font-size: 22rpx; font-weight: 800; color: #7b93ad; }
+.filter-chips { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.filter-chip { padding: 13rpx 22rpx; border-radius: 999rpx; background: #f0f5fa; color: #5c7f9e; font-size: 23rpx; font-weight: 800; }
+.filter-chip.on { background: #2f80ed; color: #fff; }

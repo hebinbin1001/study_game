@@ -11,6 +11,13 @@
   margin-bottom: 16rpx;
 }
 
+/* 进度行：本关第几题 + 实时答对数（2026-10-25：进度按本关算，不再是整池的 0.9%） */
+.progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
 .progress-text {
   font-size: 24rpx;
   font-weight: 700;
@@ -18,8 +25,14 @@
   background: rgba(255, 255, 255, 0.28);
   padding: 8rpx 24rpx;
   border-radius: 24rpx;
-  display: inline-block;
-  margin-bottom: 28rpx;
+}
+.progress-right {
+  font-size: 24rpx;
+  font-weight: 900;
+  color: #ffffff;
+  background: rgba(123, 211, 137, 0.92);
+  padding: 8rpx 22rpx;
+  border-radius: 24rpx;
 }
 
 /* ============ 题目卡片 ============ */
@@ -145,7 +158,7 @@
 }
 
 .btn-restart {
-  width: 400rpx;
+  width: 440rpx;
   padding: 24rpx 0;
   background: #7bd389;
   color: #ffffff;
@@ -166,6 +179,40 @@
 
 button.btn-restart::after {
   border: none;
+}
+
+/* 结算页「批量移出」：次要操作，不能抢「再来一关」的主视觉 */
+.btn-bulk {
+  width: 440rpx;
+  padding: 20rpx 0;
+  background: #fdeeea;
+  color: #c9542f;
+  font-size: 26rpx;
+  font-weight: 800;
+  border-radius: 40rpx;
+  line-height: 1.4;
+  margin-bottom: 24rpx;
+  box-shadow: 0 6rpx 0 rgba(201, 84, 47, 0.16);
+  transition: transform 0.12s;
+}
+
+.btn-bulk:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 2rpx 0 rgba(201, 84, 47, 0.16);
+}
+
+button.btn-bulk::after {
+  border: none;
+}
+
+/* 结算页提示（没有更多题 / 下次到期说明） */
+.completed-tip {
+  font-size: 24rpx;
+  color: #5c7f9e;
+  line-height: 1.5;
+  text-align: center;
+  margin: -24rpx 0 36rpx;
+  padding: 0 20rpx;
 }
 
 /* ============ 对/错反馈（居中弹出） ============ */

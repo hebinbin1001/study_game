@@ -100,6 +100,8 @@ Page({
     curType: 'all',
     mFilter: 'all',       // all | weak | learned
     keyword: '',
+    searchOpen: false,     // 搜索框是否展开（2026-10-25：收进顶栏 🔍，把首屏让给词条列表）
+    filterShow: false,     // 筛选弹层（题型 + 排序）
 
     // 统计
     totalAll: 0,
@@ -451,7 +453,7 @@ Page({
   /** 切换排序方向（正序 / 倒序）。sortKey 保留，便于以后加「掌握度优先」这类排序 */
   pickSort: function (e) {
     var dir = parseInt(e.currentTarget.dataset.dir, 10) || 1;
-    this.setData({ sortKey: 'py', sortDesc: dir < 0 });
+    this.setData({ sortKey: 'py', sortDesc: dir < 0, filterShow: false });
     this._page = 1;
     this._applyFilter();
   },
@@ -534,8 +536,22 @@ Page({
     this._render();
   },
 
+  /** 展开 / 收起搜索框（2026-10-25：搜索原来常驻占一行，现在收进顶栏 🔍） */
+  toggleSearch: function () {
+    this.setData({ searchOpen: !this.data.searchOpen });
+  },
+
+  /** 打开筛选弹层（题型 + 排序） */
+  openFilter: function () {
+    this.setData({ filterShow: true });
+  },
+
+  closeFilter: function () {
+    this.setData({ filterShow: false });
+  },
+
   pickType: function (e) {
-    this.setData({ curType: e.currentTarget.dataset.key });
+    this.setData({ curType: e.currentTarget.dataset.key, filterShow: false });
     this._page = 1;
     this._applyFilter();
   },

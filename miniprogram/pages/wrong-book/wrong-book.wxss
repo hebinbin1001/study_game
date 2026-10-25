@@ -1,15 +1,66 @@
-/* ===== 搜索（2026-10-08）===== */
+/* 错题本列表页样式
+   2026-10-25 信息架构重排：顶栏 + 一行分段（统计与 tab 二合一）+ 瘦卡片 + 固定底部主操作。
+   颜色取值与 app.wxss 的全局 token 一一对应（页面 wxss 沿用字面值，与既有约定一致）：
+     #3a3a5c=--ink  #5c7f9e=--text-sub  #8a9bb5=--text-mute
+     #ffb703=--orange  #7bd389=--green  #4cc9f0=--blue  #eef2f8=--bg-soft
+*/
+
+.page-wrong-book {
+  padding: 16rpx 24rpx calc(220rpx + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  box-sizing: border-box;
+  color: #3a3a5c;
+}
+
+/* ============ 顶栏：返回 / 标题 / 搜索 / 筛选 ============ */
+.wb-head {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 8rpx 0 16rpx;
+}
+.wb-back {
+  flex: none;
+  width: 60rpx; height: 60rpx;
+  line-height: 54rpx; text-align: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #5c7f9e;
+  font-size: 34rpx;
+  box-shadow: 0 5rpx 0 rgba(47, 96, 145, .2);
+}
+.wb-back:active { transform: translateY(3rpx); }
+.wb-head-t { flex: 1; min-width: 0; }
+.wb-title {
+  font-size: 34rpx; font-weight: 900; color: #fff; letter-spacing: 2rpx;
+  text-shadow: 0 3rpx 0 rgba(0, 0, 0, .14);
+}
+.wb-head-sub { margin-top: 2rpx; font-size: 20rpx; color: rgba(255, 255, 255, .92); }
+.wb-icon {
+  flex: none;
+  width: 60rpx; height: 60rpx;
+  line-height: 60rpx; text-align: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  color: #5c7f9e;
+  font-size: 26rpx; font-weight: 900;
+  box-shadow: 0 5rpx 0 rgba(47, 96, 145, .2);
+}
+.wb-icon:active { transform: translateY(3rpx); }
+.wb-icon.on { background: #ffb703; color: #fff; box-shadow: 0 5rpx 0 #cf8600; }
+
+/* ============ 搜索（默认收起，点 🔍 展开）============ */
 .wb-search {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin: 20rpx 0 6rpx;
+  margin: 0 0 16rpx;
 }
 .wb-search-input {
   flex: 1;
-  height: 76rpx;
+  height: 72rpx;
   padding: 0 78rpx 0 24rpx;
-  border-radius: 38rpx;
+  border-radius: 36rpx;
   background: #fff;
   font-size: 26rpx;
   color: #3a3a5c;
@@ -18,7 +69,7 @@
 /* 清空按钮压在输入框里（负 margin 让它在 flex 布局里不额外占位） */
 .wb-search-clear {
   flex: 0 0 auto;
-  position: relative; /* 2026-10-18：配合 ::after 扩大点击热区 */
+  position: relative;
   width: 52rpx; height: 52rpx; line-height: 52rpx; text-align: center;
   border-radius: 50%;
   background: #eef3fa;
@@ -39,23 +90,174 @@
 }
 .wb-search-btn {
   flex: 0 0 auto;
-  height: 76rpx; line-height: 76rpx;
-  padding: 0 34rpx;
-  border-radius: 38rpx;
+  height: 72rpx; line-height: 72rpx;
+  padding: 0 32rpx;
+  border-radius: 36rpx;
   background: linear-gradient(135deg, #6fc3ff, #3f8fe0);
   color: #fff; font-size: 26rpx; font-weight: 800;
-  box-shadow: 0 6rpx 0 rgba(30, 90, 150, .2);
+  box-shadow: 0 5rpx 0 rgba(30, 90, 150, .2);
 }
 .wb-search-btn:active { transform: translateY(3rpx); }
 
-/* ===== 翻页（2026-10-08，替掉原来的「加载更多」）=====
-   追加式的问题是：想回头看第 3 页得从头再加载，也看不出自己翻到哪了。 */
+/* ============ 一行分段：统计与 tab 二合一 ============ */
+.wb-chips {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+.wb-chip {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 6rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .92);
+  color: #2c4a6b;
+  font-size: 24rpx; font-weight: 800;
+  box-shadow: 0 5rpx 0 rgba(47, 96, 145, .2);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.wb-chip.on {
+  background: linear-gradient(180deg, #ffd45c, #ffb703);
+  color: #fff;
+  box-shadow: 0 5rpx 0 #cf8600;
+  text-shadow: 0 2rpx 0 rgba(0, 0, 0, .1);
+}
+.wb-chip-n { font-weight: 900; }
+
+/* 筛选生效提示条 */
+.wb-filter-tip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12rpx 20rpx;
+  margin-bottom: 12rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, .88);
+  color: #42637f;
+  font-size: 22rpx; font-weight: 700;
+}
+.wb-filter-reset { color: #2e6fd6; font-weight: 900; }
+
+/* ============ 列表 ============ */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+.wb-group {
+  padding: 12rpx 4rpx 2rpx;
+  font-size: 22rpx; font-weight: 800;
+  color: #fff;
+  opacity: .95;
+  text-shadow: 0 2rpx 0 rgba(0, 0, 0, .12);
+}
+
+/* 错题卡片：一列信息（题型/熟练度 → 题干 → 答案/查看 → meta → 熟练度条），右侧一个箭头 */
+.item-card {
+  display: flex;
+  gap: 12rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 20rpx 22rpx;
+  box-shadow: 0 6rpx 0 rgba(47, 96, 145, .18);
+}
+.item-card:active { transform: translateY(3rpx); box-shadow: 0 3rpx 0 rgba(47, 96, 145, .18); }
+.item-card.mastered { background: #fbfffc; }
+
+.q-main { flex: 1; min-width: 0; }
+.q-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+.item-type {
+  background: rgba(255, 183, 3, .16);
+  color: #b07a00;
+  font-size: 20rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tag--green { background: rgba(123, 211, 137, .2); color: #2e8b57; }
+.q-mastery { flex: none; font-size: 20rpx; font-weight: 800; color: #4cc9f0; }
+.q-mastery.ok { color: #2e8b57; }
+
+.q-text {
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #3a3a5c;
+  line-height: 1.35;
+  word-break: break-all;
+}
+.question-answer {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 23rpx;
+  color: #5cc07a;
+  font-weight: 700;
+}
+.answer-peek {
+  display: inline-block;
+  margin-top: 6rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: #eef2f8;
+  color: #6b87a3;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+/* meta 一行纯文字（原来是 3 个灰胶囊 + 2 个按钮，太挤） */
+.q-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 10rpx;
+  font-size: 20rpx;
+  color: #8a9bb5;
+}
+.q-sep { opacity: .6; }
+.q-bar {
+  margin-top: 10rpx;
+  height: 6rpx;
+  border-radius: 999rpx;
+  background: #eef2f8;
+  overflow: hidden;
+}
+.q-bar-in {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #8ed49a, #7bd389);
+}
+.q-side {
+  flex: none;
+  width: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b8c4d4;
+  font-size: 30rpx;
+}
+
+/* 长按提示 */
+.wb-hint {
+  text-align: center;
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, .92);
+  padding: 14rpx 0 4rpx;
+}
+
+/* ============ 翻页（替换式，不是「加载更多」）============ */
 .wb-pager {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 24rpx;
-  margin: 26rpx 0 8rpx;
+  margin: 22rpx 0 8rpx;
 }
 .wb-pager-btn {
   height: 68rpx; line-height: 68rpx;
@@ -72,318 +274,62 @@
   background: #f2f5f9;
   box-shadow: none;
 }
-.wb-pager-info { font-size: 24rpx; color: #6b87a3; font-weight: 700; }
+.wb-pager-info { font-size: 24rpx; color: #2c4a6b; font-weight: 700; }
 
-/* 错题本列表页（wrong-book）—— 暖色天空卡通风（与 app.wxss 全局主题一致） */
-.page-wrong-book {
-  padding: 20rpx 28rpx calc(48rpx + env(safe-area-inset-bottom));
-  min-height: 100vh;
-  box-sizing: border-box;
-  color: #3a3a5c;
-}
-
-.book-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 14rpx 4rpx 16rpx;
-}
-.book-title-sub { flex: 1; font-size: 22rpx; color: rgba(255,255,255,.92); }
-.book-head-count {
-  flex: 0 0 auto; padding: 10rpx 20rpx; border-radius: 999rpx;
-  background: rgba(255,255,255,.88); color: #3c6484; font-size: 22rpx; font-weight: 800;
-}
-
-.plan-card {
-  display: flex;
-  align-items: center;
-  gap: 20rpx;
-  padding: 24rpx;
-  border-radius: 28rpx;
-  background: #fff;
-  box-shadow: 0 8rpx 0 rgba(0,0,0,.08), 0 16rpx 30rpx rgba(0,0,0,.08);
-}
-.plan-main { flex: 1; min-width: 0; }
-.plan-kicker { font-size: 21rpx; color: #6b87a3; font-weight: 800; }
-.plan-value { margin-top: 2rpx; font-size: 25rpx; color: #3a3a5c; font-weight: 800; }
-.plan-num { font-size: 52rpx; line-height: 1.05; color: #ff7a45; font-weight: 900; }
-.plan-sub { margin-top: 6rpx; font-size: 21rpx; color: #7c94aa; }
-.plan-btn {
-  flex: 0 0 190rpx;
-  width: 190rpx;
-  height: 80rpx;
-  line-height: 80rpx;
-  margin: 0;
-  padding: 0;
-  border-radius: 40rpx;
-  background: #2f80ed;
-  color: #fff;
-  font-size: 26rpx;
-  font-weight: 900;
-}
-.plan-btn::after { border: none; }
-.plan-btn[disabled] { background: #d9e4ef; color: #8fa3b5; }
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  margin-top: 18rpx;
-}
-.filter-btn {
-  flex: 1;
-  min-width: 0;
-  height: 66rpx;
-  line-height: 66rpx;
-  padding: 0 20rpx;
-  border-radius: 18rpx;
-  background: rgba(255,255,255,.92);
-  color: #42637f;
-  font-size: 23rpx;
-  font-weight: 800;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.filter-clear {
-  flex: 0 0 auto;
-  padding: 14rpx 18rpx;
-  color: #2f80ed;
-  font-size: 22rpx;
-  font-weight: 800;
-}
-
-/* ============ 页面标题 ============ */
-.book-title-bar {
-  text-align: center;
-  margin: 30rpx 0 28rpx;
-}
-
-.book-title-emoji {
-  font-size: 76rpx;
-  line-height: 1;
-  margin-bottom: 10rpx;
-}
-
-.book-title {
-  font-size: 48rpx;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 8rpx;
-  text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
-}
-
-.book-title-sub {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.92);
-  letter-spacing: 4rpx;
-  margin-top: 8rpx;
-}
-
-/* ============ 统计卡（三格） ============ */
-.stats-bar {
-  display: flex;
-  background: #ffffff;
-  border-radius: 28rpx;
-  padding: 28rpx 20rpx;
-  margin-bottom: 28rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-}
-
-.stat-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6rpx;
-}
-
-.stat-emoji {
-  font-size: 40rpx;
-  line-height: 1;
-}
-
-.stat-number {
-  font-size: 48rpx;
-  font-weight: 900;
-  color: #3b3b5f;
-  line-height: 1.1;
-}
-
-.stat-label {
-  font-size: 22rpx;
-  color: #5c7f9e;
-  font-weight: 700;
-}
-
-.stat-item.pending .stat-number {
-  color: #ff6b9d;
-}
-
-.stat-item.mastered .stat-number {
-  color: #7bd389;
-}
-
-/* ============ 标签切换（胶囊） ============ */
-.tabs {
-  display: flex;
-  gap: 16rpx;
-  margin-bottom: 28rpx;
-  background: rgba(255, 255, 255, 0.28);
-  border-radius: 32rpx;
-  padding: 8rpx;
-}
-
-.tab {
-  flex: 1;
-  text-align: center;
-  padding: 18rpx;
-  font-size: 26rpx;
-  font-weight: 700;
-  color: #ffffff;
-  border-radius: 26rpx;
-  transition: transform 0.12s;
-}
-
-.tab.active {
-  background: #ffb703;
-  color: #ffffff;
-  text-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.1);
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.1);
-}
-
-/* ============ 错题列表（卡片化） ============ */
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.item-card {
-  background: #ffffff;
-  border-radius: 28rpx;
-  padding: 28rpx;
-  border-left: 8rpx solid #4cc9f0;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-}
-
-.item-card.mastered {
-  border-left-color: #7bd389;
-}
-
-.item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18rpx;
-}
-
-.item-type {
-  background: rgba(255, 183, 3, 0.16);
-  color: #b07a00;
-}
-
-.tag--green {
-  background: rgba(127, 211, 160, 0.2);
-  color: #2e8b57;
-}
-
-.item-mastery {
-  font-size: 22rpx;
-  font-weight: 700;
-  color: #4cc9f0;
-}
-
-.item-question {
-  margin-bottom: 18rpx;
-}
-
-.question-text {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #3b3b5f;
-  margin-bottom: 10rpx;
-}
-
-.question-answer {
-  display: block;
-  font-size: 24rpx;
-  color: #7fd8a0;
-  font-weight: 700;
-}
-
-.answer-peek {
-  display: inline-block;
-  margin-top: 6rpx;
-  padding: 6rpx 14rpx;
-  border-radius: 999rpx;
-  background: #eef5fb;
-  color: #6b87a3;
-  font-size: 21rpx;
-  font-weight: 700;
-}
-
-.item-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  margin-bottom: 18rpx;
-}
-
-/* 列表顶部的口径说明（已掌握 tab 用：解释「为什么这里可能是空的」） */
+/* 列表顶部的口径说明 */
 .list-tip {
   padding: 14rpx 18rpx;
   margin: 6rpx 0 10rpx;
   border-radius: 16rpx;
-  background: #eef3fa;
+  background: rgba(255, 255, 255, .85);
   color: #5c7f9e;
   font-size: 22rpx;
   line-height: 1.5;
 }
 
-.meta-text {
-  font-size: 22rpx;
-  color: #5c7f9e;
-  background: #eef3fa;
-  padding: 6rpx 14rpx;
-  border-radius: 20rpx;
+/* ============ 空态 ============ */
+.empty-state {
+  background: rgba(255, 255, 255, .85);
+  border-radius: 28rpx;
+  padding: 50rpx 30rpx;
+  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .06), 0 14rpx 28rpx rgba(0, 0, 0, .06);
+}
+.empty-text {
+  color: #8899aa;
+  font-size: 28rpx;
 }
 
-/* 单条「移除」入口：靠右轻样式，避免抢走卡片主体的注意力 */
-/* 单题练习入口：卡片整体可点，这里给一个可见的操作提示 */
-.meta-go {
-  margin-left: auto;
-  font-size: 22rpx;
-  color: #2e6fd6;
-  background: #eaf2ff;
-  padding: 6rpx 18rpx;
-  border-radius: 20rpx;
-  font-weight: 700;
+/* ============ 底部固定主操作（本页唯一主 CTA）============ */
+.wb-foot {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 14rpx 24rpx calc(14rpx + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(216, 239, 255, 0), rgba(216, 239, 255, .96) 45%);
 }
-
-.meta-del {
-  margin-left: 12rpx;
-  font-size: 22rpx;
-  color: #e2664f;
-  background: #fdeeea;
-  padding: 6rpx 18rpx;
-  border-radius: 20rpx;
-  font-weight: 800;
-}
-
-.meta-more {
-  margin-left: 8rpx;
-  width: 54rpx;
-  text-align: center;
-  font-size: 26rpx;
-  line-height: 42rpx;
-  color: #7c94aa;
-  background: #eef3fa;
-  border-radius: 999rpx;
+.btn-review {
+  width: 100%;
+  margin: 0;
+  padding: 26rpx 0;
+  background: linear-gradient(180deg, #a4e8b4, #7bd389 55%, #5cc07a);
+  color: #fff;
+  font-size: 32rpx;
   font-weight: 900;
+  letter-spacing: 3rpx;
+  border-radius: 999rpx;
+  line-height: 1.3;
+  box-shadow: 0 8rpx 0 #46a763, 0 12rpx 24rpx rgba(70, 167, 99, .3), inset 0 3rpx 0 rgba(255, 255, 255, .6);
+  transition: transform .12s;
 }
+.btn-review:active {
+  transform: translateY(4rpx);
+  box-shadow: 0 3rpx 0 #46a763;
+}
+button.btn-review::after { border: none; }
 
+/* ============ 筛选弹层 ============ */
 .filter-mask {
   position: fixed;
   inset: 0;
@@ -413,69 +359,3 @@
   font-weight: 800;
 }
 .filter-chip.on { background: #2f80ed; color: #fff; }
-
-/* 熟练度进度条：复用全局 .progress-bar / .progress-bar__fill */
-.item-card .progress-bar {
-  margin-top: 4rpx;
-}
-
-/* ============ 空态 ============ */
-.empty-state {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 28rpx;
-  padding: 60rpx 30rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.06), 0 14rpx 28rpx rgba(0, 0, 0, 0.06);
-}
-
-.empty-text {
-  color: #8899aa;
-  font-size: 28rpx;
-}
-
-/* ============ 开始复习按钮 ============ */
-.btn-review {
-  margin-top: 32rpx;
-  padding: 28rpx;
-  background: #7bd389;
-  color: #ffffff;
-  font-size: 34rpx;
-  font-weight: 900;
-  letter-spacing: 4rpx;
-  border-radius: 44rpx;
-  line-height: 1.4;
-  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.14), 0 20rpx 40rpx rgba(0, 0, 0, 0.1);
-  transition: transform 0.12s;
-}
-
-.btn-review:active {
-  transform: translateY(6rpx);
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.14);
-}
-
-button.btn-review::after {
-  border: none;
-}
-
-/* ============ 返回按钮 ============ */
-.btn-back {
-  margin-top: 32rpx;
-  width: 320rpx;
-  padding: 20rpx 0;
-  background: rgba(255, 255, 255, 0.9);
-  color: #3a3a5c;
-  font-size: 30rpx;
-  font-weight: 700;
-  border-radius: 40rpx;
-  line-height: 1.4;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08);
-  transition: transform 0.12s;
-}
-
-.btn-back:active {
-  transform: translateY(4rpx);
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08);
-}
-
-button.btn-back::after {
-  border: none;
-}

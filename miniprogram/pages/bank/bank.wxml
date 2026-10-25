@@ -4,8 +4,10 @@
 -->
 <view class="bk-page">
 
-  <!-- 顶部 -->
-  <view class="bk-head">
+  <!-- 顶部：只在书架层显示。
+       详情层隐藏它 —— 否则会出现三层头部（原生导航栏 + 这里 + 下面的 detail-head），
+       标题和返回箭头都重复一遍。详情层用 detail-head 的「‹ 书架」返回。 -->
+  <view class="bk-head" wx:if="{{viewMode === 'library'}}">
     <button class="bank-nav-back" bindtap="onHeaderBack">‹</button>
     <view class="bk-head-t">
       <view class="bk-title">{{viewMode === 'library' ? '词库书架' : '词库详情'}}</view>
@@ -61,11 +63,13 @@
 
     <block wx:else>
     <view class="detail-head">
-      <text class="detail-back" bindtap="goLibraryShelf">‹ 全部词库</text>
+      <text class="detail-back" bindtap="goLibraryShelf">‹ 书架</text>
       <view class="detail-title-wrap">
         <text class="detail-title">{{activeLibraryLabel}}</text>
-        <text class="detail-sub">共 {{totalAll}} 条 · 薄弱 {{weakCount}}</text>
+        <text class="detail-sub">共 {{totalAll}} 条 · 薄弱 {{weakCount}} · 已掌握 {{learnedCount}}</text>
       </view>
+      <view class="detail-icon {{searchOpen ? 'on' : ''}}" bindtap="toggleSearch">🔍</view>
+      <view class="detail-icon" bindtap="openFilter">⋯</view>
     </view>
 
     <!-- 当前自建库的管理条 -->
@@ -78,22 +82,10 @@
       </view>
     </view>
 
-    <!-- 题型 -->
-    <view class="bk-field">
-    <text class="bk-field-label">题型</text>
-    <scroll-view class="bk-row-scroll" scroll-x="true" enable-flex="true">
-      <view class="bk-row">
-        <view
-          wx:for="{{types}}"
-          wx:key="key"
-          class="bk-chip bk-chip--t {{curType === item.key ? 'on' : ''}}"
-          data-key="{{item.key}}"
-          bindtap="pickType">{{item.label}}</view>
-      </view>
-    </scroll-view>
-    </view>
+    <!-- 题型筛选收进 ⋯ 弹层（原来常驻一行 chips，把列表挤到首屏以下）
+         2026-10-25：与错题本统一 —— 首屏只留一行「掌握状态」，其余进筛选面板 -->
 
-    <!-- 掌握状态筛选 -->
+    <!-- 掌握状态筛选（⚠️ 这一行是 E2E 断言 .bk-mf 恰 3 个的地方，别往里加第 4 个 .bk-mf） -->
     <view class="bk-mfilters">
       <view class="bk-mf {{mFilter === 'all' ? 'on' : ''}}" data-key="all" bindtap="pickMFilter">
         全部 <text class="bk-mf-n">{{totalAll}}</text>
@@ -104,35 +96,24 @@
       <view class="bk-mf learned {{mFilter === 'learned' ? 'on' : ''}}" data-key="learned" bindtap="pickMFilter">
         已掌握 <text class="bk-mf-n">{{learnedCount}}</text>
       </view>
+      <!-- 题型 / 排序的入口（刻意不叫 .bk-mf，避免把 E2E 的「3 档」断言撑成 4） -->
+      <view class="bk-mf-filter {{curType !== 'all' ? 'on' : ''}}" bindtap="openFilter">⚙ 筛选</view>
     </view>
 
-    <!-- 搜索 -->
-    <view class="bk-search">
+    <!-- 搜索（点顶栏 🔍 才展开；原来常驻占一整行） -->
+    <view class="bk-search" wx:if="{{searchOpen}}">
       <text class="bk-search-ic">🔍</text>
       <input
         class="bk-search-input"
         value="{{keyword}}"
         placeholder="搜题目 / 答案 / 释义"
         confirm-type="search"
+        focus="{{searchOpen}}"
         bindinput="onSearch" />
       <text wx:if="{{keyword}}" class="bk-search-clr" bindtap="clearSearch">✕</text>
     </view>
 
-    <!-- 统计 -->
-    <view class="bk-stat">
-      <text class="bk-stat-main">{{gradeLabel}} · 共 {{totalAll}} 条</text>
-      <text class="bk-stat-sub">内置 {{builtinCount}} · 我的 {{mineCount}}</text>
-    </view>
-
-    <!-- 列表 -->
-    <!-- 排序（2026-10-08）：词库在构建期补好了 py 字段（汉字 = 全拼、英文 = 小写本身），
-         所以「英文按字母、中文按拼音」用的是同一套键，一个控件就够。 -->
-    <view class="bk-sortbar">
-      <text class="bk-sortbar-label">排序</text>
-      <view class="bk-sort-chip {{sortDesc ? '' : 'on'}}" data-dir="1" bindtap="pickSort">A→Z · 正序</view>
-      <view class="bk-sort-chip {{sortDesc ? 'on' : ''}}" data-dir="-1" bindtap="pickSort">Z→A · 倒序</view>
-    </view>
-
+    <!-- 列表：排序与题型在 ⋯ 筛选弹层里；统计并入标题副行 -->
     <scroll-view class="bk-list" scroll-y="true" enhanced="true" show-scrollbar="{{false}}">
       <view
         wx:for="{{shown}}"
@@ -142,12 +123,14 @@
         <view class="bk-item-main">
           <view class="bk-item-top">
             <text class="bk-q">{{item.q}}</text>
-            <text class="bk-a">{{item.a}}</text>
-          </view>
-          <view wx:if="{{item.hint || item.ipa}}" class="bk-hint">
-            <text>{{item.hint}}</text>
             <!-- 音标（2026-10-09）：英语词条构建期已补，汉字词条没有 -->
             <text wx:if="{{item.ipa}}" class="bk-ipa">/{{item.ipa}}/</text>
+          </view>
+          <!-- 词面与答案相同时（英文单词题 q === a）只显示一次，避免「apple apple」 -->
+          <view class="bk-sub" wx:if="{{item.a !== item.q || item.hint}}">
+            <text wx:if="{{item.a !== item.q}}" class="bk-a">{{item.a}}</text>
+            <text wx:if="{{item.a !== item.q && item.hint}}" class="bk-sep"> · </text>
+            <text>{{item.hint}}</text>
           </view>
           <view class="bk-meta">
             <text class="bk-tag">{{item.typeLabel}}</text>
@@ -178,6 +161,29 @@
 
     <!-- 新增 -->
     <view class="bk-fab" bindtap="openCreate">＋ 新增词条</view>
+
+    <!-- 筛选弹层（题型 + 排序）：从常驻两行收进来，把首屏让给词条列表 -->
+    <view wx:if="{{filterShow}}" class="filter-mask" bindtap="closeFilter">
+      <view class="filter-sheet" catchtap="noop">
+        <view class="filter-head">
+          <text class="filter-title">筛选词条</text>
+          <text class="filter-close" bindtap="closeFilter">完成</text>
+        </view>
+
+        <view class="filter-label">题型</view>
+        <view class="filter-chips">
+          <view wx:for="{{types}}" wx:key="key"
+            class="filter-chip {{curType === item.key ? 'on' : ''}}"
+            data-key="{{item.key}}" bindtap="pickType">{{item.label}}</view>
+        </view>
+
+        <view class="filter-label">排序（英文按字母、汉字按拼音，构建期已补 py 字段）</view>
+        <view class="filter-chips">
+          <view class="filter-chip {{sortDesc ? '' : 'on'}}" data-dir="1" bindtap="pickSort">A→Z · 正序</view>
+          <view class="filter-chip {{sortDesc ? 'on' : ''}}" data-dir="-1" bindtap="pickSort">Z→A · 倒序</view>
+        </view>
+      </view>
+    </view>
     </block>
   </block>
 

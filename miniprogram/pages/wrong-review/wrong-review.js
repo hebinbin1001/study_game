@@ -1,19 +1,29 @@
-// 错题复习页（wrong-review · M6-G 多形态复习）
+// 错题复习页（wrong-review · M6-G 多形态复习 + 2026-10-25 十题一关）
 //
 // 职责：
-//   1. 逐题展示待复习题目
-//   2. 选择答案，反馈正误
-//   3. 更新复习状态（艾宾浩斯算法）
-// 4. 三种复习形态切换：原题 / 听音选义 / 看中文选词（M6-G）
-//    - 原题：显示题面 q，从 4 个选项中选出答案 a；
-//    - 听音：隐藏题面，朗读答案发音（audio.speakByItem），选出听到的内容；
-//    - 看中文选词：英语/带释义词条，题干显示中文释义 hint，选出对应词。
-//    选项由「正确项 a + 3 个干扰」构造（同批其它答案优先 + 语言兜底池），保证 4 项互异。
-//    模式仅影响当前题展示与作答形态，不改变后端 /api/wrong/review 语义。
+//   1. **一关 10 题**（LEVEL_SIZE）：取到期/待复习题里的前 10 题成一关，答完进本关结算
+//   2. 关内**全自动推进**：答对答错都自动下一题，不再用模态弹窗打断（2026-10-25 用户反馈
+//      「一道题完了应该直接下一道」——原来答对后要弹「是否移出错题本」的弹窗，必须点一下才继续）
+//   3. 更新复习状态（艾宾浩斯算法，由服务端 /api/wrong/review 负责）
+//   4. 三种复习形态切换：原题 / 听音选义 / 看中文选词（M6-G）
+//
+// ⚠️ 架构红线（改之前先读 docs/错题复习流程规划-待确认.md §四）：
+//   · 这里的「一关」只是**本局的一段**，不是关卡体系的一员 ——
+//     不写 storage.saveStars、不出现「第 N 关」的解锁概念；
+//   · **不上报成绩、不产生星级**（不接 play-report、不调 /api/score），
+//     否则会污染玩法进度榜 / 段位星 / 成就统计（它们都按 game_type 与
+//     「玩法×学段×题型×关卡」聚合，错题复习没有这些维度）；
+//   · 熟练度与间隔表由服务端负责，端上不自己算（utils/ebbinghaus.js 两端有 parity 单测）。
 
 var request = require('../../utils/request');
 var typeLabel = require('../../utils/type-label');
 var audio = require('../../game/audio');
+
+/** 一关题数：与「每日挑战 10 题」「字母射击 10 题」口径一致 */
+var LEVEL_SIZE = 10;
+/** 反馈停留时长：答对 800ms（够看清 ✓，又不拖节奏）、答错 1500ms（要看正确答案） */
+var FEEDBACK_MS_CORRECT = 800;
+var FEEDBACK_MS_WRONG = 1500;
 
 var MODES = [
   { key: 'original', label: '原题' },
@@ -50,7 +60,11 @@ Page({
     completed: false,
     noDue: false,          // 「继续复习」时若没有到期题 → 完成页给明确说明
     correctCount: 0,
-    totalCount: 0,
+    totalCount: 0,         // ⚠️ 现在是「本关题数」，不再是整池总数
+    levelRate: 0,          // 本关正确率（结算页用）
+    progressPct: 0,        // 进度条百分比（在 JS 里算好再绑定：
+                           // WXML 表达式只支持简单运算，嵌套三元会静默渲染成空）
+    hasMore: false,        // 本关之后还有没有可继续的题（决定「再来一关」是否显示）
     // M6-G
     modes: READY_MODES,
     currentMode: 'original',
@@ -60,22 +74,40 @@ Page({
     hintText: ''        // 安全 hint 文本（hint !== a 时才有）
   },
 
-  onShow: function () {
-    this.loadPendingItems();
-  },
-
   /**
-   * 错题本卡片点进来时带 ?only=<recordId>：只练这一道（用户 2026-09-13 反馈）。
-   * 不带参数 = 原来的「整池复习」，行为不变。
+   * 已答过的题目不会再出现在本会话后续的关里。
+   *
+   * 为什么需要：/api/wrong/list 的 pending 口径是「熟练度 < 100」，**不是**「已到期」。
+   * 答对一次熟练度可能才 20/40/60，下次拉取它还在列表里 —— 不排重就会反复练同一道。
    */
+  _doneIds: null,
+  /** 本关答对的 recordId（结算页「一键移出」用） */
+  _levelCorrectIds: null,
+  /** 是否有一关正在进行（防止 onShow 把当前关重置掉） */
+  _levelActive: false,
+
   onLoad: function (options) {
     var opt = options || {};
     this._only = opt.only ? String(opt.only) : '';
     this._dueOnly = String(opt.due || '') === '1';
+    this._doneIds = {};
+    this._levelCorrectIds = [];
   },
 
-  // 加载待复习题目
-  loadPendingItems: function () {
+  onShow: function () {
+    // 关卡进行中 / 已结算 → 不要因为页面重新显示就把进度重置掉。
+    // （结算页让玩家自己点「再来一关」，不自动续关）
+    if (this._levelActive || this.data.completed) return;
+    this.loadLevel();
+  },
+
+  /**
+   * 取一关：拉待复习题 → 排除本会话已答过的 → 取前 LEVEL_SIZE 题。
+   *
+   * 后端是全量返回、端上切片（server/routes/wrong.js:90 注明「将来量级变大再改 SQL limit」），
+   * 所以这一轮**零后端改动**。
+   */
+  loadLevel: function () {
     var self = this;
     request.get('/api/wrong/list').then(function (data) {
       var pending = data.pending || [];
@@ -86,43 +118,61 @@ Page({
           return isFinite(t) && t <= now;
         });
       }
-      // 单题练习：只留这一道；已被移除/已掌握时下面会走「已完成」空态
+      // 单题练习：只留这一道
       if (self._only) {
         pending = pending.filter(function (it) {
           return String(it.recordId) === self._only;
         });
       }
+      // 本会话已答过的排除掉（见 _doneIds 注释）
+      pending = pending.filter(function (it) {
+        return !self._doneIds[String(it.recordId)];
+      });
+
       if (pending.length === 0) {
-        // 用户点「继续复习」却没有到期题 → 明确提示，别让按钮看着像坏了
+        // 用户点「继续复习」却已经没有题 → 明确提示，别让按钮看着像坏了
         if (self._restartRequested) {
           self._restartRequested = false;
-          wx.showToast({ title: '暂时没有到期的错题了', icon: 'none' });
+          wx.showToast({ title: '暂时没有待复习的错题了', icon: 'none' });
         }
-        self.setData({ completed: true, totalCount: 0, currentItem: null, noDue: true });
+        self._levelActive = false;
+        self.setData({
+          completed: true, totalCount: 0, currentItem: null, noDue: true,
+          hasMore: false, levelRate: 0
+        });
         return;
       }
 
       self._restartRequested = false;
-      self._session = pending.slice();
-      self.setData({
-        items: pending,
-        totalCount: pending.length,
-        currentIndex: 0,
-        currentItem: pending[0],
-        correctCount: 0,
-        noDue: false,
-        // ⚠️ 必须一起复位，否则「继续复习」拉到题了也还停在完成页（2026-09-13 用户反馈「点不动」）
-        completed: false,
-        showFeedback: false,
-        answered: false,
-        correct: false,
-        selectedOption: null
-      });
-      self.applyQuestion(pending[0]);
+      self._startLevel(pending);
     }).catch(function () {
-      // 加载失败，标记为空完成态
-      self.setData({ completed: true, totalCount: 0, currentItem: null });
+      self._levelActive = false;
+      self.setData({ completed: true, totalCount: 0, currentItem: null, hasMore: false });
     });
+  },
+
+  /** 用候选池的前 LEVEL_SIZE 题开一关 */
+  _startLevel: function (pool) {
+    var level = pool.slice(0, LEVEL_SIZE);
+    this._levelActive = true;
+    this._levelCorrectIds = [];
+    this.setData({
+      items: level,
+      totalCount: level.length,
+      hasMore: pool.length > level.length,
+      currentIndex: 0,
+      currentItem: level[0],
+      correctCount: 0,
+      levelRate: 0,
+      progressPct: 0,
+      noDue: false,
+      completed: false,
+      showFeedback: false,
+      answered: false,
+      correct: false,
+      selectedOption: null
+    });
+    this.applyQuestion(level[0]);
   },
 
   // 根据当前 mode 构造「题干视图 + 选项」渲染当前题
@@ -213,7 +263,7 @@ Page({
     });
   },
 
-  // 切换复习形态（答题中锁定；仅影响当前题展示，不重排后端）
+  // 切换复习形态（答题中锁定；仅影响当前题展示，不重排题序）
   switchMode: function (e) {
     if (this.data.answered) {
       wx.showToast({ title: '本题已作答', icon: 'none' });
@@ -234,7 +284,13 @@ Page({
     audio.speakByItem(item.question, item.question.a);
   },
 
-  // 选择选项
+  /**
+   * 选择选项。
+   *
+   * 2026-10-25 改动：**答对也不再弹「是否移出错题本」的模态弹窗**，改成和答错一样
+   * 展示反馈后自动进下一题。「移出错题本」挪到结算页批量处理（askBulkRemove）
+   * 与错题本页的长按动作，功能没丢，只是不再打断连续作答。
+   */
   selectOption: function (e) {
     var self = this;
     if (this.data.answered) return;
@@ -261,85 +317,51 @@ Page({
       answered: true,
       correct: correct,
       showFeedback: true,
-      displayOptions: displayOptions
+      displayOptions: displayOptions,
+      // 进度条按「已答完的题数」走，答完最后一题就是 100%
+      progressPct: this.data.totalCount
+        ? Math.round((this.data.currentIndex + 1) / this.data.totalCount * 100)
+        : 0
     });
 
-    // 上报复习结果
+    // 本会话内不再重复出这道题（答对答错都算练过）
+    this._doneIds[String(currentItem.recordId)] = 1;
+    if (correct) {
+      this._levelCorrectIds.push(currentItem.recordId);
+      this.setData({ correctCount: this.data.correctCount + 1 });
+    }
+
+    // 上报复习结果（艾宾浩斯熟练度由服务端算）
     request.post('/api/wrong/review', {
       recordId: currentItem.recordId,
       correct: correct
-    }).then(function () {
-      // 更新本地数据
-      if (correct) {
-        self.setData({ correctCount: self.data.correctCount + 1 });
-      }
     }).catch(function () {
       // 上报失败静默降级，不影响本地作答流程
     });
 
-    // 答对 → 给用户一次「移出错题本 / 先保留」的选择（2026-09-12 需求②）；
-    // 答错 → 看 1.5 秒正确答案后自动进入下一题。
-    if (correct) {
-      setTimeout(function () { self._askRemoveAfterCorrect(currentItem); }, 500);
-    } else {
-      setTimeout(function () {
-        self.nextQuestion();
-      }, 1500);
-    }
+    // 答对 / 答错都是「反馈一下 → 自动下一题」，不再有阻塞弹窗
+    setTimeout(function () {
+      self.nextQuestion();
+    }, correct ? FEEDBACK_MS_CORRECT : FEEDBACK_MS_WRONG);
   },
 
-  /**
-   * 答对后询问是否移出错题本。
-   *
-   * 两种选择都算「本局推进」，所以无论确认还是取消都会进入下一题：
-   *   · 移出错题本 → POST /api/wrong/remove（幂等），并从本地 items 里剔除；
-   *   · 先保留     → 什么都不做，题目继续留在错题本按艾宾浩斯间隔复习。
-   * 说明：这道题的熟练度已由 /api/wrong/review 提高，选「保留」时下次复习时间会顺延。
-   */
-  _askRemoveAfterCorrect: function (item) {
-    var self = this;
-    if (!item || !item.recordId) { this.nextQuestion(); return; }
-
-    wx.showModal({
-      title: '答对了！',
-      content: '要把它移出错题本吗？移除后不再复习；也可以先保留，过段时间再练一次。',
-      confirmText: '移出错题本',
-      cancelText: '先保留',
-      success: function (res) {
-        if (!res.confirm) {
-          wx.showToast({ title: '已保留，之后还会提醒复习', icon: 'none' });
-          self.nextQuestion();
-          return;
-        }
-        request.post('/api/wrong/remove', { recordId: item.recordId }).then(function () {
-          // 本地剔除，避免同一次复习里再遇到它。
-          // ⚠️ 列表少了一项，当前下标必须回退一格，否则 nextQuestion() 会跳过下一题。
-          self.setData({
-            items: (self.data.items || []).filter(function (it) { return it.recordId !== item.recordId; }),
-            currentIndex: Math.max(-1, self.data.currentIndex - 1),
-            totalCount: Math.max(0, self.data.totalCount - 1)
-          });
-          wx.showToast({ title: '已移出错题本', icon: 'none' });
-          self.nextQuestion();
-        }).catch(function (err) {
-          wx.showToast({ title: (err && err.message) || '移除失败，已保留', icon: 'none' });
-          self.nextQuestion();
-        });
-      },
-      // 弹窗被系统异常打断时不能让流程卡住
-      fail: function () { self.nextQuestion(); }
-    });
-  },
-
-  // 下一题
+  // 下一题；本关最后一题答完 → 结算
   nextQuestion: function () {
     var nextIndex = this.data.currentIndex + 1;
     if (nextIndex >= this.data.items.length) {
-      // 复习完成
-      // ⚠️ 必须同时收起答题反馈层（2026-09-13 用户反馈「答对后的弹窗一直都在」）：
-      //    最后一题答完只置 completed 的话，showFeedback 仍是 true，
-      //    反馈浮层会一直盖在「复习完成」页面上。
-      this.setData({ completed: true, showFeedback: false, answered: false, correct: false });
+      // 本关结束。
+      // ⚠️ 必须同时收起答题反馈层：否则反馈浮层会一直盖在结算页上
+      //    （2026-09-13 用户反馈「答对后的弹窗一直都在」）。
+      var total = this.data.totalCount || 0;
+      var right = this.data.correctCount || 0;
+      this._levelActive = false;
+      this.setData({
+        completed: true,
+        showFeedback: false,
+        answered: false,
+        correct: false,
+        levelRate: total ? Math.round(right / total * 100) : 0
+      });
       return;
     }
 
@@ -351,25 +373,61 @@ Page({
     this.applyQuestion(nextItem);
   },
 
-  // 返回错题本
-  goBack: function () {
-    wx.navigateBack();
+  /** 再来一关：重新取关（已答过的会被 _doneIds 排除） */
+  nextLevel: function () {
+    this._restartRequested = true;
+    this.loadLevel();
+  },
+
+  /** 兼容旧入口名（wxml / 外部调用可能还在用 restart） */
+  restart: function () {
+    this.nextLevel();
   },
 
   /**
-   * 继续复习：重新拉一遍「到期待复习」。
+   * 结算页「一键移出本关答对的题」。
    *
-   * 踩坑记录（2026-09-13 用户反馈「答对之后的继续复习点不动」）：
-   *   两个原因叠在一起 ——
-   *   ① 答对的题会把 nextReviewAt 按艾宾浩斯间隔顺延（1/2/4/7/15/30 天），
-   *      所以刚复习完再拉「待复习」本来就是空的；
-   *   ② 拉到题以后旧代码只换了 items，没有把 completed 复位，
-   *      于是即使有题也仍然停在完成页 —— 点了完全没变化。
-   *   现在：点到题就真的回到答题（状态整体复位）；没到期题就明确提示，
-   *   完成页也会写清「什么时候会再出现」。
+   * 原来这个入口是「答对后立刻弹窗问一次」，会打断节奏；现在收进结算页，
+   * 一次批量处理。接口 /api/wrong/remove 是幂等的，逐条调用即可。
    */
-  restart: function () {
-    this._restartRequested = true;
-    this.loadPendingItems();
+  askBulkRemove: function () {
+    var ids = (this._levelCorrectIds || []).slice();
+    if (!ids.length) return;
+    var self = this;
+
+    wx.showModal({
+      title: '移出错题本',
+      content: '把本关答对的 ' + ids.length + ' 题移出错题本？移除后不再复习；也可以先保留，按间隔再练一次。',
+      confirmText: '移出',
+      cancelText: '先保留',
+      success: function (res) {
+        if (!res.confirm) return;
+        var done = 0;
+        var ok = 0;
+        var finish = function () {
+          done++;
+          if (done < ids.length) return;
+          wx.showToast({
+            title: ok === ids.length ? ('已移出 ' + ok + ' 题') : ('已移出 ' + ok + '/' + ids.length + ' 题'),
+            icon: 'none'
+          });
+          // 移除后这批题不会再出现（本来也进了 _doneIds），清空避免重复点
+          self._levelCorrectIds = [];
+        };
+        ids.forEach(function (id) {
+          request.post('/api/wrong/remove', { recordId: id }).then(function () {
+            ok++;
+            finish();
+          }).catch(function () {
+            finish();
+          });
+        });
+      }
+    });
+  },
+
+  // 返回错题本
+  goBack: function () {
+    wx.navigateBack();
   }
 });

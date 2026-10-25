@@ -30,6 +30,7 @@ Page({
     page: 1,               // 当前已加载到第几页（针对 activeTab）
     totalPages: 1,         // 总页数（翻页控件用）
     q: '',                 // 搜索关键字（2026-10-08：错题本支持搜索）
+    searchOpen: false,     // 搜索框是否展开（2026-10-25：搜索收进 🔍 默认收起，把首屏让给列表）
     typeOptions: [],
     curType: '',
     typeLabelNow: '全部题型',
@@ -128,6 +129,15 @@ Page({
         loadError: (err && err.message) || '加载失败，请重试'
       });
     });
+  },
+
+  /**
+   * 展开 / 收起搜索框。
+   * 2026-10-25：搜索原来常驻占一行，把列表挤到首屏以下；现在收进顶栏的 🔍，
+   * 功能一个没少，但默认不占位置。
+   */
+  toggleSearch: function () {
+    this.setData({ searchOpen: !this.data.searchOpen });
   },
 
   /** 搜索输入（不立刻请求，等用户点搜索 / 回车） */

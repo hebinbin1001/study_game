@@ -1,10 +1,13 @@
-<!-- 错题复习页 -->
+<!-- 错题复习页（2026-10-25：十题一关 + 关内全自动推进） -->
 <view class="page-wrong-review">
-  <!-- 顶部进度条 -->
+  <!-- 顶部进度：本关第几题 + 实时答对数（进度条按本关算，不再是整池的 0.9%） -->
   <view class="progress-bar review-progress">
-    <view class="progress-bar__fill" style="width: {{(currentIndex / totalCount) * 100}}%"></view>
+    <view class="progress-bar__fill" style="width: {{progressPct}}%"></view>
   </view>
-  <view class="progress-text">第 {{currentIndex + 1}} / {{totalCount}} 题</view>
+  <view class="progress-row" wx:if="{{!completed}}">
+    <view class="progress-text">第 {{currentIndex + 1}} / {{totalCount}} 题</view>
+    <view class="progress-right">✓ {{correctCount}}</view>
+  </view>
 
   <!-- 复习形态切换（M6-G）：原题 / 听音选义 / 看中文选词 -->
   <view class="mode-bar" wx:if="{{currentItem && !completed}}">
@@ -46,24 +49,37 @@
     </view>
   </view>
 
-  <!-- 完成页 -->
+  <!-- 本关结算 -->
   <view class="completed" wx:if="{{completed}}">
     <view class="completed-card">
       <view class="completed-icon">🎉</view>
-      <view class="completed-title">复习完成</view>
+      <view class="completed-title">{{totalCount > 0 ? '本关完成' : '复习完成'}}</view>
+
       <view class="completed-stats" wx:if="{{totalCount > 0}}">
-        答对 {{correctCount}} / {{totalCount}} 题
+        答对 {{correctCount}} / {{totalCount}} 题 · 正确率 {{levelRate}}%
       </view>
       <view class="completed-stats" wx:else>
         暂无待复习题目，休息一下吧～
       </view>
-      <view class="completed-stats" wx:if="{{noDue}}">暂无到期错题：答对的题会按 1/2/4/7/15/30 天间隔再出现</view>
-      <button class="btn-restart" bindtap="restart">🔄 继续复习</button>
+
+      <view class="completed-tip" wx:if="{{totalCount > 0 && !hasMore}}">
+        没有更多待复习的题了，明天再来～
+      </view>
+      <view class="completed-tip" wx:if="{{noDue}}">
+        暂无到期错题：答对的题会按 1/2/4/7/15/30 天间隔再出现
+      </view>
+
+      <!-- 「移出错题本」原来藏在答对后的弹窗里，现在收进结算页批量处理 -->
+      <button class="btn-bulk" wx:if="{{totalCount > 0 && correctCount > 0}}" bindtap="askBulkRemove">
+        移出本关答对的 {{correctCount}} 题
+      </button>
+
+      <button class="btn-restart" wx:if="{{hasMore}}" bindtap="nextLevel">🔁 再来一关</button>
       <button class="btn-back" bindtap="goBack">返回错题本</button>
     </view>
   </view>
 
-  <!-- 反馈提示 -->
+  <!-- 反馈提示（行内浮层，不阻塞下一题） -->
   <view class="feedback {{correct ? 'correct' : 'wrong'}}" wx:if="{{showFeedback}}">
     <text class="feedback-emoji">{{correct ? '🎉' : '💪'}}</text>
     <text wx:if="{{correct}}">回答正确</text>
