@@ -11,19 +11,19 @@ const icons = require('../../miniprogram/utils/ui-icons');
 
 const ROOT = path.resolve(__dirname, '../..');
 
-s.test('8 个固定动作均有稳定映射且使用包内小图', () => {
+s.test('8 个固定动作均有稳定映射且走 CDN', () => {
   s.assert.deepEqual(icons.NAMES.slice().sort(),
     ['back', 'confirm', 'hint', 'home', 'next', 'pause', 'resume', 'retry']);
   icons.NAMES.forEach(function (name) {
     const url = icons.url(name);
-    s.assert.equal(url, '/assets/ui-buttons/' + name + '.png');
+    s.assert.ok(/^https?:\/\/.+\.png$/.test(url), name + ' 未生成 CDN 地址');
     s.assert.contains(url, '/assets/ui-buttons/' + name + '.png');
   });
   s.assert.equal(icons.url('bad'), '');
 });
 
-s.test('包内目录已落盘 8 枚 128×128 PNG', () => {
-  const dir = path.join(ROOT, 'miniprogram/assets/ui-buttons');
+s.test('CDN 目录已落盘 8 枚 128×128 PNG', () => {
+  const dir = path.join(ROOT, 'art/ui-buttons');
   icons.NAMES.forEach(function (name) {
     const file = path.join(dir, name + '.png');
     s.assert.ok(fs.existsSync(file), '缺少 ' + name + '.png');
