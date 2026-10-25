@@ -240,7 +240,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     '实际 = ' + (rows[4] && rows[4].kindLabel));
   ck.check('第 6 关是单词贪吃蛇', rows[5] && rows[5].mode === 'snake',
     '实际 = ' + (rows[5] && rows[5].kindLabel));
-  ck.check('主线恰好 6 款玩法轮换', new Set(rows.map(function (r) { return r.mode; })).size === 6,
+  ck.check('主线恰好 7 款玩法轮换', new Set(rows.map(function (r) { return r.mode; })).size === 7,
     '实际 = ' + Array.from(new Set(rows.map(function (r) { return r.mode; }))).join(','));
   ck.check('关卡行显示玩法标签', /字母射击/.test((rows[0] || {}).kindLabel || ''),
     '实际 = ' + (rows[0] || {}).kindLabel);

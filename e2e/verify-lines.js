@@ -117,10 +117,10 @@ async function main() {
     const plData = await pl.data();
     ck.check('默认落在闯关线分段', plData.curSection === 'line', '实际 = ' + plData.curSection);
     const lineGames = plData.games || [];
-    // 2026-09-19：新增「限时抢答」→ 闯关线从 6 款变 7 款
-    ck.check('闯关线分段 7 款玩法', lineGames.length === 7, '实际 = ' + lineGames.length);
-    ck.check('7 款都带 lineMode（点进去是关卡线而不是自由练）',
-      lineGames.length === 7 && lineGames.every(function (g) { return !!g.lineMode; }),
+    // 补字母泡泡龙上线后 → 闯关线从 7 款变 8 款
+    ck.check('闯关线分段 8 款玩法', lineGames.length === 8, '实际 = ' + lineGames.length);
+    ck.check('8 款都带 lineMode（点进去是关卡线而不是自由练）',
+      lineGames.length === 8 && lineGames.every(function (g) { return !!g.lineMode; }),
       '实际 = ' + lineGames.map(function (g) { return g.lineMode || '-'; }).join(','));
     await pl.callMethod('pickSection', { currentTarget: { dataset: { key: 'casual' } } });
     await pl.waitFor(600);
