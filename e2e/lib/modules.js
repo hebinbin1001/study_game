@@ -61,13 +61,13 @@ const MODULES = [
     id: 'game',
     name: '字母射击对局与结算（引擎 / 出题 / 渲染 / 结算页）',
     stages: ['game', 'result'],
-    unit: ['shoot', 'question']
+    unit: ['shoot', 'question', 'battle-fx']
   },
   {
     id: 'wordgames',
     name: '题库类玩法（连连看 / 消消乐 / 拼词 / 成语 / 贪吃蛇 / 弹弹球 / 抢答）',
-    stages: ['link', 'snake', 'bounce', 'quiz'],
-    unit: ['word-build', 'quiz', 'quiz-bank', 'bounce']
+    stages: ['link', 'snake', 'bounce', 'quiz', 'letterBubble'],
+    unit: ['word-build', 'quiz', 'quiz-bank', 'bounce', 'letter-bubble', 'battle-fx']
   },
   {
     id: 'puzzle',
@@ -147,6 +147,8 @@ const STAGE_MODULE = {
   rank: 'user'
   ,
   quiz: 'wordgames'
+  ,
+  letterBubble: 'wordgames'
   ,
   admin: 'user'
   ,

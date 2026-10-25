@@ -50,6 +50,8 @@
 
   <view class="foot-tip">👆 以蛇头为中心线：点左侧往左拐、点右侧往右拐（各 90°）· 点正前方直行 · 🟢 应拼字母 · 🔴 干扰字母</view>
 
+  <battle-fx trigger="{{fxSeq}}" mode="{{fxMode}}" text="{{fxText}}" />
+
   <!-- 结算 -->
   <!-- 结算统一走公共组件（2026-10-17），原自绘遮罩样式与其它玩法不一致 -->
   <settle-pop

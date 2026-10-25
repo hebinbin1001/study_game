@@ -33,6 +33,7 @@ var auth = require('../../utils/auth');
 var request = require('../../utils/request');
 var review = require('../../utils/review');
 var skins = require('../../utils/skins');
+var battleFx = require('../../utils/battle-fx');
 // 学段 → 镇守 Boss（2026-10-17）：Boss 关要画「该学段的 Boss」，不是玩家装备的怪兽
 var bossLadder = require('../../utils/boss-ladder');
 
@@ -78,6 +79,10 @@ Page({
     bossHit: false,
     bossCharging: false,
     shake: false,
+    heroAttacking: false,
+    bossCountering: false,
+    heroStrikeStyle: '',
+    bossCounterStyle: '',
 
     // ---- 题目 ----
     kind: 'letter',
@@ -103,7 +108,12 @@ Page({
     // ---- 新手引导 ----
     tutorialStep: 0,
     tutorialTitle: '',
-    tutorialDesc: ''
+    tutorialDesc: '',
+
+    // 统一回合制战斗反馈层
+    fxSeq: 0,
+    fxMode: '',
+    fxText: ''
   },
 
   // ============ 运行时状态（不进 setData） ============
@@ -457,6 +467,8 @@ Page({
       comboText: combo >= 2 ? (combo + ' 连击!' + (combo >= 5 ? '🎉' : (combo >= 3 ? '🔥' : ''))) : '',
       bossHp: 0
     });
+    this._playBattleFx((this._answered + 1 >= this._totalQ) ? 'finish' : 'attack',
+      clean ? ('+' + gain) : '过关');
     if (combo >= 2) audio.playCombo();
 
     this._later(CONFIG.clearMs, function () {
@@ -466,6 +478,48 @@ Page({
       self.setData({ comboText: '', hitText: '', phase: 'idle' });
       self._nextQuestion();
     });
+  },
+
+  /**
+   * 读取 Boss 立绘的实时位置，让战斗层冲到实际 Boss 身上。
+   * 不同皮肤尺寸、不同机型都以当前渲染矩形为准。
+   */
+  _playBattleFx: function (mode, text) {
+    var self = this;
+    wx.createSelectorQuery()
+      .select('.gs-boss')
+      .boundingClientRect()
+      .select('.gs-hero')
+      .boundingClientRect()
+      .exec(function (rects) {
+        var boss = rects && rects[0];
+        var hero = rects && rects[1];
+        var target = boss
+          ? { x: boss.left + boss.width / 2, y: boss.top + boss.height / 2 }
+          : null;
+        var player = hero
+          ? { x: hero.left + hero.width / 2, y: hero.top + hero.height / 2 }
+          : null;
+        if (target && player) {
+          if (mode === 'counter') {
+            self.setData({
+              bossCountering: true,
+              bossCounterStyle: '--counter-x:' + Math.round(player.x - target.x) + 'px;'
+                + '--counter-y:' + Math.round(player.y - target.y) + 'px;'
+            });
+          } else {
+            self.setData({
+              heroAttacking: true,
+              heroStrikeStyle: '--strike-x:' + Math.round(target.x - player.x) + 'px;'
+                + '--strike-y:' + Math.round(target.y - player.y) + 'px;'
+            });
+          }
+        }
+        battleFx.play(self, mode, text, target, player);
+        self._later(620, function () {
+          self.setData({ heroAttacking: false, bossCountering: false });
+        });
+      });
   },
 
   /** 点错：Boss 蓄力 → 反击弹 → 扣 1 点护盾 */
@@ -484,6 +538,7 @@ Page({
 
     this._later(CONFIG.chargeMs, function () {
       self.setData({ bossCharging: true });
+      self._playBattleFx('counter', '-1 🛡');
       self._later(CONFIG.counterMs, function () {
         var shield = Math.max(0, self.data.shield - 1);
         var dead = shield <= 0;

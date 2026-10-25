@@ -32,9 +32,9 @@ const ROOT = path.join(__dirname, '..', '..', 'miniprogram');
 const GRADES = constants.GRADES.map(function (g) { return g.key; });
 
 // ============ 1. 规模与形状 ============
-s.test('规模：7 条玩法线，每条每学段 30 关', () => {
-  // 2026-09-19：新增第 7 条「限时抢答」（quiz）
-  s.assert.equal(challenge.LINE_MODES.length, 7);
+s.test('规模：8 条玩法线，每条每学段 30 关', () => {
+  // 2026-10-25：新增第 8 条「Boss 补字母泡泡龙」
+  s.assert.equal(challenge.LINE_MODES.length, 8);
   challenge.LINE_MODES.forEach(function (mode) {
     s.assert.ok(challenge.MODES[mode], mode + ' 必须是 MODES 里已有的玩法');
     GRADES.forEach(function (g) {
@@ -124,7 +124,7 @@ s.test('难度递增：射击 10→15 题、命数 5→6（题量涨了必须同
   }
 });
 
-s.test('难度递增：拼词/成语题量、贪吃蛇词数单调不减', () => {
+s.test('难度递增：拼词/成语题量、贪吃蛇词数、补字母泡泡龙题量单调不减', () => {
   ['wordBuild', 'idiom'].forEach(function (mode) {
     const first = challenge.lineParams('g3', mode, 1).count;
     const last = challenge.lineParams('g3', mode, 30).count;
@@ -133,6 +133,11 @@ s.test('难度递增：拼词/成语题量、贪吃蛇词数单调不减', () =>
   const snakeFirst = challenge.lineParams('g3', 'snake', 1).words;
   const snakeLast = challenge.lineParams('g3', 'snake', 30).words;
   s.assert.ok(snakeLast > snakeFirst, '贪吃蛇末档词数应大于首档');
+  const bubbleFirst = challenge.lineParams('g3', 'letterBubble', 1);
+  const bubbleLast = challenge.lineParams('g3', 'letterBubble', 30);
+  s.assert.ok(bubbleLast.count > bubbleFirst.count, '补字母泡泡龙末档词数应大于首档');
+  s.assert.ok(bubbleLast.bubbles >= bubbleFirst.bubbles, '护盾泡泡数量不应回退');
+  s.assert.ok(bubbleLast.lives >= bubbleFirst.lives, '题量增加时命数应同步增加');
 });
 
 s.test('配对类（消消乐/连连看）一期不递增：牌面固定，不改版式', () => {
@@ -166,6 +171,17 @@ s.test('星级可达性：拼词/成语每档 1 星与 3 星都可拿', () => {
         s.assert.ok(r.reachable.indexOf(1) >= 0, g + '/' + mode + '/' + lv + ' 应能拿 1 星');
       }
     });
+  });
+});
+
+s.test('星级可达性：补字母泡泡龙每档 1/2/3 星都拿得到', () => {
+  GRADES.forEach(function (g) {
+    for (let lv = 1; lv <= 30; lv += 5) {
+      const p = challenge.lineParams(g, 'letterBubble', lv);
+      const r = challenge.starReachability(p.count, p.lives);
+      s.assert.deepEqual(r.reachable, [1, 2, 3],
+        g + '/letterBubble/' + lv + ' 的三档星都必须可达');
+    }
   });
 });
 

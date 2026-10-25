@@ -14,6 +14,7 @@ var storage = require('../../utils/storage');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
 var playReport = require('../../utils/play-report');
+var battleFx = require('../../utils/battle-fx');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var SIZE = 10;
@@ -274,6 +275,8 @@ Page({
           // 拼完一词
           this._snake.pop(); // 拼完则不再长，收尾
           this._render();
+          battleFx.play(this, (this._wordIdx + 1 >= this._roundWords.length) ? 'finish' : 'attack',
+            '拼出 ' + this._curEn);
           wx.showToast({ title: '✅ 拼出 ' + this._curEn, icon: 'none' });
           var self = this;
           setTimeout(function () {
@@ -297,6 +300,7 @@ Page({
       this._errors++;
       this._lives--;
       this.setData({ lives: this._lives });
+      battleFx.play(this, 'counter', '-1 ♥');
       wx.showToast({ title: '吃错字母「' + food.ch + '」', icon: 'none' });
       if (this._lives <= 0) { this._end(); return; }
       this._spawnFoods(false);

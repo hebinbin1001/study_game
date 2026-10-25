@@ -35,6 +35,7 @@ const PAGE_OF = {
   idiombuild: 'pages/idiom-build/idiom-build',
   snake: 'pages/snake/snake',
   quiz: 'pages/quiz/quiz',
+  letterBubble: 'pages/letter-bubble/letter-bubble',
   sudoku: 'pages/sudoku/sudoku',
   math24: 'pages/math24/math24',
   sprint: 'pages/math-sprint/math-sprint',

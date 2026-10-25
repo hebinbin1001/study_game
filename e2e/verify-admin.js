@@ -116,6 +116,10 @@ H.runSuite('verify-admin（管理后台 · 昵称与上榜口径）', async func
       Array.isArray(controlState && controlState.bannedControls));
     ck.check('玩法开关行数量与数据一致',
       (await admin.$$('.game-control-row')).length === ((controlState && controlState.gameControls) || []).length);
+    ck.check('新玩法「Boss 补字母泡泡龙」已出现在管理员玩法开关',
+      ((controlState && controlState.gameControls) || []).some(function (g) {
+        return g.key === 'letterBubble' && g.name === 'Boss 补字母泡泡龙';
+      }));
     ck.check('关卡审核区块已渲染', !!(await admin.$('.review-tabs')));
     ck.check('审核列表是数组（允许为空）', Array.isArray(d1.reviewLevels));
   }

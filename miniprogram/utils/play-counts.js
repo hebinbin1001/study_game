@@ -25,6 +25,7 @@ var GAME_TYPE_TO_KEY = {
   match: 'match',
   link: 'link',
   snake: 'snake',
+  letter_bubble: 'letterBubble',
   sudoku: 'sudoku',
   math24: 'math24',
   memory: 'memory',

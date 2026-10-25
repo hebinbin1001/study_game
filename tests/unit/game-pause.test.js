@@ -112,11 +112,11 @@ s.test('open 属性为 true 时弹层自动显示（切后台自动暂停用）'
   s.assert.equal(c.data.show, true);
 });
 
-s.test('14 个玩法页都接了 game-pause（源码护栏）', () => {
+s.test('15 个玩法页都接了 game-pause（源码护栏）', () => {
   const fs = require('fs');
   const path = require('path');
   const PAGES = ['klotski', 'g2048', 'sudoku', 'math24', 'one-stroke', 'maze', 'hanoi',
-    'pattern', 'clock', 'math-sprint', 'memory-grid', 'link', 'snake', 'bounce'];
+    'pattern', 'clock', 'math-sprint', 'memory-grid', 'link', 'snake', 'bounce', 'letter-bubble'];
   PAGES.forEach(function (p) {
     const dir = path.join(__dirname, '../../miniprogram/pages', p);
     const wxml = fs.readFileSync(path.join(dir, p + '.wxml'), 'utf8');
@@ -152,11 +152,11 @@ s.test('暂停键视觉改版：不得再用字符 Ⅱ / 不得再默认悬浮�
   s.assert.contains(bare, '#3a3a5c', '暂停键应为深色实心（浅色背景下白圈会糊成一团）');
 });
 
-s.test('14 个玩法页的暂停键都在 HUD 行内（不再 fixed 悬浮）', () => {
+s.test('15 个玩法页的暂停键都在 HUD 行内（不再 fixed 悬浮）', () => {
   const fs = require('fs');
   const path = require('path');
   const PAGES = ['klotski', 'g2048', 'sudoku', 'math24', 'one-stroke', 'maze', 'hanoi',
-    'pattern', 'clock', 'math-sprint', 'memory-grid', 'link', 'snake', 'bounce'];
+    'pattern', 'clock', 'math-sprint', 'memory-grid', 'link', 'snake', 'bounce', 'letter-bubble'];
   PAGES.forEach(function (p) {
     const dir = path.join(__dirname, '../../miniprogram/pages', p);
     const wxml = fs.readFileSync(path.join(dir, p + '.wxml'), 'utf8');

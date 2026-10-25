@@ -54,4 +54,16 @@ s.test('运营控制样式有独立卡片和深色可读按钮', () => {
   });
 });
 
+s.test('新玩法纳入管理员玩法开关，并在直链进入前读取停玩状态', () => {
+  const catalog = read('miniprogram/utils/game-catalog.js');
+  const names = read('server/game-names.js');
+  const page = read('miniprogram/pages/letter-bubble/letter-bubble.js');
+  s.assert.contains(catalog, "key: 'letterBubble'");
+  s.assert.contains(catalog, 'unlocked: true');
+  s.assert.contains(names, "letter_bubble: 'Boss 补字母泡泡龙'");
+  s.assert.contains(page, "gameStatus.isPaused(GAME_KEY)");
+  s.assert.contains(page, "var GAME_KEY = 'letterBubble'");
+  s.assert.contains(page, '管理员已暂停');
+});
+
 s.done();

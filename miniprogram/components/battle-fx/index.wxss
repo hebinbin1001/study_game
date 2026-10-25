@@ -1,0 +1,377 @@
+.bfx {
+  position: fixed;
+  inset: 0;
+  z-index: 88;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bfx-flash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(255,255,255,.76), rgba(255,250,207,.2) 25%, transparent 62%);
+  animation: bfx-flash .56s ease-out forwards;
+}
+.bfx-aura {
+  position: absolute;
+  left: var(--target-x);
+  top: var(--target-y);
+  width: 430rpx;
+  height: 430rpx;
+  margin: -215rpx 0 0 -215rpx;
+  border: 5rpx solid rgba(255,242,143,.38);
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 60rpx var(--skin-color), inset 0 0 40rpx rgba(255,255,255,.45);
+  animation: bfx-aura .62s ease-out forwards;
+}
+
+.bfx-hero {
+  position: absolute;
+  left: var(--target-x);
+  top: var(--target-y);
+  z-index: 2;
+  width: 190rpx;
+  height: 235rpx;
+  opacity: 0;
+  transform: translate(
+    calc(-50% + var(--hero-start-x)),
+    calc(-50% + var(--hero-start-y))
+  ) scale(.82);
+  filter: drop-shadow(0 10rpx 12rpx rgba(22,65,95,.24));
+  animation: bfx-hero-dash .62s cubic-bezier(.2,.8,.2,1) forwards;
+}
+.bfx-hero-art,
+.bfx-hero-emoji {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 190rpx;
+  height: 220rpx;
+  transform: translateX(-50%);
+}
+.bfx-hero-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 128rpx;
+}
+
+.bfx-boss-attacker {
+  position: absolute;
+  left: var(--target-x);
+  top: var(--target-y);
+  z-index: 2;
+  width: 230rpx;
+  height: 210rpx;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.9);
+  filter: drop-shadow(0 12rpx 16rpx rgba(116,28,48,.3));
+  animation: bfx-boss-counter .48s cubic-bezier(.3,.8,.2,1) forwards;
+}
+.bfx-boss-art,
+.bfx-boss-emoji {
+  position: absolute;
+  inset: 0;
+  width: 230rpx;
+  height: 210rpx;
+}
+.bfx-boss-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 128rpx;
+}
+
+.bfx-speed-line {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  height: 4rpx;
+  border-radius: 999rpx;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), rgba(128,222,255,.38), transparent);
+  transform: rotate(-10deg);
+  animation: bfx-speed .52s ease-out forwards;
+}
+.speed-a { top: 34%; animation-delay: .08s; }
+.speed-b { top: 47%; animation-delay: .12s; transform: rotate(8deg); }
+.speed-c { top: 59%; animation-delay: .06s; transform: rotate(-4deg); }
+
+.bfx-slash {
+  position: absolute;
+  left: -18%;
+  top: var(--target-y);
+  width: 136%;
+  height: 12rpx;
+  border-radius: 999rpx;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent 3%, #fff 35%, #fff7a8 54%, #71dfff 78%, transparent 97%);
+  box-shadow: 0 0 18rpx var(--skin-color);
+  transform: rotate(-22deg) scaleX(.1);
+  transform-origin: 50% 50%;
+  animation: bfx-slash .5s .16s cubic-bezier(.16,.84,.28,1) forwards;
+}
+.bfx-slash-b {
+  top: calc(var(--target-y) + 24rpx);
+  height: 7rpx;
+  transform: rotate(17deg) scaleX(.1);
+  animation-delay: .22s;
+}
+
+.bfx-impact {
+  position: absolute;
+  left: var(--target-x);
+  top: var(--target-y);
+  z-index: 3;
+  width: 130rpx;
+  height: 130rpx;
+  margin: -65rpx 0 0 -65rpx;
+  border-radius: 50%;
+  opacity: 0;
+  background:
+    linear-gradient(45deg, transparent 47%, #fff 48%, #fff 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, #ffe978 48%, #ffe978 52%, transparent 53%);
+  filter: drop-shadow(0 0 20rpx var(--skin-color));
+  animation: bfx-impact .44s .22s ease-out forwards;
+}
+
+.bfx-text {
+  position: absolute;
+  left: var(--target-x);
+  top: calc(var(--target-y) - 105rpx);
+  z-index: 4;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  color: #fff;
+  background: rgba(21,68,101,.9);
+  box-shadow: 0 6rpx 16rpx rgba(13,49,77,.2);
+  font-size: 26rpx;
+  font-weight: 900;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 18rpx);
+  animation: bfx-text .58s .15s ease-out forwards;
+}
+
+.bfx-finish .bfx-flash {
+  animation-duration: .86s;
+}
+.bfx-finish .bfx-hero {
+  width: 230rpx;
+  height: 285rpx;
+  animation-duration: .86s;
+}
+.bfx-finish .bfx-slash {
+  height: 18rpx;
+  box-shadow: 0 0 32rpx rgba(255,247,168,.96);
+  animation-duration: .72s;
+}
+.bfx-finish .bfx-slash-b {
+  top: calc(var(--target-y) + 34rpx);
+  height: 12rpx;
+}
+.bfx-finish .bfx-impact {
+  width: 210rpx;
+  height: 210rpx;
+  margin: -105rpx 0 0 -105rpx;
+}
+
+.bfx-counter .bfx-flash {
+  background: radial-gradient(circle at 50% 42%, rgba(255,255,255,.4), rgba(255,70,83,.25) 28%, transparent 62%);
+}
+.bfx-counter .bfx-aura,
+.bfx-counter .bfx-slash-b {
+  display: none;
+}
+.bfx-counter .bfx-slash-a {
+  top: var(--target-y);
+  height: 16rpx;
+  background: linear-gradient(90deg, transparent, #ff4162 34%, #ffbc8b 52%, #ff4162 73%, transparent);
+  box-shadow: 0 0 24rpx rgba(255,66,83,.64);
+  transform: rotate(27deg) scaleX(.1);
+  animation-delay: .04s;
+}
+.bfx-counter .bfx-impact {
+  left: var(--player-x);
+  top: var(--player-y);
+  background:
+    linear-gradient(45deg, transparent 47%, #ff5470 48%, #ffb37e 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, #ff5470 48%, #ffb37e 52%, transparent 53%);
+  filter: drop-shadow(0 0 22rpx rgba(255,73,91,.66));
+}
+.bfx-counter .bfx-text {
+  left: var(--player-x);
+  top: calc(var(--player-y) - 110rpx);
+  background: rgba(187,51,63,.92);
+}
+
+@keyframes bfx-flash {
+  0% { opacity: 0; }
+  20% { opacity: .9; }
+  100% { opacity: 0; }
+}
+@keyframes bfx-aura {
+  0% { opacity: .85; transform: scale(.34); }
+  100% { opacity: 0; transform: scale(1.24); }
+}
+@keyframes bfx-hero-dash {
+  0% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--hero-start-x)), calc(-50% + var(--hero-start-y))) scale(.82);
+  }
+  16% { opacity: 1; }
+  48% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+  64% { opacity: 1; transform: translate(-50%, -48%) scale(1.1); }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--hero-start-x)), calc(-50% + var(--hero-start-y))) scale(.86);
+  }
+}
+@keyframes bfx-boss-counter {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.86); }
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  58% {
+    opacity: 1;
+    transform: translate(
+      calc(-50% + var(--boss-dx)),
+      calc(-50% + var(--boss-dy))
+    ) scale(.86) rotate(5deg);
+  }
+  72% {
+    opacity: 1;
+    transform: translate(
+      calc(-50% + var(--boss-dx)),
+      calc(-50% + var(--boss-dy))
+    ) scale(.92) rotate(-4deg);
+  }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
+}
+@keyframes bfx-speed {
+  0% { opacity: 0; transform: translateX(-24%) rotate(-10deg) scaleX(.45); }
+  38% { opacity: .9; }
+  100% { opacity: 0; transform: translateX(23%) rotate(-10deg) scaleX(1); }
+}
+@keyframes bfx-slash {
+  0% { opacity: 0; transform: rotate(-22deg) scaleX(.08); }
+  28% { opacity: 1; }
+  68% { opacity: 1; transform: rotate(-22deg) scaleX(1); }
+  100% { opacity: 0; transform: rotate(-22deg) scaleX(1.12); }
+}
+@keyframes bfx-impact {
+  0% { opacity: 0; transform: scale(.2) rotate(0); }
+  35% { opacity: 1; transform: scale(1.25) rotate(16deg); }
+  100% { opacity: 0; transform: scale(2) rotate(28deg); }
+}
+@keyframes bfx-text {
+  0% { opacity: 0; transform: translate(-50%, 18rpx) scale(.88); }
+  28% { opacity: 1; transform: translate(-50%, 0) scale(1.04); }
+  100% { opacity: 0; transform: translate(-50%, -22rpx) scale(1); }
+}
+
+/* ============ 皮肤专属攻击语言 ============ */
+/* 同一套位移节奏下，按皮肤元素切换刀光形状、颜色与冲击环。 */
+.skin-beast .bfx-slash {
+  height: 22rpx;
+  background: repeating-linear-gradient(
+    -18deg,
+    transparent 0 16rpx,
+    #fff4c2 17rpx 25rpx,
+    #ff9362 26rpx 40rpx,
+    transparent 41rpx 62rpx
+  );
+  box-shadow: 0 0 26rpx #ff8b5f;
+}
+.skin-beast .bfx-impact {
+  background:
+    linear-gradient(52deg, transparent 46%, #fff4c2 47%, #ff9a62 53%, transparent 54%),
+    linear-gradient(-49deg, transparent 46%, #fff4c2 47%, #ff6f54 53%, transparent 54%),
+    linear-gradient(8deg, transparent 47%, #ffbd63 48%, #ffbd63 52%, transparent 53%);
+}
+.skin-beast .bfx-hero {
+  filter: drop-shadow(0 12rpx 14rpx rgba(224,94,42,.34));
+}
+
+.skin-wind .bfx-slash {
+  height: 9rpx;
+  background: linear-gradient(90deg, transparent, #e9ffff 28%, #61e8ff 49%, #3ba9e8 63%, transparent);
+  box-shadow: 0 0 24rpx #5cddff;
+}
+.skin-wind .bfx-speed-line {
+  height: 6rpx;
+  opacity: .8;
+}
+.skin-wind .bfx-aura {
+  border-style: dashed;
+  border-color: rgba(91,226,255,.72);
+}
+
+.skin-thunder .bfx-slash {
+  height: 13rpx;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 11rpx,
+    #fffde0 12rpx 25rpx,
+    #ffd53f 26rpx 38rpx,
+    transparent 39rpx 48rpx
+  );
+  box-shadow: 0 0 32rpx #ffe34c;
+  transform: rotate(-17deg) scaleX(.1);
+}
+.skin-thunder .bfx-impact {
+  border: 6rpx solid #fff39b;
+  background: rgba(255,223,70,.18);
+  box-shadow: 0 0 35rpx #ffdf49;
+}
+
+.skin-flame .bfx-flash {
+  background: radial-gradient(circle at 50% 44%, rgba(255,247,202,.8), rgba(255,111,61,.3) 26%, transparent 62%);
+}
+.skin-flame .bfx-slash {
+  height: 26rpx;
+  background: linear-gradient(90deg, transparent, #fff7ad 32%, #ffcb4b 49%, #ff5a3f 68%, transparent);
+  box-shadow: 0 0 36rpx #ff6d3f;
+}
+.skin-flame .bfx-aura {
+  border-color: rgba(255,125,61,.68);
+  box-shadow: 0 0 54rpx #ff7042;
+}
+
+.skin-nature .bfx-slash {
+  height: 14rpx;
+  background: linear-gradient(90deg, transparent, #f5ffd7 30%, #6ee6a8 52%, #2fb4a8 72%, transparent);
+  box-shadow: 0 0 28rpx #65dca0;
+}
+.skin-nature .bfx-impact {
+  border: 5rpx solid #caffb2;
+  background: radial-gradient(circle, rgba(129,240,154,.28), transparent 64%);
+}
+
+.skin-arcane .bfx-slash {
+  height: 11rpx;
+  background: linear-gradient(90deg, transparent, #f0dfff 24%, #bf8cff 48%, #796dff 72%, transparent);
+  box-shadow: 0 0 30rpx #a176ff;
+}
+.skin-arcane .bfx-aura {
+  border: 4rpx double rgba(199,151,255,.8);
+  box-shadow: 0 0 42rpx #9f74ff;
+}
+.skin-arcane .bfx-impact {
+  border: 5rpx solid #ddc2ff;
+  background: transparent;
+  transform: rotate(45deg);
+}
+
+.skin-shine .bfx-flash {
+  background: radial-gradient(circle at 50% 44%, rgba(255,255,230,.96), rgba(255,222,99,.34) 24%, transparent 64%);
+}
+.skin-shine .bfx-slash {
+  height: 16rpx;
+  background: linear-gradient(90deg, transparent, #fff 24%, #fff3a6 50%, #ffd34d 70%, transparent);
+  box-shadow: 0 0 38rpx #ffe36d;
+}
+.skin-shine .bfx-impact {
+  border: 5rpx solid #fff0a1;
+  background: radial-gradient(circle, rgba(255,234,122,.44), transparent 66%);
+}

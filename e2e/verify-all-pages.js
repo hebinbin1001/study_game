@@ -53,6 +53,7 @@ const PAGES = [
   { path: 'pages/report/report', name: 'report', query: '', selectors: ['.page-report', '.report-header'] },
   { path: 'pages/bank/bank', name: 'bank', query: '', selectors: ['.bk-page', '.bk-head', '.bk-search'] },
   { path: 'pages/quiz/quiz', name: 'quiz', query: '', selectors: ['.page-quiz', '.qz-stem-card', '.qz-options'] },
+  { path: 'pages/letter-bubble/letter-bubble', name: 'letter-bubble', query: '', selectors: ['.lb-page', '.lb-arena', '.lb-target'] },
   { path: 'pages/share-card/share-card', name: 'share-card', query: '', selectors: ['.share-card', '.share-canvas'] }
 ];
 

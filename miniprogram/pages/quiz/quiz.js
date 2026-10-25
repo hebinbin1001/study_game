@@ -17,6 +17,7 @@ var rng = require('../../utils/rng');
 var playReport = require('../../utils/play-report');
 var question = require('../../game/question');
 var audio = require('../../game/audio');
+var battleFx = require('../../utils/battle-fx');
 
 var MODE = 'quiz';
 var BEST_KEY = 'ww_quiz_best';
@@ -204,6 +205,7 @@ Page({
       this._right += 1;
       this._answered += 1;
       audio.playCorrect();
+      battleFx.play(this, this._answered >= this._totalQ ? 'finish' : 'attack', '+' + gain);
       this.setData({
         score: this._score,
         combo: this._combo,
@@ -221,6 +223,7 @@ Page({
     this._answered += 1;
     this._timeLeft = Math.max(0, this._timeLeft - quiz.CONFIG.wrongPenalty);
     audio.playWrong();
+    battleFx.play(this, 'counter', '−' + quiz.CONFIG.wrongPenalty + '秒');
     var okIdx = -1;
     this.data.options.forEach(function (o, i) { if (o.ok) okIdx = i; });
     var patch = {

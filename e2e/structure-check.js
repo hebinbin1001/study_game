@@ -85,7 +85,7 @@ check(/key: 'bounce',[^}]*url: '\/pages\/bounce\/bounce'/.test(src.replace(/\s+/
   '弹弹球入口指向玩法页');
 
 // 4) 每日一题 / checkin / 排行榜 / 自定义 关键页存在
-['daily-question', 'checkin', 'rank', 'custom-levels', 'bank', 'sudoku', 'match', 'link', 'snake', 'math24', 'g2048', 'klotski', 'agreement'].forEach((pg) => {
+['daily-question', 'checkin', 'rank', 'custom-levels', 'bank', 'sudoku', 'match', 'link', 'snake', 'letter-bubble', 'math24', 'g2048', 'klotski', 'agreement'].forEach((pg) => {
   check(fs.existsSync(`miniprogram/pages/${pg}/${pg}.js`), `关键页 pages/${pg} 存在`);
 });
 

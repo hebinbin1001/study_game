@@ -31,6 +31,8 @@
 
   <view class="tip">{{tip}}</view>
 
+  <battle-fx trigger="{{fxSeq}}" mode="{{fxMode}}" text="{{fxText}}" />
+
   <!-- 结算 -->
   <!-- 结算统一走公共组件（2026-10-17）：原来这页自己画遮罩，星星/按钮与其它玩法不一致 -->
   <settle-pop

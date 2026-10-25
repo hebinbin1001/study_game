@@ -26,6 +26,7 @@ var GAME_META = [
   { key: 'snake', label: '单词贪吃蛇', icon: '🐍', game: 'snake', needGrade: true },
   // 2026-10-18 补：服务端有、这里漏登记的玩法会直接显示英文 key（用户反馈「排行榜有些是英文」）
   { key: 'quiz', label: '限时抢答', icon: '⚡', game: 'quiz', needGrade: true },
+  { key: 'letter_bubble', label: 'Boss 补字母泡泡龙', icon: '🛡️', game: 'letter_bubble', needGrade: true },
   { key: 'math24', label: '算 24 点', icon: '🧮', game: 'math24', needGrade: false },
   { key: 'sudoku', label: '数独', icon: '🔢', game: 'sudoku', needGrade: false },
   { key: 'sprint', label: '口算冲刺', icon: '⚡', game: 'sprint', needGrade: false },

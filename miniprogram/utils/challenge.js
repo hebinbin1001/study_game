@@ -99,11 +99,19 @@ var MODES = {
     emoji: '⚡',
     page: '/pages/quiz/quiz',
     starBasis: '答对率 90/70/60（倒计时内抢答，答错扣 2 秒）'
+  },
+  letterBubble: {
+    key: 'letterBubble',
+    gameType: 'letter_bubble',
+    label: 'Boss 补字母泡泡龙',
+    emoji: '🛡️',
+    page: '/pages/letter-bubble/letter-bubble',
+    starBasis: '零失误完成词数 / 总词数（90/70/60）'
   }
 };
 
-// 玩法轮换节奏（P2）：6 款顺序轮换，每学段 30 关 → 每款各 5 关
-var CYCLE = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'];
+// 玩法轮换节奏：7 款顺序轮换，第 30 关仍是字母射击 Boss。
+var CYCLE = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake', 'letterBubble'];
 
 // ============ 终关 Boss（方案 A：题量 ×1.5 + 命数同比例放大） ============
 /** Boss 关号：每学段的最后一关 */
@@ -128,6 +136,16 @@ function buildTemplate() {
   for (var lv = 1; lv <= LEVELS_PER_GRADE; lv++) {
     // 第 30 关覆盖轮换、固定为 Boss 玩法（其余照常轮换）
     var mode = (lv === BOSS_LEVEL) ? BOSS_MODE : CYCLE[(lv - 1) % CYCLE.length];
+    // 7 款轮换时第 29 关会恰好轮到大 Boss 玩法，与第 30 关连成两关重复；
+    // 把它替换成上一关没有出现、也不是 Boss 的玩法。
+    if (lv === BOSS_LEVEL - 1 && mode === BOSS_MODE) {
+      for (var c = 1; c < CYCLE.length; c++) {
+        if (CYCLE[c] !== out[out.length - 1].mode && CYCLE[c] !== BOSS_MODE) {
+          mode = CYCLE[c];
+          break;
+        }
+      }
+    }
     out.push({ level: lv, mode: mode });
   }
   return out;
@@ -166,8 +184,24 @@ var GRADE_PARAMS = {
   g10:     { wordBuild: { count: 12 }, idiom: { count: 10 }, match: { pairs: 10 }, snake: { words: 6 } },
   g11:     { wordBuild: { count: 12 }, idiom: { count: 10 }, match: { pairs: 10 }, snake: { words: 6 } },
   g12:     { wordBuild: { count: 12 }, idiom: { count: 12 }, match: { pairs: 10 }, snake: { words: 6 } },
-  college: { wordBuild: { count: 12 }, idiom: { count: 12 }, match: { pairs: 10 }, snake: { words: 6 } }
+  college: { wordBuild: { count: 12 }, idiom: { count: 12 }, match: { pairs: 10 }, snake: { words: 6 }, letterBubble: { count: 12 } }
 };
+
+// 各年级的补字母泡泡龙题量（内容由学段词库决定，题量再平滑拉开）
+GRADE_PARAMS.kg.letterBubble = { count: 8, bubbles: 7 };
+GRADE_PARAMS.g1.letterBubble = { count: 8, bubbles: 7 };
+GRADE_PARAMS.g2.letterBubble = { count: 8, bubbles: 7 };
+GRADE_PARAMS.g3.letterBubble = { count: 10, bubbles: 7 };
+GRADE_PARAMS.g4.letterBubble = { count: 10, bubbles: 7 };
+GRADE_PARAMS.g5.letterBubble = { count: 10, bubbles: 8 };
+GRADE_PARAMS.g6.letterBubble = { count: 10, bubbles: 8 };
+GRADE_PARAMS.g7.letterBubble = { count: 10, bubbles: 8 };
+GRADE_PARAMS.g8.letterBubble = { count: 10, bubbles: 8 };
+GRADE_PARAMS.g9.letterBubble = { count: 10, bubbles: 8 };
+GRADE_PARAMS.g10.letterBubble = { count: 12, bubbles: 8 };
+GRADE_PARAMS.g11.letterBubble = { count: 12, bubbles: 9 };
+GRADE_PARAMS.g12.letterBubble = { count: 12, bubbles: 9 };
+GRADE_PARAMS.college.letterBubble = { count: 12, bubbles: 9 };
 
 var DEFAULT_PARAMS = {
   shoot: { totalQ: constants.GAME_CONFIG.totalQ, lives: constants.GAME_CONFIG.initLives },
@@ -175,7 +209,8 @@ var DEFAULT_PARAMS = {
   link: { pairs: 8 },
   match: { pairs: 8 },
   idiom: { count: 8 },
-  snake: { words: 5 }
+  snake: { words: 5 },
+  letterBubble: { count: 10, bubbles: 7 }
 };
 
 function gradeKeyOf(gradeKey) {
@@ -220,6 +255,10 @@ function paramsOf(gradeKey, mode, level) {
   var out = {};
   for (var k in base) { if (base.hasOwnProperty(k)) out[k] = base[k]; }
   for (var j in over) { if (over.hasOwnProperty(j)) out[j] = over[j]; }
+  if (mode === 'letterBubble') {
+    // 题量和命数同步设计：保证零失误率从 1 星到 3 星都能达到。
+    out.lives = Math.max(5, Math.ceil((parseInt(out.count, 10) || 10) * 0.4) + 1);
+  }
   // Boss 关：覆盖成 Boss 参数（题量 ×1.5 + 命数同比例放大）
   if (mode === BOSS_MODE && isBossLevel(level)) {
     for (var b in BOSS_PARAMS) { if (BOSS_PARAMS.hasOwnProperty(b)) out[b] = BOSS_PARAMS[b]; }
@@ -240,6 +279,7 @@ function subOf(gradeKey, mode, level) {
   if (mode === 'idiom') return p.count + ' 题 · 拼成语';
   if (mode === 'snake') return p.words + ' 词 · 吃字母';
   if (mode === 'quiz') return p.count + ' 题 · ' + p.seconds + ' 秒';
+  if (mode === 'letterBubble') return p.count + ' 词 · ' + p.bubbles + ' 枚护盾';
   return '';
 }
 
@@ -498,7 +538,7 @@ function migrateStars(storage) {
 //   · 种子 = hash(line:学段:玩法:关卡) → 同一关每次进同一套题，可重玩刷星、可分享复盘。
 var LINE_PREFIX = 'mode_';
 /** 有独立关卡线的玩法（顺序 = 关卡页 chips 顺序） */
-var LINE_MODES = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake', 'quiz'];
+var LINE_MODES = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake', 'quiz', 'letterBubble'];
 /** 每 5 关一个难度档：30 关 = 6 档（0~5） */
 var LINE_TIER_SIZE = 5;
 
@@ -585,6 +625,7 @@ function subOfParams(mode, p) {
   if (mode === 'idiom') return p.count + ' 题 · 拼成语';
   if (mode === 'snake') return p.words + ' 词 · 吃字母';
   if (mode === 'quiz') return p.count + ' 题 · ' + p.seconds + ' 秒';
+  if (mode === 'letterBubble') return p.count + ' 词 · ' + p.lives + ' 命 · ' + p.bubbles + ' 枚护盾';
   return '';
 }
 
@@ -623,6 +664,10 @@ function lineParams(gradeKey, mode, level) {
     // 于是第 21~30 关（整整 1/3 的关卡）参数完全相同、难度零递增。
     // 改成步长 7、地板 26 → 60/53/46/39/32/26，6 档各不相同。
     out.seconds = Math.max(26, 60 - tier * 7);
+  } else if (mode === 'letterBubble') {
+    out.count = Math.min(16, (out.count || 10) + tier);
+    out.lives = Math.max(5, Math.ceil(out.count * 0.4) + 1);
+    out.bubbles = Math.min(9, (out.bubbles || 7) + Math.floor(tier / 3));
   }
   return out;
 }

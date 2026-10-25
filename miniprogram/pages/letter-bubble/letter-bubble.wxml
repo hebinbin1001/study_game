@@ -1,0 +1,136 @@
+<view class="lb-page">
+  <view class="lb-hud">
+    <warrior-badge size="sm" />
+    <view class="lb-chip lb-lives">{{livesText}}</view>
+    <view class="lb-chip">⭐ {{score}}</view>
+    <view class="lb-chip lb-combo">×{{combo}}</view>
+    <game-pause
+      inline
+      open="{{paused}}"
+      show-fab="{{!over && !booting && !blocked}}"
+      sub="{{challengeLabel}}"
+      bind:pause="onGamePause"
+      bind:resume="onGameResume"
+      bind:restart="onGameRestart"
+      bind:quit="onGameQuit" />
+  </view>
+
+  <view class="lb-target">
+    <view class="lb-target-top">
+      <text class="lb-stage">{{challengeLabel || gradeLabel}}</text>
+      <text class="lb-count">第 {{qIndex}} / {{totalQ}} 词</text>
+    </view>
+    <view class="lb-target-main">
+      <view class="lb-word {{wordClass}}">
+        <text
+          wx:for="{{letters}}"
+          wx:key="key"
+          class="lb-letter {{item.blank ? 'is-blank' : ''}} {{item.solved ? 'is-solved' : ''}}">{{item.filled ? item.ch : '_'}}</text>
+      </view>
+      <view class="lb-meaning">
+        <text class="lb-meaning-main">{{meaning}}</text>
+        <text wx:if="{{ipa}}" class="lb-ipa">/{{ipa}}/</text>
+      </view>
+    </view>
+    <view class="lb-clue lb-clue--{{turnTone}}">{{turnLabel}} · 找出唯一能补全单词的字母泡泡</view>
+  </view>
+
+  <view
+    id="bubbleArena"
+    class="lb-arena boss-phase-{{bossPhase}}"
+    bindtouchstart="onAimStart"
+    catchtouchmove="onAimMove"
+    bindtouchend="onAimEnd"
+    bindtouchcancel="onAimCancel">
+    <view class="lb-orbit orbit-one"></view>
+    <view class="lb-orbit orbit-two"></view>
+    <view class="lb-orbit orbit-three"></view>
+    <view class="lb-launch-pad"></view>
+    <view class="lb-boss-status">
+      <view class="lb-boss-title">
+        <text>{{bossName}}</text>
+        <text>护盾阶段 {{bossPhase}}</text>
+      </view>
+      <view class="lb-boss-hp">
+        <view class="lb-boss-hp-fill" style="width: {{bossHp}}%;"></view>
+      </view>
+    </view>
+    <view class="lb-boss {{bossCountering ? 'is-countering' : ''}} {{bossHurt ? 'is-hit' : ''}}"
+      style="{{bossCounterStyle}}">
+      <image
+        wx:if="{{bossImg}}"
+        class="lb-boss-art"
+        src="{{bossImg}}"
+        mode="aspectFit"
+        binderror="onBossImgError"></image>
+      <view wx:else class="lb-boss-emoji">{{bossEmoji}}</view>
+      <view class="lb-boss-core"></view>
+    </view>
+
+    <view
+      wx:for="{{bubbles}}"
+      wx:key="id"
+      class="lb-bubble tone-{{item.tone}} {{aimTargetId === item.id ? 'is-aimed' : ''}} {{activeBubbleId === item.id ? (activeResult === 'correct' ? 'is-blast' : 'is-reject') : ''}}"
+      style="left: {{item.x}}%; top: {{item.y}}%;"
+      data-id="{{item.id}}"
+      catchtap="onBubbleTap">
+      <text>{{item.letter}}</text>
+    </view>
+
+    <view wx:if="{{aiming}}" class="lb-aim-line" style="{{aimLineStyle}}"></view>
+    <view
+      wx:if="{{activeBubbleId}}"
+      class="lb-impact {{activeResult}}"
+      style="left: {{activeX}}%; top: {{activeY}}%;"></view>
+
+    <view class="lb-warrior {{heroAttacking ? 'is-attacking' : ''}} {{heroAttackKind === 'finish' ? 'is-finishing' : ''}} {{heroHurt ? 'is-hurt' : ''}}"
+      style="{{heroStrikeStyle}}">
+      <image
+        wx:if="{{warriorImg}}"
+        class="lb-warrior-art"
+        src="{{warriorImg}}"
+        mode="aspectFit"
+        binderror="onWarriorImgError"></image>
+      <view wx:else class="lb-warrior-emoji">{{warriorEmoji}}</view>
+    </view>
+
+    <view wx:if="{{toastText}}" class="lb-toast {{toastClass}}">{{toastText}}</view>
+  </view>
+
+  <view class="lb-guide">
+    <view class="lb-guide-item"><text class="lb-guide-ico">☝</text><text>拖拽瞄准</text></view>
+    <view class="lb-guide-sep"></view>
+    <view class="lb-guide-item"><text class="lb-guide-ico">◎</text><text>松手发射</text></view>
+    <view class="lb-guide-sep"></view>
+    <view class="lb-guide-item"><text class="lb-guide-ico">🛡</text><text>补词破盾</text></view>
+  </view>
+
+  <view wx:if="{{booting}}" class="lb-loading">
+    <view class="lb-loading-card">护盾生成中…</view>
+  </view>
+
+  <battle-fx
+    trigger="{{fxSeq}}"
+    mode="{{fxMode}}"
+    text="{{fxText}}"
+    target-x="{{fxTargetX}}"
+    target-y="{{fxTargetY}}"
+    player-x="{{fxPlayerX}}"
+    player-y="{{fxPlayerY}}"
+    boss-img="{{bossImg}}"
+    boss-emoji="{{bossEmoji}}"
+    use-own-hero="{{true}}"
+    use-own-boss="{{true}}" />
+
+  <settle-pop
+    visible="{{over}}"
+    win="{{win}}"
+    stars-text="{{starsText}}"
+    title="{{resultTitle}}"
+    msg="{{resultMsg}}"
+    hint="{{resultHint}}"
+    show-next="{{showNext && win}}"
+    next-text="下一关 ▶"
+    bind:retry="onRetry"
+    bind:next="onNext" />
+</view>

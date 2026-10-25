@@ -11,6 +11,7 @@ var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var playReport = require('../../utils/play-report');
+var battleFx = require('../../utils/battle-fx');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var COLS = 3;
@@ -158,10 +159,12 @@ Page({
           if (b.ok) {
             this._score += 10;
             this.setData({ score: this._score });
+            battleFx.play(this, 'attack', '+10');
             this._nextWord();
           } else {
             this._lives--;
             this.setData({ lives: this._lives });
+            battleFx.play(this, 'counter', '-1 ♥');
             wx.showToast({ title: '接错了 · 命-1', icon: 'none' });
             if (this._lives <= 0) { this._end(); return; }
           }

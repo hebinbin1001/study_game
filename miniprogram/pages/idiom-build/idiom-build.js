@@ -9,6 +9,7 @@ var CONST = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
 var playReport = require('../../utils/play-report');
+var battleFx = require('../../utils/battle-fx');
 
 var MODE = 'idiom';
 var BEST_KEY = 'ww_idiom_build_best';
@@ -197,6 +198,7 @@ Page({
       this._right++;
       this._score += lib.POINTS;
       this.setData({ score: this._score, slotsCls: 'ok' });
+      battleFx.play(this, (this._qi + 1 >= this._queue.length) ? 'finish' : 'attack', '+' + lib.POINTS);
       wx.showToast({ title: answer + ' · 正确，+' + lib.POINTS, icon: 'none' });
       this._later(function () { self._next(); }, 900);
       return;
@@ -204,6 +206,7 @@ Page({
     this._lives--;
     this._locked = true;
     this.setData({ lives: Math.max(0, this._lives), slotsCls: 'bad' });
+    battleFx.play(this, 'counter', '-1 ♥');
     wx.showToast({ title: '正确答案：' + answer, icon: 'none', duration: 1600 });
     this._later(function () {
       if (self._lives <= 0) { self._finish(false); return; }

@@ -37,6 +37,7 @@
     "pages/link/link",
     "pages/snake/snake",
     "pages/bounce/bounce",
+    "pages/letter-bubble/letter-bubble",
     "pages/level-editor/level-editor",
     "pages/level-share/level-share",
     "pages/custom-levels/custom-levels",
@@ -91,7 +92,8 @@
   },
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
-    "warrior-badge": "/components/warrior-badge/index"
+    "warrior-badge": "/components/warrior-badge/index",
+    "battle-fx": "/components/battle-fx/index"
   },
   "lazyCodeLoading": "requiredComponents"
 }

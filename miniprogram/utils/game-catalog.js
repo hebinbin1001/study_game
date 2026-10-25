@@ -29,6 +29,7 @@ module.exports = [
   { key: 'idiombuild', name: '成语拼字', icon: '🀄️', desc: '看释义拼四字成语', cat: '拼写', section: 'line', lineMode: 'idiom', unlocked: true, minutes: '1~2 分钟', url: '/pages/level/level?mode=idiom' },
   { key: 'snake', name: '单词贪吃蛇', icon: '🐍', desc: '辨词进食 · 越长越强', cat: '反应', section: 'line', lineMode: 'snake', unlocked: true, minutes: '约 2 分钟', url: '/pages/level/level?mode=snake' },
   { key: 'quiz', name: '限时抢答', icon: '⚡', desc: '倒计时抢词 · 答错扣时间', cat: '反应', section: 'line', lineMode: 'quiz', unlocked: true, minutes: '约 1 分钟', url: '/pages/level/level?mode=quiz' },
+  { key: 'letterBubble', name: 'Boss 补字母泡泡龙', icon: '🛡️', desc: '补全单词 · 击破护盾', cat: '射击', section: 'line', lineMode: 'letterBubble', unlocked: true, minutes: '1~2 分钟', url: '/pages/level/level?mode=letterBubble' },
 
   // 数字智力类统一「先关卡页、再进游戏」（第三批 · 第 4 条 a，用户 2026-09-13 拍板）
   { key: 'sudoku', name: '数独', icon: '🔢', desc: '数字推理 · 数学闯关', cat: '数学', section: 'casual', math: true, unlocked: true, minutes: '3~5 分钟', url: '/pages/puzzle-level/puzzle-level?mode=sudoku' },

@@ -9,6 +9,7 @@ var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
 var request = require('../../utils/request');
 var playReport = require('../../utils/play-report');
+var battleFx = require('../../utils/battle-fx');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var COLS = 4, PAIR = 8;
@@ -272,6 +273,7 @@ Page({
     var passable = pair && link.canConnect(grid, ra, ca, rb, cb);
 
     if (passable) {
+      var willClear = this.data.left - 2 <= 0;
       var ia = this._sel.idx;
       this._sel = null;
       var ok = {};
@@ -281,6 +283,7 @@ Page({
       ok.left = this.data.left - 2;
       ok.matched = this.data.matched + 1;   // HUD 进度（2026-10-17）
       this.setData(ok);
+      battleFx.play(this, willClear ? 'finish' : 'attack', '+1 对');
       // 注意：setData 会同步更新 this.data.left，此处不能再减 2，
       // 否则剩最后 2 张牌（1 对未消）就会提前判过关。
       if (this.data.left <= 0) {
@@ -304,6 +307,7 @@ Page({
       bad['cards[' + ia2 + '].sel'] = false;
       bad.lives = lives;
       this.setData(bad);
+      battleFx.play(this, 'counter', '-1 ♥');
       this._flashErr([ia2, idx]);
       wx.showToast({ title: why, icon: 'none' });
       if (lives <= 0) {

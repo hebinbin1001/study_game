@@ -1,0 +1,36 @@
+<view
+  wx:if="{{show}}"
+  class="bfx bfx-{{modeClass}} skin-{{skinFx}}"
+  style="{{targetStyle}}"
+  aria-hidden="true">
+  <view class="bfx-flash"></view>
+  <view class="bfx-aura"></view>
+  <view class="bfx-speed-line speed-a"></view>
+  <view class="bfx-speed-line speed-b"></view>
+  <view class="bfx-speed-line speed-c"></view>
+
+  <view wx:if="{{modeClass !== 'counter' && !useOwnHero}}" class="bfx-hero">
+    <image
+      wx:if="{{warriorImg}}"
+      class="bfx-hero-art"
+      src="{{warriorImg}}"
+      mode="aspectFit"
+      binderror="onWarriorImgError"></image>
+    <view wx:else class="bfx-hero-emoji">{{warriorEmoji}}</view>
+  </view>
+
+  <view wx:if="{{modeClass === 'counter' && !useOwnBoss}}" class="bfx-boss-attacker">
+    <image
+      wx:if="{{bossImg && bossImgOk}}"
+      class="bfx-boss-art"
+      src="{{bossImg}}"
+      mode="aspectFit"
+      binderror="onBossImgError"></image>
+    <view wx:else class="bfx-boss-emoji">{{bossEmoji}}</view>
+  </view>
+
+  <view class="bfx-slash bfx-slash-a"></view>
+  <view class="bfx-slash bfx-slash-b"></view>
+  <view class="bfx-impact"></view>
+  <view wx:if="{{textSafe}}" class="bfx-text">{{textSafe}}</view>
+</view>

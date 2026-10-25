@@ -172,8 +172,7 @@
 .gs-field {
   flex: 1 1 auto;
   position: relative;
-  display: flex;
-  align-items: center;
+  display: block;
   /* 2026-09-29（用户：「整体左右位置还是需要调整下」）：
      原来是 space-between —— 两个立绘各贴一边，而它们的框宽并不相等
      （战士 280rpx 且形象偏窄、怪兽 300rpx 且画面填满），于是整条看着「左空右挤」。
@@ -187,6 +186,18 @@
   /* 2026-09-19 用户再次反馈「还是太小」：战场最小高度 400 → 430rpx */
   min-height: 430rpx;
 }
+.gs-field::before {
+  content: "";
+  position: absolute;
+  left: 17%;
+  right: 17%;
+  top: 49%;
+  height: 3rpx;
+  opacity: .36;
+  background: linear-gradient(90deg, rgba(72,136,188,.12), rgba(255,255,255,.95), rgba(72,136,188,.12));
+  transform: rotate(-23deg);
+  transform-origin: 50% 50%;
+}
 
 /**
  * 立绘尺寸按「素材里角色的实际占比」分别配：
@@ -195,8 +206,10 @@
  * 两个框加起来 580rpx < 战场内宽 670rpx，留出中间「VS」的位置。
  */
 .gs-hero {
-  position: relative;
-  flex: 0 0 auto;
+  position: absolute;
+  left: 8rpx;
+  bottom: 0;
+  z-index: 2;
   width: 280rpx;
   height: 380rpx;
   display: flex;
@@ -204,8 +217,10 @@
   justify-content: center;
 }
 .gs-boss {
-  position: relative;
-  flex: 0 0 auto;
+  position: absolute;
+  right: 8rpx;
+  top: 0;
+  z-index: 2;
   /* 2026-09-19 用户反馈「boss 太大了」：aspectFill 会把脸填满整个框，
      所以框本身就是可见大小 —— 390×380 → 300×300（仍比原来的 300×174 横条大不少） */
   width: 300rpx;
@@ -256,13 +271,49 @@
   50% { transform: scale(1.2) rotate(-4deg); filter: brightness(1.5) hue-rotate(-30deg); }
   100% { transform: scale(1); }
 }
+
+/* 真实角色节点冲锋：页面先量出 Boss / 战士中心坐标，再用这两个变量驱动位移。 */
+.gs-hero-strike {
+  z-index: 6;
+  animation: gsHeroStrike .62s cubic-bezier(.2,.82,.2,1) both;
+}
+@keyframes gsHeroStrike {
+  0% { transform: translate(0, 0) scale(1); }
+  14% { transform: translate(-14rpx, 8rpx) scale(.94); }
+  56% {
+    transform: translate(var(--strike-x), var(--strike-y)) scale(1.1);
+    filter: brightness(1.12);
+  }
+  70% {
+    transform: translate(var(--strike-x), var(--strike-y)) scale(1.14) rotate(-4deg);
+  }
+  100% { transform: translate(0, 0) scale(1); filter: none; }
+}
+
+.gs-boss-counter-run {
+  z-index: 6;
+  animation: gsBossCounterRun .5s cubic-bezier(.28,.82,.22,1) both;
+}
+@keyframes gsBossCounterRun {
+  0% { transform: translate(0, 0) scale(1); }
+  18% { transform: translate(12rpx, -12rpx) scale(1.1) rotate(-3deg); }
+  62% {
+    transform: translate(var(--counter-x), var(--counter-y)) scale(.9) rotate(5deg);
+    filter: brightness(1.35) hue-rotate(-25deg);
+  }
+  75% {
+    transform: translate(var(--counter-x), var(--counter-y)) scale(.94) rotate(-3deg);
+  }
+  100% { transform: translate(0, 0) scale(1); filter: none; }
+}
 .gs-clash {
   /* 2026-09-29 三次调整后的最终形态：从「绝对定位浮在战场中间」改成
      「flex 流里的中间一列」——它天然居中于两个立绘之间，不用再靠 left 偏移去凑
      视觉空隙；而且有自己的横向空间，不会再被立绘框（怪兽那张带不透明底）压住。 */
-  flex: 0 0 auto;
-  /* 左右留一点间距：怪兽的立绘框是填满的，贴在一起会显得挤 */
-  margin: 0 12rpx;
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
   /* 2026-09-29 二次调整（用户：「字母射击中间的 vs 好难看」）：
      上一版是「白胶囊底 + ⚔ VS ⚔」，暴露了两个问题 ——
        ① ⚔ 在这个字体下渲染成灰色单色小图标，夹在 VS 两边显得脏；
@@ -286,7 +337,7 @@
 }
 .gs-clash.danger {
   color: #ff4d6a;
-  transform: scale(1.4);
+  transform: translate(-50%, -50%) scale(1.4);
 }
 
 /* 词槽 */

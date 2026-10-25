@@ -46,7 +46,8 @@
 
     <!-- 对阵：勇士 VS Boss -->
     <view class="gs-field">
-      <view class="gs-hero {{heroHurt ? 'gs-hero-hurt' : ''}}">
+      <view class="gs-hero {{heroHurt ? 'gs-hero-hurt' : ''}} {{heroAttacking ? 'gs-hero-strike' : ''}}"
+        style="{{heroStrikeStyle}}">
         <image
           wx:if="{{warriorImg && warriorImgOk}}"
           class="gs-art"
@@ -58,7 +59,8 @@
       <!-- 2026-09-29 二次调整：去掉两侧的 ⚔（在这个字体下渲染成灰色单色小图标，显得脏），
            只留斜体「VS」+ 白色描边 —— 压在立绘上也读得清，又不像贴了块白补丁。 -->
       <view class="gs-clash {{bossCharging ? 'danger' : ''}}">VS</view>
-      <view class="gs-boss {{bossHit ? 'gs-boss-hit' : ''}} {{bossCharging ? 'gs-boss-charging' : ''}}">
+      <view class="gs-boss {{bossHit ? 'gs-boss-hit' : ''}} {{bossCharging ? 'gs-boss-charging' : ''}} {{bossCountering ? 'gs-boss-counter-run' : ''}}"
+        style="{{bossCounterStyle}}">
         <image
           wx:if="{{bossImg && bossImgOk}}"
           class="gs-art gs-art--fill"
@@ -121,6 +123,20 @@
       </view>
     </view>
   </view>
+
+  <!-- 统一短回合战斗演出：普通命中快速斩，连击/终局使用强化效果 -->
+  <battle-fx
+    trigger="{{fxSeq}}"
+    mode="{{fxMode}}"
+    text="{{fxText}}"
+    target-x="{{fxTargetX}}"
+    target-y="{{fxTargetY}}"
+    player-x="{{fxPlayerX}}"
+    player-y="{{fxPlayerY}}"
+    boss-img="{{bossImg}}"
+    boss-emoji="{{bossEmoji}}"
+    use-own-hero="{{true}}"
+    use-own-boss="{{true}}" />
 
   <!-- 新手引导（首次进入 3 步） -->
   <view wx:if="{{tutorialStep > 0}}" class="gs-mask tutorial-mask" catchtap="onTutorialTap">

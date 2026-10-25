@@ -40,6 +40,8 @@
   </view>
   <view class="foot-tip">左右移动篮子接「正确释义」球(+10)，接错扣命</view>
 
+  <battle-fx trigger="{{fxSeq}}" mode="{{fxMode}}" text="{{fxText}}" />
+
   <!-- 结算统一走公共组件（2026-10-17） -->
   <settle-pop visible="{{over}}" stars-text="{{starsText}}"
     title="游戏结束" msg="得分 {{score}} · 最高 {{best}}"

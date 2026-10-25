@@ -34,19 +34,19 @@ s.test('关卡规模：每学段 30 关', () => {
   });
 });
 
-s.test('编排：6 款玩法轮换 + 终关 Boss，第 1 关固定字母射击', () => {
+s.test('编排：7 款玩法轮换 + 终关 Boss，第 1 关固定字母射击', () => {
   GRADES.forEach(function (g) {
     const rows = challenge.levelsOf(g);
     const count = {};
     rows.forEach(function (r) { count[r.mode] = (count[r.mode] || 0) + 1; });
-    // P2：6 款玩法轮换，30 关 → 每款各 5 关；
-    // 终关 Boss（第 30 关）固定字母射击 → shoot 6 关、snake 4 关，其余仍是各 5 关
-    s.assert.equal(count.shoot, 6, g + ' 字母射击应 6 关（第 1 关新手关 + 第 30 关 Boss 关）');
-    ['match', 'wordBuild', 'link', 'idiom'].forEach(function (m) {
-      s.assert.equal(count[m], 5, g + ' 玩法「' + m + '」应 5 关');
+    // 7 款轮换；为避免第 29/30 连续两关都是射击，第 29 关替换为消消乐：
+    //   shoot/match 各 5，其余各 4。
+    s.assert.equal(count.shoot, 5, g + ' 字母射击应 5 关（含第 30 关 Boss 关）');
+    s.assert.equal(count.match, 5, g + ' 词义消消乐应 5 关');
+    ['wordBuild', 'link', 'idiom', 'snake', 'letterBubble'].forEach(function (m) {
+      s.assert.equal(count[m], 4, g + ' 玩法「' + m + '」应 4 关');
     });
-    s.assert.equal(count.snake, 4, g + ' 贪吃蛇应 4 关（第 30 关被 Boss 关占用）');
-    s.assert.equal(Object.keys(count).length, 6, g + ' 主线应恰好 6 款玩法');
+    s.assert.equal(Object.keys(count).length, 7, g + ' 主线应恰好 7 款玩法');
     s.assert.equal(rows[0].mode, 'shoot', g + ' 第 1 关应为字母射击（新手关）');
     s.assert.equal(rows[challenge.BOSS_LEVEL - 1].mode, 'shoot',
       g + ' 第 ' + challenge.BOSS_LEVEL + ' 关应为字母射击（Boss 关）');
@@ -61,8 +61,7 @@ s.test('编排：相邻两关不重复同一玩法（节奏轮换）', () => {
 });
 
 s.test('模板只使用已支持挑战参数的玩法（防止半成品玩法进主线卡关）', () => {
-  // P2 已接入 6 款：字母射击 / 消消乐 / 字母拼词 / 连连看 / 成语拼字 / 贪吃蛇
-  const supported = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake'];
+  const supported = ['shoot', 'match', 'wordBuild', 'link', 'idiom', 'snake', 'letterBubble'];
   challenge.TEMPLATE.forEach(function (row) {
     s.assert.ok(supported.indexOf(row.mode) !== -1,
       '第 ' + row.level + ' 关的玩法「' + row.mode + '」还没支持按关卡参数开局，不能进主线');
@@ -157,6 +156,16 @@ s.test('星级可达性：每个学段的字母拼词题量都让三档可达', 
     const r = challenge.starReachability(p.count, 5);
     s.assert.deepEqual(r.reachable, [1, 2, 3],
       g + ' 字母拼词 ' + p.count + ' 题 5 命时应 1/2/3 星都可达');
+  });
+});
+
+s.test('星级可达性：补字母泡泡龙按年级题量自动配命，三档都可达', () => {
+  GRADES.forEach(function (g) {
+    const p = challenge.paramsOf(g, 'letterBubble');
+    const r = challenge.starReachability(p.count, p.lives);
+    s.assert.deepEqual(r.reachable, [1, 2, 3],
+      g + ' 补字母泡泡龙 ' + p.count + ' 词 ' + p.lives + ' 命时应三档可达');
+    s.assert.ok(p.bubbles >= 7 && p.bubbles <= 9, g + ' 护盾泡泡数量应在 7~9');
   });
 });
 

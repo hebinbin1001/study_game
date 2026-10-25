@@ -25,12 +25,14 @@ s.test('gameType → 玩法目录 key：常见映射正确', () => {
   s.assert.equal(counts.bump('word_warrior'), 'shoot');
   s.assert.equal(counts.bump('word_build'), 'wordbuild');
   s.assert.equal(counts.bump('idiom'), 'idiombuild');
+  s.assert.equal(counts.bump('letter_bubble'), 'letterBubble');
   s.assert.equal(counts.bump('memory_grid'), 'memory');
   s.assert.equal(counts.bump('math_sprint'), 'sprint');
   const all = counts.getAll();
   s.assert.equal(all.shoot, 1);
   s.assert.equal(all.wordbuild, 1);
   s.assert.equal(all.idiombuild, 1);
+  s.assert.equal(all.letterBubble, 1);
   s.assert.equal(all.memory, 1);
   s.assert.equal(all.sprint, 1);
 });

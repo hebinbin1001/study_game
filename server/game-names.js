@@ -25,6 +25,7 @@ const GAME_NAMES = {
   idiom: '成语拼字',
   snake: '单词贪吃蛇',
   quiz: '限时抢答',
+  letter_bubble: 'Boss 补字母泡泡龙',
   math24: '算 24 点',
   sudoku: '数独',
   sprint: '口算冲刺',

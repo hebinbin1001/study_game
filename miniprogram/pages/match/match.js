@@ -10,6 +10,7 @@ var auth = require('../../utils/auth');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
 var playReport = require('../../utils/play-report');
+var battleFx = require('../../utils/battle-fx');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var PAIR_COUNT = 8; // 8 对 = 16 卡
@@ -150,6 +151,7 @@ Page({
     // 词↔义是否同一 key
     if (a.key === b.key) {
       // 匹配成功：成对消除
+      var willClear = this.data.left - 2 <= 0;
       var idxA = this._sel.idx;
       this._sel = null;
       var patch = {};
@@ -164,6 +166,7 @@ Page({
       this.setData({
         hudExtra: '配对 ' + Math.round((this.data.cards.length - this.data.left) / 2) + '/' + pairsAll + ' 对'
       });
+      battleFx.play(this, willClear ? 'finish' : 'attack', '+1 对');
       if (this.data.left - 2 <= 0) {
         // 2026-10-17：星级统一按正确率（原先按剩余命，错 1 次就从 3 星掉 2 星，
         // 与字母射击「10 题错 1 题仍 3 星」不等价）。正确率 = 配对对数 / 总对数。
@@ -188,6 +191,7 @@ Page({
       p.lives = lives;
       p.mistakes = this.data.mistakes + 1;
       this.setData(p);
+      battleFx.play(this, 'counter', '-1 ♥');
       setTimeout(function () {
         var clr = {};
         clr['cards[' + idxA2 + '].miss'] = false;

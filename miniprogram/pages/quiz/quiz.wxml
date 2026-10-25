@@ -37,6 +37,8 @@
 
   <view class="qz-tip">答对连击加分 · 答错 −2 秒 · 一局 {{totalQ}} 题或时间到即结算</view>
 
+  <battle-fx trigger="{{fxSeq}}" mode="{{fxMode}}" text="{{fxText}}" />
+
   <!-- 结算（公共组件；挑战/玩法线带「下一关」） -->
   <settle-pop
     visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
