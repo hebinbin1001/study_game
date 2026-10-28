@@ -3,6 +3,8 @@
   玩法榜分两层：总览（14 张玩法卡片）→ 详情（该玩法完整榜；字词类才有学段+题型筛选）
   改版原因：原来 14 个玩法 chips 一行平铺，既撑破页面宽度又看不出各玩法情况。
 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-rank">
   <!-- 标题 -->
   <view class="rank-title-bar">

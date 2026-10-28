@@ -161,7 +161,7 @@
   color: var(--white);
   background: rgba(21,68,101,.9);
   box-shadow: 0 6rpx 16rpx rgba(13,49,77,.2);
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
   white-space: nowrap;
   opacity: 0;
@@ -297,7 +297,7 @@
   background: repeating-linear-gradient(
     -18deg,
     transparent 0 16rpx,
-    #fff4c2 17rpx 25rpx,
+    var(--soft-gold) 17rpx 25rpx,
     #ff9362 26rpx 40rpx,
     transparent 41rpx 62rpx
   );
@@ -305,8 +305,8 @@
 }
 .skin-beast .bfx-impact {
   background:
-    linear-gradient(52deg, transparent 46%, #fff4c2 47%, #ff9a62 53%, transparent 54%),
-    linear-gradient(-49deg, transparent 46%, #fff4c2 47%, #ff6f54 53%, transparent 54%),
+    linear-gradient(52deg, transparent 46%, var(--soft-gold) 47%, #ff9a62 53%, transparent 54%),
+    linear-gradient(-49deg, transparent 46%, var(--soft-gold) 47%, #ff6f54 53%, transparent 54%),
     linear-gradient(8deg, transparent 47%, #ffbd63 48%, #ffbd63 52%, transparent 53%);
 }
 .skin-beast .bfx-hero {

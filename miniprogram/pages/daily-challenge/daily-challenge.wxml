@@ -1,4 +1,6 @@
 <!-- 每日挑战赛：当天同学段同一套题，当天出榜 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="dc-page">
 
   <!-- 顶部 -->

@@ -3,13 +3,13 @@
   min-height: 100vh;
   box-sizing: border-box;
   padding: 24rpx 32rpx calc(env(safe-area-inset-bottom) + 48rpx);
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+  background: var(--sky-grad-soft);
 }
 
 .pk-head { display: flex; align-items: center; gap: 20rpx; }
 .pk-head-t { flex: 1; }
-.pk-title { font-size: 38rpx; font-weight: 900; color: #2c4a6b; letter-spacing: 2rpx; }
-.pk-sub { font-size: 24rpx; color: var(--ink-sub); margin-top: 6rpx; }
+.pk-title { font-size: var(--fs-title); font-weight: 900; color: var(--ink-deep); letter-spacing: 2rpx; }
+.pk-sub { font-size: var(--fs-cap); color: var(--ink-sub); margin-top: 6rpx; }
 
 .pk-card {
   background: var(--white);
@@ -18,15 +18,15 @@
   padding: 34rpx 32rpx;
   margin-top: 28rpx;
 }
-.pk-loading { text-align: center; color: var(--ink-sub); font-size: 28rpx; }
+.pk-loading { text-align: center; color: var(--ink-sub); font-size: var(--fs-body); }
 .pk-empty { text-align: center; }
 .pk-empty-emoji { font-size: 90rpx; }
-.pk-empty-t { margin: 16rpx 0 28rpx; color: var(--ink-sub); font-size: 28rpx; }
+.pk-empty-t { margin: 16rpx 0 28rpx; color: var(--ink-sub); font-size: var(--fs-body); }
 .pk-retry { margin: 0 auto; }
 
 /* 答题 */
 .pk-progress { margin-top: 28rpx; }
-.pk-progress-text { font-size: 24rpx; font-weight: 800; color: #2c4a6b; }
+.pk-progress-text { font-size: var(--fs-cap); font-weight: 800; color: var(--ink-deep); }
 .pk-bar {
   height: 16rpx;
   background: rgba(255, 255, 255, .7);
@@ -36,16 +36,16 @@
 }
 .pk-bar-in { height: 100%; background: linear-gradient(90deg, var(--blue), var(--pri)); border-radius: 999rpx; }
 .pk-question { text-align: center; }
-.pk-word { font-size: 72rpx; font-weight: 900; color: #2c4a6b; letter-spacing: 4rpx; word-break: break-all; }
-.pk-qsub { font-size: 24rpx; color: var(--ink-weak); margin-top: 10rpx; }
+.pk-word { font-size: 72rpx; font-weight: 900; color: var(--ink-deep); letter-spacing: 4rpx; word-break: break-all; }
+.pk-qsub { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 10rpx; }
 .pk-opts { margin-top: 26rpx; display: flex; flex-direction: column; gap: 18rpx; }
 .pk-opt {
   background: var(--white);
   border-radius: 28rpx;
   padding: 26rpx 30rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 700;
-  color: #2c4a6b;
+  color: var(--ink-deep);
   box-shadow: var(--clay-2);
 }
 .pk-opt.ok { background: var(--green); color: var(--white); }
@@ -54,11 +54,11 @@
 /* 生成战帖 */
 .pk-created { text-align: center; }
 .pk-created-emoji { font-size: 110rpx; }
-.pk-created-t { font-size: 38rpx; font-weight: 900; color: #2c4a6b; }
-.pk-created-s { font-size: 28rpx; color: var(--ink-sub); margin-top: 12rpx; }
+.pk-created-t { font-size: var(--fs-title); font-weight: 900; color: var(--ink-deep); }
+.pk-created-s { font-size: var(--fs-body); color: var(--ink-sub); margin-top: 12rpx; }
 .pk-code {
   margin-top: 16rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   letter-spacing: 4rpx;
   color: var(--blue);
@@ -69,50 +69,50 @@
 /* 结果 */
 .pk-result { text-align: center; }
 .pk-result-emoji { font-size: 110rpx; }
-.pk-result-t { font-size: 48rpx; font-weight: 900; color: #2c4a6b; }
-.pk-result-reward { font-size: 32rpx; font-weight: 900; color: #ff8f00; margin-top: 8rpx; }
+.pk-result-t { font-size: var(--fs-display); font-weight: 900; color: var(--ink-deep); }
+.pk-result-reward { font-size: var(--fs-strong); font-weight: 900; color: var(--pri); margin-top: 8rpx; }
 .pk-vs { display: flex; align-items: center; margin-top: 26rpx; }
 .pk-side { flex: 1; }
 .pk-side-name {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
-  color: #2c4a6b;
+  color: var(--ink-deep);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.pk-side-score { font-size: 24rpx; color: var(--ink-sub); margin-top: 8rpx; }
-.pk-side-lb { font-size: 24rpx; color: var(--ink-weak); margin-top: 4rpx; }
-.pk-vs-mark { font-size: 32rpx; font-weight: 900; color: var(--pri); padding: 0 16rpx; }
+.pk-side-score { font-size: var(--fs-cap); color: var(--ink-sub); margin-top: 8rpx; }
+.pk-side-lb { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 4rpx; }
+.pk-vs-mark { font-size: var(--fs-strong); font-weight: 900; color: var(--pri); padding: 0 16rpx; }
 
 /* 详情 */
 .pk-detail-top { display: flex; align-items: baseline; justify-content: space-between; }
-.pk-detail-mode { font-size: 32rpx; font-weight: 900; color: #2c4a6b; }
-.pk-detail-state { font-size: 28rpx; font-weight: 900; color: #ff8f00; }
-.pk-detail-s { font-size: 24rpx; color: var(--ink-weak); margin-top: 10rpx; }
-.pk-detail-time { font-size: 24rpx; color: #6f8aa6; margin-top: 8rpx; line-height: 1.5; }
+.pk-detail-mode { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
+.pk-detail-state { font-size: var(--fs-body); font-weight: 900; color: var(--pri); }
+.pk-detail-s { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 10rpx; }
+.pk-detail-time { font-size: var(--fs-cap); color: #6f8aa6; margin-top: 8rpx; line-height: 1.5; }
 .pk-body { margin-top: 24rpx; }
-.pk-my-score { font-size: 28rpx; color: var(--ink-sub); text-align: center; margin-bottom: 18rpx; }
-.pk-challenge-tip { font-size: 24rpx; color: var(--ink-sub); line-height: 1.7; }
+.pk-my-score { font-size: var(--fs-body); color: var(--ink-sub); text-align: center; margin-bottom: 18rpx; }
+.pk-challenge-tip { font-size: var(--fs-cap); color: var(--ink-sub); line-height: 1.7; }
 .pk-accept { margin-top: 22rpx; }
-.pk-expired { font-size: 24rpx; color: var(--ink-weak); text-align: center; line-height: 1.7; }
-.pk-tip { font-size: 24rpx; color: var(--ink-weak); text-align: center; margin-top: 16rpx; line-height: 1.6; }
+.pk-expired { font-size: var(--fs-cap); color: var(--ink-weak); text-align: center; line-height: 1.7; }
+.pk-tip { font-size: var(--fs-cap); color: var(--ink-weak); text-align: center; margin-top: 16rpx; line-height: 1.6; }
 
 /* 发起 + 列表 */
 .pk-start { text-align: center; }
 .pk-start-emoji { font-size: 110rpx; }
-.pk-start-t { font-size: 38rpx; font-weight: 900; color: #2c4a6b; }
-.pk-start-s { font-size: 24rpx; color: var(--ink-sub); line-height: 1.7; margin-top: 12rpx; }
+.pk-start-t { font-size: var(--fs-title); font-weight: 900; color: var(--ink-deep); }
+.pk-start-s { font-size: var(--fs-cap); color: var(--ink-sub); line-height: 1.7; margin-top: 12rpx; }
 .pk-list-head { display: flex; align-items: baseline; justify-content: space-between; margin-top: 34rpx; }
-.pk-list-title { font-size: 32rpx; font-weight: 900; color: #2c4a6b; }
-.pk-list-sub { font-size: 24rpx; color: var(--ink-weak); }
+.pk-list-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
+.pk-list-sub { font-size: var(--fs-cap); color: var(--ink-weak); }
 .pk-list-empty {
   margin-top: 18rpx;
   background: rgba(255, 255, 255, .8);
   border-radius: 28rpx;
   padding: 36rpx;
   text-align: center;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-weak);
 }
 .pk-list-row {
@@ -127,19 +127,19 @@
 }
 .pk-list-main { flex: 1; overflow: hidden; }
 .pk-list-opp {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
-  color: #2c4a6b;
+  color: var(--ink-deep);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.pk-list-meta { font-size: 24rpx; color: var(--ink-weak); margin-top: 6rpx; }
-.pk-list-time { font-size: 24rpx; color: #6f8aa6; margin-top: 5rpx; }
+.pk-list-meta { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 6rpx; }
+.pk-list-time { font-size: var(--fs-cap); color: #6f8aa6; margin-top: 5rpx; }
 .pk-list-right { text-align: right; }
-.pk-list-state { font-size: 24rpx; font-weight: 900; color: var(--ink-weak); }
-.pk-list-state.win { color: #2e8b57; }
-.pk-list-reward { font-size: 24rpx; color: #ff8f00; margin-top: 4rpx; }
+.pk-list-state { font-size: var(--fs-cap); font-weight: 900; color: var(--ink-weak); }
+.pk-list-state.win { color: var(--green-ink); }
+.pk-list-reward { font-size: var(--fs-cap); color: var(--pri); margin-top: 4rpx; }
 
 .pk-login-tip {
   margin-top: 18rpx;
@@ -147,11 +147,11 @@
   align-items: center;
   justify-content: center;
   gap: 16rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
 }
 .pk-login-btn { margin: 0; }
-.pk-foot { text-align: center; font-size: 24rpx; color: var(--ink-weak); margin-top: 28rpx; }
+.pk-foot { text-align: center; font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 28rpx; }
 
 /* 再战按钮（2026-10-28）：列表行里的次要动作，做成小胶囊。
    高度 72rpx 是被行高限制的折中（整行约 120rpx），比正文按钮小但仍是可点尺寸。 */

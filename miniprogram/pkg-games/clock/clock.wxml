@@ -1,4 +1,6 @@
 <!-- 认钟表（数字智力第 10 款）：30 关 × 每关 10 题，难度只靠关卡序号，不接年级 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-clock">
 
   <!-- 顶部三格（沿用统一 HUD 视觉） -->

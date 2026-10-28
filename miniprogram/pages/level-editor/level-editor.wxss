@@ -19,7 +19,7 @@
 }.header-title {
   flex: 1;
   text-align: center;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: var(--white);
   letter-spacing: 6rpx;
@@ -29,7 +29,7 @@
 
 /* ============ 卡片标题 ============ */
 .card-title {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--ink);
   margin-bottom: 28rpx;
@@ -50,7 +50,7 @@
 
 .label {
   display: block;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
   color: var(--ink-sub);
   margin-bottom: 12rpx;
@@ -61,10 +61,10 @@
 .field-textarea {
   width: 100%;
   padding: 22rpx 24rpx;
-  background: #f2f7fc;
+  background: var(--surface);
   border-radius: 28rpx;
   color: var(--ink);
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   box-sizing: border-box;
   border: 4rpx solid #e1edf6;
 }
@@ -84,20 +84,20 @@
   align-items: center;
   justify-content: space-between;
   padding: 22rpx 24rpx;
-  background: #f2f7fc;
+  background: var(--surface);
   border-radius: 28rpx;
   border: 4rpx solid #e1edf6;
 }
 
 .picker-text {
   color: var(--ink);
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 700;
 }
 
 .picker-arrow {
   color: var(--ink-weak);
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
 }
 
@@ -114,7 +114,7 @@
 }
 
 .section-title {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--white);
   letter-spacing: 2rpx;
@@ -128,7 +128,7 @@
   padding: 0 22rpx;
   height: 68rpx;
   line-height: 68rpx;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 700;
   border-radius: var(--r-pill);
   background: #6AA6F5;
@@ -157,9 +157,9 @@
   background: var(--white);
 }
 .pk-head { display: flex; align-items: center; justify-content: space-between; }
-.pk-title { font-size: 32rpx; font-weight: 900; color: #2f5470; }
-.pk-close { font-size: 32rpx; color: #93a9bd; padding: 0 8rpx; }
-.pk-sub { margin-top: 6rpx; font-size: 24rpx; color: #7b93ad; }
+.pk-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
+.pk-close { font-size: var(--fs-strong); color: var(--ink-weak); padding: 0 8rpx; }
+.pk-sub { margin-top: 6rpx; font-size: var(--fs-cap); color: var(--ink-weak); }
 
 .pk-scroll { flex: 0 0 auto; width: 100%; white-space: nowrap; margin-top: 14rpx; }
 .pk-row { display: flex; gap: 12rpx; padding: 2rpx 0; }
@@ -167,12 +167,12 @@
   flex: 0 0 auto;
   padding: 10rpx 24rpx;
   border-radius: 999rpx;
-  background: #eef5fb;
+  background: var(--surface);
   color: var(--ink-sub);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
 }
-.pk-chip.on { background: #4285F4; color: var(--white); }
+.pk-chip.on { background: var(--link); color: var(--white); }
 
 .pk-search {
   flex: 0 0 auto;
@@ -182,11 +182,11 @@
   gap: 10rpx;
   padding: 12rpx 20rpx;
   border-radius: 28rpx;
-  background: #f2f8fd;
+  background: var(--surface);
 }
-.pk-search-ic { font-size: 24rpx; }
-.pk-search-input { flex: 1; font-size: 28rpx; color: #2f5470; }
-.pk-search-clr { font-size: 28rpx; color: #93a9bd; padding: 0 6rpx; }
+.pk-search-ic { font-size: var(--fs-cap); }
+.pk-search-input { flex: 1; font-size: var(--fs-body); color: var(--ink-deep); }
+.pk-search-clr { font-size: var(--fs-body); color: var(--ink-weak); padding: 0 6rpx; }
 
 .pk-list { flex: 1 1 auto; min-height: 420rpx; max-height: 620rpx; margin-top: 12rpx; }
 .pk-item {
@@ -205,32 +205,32 @@
   width: 44rpx;
   height: 44rpx;
   border-radius: 16rpx;
-  border: 2rpx solid #cfe0ee;
+  border: 2rpx solid var(--line);
   background: var(--white);
-  color: #4285F4;
-  font-size: 28rpx;
+  color: var(--link);
+  font-size: var(--fs-body);
   font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.pk-item.on .pk-check { background: #4285F4; border-color: #4285F4; color: var(--white); }
+.pk-item.on .pk-check { background: var(--link); border-color: var(--link); color: var(--white); }
 .pk-main { flex: 1 1 auto; min-width: 0; }
 .pk-qa { display: flex; align-items: baseline; gap: 12rpx; flex-wrap: wrap; }
-.pk-q { font-size: 28rpx; font-weight: 900; color: #2f5470; word-break: break-all; }
-.pk-a { font-size: 24rpx; font-weight: 800; color: #2fa96b; word-break: break-all; }
-.pk-hint { margin-top: 4rpx; font-size: 24rpx; color: var(--ink-weak); }
+.pk-q { font-size: var(--fs-body); font-weight: 900; color: var(--ink-deep); word-break: break-all; }
+.pk-a { font-size: var(--fs-cap); font-weight: 800; color: var(--green); word-break: break-all; }
+.pk-hint { margin-top: 4rpx; font-size: var(--fs-cap); color: var(--ink-weak); }
 .pk-src {
   flex: 0 0 auto;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   padding: 4rpx 12rpx;
   border-radius: 999rpx;
-  background: #eef5fb;
-  color: #93a9bd;
+  background: var(--surface);
+  color: var(--ink-weak);
 }
-.pk-src.mine { background: #e6f7ee; color: #2fa96b; }
+.pk-src.mine { background: var(--soft-green); color: var(--green); }
 .pk-src.edit { background: #fff4dd; color: #d18b00; }
-.pk-empty { padding: 60rpx 0; text-align: center; font-size: 28rpx; color: #93a9bd; }
+.pk-empty { padding: 60rpx 0; text-align: center; font-size: var(--fs-body); color: var(--ink-weak); }
 
 .pk-btns { flex: 0 0 auto; margin-top: 16rpx; display: flex; gap: 18rpx; }
 .pk-btn {
@@ -241,12 +241,12 @@
   border-radius: var(--r-pill);
   background: var(--pri);
   color: var(--white);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   box-shadow: var(--clay-2);
 }
-.pk-btn.ghost { flex: 0 0 200rpx; background: #eef5fb; color: #7b93ad; }
-.pk-tip { margin-top: 14rpx; text-align: center; font-size: 24rpx; color: #93a9bd; line-height: 1.5; }
+.pk-btn.ghost { flex: 0 0 200rpx; background: var(--surface); color: var(--ink-weak); }
+.pk-tip { margin-top: 14rpx; text-align: center; font-size: var(--fs-cap); color: var(--ink-weak); line-height: 1.5; }
 
 /* 添加按钮：绿色小胶囊 + 按压感 */
 .btn-add {
@@ -254,7 +254,7 @@
   padding: 0 24rpx;
   height: 68rpx;
   line-height: 68rpx;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 700;
   border-radius: var(--r-pill);
   background: var(--green);
@@ -293,7 +293,7 @@ button.btn-add::after {
 
 /* 题号：彩色小徽章 */
 .item-index {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   color: var(--white);
   background: var(--blue);
@@ -308,7 +308,7 @@ button.btn-add::after {
   padding: 0 20rpx;
   height: 56rpx;
   line-height: 56rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
   border-radius: 28rpx;
   background: #ffe3e3;
@@ -336,7 +336,7 @@ button.btn-remove::after {
   flex: 1;
   padding: 28rpx 0;
   border-radius: 999rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   letter-spacing: 2rpx;
   color: var(--white);
@@ -377,13 +377,13 @@ button.btn-submit::after {
 }
 
 .empty-text {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-sub);
   font-weight: 700;
   margin-bottom: 8rpx;
 }
 
 .empty-sub {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
 }

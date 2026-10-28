@@ -1,4 +1,6 @@
 <!-- 赛季：自然双月一季，赛季榜 + 上赛季奖励 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="se-page">
 
   <view class="se-head">

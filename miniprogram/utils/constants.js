@@ -135,6 +135,7 @@ const STORAGE_KEYS = {
   warriorSkin: 'ww_warrior_skin', // 当前使用的战士皮肤 avatarId
   bossSkin: 'ww_boss_skin',        // 当前使用的怪兽皮肤 avatarId
   sound: 'ww_sound_on',            // 声音开关（'1'开/'0'关，默认开）
+  fontScale: 'ww_font_scale',      // 字号档位（'s'/'m'/'l'，默认 m，见 utils/font-scale.js）
   lastGrade: 'ww_last_grade',      // 最近一次进入的学段（首页「继续挑战」定位用）
   lastType: 'ww_last_type',        // 最近一次进入的题型分类（空 = 综合）
   book: 'ww_book',                 // 教材版本（''=通用 / pep / wys，仅小学可选，2026-10-08）

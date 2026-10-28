@@ -1,6 +1,8 @@
 <!-- 设置页（2026-10-28）
      结构照微信原生设置页：分组卡片 + 左侧标题 + 右侧控件。
      没有「保存」按钮 —— 每一项都是即时生效的，加保存反而让用户以为点了才算。 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-set">
   <view class="st-head">
     <view class="st-back" bindtap="goBack">‹</view>
@@ -14,6 +16,24 @@
         <view class="st-row-s">发音、答对/答错音效统一受此开关控制</view>
       </view>
       <switch checked="{{soundOn}}" color="#ff9a1f" bindchange="toggleSound" />
+    </view>
+  </view>
+
+  <view class="st-group">
+    <view class="st-row st-row--stack">
+      <view class="st-row-main">
+        <view class="st-row-t">字号</view>
+        <view class="st-row-s">正文字号整体放大/缩小，巨型数字与图标不动</view>
+      </view>
+      <view class="fs-seg">
+        <view wx:for="{{fontLevels}}" wx:key="key"
+          class="fs-seg-i {{item.key === fontKey ? 'is-on' : ''}}"
+          data-key="{{item.key}}" bindtap="pickFont">{{item.label}}</view>
+      </view>
+    </view>
+    <view class="fs-demo">
+      <view class="fs-demo-t">示例</view>
+      <view class="fs-demo-b">春眠不觉晓，处处闻啼鸟。</view>
     </view>
   </view>
 

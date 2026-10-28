@@ -1,4 +1,6 @@
 <!-- 错题复习页（2026-10-25：十题一关 + 关内全自动推进） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-wrong-review">
   <!-- 顶部进度：本关第几题 + 实时答对数（进度条按本关算，不再是整池的 0.9%） -->
   <view class="progress-bar review-progress">

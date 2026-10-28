@@ -1,4 +1,6 @@
 <!-- 数字智力 · 关卡选择页：先看关卡再进游戏（第三批 · 第 4 条 a） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-puzzle-level">
   <view class="pl-head">
     <view class="pl-ic">{{icon}}</view>

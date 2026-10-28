@@ -21,7 +21,7 @@
   justify-content: center;
   border-radius: 50%;
   box-sizing: border-box;
-  border: 4rpx solid #ffc53d;
+  border: 4rpx solid var(--gold);
   background: radial-gradient(120% 90% at 50% 15%, #fff6dd 0%, #ffe6a8 100%);
   box-shadow: 0 4rpx 12rpx rgba(20, 40, 80, .22), inset 0 0 0 3rpx rgba(255, 255, 255, .55);
   overflow: hidden;

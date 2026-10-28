@@ -1,4 +1,6 @@
 <!-- 用户协议与隐私政策（完整文本页，供登录前阅读 / 我的-关于查看） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-agree">
   <view class="doc-title">词力战士 · 用户协议与隐私政策</view>
   <view class="doc-meta">更新日期：2026-09 · 生效日期：2026-09</view>

@@ -3,13 +3,13 @@
   min-height: 100vh;
   box-sizing: border-box;
   padding: 24rpx 32rpx calc(env(safe-area-inset-bottom) + 48rpx);
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+  background: var(--sky-grad-soft);
 }
 
 .dc-head { display: flex; align-items: center; gap: 20rpx; }
 .dc-head-t { flex: 1; }
-.dc-title { font-size: 38rpx; font-weight: 900; color: #2c4a6b; letter-spacing: 2rpx; }
-.dc-sub { font-size: 24rpx; color: var(--ink-sub); margin-top: 6rpx; }
+.dc-title { font-size: var(--fs-title); font-weight: 900; color: var(--ink-deep); letter-spacing: 2rpx; }
+.dc-sub { font-size: var(--fs-cap); color: var(--ink-sub); margin-top: 6rpx; }
 
 .dc-card {
   background: var(--white);
@@ -18,28 +18,28 @@
   padding: 36rpx 32rpx;
   margin-top: 28rpx;
 }
-.dc-loading { text-align: center; color: var(--ink-sub); font-size: 28rpx; }
+.dc-loading { text-align: center; color: var(--ink-sub); font-size: var(--fs-body); }
 .dc-empty { text-align: center; }
 .dc-empty-emoji { font-size: 90rpx; }
-.dc-empty-t { margin: 16rpx 0 28rpx; color: var(--ink-sub); font-size: 28rpx; }
+.dc-empty-t { margin: 16rpx 0 28rpx; color: var(--ink-sub); font-size: var(--fs-body); }
 .dc-retry { margin: 0 auto; }
 
 /* 准备态 */
 .dc-hero { text-align: center; }
 .dc-hero-emoji { font-size: 110rpx; }
-.dc-hero-t { font-size: 38rpx; font-weight: 900; color: #2c4a6b; margin-top: 8rpx; }
-.dc-hero-s { font-size: 24rpx; color: var(--ink-sub); line-height: 1.7; margin-top: 14rpx; }
+.dc-hero-t { font-size: var(--fs-title); font-weight: 900; color: var(--ink-deep); margin-top: 8rpx; }
+.dc-hero-s { font-size: var(--fs-cap); color: var(--ink-sub); line-height: 1.7; margin-top: 14rpx; }
 .dc-start { margin-top: 32rpx; }
 .dc-best {
   margin-top: 22rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
-  color: #ff8f00;
+  color: var(--pri);
 }
 
 /* 答题态 */
 .dc-progress { margin-top: 28rpx; }
-.dc-progress-text { font-size: 24rpx; font-weight: 800; color: #2c4a6b; }
+.dc-progress-text { font-size: var(--fs-cap); font-weight: 800; color: var(--ink-deep); }
 .dc-bar {
   height: 16rpx;
   background: rgba(255, 255, 255, .7);
@@ -53,20 +53,20 @@
 .dc-word {
   font-size: 72rpx;
   font-weight: 900;
-  color: #2c4a6b;
+  color: var(--ink-deep);
   letter-spacing: 4rpx;
   word-break: break-all;
 }
-.dc-qsub { font-size: 24rpx; color: var(--ink-weak); margin-top: 10rpx; }
+.dc-qsub { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 10rpx; }
 
 .dc-opts { margin-top: 26rpx; display: flex; flex-direction: column; gap: 18rpx; }
 .dc-opt {
   background: var(--white);
   border-radius: 28rpx;
   padding: 26rpx 30rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 700;
-  color: #2c4a6b;
+  color: var(--ink-deep);
   box-shadow: var(--clay-2);
 }
 .dc-opt:active { transform: translateY(2rpx); }
@@ -76,9 +76,9 @@
 /* 结算态 */
 .dc-result { text-align: center; }
 .dc-result-emoji { font-size: 110rpx; }
-.dc-result-t { font-size: 48rpx; font-weight: 900; color: #2c4a6b; margin-top: 8rpx; }
-.dc-result-s { font-size: 28rpx; color: var(--ink-sub); margin-top: 10rpx; }
-.dc-result-rank { font-size: 28rpx; font-weight: 900; color: #ff8f00; margin-top: 14rpx; }
+.dc-result-t { font-size: var(--fs-display); font-weight: 900; color: var(--ink-deep); margin-top: 8rpx; }
+.dc-result-s { font-size: var(--fs-body); color: var(--ink-sub); margin-top: 10rpx; }
+.dc-result-rank { font-size: var(--fs-body); font-weight: 900; color: var(--pri); margin-top: 14rpx; }
 .dc-again { margin-top: 30rpx; }
 .dc-login-tip {
   margin-top: 20rpx;
@@ -86,7 +86,7 @@
   align-items: center;
   justify-content: center;
   gap: 16rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
 }
 .dc-login-btn { margin: 0; }
@@ -94,15 +94,15 @@
 /* 榜单 */
 .dc-rank { margin-top: 32rpx; }
 .dc-rank-head { display: flex; align-items: baseline; justify-content: space-between; }
-.dc-rank-title { font-size: 32rpx; font-weight: 900; color: #2c4a6b; }
-.dc-rank-sub { font-size: 24rpx; color: var(--ink-weak); }
+.dc-rank-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
+.dc-rank-sub { font-size: var(--fs-cap); color: var(--ink-weak); }
 .dc-rank-empty {
   margin-top: 18rpx;
   background: rgba(255, 255, 255, .8);
   border-radius: 28rpx;
   padding: 36rpx;
   text-align: center;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-weak);
 }
 .dc-rank-row {
@@ -116,7 +116,7 @@
   box-shadow: var(--clay-2);
 }
 .dc-rank-row.me { outline: 4rpx solid var(--pri); }
-.dc-rank-no { width: 56rpx; text-align: center; font-size: 28rpx; font-weight: 900; color: var(--ink-sub); }
+.dc-rank-no { width: 56rpx; text-align: center; font-size: var(--fs-body); font-weight: 900; color: var(--ink-sub); }
 .dc-rank-avatar {
   width: 64rpx;
   height: 64rpx;
@@ -128,26 +128,26 @@
   justify-content: center;
 }
 .dc-avatar-img { width: 100%; height: 100%; }
-.dc-avatar-txt { font-size: 28rpx; font-weight: 900; color: var(--blue); }
+.dc-avatar-txt { font-size: var(--fs-body); font-weight: 900; color: var(--blue); }
 .dc-rank-name {
   flex: 1;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 800;
-  color: #2c4a6b;
+  color: var(--ink-deep);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .dc-me {
   margin-left: 10rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--white);
   background: var(--pri);
   border-radius: 999rpx;
   padding: 2rpx 12rpx;
 }
 .dc-rank-score { text-align: right; }
-.dc-rank-correct { display: block; font-size: 28rpx; font-weight: 900; color: #2e8b57; }
-.dc-rank-time { display: block; font-size: 24rpx; color: var(--ink-weak); margin-top: 2rpx; }
+.dc-rank-correct { display: block; font-size: var(--fs-body); font-weight: 900; color: var(--green-ink); }
+.dc-rank-time { display: block; font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 2rpx; }
 
-.dc-foot { text-align: center; font-size: 24rpx; color: var(--ink-weak); margin-top: 28rpx; }
+.dc-foot { text-align: center; font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 28rpx; }

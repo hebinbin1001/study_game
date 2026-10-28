@@ -1,4 +1,6 @@
 <!-- 个人中心 Tab（B1 UI 对齐 demo 我的页；保留完整功能菜单） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-me">
   <!-- 资料卡：头像 + 昵称 + 段位行 + 编辑/登录 -->
   <view class="profile-card" bindtap="onProfileTap">

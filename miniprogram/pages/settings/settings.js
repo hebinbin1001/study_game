@@ -1,17 +1,19 @@
-// 设置页（2026-10-28）
+// 设置页（2026-10-28，2026-10-28 补字号）
 //
-// 只做**能立刻生效、且不会丢数据**的三件事：
+// 只做**能立刻生效、且不会丢数据**的四件事：
 //   1. 声音开关 —— 与首页 HUD 喇叭共用 STORAGE_KEYS.sound，改一处两处都变；
-//   2. 清理临时缓存 —— 只清「上局错题」「玩法计数」这类可重建的本地缓存，
+//   2. 字号三档 —— 只改 --fs-scale 倍数，见 utils/font-scale.js；
+//   3. 清理临时缓存 —— 只清「上局错题」「玩法计数」这类可重建的本地缓存，
 //      **不动**登录态、星星存档、皮肤；清了这些用户会以为「进度没了」；
-//   3. 关于（版本 / 协议入口）。
+//   4. 关于（版本 / 协议入口）。
 //
-// 刻意没做的：三档字号。全站仍有大量硬编码字号没进令牌体系，
-//   现在加字号开关只会变成「一半字变大」的半成品，等令牌收口再说（已记进待办）。
+// 字号这一项是等「令牌收口」做完才加的：先把全站 794 处写死字号的 font-size
+// 换成 var(--fs-*)，否则开关只会让一半文字变大，变成半成品。
 
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
 var audio = require('../../game/audio');
+var fontScale = require('../../utils/font-scale');
 
 // 可安全清理的临时缓存：都能从服务端或下一次操作重新生成
 var TEMP_KEYS = [
@@ -22,13 +24,16 @@ var TEMP_KEYS = [
 Page({
   data: {
     soundOn: true,
-    version: '开发版'
+    version: '开发版',
+    fontKey: 'm',
+    fontLevels: fontScale.LEVELS
   },
 
   onShow: function () {
     this.setData({
       // 与其他页面同一口径：只有明确写 '0' 才算关闭，缺失按默认开
-      soundOn: storage.get(constants.STORAGE_KEYS.sound) !== '0'
+      soundOn: storage.get(constants.STORAGE_KEYS.sound) !== '0',
+      fontKey: fontScale.current()
     });
     this._readVersion();
   },
@@ -59,6 +64,18 @@ Page({
     // 同步运行时状态：game/audio 的开关是内存变量，只落盘不改内存要等下次启动才生效
     audio.setSoundEnabled(on);
     this.setData({ soundOn: on });
+  },
+
+  /**
+   * 切换字号档位。
+   * 除了落盘，还要当场把本页的 fsStyle 改掉 —— 全局那层只在 onShow 时重算，
+   * 而「在设置页改字号」不会触发自己的 onShow，不手动 setData 就会出现
+   * 「别的页面变了、当前这页没变」，用户会以为没生效。
+   */
+  pickFont: function (e) {
+    var key = String((e.currentTarget.dataset || {}).key || '');
+    if (!fontScale.set(key)) return;
+    this.setData({ fontKey: key, fsStyle: fontScale.styleOf(key) });
   },
 
   clearCache: function () {

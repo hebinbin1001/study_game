@@ -88,6 +88,8 @@ const MODULES = [
     unit: ['achievement-view', 'achievements', 'avatar-unlock', 'skins', 'rank-ladder',
       'progress', 'ebbinghaus', 'wrong-book-view', 'wrong-book', 'review', 'rank-badge',
       'auth-guard', 'admin-auth', 'rel-time',
+      // 2026-10-28 三档字号：设置页的开关 + 全站 52 个页面的 page-meta 覆盖
+      'font-scale',
       // 2026-10-08 补登记：这两个一直没归到模块，跑 --module=user 时会漏掉
       'exam-gate', 'nickname-util', 'ranklist-sql-alias', 'pk-ui', 'daily-checkin-flow',
       // 2026-10-25 错题复习十题一关
@@ -182,6 +184,9 @@ const PATH_RULES = [
   // 公共入口：影响所有页面（含按需注入），至少跑静态 + 页面回归
   { re: /^miniprogram\/app\.json$/, modules: ['static', 'pages'] },
   { re: /^miniprogram\/app\.wxss$/, modules: ['static', 'pages'] },
+  // 2026-10-28 app.js 里包了一层全局 Page 构造器（注入字号倍率），改错会影响所有页面
+  { re: /^miniprogram\/app\.js$/, modules: ['static', 'pages'] },
+  { re: /^miniprogram\/utils\/font-scale\.js$/, modules: ['user', 'pages'] },
   { re: /^miniprogram\/project(\.private)?\.config\.json$/, modules: ['static'] },
   { re: /^miniprogram\/sitemap\.json$/, modules: ['static'] },
 
@@ -239,6 +244,7 @@ const PATH_RULES = [
   { re: /^miniprogram\/utils\/play-report\.js$/, modules: ['game', 'wordgames', 'user'] },
   { re: /^miniprogram\/utils\/request\.js$/, modules: ['user', 'server'] },
   { re: /^miniprogram\/pages\/(study|agreement|share-card|daily-question)\//, modules: ['pages', 'user'] },
+  { re: /^miniprogram\/pages\/settings\//, modules: ['user', 'pages'] },
 
   // 资源
   { re: /^miniprogram\/assets\//, modules: ['assets', 'pages'] },

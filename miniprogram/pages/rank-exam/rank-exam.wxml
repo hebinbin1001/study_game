@@ -1,6 +1,8 @@
 <!-- 段位晋级考试（2026-10-08）：
      10 题全对才算过；过了才能继续往上攒星（星数封顶见 server/exam-gate.js）。
      三种形态：quiz 答题 / pass 通过 / fail 失败（可原地重考）。 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-exam">
 
   <!-- ===== 答题 ===== -->

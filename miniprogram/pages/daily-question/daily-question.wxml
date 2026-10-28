@@ -1,4 +1,6 @@
 <!-- 每日一题（B2）：完成=今日签到 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-daily">
   <!-- 顶部：连续 + 今日状态 -->
   <view class="top-card">

@@ -4,7 +4,7 @@
    一期同时删除了「闯关形态」模式栏与蛇形地图（节点定位/连线）两段样式。 */
 
 page {
-  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+  background: linear-gradient(180deg, var(--sky-2) 0%, var(--sky-3) 55%, var(--sky-3) 100%);
   min-height: 100vh;
   color: var(--ink);
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
@@ -31,7 +31,7 @@ page {
   text-align: center;
   border-radius: var(--r-pill);
   font-weight: 800;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   color: var(--ink-sub);
   background: rgba(255, 255, 255, 0.75);
   box-shadow: var(--clay-2);
@@ -68,17 +68,17 @@ page {
   align-items: center;
 }
 .progress-emoji {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   line-height: 1;
   margin-right: 10rpx;
 }
 .progress-text {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 800;
   color: var(--ink);
 }
 .progress-value {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
   color: var(--pri-ink);
 }
@@ -145,7 +145,7 @@ page {
 }
 .lvrow.done .lv-no { background: var(--green); color: var(--white); }
 .lvrow.cur .lv-no { background: var(--pri-deep); color: var(--white); }
-.lvrow.lock .lv-no { background: linear-gradient(rgba(20, 50, 90, .05), rgba(20, 50, 90, .05)), var(--white); color: var(--ink-weak); font-size: 32rpx; }
+.lvrow.lock .lv-no { background: linear-gradient(rgba(20, 50, 90, .05), rgba(20, 50, 90, .05)), var(--white); color: var(--ink-weak); font-size: var(--fs-strong); }
 
 /* 中：题型标签 + 第 N 关 / 副说明 */
 .lv-mid {
@@ -161,7 +161,7 @@ page {
   margin-right: 12rpx;
   padding: 2rpx 12rpx;
   border-radius: 16rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   color: #2f6fd0;
   background: #e8f2ff;
@@ -177,7 +177,7 @@ page {
   margin-left: 12rpx;
   padding: 2rpx 12rpx;
   border-radius: 16rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   letter-spacing: 1rpx;
   color: #6b3d00;
@@ -221,7 +221,7 @@ page {
   overflow: hidden;
 }
 .lv-boss-img { width: 72rpx; height: 72rpx; }
-.lv-boss-emoji { font-size: 48rpx; line-height: 1; }
+.lv-boss-emoji { font-size: var(--fs-display); line-height: 1; }
 .lv-t2 {
   margin-top: 6rpx;
   font-size: var(--fs-cap);
@@ -251,12 +251,12 @@ page {
   color: var(--ink-weak);
 }
 .lv-go--cur {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--pri-ink);
 }
 /* 已解锁但还没轮到：可直接开打（与「锁定」明确区分） */
 .lv-go--open {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--sky-deep);
 }
 .lv-locktip {
@@ -290,7 +290,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
   color: var(--white);
   line-height: 1;
@@ -299,14 +299,14 @@ page {
   box-shadow: var(--clay-1);
 }
 .entry-text {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 800;
   color: var(--ink);
 }
 .entry-arrow {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
-  color: #c9d6e8;
+  color: var(--line);
 }
 
 /* ===== 游客横幅（M5 REQ-GUEST-1） ===== */
@@ -322,12 +322,12 @@ page {
   box-shadow: var(--clay-2);
 }
 .guest-banner-icon {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   margin-right: 12rpx;
 }
 .guest-banner-text {
   flex: 1;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-sub);
   font-weight: 700;
 }
@@ -339,7 +339,7 @@ page {
   border-radius: var(--r-pill);
   background: var(--blue);
   color: var(--white);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
 }
 
@@ -365,13 +365,13 @@ page {
 }
 .cb-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .cb-b {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   text-shadow: 0 2rpx 0 rgba(160, 90, 0, 0.35);
 }
 .cb-s {
   margin-top: 4rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #fff6e4;
   overflow: hidden;
   white-space: nowrap;
@@ -379,7 +379,7 @@ page {
 }
 .cb-go {
   flex: 0 0 auto;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   padding: 10rpx 20rpx;
   border-radius: 999rpx;
@@ -412,11 +412,11 @@ page {
   padding: 10rpx 6rpx;
   border-radius: 16rpx;
   background: #f4f7fc;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   color: #6b7f99;
 }
-.chest-chip__ic { font-size: 28rpx; line-height: 1; }
+.chest-chip__ic { font-size: var(--fs-body); line-height: 1; }
 .chest-chip__tx {
   overflow: hidden;
   white-space: nowrap;
@@ -424,8 +424,8 @@ page {
 }
 .chest-chip.lock { opacity: 0.6; }
 .chest-chip.ready {
-  background: linear-gradient(135deg, #fff3d6, #ffe4a8);
-  color: #b57900;
+  background: linear-gradient(135deg, var(--soft-gold), #ffe4a8);
+  color: var(--pri-ink);
   box-shadow: 0 0 0 3rpx var(--pri);
 }
 .chest-chip.done { background: #eef7ef; color: #1E8E3E; }
@@ -442,10 +442,10 @@ page {
   box-shadow: var(--clay-1);
 }
 .grade-line:active { transform: translateY(2rpx); }
-.grade-line__ic { font-size: 32rpx; flex: 0 0 auto; }
-.grade-line__t { font-size: 28rpx; font-weight: 900; color: var(--ink-deep); }
-.grade-line__s { font-size: 24rpx; color: var(--ink-weak); font-weight: 700; }
-.grade-line__go { margin-left: auto; font-size: 24rpx; font-weight: 800; color: #4285F4; }
+.grade-line__ic { font-size: var(--fs-strong); flex: 0 0 auto; }
+.grade-line__t { font-size: var(--fs-body); font-weight: 900; color: var(--ink-deep); }
+.grade-line__s { font-size: var(--fs-cap); color: var(--ink-weak); font-weight: 700; }
+.grade-line__go { margin-left: auto; font-size: var(--fs-cap); font-weight: 800; color: var(--link); }
 
 /* ===== 开打前认词（2026-10-28） =====
    0 星的关才弹：先认词再打，解决「没学过就考」。样式复用本页白卡 + 黏土阴影基调。 */

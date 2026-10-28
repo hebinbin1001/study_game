@@ -1,4 +1,6 @@
 <!-- 算式天平（玩法落地：demo g5）：把数字放上右盘，让天平平衡 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-balance">
 
   <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />

@@ -1,4 +1,6 @@
 <!-- 口算冲刺（玩法落地：demo g6）：限时口算 + 连击倍率 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-sprint">
 
   <view class="hud-holder">

@@ -1,5 +1,7 @@
 <!-- 自建关卡中心（原名「自定义题库」，2026-09-18 改名避免与新的「题库」页撞名）
      B4：我的关卡 / 公开广场 / 新建 / 导入 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-custom">
   <view class="hub-head">
     <button class="btn-back" bindtap="goBack">返回</button>

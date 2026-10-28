@@ -5,7 +5,7 @@
   padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%);
+  background: var(--sky-grad);
 }/* 4×4 棋盘：贴着自己的格子（不被拉伸），用 auto 外边距在剩余空间里居中 */
 .board {
   flex: 0 0 auto;
@@ -24,14 +24,14 @@
   padding: 6rpx;
   box-sizing: border-box;
   color: var(--ink);
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 800;
   text-align: center;
   word-break: break-all;
 }
 /* 长词（blackboard/breakfast）在 4 列格子里收一档字号，避免折成「blackboar d」 */
-.tile.long { font-size: 24rpx; letter-spacing: -0.5rpx; line-height: 1.2; }
-.tile.word { color: #4285F4; font-size: 32rpx; }
+.tile.long { font-size: var(--fs-cap); letter-spacing: -0.5rpx; line-height: 1.2; }
+.tile.word { color: var(--link); font-size: var(--fs-strong); }
 .tile.word.b-sel { background: linear-gradient(180deg, #fffdf6 0%, #eaf3ff 100%); }
 /* 命中：先亮绿再缩没（原来只有淡出，看不出"消掉了"） */
 .tile.hit {
@@ -46,18 +46,18 @@
 .tile.miss { background: linear-gradient(180deg, #ff9cbc 0%, #ff7ba4 100%); color: var(--white); animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
 
-.tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; margin: 16rpx 0 6rpx; min-height: 36rpx; }
+.tip { flex: 0 0 auto; text-align: center; font-size: var(--fs-cap); color: var(--ink-sub); opacity: 1; margin: 16rpx 0 6rpx; min-height: 36rpx; }
 
 /* 结算插槽按钮（内容在页面上下文渲染） */
 .s-btns { display: flex; flex-direction: column; gap: 14rpx; margin-top: 24rpx; }
 .btn-main {
   width: 100%; height: 92rpx; line-height: 92rpx; border-radius: var(--r-pill);
-  background: var(--pri); color: var(--white); font-size: 32rpx; font-weight: 900;
+  background: var(--pri); color: var(--white); font-size: var(--fs-strong); font-weight: 900;
   box-shadow: var(--clay-3);
 }
 .btn-ghost {
   width: 100%; height: 88rpx; line-height: 88rpx; border-radius: var(--r-pill);
-  background: #eef2f8; color: var(--ink-sub); font-size: 32rpx; font-weight: 800;
+  background: var(--surface); color: var(--ink-sub); font-size: var(--fs-strong); font-weight: 800;
 }
 .btn-main::after, .btn-ghost::after { border: none; }
 
@@ -69,16 +69,16 @@
 }
 .over-card { width: 600rpx; background: var(--white); border-radius: 28rpx; padding: 44rpx 36rpx; text-align: center; }
 .o-stars { font-size: 72rpx; color: var(--pri); letter-spacing: 8rpx; }
-.o-title { font-size: 48rpx; font-weight: 900; color: #2e8b57; margin-top: 10rpx; }
-.o-title.fail { color: #e62e2e; }
-.o-msg { font-size: 28rpx; color: var(--ink-weak); margin-top: 10rpx; }
+.o-title { font-size: var(--fs-display); font-weight: 900; color: var(--green-ink); margin-top: 10rpx; }
+.o-title.fail { color: var(--danger-ink); }
+.o-msg { font-size: var(--fs-body); color: var(--ink-weak); margin-top: 10rpx; }
 .btn-again {
   margin-top: 18rpx; width: 100%; height: 92rpx; line-height: 92rpx;
   border-radius: var(--r-pill); background: var(--pri); color: var(--white);
-  font-size: 32rpx; font-weight: 900;
+  font-size: var(--fs-strong); font-weight: 900;
   box-shadow: var(--clay-3);
 }
-.btn-again.ghost { background: #eef2f8; color: var(--ink-sub); box-shadow: none; }
+.btn-again.ghost { background: var(--surface); color: var(--ink-sub); box-shadow: none; }
 .btn-again::after { border: none; }
 
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }

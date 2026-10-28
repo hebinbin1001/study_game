@@ -1,4 +1,6 @@
 <!-- 字母拼词工坊（玩法落地：demo g2）：看中文意思拼出英文单词 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-word-build">
 
   <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />

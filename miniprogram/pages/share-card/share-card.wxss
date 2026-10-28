@@ -21,14 +21,14 @@ page {
 }
 
 .pg-title {
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
   color: var(--white);
   letter-spacing: 4rpx;
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
 }
 .pg-sub {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-sub);
   margin-top: 12rpx;
   margin-bottom: 28rpx;
@@ -65,7 +65,7 @@ page {
   height: 96rpx;
   line-height: 96rpx;
   border-radius: var(--r-pill);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--white);
   text-align: center;

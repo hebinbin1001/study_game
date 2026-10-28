@@ -1,4 +1,6 @@
 <!-- 一笔画（移植 demo/一笔画小游戏.html）：每条线只能走一次，走完全部线过关 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-one-stroke">
 
   <!-- 本玩法不计命数，顶部换成 关卡名/已走线/步数 三个信息块（沿用统一 HUD 视觉） -->

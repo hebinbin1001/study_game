@@ -1,4 +1,6 @@
 <!-- 战绩分享卡页（M6-K）：绘制 → 导出 → 保存/转发 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-share">
   <view class="pg-title">🎁 战绩分享卡</view>
   <view class="pg-sub">生成你的专属战绩海报，分享给好友</view>

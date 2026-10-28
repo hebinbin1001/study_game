@@ -33,7 +33,7 @@
   color: #31536f;
   background: rgba(255,255,255,.94);
   box-shadow: var(--clay-1);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   white-space: nowrap;
 }
@@ -77,7 +77,7 @@
   justify-content: space-between;
   gap: 14rpx;
   color: #7c91a4;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
 }
 .lb-stage {
@@ -114,11 +114,11 @@
   line-height: 1.05;
 }
 .lb-word.word-long {
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   letter-spacing: 1rpx;
 }
 .lb-word.word-xl {
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   letter-spacing: 0;
 }
 .lb-letter {
@@ -152,20 +152,20 @@
 .lb-meaning-main {
   display: block;
   color: #294d68;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
 }
 .lb-ipa {
   display: block;
   margin-top: 3rpx;
   color: #8ca1b2;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   white-space: nowrap;
 }
 .lb-clue {
   margin-top: 7rpx;
   color: #879aab;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
 }
 .lb-clue--good { color: #16805e; }
@@ -334,7 +334,7 @@
   display: flex;
   justify-content: space-between;
   color: var(--white);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   text-shadow: 0 2rpx 5rpx rgba(30,64,93,.6);
 }
@@ -353,7 +353,7 @@
   color: var(--white);
   box-shadow: var(--clay-2);
   font-family: "Trebuchet MS", sans-serif;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   text-shadow: 0 2rpx 3rpx rgba(28,68,99,.2);
   transition: transform .12s ease, box-shadow .12s ease;
@@ -551,7 +551,7 @@
   color: var(--white);
   background: rgba(22,55,82,.92);
   box-shadow: 0 7rpx 16rpx rgba(21,61,93,.2);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -578,12 +578,12 @@
   justify-content: center;
   gap: 8rpx;
   color: #486b87;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
 }
 .lb-guide-ico {
   color: #327dc2;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
 }
 .lb-guide-sep {
@@ -607,7 +607,7 @@
   color: #315571;
   background: var(--white);
   box-shadow: var(--clay-3);
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
 }
 

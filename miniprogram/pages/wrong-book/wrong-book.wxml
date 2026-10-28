@@ -10,6 +10,8 @@
        · 翻页是「替换式」不是「加载更多」（2026-10-08 定的）
        · 移除单条走 ⋯ 动作面板，不占卡片主视线
 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-wrong-book">
   <!-- 门禁：直接 URL / 分享链接进来且未登录时，先引导登录（不请求数据） -->
   <view class="gate-bar" wx:if="{{needLogin}}">

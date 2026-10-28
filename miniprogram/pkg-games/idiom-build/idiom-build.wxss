@@ -19,15 +19,15 @@ page {
   text-align: center;
   box-shadow: var(--clay-3);
 }
-.prompt .label { font-size: 24rpx; color: #9b8468; }
+.prompt .label { font-size: var(--fs-cap); color: #9b8468; }
 .prompt .hint {
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   line-height: 1.55;
   margin-top: 14rpx;
   color: #6b4a1f;
 }
-.prompt .meta { font-size: 24rpx; color: #9b8468; margin-top: 14rpx; }
+.prompt .meta { font-size: var(--fs-cap); color: #9b8468; margin-top: 14rpx; }
 
 .slots {
   /* 字槽区占据剩余空间并居中（原来内容顶在上半屏、下面一片空） */
@@ -54,8 +54,8 @@ page {
   box-shadow: var(--clay-2);
 }
 .slot.filled { border-style: solid; background: var(--white); }
-.slot.hinted { background: #fff3d6; border-color: #f0b429; color: #b07a00; }
-.slots.ok .slot { background: #dcf6e4; border-color: var(--green); color: #2b7a4b; }
+.slot.hinted { background: var(--soft-gold); border-color: #f0b429; color: var(--pri-ink); }
+.slots.ok .slot { background: var(--soft-green); border-color: var(--green); color: var(--green-ink); }
 .slots.bad { animation: shake 0.42s ease; }
 .slots.bad .slot { background: #ffe2ea; border-color: #ff9fb8; color: #c53862; }
 @keyframes shake {
@@ -101,7 +101,7 @@ page {
   line-height: 88rpx;
   text-align: center;
   border-radius: var(--r-pill);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 800;
   background: #f08a24;
   color: var(--white);

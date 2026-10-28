@@ -12,7 +12,7 @@
   padding: 18rpx 20rpx calc(24rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%);
+  background: var(--sky-grad);
 }
 
 /* ============ HUD ============ */
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
   color: var(--ink-sub);
   background: #eaf3fb;
@@ -63,12 +63,12 @@
 .gs-chip {
   padding: 6rpx 10rpx;
   border-radius: var(--r-pill);
-  background: #f2f8fd;
+  background: var(--surface);
   font-size: var(--fs-cap);
   font-weight: 800;
   color: var(--ink-sub);
 }
-.gs-chip-combo { color: #e8722c; }
+.gs-chip-combo { color: var(--pri-deep); }
 .gs-chip-shield { color: #e8556d; letter-spacing: -2rpx; }
 
 /* ============ 战场 ============ */
@@ -108,31 +108,31 @@
   flex-wrap: wrap;
 }
 .gs-quest-label {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   letter-spacing: 2rpx;
-  color: #7b93ad;
+  color: var(--ink-weak);
 }
 .gs-quest-stage {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
-  color: #4a90d9;
+  color: var(--link-ink);
   background: #e6f3ff;
   padding: 4rpx 14rpx;
   border-radius: 999rpx;
 }
 .gs-quest-answer {
   margin-top: 8rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
-  color: #2f5470;
+  color: var(--ink-deep);
   line-height: 1.35;
   word-break: break-all;
 }
 /* 音标（2026-10-09）：比释义弱一档，用衬线字体贴近词典排版 */
 .gs-quest-ipa {
   margin-top: 2rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #7aa7c7;
   font-family: "Times New Roman", "Songti SC", serif;
   letter-spacing: 1rpx;
@@ -151,7 +151,7 @@
 .gs-hp-fill {
   height: 100%;
   border-radius: var(--r-pill);
-  background: linear-gradient(90deg, #ff8f6b, #ff5f6d 60%, #ffc94d);
+  background: linear-gradient(90deg, #ff8f6b, var(--danger) 60%, #ffc94d);
   transition: width .3s cubic-bezier(.34, 1.56, .64, 1);
   box-shadow: inset 0 3rpx 0 rgba(255, 255, 255, .45), inset 0 -3rpx 0 rgba(160, 20, 40, .18);}
 
@@ -309,7 +309,7 @@
      现在改成「纯 VS + 斜体 + 白色描边」：不依赖底色，压在立绘上也读得清，
      视觉上只是一行字，不会再有"贴补丁"的观感。 */
   z-index: 5;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   font-style: italic;
   letter-spacing: 2rpx;
@@ -344,25 +344,25 @@
   min-width: 56rpx;
   height: 78rpx;
   padding: 0 8rpx;
-  border-bottom: 6rpx solid #cfe0ee;
-  font-size: 48rpx;
+  border-bottom: 6rpx solid var(--line);
+  font-size: var(--fs-display);
   font-weight: 900;
   color: #b7c9d9;
 }
 .gs-slot.on {
-  color: #2f5470;
-  border-bottom-color: #4a90d9;
+  color: var(--ink-deep);
+  border-bottom-color: var(--link-ink);
 }
 .gs-slot--word {
   min-width: 160rpx;
-  font-size: 48rpx;
-  color: #2f5470;
-  border-bottom-color: #4a90d9;
+  font-size: var(--fs-display);
+  color: var(--ink-deep);
+  border-bottom-color: var(--link-ink);
 }
 .gs-head, .gs-tail {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 800;
-  color: #40617c;
+  color: var(--ink-sub);
   padding-bottom: 18rpx;
 }
 
@@ -375,13 +375,13 @@
   pointer-events: none;
   animation: gsFloatUp .9s cubic-bezier(.2, .85, .4, 1) forwards;
 }
-.gs-float--hit { font-size: 48rpx; color: #2fa96b; }
+.gs-float--hit { font-size: var(--fs-display); color: var(--green); }
 .gs-float--miss {
   font-size: 52rpx;
-  color: #ff5f6d;
+  color: var(--danger);
   letter-spacing: 4rpx;
 }
-.gs-float--dmg { font-size: 38rpx; color: #ff4d6a; margin-top: 70rpx; }
+.gs-float--dmg { font-size: var(--fs-title); color: #ff4d6a; margin-top: 70rpx; }
 @keyframes gsFloatUp {
   0% { transform: translate(-50%, 0) scale(.4); opacity: 0; }
   25% { transform: translate(-50%, -30rpx) scale(1.15); opacity: 1; }
@@ -399,10 +399,10 @@
 }
 .gs-pad-label {
   text-align: center;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   letter-spacing: 4rpx;
-  color: #93a9bd;
+  color: var(--ink-weak);
   margin-bottom: 12rpx;
 }
 .gs-pad {
@@ -418,11 +418,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: #3f5a72;
   background: linear-gradient(180deg, var(--white), #e8f3fc);
-  border: 2rpx solid #cfe0ee;
+  border: 2rpx solid var(--line);
   box-shadow: var(--clay-2);
   transition: transform .14s, opacity .2s, box-shadow .14s;
 }
@@ -440,13 +440,13 @@
   width: auto;
   min-width: 150rpx;
   padding: 0 24rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
 }
 .gs-tip {
   margin-top: 14rpx;
   text-align: center;
-  font-size: 24rpx;
-  color: #7b93ad;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
   line-height: 1.5;
 }
 
@@ -460,7 +460,7 @@
   border-radius: 999rpx;
   background: rgba(255, 183, 3, .95);
   color: var(--white);
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   letter-spacing: 2rpx;
   box-shadow: 0 10rpx 30rpx rgba(255, 183, 3, .5);
@@ -497,14 +497,14 @@
 .gs-card-emoji { font-size: 96rpx; line-height: 1; }
 .gs-card-title {
   margin-top: 16rpx;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
-  color: #2f5470;
+  color: var(--ink-deep);
 }
 .gs-card-tip {
   margin-top: 12rpx;
-  font-size: 28rpx;
-  color: #7b93ad;
+  font-size: var(--fs-body);
+  color: var(--ink-weak);
   line-height: 1.6;
 }
 .gs-card-dots {
@@ -532,14 +532,14 @@
   border-radius: var(--r-pill);
   background: var(--pri);
   color: var(--white);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   letter-spacing: 2rpx;
   box-shadow: var(--clay-2);
 }
 .gs-btn--ghost {
-  background: #eef5fb;
-  color: #7b93ad;
+  background: var(--surface);
+  color: var(--ink-weak);
 }
 .gs-card .gs-btn { margin-top: 30rpx; }
 .gs-card-btns .gs-btn { margin-top: 0; }

@@ -13,13 +13,17 @@
  *   · 计数低于基线 → 提示可以把基线降下来（不判红）；
  *   · 每批次改完跑 `--update` 把基线压到新的实际值，基线只会越来越小。
  *
- * 检查四项：
+ * 检查五项：
  *   1) 裸色值      —— 属性值里出现 #rrggbb。自定义属性（--xxx: #hex）除外，那是令牌源头。
  *   2) font-size   —— 只准 48 / 38 / 32 / 28 / 24（另允许 0，用于隐藏文字）。
  *   3) border-radius —— 只准 16 / 28 / 999rpx（另允许 0 与 50%，这两个不是「圆角档」）。
  *   4) 外部硬底边  —— box-shadow 值里出现 `0 Nrpx 0` 且不含 inset。
  *                     这是 D 方向必须消灭的写法：硬边要从「外部」搬到「内侧」。
  *                     含 inset 的一律放行（--clay-* 配方本身就是 inset）。
+ *   5) 引用了不存在的变量 —— var(--x) 必须有对应的 `--x:` 定义。
+ *                     这条不进基线、直接判红：未定义 100% 是笔误，或者令牌被删了。
+ *                     （2026-10-28 真踩过：整张色板被撤掉，268 处 var(--surface) 变空值，
+ *                      四项检查全绿，真机上只是「底色变透明」，很难定位。）
  *
  * 用法：
  *   node e2e/check-tokens.js            # 判定（CI / run-all 用这个）
@@ -78,6 +82,25 @@ function decls(src) {
 }
 
 const files = walk(MP);
+
+// 令牌定义：先整仓扫一遍（源头主要在本块所在的 app.wxss，但组件里也可能局部定义）
+const definedVars = new Set();
+for (const abs of files) {
+  const re = /(--[a-zA-Z0-9-]+)\s*:/g;
+  const src2 = stripComments(fs.readFileSync(abs, 'utf8'));
+  let mm;
+  while ((mm = re.exec(src2))) definedVars.add(mm[1]);
+}
+
+// 由 JS 用行内 style 注入的动画坐标（battle-fx / game 计量表）。
+// 它们本来就不该在 wxss 里定义，所以进白名单；新增这类变量时记得登记。
+const RUNTIME_VARS = new Set([
+  '--target-x', '--target-y', '--player-x', '--player-y',
+  '--boss-dx', '--boss-dy', '--hero-start-x', '--hero-start-y',
+  '--counter-x', '--counter-y', '--strike-x', '--strike-y', '--skin-color'
+]);
+const missingVars = [];
+
 const stat = {};        // rel -> {hex, fs, radius, hard, samples:{kind:[line,...]}}
 
 for (const abs of files) {
@@ -87,6 +110,16 @@ for (const abs of files) {
   for (const k of KINDS) s.samples[k] = [];
 
   for (const d of decls(src)) {
+    // 5) 引用是否有定义 —— 必须放在「跳过自定义属性」之前：
+    //    --link-grad: linear-gradient(..., var(--link), ...) 这种令牌互引也要查
+    const used = d.value.match(/var\(\s*--[a-zA-Z0-9-]+/g) || [];
+    for (const u of used) {
+      const name = /--[a-zA-Z0-9-]+/.exec(u)[0];
+      if (!definedVars.has(name) && !RUNTIME_VARS.has(name)) {
+        missingVars.push({ file: rel, line: d.line, name: name });
+      }
+    }
+
     // 自定义属性是令牌源头，跳过（--pri: #ff9a1f 这种是合法的）
     if (d.prop.startsWith('--')) continue;
 
@@ -190,6 +223,20 @@ if (process.argv.includes('--report')) {
   console.log('\n合计：裸色值 ' + totals.hex + ' · 字号 ' + totals.fs
     + ' · 圆角 ' + totals.radius + ' · 硬底边 ' + totals.hard);
   process.exit(0);
+}
+
+// ============ 5) 未定义变量：硬失败，不进基线 ============
+// 为什么不进基线：这条不是「历史遗留待清理」，而是「现在就是坏的」。
+// 未定义的自定义属性在 CSS 里会整条声明失效（不是回退成默认值），
+// 表现成「底色没了 / 边框消失」，肉眼极难关联回令牌名。
+if (missingVars.length) {
+  console.log('[FAIL] 引用了不存在的设计令牌 ' + missingVars.length + ' 处：');
+  missingVars.slice(0, 20).forEach((m) => {
+    console.log('  ' + m.file + ':' + m.line + '  var(' + m.name + ')');
+  });
+  if (missingVars.length > 20) console.log('  … 另有 ' + (missingVars.length - 20) + ' 处');
+  console.log('若是 JS 注入的动画坐标，请加进本文件的 RUNTIME_VARS 白名单。');
+  process.exit(1);
 }
 
 // ============ 默认：与基线对比 ============

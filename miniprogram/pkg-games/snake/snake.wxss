@@ -5,7 +5,7 @@
   padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%);
+  background: var(--sky-grad);
 }/* 目标条 */
 .target-bar {
   flex: 0 0 auto;
@@ -14,10 +14,10 @@
   display: flex; align-items: center; gap: 16rpx;
   box-shadow: var(--clay-2);
 }
-.t-emoji { font-size: 48rpx; }
+.t-emoji { font-size: var(--fs-display); }
 .t-main { flex: 1; min-width: 0; }
-.t-tip { font-size: 24rpx; color: var(--ink-weak); }
-.t-word { font-size: 32rpx; font-weight: 900; color: #2e8b57; }
+.t-tip { font-size: var(--fs-cap); color: var(--ink-weak); }
+.t-word { font-size: var(--fs-strong); font-weight: 900; color: var(--green-ink); }
 
 /* 目标词卡 + 拼写进度 */
 .word-card {
@@ -27,19 +27,19 @@
   box-shadow: var(--clay-2);
 }
 .wc-top { display: flex; align-items: baseline; gap: 18rpx; }
-.wc-en { font-size: 48rpx; font-weight: 900; color: #2e8b57; letter-spacing: 2rpx; }
-.wc-zh { font-size: 24rpx; color: var(--ink-weak); }
+.wc-en { font-size: var(--fs-display); font-weight: 900; color: var(--green-ink); letter-spacing: 2rpx; }
+.wc-zh { font-size: var(--fs-cap); color: var(--ink-weak); }
 .wc-progress { display: flex; gap: 10rpx; margin-top: 14rpx; flex-wrap: wrap; }
 .wc-ch {
   min-width: 52rpx; height: 56rpx; line-height: 56rpx;
   text-align: center;
-  background: #f0f4fa; color: #b6c2d3;
-  border-radius: 16rpx; font-size: 32rpx; font-weight: 900;
+  background: var(--surface); color: #b6c2d3;
+  border-radius: 16rpx; font-size: var(--fs-strong); font-weight: 900;
 }
 .wc-ch.on { background: var(--green); color: var(--white); }
 
 /* 触屏控制提示 */
-.tap-hint { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: var(--white); opacity: .95; margin: 8rpx 0 6rpx; }
+.tap-hint { flex: 0 0 auto; text-align: center; font-size: var(--fs-cap); color: var(--white); opacity: .95; margin: 8rpx 0 6rpx; }
 
 /* 触屏容器：占剩余高度，网格填满 */
 .board-touch {
@@ -65,7 +65,7 @@
   aspect-ratio: 1/1;
   border-radius: 16rpx;
   display: flex; align-items: center; justify-content: center;
-  font-size: 24rpx; font-weight: 900;
+  font-size: var(--fs-cap); font-weight: 900;
   /* 空格子：凹进去的浅格，蛇身/食物才"浮"在板上 */
   background: rgba(255,255,255,.5);
   box-shadow: inset 0 2rpx 4rpx rgba(18,44,78,.10);
@@ -83,16 +83,16 @@
 }
 .cell.food-ok {
   background: linear-gradient(180deg, #8fe0a0 0%, #57c374 100%);
-  color: var(--white); font-size: 28rpx;
+  color: var(--white); font-size: var(--fs-body);
   box-shadow: 0 3rpx 8rpx rgba(30,120,60,.28);
 }
 .cell.food-bad {
   background: linear-gradient(180deg, #ff9cbc 0%, #ff6f9c 100%);
-  color: var(--white); font-size: 28rpx;
+  color: var(--white); font-size: var(--fs-body);
   box-shadow: 0 3rpx 8rpx rgba(160,40,80,.28);
 }
 
-.foot-tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; }
+.foot-tip { flex: 0 0 auto; text-align: center; font-size: var(--fs-cap); color: var(--ink-sub); opacity: 1; }
 
 /* 结算 */
 .over-mask {
@@ -102,11 +102,11 @@
 }
 .over-card { width: 600rpx; background: var(--white); border-radius: 28rpx; padding: 44rpx 36rpx; text-align: center; }
 .o-stars { font-size: 72rpx; color: var(--pri); letter-spacing: 8rpx; }
-.o-title { font-size: 48rpx; font-weight: 900; color: var(--ink); margin-top: 10rpx; }
-.o-msg { font-size: 28rpx; color: var(--ink-weak); margin-top: 10rpx; }
-.btn { margin-top: 18rpx; width: 100%; height: 92rpx; line-height: 92rpx; border-radius: var(--r-pill); font-size: 32rpx; font-weight: 900; }
+.o-title { font-size: var(--fs-display); font-weight: 900; color: var(--ink); margin-top: 10rpx; }
+.o-msg { font-size: var(--fs-body); color: var(--ink-weak); margin-top: 10rpx; }
+.btn { margin-top: 18rpx; width: 100%; height: 92rpx; line-height: 92rpx; border-radius: var(--r-pill); font-size: var(--fs-strong); font-weight: 900; }
 .btn.b1 { background: var(--pri); color: var(--white); box-shadow: var(--clay-3); }
-.btn.b2 { background: #eef2f8; color: var(--ink-sub); }
+.btn.b2 { background: var(--surface); color: var(--ink-sub); }
 .btn::after { border: none; }
 
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }

@@ -1,4 +1,6 @@
 <!-- 关卡编辑器页（表单卡片化重设计） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-editor">
   <view class="editor-header">
     <button class="btn-back" bindtap="goBack">返回</button>

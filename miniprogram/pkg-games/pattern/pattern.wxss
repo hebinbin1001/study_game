@@ -24,14 +24,14 @@ page {
   text-align: center;
   box-shadow: var(--clay-2);
 }
-.chip .k { font-size: 24rpx; color: #8b83b8; }
-.chip .v { font-size: 32rpx; font-weight: 900; color: #4f3fc9; margin-top: 2rpx; }
+.chip .k { font-size: var(--fs-cap); color: #8b83b8; }
+.chip .v { font-size: var(--fs-strong); font-weight: 900; color: #4f3fc9; margin-top: 2rpx; }
 
 .bar { height: 12rpx; border-radius: var(--r-pill); background: #e8e3ff; overflow: hidden; flex: 0 0 auto; }
 .bar-fill {
   height: 100%;
   border-radius: 16rpx;
-  background: linear-gradient(90deg, var(--gold), #ff9f1c);
+  background: linear-gradient(90deg, var(--gold), var(--pri));
   transition: width 0.25s ease;
 }
 
@@ -43,20 +43,20 @@ page {
   text-align: center;
   box-shadow: var(--clay-2);
 }
-.banner .main { font-size: 32rpx; font-weight: 900; color: #4f3fc9; }
+.banner .main { font-size: var(--fs-strong); font-weight: 900; color: #4f3fc9; }
 /* 副标题固定两行高：从「第 1 题 · 入门 · 等差数列」换成「每次 +3」时不跳动 */
 .banner .sub {
   margin-top: 6rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #7b74a8;
   line-height: 1.4;
   min-height: 34rpx;
 }
-.banner.good { background: #e9fbef; }
-.banner.good .main { color: #1b8f4b; }
-.banner.good .sub { color: #3f8f63; }
-.banner.bad { background: #fff0f0; }
-.banner.bad .main { color: #d64545; }
+.banner.good { background: var(--soft-green); }
+.banner.good .main { color: var(--green-ink); }
+.banner.good .sub { color: var(--green-ink); }
+.banner.bad { background: var(--soft-red); }
+.banner.bad .main { color: var(--danger-ink); }
 .banner.bad .sub { color: #a85858; }
 
 /* 题面区：flex:1 吸收剩余高度，但给 min-height 兜底，避免小屏把珠子压扁 */
@@ -92,7 +92,7 @@ page {
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  color: #3a3560;
+  color: var(--ink);
   box-shadow: var(--clay-1);
 }
 .cell.blank {
@@ -103,10 +103,10 @@ page {
 }
 .cell.reveal {
   background: linear-gradient(180deg, #ffe9a8, var(--gold));
-  color: #8a5a00;
+  color: var(--pri-ink);
   box-shadow: var(--clay-2);
 }
-.stage-tip { font-size: 24rpx; color: #6b64a0; min-height: 30rpx; }
+.stage-tip { font-size: var(--fs-cap); color: #6b64a0; min-height: 30rpx; }
 
 .opts {
   flex: 0 0 auto;
@@ -124,9 +124,9 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
-  color: #3a3560;
+  color: var(--ink);
   box-shadow: var(--clay-2);
 }
 /* 图形题的选项是 emoji，44rpx 偏小，单独放大 */
@@ -135,22 +135,22 @@ page {
 /* 对错态用"浅底 + 粗描边"，不用实心色块：
    图形题的选项是 emoji，深色 emoji 压在绿底上几乎看不见（截图发现的）。 */
 .opt.ok {
-  background: #e9fbef;
-  border-color: #3fc26b;
-  color: #1b8f4b;
+  background: var(--soft-green);
+  border-color: var(--green);
+  color: var(--green-ink);
   box-shadow: var(--clay-2);
 }
 .opt.bad {
-  background: #fff0f0;
+  background: var(--soft-red);
   border-color: #f2635f;
-  color: #d64545;
+  color: var(--danger-ink);
   box-shadow: var(--clay-2);
 }
 
 .foot {
   flex: 0 0 auto;
   text-align: center;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #5b53a0;
   opacity: 0.85;
 }

@@ -21,13 +21,13 @@
 }
 
 .rank-name {
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: var(--pri-ink);
 }
 
 .rank-wins, .rank-stars {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-sub);
 }
 
@@ -35,7 +35,7 @@
    解释为什么段位名和累计星看起来对不上。 */
 .rank-cap {
   margin-top: 12rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   line-height: 1.4;
   color: var(--pri-deep);
 }
@@ -73,17 +73,17 @@
   line-height: 54rpx;
   text-align: center;
   border-radius: 16rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   color: var(--white);
   box-shadow: inset 0 3rpx 0 rgba(255,255,255,.35);
 }
 .skin-tab__icon.warrior { background: linear-gradient(145deg, #58a7ff, #3371d8); }
 .skin-tab__icon.monster { background: linear-gradient(145deg, #a979ee, #6941b5); }
 .skin-tab__copy { min-width: 0; display: flex; flex-direction: column; }
-.skin-tab__title { font-size: 28rpx; font-weight: 900; line-height: 1.2; }
+.skin-tab__title { font-size: var(--fs-body); font-weight: 900; line-height: 1.2; }
 .skin-tab__meta {
   margin-top: 4rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 650;
   color: #8395aa;
   white-space: normal;
@@ -95,7 +95,7 @@
 }
 
 .section-title {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--white);
   letter-spacing: 4rpx;
@@ -127,11 +127,11 @@
 
 .avatar-item.active {
   border-color: var(--pri);
-  background: #fff7e0;
+  background: var(--soft-gold);
 }
 
 .avatar-rarity {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   padding: 4rpx 14rpx;
   border-radius: 28rpx;
   margin-bottom: 12rpx;
@@ -140,10 +140,10 @@
   font-weight: 700;
 }
 
-.avatar-rarity.common { background: #c9d6e8; color: var(--ink); }
+.avatar-rarity.common { background: var(--line); color: var(--ink); }
 .avatar-rarity.rare { background: var(--blue); color: #0b4a5e; }
 .avatar-rarity.epic { background: var(--purple); color: #3b1a6b; }
-.avatar-rarity.legend { background: var(--pri); color: #6b4e00; }
+.avatar-rarity.legend { background: var(--pri); color: var(--pri-ink); }
 
 .avatar-emoji {
   display: block;
@@ -182,7 +182,7 @@
 }
 
 .avatar-name {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink);
   font-weight: 800;
   margin-bottom: 10rpx;
@@ -197,7 +197,7 @@
 }
 
 .avatar-status {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   min-height: 104rpx;
   display: flex;
   flex-direction: column;
@@ -214,7 +214,7 @@
   padding: 0 4rpx;
   box-sizing: border-box;
   color: var(--ink-weak);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   line-height: 1.35;
   font-weight: 600;
   display: -webkit-box;
@@ -222,7 +222,7 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
-.avatar-unlock-note.can-unlock { color: #2f8b4d; }
+.avatar-unlock-note.can-unlock { color: var(--green-ink); }
 
 .avatar-action {
   min-height: 70rpx;
@@ -239,24 +239,24 @@
   line-height: 64rpx;
   margin: 0;
   padding: 0;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   border-radius: 28rpx;
   font-weight: 700;
 }
 
 .btn-use { background: var(--green); color: #14532d; }
-.btn-unlock { background: var(--pri); color: #6b4e00; }
+.btn-unlock { background: var(--pri); color: var(--pri-ink); }
 .action-current, .action-auto {
   display: block;
   width: 100%;
   height: 64rpx;
   line-height: 64rpx;
   border-radius: 28rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
 }
 .action-current { background: #fff4d6; color: #9a6700; }
-.action-auto { background: #eef3fa; color: var(--ink-sub); }
+.action-auto { background: var(--surface); color: var(--ink-sub); }
 
 button.btn-use::after,
 button.btn-unlock::after {

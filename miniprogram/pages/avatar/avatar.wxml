@@ -1,4 +1,6 @@
 <!-- 形象选择页 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-avatar">
   <!-- M5 T2.3 门禁：直接 URL / 分享链接进来且未登录时，先引导登录（不请求数据） -->
   <view class="gate-bar" wx:if="{{needLogin}}">

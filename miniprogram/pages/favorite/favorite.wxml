@@ -2,6 +2,8 @@
      三态：list（清单）/ quiz（练习）/ done（结果），同一页内切换，不跳页。
      练习态刻意做成极简：没有计时、没有连击、没有星 —— 它不是闯关，是复习。
 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-fav">
   <view class="gate-bar" wx:if="{{needLogin}}">
     <text class="gate-emoji">🔒</text>

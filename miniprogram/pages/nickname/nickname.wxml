@@ -1,6 +1,8 @@
 <!-- 昵称设置页（T17 · UI 重设计）：
      卡通档案卡：头像选择 + 昵称输入 + 保存按钮 + 可爱引导文案
      关联需求：REQ-NICK-1（头像昵称填写能力）、REQ-NICK-2（持久化）、REQ-NICK-3（校验） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-nickname">
   <!-- 标题 + 吉祥物 -->
   <view class="head-area">

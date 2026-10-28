@@ -1,4 +1,6 @@
 <!-- 管理后台：统计概览 + 用户列表（2026-10-08 起不再有「微信名」列 —— 那条采集线下线了） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-admin">
   <!-- 口令门：未通过校验时只显示输入框 -->
   <view wx:if="{{!ready}}" class="gate">

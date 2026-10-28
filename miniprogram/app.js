@@ -21,6 +21,41 @@ var dict = require('./utils/dict');
 //   裸域名，callContainer 无需在公众平台配置「服务器域名」（根治 fail url not
 //   in domain list），且网关自动注入用户 openid，后端 /api/login 来源①直接可用。
 
+// ---- 三档字号的全局注入（2026-10-28）----
+// 字号倍率只有落在 page 根节点上才会被 page{} 里的 --fs-* 继承到，而 page 根节点
+// 只能通过 page-meta 的 page-style 打进去；page-meta 又必须写在每个页面 wxml 首行，
+// 且 `page-style="{{fsStyle}}"` 需要 page data 才能绑定 —— 52 个页面各加一个 data
+// 字段既啰嗦又容易漏（漏了就是「这个页面字号不动」，很难查）。
+// 所以这里把全局 Page 构造器包一层：统一往每个页面的 data 塞 fsStyle，并在 onShow
+// 时按存储重算一次（用户在设置页改完，回到任意页面立即是新值）。
+//
+// 失败必须「静默降级」而不是「半死」：整段包在 try 里，取不到全局 Page（严格模式、
+// 以后基础库换了注入方式）就什么都不做 —— 结果是字号开关不生效，但页面照常渲染。
+// 这条比功能本身重要：不能让一个可访问性开关有能力白屏整个小程序。
+function installFontScale() {
+  var fontScale = require('./utils/font-scale');
+  try {
+    if (typeof Page !== 'function') return;
+    var basePage = Page;
+    Page = function (opts) {
+      opts = opts || {};
+      var data = opts.data || (opts.data = {});
+      if (!('fsStyle' in data)) data.fsStyle = fontScale.styleOf(fontScale.current());
+
+      var userOnShow = opts.onShow;
+      opts.onShow = function () {
+        var want = fontScale.styleOf(fontScale.current());
+        if (want !== this.data.fsStyle) this.setData({ fsStyle: want });
+        if (typeof userOnShow === 'function') return userOnShow.apply(this, arguments);
+      };
+      return basePage(opts);
+    };
+  } catch (e) {
+    // 静默降级：这里每个页面都会走到，打日志只会刷屏
+  }
+}
+installFontScale();
+
 App({
   // 全局共享数据
   globalData: {

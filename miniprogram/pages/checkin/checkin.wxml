@@ -1,4 +1,6 @@
 <!-- 签到日历页（B2 只读：记录 + 里程碑；打卡唯一入口=每日一题） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-checkin">
   <view class="header">
     <button class="hd-back" bindtap="goBack">‹</button>

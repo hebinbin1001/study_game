@@ -21,10 +21,10 @@
 }
 
 .gp-head { padding: 0 4rpx 18rpx; }
-.gp-title { font-size: 32rpx; font-weight: 900; color: var(--ink-deep); }
+.gp-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
 .gp-sub {
   margin-top: 8rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   line-height: 1.5;
   color: var(--ink-weak);
 }
@@ -45,17 +45,17 @@
   height: 84rpx;
   border-radius: 28rpx;
   background: #f3f7fc;
-  color: #3a5a80;
-  font-size: 28rpx;
+  color: var(--ink-sub);
+  font-size: var(--fs-body);
   font-weight: 800;
 }
 .gp-item.on {
-  background: linear-gradient(135deg, var(--pri), #ff9800);
+  background: linear-gradient(135deg, var(--pri), var(--pri));
   color: var(--white);
   box-shadow: var(--clay-2, inset 0 -6rpx 0 rgba(20, 50, 90, .12), inset 0 5rpx 0 rgba(255, 255, 255, .50), 0 6rpx 14rpx rgba(20, 50, 90, .12));
 }
 .gp-item:active { transform: translateY(2rpx); }
-.gp-check { font-size: 24rpx; font-weight: 900; }
+.gp-check { font-size: var(--fs-cap); font-weight: 900; }
 
 .gp-cancel {
   margin-top: 18rpx;
@@ -63,9 +63,9 @@
   line-height: 88rpx;
   text-align: center;
   border-radius: var(--r-pill);
-  background: #eef2f8;
+  background: var(--surface);
   color: var(--ink-sub);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 800;
 }
 .gp-cancel:active { opacity: .8; }

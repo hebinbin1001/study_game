@@ -19,7 +19,7 @@
   margin-bottom: 24rpx;
 }
 .progress-text {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
   color: var(--white);
   background: rgba(255, 255, 255, 0.28);
@@ -27,7 +27,7 @@
   border-radius: 28rpx;
 }
 .progress-right {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   color: var(--white);
   background: rgba(123, 211, 137, 0.92);
@@ -49,21 +49,21 @@
 
 .question-type {
   background: rgba(255, 183, 3, 0.16);
-  color: #b07a00;
+  color: var(--pri-ink);
 }
 
 .question-text {
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
-  color: #3b3b5f;
+  color: var(--ink);
   margin-bottom: 20rpx;
   line-height: 1.4;
 }
 
 .question-hint {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-sub);
-  background: #eef3fa;
+  background: var(--surface);
   border-radius: 28rpx;
   padding: 14rpx 20rpx;
   margin-bottom: 32rpx;
@@ -78,12 +78,12 @@
 
 .option {
   padding: 28rpx;
-  background: #f4f8fd;
+  background: var(--surface);
   border: 4rpx solid #e3edf7;
   border-radius: 28rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 700;
-  color: #3b3b5f;
+  color: var(--ink);
   text-align: center;
   box-shadow: var(--clay-2);
   transition: transform 0.12s, background 0.2s, border-color 0.2s;
@@ -141,16 +141,16 @@
 }
 
 .completed-title {
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
-  color: #3b3b5f;
+  color: var(--ink);
   margin-bottom: 16rpx;
 }
 
 .completed-stats {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 700;
-  color: #b07a00;
+  color: var(--pri-ink);
   background: rgba(255, 209, 102, 0.24);
   padding: 10rpx 28rpx;
   border-radius: 28rpx;
@@ -162,7 +162,7 @@
   padding: 24rpx 0;
   background: var(--green);
   color: var(--white);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   letter-spacing: 4rpx;
   border-radius: 999rpx;
@@ -187,7 +187,7 @@ button.btn-restart::after {
   padding: 20rpx 0;
   background: #fdeeea;
   color: #c9542f;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 800;
   border-radius: 28rpx;
   line-height: 1.4;
@@ -207,7 +207,7 @@ button.btn-bulk::after {
 
 /* 结算页提示（没有更多题 / 下次到期说明） */
 .completed-tip {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-sub);
   line-height: 1.5;
   text-align: center;
@@ -227,7 +227,7 @@ button.btn-bulk::after {
   gap: 8rpx;
   padding: 36rpx 72rpx;
   border-radius: 28rpx;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   letter-spacing: 4rpx;
   z-index: 100;
@@ -259,7 +259,7 @@ button.btn-bulk::after {
 .mode-chip {
   padding: 10rpx 28rpx;
   border-radius: 28rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   color: var(--white);
   background: rgba(255, 255, 255, 0.35);
@@ -273,12 +273,12 @@ button.btn-bulk::after {
 
 /* 听音形态题干提示 */
 .question-text--listen {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   color: var(--ink-sub);
   text-align: center;
 }
 .question-text--meaning {
-  font-size: 38rpx;
+  font-size: var(--fs-title);
 }
 .listen-row {
   display: flex;
@@ -288,7 +288,7 @@ button.btn-bulk::after {
 .listen-btn {
   padding: 16rpx 44rpx;
   border-radius: 999rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--white);
   background: linear-gradient(90deg, var(--blue), var(--green));

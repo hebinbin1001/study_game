@@ -31,7 +31,7 @@
   border-radius: 999rpx;
   background: rgba(255, 255, 255, .92);
   color: var(--ink-sub);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   box-shadow: var(--clay-1);
 }
@@ -40,9 +40,9 @@
 /* 计数：原信息条的核心信息，压缩成一枚静态胶囊 */
 .pg-count {
   flex: 0 0 auto;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
-  color: #6B7688;
+  color: var(--ink-weak);
   background: rgba(255, 255, 255, .9);
   border-radius: 999rpx;
   padding: 8rpx 16rpx;
@@ -64,13 +64,13 @@
   height: 84rpx;
   background: var(--white);
   border-radius: 28rpx;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 700;
-  color: #6B7688;
+  color: var(--ink-weak);
   box-shadow: 0 4rpx 12rpx rgba(28, 53, 92, .06);
 }
 .seg-tab.on {
-  background: #eaf2ff;
+  background: var(--surface);
   color: #1d4ed8;
   box-shadow: inset 0 0 0 3rpx #93c5fd, 0 4rpx 12rpx rgba(28, 53, 92, .10);
 }
@@ -84,15 +84,15 @@
   display: inline-flex;
   align-items: center;
   background: var(--white);
-  color: #8A94A6;
+  color: var(--ink-weak);
   border-radius: 999rpx;
   padding: 14rpx 30rpx;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 700;
   box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
 }
 .cat-chip.on {
-  background: #eaf2ff;
+  background: var(--surface);
   color: #1d4ed8;
   box-shadow: inset 0 0 0 3rpx #93c5fd, 0 6rpx 16rpx rgba(30, 60, 120, .10);
 }
@@ -115,16 +115,16 @@
   box-sizing: border-box;
 }
 /* 全通才描边（原 .done 挂在 unlocked 上，14 张卡全绿框 —— 2026-10-17 修） */
-.pcard.full { outline: 4rpx solid #34A853; }
+.pcard.full { outline: 4rpx solid var(--green-ink); }
 .full-badge {
   position: absolute;
   top: 18rpx;
   right: 18rpx;
-  background: #E6F6EA;
+  background: var(--soft-green);
   color: #1E8E3E;
   border-radius: 999rpx;
   padding: 4rpx 14rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
 }
 .pic { font-size: 68rpx; line-height: 1.1; }
@@ -134,19 +134,19 @@
   height: 104rpx;
   margin: 2rpx 0 4rpx;
 }
-.pname { font-size: 32rpx; font-weight: 800; margin-top: 10rpx; color: #333A45; }
-.pdesc { font-size: 24rpx; color: #8A94A6; line-height: 1.45; margin-top: 6rpx; min-height: 64rpx; }
+.pname { font-size: var(--fs-strong); font-weight: 800; margin-top: 10rpx; color: var(--ink); }
+.pdesc { font-size: var(--fs-cap); color: var(--ink-weak); line-height: 1.45; margin-top: 6rpx; min-height: 64rpx; }
 /* 预期时长标注：比描述再淡一档，不抢主信息 */
 .pmin { color: #A9B7C7; }
 .cat-tag {
   position: absolute;
   top: 18rpx;
   right: 18rpx;
-  background: #FFF3E6;
-  color: #FF9800;
+  background: var(--soft-gold);
+  color: var(--pri);
   border-radius: 999rpx;
   padding: 4rpx 16rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
 }
 /* 底部只有一枚「进度 · 去闯关」胶囊 + 箭头，不再两个标签并排 */
@@ -156,20 +156,20 @@
   margin-top: 14rpx;
 }
 .tag {
-  background: #EEF3FD;
-  color: #4285F4;
+  background: var(--surface);
+  color: var(--link);
   border-radius: 999rpx;
   padding: 6rpx 18rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.arr { color: #C3CCDA; font-size: 32rpx; font-weight: 700; margin-left: auto; }
+.arr { color: var(--line); font-size: var(--fs-strong); font-weight: 700; margin-left: auto; }
 
-.foot-note { text-align: center; color: #A9B2C2; font-size: 24rpx; padding: 20rpx 0 8rpx; }
+.foot-note { text-align: center; color: #A9B2C2; font-size: var(--fs-cap); padding: 20rpx 0 8rpx; }
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); }
 
 /* ============ 年级只读行（2026-10-18 全局年级设置） ============ */
@@ -180,6 +180,6 @@
   margin-right: 12rpx;
 }
 .pg-grade-line:active { opacity: .7; }
-.pg-grade-ic { font-size: 28rpx; }
-.pg-grade-tx { font-size: 28rpx; font-weight: 900; color: var(--ink-deep); }
-.pg-grade-go { font-size: 24rpx; font-weight: 800; color: #4285F4; }
+.pg-grade-ic { font-size: var(--fs-body); }
+.pg-grade-tx { font-size: var(--fs-body); font-weight: 900; color: var(--ink-deep); }
+.pg-grade-go { font-size: var(--fs-cap); font-weight: 800; color: var(--link); }

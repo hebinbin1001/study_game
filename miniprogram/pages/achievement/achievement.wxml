@@ -1,4 +1,6 @@
 <!-- 成就列表页（卡通勋章卡片化重设计） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-achievement">
   <!-- 页头：返回 / 标题 / 检查解锁 -->
   <view class="header">

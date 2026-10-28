@@ -42,7 +42,7 @@ page {
 
 /* ============ 标题 ============ */
 .page-title {
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
   color: var(--white);
   letter-spacing: 8rpx;
@@ -52,7 +52,7 @@ page {
 
 .page-sub {
   color: var(--ink-sub);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   letter-spacing: 8rpx;
   margin: 12rpx 0 40rpx;
 }
@@ -75,7 +75,7 @@ page {
 }
 
 .g-title {
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: var(--white);
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, .12);
@@ -85,7 +85,7 @@ page {
   margin-left: auto;
   background: rgba(255, 255, 255, .92);
   color: var(--ink-sub);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   padding: 10rpx 22rpx;
   border-radius: 999rpx;
@@ -106,8 +106,8 @@ page {
   text-align: center;
 }
 
-.g-hud-num { font-size: 32rpx; font-weight: 900; color: var(--ink); }
-.g-hud-lab { font-size: 24rpx; color: var(--ink-weak); margin-top: 4rpx; }
+.g-hud-num { font-size: var(--fs-strong); font-weight: 900; color: var(--ink); }
+.g-hud-lab { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 4rpx; }
 
 /* 胶囊型 HUD（数独/24 点/连连看/贪吃蛇/消消乐共用；原来 5 个页面各写一份，只有 padding 和字号差 1~2rpx） */
 .hud {
@@ -123,7 +123,7 @@ page {
   color: var(--ink);
   border-radius: 999rpx;
   padding: 12rpx 30rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   box-shadow: var(--clay-1);
 }
@@ -226,7 +226,7 @@ button.btn[disabled]:active,
   border-radius: var(--r-pill);
   background: #eef2f8;
   color: var(--ink-sub);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   box-shadow: var(--clay-card);
 }
@@ -235,7 +235,7 @@ button.btn[disabled]:active,
 .btn-primary {
   width: 480rpx;
   height: 128rpx;
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   background: var(--pri);
   line-height: 128rpx;
 }
@@ -245,7 +245,7 @@ button.btn[disabled]:active,
   min-width: 240rpx;
   padding: 0 40rpx;
   height: 88rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   background: var(--blue);
   line-height: 88rpx;
 }
@@ -276,7 +276,7 @@ button.btn[disabled]:active,
   justify-content: center;
   min-height: 240rpx;
   color: #8899aa;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   text-align: center;
 }
 
@@ -302,8 +302,8 @@ button.btn[disabled]:active,
    ========================================================================== */
 
 /* ---- 尺寸档 ---- */
-.btn-lg { height: 128rpx; font-size: 38rpx; padding: 0 56rpx; }
-.btn-md { height: 96rpx; font-size: 32rpx; padding: 0 40rpx; }
+.btn-lg { height: 128rpx; font-size: var(--fs-title); padding: 0 56rpx; }
+.btn-md { height: 96rpx; font-size: var(--fs-strong); padding: 0 40rpx; }
 .btn-sm { height: 88rpx; font-size: var(--fs-cap); padding: 0 32rpx; border-radius: var(--r-pill); }
 
 /* ---- 语义档 ---- */
@@ -350,7 +350,7 @@ button.btn[disabled]:active,
 .btn-back::before {
   content: '‹';
   margin-right: 10rpx;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   line-height: 1;
   font-weight: 900;
 }
@@ -365,7 +365,7 @@ button.btn[disabled]:active,
   border-radius: 28rpx;
   background: rgba(255, 255, 255, 0.85);
   color: var(--ink);
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   display: flex;
   align-items: center;
@@ -387,7 +387,7 @@ button.btn[disabled]:active,
   display: inline-block;
   padding: 4rpx 16rpx;
   border-radius: 28rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
   line-height: 1.4;
 }
@@ -428,7 +428,7 @@ button.btn[disabled]:active,
   justify-content: center;
   min-height: 240rpx;
   color: #8899aa;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   text-align: center;
 }
 .empty-state .empty-emoji {
@@ -505,10 +505,10 @@ button.btn[disabled]:active,
   border-radius: 16rpx;
   box-shadow: 0 4rpx 12rpx rgba(200, 140, 0, 0.08);
 }
-.gate-bar .gate-emoji { flex: none; font-size: 32rpx; margin-right: 14rpx; }
+.gate-bar .gate-emoji { flex: none; font-size: var(--fs-strong); margin-right: 14rpx; }
 .gate-bar .gate-text {
   flex: 1;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #8a6338;
   line-height: 1.5;
 }
@@ -517,7 +517,7 @@ button.btn[disabled]:active,
   margin: 0 0 0 16rpx;
   padding: 0 26rpx;
   height: 60rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
   color: var(--white);
   background: #ff9800;
@@ -615,7 +615,7 @@ page {
   max-width: 240rpx;
   background: var(--white);
   color: #3a5a80;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   border-radius: 999rpx;
   padding: 6rpx 20rpx;
@@ -628,7 +628,7 @@ page {
   margin-top: 8rpx;
   background: linear-gradient(160deg, #ffe9b8, var(--gold));
   color: #8a5a00;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   border-radius: 999rpx;
   padding: 4rpx 16rpx;
@@ -646,13 +646,13 @@ page {
 .skin-strip__head {
   display: flex;
   align-items: center;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   color: #3a5a80;
 }
 .skin-strip__prog {
   margin-left: auto;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
   font-weight: 700;
 }
@@ -671,7 +671,7 @@ page {
 .skin-cell--locked { background: #eef2f8; }
 .skin-cell--locked .skin-cell__img { filter: grayscale(1) brightness(.55); }
 .skin-cell--next { box-shadow: 0 0 0 4rpx var(--pri); }
-.skin-cell__lock { font-size: 32rpx; }
+.skin-cell__lock { font-size: var(--fs-strong); }
 
 /* ---- Boss 预告卡 ---- */
 .boss-card {
@@ -690,13 +690,13 @@ page {
 .boss-card__emoji { font-size: 72rpx; flex: 0 0 auto; }
 .boss-card__t { flex: 1; min-width: 0; }
 .boss-card__name {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   text-shadow: 0 2rpx 0 rgba(0, 0, 0, .3);
   display: block;
 }
 .boss-card__sub {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #f0c8e0;
   display: block;
   margin-top: 4rpx;
@@ -704,7 +704,7 @@ page {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.boss-card__go { font-size: 48rpx; font-weight: 900; opacity: .9; }
+.boss-card__go { font-size: var(--fs-display); font-weight: 900; opacity: .9; }
 
 /* ---- 对局：战士 VS Boss 双血条 ---- */
 .vs-bar {
@@ -729,14 +729,14 @@ page {
 .vs-ava--boss { border-color: #ffb0d0; }
 .vs-ava__img { width: 104rpx; height: 104rpx; }
 .vs-name {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   color: var(--white);
   margin-top: 6rpx;
   text-shadow: 0 2rpx 0 rgba(0, 0, 0, .25);
 }
 .vs-mid {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--gold);
   text-shadow: 0 2rpx 0 rgba(0, 0, 0, .3);
@@ -766,8 +766,8 @@ page {
   box-shadow: var(--clay-1);
 }
 .unlock-bar__img { width: 88rpx; height: 88rpx; flex: 0 0 auto; }
-.unlock-bar__t { flex: 1; min-width: 0; font-size: 24rpx; color: #8a5a00; line-height: 1.5; }
-.unlock-bar__t b { font-size: 24rpx; display: block; }
+.unlock-bar__t { flex: 1; min-width: 0; font-size: var(--fs-cap); color: #8a5a00; line-height: 1.5; }
+.unlock-bar__t b { font-size: var(--fs-cap); display: block; }
 
 /* ============ 深色模式兜底：已移除（2026-09-12） ============
    背景：这里原先有一段 `@media (prefers-color-scheme: dark)`，只把 page 底色改成近黑 (#12171f)、
@@ -831,12 +831,51 @@ page {
   --danger: #ff5a5a;
   --white: #ffffff;
 
-  /* ---- 字号（5 档，相邻差 ≥4rpx）---- */
-  --fs-display: 48rpx;   /* 结算大标题 / Boss 名 */
-  --fs-title: 38rpx;     /* 页面标题 / 区块标题 */
-  --fs-strong: 32rpx;    /* 按钮文字 / 数字 / 小标题 */
-  --fs-body: 28rpx;      /* 正文（全局默认） */
-  --fs-cap: 24rpx;       /* 说明 / 标签 / HUD label（最小档） */
+  /* ---- 表面 / 浅底 ----
+     2026-10-28 批 6：这一档是「按角色命名」而不是「按色值命名」。
+     改之前实测：#eef2f8 / #eef3fa / #eef5fb / #f4f8fd / #e8edf4 … 在屏幕上根本分不出来，
+     但它们在 15 个文件里各写各的，于是同一个「卡内浅底」有 13 种写法。
+     归并时色值有 2~8/255 的位移，肉眼不可辨；代价换来的是「改一处全站生效」。 */
+  --surface: #eef2f8;    /* 卡内浅底 / 幽灵按钮底 / 输入框凹槽 */
+  --line: #cfe0ee;       /* 分隔线 / 浅描边（比 --surface 深一档） */
+
+  /* ---- 语义浅底（tint）：状态背景。饱和度极低，只做底、不做文字 ---- */
+  --soft-red: #fff0f0;   /* 错误 / 危险底 */
+  --soft-green: #e9fbef; /* 正确 / 完成底 */
+  --soft-gold: #fff3d6;  /* 高亮 / 奖励底 */
+
+  /* ---- 亮色的「深色文字变体」----
+     和 --pri-ink 是同一套思路：同一个色相要两个值 —— 亮色做面（按钮/进度），
+     深色做字（白底小字）。只有亮色会导致 24rpx 文字看不清。 */
+  --link: #4285f4;       /* 蓝操作色：链接、次级按钮面、进度条 */
+  --link-soft: #6aa6f5;  /* 蓝的浅端（与 --link 组成按钮渐变） */
+  --link-ink: #2e6fd6;   /* 蓝系文字（白底） */
+  --green-ink: #2e8b57;  /* 绿系文字（白底） */
+  --danger-ink: #d64545; /* 红系文字（白底） */
+
+  /* ---- 渐变（整段命名，避免逐字重复）---- */
+  --link-grad: linear-gradient(135deg, var(--link), var(--link-soft));
+  --sky-grad: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%); /* 玩法页 */
+  --sky-grad-soft: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);                  /* 内容页 */
+
+  /* ---- 字号（5 档，相邻差 ≥4rpx）----
+     2026-10-28：五档全部乘 --fs-scale，为了「三档字号」。
+     改之前全站 1013 处 font-size 里有 867 处是写字面值的（且都正好是这五档之一），
+     所以先做了收口（794 处换成 var(--fs-*)），再在这里挂倍数 —— 只改 5 行就能让
+     全部正文跟着缩放，不用去动 940 处引用。
+
+     倍数怎么生效：utils/font-scale.js 把 `--fs-scale: 1.14` 写进 page-meta 的
+     page-style，落在 page 根节点的行内样式上，优先级高于这里的 page{} 规则。
+     默认值必须是 1 —— 没有注入 page-meta 的页面（组件、还没接的页）表现完全不变。
+
+     刻意没算进来的：剩下的 73 处 ≥50rpx 的字（200/150/110rpx 这类巨型数字、
+     HUD 计量表），它们是版式里的「图形」而不是正文，跟着放大只会把卡片撑破。 */
+  --fs-scale: 1;
+  --fs-display: calc(48rpx * var(--fs-scale));   /* 结算大标题 / Boss 名 */
+  --fs-title: calc(38rpx * var(--fs-scale));     /* 页面标题 / 区块标题 */
+  --fs-strong: calc(32rpx * var(--fs-scale));    /* 按钮文字 / 数字 / 小标题 */
+  --fs-body: calc(28rpx * var(--fs-scale));      /* 正文（全局默认） */
+  --fs-cap: calc(24rpx * var(--fs-scale));       /* 说明 / 标签 / HUD label（最小档） */
 
   /* ---- 间距（4 档；4rpx 仅用于视觉微调，不入档）---- */
   --sp-1: 8rpx;

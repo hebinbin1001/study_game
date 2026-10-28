@@ -20,7 +20,7 @@
 .header-title {
   flex: 1;
   text-align: center;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: var(--white);
   letter-spacing: 6rpx;
@@ -32,7 +32,7 @@
   padding: 0 24rpx;
   height: 76rpx;
   line-height: 76rpx;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 700;
   border-radius: var(--r-pill);
   background: rgba(255, 255, 255, 0.9);
@@ -50,7 +50,7 @@ button.check-pill::after {
 
 .check-pill {
   background: var(--gold);
-  color: #6b4e00;
+  color: var(--pri-ink);
 }
 
 /* ============ 总进度卡 ============ */
@@ -68,7 +68,7 @@ button.check-pill::after {
   width: 88rpx;
   height: 88rpx;
   border-radius: 50%;
-  background: #fff7e0;
+  background: var(--soft-gold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,19 +82,19 @@ button.check-pill::after {
 }
 
 .summary-title {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--ink);
   margin-bottom: 6rpx;
 }
 
 .summary-count {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-sub);
 }
 
 .summary-percent {
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: #ff9f43;
 }
@@ -162,7 +162,7 @@ button.check-pill::after {
 
 /* 未解锁勋章：灰底 */
 .medal--off {
-  background: #e8edf4;
+  background: var(--surface);
 }
 
 .medal-emoji {
@@ -175,7 +175,7 @@ button.check-pill::after {
   position: absolute;
   top: -10rpx;
   right: -10rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   line-height: 1;
 }
 
@@ -185,14 +185,14 @@ button.check-pill::after {
 }
 
 .medal-name {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--ink);
   margin-bottom: 8rpx;
 }
 
 .medal-desc {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-sub);
   line-height: 1.5;
 }
@@ -204,7 +204,7 @@ button.check-pill::after {
 
 /* 未解锁徽章：灰底灰字（覆盖全局 badge 金底） */
 .badge-locked {
-  background: #e8edf4;
+  background: var(--surface);
   color: var(--ink-weak);
 }
 
@@ -233,9 +233,9 @@ button.check-pill::after {
   padding: 12rpx 24rpx;
   margin-right: 12rpx;
   border-radius: 999rpx;
-  background: #eef2f8;
+  background: var(--surface);
   color: var(--ink-sub);
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
 }
 
@@ -245,7 +245,7 @@ button.check-pill::after {
 }
 
 .cat-count {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   opacity: .75;
 }
 
@@ -258,13 +258,13 @@ button.check-pill::after {
 }
 
 .cat-group-title {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 800;
   color: #4a5b70;
 }
 
 .cat-group-count {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
   font-weight: 700;
 }
@@ -287,7 +287,7 @@ button.check-pill::after {
   flex: 1 1 auto;
   height: 12rpx;
   border-radius: 999rpx;
-  background: #e8edf4;
+  background: var(--surface);
   overflow: hidden;
 }
 
@@ -303,7 +303,7 @@ button.check-pill::after {
 
 .medal-progress-text {
   flex: 0 0 auto;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
   font-weight: 700;
 }
@@ -315,13 +315,13 @@ button.check-pill::after {
 }
 
 .empty-text {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-sub);
   font-weight: 700;
   margin-bottom: 8rpx;
 }
 
 .empty-sub {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
 }

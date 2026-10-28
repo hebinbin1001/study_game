@@ -3,6 +3,8 @@
   结构：HUD / 战场（勇士 · Boss · 血条）/ 词槽 / 字母面板 / 浮层
   说明：视觉沿用本项目浅色卡通风（不做深色主题，规避系统深色模式踩坑）
 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="gs-page game-page">
 
   <!-- ============ HUD ============ -->

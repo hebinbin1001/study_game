@@ -2,7 +2,7 @@
   "_note": "设计令牌基线：存量违规豁免额度。每次批改完用 `node e2e/check-tokens.js --update` 压到新的实际值，只许降不许升。",
   "_generated": "2026-10-28",
   "totals": {
-    "hex": 967,
+    "hex": 441,
     "fs": 0,
     "radius": 0,
     "hard": 0
@@ -20,206 +20,194 @@
       "radius": 0,
       "hard": 0
     },
-    "components/game-hud/game-hud.wxss": {
-      "hex": 2,
-      "fs": 0,
-      "radius": 0,
-      "hard": 0
-    },
     "components/game-pause/game-pause.wxss": {
-      "hex": 4,
+      "hex": 3,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "components/grade-picker/grade-picker.wxss": {
-      "hex": 4,
+      "hex": 1,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "components/settle-pop/settle-pop.wxss": {
-      "hex": 5,
+      "hex": 1,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "components/warrior-badge/index.wxss": {
-      "hex": 2,
+      "hex": 1,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/achievement/achievement.wxss": {
-      "hex": 15,
+      "hex": 9,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/admin/admin.wxss": {
-      "hex": 57,
+      "hex": 14,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/agreement/agreement.wxss": {
-      "hex": 4,
+      "hex": 2,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/avatar/avatar.wxss": {
-      "hex": 20,
+      "hex": 14,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/bank/bank.wxss": {
-      "hex": 87,
-      "fs": 0,
-      "radius": 0,
-      "hard": 0
-    },
-    "pages/checkin/checkin.wxss": {
-      "hex": 11,
+      "hex": 16,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/custom-levels/custom-levels.wxss": {
-      "hex": 11,
+      "hex": 1,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/daily-challenge/daily-challenge.wxss": {
-      "hex": 13,
+      "hex": 1,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/daily-question/daily-question.wxss": {
-      "hex": 12,
+      "hex": 1,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/level-editor/level-editor.wxss": {
-      "hex": 35,
+      "hex": 11,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/level-share/level-share.wxss": {
-      "hex": 6,
+      "hex": 3,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/nickname/nickname.wxss": {
-      "hex": 18,
+      "hex": 14,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/pk/pk.wxss": {
-      "hex": 19,
+      "hex": 3,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/playlist/playlist.wxss": {
-      "hex": 22,
+      "hex": 7,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/rank-exam/rank-exam.wxss": {
-      "hex": 12,
+      "hex": 7,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/rank-info/rank-info.wxss": {
-      "hex": 11,
+      "hex": 3,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pages/rank/rank.wxss": {
-      "hex": 32,
-      "fs": 0,
-      "radius": 0,
-      "hard": 0
-    },
-    "pages/report/report.wxss": {
-      "hex": 4,
-      "fs": 0,
-      "radius": 0,
-      "hard": 0
-    },
-    "pages/season/season.wxss": {
-      "hex": 13,
-      "fs": 0,
-      "radius": 0,
-      "hard": 0
-    },
-    "pages/study/study.wxss": {
-      "hex": 24,
-      "fs": 0,
-      "radius": 0,
-      "hard": 0
-    },
-    "pages/wrong-book/wrong-book.wxss": {
-      "hex": 26,
-      "fs": 0,
-      "radius": 0,
-      "hard": 0
-    },
-    "pages/wrong-review/wrong-review.wxss": {
       "hex": 11,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
+    "pages/report/report.wxss": {
+      "hex": 1,
+      "fs": 0,
+      "radius": 0,
+      "hard": 0
+    },
+    "pages/season/season.wxss": {
+      "hex": 2,
+      "fs": 0,
+      "radius": 0,
+      "hard": 0
+    },
+    "pages/study/study.wxss": {
+      "hex": 4,
+      "fs": 0,
+      "radius": 0,
+      "hard": 0
+    },
+    "pages/wrong-book/wrong-book.wxss": {
+      "hex": 9,
+      "fs": 0,
+      "radius": 0,
+      "hard": 0
+    },
+    "pages/wrong-review/wrong-review.wxss": {
+      "hex": 4,
+      "fs": 0,
+      "radius": 0,
+      "hard": 0
+    },
     "pkg-games/bounce/bounce.wxss": {
-      "hex": 6,
+      "hex": 2,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/clock/clock.wxss": {
-      "hex": 33,
+      "hex": 22,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/g2048/g2048.wxss": {
-      "hex": 23,
+      "hex": 14,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/game/game.wxss": {
-      "hex": 35,
+      "hex": 14,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/hanoi/hanoi.wxss": {
-      "hex": 17,
+      "hex": 12,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/idiom-build/idiom-build.wxss": {
-      "hex": 17,
+      "hex": 13,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/klotski/klotski.wxss": {
-      "hex": 10,
+      "hex": 6,
       "fs": 0,
       "radius": 0,
       "hard": 0
@@ -231,97 +219,97 @@
       "hard": 0
     },
     "pkg-games/level/level.wxss": {
-      "hex": 16,
+      "hex": 12,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/link/link.wxss": {
-      "hex": 10,
+      "hex": 3,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/match/match.wxss": {
-      "hex": 10,
+      "hex": 3,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/math-balance/math-balance.wxss": {
-      "hex": 18,
+      "hex": 16,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/math-sprint/math-sprint.wxss": {
-      "hex": 9,
+      "hex": 6,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/math24/math24.wxss": {
-      "hex": 15,
+      "hex": 4,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/maze/maze.wxss": {
-      "hex": 38,
+      "hex": 11,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/memory-grid/memory-grid.wxss": {
-      "hex": 9,
+      "hex": 7,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/one-stroke/one-stroke.wxss": {
-      "hex": 23,
+      "hex": 18,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/pattern/pattern.wxss": {
-      "hex": 30,
+      "hex": 16,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/puzzle-level/puzzle-level.wxss": {
-      "hex": 14,
+      "hex": 2,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/quiz/quiz.wxss": {
-      "hex": 20,
+      "hex": 5,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/result/result.wxss": {
-      "hex": 10,
+      "hex": 8,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/snake/snake.wxss": {
-      "hex": 11,
+      "hex": 5,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/sudoku/sudoku.wxss": {
-      "hex": 11,
+      "hex": 2,
       "fs": 0,
       "radius": 0,
       "hard": 0
     },
     "pkg-games/word-build/word-build.wxss": {
-      "hex": 18,
+      "hex": 13,
       "fs": 0,
       "radius": 0,
       "hard": 0

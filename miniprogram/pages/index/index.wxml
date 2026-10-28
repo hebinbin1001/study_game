@@ -9,6 +9,8 @@
        ⑤ 三宫格：排行榜 / 赛季 / 好友 PK
        ⑥ 「接着玩」一行：本机最常玩的一款
      原有功能入口一个不少，只是合并同类项、去掉重复展示。 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-home">
   <!-- ① HUD 胶囊条 -->
   <view class="hud-row">

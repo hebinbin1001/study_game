@@ -22,11 +22,11 @@
   color: var(--ink);
   border-radius: 999rpx;
   padding: 12rpx 30rpx;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 800;
   box-shadow: var(--clay-2, inset 0 -6rpx 0 rgba(20, 50, 90, .12), inset 0 5rpx 0 rgba(255, 255, 255, .50), 0 6rpx 14rpx rgba(20, 50, 90, .12));
   line-height: 1.4;
 }
 .chip-lives { color: var(--pink); min-width: 120rpx; text-align: center; }
-.chip-score { color: #4285F4; }
-.chip-extra { color: #ff8f00; }
+.chip-score { color: var(--link); }
+.chip-extra { color: var(--pri); }

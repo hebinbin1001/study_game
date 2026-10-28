@@ -19,8 +19,8 @@ page {
   text-align: center;
   box-shadow: var(--clay-3);
 }
-.banner .main { font-size: 32rpx; font-weight: 900; color: #22305a; }
-.banner .sub { margin-top: 8rpx; font-size: 24rpx; color: #6d7791; }
+.banner .main { font-size: var(--fs-strong); font-weight: 900; color: #22305a; }
+.banner .sub { margin-top: 8rpx; font-size: var(--fs-cap); color: #6d7791; }
 .banner.watch .main { color: #e08a00; }
 
 .grid {
@@ -49,10 +49,10 @@ page {
 }
 .cell:active { transform: scale(0.95); }
 .cell.lit {
-  background: linear-gradient(160deg, var(--gold), #ff9f1c);
+  background: linear-gradient(160deg, var(--gold), var(--pri));
   box-shadow: 0 0 24rpx rgba(255, 159, 28, 0.55), inset 0 -6rpx 0 rgba(150, 90, 0, 0.2);
 }
-.cell.found { background: linear-gradient(160deg, var(--green), #34A853); }
+.cell.found { background: linear-gradient(160deg, var(--green), var(--green-ink)); }
 .cell.reveal { background: linear-gradient(160deg, #ffa8c0, var(--pink)); }
 .cell.wrong { background: var(--pink); animation: cellShake 0.35s ease; }
 @keyframes cellShake {
@@ -68,7 +68,7 @@ page {
   line-height: 88rpx;
   text-align: center;
   border-radius: var(--r-pill);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 800;
 }
 .btn.ghost {

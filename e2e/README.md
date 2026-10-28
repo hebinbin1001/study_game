@@ -71,7 +71,7 @@ node e2e/run-all.js --only=link
 | `verify-snake.js` | 单词贪吃蛇玩法逻辑 |
 | `verify-all-pages.js` / `verify-m2m4.js` | 页面渲染回归 |
 | `syntax-check-all.js` / `structure-check.js` / `check-wxss.js` | 静态检查 |
-| `check-tokens.js` / `tokenize-hex.js` | 设计令牌护栏 + 裸色值批量令牌化（见下方「设计令牌护栏」）|
+| `check-tokens.js` / `tokenize-hex.js` / `tokenize-roles.js` / `normalize-font.js` | 设计令牌护栏 + 批量令牌化 / 字号归一（见「设计令牌护栏」）|
 | `smoke-api.js` / `probe-callcontainer.js` | 后端接口冒烟（需网络） |
 | `preview-boards.js` | **棋盘/卡牌视觉预览**：把真实 wxss 转成浏览器 CSS 渲染 6 个棋盘（见第六节末），产物在 `reports/preview/` |
 | `preview-monster.js` | **对局画面预览**：怪兽主体 + 题目名牌（4 只 × 4 状态），几何直接取自渲染层纯函数，不会与真机漂移 |
@@ -284,3 +284,50 @@ node e2e/tokenize-hex.js         # 真改
 批 5 实测：一次跑掉 692 处，裸色值 1710 → 1018，且不需要 review 任何一行。
 
 新增令牌时记得同步 `tokenize-hex.js` 顶部的 `MAP` —— 否则那批会漏在「裸色值」里。
+
+### 配套工具二：`tokenize-roles.js`（按角色归并近似色）
+
+`tokenize-hex.js` 只处理「与令牌值完全相等」的；近似值它一个都不碰。
+但真正让代码难维护的不是那 692 处等值色，而是「同一件事写了七八种值」：
+
+```
+--surface #eef2f8   ←  #eef2f8×21  #eef3fa×10  #eef5fb×10  #f4f8fd  #e8edf4 …
+```
+
+屏幕上这几种灰分不出来，代码里却有 13 种写法。`tokenize-roles.js` 用一张
+「裸值 → 角色令牌」的映射表做归并：
+
+```bash
+node e2e/tokenize-roles.js --dry   # 只统计
+node e2e/tokenize-roles.js         # 真改
+```
+
+批 6 实测：替换 541 处色值 + 25 段整段渐变，裸色值 967 → 441。
+色值会有 2~8/255 的位移（肉眼不可辨），**所以这一批是要看图确认的**，不是零风险操作。
+
+两条硬规则（批 6 踩过才写下来）：
+
+1. **渐变必须在「非 `--` 声明」里替换**。第一版对全文做渐变替换，结果把
+   `app.wxss` 里的 `--sky-grad: linear-gradient(...)` 改成了 `--sky-grad: var(--sky-grad)` ——
+   自定义属性自引用 = 无效值，所有 `background: var(--sky-grad)` 的页面底色直接失效。
+2. **脚本必须幂等**。连跑两次，第二次应输出「0 处」。不满足就是偏移算错了，
+   而偏移算错在 CSS 里不会报错（见下条）。
+
+### 配套工具三：`normalize-font.js`（字号归一到 5 档）
+
+```bash
+node e2e/normalize-font.js --dry
+node e2e/normalize-font.js
+```
+
+按就近档位：`18~23→24` `25~27→28` `30/34→32` `36/40/42→38` `44/46→48`，>48 不动。
+批 6 一次收敛 520 处，字号档位归零。
+
+> **踩过的坑（必须记住）**：这个脚本第一版的 `valStart` 取在属性名之后（冒号处），
+> 而正则的 `vm.index` 是相对「冒号+空格之后」的偏移，两者差 2 个字符，
+> 于是 520 处 `font-size: 40rpx` 被写成 `font-size48rpxpx`。
+> 这是「未知属性」，浏览器直接丢掉整条声明 —— 页面不报错、括号配对正常、单测全过，
+> 只有某些字悄悄变小。当时 `check-wxss.js` 只扫 `pages/`，300 多处坏的落在 `pkg-games/`，
+> 全套护栏一声不响。
+>
+> 现在已经有的防线：`check-wxss.js` 扫全部 60 个 wxss + 第 7 条「字母紧接数字+rpx」规则。

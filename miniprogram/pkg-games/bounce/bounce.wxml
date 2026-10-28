@@ -1,4 +1,6 @@
 <!-- 单词弹弹球（B6-7）：接住释义球 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-bounce">
   <!-- 2026-10-17：删掉页内「返回 + 标题」（原生导航栏已有）；操作提示并进 HUD 行。 -->
 

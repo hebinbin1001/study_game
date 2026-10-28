@@ -26,13 +26,13 @@
   gap: 28rpx;
 }
 .week-num { display: flex; align-items: baseline; gap: 6rpx; }
-.week-big { font-size: 52rpx; font-weight: 900; color: #333A45; line-height: 1.1; }
-.week-unit { font-size: 24rpx; color: #8A94A6; font-weight: 700; }
+.week-big { font-size: 52rpx; font-weight: 900; color: var(--ink); line-height: 1.1; }
+.week-unit { font-size: var(--fs-cap); color: var(--ink-weak); font-weight: 700; }
 .week-sep { width: 2rpx; height: 44rpx; background: #EDF1F8; }
 .week-sub {
   margin-top: 10rpx;
-  font-size: 24rpx;
-  color: #8A94A6;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
   text-align: center;
 }
 
@@ -61,19 +61,19 @@
   background: var(--sky-3);
 }
 .stat-go:active { transform: scale(0.94); }
-.stat-top { font-size: 24rpx; font-weight: 800; color: #6B7688; }
+.stat-top { font-size: var(--fs-cap); font-weight: 800; color: var(--ink-weak); }
 .stat-num {
   margin-top: 6rpx;
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
-  color: #333A45;
+  color: var(--ink);
   line-height: 1.15;
 }
-.stat-unit { font-size: 24rpx; margin-left: 2rpx; }
+.stat-unit { font-size: var(--fs-cap); margin-left: 2rpx; }
 .stat-sub {
   margin-top: 2rpx;
-  font-size: 24rpx;
-  color: #8A94A6;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -99,36 +99,36 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 38rpx;
-  background: #EEF3FD;
+  font-size: var(--fs-title);
+  background: var(--surface);
   flex: 0 0 auto;
 }
-.li-green { background: #E6F6EA; }
+.li-green { background: var(--soft-green); }
 .li-purple { background: #F0ECFB; }
-.li-orange { background: #FFF3E6; }
-.li-blue { background: #E6F1FB; }
+.li-orange { background: var(--soft-gold); }
+.li-blue { background: var(--surface); }
 .lt { flex: 1; min-width: 0; }
-.l-b { font-size: 28rpx; font-weight: 800; color: #333A45; }
+.l-b { font-size: var(--fs-body); font-weight: 800; color: var(--ink); }
 .l-s {
-  font-size: 24rpx;
-  color: #8A94A6;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
   margin-top: 4rpx;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.ar { color: #C3CCDA; font-size: 38rpx; font-weight: 700; flex: 0 0 auto; }
+.ar { color: var(--line); font-size: var(--fs-title); font-weight: 700; flex: 0 0 auto; }
 
 .state-chip {
   flex: 0 0 auto;
-  background: #EEF3FD;
-  color: #4285F4;
+  background: var(--surface);
+  color: var(--link);
   border-radius: 999rpx;
   padding: 10rpx 22rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
 }
-.state-chip.done { background: #E6F6EA; color: #34A853; }
+.state-chip.done { background: var(--soft-green); color: var(--green-ink); }
 
 /* 本周薄弱：吃掉底部空白，并给「去练错题」一个直达 */
 .weak-card {
@@ -143,12 +143,12 @@
   flex-direction: column;
 }
 .weak-head { display: flex; align-items: center; }
-.weak-t { font-size: 28rpx; font-weight: 900; color: #333A45; }
+.weak-t { font-size: var(--fs-body); font-weight: 900; color: var(--ink); }
 .weak-more {
   margin-left: auto;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
-  color: #4285F4;
+  color: var(--link);
 }
 .weak-row {
   display: flex;
@@ -160,10 +160,10 @@
   display: flex;
   align-items: center;
   gap: 8rpx;
-  background: #FFF3E6;
+  background: var(--soft-gold);
   border-radius: 999rpx;
   padding: 10rpx 20rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #B56500;
   font-weight: 800;
   max-width: 100%;
@@ -173,7 +173,7 @@
   background: rgba(255, 152, 0, .18);
   border-radius: 999rpx;
   padding: 2rpx 12rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
 }
 .weak-empty {
   flex: 1 1 auto;
@@ -181,7 +181,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #B7C4D4;
   line-height: 1.6;
 }

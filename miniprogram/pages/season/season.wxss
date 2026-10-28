@@ -3,13 +3,13 @@
   min-height: 100vh;
   box-sizing: border-box;
   padding: 24rpx 32rpx calc(env(safe-area-inset-bottom) + 48rpx);
-  background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
+  background: var(--sky-grad-soft);
 }
 
 .se-head { display: flex; align-items: center; gap: 20rpx; }
 .se-head-t { flex: 1; }
-.se-title { font-size: 38rpx; font-weight: 900; color: #2c4a6b; letter-spacing: 2rpx; }
-.se-sub { font-size: 24rpx; color: var(--ink-sub); margin-top: 6rpx; }
+.se-title { font-size: var(--fs-title); font-weight: 900; color: var(--ink-deep); letter-spacing: 2rpx; }
+.se-sub { font-size: var(--fs-cap); color: var(--ink-sub); margin-top: 6rpx; }
 
 .se-card {
   background: var(--white);
@@ -18,17 +18,17 @@
   padding: 34rpx 32rpx;
   margin-top: 28rpx;
 }
-.se-loading { text-align: center; color: var(--ink-sub); font-size: 28rpx; }
+.se-loading { text-align: center; color: var(--ink-sub); font-size: var(--fs-body); }
 .se-empty { text-align: center; }
 .se-empty-emoji { font-size: 90rpx; }
-.se-empty-t { margin: 16rpx 0 28rpx; color: var(--ink-sub); font-size: 28rpx; }
+.se-empty-t { margin: 16rpx 0 28rpx; color: var(--ink-sub); font-size: var(--fs-body); }
 .se-retry { margin: 0 auto; }
 
 /* 当前赛季 */
 .se-hero { text-align: center; }
-.se-hero-name { font-size: 38rpx; font-weight: 900; color: #2c4a6b; }
-.se-hero-days { font-size: 24rpx; color: var(--ink-sub); margin-top: 8rpx; }
-.se-days { font-size: 32rpx; font-weight: 900; color: #ff8f00; }
+.se-hero-name { font-size: var(--fs-title); font-weight: 900; color: var(--ink-deep); }
+.se-hero-days { font-size: var(--fs-cap); color: var(--ink-sub); margin-top: 8rpx; }
+.se-days { font-size: var(--fs-strong); font-weight: 900; color: var(--pri); }
 .se-hero-me {
   display: flex;
   align-items: center;
@@ -39,19 +39,19 @@
   padding: 22rpx 0;
 }
 .se-me-item { flex: 1; }
-.se-me-num { font-size: 48rpx; font-weight: 900; color: var(--blue); }
-.se-me-lb { font-size: 24rpx; color: var(--ink-weak); margin-top: 4rpx; }
+.se-me-num { font-size: var(--fs-display); font-weight: 900; color: var(--blue); }
+.se-me-lb { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 4rpx; }
 .se-me-line { width: 2rpx; height: 60rpx; background: #e2eef8; }
-.se-hero-tip { font-size: 24rpx; color: var(--ink-weak); line-height: 1.6; margin-top: 18rpx; }
+.se-hero-tip { font-size: var(--fs-cap); color: var(--ink-weak); line-height: 1.6; margin-top: 18rpx; }
 
 /* 上赛季奖励 */
-.se-prev-t { font-size: 32rpx; font-weight: 900; color: #2c4a6b; }
-.se-prev-s { font-size: 24rpx; color: var(--ink-sub); margin-top: 12rpx; line-height: 1.6; }
+.se-prev-t { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
+.se-prev-s { font-size: var(--fs-cap); color: var(--ink-sub); margin-top: 12rpx; line-height: 1.6; }
 .se-claim { margin-top: 22rpx; }
 
 /* 奖励说明 */
 .se-tiers { margin-top: 32rpx; }
-.se-tiers-t { font-size: 28rpx; font-weight: 900; color: #2c4a6b; }
+.se-tiers-t { font-size: var(--fs-body); font-weight: 900; color: var(--ink-deep); }
 .se-tier-row { display: flex; gap: 16rpx; margin-top: 16rpx; }
 .se-tier {
   flex: 1;
@@ -61,21 +61,21 @@
   text-align: center;
   box-shadow: var(--clay-2);
 }
-.se-tier-label { font-size: 24rpx; font-weight: 800; color: #2c4a6b; }
-.se-tier-star { font-size: 28rpx; font-weight: 900; color: #ff8f00; margin-top: 8rpx; }
+.se-tier-label { font-size: var(--fs-cap); font-weight: 800; color: var(--ink-deep); }
+.se-tier-star { font-size: var(--fs-body); font-weight: 900; color: var(--pri); margin-top: 8rpx; }
 
 /* 赛季榜 */
 .se-rank { margin-top: 32rpx; }
 .se-rank-head { display: flex; align-items: baseline; justify-content: space-between; }
-.se-rank-title { font-size: 32rpx; font-weight: 900; color: #2c4a6b; }
-.se-rank-sub { font-size: 24rpx; color: var(--ink-weak); }
+.se-rank-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
+.se-rank-sub { font-size: var(--fs-cap); color: var(--ink-weak); }
 .se-rank-empty {
   margin-top: 18rpx;
   background: rgba(255, 255, 255, .8);
   border-radius: 28rpx;
   padding: 36rpx;
   text-align: center;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-weak);
 }
 .se-rank-row {
@@ -89,7 +89,7 @@
   box-shadow: var(--clay-2);
 }
 .se-rank-row.me { outline: 4rpx solid var(--pri); }
-.se-rank-no { width: 56rpx; text-align: center; font-size: 28rpx; font-weight: 900; color: var(--ink-sub); }
+.se-rank-no { width: 56rpx; text-align: center; font-size: var(--fs-body); font-weight: 900; color: var(--ink-sub); }
 .se-rank-avatar {
   width: 64rpx;
   height: 64rpx;
@@ -101,25 +101,25 @@
   justify-content: center;
 }
 .se-avatar-img { width: 100%; height: 100%; }
-.se-avatar-txt { font-size: 28rpx; font-weight: 900; color: var(--blue); }
+.se-avatar-txt { font-size: var(--fs-body); font-weight: 900; color: var(--blue); }
 .se-rank-name {
   flex: 1;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 800;
-  color: #2c4a6b;
+  color: var(--ink-deep);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .se-me {
   margin-left: 10rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--white);
   background: var(--pri);
   border-radius: 999rpx;
   padding: 2rpx 12rpx;
 }
-.se-rank-stars { font-size: 28rpx; font-weight: 900; color: #ff8f00; }
+.se-rank-stars { font-size: var(--fs-body); font-weight: 900; color: var(--pri); }
 
 .se-login {
   margin-top: 28rpx;
@@ -127,8 +127,8 @@
   align-items: center;
   justify-content: center;
   gap: 16rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
 }
 .se-login-btn { margin: 0; }
-.se-foot { text-align: center; font-size: 24rpx; color: var(--ink-weak); margin-top: 26rpx; line-height: 1.6; }
+.se-foot { text-align: center; font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 26rpx; line-height: 1.6; }

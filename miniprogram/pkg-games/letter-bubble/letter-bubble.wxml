@@ -1,3 +1,5 @@
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="lb-page">
   <view class="lb-hud">
     <warrior-badge size="sm" />

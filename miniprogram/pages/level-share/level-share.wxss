@@ -18,7 +18,7 @@
 }.header-title {
   flex: 1;
   text-align: center;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: var(--white);
   letter-spacing: 6rpx;
@@ -28,7 +28,7 @@
 
 /* ============ 卡片标题 ============ */
 .card-title {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--ink);
   margin-bottom: 28rpx;
@@ -48,7 +48,7 @@
 }
 
 .share-tip {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-sub);
   margin-bottom: 32rpx;
 }
@@ -61,7 +61,7 @@
   color: #ff9f43;
   margin-bottom: 44rpx;
   padding: 24rpx 20rpx;
-  background: #fff7e0;
+  background: var(--soft-gold);
   border-radius: 28rpx;
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.06);
 }
@@ -70,7 +70,7 @@
 .btn-copy {
   min-width: 320rpx;
   padding: 26rpx 0;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   letter-spacing: 4rpx;
   border-radius: 999rpx;
@@ -102,11 +102,11 @@ button.btn-copy::after {
 .code-input {
   flex: 1;
   padding: 24rpx;
-  background: #f2f7fc;
+  background: var(--surface);
   border-radius: 28rpx;
   border: 4rpx solid #e1edf6;
   color: var(--ink);
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   text-align: center;
   letter-spacing: 12rpx;
@@ -116,7 +116,7 @@ button.btn-copy::after {
 .field-placeholder {
   color: #a8bacf;
   font-weight: 700;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   letter-spacing: 4rpx;
 }
 
@@ -124,7 +124,7 @@ button.btn-copy::after {
 .btn-import {
   min-width: 180rpx;
   padding: 0 32rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   letter-spacing: 4rpx;
   border-radius: 999rpx;
@@ -143,7 +143,7 @@ button.btn-import::after {
 
 .input-hint {
   margin-top: 20rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
   text-align: center;
 }
@@ -154,7 +154,7 @@ button.btn-import::after {
 }
 
 .level-title {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--ink);
   margin-bottom: 20rpx;
@@ -169,17 +169,17 @@ button.btn-import::after {
 
 /* 标签复用全局 .tag（浅底灰字），仅调字号 */
 .level-meta .tag {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   padding: 8rpx 20rpx;
   border-radius: 28rpx;
 }
 
 .level-description {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-sub);
   margin-bottom: 28rpx;
   line-height: 1.6;
-  background: #f2f7fc;
+  background: var(--surface);
   border-radius: 28rpx;
   padding: 20rpx 24rpx;
 }
@@ -187,7 +187,7 @@ button.btn-import::after {
 /* 开始游戏：绿色大按钮按压感 */
 .btn-start {
   padding: 28rpx 0;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   letter-spacing: 4rpx;
   border-radius: 999rpx;
@@ -211,13 +211,13 @@ button.btn-start::after {
 }
 
 .empty-text {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--ink-sub);
   font-weight: 700;
   margin-bottom: 8rpx;
 }
 
 .empty-sub {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
 }

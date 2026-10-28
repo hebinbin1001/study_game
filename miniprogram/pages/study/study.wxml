@@ -3,6 +3,8 @@
            底部还空着约 350rpx。
      现在：周概览 → 2 张数据卡（报告正确率 / 错题待复习）→ 4 条入口 → 本周薄弱题型填底。
      兼容：6 个入口方法与跳转全部不变。 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-study">
   <!-- 本周概览 -->
   <view class="week-card">

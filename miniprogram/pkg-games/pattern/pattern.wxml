@@ -1,4 +1,6 @@
 <!-- 找规律（数字智力第 9 款）：30 关 × 每关 10 题，难度只靠关卡序号，不接年级 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-pattern">
 
   <!-- 顶部三格信息（沿用统一 HUD 视觉：关卡 / 题号 / 答对） -->

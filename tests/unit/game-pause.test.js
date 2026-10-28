@@ -185,7 +185,9 @@ s.test('战士徽章视觉改版：去白底 + 金边 + 立绘放大（源码护
   const bare = wxss.replace(/\/\*[\s\S]*?\*\//g, '');
   s.assert.ok(bare.indexOf('rgba(255, 255, 255, .86)') === -1,
     '徽章不得再用半透明白底（在浅蓝背景上只剩一团白斑）');
-  s.assert.contains(bare, '#ffc53d', '徽章应有金色描边（与深色暂停键区分开）');
+  // 2026-10-28 批 6：钉死色值会挡住令牌化本身（令牌化后这里变成 var(--gold)），
+  // 所以改成「两种写法都认」—— 护栏要守的是语义（金色描边），不是某个具体 hex。
+  s.assert.ok(/border:[^;]*(#ffc53d|var\(--gold\))/.test(bare), '徽章应有金色描边（与深色暂停键区分开）');
   s.assert.contains(bare, 'radial-gradient', '徽章底应为暖色渐变');
   s.assert.match(bare, /\.wb-img\s*\{[^}]*width:\s*132%/, '立绘应放大到 132% 撑满圆形');
   s.assert.match(bare, /\.wb-img\s*\{[^}]*bottom:\s*-6rpx/, '立绘应贴底（竖长全身像做成半身像）');

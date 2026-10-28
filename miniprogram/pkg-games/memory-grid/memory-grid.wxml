@@ -1,4 +1,6 @@
 <!-- 记忆矩阵（玩法落地：demo g7）：亮格记忆 + 5×5 网格 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-memory">
 
   <view class="hud-holder">

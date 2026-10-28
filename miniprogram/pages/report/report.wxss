@@ -1,6 +1,6 @@
 /* 学习报告页（M6-D） */
 page {
-  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+  background: linear-gradient(180deg, var(--sky-2) 0%, var(--sky-3) 55%, var(--sky-3) 100%);
   min-height: 100vh;
   color: var(--ink);
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
@@ -13,7 +13,7 @@ page {
 }
 
 .rep-title {
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
   color: var(--white);
   letter-spacing: 4rpx;
@@ -22,7 +22,7 @@ page {
 }
 .rep-sub {
   text-align: center;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-sub);
   margin: 12rpx 0 28rpx;
 }
@@ -52,7 +52,7 @@ page {
   line-height: 1.2;
 }
 .stat-label {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
   margin-top: 6rpx;
 }
@@ -66,7 +66,7 @@ page {
   box-shadow: var(--clay-2);
 }
 .rep-card-title {
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: var(--ink);
   margin-bottom: 20rpx;
@@ -79,13 +79,13 @@ page {
   margin-bottom: 16rpx;
 }
 .ws-item { text-align: center; }
-.ws-num { font-size: 48rpx; font-weight: 900; color: var(--ink-sub); }
+.ws-num { font-size: var(--fs-display); font-weight: 900; color: var(--ink-sub); }
 .ws-num--orange { color: var(--pri); }
 .ws-num--green { color: var(--green); }
-.ws-label { font-size: 24rpx; color: var(--ink-weak); margin-top: 4rpx; }
+.ws-label { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 4rpx; }
 .rep-link {
   text-align: center;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: var(--blue);
   font-weight: 800;
   padding-top: 12rpx;
@@ -109,7 +109,7 @@ page {
 .trend-bar-wrap {
   width: 32rpx;
   height: 140rpx;
-  background: #eef2f8;
+  background: var(--surface);
   border-radius: 16rpx;
   display: flex;
   align-items: flex-end;
@@ -122,13 +122,13 @@ page {
   background: linear-gradient(180deg, var(--green), var(--blue));
 }
 .trend-val {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-sub);
   font-weight: 800;
   margin-top: 6rpx;
 }
 .trend-date {
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #aab7c8;
   margin-top: 2rpx;
 }
@@ -143,7 +143,7 @@ page {
   /* 2026-10-18：类型名改成中文后（如「汉字/成语挖1字」）120rpx 会折成两行，
      名称列加宽并略收字号，保证一行放下、条形图仍然完整。 */
   width: 200rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   line-height: 1.25;
   font-weight: 800;
   color: var(--ink);
@@ -152,7 +152,7 @@ page {
 .type-bar-wrap {
   flex: 1;
   height: 24rpx;
-  background: #eef2f8;
+  background: var(--surface);
   border-radius: var(--r-pill);
   margin: 0 16rpx;
   overflow: hidden;
@@ -165,7 +165,7 @@ page {
 .type-count {
   width: 60rpx;
   text-align: right;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 800;
   color: var(--pri-ink);
   flex-shrink: 0;

@@ -76,13 +76,13 @@
 .gp-ico-img { width: 64rpx; height: 64rpx; margin: 0 auto; }
 .gp-title {
   margin-top: 12rpx;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: var(--ink);
 }
 .gp-sub {
   margin-top: 8rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: var(--ink-weak);
 }
 
@@ -96,9 +96,9 @@
   height: 88rpx;
   line-height: 88rpx;
   border-radius: 28rpx;
-  background: #4285F4;
+  background: var(--link);
   color: var(--white);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 800;
   border: none;
 }
@@ -122,9 +122,9 @@
   justify-content: center;
   gap: 2rpx;
 }
-.gp-mini-ico { font-size: 32rpx; line-height: 1.1; }
+.gp-mini-ico { font-size: var(--fs-strong); line-height: 1.1; }
 .gp-mini-img { width: 34rpx; height: 34rpx; }
-.gp-mini-txt { font-size: 24rpx; color: #5c6b85; font-weight: 700; }
+.gp-mini-txt { font-size: var(--fs-cap); color: #5c6b85; font-weight: 700; }
 
 .gp-quit {
   display: flex;
@@ -132,7 +132,7 @@
   justify-content: center;
   gap: 8rpx;
   margin-top: 24rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #98a4b8;
   padding: 10rpx 0;
 }

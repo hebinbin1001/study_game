@@ -81,3 +81,48 @@
   font-size: var(--fs-cap);
   color: var(--ink-weak);
 }
+
+/* ---------- 字号三档（2026-10-28） ----------
+   用「分段控件」而不是 switch：三档是互斥多选，switch 只能表达开/关；
+   用 picker 又多一次跳转。分段控件点一下到位，还能顺带显示当前档。
+   例文放在下面而不是塞进每一格：字号变化要看整句的换行与行距，
+   单看「小/标准/大」三个字反而看不出差别。 */
+.st-row--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+.fs-seg {
+  display: flex;
+  margin-top: var(--sp-2);
+  padding: 4rpx;
+  border-radius: var(--r-pill);
+  background: var(--sky-3);
+}
+.fs-seg-i {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--ink-sub);
+}
+.fs-seg-i.is-on {
+  background: var(--white);
+  color: var(--pri-ink);
+  box-shadow: var(--clay-1);
+}
+.fs-demo {
+  padding: 0 var(--sp-3) var(--sp-3);
+}
+.fs-demo-t {
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+}
+.fs-demo-b {
+  margin-top: 4rpx;
+  font-size: var(--fs-body);
+  color: var(--ink);
+  line-height: 1.7;
+}

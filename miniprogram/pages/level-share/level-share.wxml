@@ -1,4 +1,6 @@
 <!-- 分享/导入页（卡片化重设计） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-level-share">
   <view class="header">
     <button class="btn-back" bindtap="goBack">返回</button>

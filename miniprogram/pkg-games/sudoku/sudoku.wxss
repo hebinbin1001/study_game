@@ -8,12 +8,12 @@
   padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%);
+  background: var(--sky-grad);
 }/* 关卡列表 */
 .intro-card { margin: 20rpx 0; background: var(--white); border-radius: 28rpx; padding: 26rpx; text-align: center; flex: 0 0 auto; }
 .intro-emoji { font-size: 64rpx; }
-.intro-t { font-size: 32rpx; font-weight: 900; color: var(--ink); margin-top: 8rpx; }
-.intro-s { font-size: 24rpx; color: var(--ink-weak); margin-top: 8rpx; line-height: 1.6; }
+.intro-t { font-size: var(--fs-strong); font-weight: 900; color: var(--ink); margin-top: 8rpx; }
+.intro-s { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 8rpx; line-height: 1.6; }
 
 .level-grid {
   flex: 1 1 auto;
@@ -34,17 +34,17 @@
   justify-content: center;
   box-shadow: var(--clay-2);
 }
-.lv-node.lock { opacity: .6; background: #eef2f8; }
+.lv-node.lock { opacity: .6; background: var(--surface); }
 .lv-node.next { outline: 6rpx solid var(--pri); }
-.lv-no { font-size: 48rpx; font-weight: 900; color: var(--ink); }
-.lv-size { font-size: 24rpx; color: var(--ink-weak); margin-top: 4rpx; }
-.lv-stars { position: absolute; top: 6rpx; right: 10rpx; font-size: 24rpx; color: var(--pri); font-weight: 900; }
+.lv-no { font-size: var(--fs-display); font-weight: 900; color: var(--ink); }
+.lv-size { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 4rpx; }
+.lv-stars { position: absolute; top: 6rpx; right: 10rpx; font-size: var(--fs-cap); color: var(--pri); font-weight: 900; }
 /* 锁标放右上角（2026-10-17）：绝对定位不写 top/right 会退回文档流位置，
    正好压在关卡号上（截图里 3/4/5… 全被 🔒 盖住）。 */
-.lv-lock { position: absolute; top: 6rpx; right: 10rpx; font-size: 24rpx; }
-.lv-node.next .lv-size { color: #ff8f00; }
+.lv-lock { position: absolute; top: 6rpx; right: 10rpx; font-size: var(--fs-cap); }
+.lv-node.next .lv-size { color: var(--pri); }
 
-.tip-note { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; margin: 0 0 8rpx; }
+.tip-note { flex: 0 0 auto; text-align: center; font-size: var(--fs-cap); color: var(--ink-sub); opacity: 1; margin: 0 0 8rpx; }
 
 /* HUD 用 app.wxss 的 .hud / .hud-chip */
 .hud-back {
@@ -54,7 +54,7 @@
   color: var(--ink-sub);
   border-radius: 999rpx;
   padding: 6rpx 26rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
   margin-bottom: 4rpx;
 }
@@ -75,14 +75,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 800;
   color: var(--ink);
 }
 /* 题面给定的数字：压成「印在板上」的凹面，与玩家填的区别开 */
 .cell.given {
   background: linear-gradient(180deg, #dde8f4 0%, #cfdcec 100%);
-  color: #4a6b8a;
+  color: var(--ink-sub);
   box-shadow: inset 0 3rpx 6rpx rgba(18, 44, 78, 0.18);
 }
 /* 选中 / 填错由 .b-sel 与下面的 .err 负责 */
@@ -106,11 +106,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   color: var(--blue);
 }
-.board-tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; }
+.board-tip { flex: 0 0 auto; text-align: center; font-size: var(--fs-cap); color: var(--ink-sub); opacity: 1; }
 
 /* 结算 */
 .settle-mask {
@@ -120,18 +120,18 @@
 }
 .settle-card { width: 600rpx; background: var(--white); border-radius: 28rpx; padding: 44rpx 36rpx; text-align: center; }
 .stars { font-size: 72rpx; letter-spacing: 10rpx; color: var(--pri); }
-.s-title { font-size: 48rpx; font-weight: 900; color: #2e8b57; margin-top: 10rpx; }
-.s-title.fail { color: #e62e2e; }
-.s-msg { font-size: 28rpx; color: var(--ink-weak); margin-top: 10rpx; }
+.s-title { font-size: var(--fs-display); font-weight: 900; color: var(--green-ink); margin-top: 10rpx; }
+.s-title.fail { color: var(--danger-ink); }
+.s-msg { font-size: var(--fs-body); color: var(--ink-weak); margin-top: 10rpx; }
 .s-btns { display: flex; flex-direction: column; gap: 16rpx; margin-top: 28rpx; }
 .btn-main {
   height: 92rpx; line-height: 92rpx; border-radius: var(--r-pill);
-  background: var(--pri); color: var(--white); font-size: 32rpx; font-weight: 900;
+  background: var(--pri); color: var(--white); font-size: var(--fs-strong); font-weight: 900;
   box-shadow: var(--clay-3);
 }
 .btn-ghost {
   height: 88rpx; line-height: 88rpx; border-radius: var(--r-pill);
-  background: #eef2f8; color: var(--ink-sub); font-size: 32rpx; font-weight: 800;
+  background: var(--surface); color: var(--ink-sub); font-size: var(--fs-strong); font-weight: 800;
 }
 .btn-main::after, .btn-ghost::after { border: none; }
 

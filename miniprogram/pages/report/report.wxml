@@ -1,4 +1,6 @@
 <!-- 学习报告页（M6-D） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-report">
   <view class="rep-title">📊 学习报告</view>
   <view class="rep-sub">近 7 天学习情况 · 数据已同步云端</view>

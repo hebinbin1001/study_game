@@ -1,4 +1,6 @@
 <!-- 成语拼字（玩法落地：demo g3）：看释义把字块拼成四字成语，字块里有干扰字 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-idiom-build">
 
   <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />

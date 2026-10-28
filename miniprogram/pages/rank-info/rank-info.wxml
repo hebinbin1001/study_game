@@ -1,4 +1,6 @@
 <!-- 段位详情：当前段位 + 距下一段还差多少星 + 72 级阶梯（第三批 · 第 8 条） -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="page-rank-info">
   <view class="ri-hero">
     <image wx:if="{{badge}}" class="ri-badge" src="{{badge}}" mode="aspectFit"></image>

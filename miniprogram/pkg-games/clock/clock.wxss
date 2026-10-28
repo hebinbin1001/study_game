@@ -24,14 +24,14 @@ page {
   text-align: center;
   box-shadow: var(--clay-2);
 }
-.chip .k { font-size: 24rpx; color: #b08858; }
-.chip .v { font-size: 32rpx; font-weight: 900; color: #b35c00; margin-top: 2rpx; }
+.chip .k { font-size: var(--fs-cap); color: #b08858; }
+.chip .v { font-size: var(--fs-strong); font-weight: 900; color: #b35c00; margin-top: 2rpx; }
 
 .bar { height: 12rpx; border-radius: var(--r-pill); background: #ffe4bd; overflow: hidden; flex: 0 0 auto; }
 .bar-fill {
   height: 100%;
   border-radius: 16rpx;
-  background: linear-gradient(90deg, #ff8a00, #ffc93c);
+  background: linear-gradient(90deg, var(--pri), #ffc93c);
   transition: width 0.25s ease;
 }
 
@@ -43,20 +43,20 @@ page {
   text-align: center;
   box-shadow: var(--clay-2);
 }
-.banner .main { font-size: 38rpx; font-weight: 900; color: #b35c00; letter-spacing: 1rpx; }
+.banner .main { font-size: var(--fs-title); font-weight: 900; color: #b35c00; letter-spacing: 1rpx; }
 /* 副标题固定两行高：从「看时针和分针的位置」换成规则解释时不跳动 */
 .banner .sub {
   margin-top: 6rpx;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #a58256;
   line-height: 1.4;
   min-height: 34rpx;
 }
-.banner.good { background: #e9fbef; }
-.banner.good .main { color: #1b8f4b; }
-.banner.good .sub { color: #3f8f63; }
-.banner.bad { background: #fff0f0; }
-.banner.bad .main { color: #d64545; }
+.banner.good { background: var(--soft-green); }
+.banner.good .main { color: var(--green-ink); }
+.banner.good .sub { color: var(--green-ink); }
+.banner.bad { background: var(--soft-red); }
+.banner.bad .main { color: var(--danger-ink); }
 .banner.bad .sub { color: #a85858; }
 
 /* ---------- 题板 ---------- */
@@ -116,7 +116,7 @@ page {
 
 .num {
   position: absolute;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
   color: #8a6432;
   line-height: 1;
@@ -175,10 +175,10 @@ page {
   font-size: 88rpx;
   font-weight: 900;
   letter-spacing: 4rpx;
-  color: #8a5a00;
+  color: var(--pri-ink);
 }
 
-.stage-tip { font-size: 24rpx; color: #b08858; min-height: 28rpx; }
+.stage-tip { font-size: var(--fs-cap); color: #b08858; min-height: 28rpx; }
 
 /* ---------- 选项 ---------- */
 .opts {
@@ -196,7 +196,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
   color: #43342a;
   letter-spacing: 1rpx;
@@ -204,22 +204,22 @@ page {
 }
 /* 对错态用浅底 + 粗描边（与找规律同口径，不用实心色块压字） */
 .opt.ok {
-  background: #e9fbef;
-  border-color: #3fc26b;
-  color: #1b8f4b;
+  background: var(--soft-green);
+  border-color: var(--green);
+  color: var(--green-ink);
   box-shadow: var(--clay-2);
 }
 .opt.bad {
-  background: #fff0f0;
+  background: var(--soft-red);
   border-color: #f2635f;
-  color: #d64545;
+  color: var(--danger-ink);
   box-shadow: var(--clay-2);
 }
 
 .foot {
   flex: 0 0 auto;
   text-align: center;
-  font-size: 24rpx;
+  font-size: var(--fs-cap);
   color: #a06a22;
   opacity: 0.85;
 }

@@ -35,14 +35,14 @@ page {
   padding: 0 6rpx;
 }
 .time {
-  font-size: 48rpx;
+  font-size: var(--fs-display);
   font-weight: 900;
-  color: #a33517;
+  color: var(--danger-ink);
   font-variant-numeric: tabular-nums;
 }
 .time.low { color: #e53935; }
 .mult {
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   font-weight: 900;
   color: var(--white);
   background: rgba(255, 255, 255, 0.28);
@@ -66,7 +66,7 @@ page {
 .expr {
   font-size: 76rpx;
   font-weight: 900;
-  color: #a33517;
+  color: var(--danger-ink);
   letter-spacing: 2rpx;
   line-height: 1.2;
 }
@@ -84,7 +84,7 @@ page {
   text-align: center;
   border-radius: 28rpx;
   background: var(--white);
-  color: #a33517;
+  color: var(--danger-ink);
   font-size: 52rpx;
   font-weight: 900;
   box-shadow: var(--clay-3);
@@ -101,7 +101,7 @@ page {
   line-height: 88rpx;
   text-align: center;
   border-radius: var(--r-pill);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 800;
 }
 .btn.ghost {

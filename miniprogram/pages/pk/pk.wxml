@@ -1,4 +1,6 @@
 <!-- 好友 PK：异步战帖 -->
+<page-meta page-style="{{fsStyle}}" />
+
 <view class="pk-page">
 
   <view class="pk-head">

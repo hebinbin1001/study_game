@@ -16,7 +16,7 @@ page {
   background: rgba(255, 255, 255, 0.82);
   border-radius: 28rpx;
   padding: 18rpx 24rpx;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: #2c6a62;
   line-height: 1.6;
 }
@@ -75,16 +75,16 @@ page {
   letter-spacing: 2rpx;
 }
 .pan .val.empty { color: #b6ccc9; }
-.pan .sub { font-size: 24rpx; color: #7f9c97; margin-top: 8rpx; }
-.pan .plate.ok { background: #dcf6e4; border-color: var(--green); }
-.pan .plate.ok .val { color: #2b7a4b; }
+.pan .sub { font-size: var(--fs-cap); color: #7f9c97; margin-top: 8rpx; }
+.pan .plate.ok { background: var(--soft-green); border-color: var(--green); }
+.pan .plate.ok .val { color: var(--green-ink); }
 .pan .plate.bad { background: #ffe2ea; border-color: #ff9fb8; }
 .pan .plate.bad .val { color: #c53862; }
 
 .trend {
   margin-top: 26rpx;
   text-align: center;
-  font-size: 28rpx;
+  font-size: var(--fs-body);
   color: #3b7d74;
   min-height: 36rpx;
   line-height: 1.5;
@@ -119,7 +119,7 @@ page {
   line-height: 88rpx;
   text-align: center;
   border-radius: var(--r-pill);
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   font-weight: 800;
   background: #12a08c;
   color: var(--white);
