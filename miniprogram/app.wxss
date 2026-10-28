@@ -542,20 +542,11 @@ button.btn[disabled]:active,
         不留大片空白（下方 .page-fill / .fill-1 就是干这个的）。
    ========================================================================== */
 
-/* ---- 主题 token（与 demo/ui-redesign/style-h-theme.html 同一套） ---- */
-page {
-  --sky-top: #4a9fe8;      /* 天空顶 */
-  --sky-mid: #8fcbf7;      /* 天空中 */
-  --sky-bot: #d8efff;      /* 天空底 */
-  --cta: #ff9a1f;          /* 主操作橙 */
-  --cta-deep: #d97c00;     /* 橙色底影（按压感） */
-  --win: #3fbf5f;          /* 成功/下一关绿 */
-  --boss-bg1: #3b2a5e;     /* Boss 场景暗紫顶 */
-  --boss-bg2: #c98ab8;     /* Boss 场景紫粉底 */
-  --gold: #ffd166;         /* 星星/解锁金 */
-  --ink: #3a3a5c;
-  --ink-sub: #8a9bb5;
-}
+/* ---- 旧主题 token 已删除（2026-10-28 批 6 第二次删，第一次删完被并行提交带回）----
+   这里原来还有一套 --sky-top/--sky-mid/--sky-bot/--cta/--cta-deep/--win/--boss-bg1/--boss-bg2
+   + --gold/--ink/--ink-sub，和末尾令牌块是**同名不同值**（`--ink-sub` 这里 #8a9bb5、
+   末尾 #5c7f9e；`--boss-bg1` 只有这里定义）。谁能赢全靠书写顺序 —— 这种雷不该留在
+   令牌唯一真相源里。旧名现在由末尾的「迁移别名」块统一指向新令牌，需要兼容就改那一处。 */
 
 /* ---- 铺满布局基类：页面纵向撑满，末屏用 .fill-1 吃掉剩余高度 ---- */
 .page-fill {
