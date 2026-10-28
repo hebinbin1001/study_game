@@ -6,6 +6,6 @@
     "how-to-play": "/components/how-to-play/how-to-play"
   },
   "navigationBarTitleText": "数独",
-  "navigationBarBackgroundColor": "#5aa9e6",
+  "navigationBarBackgroundColor": "#4a9fe8",
   "navigationBarTextStyle": "white"
 }

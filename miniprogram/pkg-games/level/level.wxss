@@ -4,7 +4,7 @@
    一期同时删除了「闯关形态」模式栏与蛇形地图（节点定位/连线）两段样式。 */
 
 page {
-  background: linear-gradient(180deg, var(--sky-2) 0%, var(--sky-3) 55%, var(--sky-3) 100%);
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 34%, var(--sky-3) 72%);
   min-height: 100vh;
   color: var(--ink);
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;

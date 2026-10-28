@@ -39,6 +39,10 @@ const STAGES = [
   // 存量按 e2e/tokens-baseline.json 豁免，只许降不许升 —— 没有这道闸，
   // 10-09 定的「色值 330 → 24」19 天后会漂回 580。
   { id: 'tokens', layer: '静态', title: '设计令牌护栏（色值/字号/圆角/阴影）', script: 'e2e/check-tokens.js' },
+  // 导航栏接缝护栏（2026-10-28）：navigationBarBackgroundColor 写在 json 里，
+  // **不能写 var()**，所以令牌体系天然管不到它 —— 同一个天空蓝被写成 #5aa9e6 /
+  // #4a9fe8 / #4285F4 三种，用户看到的是一条横向色带断层。这条对账脚本补上缺口。
+  { id: 'navseam', layer: '静态', title: '导航栏接缝（nav 色 = 页面背景首色）', script: 'e2e/check-nav-seam.js' },
   // 包体检查（微信主包 2MB 硬限）：素材已按展示尺寸压缩（原图移出包），这里恢复成**阻断**
   { id: 'assets', layer: '静态', title: '包体资源检查（整包 ≤1.8MB）', script: 'e2e/check-assets.js' },
   { id: 'unit', layer: '单元', title: '单元测试套件', script: 'tests/unit/run-all.js' },

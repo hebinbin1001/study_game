@@ -21,8 +21,8 @@
 }
 .wb-back {
   flex: none;
-  width: 60rpx; height: 60rpx;
-  line-height: 54rpx; text-align: center;
+  width: 88rpx; height: 88rpx;
+  line-height: 84rpx; text-align: center;
   border-radius: 50%;
   background: var(--white);
   color: var(--ink-sub);

@@ -146,6 +146,47 @@ for (const file of files) {
   }
 }
 
+// ============ 8）返回/关闭控件的触控热区 ≥ 88rpx（2026-10-28 批 7 新增）============
+//
+// 起因：批 3 把公共的 .btn-back 从 72 → 88rpx（44pt，iOS HIG 的最小可点尺寸），
+// 但各页面**自己起的类名**全漏了 —— .wb-back 60、.qz-back 62、.bk-back 64、
+// .bank-nav-back 68、.fv-back/.st-back 72。同一个「返回」按钮在 6 个页面是 6 种大小，
+// 而且都比标准小。60rpx = 30px，手指点不中是常态。
+//
+// 这条规则按「语义命名」守，不按具体类名守 —— 否则下次换个类名又能绕过去。
+// 判定：选择器里含 back / close / quit / exit 的规则，如果显式写了 width 或 height，
+//       就必须 ≥ 88rpx（0 表示隐藏，放行）。
+{
+  const HOT = 88;
+  for (const file of files) {
+    const src = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, m => m.replace(/[^\n]/g, ' '));
+    const rel = path.relative(ROOT, file);
+    const re = /([^{}]+)\{([^}]*)\}/g;
+    let m;
+    while ((m = re.exec(src))) {
+      const sels = m[1].trim();
+      if (!/(back|close|quit|exit)/i.test(sels)) continue;
+      // 排除文字类/装饰类选择器（不是可点控件）
+      if (/(hint|text|tip|label|title|icon|bg|mask|drop|line|arrow)/i.test(sels.replace(/::?[a-z-]+/g, ''))) continue;
+      const body = m[2];
+      const dims = [];
+      const wm = /(?:^|[;\s])width\s*:\s*(\d+)rpx/.exec(body);
+      const hm = /(?:^|[;\s])height\s*:\s*(\d+)rpx/.exec(body);
+      if (wm) dims.push(['width', +wm[1]]);
+      if (hm) dims.push(['height', +hm[1]]);
+      for (const [prop, v] of dims) {
+        if (v === 0) continue;                      // 0 = 隐藏态，不需要热区
+        if (v < HOT) {
+          console.log('[FAIL] ' + rel + ': 「' + sels.split(',').map(s => s.trim()).filter(s => /(back|close|quit|exit)/i.test(s)).join(',')
+            + '」的 ' + prop + ' 只有 ' + v + 'rpx（< ' + HOT + 'rpx = 44pt）——'
+            + '返回/关闭是高频误点按钮，热区小于 44pt 手指很难点中。请改到 ' + HOT + 'rpx 或更大。');
+          bad++;
+        }
+      }
+    }
+  }
+}
+
 // ============ 6）禁止 background-attachment: fixed（长页面背景断层）============
 // 微信 WebView 对 fixed 背景的实现与浏览器不同：背景只按首屏视口绘制，
 // 内容超过一屏后滚动出来的区域没有背景（iOS 上必现，Android 视机型）。

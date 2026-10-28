@@ -16,9 +16,9 @@
   padding-bottom: var(--sp-2);
 }
 .fv-back {
-  width: 72rpx;
-  height: 72rpx;
-  line-height: 68rpx;
+  width: 88rpx;
+  height: 88rpx;
+  line-height: 84rpx;
   text-align: center;
   font-size: var(--fs-display);
   color: var(--ink);

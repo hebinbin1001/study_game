@@ -72,6 +72,7 @@ node e2e/run-all.js --only=link
 | `verify-all-pages.js` / `verify-m2m4.js` | 页面渲染回归 |
 | `syntax-check-all.js` / `structure-check.js` / `check-wxss.js` | 静态检查 |
 | `check-tokens.js` / `tokenize-hex.js` / `tokenize-roles.js` / `normalize-font.js` | 设计令牌护栏 + 批量令牌化 / 字号归一（见「设计令牌护栏」）|
+| `check-nav-seam.js` | 导航栏接缝（json 的 `navigationBarBackgroundColor` = 页面背景首色）|
 | `smoke-api.js` / `probe-callcontainer.js` | 后端接口冒烟（需网络） |
 | `preview-boards.js` | **棋盘/卡牌视觉预览**：把真实 wxss 转成浏览器 CSS 渲染 6 个棋盘（见第六节末），产物在 `reports/preview/` |
 | `preview-monster.js` | **对局画面预览**：怪兽主体 + 题目名牌（4 只 × 4 状态），几何直接取自渲染层纯函数，不会与真机漂移 |
@@ -331,3 +332,23 @@ node e2e/normalize-font.js
 > 全套护栏一声不响。
 >
 > 现在已经有的防线：`check-wxss.js` 扫全部 60 个 wxss + 第 7 条「字母紧接数字+rpx」规则。
+
+### 配套工具四：`check-nav-seam.js`（导航栏与页面背景的接缝）
+
+```bash
+node e2e/check-nav-seam.js           # 只报错
+node e2e/check-nav-seam.js --report  # 列全部 62 页的对照明细
+```
+
+**为什么需要**：`navigationBarBackgroundColor` 写在页面 `.json`，**不能写 `var()`** ——
+令牌体系管不到它。结果同一个「天空蓝」被写成三种：`#5aa9e6`（废弃的第四套）、
+`#4a9fe8`（当前 `--sky-1`）、`#4285F4`（顺手抄的链接色），用户看到的是一条横向色带断层。
+
+**规则**：导航栏色必须等于该页「页面根容器」背景渐变的第一停止色。
+- 页面自己有根背景 → 取它的首色（`var()` 会一层层解到底，令牌可以链式引用）
+- 没有 → 继承 `app.wxss` 的 `page` 背景
+- 多层背景（高光 + 渐变）→ 取**最底层**，最上层通常是半透明高光
+
+**改的时候注意方向**：导航栏是白字，底色必须够深（≥4.5:1）。所以天空系页面让
+「背景首色去就导航栏」（`--sky-grad-soft` 首色提到 `--sky-1`），玩法页也一样 ——
+反过来把导航栏改浅会让标题看不清。

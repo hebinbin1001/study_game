@@ -1,6 +1,6 @@
 /* 成语拼字样式：暖橙 + 大号汉字格子（与字母拼词的晴空蓝区分开） */
 page {
-  background: linear-gradient(180deg, #f2a65a 0%, #f7c98b 30%, #fdeacd 62%, #fff7ec 100%);
+  background: linear-gradient(180deg, #f08a24 0%, #f7c98b 32%, #fdeacd 66%, #fff7ec 100%);
   min-height: 100vh;
 }
 .page-idiom-build {

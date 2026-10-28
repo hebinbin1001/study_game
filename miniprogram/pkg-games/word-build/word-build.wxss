@@ -1,6 +1,6 @@
 /* 字母拼词工坊样式：晴空蓝 + 字母格子（与成语拼字的暖橙区分开） */
 page {
-  background: linear-gradient(180deg, #5aa9e6 0%, #a8d8f5 38%, var(--sky-3) 70%, #eef8ff 100%);
+  background: linear-gradient(180deg, #4a9fe8 0%, #8fcbf7 34%, var(--sky-3) 72%);
   min-height: 100vh;
 }
 .page-word-build {

@@ -17,9 +17,9 @@
   gap: 16rpx;
 }
 .bank-nav-back {
-  flex: 0 0 68rpx;
-  width: 68rpx;
-  height: 68rpx;
+  flex: 0 0 88rpx;
+  width: 88rpx;
+  height: 88rpx;
   margin: 0;
   padding: 0;
   border-radius: 50%;
@@ -27,19 +27,19 @@
   color: var(--ink-deep);
   font-size: var(--fs-display);
   font-weight: 900;
-  line-height: 64rpx;
+  line-height: 84rpx;
   box-shadow: var(--clay-2);
 }
 .bank-nav-back::after { border: none; }
 .bk-back {
-  width: 64rpx;
-  height: 64rpx;
+  width: 88rpx;
+  height: 88rpx;
   border-radius: 16rpx;
   background: rgba(255, 255, 255, .9);
   color: var(--ink-sub);
   font-size: var(--fs-title);
   font-weight: 900;
-  line-height: 60rpx;
+  line-height: 84rpx;
   padding: 0;
   box-shadow: var(--clay-2);
 }

@@ -18,8 +18,8 @@
 }
 .qz-back {
   flex: 0 0 auto;
-  width: 62rpx;
-  height: 62rpx;
+  width: 88rpx;
+  height: 88rpx;
   border-radius: 16rpx;
   background: rgba(255, 255, 255, .92);
   color: var(--ink-sub);

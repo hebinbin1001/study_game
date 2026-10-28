@@ -847,7 +847,7 @@ page {
   /* ---- 渐变（整段命名，避免逐字重复）---- */
   --link-grad: linear-gradient(135deg, var(--link), var(--link-soft));
   --sky-grad: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%); /* 玩法页 */
-  --sky-grad-soft: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);                  /* 内容页 */
+  --sky-grad-soft: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 34%, var(--sky-3) 78%);                  /* 内容页 */
 
   /* ---- 字号（5 档，相邻差 ≥4rpx）----
      2026-10-28：五档全部乘 --fs-scale，为了「三档字号」。

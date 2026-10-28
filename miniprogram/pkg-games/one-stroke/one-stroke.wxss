@@ -1,6 +1,6 @@
 /* 一笔画样式：青绿 + 绝对定位的线/圆点棋盘（不用 Canvas，坐标由引擎算） */
 page {
-  background: linear-gradient(180deg, #3aa6a0 0%, #7fd0c8 32%, #cdeadf 66%, #f2fbf8 100%);
+  background: linear-gradient(180deg, #12a08c 0%, #7fd0c8 34%, #cdeadf 68%, #f2fbf8 100%);
   min-height: 100vh;
 }
 .page-one-stroke {

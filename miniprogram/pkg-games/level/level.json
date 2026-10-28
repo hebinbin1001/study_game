@@ -3,7 +3,7 @@
     "grade-picker": "/components/grade-picker/grade-picker"
   },
   "navigationBarTitleText": "选择关卡",
-  "navigationBarBackgroundColor": "#5aa9e6",
+  "navigationBarBackgroundColor": "#4a9fe8",
   "navigationBarTextStyle": "white",
   "backgroundColor": "#d8efff"
 }

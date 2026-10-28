@@ -1,6 +1,6 @@
 /* 算式天平样式：青绿 + 会倾斜的天平（与其它数学玩法的暖色区分开） */
 page {
-  background: linear-gradient(180deg, #35b6a4 0%, #7ed7c9 32%, #cdeee8 66%, #f0fbf9 100%);
+  background: linear-gradient(180deg, #12a08c 0%, #7ed7c9 34%, #cdeee8 68%, #f0fbf9 100%);
   min-height: 100vh;
 }
 .page-balance {
