@@ -7,8 +7,10 @@ const { suite } = require('./_runner');
 const s = suite('components/battle-fx');
 const battleFx = require('../../miniprogram/utils/battle-fx');
 
+// 2026-10-28：玩法页已迁进分包 pkg-games，读源码统一走 _mp.readMp 自动定位
+const { readMp } = require('./_mp');
 function read(rel) {
-  return fs.readFileSync(path.join(__dirname, '../..', rel), 'utf8');
+  return readMp(rel);
 }
 
 s.test('trigger 递增并同步模式与飘字', () => {
@@ -67,15 +69,15 @@ s.test('全局注册并在泡泡龙、字母射击接入正确与反击反馈', 
   const app = JSON.parse(read('miniprogram/app.json'));
   s.assert.equal(app.usingComponents['battle-fx'], '/components/battle-fx/index');
 
-  const bubbleJs = read('miniprogram/pages/letter-bubble/letter-bubble.js');
-  const bubbleWxml = read('miniprogram/pages/letter-bubble/letter-bubble.wxml');
+  const bubbleJs = read('miniprogram/pkg-games/letter-bubble/letter-bubble.js');
+  const bubbleWxml = read('miniprogram/pkg-games/letter-bubble/letter-bubble.wxml');
   s.assert.contains(bubbleJs, "this._playBattleFx(this._pendingAction === 'win' ? 'finish' : 'attack'");
   s.assert.contains(bubbleJs, "this._playBattleFx('counter'");
   s.assert.contains(bubbleJs, 'rect.top + rect.height * 0.45');
   s.assert.contains(bubbleWxml, 'target-x="{{fxTargetX}}"');
 
-  const gameJs = read('miniprogram/pages/game/game.js');
-  const gameWxml = read('miniprogram/pages/game/game.wxml');
+  const gameJs = read('miniprogram/pkg-games/game/game.js');
+  const gameWxml = read('miniprogram/pkg-games/game/game.wxml');
   s.assert.contains(gameJs, "this._playBattleFx((this._answered + 1 >= this._totalQ) ? 'finish' : 'attack'");
   s.assert.contains(gameJs, "self._playBattleFx('counter'");
   s.assert.contains(gameJs, "select('.gs-boss')");
@@ -162,8 +164,8 @@ s.test('有真实角色节点的页面移动角色本体，不显示虚影副本
   s.assert.contains(wxml, "modeClass !== 'counter' && !useOwnHero");
   s.assert.contains(wxml, "modeClass === 'counter' && !useOwnBoss");
 
-  const bubbleWxml = read('miniprogram/pages/letter-bubble/letter-bubble.wxml');
-  const bubbleWxss = read('miniprogram/pages/letter-bubble/letter-bubble.wxss');
+  const bubbleWxml = read('miniprogram/pkg-games/letter-bubble/letter-bubble.wxml');
+  const bubbleWxss = read('miniprogram/pkg-games/letter-bubble/letter-bubble.wxss');
   s.assert.contains(bubbleWxml, 'use-own-hero="{{true}}"');
   s.assert.contains(bubbleWxml, 'use-own-boss="{{true}}"');
   s.assert.contains(bubbleWxml, 'heroAttacking');
@@ -171,8 +173,8 @@ s.test('有真实角色节点的页面移动角色本体，不显示虚影副本
   s.assert.contains(bubbleWxss, '@keyframes lb-warrior-strike');
   s.assert.contains(bubbleWxss, '@keyframes lb-boss-counter');
 
-  const gameWxml = read('miniprogram/pages/game/game.wxml');
-  const gameWxss = read('miniprogram/pages/game/game.wxss');
+  const gameWxml = read('miniprogram/pkg-games/game/game.wxml');
+  const gameWxss = read('miniprogram/pkg-games/game/game.wxss');
   s.assert.contains(gameWxml, 'use-own-hero="{{true}}"');
   s.assert.contains(gameWxml, 'use-own-boss="{{true}}"');
   s.assert.contains(gameWxss, '@keyframes gsHeroStrike');

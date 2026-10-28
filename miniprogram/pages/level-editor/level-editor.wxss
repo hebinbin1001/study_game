@@ -16,35 +16,12 @@
   display: flex;
   align-items: center;
   margin-bottom: 32rpx;
-}
-
-.back-pill {
-  min-width: 140rpx;
-  padding: 0 24rpx;
-  height: 76rpx;
-  line-height: 76rpx;
-  font-size: 26rpx;
-  font-weight: 700;
-  border-radius: 38rpx;
-  background: rgba(255, 255, 255, 0.9);
-  color: #3a3a5c;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.08), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
-  transition: transform 0.12s;
-}
-.back-pill:active {
-  transform: translateY(4rpx);
-  box-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.08);
-}
-button.back-pill::after {
-  border: none;
-}
-
-.header-title {
+}.header-title {
   flex: 1;
   text-align: center;
-  font-size: 40rpx;
+  font-size: 38rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   letter-spacing: 6rpx;
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
   margin-right: 140rpx; /* 平衡返回按钮宽度，标题保持视觉居中 */
@@ -54,7 +31,7 @@ button.back-pill::after {
 .card-title {
   font-size: 32rpx;
   font-weight: 900;
-  color: #3a3a5c;
+  color: var(--ink);
   margin-bottom: 28rpx;
 }
 
@@ -75,7 +52,7 @@ button.back-pill::after {
   display: block;
   font-size: 24rpx;
   font-weight: 700;
-  color: #5c7f9e;
+  color: var(--ink-sub);
   margin-bottom: 12rpx;
 }
 
@@ -85,8 +62,8 @@ button.back-pill::after {
   width: 100%;
   padding: 22rpx 24rpx;
   background: #f2f7fc;
-  border-radius: 20rpx;
-  color: #3a3a5c;
+  border-radius: 28rpx;
+  color: var(--ink);
   font-size: 28rpx;
   box-sizing: border-box;
   border: 4rpx solid #e1edf6;
@@ -108,18 +85,18 @@ button.back-pill::after {
   justify-content: space-between;
   padding: 22rpx 24rpx;
   background: #f2f7fc;
-  border-radius: 20rpx;
+  border-radius: 28rpx;
   border: 4rpx solid #e1edf6;
 }
 
 .picker-text {
-  color: #3a3a5c;
+  color: var(--ink);
   font-size: 28rpx;
   font-weight: 700;
 }
 
 .picker-arrow {
-  color: #8a9bb5;
+  color: var(--ink-weak);
   font-size: 28rpx;
   font-weight: 900;
 }
@@ -137,9 +114,9 @@ button.back-pill::after {
 }
 
 .section-title {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   letter-spacing: 2rpx;
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
 }
@@ -151,12 +128,12 @@ button.back-pill::after {
   padding: 0 22rpx;
   height: 68rpx;
   line-height: 68rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 700;
-  border-radius: 34rpx;
+  border-radius: var(--r-pill);
   background: #6AA6F5;
-  color: #ffffff;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .12);
+  color: var(--white);
+  box-shadow: var(--clay-2);
 }
 .btn-pick::after { border: none; }
 
@@ -176,13 +153,13 @@ button.back-pill::after {
   display: flex;
   flex-direction: column;
   padding: 26rpx 26rpx calc(26rpx + env(safe-area-inset-bottom));
-  border-radius: 32rpx 32rpx 0 0;
-  background: #fff;
+  border-radius: 28rpx 28rpx 0 0;
+  background: var(--white);
 }
 .pk-head { display: flex; align-items: center; justify-content: space-between; }
-.pk-title { font-size: 34rpx; font-weight: 900; color: #2f5470; }
+.pk-title { font-size: 32rpx; font-weight: 900; color: #2f5470; }
 .pk-close { font-size: 32rpx; color: #93a9bd; padding: 0 8rpx; }
-.pk-sub { margin-top: 6rpx; font-size: 22rpx; color: #7b93ad; }
+.pk-sub { margin-top: 6rpx; font-size: 24rpx; color: #7b93ad; }
 
 .pk-scroll { flex: 0 0 auto; width: 100%; white-space: nowrap; margin-top: 14rpx; }
 .pk-row { display: flex; gap: 12rpx; padding: 2rpx 0; }
@@ -191,11 +168,11 @@ button.back-pill::after {
   padding: 10rpx 24rpx;
   border-radius: 999rpx;
   background: #eef5fb;
-  color: #5c7f9e;
+  color: var(--ink-sub);
   font-size: 24rpx;
   font-weight: 800;
 }
-.pk-chip.on { background: #4285F4; color: #fff; }
+.pk-chip.on { background: #4285F4; color: var(--white); }
 
 .pk-search {
   flex: 0 0 auto;
@@ -204,12 +181,12 @@ button.back-pill::after {
   align-items: center;
   gap: 10rpx;
   padding: 12rpx 20rpx;
-  border-radius: 20rpx;
+  border-radius: 28rpx;
   background: #f2f8fd;
 }
 .pk-search-ic { font-size: 24rpx; }
-.pk-search-input { flex: 1; font-size: 26rpx; color: #2f5470; }
-.pk-search-clr { font-size: 26rpx; color: #93a9bd; padding: 0 6rpx; }
+.pk-search-input { flex: 1; font-size: 28rpx; color: #2f5470; }
+.pk-search-clr { font-size: 28rpx; color: #93a9bd; padding: 0 6rpx; }
 
 .pk-list { flex: 1 1 auto; min-height: 420rpx; max-height: 620rpx; margin-top: 12rpx; }
 .pk-item {
@@ -218,7 +195,7 @@ button.back-pill::after {
   gap: 16rpx;
   padding: 16rpx 18rpx;
   margin-bottom: 12rpx;
-  border-radius: 20rpx;
+  border-radius: 28rpx;
   background: #f7fbff;
   border: 2rpx solid #e4eef8;
 }
@@ -227,9 +204,9 @@ button.back-pill::after {
   flex: 0 0 auto;
   width: 44rpx;
   height: 44rpx;
-  border-radius: 12rpx;
+  border-radius: 16rpx;
   border: 2rpx solid #cfe0ee;
-  background: #fff;
+  background: var(--white);
   color: #4285F4;
   font-size: 28rpx;
   font-weight: 900;
@@ -237,15 +214,15 @@ button.back-pill::after {
   align-items: center;
   justify-content: center;
 }
-.pk-item.on .pk-check { background: #4285F4; border-color: #4285F4; color: #fff; }
+.pk-item.on .pk-check { background: #4285F4; border-color: #4285F4; color: var(--white); }
 .pk-main { flex: 1 1 auto; min-width: 0; }
 .pk-qa { display: flex; align-items: baseline; gap: 12rpx; flex-wrap: wrap; }
 .pk-q { font-size: 28rpx; font-weight: 900; color: #2f5470; word-break: break-all; }
 .pk-a { font-size: 24rpx; font-weight: 800; color: #2fa96b; word-break: break-all; }
-.pk-hint { margin-top: 4rpx; font-size: 21rpx; color: #8a9bb5; }
+.pk-hint { margin-top: 4rpx; font-size: 24rpx; color: var(--ink-weak); }
 .pk-src {
   flex: 0 0 auto;
-  font-size: 19rpx;
+  font-size: 24rpx;
   padding: 4rpx 12rpx;
   border-radius: 999rpx;
   background: #eef5fb;
@@ -253,7 +230,7 @@ button.back-pill::after {
 }
 .pk-src.mine { background: #e6f7ee; color: #2fa96b; }
 .pk-src.edit { background: #fff4dd; color: #d18b00; }
-.pk-empty { padding: 60rpx 0; text-align: center; font-size: 26rpx; color: #93a9bd; }
+.pk-empty { padding: 60rpx 0; text-align: center; font-size: 28rpx; color: #93a9bd; }
 
 .pk-btns { flex: 0 0 auto; margin-top: 16rpx; display: flex; gap: 18rpx; }
 .pk-btn {
@@ -261,15 +238,15 @@ button.back-pill::after {
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
-  border-radius: 44rpx;
-  background: #ffb703;
-  color: #fff;
-  font-size: 30rpx;
+  border-radius: var(--r-pill);
+  background: var(--pri);
+  color: var(--white);
+  font-size: 32rpx;
   font-weight: 900;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .1);
+  box-shadow: var(--clay-2);
 }
 .pk-btn.ghost { flex: 0 0 200rpx; background: #eef5fb; color: #7b93ad; }
-.pk-tip { margin-top: 14rpx; text-align: center; font-size: 20rpx; color: #93a9bd; line-height: 1.5; }
+.pk-tip { margin-top: 14rpx; text-align: center; font-size: 24rpx; color: #93a9bd; line-height: 1.5; }
 
 /* 添加按钮：绿色小胶囊 + 按压感 */
 .btn-add {
@@ -277,17 +254,17 @@ button.back-pill::after {
   padding: 0 24rpx;
   height: 68rpx;
   line-height: 68rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 700;
-  border-radius: 34rpx;
-  background: #7bd389;
-  color: #ffffff;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
+  border-radius: var(--r-pill);
+  background: var(--green);
+  color: var(--white);
+  box-shadow: var(--clay-2);
   transition: transform 0.12s;
 }
 .btn-add:active {
   transform: translateY(4rpx);
-  box-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.12);
+  box-shadow: var(--clay-1);
 }
 button.btn-add::after {
   border: none;
@@ -301,10 +278,10 @@ button.btn-add::after {
 
 /* 单题卡片：白卡 + 大圆角 + 硬阴影 */
 .item-card {
-  background: #ffffff;
+  background: var(--white);
   border-radius: 28rpx;
   padding: 28rpx 24rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-2);
 }
 
 .item-header {
@@ -318,11 +295,11 @@ button.btn-add::after {
 .item-index {
   font-size: 24rpx;
   font-weight: 900;
-  color: #ffffff;
-  background: #4cc9f0;
+  color: var(--white);
+  background: var(--blue);
   padding: 8rpx 20rpx;
-  border-radius: 24rpx;
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.1);
+  border-radius: 28rpx;
+  box-shadow: var(--clay-1);
 }
 
 /* 删除按钮：浅红底红字小胶囊 */
@@ -335,13 +312,13 @@ button.btn-add::after {
   font-weight: 700;
   border-radius: 28rpx;
   background: #ffe3e3;
-  color: #ff5a5a;
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08);
+  color: var(--danger);
+  box-shadow: var(--clay-1);
   transition: transform 0.12s;
 }
 .btn-remove:active {
   transform: translateY(4rpx);
-  box-shadow: 0 1rpx 0 rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-1);
 }
 button.btn-remove::after {
   border: none;
@@ -358,27 +335,27 @@ button.btn-remove::after {
 .btn-submit {
   flex: 1;
   padding: 28rpx 0;
-  border-radius: 44rpx;
-  font-size: 30rpx;
+  border-radius: 999rpx;
+  font-size: 32rpx;
   font-weight: 900;
   letter-spacing: 2rpx;
-  color: #ffffff;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.15), 0 18rpx 36rpx rgba(0, 0, 0, 0.12);
+  color: var(--white);
+  box-shadow: var(--clay-3);
   transition: transform 0.12s;
 }
 
 .btn-save {
-  background: #ffb703;
+  background: var(--pri);
 }
 
 .btn-submit {
-  background: #7bd389;
+  background: var(--green);
 }
 
 .btn-save:active,
 .btn-submit:active {
   transform: translateY(6rpx);
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.15);
+  box-shadow: var(--clay-1);
 }
 
 button.btn-save::after,
@@ -401,12 +378,12 @@ button.btn-submit::after {
 
 .empty-text {
   font-size: 28rpx;
-  color: #5c7f9e;
+  color: var(--ink-sub);
   font-weight: 700;
   margin-bottom: 8rpx;
 }
 
 .empty-sub {
   font-size: 24rpx;
-  color: #8a9bb5;
+  color: var(--ink-weak);
 }

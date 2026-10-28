@@ -5,7 +5,7 @@
 page {
   background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
   min-height: 100vh;
-  color: #3a3a5c;
+  color: var(--ink);
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 
@@ -37,14 +37,14 @@ page {
   margin-top: 16rpx;
   font-size: 48rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   letter-spacing: 8rpx;
   text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
 }
 .head-sub {
   margin-top: 12rpx;
   font-size: 24rpx;
-  color: #ffffff;
+  color: var(--white);
   opacity: 0.85;
   letter-spacing: 2rpx;
 }
@@ -52,10 +52,10 @@ page {
 /* ===== 档案大卡片 ===== */
 .profile-card {
   width: 100%;
-  background: #ffffff;
-  border-radius: 40rpx;
+  background: var(--white);
+  border-radius: 28rpx;
   padding: 44rpx 36rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-2);
   box-sizing: border-box;
 }
 
@@ -69,7 +69,7 @@ page {
 .section-title {
   font-size: 32rpx;
   font-weight: 800;
-  color: #3a3a5c;
+  color: var(--ink);
   margin-bottom: 24rpx;
   padding-left: 8rpx;
 }
@@ -80,7 +80,7 @@ page {
   height: auto;
   background: #f6faff;
   border: 3rpx dashed #bcd8ee;
-  border-radius: 32rpx;
+  border-radius: 28rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -108,7 +108,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.06), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-2);
 }
 .avatar {
   width: 148rpx;
@@ -127,14 +127,14 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26rpx;
-  background: #ffb703;
+  font-size: 28rpx;
+  background: var(--pri);
   border-radius: 50%;
-  box-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.12);
+  box-shadow: var(--clay-1);
 }
 .avatar-tip {
-  font-size: 26rpx;
-  color: #5c7f9e;
+  font-size: 28rpx;
+  color: var(--ink-sub);
   margin-top: 20rpx;
   font-weight: 700;
 }
@@ -154,7 +154,7 @@ page {
   height: 96rpx;
   font-size: 32rpx;
   font-weight: 700;
-  color: #3a3a5c;
+  color: var(--ink);
 }
 .input-placeholder {
   color: #a9bccf;
@@ -175,7 +175,7 @@ page {
   align-items: flex-start;
   background: #fff8e6;
   border: 3rpx solid #ffe3a3;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   padding: 20rpx 22rpx;
   margin-bottom: 18rpx;
 }
@@ -184,7 +184,7 @@ page {
   border-color: #bfe8cd;
 }
 .wx-guide-ic {
-  font-size: 40rpx;
+  font-size: 38rpx;
   line-height: 1.1;
   margin-right: 14rpx;
 }
@@ -201,7 +201,7 @@ page {
   color: #2f8b4d;
 }
 .wx-guide-s {
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: #9a7a3a;
   margin-top: 6rpx;
   line-height: 1.5;
@@ -231,8 +231,8 @@ page {
 .back-link {
   margin-top: 32rpx;
   margin-bottom: calc(24rpx + env(safe-area-inset-bottom));
-  font-size: 30rpx;
-  color: #ffffff;
+  font-size: 32rpx;
+  color: var(--white);
   opacity: 0.9;
   font-weight: 700;
   padding: 16rpx 48rpx;

@@ -71,6 +71,7 @@ node e2e/run-all.js --only=link
 | `verify-snake.js` | 单词贪吃蛇玩法逻辑 |
 | `verify-all-pages.js` / `verify-m2m4.js` | 页面渲染回归 |
 | `syntax-check-all.js` / `structure-check.js` / `check-wxss.js` | 静态检查 |
+| `check-tokens.js` / `tokenize-hex.js` | 设计令牌护栏 + 裸色值批量令牌化（见下方「设计令牌护栏」）|
 | `smoke-api.js` / `probe-callcontainer.js` | 后端接口冒烟（需网络） |
 | `preview-boards.js` | **棋盘/卡牌视觉预览**：把真实 wxss 转成浏览器 CSS 渲染 6 个棋盘（见第六节末），产物在 `reports/preview/` |
 | `preview-monster.js` | **对局画面预览**：怪兽主体 + 题目名牌（4 只 × 4 状态），几何直接取自渲染层纯函数，不会与真机漂移 |
@@ -129,7 +130,7 @@ ck.check('题号已推进', !!d);
 游戏页有 M7 形态选择层与 M6-L 新手引导两道前置，不过这两层引擎不会启动、`.option` 恒为 0：
 
 ```js
-const page = await H.goto(miniProgram, '/pages/game/game?grade=kindergarten&level=1', 2000);
+const page = await H.goto(miniProgram, '/pkg-games/game/game?grade=kindergarten&level=1', 2000);
 await H.clearGameGates(page);          // 形态选择层 + 新手引导 ×3
 await H.waitForCount(page, '.option', 4, 20000);
 ```
@@ -220,3 +221,66 @@ ck.check('答对后得分 +10', after.score - d.score === 10);
 - `e2e/reports/last-run.txt` —— 一行一阶段的紧凑结果
 
 两个文件均已 gitignore，属于生成物。
+
+---
+
+## 八、设计令牌护栏（2026-10-28，D「黏土玩具」方向配套）
+
+`e2e/check-tokens.js` 守四件事：**裸色值 / 字号档 / 圆角档 / 外部硬底边**。
+
+### 为什么是「基线」而不是「一次全清」
+
+存量是 56 个 wxss 文件、裸色值 1854 处、非标字号 678 处、非标圆角 300 处、外部硬底边 282 处。
+一次清空不现实，但**放任不管的代价已经付过一次**：
+2026-10-09 的设计文档定过「色值 330 → 24」，19 天后实测涨到 580。
+
+所以策略是 **只许降不许升**：
+
+```bash
+node e2e/check-tokens.js            # 判定（run-all 的 tokens 阶段跑这个）
+node e2e/check-tokens.js --report   # 只看统计，不判定，用来观察迁移进度
+node e2e/check-tokens.js --update   # 把基线压到当前实际值（只在确实变少时用）
+```
+
+- 存量记在 `e2e/tokens-baseline.json`，默认豁免；
+- 任何文件任一计数**超过**基线 → 判红（退出码 1），并打印文件、类别、行号、改法；
+- 计数**低于**基线 → 只提示「可以压基线」，不判红。
+
+每批次改完跑一次 `--update`，基线只会越来越小。批 5 收口后基线文件应该只剩个位数。
+
+### 白名单值
+
+| 类别 | 允许值 |
+|---|---|
+| 字号 | 48 / 38 / 32 / 28 / 24 rpx（另允许 0，用于隐藏文字）；**> 48rpx 一律视为「图形尺寸」放行**（emoji / 大数字用 font-size 表达大小是既定做法，归到 48 会缩水撑坏布局）|
+| 圆角 | 16 / 28 / 999 rpx（另允许 0 与 50%，这两个不是「圆角档」）|
+| 阴影 | 只能用 `var(--clay-1/2/3/card/press/off)`，禁止外部硬底边 `0 Nrpx 0` |
+
+### 两个容易踩的点（都实际踩过）
+
+1. **不能「值里含 inset 就整条放行」**。`.b-face` 是
+   `0 6rpx 0 rgba(...), inset 0 2rpx 0 rgba(...)` —— 一条声明里同时有外部硬边和内侧高光，
+   整条放行会把真正要改的那一半漏掉。脚本按逗号分段逐段判断。
+2. **自定义属性是令牌源头，必须跳过**。`--pri: #ff9a1f` 写在 `app.wxss` 里是合法的，
+   否则令牌块自己会把自己判红。
+
+> 这个护栏第一次生效时拦下的就是**写它的人自己的代码**（`.load-err` 用了裸 `#ffffff`、
+> `border-radius: 20rpx`、硬底边 `0 4rpx 0`）。说明它对新增代码是真的有感。
+
+### 配套工具：`tokenize-hex.js`（把裸色值换成令牌）
+
+护栏只告诉你「有几处」，不告诉你「该换成哪个」—— 因为 527 种色值里大部分是
+「近似但不等」的野值，逐个判语义等于重做设计。所以拆成两半，先做零风险的那半：
+
+```bash
+node e2e/tokenize-hex.js --dry   # 只报告会改多少处
+node e2e/tokenize-hex.js         # 真改
+```
+
+它**只替换与令牌值完全相等的 hex**（`#fff`→`var(--white)`、`#5c7f9e`→`var(--ink-sub)`…），
+颜色一个像素都不变。故意不处理近似值（`#ffb703` vs `--pri` `#ff9a1f`，改了就变颜色，
+是设计决策）和没有对应角色的野值。
+
+批 5 实测：一次跑掉 692 处，裸色值 1710 → 1018，且不需要 review 任何一行。
+
+新增令牌时记得同步 `tokenize-hex.js` 顶部的 `MAP` —— 否则那批会漏在「裸色值」里。

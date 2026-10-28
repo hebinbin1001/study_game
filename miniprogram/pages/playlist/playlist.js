@@ -9,7 +9,7 @@
 //   再考虑提成第 5 个底部 tab（届时只要补两枚 tab 图标）。
 //
 // 入口约定（重要）：题库类卡片的 url 一律指向关卡页并带上 mode，
-//   如 `/pages/level/level?mode=link` → 关卡页预选「词语连连看」这条 30 关线；
+//   如 `/pkg-games/level/level?mode=link` → 关卡页预选「词语连连看」这条 30 关线；
 //   不再直接进玩法页的自由练，这样每款玩法都有闯关进度（用户原始诉求）。
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');

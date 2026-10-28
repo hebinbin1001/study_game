@@ -1,0 +1,108 @@
+/* 玩法操作引导（2026-10-28）
+   组件默认是 isolated 样式隔离：app.wxss 里的选择器进不来，
+   但 page 上定义的 CSS 变量（--ink / --pri / --fs-* / --clay-*）仍会被继承，
+   所以这里只用 var()，不写裸色值与非档位字号（check-tokens 会拦）。 */
+
+.hp-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  box-sizing: border-box;
+}
+
+/* 遮罩用「纯色 + opacity」而不是 rgba：颜色必须走 var()，半透明色值会被记为裸色值 */
+.hp-dim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--ink);
+  opacity: .72;
+}
+
+.hp-card {
+  position: relative;
+  width: 100%;
+  max-width: 620rpx;
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: var(--clay-3);
+}
+
+.hp-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.hp-ic {
+  font-size: var(--fs-title);
+  line-height: 1;
+}
+.hp-t {
+  font-size: var(--fs-title);
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.hp-list {
+  margin-top: var(--sp-3);
+}
+.hp-li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+}
+.hp-li + .hp-li {
+  margin-top: var(--sp-2);
+}
+.hp-n {
+  flex: 0 0 auto;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: var(--r-pill);
+  background: var(--pri);
+  color: var(--white);
+  font-size: var(--fs-cap);
+  font-weight: 900;
+  text-align: center;
+  line-height: 36rpx;
+}
+.hp-tx {
+  flex: 1;
+  font-size: var(--fs-body);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.hp-btn {
+  margin-top: var(--sp-3);
+  height: 92rpx;
+  line-height: 92rpx;
+  text-align: center;
+  border-radius: var(--r-pill);
+  background: var(--pri);
+  color: var(--white);
+  font-size: var(--fs-strong);
+  font-weight: 900;
+  box-shadow: var(--clay-2);
+}
+.hp-btn:active {
+  transform: translateY(2rpx) scaleY(.97);
+  box-shadow: var(--clay-press);
+}
+
+.hp-hint {
+  margin-top: var(--sp-2);
+  text-align: center;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+}

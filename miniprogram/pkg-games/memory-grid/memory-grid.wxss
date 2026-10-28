@@ -1,0 +1,82 @@
+/* 记忆矩阵样式：深蓝夜色 + 会发光的格子（与其它玩法的亮色系区分开） */
+page {
+  background: linear-gradient(180deg, #2b3a67 0%, #4b5d8f 34%, #a6b3d4 72%, #eef1f9 100%);
+  min-height: 100vh;
+}
+.page-memory {
+  min-height: 100vh;   /* 同上：根容器撑满，.grid 的 flex:1 才能吃到剩余空间 */
+  padding: 24rpx 28rpx calc(40rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.banner {
+  background: var(--white);
+  border-radius: 28rpx;
+  padding: 22rpx 24rpx;
+  text-align: center;
+  box-shadow: var(--clay-3);
+}
+.banner .main { font-size: 32rpx; font-weight: 900; color: #22305a; }
+.banner .sub { margin-top: 8rpx; font-size: 24rpx; color: #6d7791; }
+.banner.watch .main { color: #e08a00; }
+
+.grid {
+  /* 网格区占据剩余空间并整体居中（原来内容顶在上半屏，下面一片空） */
+  flex: 1 1 auto;
+  align-content: center;
+  justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  background: var(--white);
+  border-radius: 28rpx;
+  padding: 22rpx;
+  box-shadow: var(--clay-3);
+  box-sizing: border-box;
+}
+.grid.noTap { pointer-events: none; }
+
+.cell {
+  width: calc((100% - 56rpx) / 5);
+  height: 108rpx;
+  border-radius: 28rpx;
+  background: #e8ecf6;
+  box-shadow: inset 0 -6rpx 0 rgba(20, 30, 60, 0.08);
+  transition: background 0.16s ease, transform 0.1s ease;
+}
+.cell:active { transform: scale(0.95); }
+.cell.lit {
+  background: linear-gradient(160deg, var(--gold), #ff9f1c);
+  box-shadow: 0 0 24rpx rgba(255, 159, 28, 0.55), inset 0 -6rpx 0 rgba(150, 90, 0, 0.2);
+}
+.cell.found { background: linear-gradient(160deg, var(--green), #34A853); }
+.cell.reveal { background: linear-gradient(160deg, #ffa8c0, var(--pink)); }
+.cell.wrong { background: var(--pink); animation: cellShake 0.35s ease; }
+@keyframes cellShake {
+  0%, 100% { transform: translateX(0); }
+  30% { transform: translateX(-8rpx); }
+  70% { transform: translateX(8rpx); }
+}
+
+.foot { display: flex; margin-top: 8rpx; }
+.btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: var(--r-pill);
+  font-size: 32rpx;
+  font-weight: 800;
+}
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.9);
+  color: #3b4d7a;
+  box-shadow: var(--clay-2);
+}
+
+/* 2026-10-18：暂停键进 HUD 行，不再需要右侧让位 */
+.hud-holder { display: flex; align-items: center; gap: 12rpx; }
+.hud-holder > game-hud { flex: 1 1 auto; min-width: 0; }

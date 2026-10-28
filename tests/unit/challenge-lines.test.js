@@ -209,7 +209,7 @@ s.test('contextOf：非法/缺参不会把自己当成挑战局', () => {
 
 s.test('lineUrl：带 challenge/line/grade/level/seed', () => {
   const url = challenge.lineUrl('g3', 'link', 7);
-  s.assert.contains(url, '/pages/link/link?challenge=1');
+  s.assert.contains(url, '/pkg-games/link/link?challenge=1');
   s.assert.contains(url, 'line=mode_link');
   s.assert.contains(url, 'grade=g3');
   s.assert.contains(url, 'level=7');

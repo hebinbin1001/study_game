@@ -35,7 +35,7 @@ shoot.buildRound = function () { return { invalid: true }; };
 let def = null;
 const prevPage = global.Page;
 global.Page = (o) => { def = o; };
-require('../../miniprogram/pages/game/game');
+require('../../miniprogram/pkg-games/game/game');
 global.Page = prevPage;
 
 function makePage(totalQ) {
@@ -81,7 +81,7 @@ s.test('题不够（_pickItem 返回 null）：提前结算，不卡住', () => 
 s.test('源码护栏：_nextQuestion 必须带题量守卫', () => {
   const fs = require('fs');
   const path = require('path');
-  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages/game/game.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/game/game.js'), 'utf8');
   const m = src.match(/_nextQuestion: function[\s\S]*?\n  \},/);
   s.assert.ok(m, '应能找到 _nextQuestion');
   s.assert.contains(m[0], '_answered >= this._totalQ', '缺少题量守卫，会退化成无限出题');

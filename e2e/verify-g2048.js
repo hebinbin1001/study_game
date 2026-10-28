@@ -17,7 +17,7 @@
 
 const H = require('./lib/harness');
 
-const PAGE_URL = '/pages/g2048/g2048';
+const PAGE_URL = '/pkg-games/g2048/g2048';
 const BEST_KEY = 'ww_g2048_challenge_best';
 
 H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async function (miniProgram, ck) {
@@ -55,7 +55,7 @@ H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async fun
   try {
   console.log('[1/6] 选关页：关卡卡（3★ 基准）+ 挑战入口');
   const page = await H.goto(miniProgram, PAGE_URL, 1600);
-  ck.check('进入 2048 页', (await miniProgram.currentPage()).path === 'pages/g2048/g2048');
+  ck.check('进入 2048 页', (await miniProgram.currentPage()).path === 'pkg-games/g2048/g2048');
   ck.check('根容器 .page-2048 已渲染', !!(await H.waitForSelector(page, '.page-2048', 8000)));
   // onLoad 会自动开当前关；先切到选关视图（页内「选关」胶囊 2026-10-17 已下线）
   await page.callMethod('goLevels');
@@ -159,7 +159,7 @@ H.runSuite('verify-g2048（2048 关卡不限步数 + 挑战模式）', async fun
   ck.check('最佳步数不会被改差（取更小值）', best2 === usedBeforeWin,
     '第一次 ' + usedBeforeWin + ' → 第二次后 ' + best2);
   ck.check('全程未崩溃（仍在 2048 页）',
-    (await miniProgram.currentPage()).path === 'pages/g2048/g2048');
+    (await miniProgram.currentPage()).path === 'pkg-games/g2048/g2048');
   } finally {
     await restoreStorage();
   }

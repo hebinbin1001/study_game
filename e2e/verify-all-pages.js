@@ -37,10 +37,10 @@ const PAGES = [
   { path: 'pages/playlist/playlist', name: 'playlist', query: '', selectors: ['.page-play', '.pgbar', '.pgrid', '.pcard'] },
   { path: 'pages/study/study', name: 'study', query: '', selectors: ['.page-study', '.week-card', '.link'] },
   { path: 'pages/me/me', name: 'me', query: '', selectors: ['.page-me', '.profile-card', '.stat-row', '.menu-card'] },
-  { path: 'pages/level/level', name: 'level', query: '', selectors: ['.page-level', '.grade-tabs'] },
+  { path: 'pkg-games/level/level', name: 'level', query: '', selectors: ['.page-level', '.grade-tabs'] },
   // game 页带参数进入（onLoad 缺省也有容错，带参数更接近真实路径）
-  { path: 'pages/game/game', name: 'game', query: '?grade=kg&level=1', selectors: ['.game-page', '.hud', '.hud-lives'] },
-  { path: 'pages/result/result', name: 'result', query: '?win=1&score=120&correctCount=8&totalQ=10&grade=kg&level=1', selectors: ['.page-result', '.big-stars'] },
+  { path: 'pkg-games/game/game', name: 'game', query: '?grade=kg&level=1', selectors: ['.game-page', '.hud', '.hud-lives'] },
+  { path: 'pkg-games/result/result', name: 'result', query: '?win=1&score=120&correctCount=8&totalQ=10&grade=kg&level=1', selectors: ['.page-result', '.big-stars'] },
   { path: 'pages/nickname/nickname', name: 'nickname', query: '', selectors: ['.page-nickname', '.section', '.avatar-btn'] },
   { path: 'pages/avatar/avatar', name: 'avatar', query: '', selectors: ['.page-avatar', '.rank-bar', '.section-title'] },
   { path: 'pages/rank/rank', name: 'rank', query: '', selectors: ['.page-rank', '.tabs', '.btn-back'] },
@@ -52,9 +52,11 @@ const PAGES = [
   { path: 'pages/achievement/achievement', name: 'achievement', query: '', selectors: ['.page-achievement', '.header', '.achievement-list'] },
   { path: 'pages/report/report', name: 'report', query: '', selectors: ['.page-report', '.report-header'] },
   { path: 'pages/bank/bank', name: 'bank', query: '', selectors: ['.bk-page', '.bk-head', '.bk-search'] },
-  { path: 'pages/quiz/quiz', name: 'quiz', query: '', selectors: ['.page-quiz', '.qz-stem-card', '.qz-options'] },
-  { path: 'pages/letter-bubble/letter-bubble', name: 'letter-bubble', query: '', selectors: ['.lb-page', '.lb-arena', '.lb-target'] },
-  { path: 'pages/share-card/share-card', name: 'share-card', query: '', selectors: ['.share-card', '.share-canvas'] }
+  { path: 'pkg-games/quiz/quiz', name: 'quiz', query: '', selectors: ['.page-quiz', '.qz-stem-card', '.qz-options'] },
+  { path: 'pkg-games/letter-bubble/letter-bubble', name: 'letter-bubble', query: '', selectors: ['.lb-page', '.lb-arena', '.lb-target'] },
+  // 2026-10-28：原来 query 为空，reLaunch 后会停在首页（分享卡在真实链路里总是带参数进来）；
+  // 根容器类名也早就是 .page-share（不是 .share-card），一并修正。
+  { path: 'pages/share-card/share-card', name: 'share-card', query: '?nickname=%E6%B5%8B%E8%AF%95&stars=12', selectors: ['.page-share', '.share-canvas'] }
 ];
 
 function sleep(ms) {

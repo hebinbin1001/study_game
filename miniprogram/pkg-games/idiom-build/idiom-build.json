@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "game-hud": "/components/game-hud/game-hud",
+    "settle-pop": "/components/settle-pop/settle-pop",
+    "how-to-play": "/components/how-to-play/how-to-play"
+  },
+  "navigationBarTitleText": "成语拼字",
+  "navigationBarBackgroundColor": "#F08A24",
+  "navigationBarTextStyle": "white"
+}

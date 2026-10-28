@@ -25,6 +25,8 @@ Page({
     currentStreak: 0,
     totalCheckins: 0,
     checkedIn: false,
+    // 签到记录请求失败（2026-10-28）：与「本月没签过」区分开，用于显示错误提示与重试
+    loadError: false,
     // 日历格（当月 1~末尾）
     calCells: [],       // [{d, isToday, on, future}]
     // 里程碑（轨道 B，来自 /api/daily/status）
@@ -66,14 +68,19 @@ Page({
     var month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
 
     // 并行拉签到记录 + 每日一题里程碑
-    var p1 = request.get('/api/checkin?month=' + month).catch(function () { return null; });
+    // 2026-10-28：原来两个请求都 `.catch(() => null)` 静默吞错，用户看到的是一片空日历，
+    // 分不清「这个月没签过」和「请求失败了」。现在区分开：
+    //   签到记录失败 → 记 loadError，页面上给明确提示 + 重试；
+    //   里程碑只是次要信息，失败不阻断日历（保持原来的兜底）。
+    var failed = false;
+    var p1 = request.get('/api/checkin?month=' + month).catch(function () { failed = true; return null; });
     var p2 = request.get('/api/daily/status').catch(function () { return null; });
 
     Promise.all([p1, p2]).then(function (res) {
       var data = res[0] || null;
       var daily = res[1] || null;
       if (!data) {
-        self.setData({ today: self._today() });
+        self.setData({ today: self._today(), loadError: failed });
         return;
       }
       var today = self._today();
@@ -83,6 +90,7 @@ Page({
 
       self.setData({
         today: today,
+        loadError: false,
         checkedIn: !!signedDates[today],
         currentStreak: data.currentStreak || 0,
         totalCheckins: data.totalCheckins || 0,

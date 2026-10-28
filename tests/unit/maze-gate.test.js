@@ -31,7 +31,11 @@ global.wx = {
 const M = require('../../miniprogram/game/maze');
 
 function loadPage(rel) {
-  const abs = require.resolve('../../miniprogram/pages/' + rel);
+  // 2026-10-28：页面可能在主包 pages/ 或分包 pkg-games/ 下，逐个试
+  const abs = (function () {
+    try { return require.resolve('../../miniprogram/pages/' + rel); }
+    catch (e) { return require.resolve('../../miniprogram/pkg-games/' + rel); }
+  })();
   let def = null;
   const prev = global.Page;
   global.Page = function (o) { def = o; };

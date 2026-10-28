@@ -1,0 +1,81 @@
+<!-- 字词定级测（2026-10-28）
+     三态：intro 说明 / quiz 作答 / result 诊断卡。
+     为什么不做成「必须登录才能测」：新用户第一分钟就卡在登录上，转化率会掉；
+     测完的结果本来就只写本机，登录与否都一样能用。 -->
+<view class="page-lt">
+
+  <!-- ============ 一、说明页 ============ -->
+  <block wx:if="{{stage === 'intro'}}">
+    <view class="lt-hero">
+      <view class="lt-hero__ic">🎯</view>
+      <view class="lt-hero__t">字词定级测</view>
+      <view class="lt-hero__s">10 道题 · 约 1 分钟 · 不用登录</view>
+    </view>
+
+    <view class="lt-card">
+      <view class="lt-li"><text class="lt-li__d">1</text><text>幼儿园到初三，每个学段抽 2 题，由易到难</text></view>
+      <view class="lt-li"><text class="lt-li__d">2</text><text>测完直接告诉你该从哪个年级开始</text></view>
+      <view class="lt-li"><text class="lt-li__d">3</text><text>顺手估一个词汇量，可以晒给朋友</text></view>
+    </view>
+
+    <view wx:if="{{last}}" class="lt-last">
+      上次结果：{{last.gradeLabel}} 水平 · {{last.wordsText || ('约 ' + last.words + ' 词')}}
+    </view>
+
+    <view class="lt-btn lt-btn--pri" bindtap="start">
+      {{last ? '再测一次' : '开始测试'}}
+    </view>
+    <view class="lt-tip">题目都来自本机词库，不消耗流量</view>
+  </block>
+
+  <!-- ============ 二、作答页 ============ -->
+  <block wx:elif="{{stage === 'quiz'}}">
+    <view class="lt-top">
+      <view class="lt-top__n">第 {{idx + 1}} / {{total}} 题</view>
+      <view class="lt-top__lv">{{cur.gradeLabel}}</view>
+    </view>
+    <view class="lt-track"><view class="lt-fill" style="width: {{progress}}%"></view></view>
+
+    <view class="lt-word">{{cur.word}}</view>
+    <view class="lt-sub">{{cur.sub}}</view>
+
+    <view class="lt-opts">
+      <view
+        wx:for="{{cur.options}}"
+        wx:key="key"
+        class="lt-opt lt-opt--{{states[item.key] || 'idle'}}"
+        data-key="{{item.key}}"
+        bindtap="pick">{{item.text}}</view>
+    </view>
+  </block>
+
+  <!-- ============ 三、结果页 ============ -->
+  <block wx:else>
+    <view class="lt-res">
+      <view class="lt-res__ic">🏅</view>
+      <view class="lt-res__t">建议从「{{res.gradeLabel}}」开始</view>
+      <view class="lt-res__big">{{res.wordsText}}</view>
+      <view class="lt-res__s">{{res.verdict}} · {{res.total}} 题答对 {{res.correct}} 题</view>
+    </view>
+
+    <view class="lt-card">
+      <view class="lt-rows">
+        <view class="lt-row" wx:for="{{res.rows}}" wx:key="key">
+          <text class="lt-row__k">{{item.label}}</text>
+          <view class="lt-row__track">
+            <view class="lt-row__fill" style="width: {{item.pct}}%"></view>
+          </view>
+          <text class="lt-row__v {{item.pct >= 50 ? 'is-ok' : ''}}">{{item.correct}}/{{item.total}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="lt-btn lt-btn--pri" bindtap="useGrade">用{{res.gradeLabel}}开始闯关</view>
+    <view class="lt-actions">
+      <view class="lt-act" bindtap="restart">再测一次</view>
+      <button class="lt-act lt-act--btn" open-type="share">晒诊断卡</button>
+    </view>
+  </block>
+
+  <view class="safe-gap"></view>
+</view>

@@ -4,9 +4,18 @@
   <view class="progress-bar review-progress">
     <view class="progress-bar__fill" style="width: {{progressPct}}%"></view>
   </view>
-  <view class="progress-row" wx:if="{{!completed}}">
+  <view class="progress-row" wx:if="{{!completed && !loading && !loadError}}">
     <view class="progress-text">第 {{currentIndex + 1}} / {{totalCount}} 题</view>
     <view class="progress-right">✓ {{correctCount}}</view>
+  </view>
+
+  <!-- 加载 / 失败占位（2026-10-28）：原来 currentItem 为空且 completed 为 false 时，
+       题卡区整块空白 —— 首屏加载中和请求失败都落在这一状态，用户只看到一条进度条。 -->
+  <view class="rv-state" wx:if="{{loading || loadError}}">
+    <view class="rv-state__icon">{{loadError ? '⚠️' : '⏳'}}</view>
+    <view class="rv-state__text">{{loadError ? '错题加载失败' : '正在准备错题…'}}</view>
+    <view class="rv-state__sub" wx:if="{{loadError}}">请检查网络后重试</view>
+    <button class="btn btn-ghost rv-state__btn" wx:if="{{loadError}}" bindtap="loadLevel">重新加载</button>
   </view>
 
   <!-- 复习形态切换（M6-G）：原题 / 听音选义 / 看中文选词 -->

@@ -35,6 +35,10 @@ const STAGES = [
   { id: 'syntax', layer: '静态', title: '全量 JS 语法检查', script: 'e2e/syntax-check-all.js' },
   { id: 'structure', layer: '静态', title: '结构回归（app.json/组件/tabBar/玩法一致性）', script: 'e2e/structure-check.js' },
   { id: 'wxss', layer: '静态', title: 'WXSS 检查', script: 'e2e/check-wxss.js' },
+  // 设计令牌护栏（2026-10-28）：裸色值 / 字号档 / 圆角档 / 外部硬底边。
+  // 存量按 e2e/tokens-baseline.json 豁免，只许降不许升 —— 没有这道闸，
+  // 10-09 定的「色值 330 → 24」19 天后会漂回 580。
+  { id: 'tokens', layer: '静态', title: '设计令牌护栏（色值/字号/圆角/阴影）', script: 'e2e/check-tokens.js' },
   // 包体检查（微信主包 2MB 硬限）：素材已按展示尺寸压缩（原图移出包），这里恢复成**阻断**
   { id: 'assets', layer: '静态', title: '包体资源检查（整包 ≤1.8MB）', script: 'e2e/check-assets.js' },
   { id: 'unit', layer: '单元', title: '单元测试套件', script: 'tests/unit/run-all.js' },

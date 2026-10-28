@@ -14,7 +14,7 @@
 
 const H = require('./lib/harness');
 
-const LEVEL_PAGE = 'pages/puzzle-level/puzzle-level';
+const LEVEL_PAGE = 'pkg-games/puzzle-level/puzzle-level';
 
 async function main() {
   const ck = H.createChecker();
@@ -23,7 +23,7 @@ async function main() {
     mp = await H.ensureAutomation({ quiet: false });
 
     console.log('[1/4] 24 点关卡页');
-    const p = await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=math24', 1800);
+    const p = await H.goto(mp, '/pkg-games/puzzle-level/puzzle-level?mode=math24', 1800);
     const d = await p.data();
     ck.check('页面是数字智力关卡页', (await mp.currentPage()).path === LEVEL_PAGE);
     ck.check('列出 60 关', (d.levels || []).length === 60, '实际 = ' + (d.levels || []).length);
@@ -38,42 +38,42 @@ async function main() {
     await H.withTimeout(rows[0].tap(), 10000, 'tap first row');
     await p.waitFor(1500);
     const cur = await mp.currentPage();
-    ck.check('落到 24 点页', cur.path === 'pages/math24/math24', '实际 = ' + cur.path);
+    ck.check('落到 24 点页', cur.path === 'pkg-games/math24/math24', '实际 = ' + cur.path);
     const md = await cur.data();
     ck.check('从第 1 关开局（?level=1 生效）', md.curLevel === 1, '实际 = ' + md.curLevel);
 
     console.log('[3/4] 2048 关卡页（14 关 + 步数预算）');
-    const g = await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=g2048', 1800);
+    const g = await H.goto(mp, '/pkg-games/puzzle-level/puzzle-level?mode=g2048', 1800);
     const gd = await g.data();
     ck.check('2048 列出 14 关', (gd.levels || []).length === 14, '实际 = ' + (gd.levels || []).length);
     ck.check('副标题带步数预算', String(gd.levels[0].sub).indexOf('步内') >= 0,
       '实际 = ' + gd.levels[0].sub);
 
     console.log('[4/4] 非法 mode：重定向而不是白屏');
-    await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=not-a-game', 1500);
+    await H.goto(mp, '/pkg-games/puzzle-level/puzzle-level?mode=not-a-game', 1500);
     const after = await mp.currentPage();
     ck.check('重定向到玩法 tab', after.path === 'pages/playlist/playlist', '实际 = ' + after.path);
 
     console.log('[5] 各玩法页 ?level=N 生效（直接进指定关）');
-    const os = await H.goto(mp, '/pages/one-stroke/one-stroke?level=7', 1600);
+    const os = await H.goto(mp, '/pkg-games/one-stroke/one-stroke?level=7', 1600);
     const osd = await os.data();
     ck.check('一笔画从第 7 关开局', String(osd.levelText || '').indexOf('7/') === 0,
       '实际 = ' + osd.levelText);
-    const kl = await H.goto(mp, '/pages/klotski/klotski?level=5', 1600);
+    const kl = await H.goto(mp, '/pkg-games/klotski/klotski?level=5', 1600);
     const kld = await kl.data();
     ck.check('华容道从第 5 关开局', kld.curLevel === 5, '实际 = ' + kld.curLevel);
-    const mg = await H.goto(mp, '/pages/memory-grid/memory-grid?level=4', 1600);
+    const mg = await H.goto(mp, '/pkg-games/memory-grid/memory-grid?level=4', 1600);
     const mgd = await mg.data();
     ck.check('记忆矩阵从第 4 关开局', String(mgd.hudText || '').indexOf('4') >= 0,
       '实际 = ' + mgd.hudText);
     // 口算/天平「按年级分档」：?level=N → 第 N 个学段（HUD/题型行会带学段名）
     // 2026-10-08：学段从 7 档扩到 14 档（幼儿园 / 一~六年级 / 初一~初三 / 高一~高三 / 大学），
     // 所以「最后一档 = 大学」现在是第 14 档，不再是第 7 档。
-    const sp = await H.goto(mp, '/pages/math-sprint/math-sprint?level=14', 1800);
+    const sp = await H.goto(mp, '/pkg-games/math-sprint/math-sprint?level=14', 1800);
     const spd = await sp.data();
     ck.check('口算冲刺第 14 档 = 大学（HUD 带学段名）', String(spd.hudText || '').indexOf('大学') >= 0,
       '实际 = ' + spd.hudText);
-    const bl = await H.goto(mp, '/pages/math-balance/math-balance?level=1', 1800);
+    const bl = await H.goto(mp, '/pkg-games/math-balance/math-balance?level=1', 1800);
     const bld = await bl.data();
     ck.check('算式天平第 1 档 = 幼儿园（题型行带学段名）',
       String(bld.trend || '').indexOf('幼儿园') >= 0, '实际 = ' + bld.trend);
@@ -82,7 +82,7 @@ async function main() {
     console.log('[5.5] 一笔画有效起点（奇点高亮 / 偶点起笔被拦）');
     const osBackup = await mp.callWxMethod('getStorageSync', 'ww_resume_one-stroke');
     await mp.callWxMethod('removeStorageSync', 'ww_resume_one-stroke');
-    const osStart = await H.goto(mp, '/pages/one-stroke/one-stroke?level=6', 1800);
+    const osStart = await H.goto(mp, '/pkg-games/one-stroke/one-stroke?level=6', 1800);
     let osD = await H.waitForData(osStart, function (d) {
       return (d.nodes || []).length > 0;
     }, 10000, 'onestroke-start');
@@ -121,10 +121,10 @@ async function main() {
     console.log('[6] 通关后关卡页要更新、下一关要解锁');
     await mp.callWxMethod('setStorageSync', 'ww_puzzle_progress', {});   // 清底，保证从零开始
 
-    const osClear = await H.goto(mp, '/pages/one-stroke/one-stroke?level=1', 1600);
+    const osClear = await H.goto(mp, '/pkg-games/one-stroke/one-stroke?level=1', 1600);
     await osClear.callMethod('_levelClear');                            // 等价「第 1 关走完」
     await osClear.waitFor(400);
-    const osLv = await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=onestroke', 1600);
+    const osLv = await H.goto(mp, '/pkg-games/puzzle-level/puzzle-level?mode=onestroke', 1600);
     const osRows = await H.waitForData(osLv, function (d) {
       return (d.levels || []).length > 0;
     }, 10000, 'onestroke-levels');
@@ -135,10 +135,10 @@ async function main() {
       !!(osRows && osRows.levels[1] && osRows.levels[1].state !== 'lock'),
       '实际 = ' + (osRows && osRows.levels && osRows.levels[1] && osRows.levels[1].state));
 
-    const mgClear = await H.goto(mp, '/pages/memory-grid/memory-grid?level=1', 1600);
+    const mgClear = await H.goto(mp, '/pkg-games/memory-grid/memory-grid?level=1', 1600);
     await mgClear.callMethod('_levelClear');
     await mgClear.waitFor(400);
-    const mgLv = await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=memory', 1600);
+    const mgLv = await H.goto(mp, '/pkg-games/puzzle-level/puzzle-level?mode=memory', 1600);
     const mgRows = await H.waitForData(mgLv, function (d) {
       return (d.levels || []).length > 0;
     }, 10000, 'memory-levels');
@@ -150,12 +150,12 @@ async function main() {
       '实际 = ' + (mgRows && mgRows.levels && mgRows.levels[1] && mgRows.levels[1].state));
 
     // 口算冲刺 / 算式天平：走「达标即记通关该年级档」
-    const spClear = await H.goto(mp, '/pages/math-sprint/math-sprint?level=1', 1800);
+    const spClear = await H.goto(mp, '/pkg-games/math-sprint/math-sprint?level=1', 1800);
     await spClear.callMethod('_stop');                                   // 先停计时，避免用例期间自然结束
     await spClear.setData({ score: 999 });                               // 造一个达标分
     await spClear.callMethod('finish');
     await spClear.waitFor(400);
-    const spLv = await H.goto(mp, '/pages/puzzle-level/puzzle-level?mode=sprint', 1600);
+    const spLv = await H.goto(mp, '/pkg-games/puzzle-level/puzzle-level?mode=sprint', 1600);
     const spRows = await H.waitForData(spLv, function (d) { return (d.levels || []).length > 0; },
       10000, 'sprint-levels');
     ck.check('口算冲刺：第 1 档标记为已通关',

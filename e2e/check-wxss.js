@@ -25,16 +25,19 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..', 'miniprogram');
-const files = [path.join(ROOT, 'app.wxss')];
 
-const pagesDir = path.join(ROOT, 'pages');
-for (const d of fs.readdirSync(pagesDir)) {
-  const full = path.join(pagesDir, d);
-  if (!fs.statSync(full).isDirectory()) continue;
-  for (const f of fs.readdirSync(full)) {
-    if (f.endsWith('.wxss')) files.push(path.join(full, f));
+// 2026-10-28 批 6：原来只扫 app.wxss + pages/*/*.wxss，pkg-games 与 components 完全没覆盖 ——
+// 而批 6 的字号批量脚本恰好把 520 处字写坏在 pkg-games 里（font-size24rpxpx），护栏一声不响。
+// 现在改成「miniprogram 下所有 wxss 全量扫」。
+function walkWxss(dir, out = []) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walkWxss(p, out);
+    else if (e.name.endsWith('.wxss')) out.push(p);
   }
+  return out;
 }
+const files = walkWxss(ROOT).sort();
 
 let bad = 0;
 
@@ -75,6 +78,34 @@ for (const file of files) {
     const top = stack[stack.length - 1];
     console.log('[FAIL] ' + rel + ': 有 ' + stack.length + ' 个括号未闭合（首个在第 ' + top.line + ' 行的 ' + top.ch + '）');
     bad++;
+  }
+}
+
+// ============ 7）声明缺冒号 / 属性名粘连值（2026-10-28 批 6 新增）============
+//
+// 起因：批 6 的字号批量脚本偏移算错 2 个字符，把 520 处 `font-size: 40rpx`
+// 写成了 `font-size48rpxpx`。这在 CSS 里是「未知属性」，浏览器直接忽略整条声明 ——
+// 页面不会报错、括号配对也正常，肉眼只有在特定字号上才看得出，
+// 而单测不编译 WXSS，于是整套护栏一声不响。
+//
+// 规则：块内不允许出现「字母紧接 数字+rpx」的写法（合法值前面一定有空格、冒号、
+// 逗号、括号或运算符）。`translate(10rpx)` / `0 0 12rpx` / `calc(100% - 24rpx)` 都不会命中。
+{
+  for (const file of files) {
+    const rel = path.relative(ROOT, file);
+    const lines = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' ')).split('\n');
+    lines.forEach((text, i) => {
+      // 字母紧接数字才算；负值（-6rpx）前面是减号，不会命中
+      const re = /[a-zA-Z](\d+(?:\.\d+)?rpx)/g;
+      let m;
+      while ((m = re.exec(text))) {
+        // 排除自定义属性里的键名（--x1: 10rpx 这种极罕见）与字符串
+        const before = text.slice(Math.max(0, m.index - 24), m.index + 1);
+        console.log('[FAIL] ' + rel + ': 第 ' + (i + 1) + ' 行声明缺冒号？…' + before + m[1] + '…');
+        bad++;
+        break;
+      }
+    });
   }
 }
 

@@ -76,6 +76,12 @@
             <view class="pk-side-lb">应战</view>
           </view>
         </view>
+        <!-- 续票（2026-10-28）：应战完是「那别人也该应战我」这个念头最强的时刻。
+             走 ensure 而不是 ask —— 搭车动作，一天最多一次，不打断看结果。
+             只有应战人才渲染：发起人在上面 created 视图里已经有同一个按钮了。 -->
+        <button wx:if="{{subReady && match.role === 'opponent'}}"
+          class="btn-md btn-ghost pk-second pk-notify {{subOn ? 'is-on' : ''}}"
+          bindtap="renewNotify">{{subOn ? '🔔 已开启应战提醒' : '🔔 有人应战我时提醒我'}}</button>
         <button class="btn-md btn-ghost pk-second" bindtap="backHome">返回我的战帖</button>
       </view>
     </block>

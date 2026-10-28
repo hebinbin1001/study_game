@@ -1,0 +1,108 @@
+/* 2048（B6-3） */
+.page-2048 {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%);
+}/* 选关 */
+.intro { background: var(--white); border-radius: 28rpx; padding: 26rpx; text-align: center; margin: 20rpx 0; }
+.i-t { font-size: 32rpx; font-weight: 900; color: var(--ink); }
+.i-s { font-size: 24rpx; color: var(--ink-weak); margin-top: 8rpx; line-height: 1.5; }
+.levels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18rpx; }
+.lv {
+  background: var(--white); border-radius: 28rpx; padding: 26rpx 8rpx;
+  text-align: center; box-shadow: var(--clay-2);
+}
+.lv.on { outline: 6rpx solid var(--pri); }
+.lv-target { font-size: 38rpx; font-weight: 900; color: #b57900; }
+.lv-steps { font-size: 24rpx; color: var(--ink-weak); margin-top: 6rpx; }
+
+/* 挑战模式入口（不限步数冲 2048） */
+.challenge-card {
+  display: flex; align-items: center; gap: 16rpx;
+  margin-top: 20rpx;
+  background: linear-gradient(135deg, #fff3d6 0%, #ffe4a8 100%);
+  border-radius: 28rpx; padding: 22rpx 26rpx;
+  box-shadow: var(--clay-2);
+}
+.cc-left { flex: 1; }
+.cc-title { font-size: 32rpx; font-weight: 900; color: #8a5a00; }
+.cc-sub { font-size: 24rpx; color: #a98232; margin-top: 6rpx; }
+.cc-best {
+  flex: 0 0 auto;
+  background: var(--white); color: #b57900;
+  font-size: 24rpx; font-weight: 800;
+  padding: 10rpx 20rpx; border-radius: 999rpx;
+}
+
+/* HUD */
+.hud-box { flex: 1; background: var(--white); border-radius: 28rpx; padding: 16rpx 4rpx; text-align: center; box-shadow: var(--clay-2); }
+.h-num { font-size: 32rpx; font-weight: 900; color: #b57900; }
+.h-lab { font-size: 24rpx; color: var(--ink-weak); margin-top: 2rpx; }
+
+/* 棋盘 */
+.board {
+  /* 同上：棋盘不再被拉伸，用 auto 外边距居中，底部提示就不会被挤出屏幕 */
+  flex: 0 0 auto;
+  margin: auto 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+  align-content: center;
+  align-self: center;
+  width: 100%;
+}
+.cell {
+  aspect-ratio: 1/1;
+  border-radius: 16rpx;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 38rpx; font-weight: 900; color: #776e65;
+}
+/* 空格子：比底槽更深一点的凹位，与「有数字的方块」拉开层次 */
+.cell.c0 {
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 4rpx 8rpx rgba(18, 44, 78, 0.12);
+}
+.cell.c2 { background: #eee4da; }
+.cell.c4 { background: #ede0c8; }
+.cell.c8 { background: #f2b179; color: var(--white); }
+.cell.c16 { background: #f59563; color: var(--white); }
+.cell.c32 { background: #f67c5f; color: var(--white); }
+.cell.c64 { background: #f65e3b; color: var(--white); }
+.cell.c128 { background: #edcf72; color: var(--white); font-size: 32rpx; }
+.cell.c256 { background: #edcc61; color: var(--white); font-size: 32rpx; }
+.cell.c512 { background: #edc850; color: var(--white); font-size: 32rpx; }
+.cell.c1024 { background: #edc53f; color: var(--white); font-size: 28rpx; }
+.cell.c2048 { background: #edc22e; color: var(--white); font-size: 28rpx; }
+
+/* 方向键已去掉（2026-09-12）：手机上滑动才是 2048 的标准操作，
+   三排按键白占屏幕 22% 的高度；改为底部一行提示。滑动手感由
+   wxml 的 catchtouchmove 保证（阻止页面跟着手指滚）。 */
+.tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; margin: 18rpx 0 8rpx; }
+
+/* 结算 */
+.over-mask {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(20,34,56,.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.over-card { width: 600rpx; background: var(--white); border-radius: 28rpx; padding: 44rpx 36rpx; text-align: center; }
+.o-stars { font-size: 72rpx; color: var(--pri); letter-spacing: 8rpx; }
+.o-title { font-size: 48rpx; font-weight: 900; color: #2e8b57; margin-top: 10rpx; }
+.o-title.fail { color: #e62e2e; }
+.o-msg { font-size: 28rpx; color: var(--ink-weak); margin-top: 10rpx; }
+.btn {
+  margin-top: 18rpx; width: 100%; height: 92rpx; line-height: 92rpx;
+  border-radius: var(--r-pill); font-size: 32rpx; font-weight: 900;
+}
+.btn.b1 { background: var(--pri); color: var(--white); box-shadow: var(--clay-3); }
+.btn.b2 { background: #eef2f8; color: var(--ink-sub); }
+.btn::after { border: none; }
+
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
+
+/* 右上角固定暂停按钮让位（components/game-pause）：HUD 右端不压住内容 / 战士徽章 */
+/* 2026-10-18：暂停键进 HUD 行，不再需要右侧让位 */
+.hud { padding-right: 0; }

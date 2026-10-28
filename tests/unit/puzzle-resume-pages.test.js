@@ -36,9 +36,21 @@ global.wx = {
 
 const resume = require('../../miniprogram/utils/puzzle-resume');
 
-/** 加载页面定义（捕获 Page({...})），并清 require 缓存以便重复加载 */
+/** 加载页面定义（捕获 Page({...})），并清 require 缓存以便重复加载
+ *
+ * 2026-10-28：21 个玩法页连同 level / puzzle-level / result 一起迁进分包 pkg-games
+ * （主包体积压力由此释放）。这里对两个根目录都试一遍，
+ * 以后再挪动页面位置不会再连带把测试跑红。 */
+function resolvePage(rel) {
+  try {
+    return require.resolve('../../miniprogram/pages/' + rel);
+  } catch (e) {
+    return require.resolve('../../miniprogram/pkg-games/' + rel);
+  }
+}
+
 function loadPage(rel) {
-  const abs = require.resolve('../../miniprogram/pages/' + rel);
+  const abs = resolvePage(rel);
   let def = null;
   const prevPage = global.Page;
   global.Page = function (o) { def = o; };
@@ -363,7 +375,7 @@ s.test('七个玩法页面都接了断点续玩（存 / 读 / 清 三件套）',
   const path = require('path');
   const GAMES = ['klotski', 'sudoku', 'g2048', 'math24', 'one-stroke', 'maze', 'hanoi'];
   GAMES.forEach(function (g) {
-    const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages', g, g + '.js'), 'utf8');
+    const src = fs.readFileSync(path.join(require('./_mp').pageDir(g), g + '.js'), 'utf8');
     s.assert.contains(src, "require('../../utils/puzzle-resume')", g + ' 未引入断点模块');
     s.assert.contains(src, 'resume.load(', g + ' 未在进入页面时读档');
     s.assert.contains(src, '_restore: function', g + ' 缺恢复实现');
@@ -377,7 +389,7 @@ s.test('七个玩法页面都接了断点续玩（存 / 读 / 清 三件套）',
 s.test('2048 页面必须引入 game 与 storage（防再次漏 require）', () => {
   const fs = require('fs');
   const path = require('path');
-  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages/g2048/g2048.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/g2048/g2048.js'), 'utf8');
   s.assert.contains(src, "require('../../game/tw2048')");
   s.assert.contains(src, "require('../../utils/storage')");
 });

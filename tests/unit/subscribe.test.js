@@ -102,6 +102,32 @@ s.test('pk_accept 模板数据：空对手名不产生空字段', () => {
   s.assert.equal(data.thing3.value, '-');
 });
 
+s.test('ensure 的准入判定：拒过不再问，今天续过不重复问', () => {
+  const today = '2026-10-28';
+  // 第一次：问
+  s.assert.equal(subClient.shouldRun({ off: false, last: '' }, today), 'ask');
+  // 今天已经续过票：一天只需要一张，别在同一天反复弹
+  s.assert.equal(subClient.shouldRun({ off: false, last: today }, today), 'already');
+  // 昨天续过，今天该再续
+  s.assert.equal(subClient.shouldRun({ off: false, last: '2026-10-27' }, today), 'ask');
+  // 明确拒绝过：自动场景一律不再问（主动点按钮的 ask 不受这层限制）
+  s.assert.equal(subClient.shouldRun({ off: true, last: '' }, today), 'off');
+  // 拒绝优先于日期：拒过就是拒过，哪怕今天还没续过
+  s.assert.equal(subClient.shouldRun({ off: true, last: '2026-10-27' }, today), 'off');
+  // 状态缺失不能崩（老版本没有这两个 key）
+  s.assert.equal(subClient.shouldRun(null, today), 'ask');
+  s.assert.equal(subClient.shouldRun({}, today), 'ask');
+});
+
+s.test('ensure 在不支持订阅的环境里同步短路，返回 Promise 而不抛错', () => {
+  // 单测跑在 Node，没有 wx.requestSubscribeMessage；这条保证「基础库太老」时
+  // 调用方不用 try/catch —— 直接 then 到一个 unsupported 就行。
+  // 不在这里断言 resolve 值：runner 是同步的，then 回调会落在 done() 之后。
+  const p = subClient.ensure('pk_accept');
+  s.assert.equal(typeof p.then, 'function');
+  s.assert.equal(typeof p.catch, 'function');
+});
+
 s.test('端上 isAccepted：只有 accept 系列算同意', () => {
   s.assert.equal(subClient.isAccepted('accept'), true);
   s.assert.equal(subClient.isAccepted('acceptWithAudio'), true);

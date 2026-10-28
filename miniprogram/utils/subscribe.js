@@ -14,12 +14,19 @@
  * 关联：server/subscribe.js（场景表）、server/routes/subscribe.js（配置与上报）。
  */
 var request = require('./request');
+var storage = require('./storage');
+var dayKey = require('./day-key');
 
 // 服务端下发的模板配置缓存。模板 ID 换一次就得重新部署，10 分钟内不会变，
 // 缓存是为了避免每次点按钮都多一个网络往返（弹窗必须贴着用户点击，慢了会 fail）。
 var CACHE_TTL = 10 * 60 * 1000;
 var _cache = { at: 0, scenes: null };
 var _inflight = null;
+
+// 每个场景的「上次续票日期」与「用户明确拒绝过」。
+// 用场景后缀而不是一个总开关：以后加第二个模板时，A 被拒不该连累 B。
+var DAY_KEY = 'ww_sub_day_';
+var OFF_KEY = 'ww_sub_off_';
 
 /** 端上是否支持订阅消息（基础库 2.4.4+；老版本直接返回失败，不让调用报错） */
 function isSupported() {
@@ -79,10 +86,15 @@ function ask(scene) {
           if (isAccepted(status)) {
             // 记一笔「用户同意过」——纯统计，失败不影响订阅本身（票在微信那边）
             request.post('/api/subscribe/grant', { scene: scene }).catch(function () {});
+            // 同时也算今天的续票已完成：否则用户主动点过之后再走到 ensure 会重复弹一次
+            storage.set(DAY_KEY + scene, dayKey.todayKey());
+            storage.remove(OFF_KEY + scene); // 重新同意了，把「拒过」的标记掀掉
             resolve({ ok: true, reason: 'ok' });
           } else if (status === 'ban') {
+            storage.set(OFF_KEY + scene, true);
             resolve({ ok: false, reason: 'ban' });
           } else if (status === 'reject') {
+            storage.set(OFF_KEY + scene, true);
             resolve({ ok: false, reason: 'reject' });
           } else {
             resolve({ ok: false, reason: 'fail' });
@@ -94,6 +106,103 @@ function ask(scene) {
       });
     });
   });
+}
+
+/**
+ * 判断「顺路续票」该不该真的弹窗。抽成纯函数便于单测。
+ *
+ * 三条判断的由来：
+ *   off     —— 用户上次明确点了「拒绝」。微信对「拒绝并勾选总是保持」会一直回 reject，
+ *              再问就是纯骚扰；只有用户主动点按钮（ask）才会绕过它重问。
+ *   already —— 今天已经续过了。一次性订阅是「一张票换一条消息」，同一天多续的票
+ *              对这个场景没有意义（一人一天不会有多张战帖被应战），而每续一次都可能弹框。
+ *   ask     —— 其余情况。
+ *
+ * @param {{off:boolean, last:string}} state 本地状态
+ * @param {string} today 东八区日期 'YYYY-MM-DD'
+ * @returns {'off'|'already'|'ask'}
+ */
+function shouldRun(state, today) {
+  if (state && state.off) return 'off';
+  if (state && state.last && state.last === today) return 'already';
+  return 'ask';
+}
+
+/** 读某个场景的本地续票状态 */
+function readState(scene) {
+  return {
+    off: !!storage.get(OFF_KEY + scene),
+    last: String(storage.get(DAY_KEY + scene) || '')
+  };
+}
+
+/**
+ * 顺路续一张票（像 ensure 一样用在「用户本来就要点的动作」上）。
+ *
+ * 与 ask 的分工：
+ *   ask    = 用户主动点「提醒我」。每次都问、每次都回话（弹窗 + toast）。
+ *   ensure = 挂在别的动作旁边顺手充一张。一天最多一次，被拒过就不再自动问，
+ *            而且**不弹任何提示** —— 它是搭车的，喧宾夺主就没人愿意搭了。
+ *
+ * 「准永久」这件事要说清楚：微信没有永久订阅。用户如果在订阅弹窗里勾了
+ * 「总是保持以上选择」，之后 requestSubscribeMessage 会直接回 accept、不再弹窗，
+ * 于是每次 ensure 都相当于静默 +1 张票 —— 这是我们能拿到的最好结果。
+ * 没勾那个框的用户每次仍会看到弹窗，这是微信的行为，端上无法查询也无法跳过。
+ *
+ * ⚠️ 和其它订阅调用一样，必须在用户点击事件的同步栈里调用。
+ *
+ * @param {string} scene 场景 key（如 'pk_accept'）
+ * @returns {Promise<{ok:boolean, reason:string}>}
+ *   reason: ok | off | already | no-template | unsupported | reject | ban | fail | exception
+ */
+function ensure(scene) {
+  if (!isSupported()) return Promise.resolve({ ok: false, reason: 'unsupported' });
+  if (!scene) return Promise.resolve({ ok: false, reason: 'no-template' });
+
+  var today = dayKey.todayKey();
+  var verdict = shouldRun(readState(scene), today);
+  if (verdict !== 'ask') return Promise.resolve({ ok: false, reason: verdict });
+
+  return fetchConfig().then(function (scenes) {
+    var tpl = scenes[scene];
+    if (!tpl) return { ok: false, reason: 'no-template' };
+
+    // 先落日期再弹框：微信的弹窗是异步的，用户连点两下会叠出两个框（iOS 上会卡住）。
+    // 先写能把第二下挡在门外；真失败了在 fail 里回滚。
+    storage.set(DAY_KEY + scene, today);
+
+    return new Promise(function (resolve) {
+      wx.requestSubscribeMessage({
+        tmplIds: [tpl],
+        success: function (res) {
+          var status = res && res[tpl];
+          if (isAccepted(status)) {
+            request.post('/api/subscribe/grant', { scene: scene }).catch(function () {});
+            resolve({ ok: true, reason: 'ok' });
+          } else if (status === 'reject' || status === 'ban') {
+            storage.set(OFF_KEY + scene, true);
+            resolve({ ok: false, reason: status });
+          } else {
+            resolve({ ok: false, reason: 'fail' });
+          }
+        },
+        fail: function (err) {
+          // 多半是没在 tap 栈里 / 基础库不支持。回滚日期，否则今天再也补不上。
+          storage.remove(DAY_KEY + scene);
+          resolve({ ok: false, reason: 'exception', err: (err && err.errMsg) || '' });
+        }
+      });
+    });
+  });
+}
+
+/**
+ * 清掉某场景的本地续票状态（调试用：想重新走一遍首次弹窗时调）。
+ * @param {string} scene
+ */
+function resetScene(scene) {
+  storage.remove(DAY_KEY + scene);
+  storage.remove(OFF_KEY + scene);
 }
 
 /**
@@ -114,8 +223,11 @@ function clearCache() {
 module.exports = {
   isSupported: isSupported,
   isAccepted: isAccepted,
+  shouldRun: shouldRun,
   fetchConfig: fetchConfig,
   ask: ask,
+  ensure: ensure,
+  resetScene: resetScene,
   warmup: warmup,
   clearCache: clearCache
 };

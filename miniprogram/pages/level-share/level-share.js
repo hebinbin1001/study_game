@@ -71,7 +71,7 @@ Page({
 
     // 跳转到游戏页，传入关卡信息
     wx.navigateTo({
-      url: '/pages/game/game?customLevel=' + encodeURIComponent(JSON.stringify(levelInfo))
+      url: '/pkg-games/game/game?customLevel=' + encodeURIComponent(JSON.stringify(levelInfo))
     });
   },
 

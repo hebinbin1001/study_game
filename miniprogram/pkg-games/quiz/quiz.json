@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "限时抢答",
+  "usingComponents": {
+    "settle-pop": "/components/settle-pop/settle-pop",
+    "how-to-play": "/components/how-to-play/how-to-play"
+  }
+}

@@ -25,15 +25,18 @@
     <view class="stat-card" bindtap="goReport">
       <view class="stat-top">📈 学习报告</view>
       <view class="stat-num">
-        <block wx:if="{{avgRate >= 0}}">{{avgRate}}<text class="stat-unit">%</text></block>
+        <block wx:if="{{avgRate >= 0 && hasQuiz}}">{{avgRate}}<text class="stat-unit">%</text></block>
         <block wx:else>--</block>
       </view>
-      <view class="stat-sub">{{avgRate >= 0 ? '近 7 天正确率' : '登录后查看'}}</view>
+      <view class="stat-sub">{{!loggedIn ? '登录后查看' : (hasQuiz ? '近 7 天正确率' : '近 7 天还没答题')}}</view>
     </view>
     <view class="stat-card" bindtap="goWrongBook">
       <view class="stat-top">📕 错题本</view>
       <view class="stat-num">{{loggedIn ? wrongCount : '--'}}</view>
       <view class="stat-sub">{{loggedIn ? '待复习 · 艾宾浩斯' : '登录后同步'}}</view>
+      <!-- 2026-10-28：有题时给一条「直接开练」的短路。
+           原来只能进错题本列表、再点一次「开始复习」，多一步就少一批人。 -->
+      <view wx:if="{{loggedIn && wrongCount > 0}}" class="stat-go" catchtap="goReview">复习 ›</view>
     </view>
   </view>
 

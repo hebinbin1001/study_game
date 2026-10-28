@@ -1,14 +1,15 @@
 /* 玩法 Tab —— 布局收敛版（2026-10-17）
  * 变化：删掉顶部蓝色信息条（114rpx），已解锁计数并入年级行；
  *       头部从 ≈380rpx 降到 ≈236rpx，首屏多出一行卡片。
- * 配色仍沿用扁平白蓝，等主题收口批次统一换天空底。 */
+ * 配色（2026-10-28）：原来这里是 #F5F7FB 灰白底，注释写着「等主题收口批次统一换天空底」——
+ * 这一批就是收口。四个 tab 页现在统一走 --sky-1/2/3，切 tab 不再有底色断层。 */
 .page-play {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   padding: 16rpx 32rpx 0;
-  background: #F5F7FB;
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 36%, var(--sky-3) 100%);
 }
 
 /* 年级 + 已解锁计数（一行） */
@@ -29,17 +30,17 @@
   padding: 10rpx 24rpx;
   border-radius: 999rpx;
   background: rgba(255, 255, 255, .92);
-  color: #5c7f9e;
+  color: var(--ink-sub);
   font-size: 24rpx;
   font-weight: 800;
-  box-shadow: 0 4rpx 0 rgba(28, 53, 92, .06);
+  box-shadow: var(--clay-1);
 }
 .pg-grade:active { opacity: .85; }
-.pg-grade.on { background: #ffb703; color: #ffffff; }
+.pg-grade.on { background: var(--pri); color: var(--white); }
 /* 计数：原信息条的核心信息，压缩成一枚静态胶囊 */
 .pg-count {
   flex: 0 0 auto;
-  font-size: 20rpx;
+  font-size: 24rpx;
   font-weight: 800;
   color: #6B7688;
   background: rgba(255, 255, 255, .9);
@@ -61,8 +62,8 @@
   justify-content: center;
   gap: 10rpx;
   height: 84rpx;
-  background: #fff;
-  border-radius: 24rpx;
+  background: var(--white);
+  border-radius: 28rpx;
   font-size: 28rpx;
   font-weight: 700;
   color: #6B7688;
@@ -82,11 +83,11 @@
 .cat-chip {
   display: inline-flex;
   align-items: center;
-  background: #fff;
+  background: var(--white);
   color: #8A94A6;
   border-radius: 999rpx;
   padding: 14rpx 30rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 700;
   box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
 }
@@ -107,8 +108,8 @@
 }
 .pcard {
   position: relative;
-  background: #fff;
-  border-radius: 32rpx;
+  background: var(--white);
+  border-radius: 28rpx;
   box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
   padding: 26rpx 24rpx 20rpx;
   box-sizing: border-box;
@@ -123,7 +124,7 @@
   color: #1E8E3E;
   border-radius: 999rpx;
   padding: 4rpx 14rpx;
-  font-size: 18rpx;
+  font-size: 24rpx;
   font-weight: 900;
 }
 .pic { font-size: 68rpx; line-height: 1.1; }
@@ -134,7 +135,7 @@
   margin: 2rpx 0 4rpx;
 }
 .pname { font-size: 32rpx; font-weight: 800; margin-top: 10rpx; color: #333A45; }
-.pdesc { font-size: 22rpx; color: #8A94A6; line-height: 1.45; margin-top: 6rpx; min-height: 64rpx; }
+.pdesc { font-size: 24rpx; color: #8A94A6; line-height: 1.45; margin-top: 6rpx; min-height: 64rpx; }
 /* 预期时长标注：比描述再淡一档，不抢主信息 */
 .pmin { color: #A9B7C7; }
 .cat-tag {
@@ -145,7 +146,7 @@
   color: #FF9800;
   border-radius: 999rpx;
   padding: 4rpx 16rpx;
-  font-size: 18rpx;
+  font-size: 24rpx;
   font-weight: 800;
 }
 /* 底部只有一枚「进度 · 去闯关」胶囊 + 箭头，不再两个标签并排 */
@@ -159,16 +160,16 @@
   color: #4285F4;
   border-radius: 999rpx;
   padding: 6rpx 18rpx;
-  font-size: 20rpx;
+  font-size: 24rpx;
   font-weight: 800;
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.arr { color: #C3CCDA; font-size: 34rpx; font-weight: 700; margin-left: auto; }
+.arr { color: #C3CCDA; font-size: 32rpx; font-weight: 700; margin-left: auto; }
 
-.foot-note { text-align: center; color: #A9B2C2; font-size: 22rpx; padding: 20rpx 0 8rpx; }
+.foot-note { text-align: center; color: #A9B2C2; font-size: 24rpx; padding: 20rpx 0 8rpx; }
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); }
 
 /* ============ 年级只读行（2026-10-18 全局年级设置） ============ */
@@ -179,6 +180,6 @@
   margin-right: 12rpx;
 }
 .pg-grade-line:active { opacity: .7; }
-.pg-grade-ic { font-size: 26rpx; }
-.pg-grade-tx { font-size: 26rpx; font-weight: 900; color: #2f4a6b; }
-.pg-grade-go { font-size: 20rpx; font-weight: 800; color: #4285F4; }
+.pg-grade-ic { font-size: 28rpx; }
+.pg-grade-tx { font-size: 28rpx; font-weight: 900; color: var(--ink-deep); }
+.pg-grade-go { font-size: 24rpx; font-weight: 800; color: #4285F4; }

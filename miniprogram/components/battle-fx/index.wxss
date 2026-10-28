@@ -121,7 +121,7 @@
   height: 12rpx;
   border-radius: 999rpx;
   opacity: 0;
-  background: linear-gradient(90deg, transparent 3%, #fff 35%, #fff7a8 54%, #71dfff 78%, transparent 97%);
+  background: linear-gradient(90deg, transparent 3%, var(--white) 35%, #fff7a8 54%, #71dfff 78%, transparent 97%);
   box-shadow: 0 0 18rpx var(--skin-color);
   transform: rotate(-22deg) scaleX(.1);
   transform-origin: 50% 50%;
@@ -145,7 +145,7 @@
   border-radius: 50%;
   opacity: 0;
   background:
-    linear-gradient(45deg, transparent 47%, #fff 48%, #fff 52%, transparent 53%),
+    linear-gradient(45deg, transparent 47%, var(--white) 48%, var(--white) 52%, transparent 53%),
     linear-gradient(-45deg, transparent 47%, #ffe978 48%, #ffe978 52%, transparent 53%);
   filter: drop-shadow(0 0 20rpx var(--skin-color));
   animation: bfx-impact .44s .22s ease-out forwards;
@@ -158,10 +158,10 @@
   z-index: 4;
   padding: 8rpx 20rpx;
   border-radius: 999rpx;
-  color: #fff;
+  color: var(--white);
   background: rgba(21,68,101,.9);
   box-shadow: 0 6rpx 16rpx rgba(13,49,77,.2);
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 900;
   white-space: nowrap;
   opacity: 0;
@@ -388,7 +388,7 @@
 }
 .skin-shine .bfx-slash {
   height: 16rpx;
-  background: linear-gradient(90deg, transparent, #fff 24%, #fff3a6 50%, #ffd34d 70%, transparent);
+  background: linear-gradient(90deg, transparent, var(--white) 24%, #fff3a6 50%, #ffd34d 70%, transparent);
   box-shadow: 0 0 38rpx #ffe36d;
 }
 .skin-shine .bfx-impact {

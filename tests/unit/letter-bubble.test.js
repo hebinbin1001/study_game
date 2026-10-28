@@ -87,17 +87,17 @@ s.test('星级沿用 90/70/60；题量与命数让三档可达', () => {
 s.test('新玩法已进入主线与独立玩法线，并复用统一页面', () => {
   s.assert.ok(challenge.MODES.letterBubble);
   s.assert.equal(challenge.MODES.letterBubble.gameType, 'letter_bubble');
-  s.assert.equal(challenge.MODES.letterBubble.page, '/pages/letter-bubble/letter-bubble');
+  s.assert.equal(challenge.MODES.letterBubble.page, '/pkg-games/letter-bubble/letter-bubble');
   s.assert.ok(challenge.LINE_MODES.indexOf('letterBubble') >= 0);
   s.assert.ok(challenge.TEMPLATE.some(function (row) { return row.mode === 'letterBubble'; }));
   const url = challenge.lineUrl('g3', 'letterBubble', 4);
-  s.assert.contains(url, '/pages/letter-bubble/letter-bubble?');
+  s.assert.contains(url, '/pkg-games/letter-bubble/letter-bubble?');
   s.assert.contains(url, 'line=mode_letterBubble');
 });
 
 s.test('页面接入成绩上报、本机星级与管理员停玩直链守卫', () => {
   const js = fs.readFileSync(
-    path.join(__dirname, '../../miniprogram/pages/letter-bubble/letter-bubble.js'), 'utf8');
+    path.join(__dirname, '../../miniprogram/pkg-games/letter-bubble/letter-bubble.js'), 'utf8');
   s.assert.contains(js, 'playReport.reportPlay');
   s.assert.contains(js, 'storage.saveStars');
   s.assert.contains(js, "gameStatus.isPaused(GAME_KEY)");

@@ -1,9 +1,0 @@
-{
-  "usingComponents": {
-    "settle-pop": "/components/settle-pop/settle-pop",
-    "game-pause": "/components/game-pause/game-pause"
-  },
-  "navigationBarTitleText": "汉诺塔",
-  "navigationBarBackgroundColor": "#D94F85",
-  "navigationBarTextStyle": "white"
-}

@@ -1,0 +1,157 @@
+/* 算 24 点（成熟玩法：构造算式） */
+.page-24 {
+  min-height: 100vh;
+  box-sizing: border-box;
+  /* 底部留出安全区：原来 padding-bottom 是 0，最后那行规则文字会被底部指示条切掉 */
+  padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%);
+}/* 选关 */
+.intro { background: var(--white); border-radius: 28rpx; padding: 28rpx; text-align: center; margin: 20rpx 0; }
+.i-t { font-size: 32rpx; font-weight: 900; color: var(--ink); }
+.i-s { font-size: 24rpx; color: var(--ink-weak); margin-top: 8rpx; line-height: 1.5; }
+.levels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18rpx; }
+.lv {
+  background: var(--white); border-radius: 28rpx; padding: 22rpx;
+  text-align: center; box-shadow: var(--clay-2);
+}
+.lv.on { outline: 6rpx solid var(--pri); }
+.lv-no { font-size: 24rpx; font-weight: 800; color: var(--ink); }
+.lv-nums { font-size: 38rpx; font-weight: 900; color: #b57900; letter-spacing: 6rpx; margin-top: 8rpx; }
+
+/* HUD 用 app.wxss 的 .hud / .hud-chip */
+
+/* 数字牌 */
+/* 牌区占据剩余空间并垂直居中：原来 flex:0 0 auto，内容全挤在上半屏、下面一大片空白
+   （2026-09-12 用户反馈「24 点布局没填充满」）。 */
+.cards {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22rpx;
+  margin: 6rpx 0;
+}
+.card {
+  width: 160rpx; height: 160rpx;
+  border-radius: 28rpx;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 64rpx; font-weight: 900; color: var(--ink);
+  position: relative;
+}
+.card.used { opacity: .35; box-shadow: none; }
+
+/* 算式显示 */
+.expr-box {
+  flex: 0 0 auto;
+  min-height: 108rpx;
+  margin: 18rpx 0 16rpx;
+  background: rgba(255,255,255,.95);
+  border-radius: 28rpx;
+  display: flex; align-items: center; justify-content: center;
+  padding: 12rpx 24rpx;
+  font-size: 48rpx; font-weight: 900; color: #2c3e72;
+  letter-spacing: 4rpx;
+  word-break: break-all;
+  text-align: center;
+}
+
+/* 按键 */
+.keys {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+  /* 两行按键原来紧贴在一起（2026-09-13 用户反馈「下面的按钮离得太近」） */
+  margin-top: 18rpx;
+}
+/* 第二行只有 3 个键（撤销 / 重来 / 提示）：改成 3 列，按钮更宽、不再挤在左边 */
+.keys + .keys { grid-template-columns: repeat(3, 1fr); }
+.key {
+  height: 96rpx; line-height: 96rpx;
+  background: var(--white); border-radius: 28rpx;
+  text-align: center;
+  font-size: 38rpx; font-weight: 900;
+  box-shadow: var(--clay-2);
+}
+.k-sym { color: var(--green); }
+.k-op { color: var(--blue); }
+.k-del { color: #ff8f00; }
+.k-clr { color: var(--ink-weak); font-size: 32rpx; }
+.key:active { transform: translateY(3rpx); }
+
+/* 校验 */
+.check-btn {
+  flex: 0 0 auto;
+  margin: 22rpx 0 6rpx;
+  height: 96rpx; line-height: 96rpx;
+  border-radius: var(--r-pill);
+  background: var(--pri); color: var(--white);
+  font-size: 32rpx; font-weight: 900; letter-spacing: 6rpx;
+  box-shadow: var(--clay-3);
+}
+.check-btn::after { border: none; }
+.op-tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; margin-top: 8rpx; min-height: 36rpx; }
+.goal { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; font-weight: 700; opacity: 1; }
+
+/* 结算 */
+.over-mask {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(20,34,56,.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.over-card { width: 600rpx; background: var(--white); border-radius: 28rpx; padding: 44rpx 36rpx; text-align: center; }
+.o-stars { font-size: 72rpx; color: var(--pri); letter-spacing: 8rpx; }
+.o-title { font-size: 48rpx; font-weight: 900; color: #2e8b57; margin-top: 10rpx; }
+.o-title.fail { color: #e62e2e; }
+.o-msg { font-size: 28rpx; color: var(--ink-weak); margin-top: 10rpx; line-height: 1.6; }
+.btn { margin-top: 18rpx; width: 100%; height: 92rpx; line-height: 92rpx; border-radius: var(--r-pill); font-size: 32rpx; font-weight: 900; }
+.btn.b1 { background: var(--pri); color: var(--white); box-shadow: var(--clay-3); }
+.btn.b2 { background: #eef2f8; color: var(--ink-sub); }
+.btn::after { border: none; }
+
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
+/* ===== 合并式交互（2026-09-12 改版）新增状态 ===== */
+/* 2026-10-18 用户反馈：选中牌和合并结果都用「环」高亮，容易混。
+   现在选中 = 蓝环 + 左上角蓝勾；结果牌 = 绿色底 + 「结果」角标，仍可叠蓝环表示已选中。 */
+.card.b-sel {
+  background: linear-gradient(180deg, #eef5ff 0%, #dbeafe 100%);
+  box-shadow: 0 0 0 6rpx #3b82f6, var(--clay-2);
+  transform: translateY(-4rpx);
+}
+.card.merged {
+  background: linear-gradient(180deg, #f4fdf6 0%, #e4f7e9 100%);
+  box-shadow: var(--clay-2);
+}
+/* 结果牌自动选中：外圈蓝（选中）+ 内圈绿（结果）同时保留 */
+.card.merged.b-sel {
+  box-shadow: 0 0 0 6rpx #3b82f6, var(--clay-2);
+}
+.tile-tag {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  z-index: 2;
+  font-size: 24rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+.tile-tag--sel {
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tile-tag--result {
+  padding: 5rpx 8rpx;
+  border-radius: 16rpx;
+  background: #22c55e;
+  color: var(--white);
+}
+
+/* 右上角固定暂停按钮让位（components/game-pause）：HUD 右端不压住内容 / 战士徽章 */

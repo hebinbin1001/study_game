@@ -42,9 +42,9 @@ async function main() {
 
     // ============ A. 找规律 ============
     console.log('[1/4] 找规律：?level=3 生效 / 点击反馈 / 自动翻页 / 结算写星');
-    const p = await H.goto(mp, '/pages/pattern/pattern?level=3', 2200);
+    const p = await H.goto(mp, '/pkg-games/pattern/pattern?level=3', 2200);
     let d = await p.data();
-    ck.check('找规律：落地页正确', (await mp.currentPage()).path === 'pages/pattern/pattern');
+    ck.check('找规律：落地页正确', (await mp.currentPage()).path === 'pkg-games/pattern/pattern');
     ck.check('找规律：?level=3 生效', d.levelText === '3/30', '实际 = ' + d.levelText);
     ck.check('找规律：首题 1/10', d.qText === '1/10', '实际 = ' + d.qText);
     ck.check('找规律：题面至少 5 格（含问号格）', (d.cells || []).length >= 5,
@@ -78,7 +78,7 @@ async function main() {
 
     // ============ B. 认钟表 ============
     console.log('[2/4] 认钟表：表盘 / 指针角度 / 24→12 时制不画表盘 / 翻页');
-    const c = await H.goto(mp, '/pages/clock/clock?level=1', 2200);
+    const c = await H.goto(mp, '/pkg-games/clock/clock?level=1', 2200);
     d = await c.data();
     ck.check('认钟表：?level=1 生效', d.levelText === '1/30', '实际 = ' + d.levelText);
     ck.check('认钟表：1~6 关画表盘', d.faceShow === true, 'faceShow = ' + d.faceShow);
@@ -96,7 +96,7 @@ async function main() {
     d = await c.data();
     ck.check('认钟表：答完自动翻到第 2 题', d.qText === '2/10', '实际 = ' + d.qText);
 
-    const c24 = await H.goto(mp, '/pages/clock/clock?level=25', 2200);
+    const c24 = await H.goto(mp, '/pkg-games/clock/clock?level=25', 2200);
     d = await c24.data();
     ck.check('认钟表：24→12 时制档不画表盘（否则剧透答案）',
       d.faceShow === false && !!d.faceText,
@@ -104,7 +104,7 @@ async function main() {
 
     // ============ C. 词义迷宫 ============
     console.log('[3/4] 词义迷宫：36 格 / 英雄格 / 走一步');
-    const m = await H.goto(mp, '/pages/maze/maze?level=1', 2400);
+    const m = await H.goto(mp, '/pkg-games/maze/maze?level=1', 2400);
     d = await m.data();
     ck.check('迷宫：?level=1 生效', d.levelText === '1/30', '实际 = ' + d.levelText);
     ck.check('迷宫：6×6=36 格', (d.cells || []).length === 36,
@@ -147,7 +147,7 @@ async function main() {
 
     // ============ D. 汉诺塔 ============
     console.log('[4/4] 汉诺塔：3 柱 / 第 2 关 4 盘 / 合法与非法移动 / 撤销');
-    const h = await H.goto(mp, '/pages/hanoi/hanoi?level=2', 2000);
+    const h = await H.goto(mp, '/pkg-games/hanoi/hanoi?level=2', 2000);
     d = await h.data();
     ck.check('汉诺塔：?level=2 生效', d.levelText === '2/6', '实际 = ' + d.levelText);
     ck.check('汉诺塔：第 2 关 4 盘 → 最少 15 步', d.minText === '15', '实际 = ' + d.minText);
@@ -183,7 +183,7 @@ async function main() {
     ck.check('汉诺塔：大盘压小盘被拒（步数不变）', d.stepText === '1', '实际 = ' + d.stepText);
 
     ck.check('全程未崩溃（仍在汉诺塔页）',
-      (await mp.currentPage()).path === 'pages/hanoi/hanoi');
+      (await mp.currentPage()).path === 'pkg-games/hanoi/hanoi');
   } catch (e) {
     ck.check('脚本执行无异常', false, (e && e.message) || String(e));
   } finally {

@@ -4,7 +4,7 @@
  * 覆盖 storage.findContinueLevel：首页卡片与关卡页的"继续"节点必须口径一致，
  * 否则会出现「首页说继续第 2 关、关卡页却把第 4 关点亮」这类自相矛盾。
  *
- * 规则来源（与 pages/level/level.js 的 refreshLevels 一致）：
+ * 规则来源（与 pkg-games/level/level.js 的 refreshLevels 一致）：
  *   1. 前 DEFAULT_UNLOCKED_LEVELS 关默认解锁（游客同享）；
  *   2. 第 N 关需第 N-1 关 ≥1 星；
  *   3. 取第一个「已解锁但没拿到星」的关卡；

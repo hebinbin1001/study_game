@@ -1,0 +1,561 @@
+/* 关卡选择页样式（一期重做：蛇形地图 → 竖排关卡列表）
+   结构：标题 / 游客横幅 / 学段胶囊 tab / 题型 chips / 星星进度卡 / 关卡列表 / 自定义关卡入口
+   硬阴影 + :active 按压位移（与 avatar 页样板一致）
+   一期同时删除了「闯关形态」模式栏与蛇形地图（节点定位/连线）两段样式。 */
+
+page {
+  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.page-level {
+  /* 2026-10-17：标题两行已删（导航栏已有页面名），顶部留白从 40rpx 收到 16rpx */
+  padding: 16rpx 0;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* ===== 学段 tab（卡通胶囊） ===== */
+.grade-tabs {
+  white-space: nowrap;
+  padding: 0 24rpx 20rpx;
+  box-sizing: border-box;
+}
+.grade-tab {
+  display: inline-block;
+  width: 172rpx;
+  height: 84rpx;
+  line-height: 84rpx;
+  text-align: center;
+  border-radius: var(--r-pill);
+  font-weight: 800;
+  font-size: 32rpx;
+  color: var(--ink-sub);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: var(--clay-2);
+  margin-right: 20rpx;
+  transition: all 0.12s;
+}
+.grade-tab:active {
+  transform: translateY(4rpx);
+  box-shadow: var(--clay-1);
+}
+.grade-tab.on {
+  color: var(--white);
+  background: var(--pri);
+  box-shadow: var(--clay-2);
+}
+
+/* ===== 本学段星星进度卡（宝箱已并进来，省掉独立一行） ===== */
+.progress-card {
+  margin: 0 32rpx 20rpx;
+  padding: 20rpx 28rpx;
+  background: var(--white);
+  border-radius: 28rpx;
+  box-shadow: var(--clay-2);
+  box-sizing: border-box;
+}
+.progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+.progress-label {
+  display: flex;
+  align-items: center;
+}
+.progress-emoji {
+  font-size: 32rpx;
+  line-height: 1;
+  margin-right: 10rpx;
+}
+.progress-text {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: var(--ink);
+}
+.progress-value {
+  font-size: 28rpx;
+  font-weight: 900;
+  color: var(--pri-ink);
+}
+/* 星星进度填充：金色渐变（容器 .progress-bar 为全局样式） */
+.progress-bar__fill--gold {
+  background: linear-gradient(90deg, var(--gold), var(--pri));
+}
+
+/* ===== 关卡列表（一期：一行一关） =====
+   纵向列表天然自适应：不依赖可用高度估算，关卡数变化也只是多几行。 */
+.level-list {
+  margin: 0 32rpx;
+}
+.lvrow {
+  display: flex;
+  align-items: center;
+  padding: 22rpx var(--sp-3);
+  margin-bottom: var(--sp-2);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: var(--clay-card);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.lvrow:active {
+  transform: translateY(4rpx);
+  box-shadow: var(--clay-press);
+}
+/* 已通关：淡绿底（星级由右侧展示） */
+.lvrow.done {
+  background: linear-gradient(rgba(63, 191, 95, .10), rgba(63, 191, 95, .10)), var(--white);
+}
+/* 当前可挑战：金色描边 + 呼吸引导 */
+.lvrow.cur {
+  background: linear-gradient(rgba(255, 209, 102, .30), rgba(255, 209, 102, .30)), var(--white);
+  box-shadow: 0 0 0 4rpx var(--gold), var(--clay-card);
+}
+/* 锁定：灰底降饱和 */
+.lvrow.lock {
+  background: linear-gradient(rgba(20, 50, 90, .06), rgba(20, 50, 90, .06)), var(--white);
+  box-shadow: var(--clay-off);}
+.lvrow.shake {
+  animation: cardShake 0.4s;
+}
+@keyframes cardShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-12rpx); }
+  75% { transform: translateX(12rpx); }
+}
+
+/* 左：关卡号方块 */
+.lv-no {
+  flex: 0 0 auto;
+  width: 76rpx;
+  height: 76rpx;
+  margin-right: var(--sp-3);
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-strong);
+  font-weight: 900;
+  color: var(--ink);
+  background: linear-gradient(rgba(20, 50, 90, .10), rgba(20, 50, 90, .10)), var(--white);
+}
+.lvrow.done .lv-no { background: var(--green); color: var(--white); }
+.lvrow.cur .lv-no { background: var(--pri-deep); color: var(--white); }
+.lvrow.lock .lv-no { background: linear-gradient(rgba(20, 50, 90, .05), rgba(20, 50, 90, .05)), var(--white); color: var(--ink-weak); font-size: 32rpx; }
+
+/* 中：题型标签 + 第 N 关 / 副说明 */
+.lv-mid {
+  flex: 1;
+  min-width: 0;
+}
+.lv-t1 {
+  display: flex;
+  align-items: center;
+}
+.lv-kind {
+  flex: 0 0 auto;
+  margin-right: 12rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #2f6fd0;
+  background: #e8f2ff;
+}
+.lv-name {
+  font-size: var(--fs-body);
+  font-weight: 900;
+  color: var(--ink);
+}
+/* 终关 Boss 徽标（第 30 关）：金色小牌，和普通关一眼区分开 */
+.lv-boss {
+  flex: 0 0 auto;
+  margin-left: 12rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  font-weight: 900;
+  letter-spacing: 1rpx;
+  color: #6b3d00;
+  background: linear-gradient(180deg, #ffe08a, var(--pri));
+  box-shadow: var(--clay-1);
+}
+/* Boss 行（2026-10-17）：暗紫底 + 立绘，和首页「Boss 预告」同一套视觉。
+   以前只是金色描边 + 一枚 BOSS 小牌，和首页的 Boss 叙事完全脱节。 */
+.lvrow.boss {
+  background: linear-gradient(120deg, #4a3060, #7a3a5e);
+  box-shadow: var(--clay-2);
+}
+.lvrow.boss .lv-name { color: var(--white); }
+.lvrow.boss .lv-t2 { color: rgba(255, 255, 255, .72); }
+.lvrow.boss .lv-kind { background: rgba(255, 255, 255, 0.18); color: rgba(255, 255, 255, .92); }
+.lvrow.boss .lv-star { color: rgba(255, 255, 255, 0.32); }
+.lvrow.boss .lv-star.on { color: var(--gold); }
+.lvrow.boss .lv-go,
+.lvrow.boss .lv-go--cur { color: var(--gold); }
+.lvrow.boss .lv-locktip { color: rgba(255, 255, 255, .74); }
+.lvrow.boss .lv-no {
+  background: linear-gradient(180deg, var(--pri), var(--pri-deep));
+}
+/* 未解锁的 Boss 关不要用金色方块（会误以为已开放） */
+.lvrow.lock.boss .lv-no {
+  background: rgba(20, 50, 90, .16);
+}
+.lvrow.lock.boss { opacity: 0.78; }
+
+/* Boss 立绘位（普通关这里是关卡号方块） */
+.lv-boss-ava {
+  flex: 0 0 auto;
+  width: 76rpx;
+  height: 76rpx;
+  margin-right: 20rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.lv-boss-img { width: 72rpx; height: 72rpx; }
+.lv-boss-emoji { font-size: 48rpx; line-height: 1; }
+.lv-t2 {
+  margin-top: 6rpx;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+}
+
+/* 右：星级 / 继续挑战 / 解锁条件 */
+.lv-rt {
+  flex: 0 0 auto;
+  margin-left: 16rpx;
+  text-align: right;
+}
+.lv-stars {
+  font-size: var(--fs-body);
+  letter-spacing: 2rpx;
+}
+.lv-star {
+  color: rgba(20, 50, 90, .14);
+}
+.lv-star.on {
+  color: var(--gold);
+}
+.lv-go {
+  margin-top: 4rpx;
+  font-size: var(--fs-cap);
+  font-weight: 900;
+  color: var(--ink-weak);
+}
+.lv-go--cur {
+  font-size: 24rpx;
+  color: var(--pri-ink);
+}
+/* 已解锁但还没轮到：可直接开打（与「锁定」明确区分） */
+.lv-go--open {
+  font-size: 24rpx;
+  color: var(--sky-deep);
+}
+.lv-locktip {
+  max-width: 190rpx;
+  font-size: var(--fs-cap);
+  font-weight: 700;
+  color: var(--ink-weak);
+  line-height: 1.3;
+}
+
+/* ===== 自定义关卡入口（M3） ===== */
+.custom-level-entry {
+  margin: 8rpx 32rpx 0;
+  height: 120rpx;
+  border-radius: 28rpx;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  box-shadow: var(--clay-2);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.custom-level-entry:active {
+  transform: translateY(4rpx);
+  box-shadow: var(--clay-1);
+}
+.entry-plus-circle {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1;
+  background: var(--pri);
+  border-radius: 50%;
+  box-shadow: var(--clay-1);
+}
+.entry-text {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: var(--ink);
+}
+.entry-arrow {
+  font-size: 32rpx;
+  font-weight: 900;
+  color: #c9d6e8;
+}
+
+/* ===== 游客横幅（M5 REQ-GUEST-1） ===== */
+.guest-banner {
+  margin: 8rpx 32rpx 24rpx;
+  height: 88rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  padding: 0 28rpx;
+  box-sizing: border-box;
+  box-shadow: var(--clay-2);
+}
+.guest-banner-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+.guest-banner-text {
+  flex: 1;
+  font-size: 28rpx;
+  color: var(--ink-sub);
+  font-weight: 700;
+}
+.guest-banner-btn {
+  flex-shrink: 0;
+  padding: 0 24rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  border-radius: var(--r-pill);
+  background: var(--blue);
+  color: var(--white);
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+/* ===== 题型分类 chips（题型分类关卡，2026-09-08） ===== */
+/* 2026-10-18：玩法/题型切换条已删除，对应样式一并移除（见 .wxml 顶部说明） */
+
+
+/* ============ 继续当前关（置顶条） ============ */
+.continue-bar {
+  margin: 0 32rpx 20rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  color: var(--white);
+  background: linear-gradient(160deg, #ffb03a, var(--pri));
+  box-shadow: var(--clay-2);
+}
+.continue-bar:active {
+  transform: translateY(4rpx);
+  box-shadow: var(--clay-1);
+}
+.cb-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cb-b {
+  font-size: 32rpx;
+  font-weight: 900;
+  text-shadow: 0 2rpx 0 rgba(160, 90, 0, 0.35);
+}
+.cb-s {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #fff6e4;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cb-go {
+  flex: 0 0 auto;
+  font-size: 24rpx;
+  font-weight: 900;
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.24);
+  border: 2rpx solid rgba(255, 255, 255, 0.55);
+}
+
+/* ============ 关卡分段标题（每 5 关一段） ============ */
+.lv-group {
+  margin: var(--sp-1) 4rpx var(--sp-1);
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  color: var(--ink-deep);
+  letter-spacing: 2rpx;
+}
+
+/* ============ 挑战主线里程碑宝箱（并进进度卡） ============ */
+.chest-strip {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+.chest-chip {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 10rpx 6rpx;
+  border-radius: 16rpx;
+  background: #f4f7fc;
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #6b7f99;
+}
+.chest-chip__ic { font-size: 28rpx; line-height: 1; }
+.chest-chip__tx {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chest-chip.lock { opacity: 0.6; }
+.chest-chip.ready {
+  background: linear-gradient(135deg, #fff3d6, #ffe4a8);
+  color: #b57900;
+  box-shadow: 0 0 0 3rpx var(--pri);
+}
+.chest-chip.done { background: #eef7ef; color: #1E8E3E; }
+
+/* ============ 年级只读行（2026-10-18 全局年级设置） ============ */
+.grade-line {
+  margin: 0 32rpx 16rpx;
+  padding: 16rpx 22rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--clay-1);
+}
+.grade-line:active { transform: translateY(2rpx); }
+.grade-line__ic { font-size: 32rpx; flex: 0 0 auto; }
+.grade-line__t { font-size: 28rpx; font-weight: 900; color: var(--ink-deep); }
+.grade-line__s { font-size: 24rpx; color: var(--ink-weak); font-weight: 700; }
+.grade-line__go { margin-left: auto; font-size: 24rpx; font-weight: 800; color: #4285F4; }
+
+/* ===== 开打前认词（2026-10-28） =====
+   0 星的关才弹：先认词再打，解决「没学过就考」。样式复用本页白卡 + 黏土阴影基调。 */
+.pv-mask {
+  position: fixed;
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(24, 46, 72, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+.pv-card {
+  width: 100%;
+  max-width: 640rpx;
+  max-height: 78vh;
+  background: var(--white);
+  border-radius: var(--r-md);
+  box-shadow: var(--clay-card);
+  padding: 32rpx 28rpx 24rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.pv-head { flex: 0 0 auto; margin-bottom: 16rpx; }
+.pv-title {
+  display: block;
+  font-size: var(--fs-strong);
+  font-weight: 900;
+  color: var(--ink);
+}
+.pv-sub {
+  display: block;
+  margin-top: 6rpx;
+  font-size: var(--fs-cap);
+  font-weight: 700;
+  color: var(--ink-weak);
+}
+.pv-list {
+  flex: 1 1 auto;
+  max-height: 46vh;
+  margin: 8rpx 0 16rpx;
+}
+.pv-row {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 12rpx;
+  border-bottom: 1rpx solid rgba(20, 50, 90, 0.08);
+}
+.pv-row:last-child { border-bottom: 0; }
+.pv-word-wrap { flex: 0 0 auto; min-width: 210rpx; }
+.pv-word {
+  display: block;
+  font-size: var(--fs-strong);
+  font-weight: 900;
+  color: var(--ink);
+  word-break: break-all;
+}
+.pv-ipa {
+  display: block;
+  margin-top: 2rpx;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+}
+.pv-hint {
+  flex: 1 1 auto;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--ink-sub);
+  padding: 0 12rpx;
+  word-break: break-all;
+}
+.pv-speak {
+  flex: 0 0 auto;
+  width: 64rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  text-align: center;
+  border-radius: var(--r-pill);
+  background: var(--sky-3);
+  font-size: var(--fs-body);
+}
+.pv-speak:active { transform: scale(0.92); }
+.pv-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding-top: 8rpx;
+}
+.pv-skip {
+  flex: 0 0 auto;
+  padding: 22rpx 28rpx;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-body);
+  font-weight: 800;
+  color: var(--ink-sub);
+  background: rgba(20, 50, 90, 0.06);
+}
+.pv-go {
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 22rpx 0;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-strong);
+  font-weight: 900;
+  color: var(--white);
+  background: var(--pri);
+  box-shadow: var(--clay-2);
+}
+.pv-skip:active, .pv-go:active { transform: translateY(2rpx); }

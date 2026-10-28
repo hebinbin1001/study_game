@@ -4,7 +4,7 @@
  * e2e/preview-game.js —— 单词闯关「整屏」预览（HUD + 画布 + 提示 + 选项）
  *
  * 为什么：本机开发者工具截图接口会超时，对局界面的视觉改版看不到效果。
- * 这里把**真实的 app.wxss + pages/game/game.wxss** 转成浏览器 CSS（rpx → px），
+ * 这里把**真实的 app.wxss + pkg-games/game/game.wxss** 转成浏览器 CSS（rpx → px），
  * 画布部分用渲染层导出的纯函数算几何，拼出一整屏给浏览器截图看。
  *
  * 用法：node e2e/preview-game.js → e2e/reports/preview/game.html
@@ -132,7 +132,7 @@ function pageHtml(sc) {
   ].join('');
 }
 
-const css = [readCss('app.wxss'), scopeCss(readCss('pages/game/game.wxss'), '.pg-game')].join('\n');
+const css = [readCss('app.wxss'), scopeCss(readCss('pkg-games/game/game.wxss'), '.pg-game')].join('\n');
 
 const html = [
   '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">',

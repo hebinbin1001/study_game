@@ -15,8 +15,8 @@
 const H = require('./lib/harness');
 const challenge = require('../miniprogram/utils/challenge');
 
-const LINE_URL = '/pages/level/level?mode=quiz';
-const QUIZ_PAGE = 'pages/quiz/quiz';
+const LINE_URL = '/pkg-games/level/level?mode=quiz';
+const QUIZ_PAGE = 'pkg-games/quiz/quiz';
 
 H.runSuite('verify-quiz（限时抢答）', async function (miniProgram, ck) {
   console.log('[1/5] 玩法 tab 里能看到「限时抢答」且是玩法线');
@@ -38,7 +38,7 @@ H.runSuite('verify-quiz（限时抢答）', async function (miniProgram, ck) {
     '实际 = ' + JSON.stringify(sub0) + ' / DOM = ' + JSON.stringify(sub));
 
   console.log('[3/5] 进对局：冻结计时 → 题干 + 4 个选项');
-  const page = await H.goto(miniProgram, '/pages/quiz/quiz?challenge=1&line=mode_quiz&grade=kg&level=1', 1600);
+  const page = await H.goto(miniProgram, '/pkg-games/quiz/quiz?challenge=1&line=mode_quiz&grade=kg&level=1', 1600);
   ck.check('落到限时抢答页', page.path === QUIZ_PAGE, '实际 = ' + page.path);
   ck.check('根容器渲染', !!(await H.waitForSelector(page, '.page-quiz', 8000)));
   await page.callMethod('_testStopTimer');            // 冻结倒计时，避免用例等真实秒数

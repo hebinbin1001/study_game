@@ -16,7 +16,7 @@
  * 结局规则来源（与产品实现一致）：
  *   - game/engine.js _update：答错逼近动画结束 → G.lives--，lives<=0 立即 _endLevel(false)
  *   - game/engine.js _nextQuestion：答满 totalQ 题 → _endLevel(true)
- *   - pages/result/result.js：失败态（win=false）不计星、不写星级档
+ *   - pkg-games/result/result.js：失败态（win=false）不计星、不写星级档
  *
  * 运行：node tests/unit/stars-reachable.test.js
  */

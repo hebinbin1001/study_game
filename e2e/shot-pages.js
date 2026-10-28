@@ -22,44 +22,44 @@ const OUT_DIR = path.join(__dirname, 'reports', 'shots');
 
 // 玩法页（与 app.json / 玩法 tab 对齐）+ 典型内容页
 const PAGES = [
-  { id: 'game', url: '/pages/game/game?grade=kg&level=1' },
+  { id: 'game', url: '/pkg-games/game/game?grade=kg&level=1' },
   // 英语词多的学段：截「音标展示」用（kg 里汉字题占比高，不一定抽得到英语题）
   // type=word 锁定英语单词题，专门用来审查「音标展示」。
   // 用初一（g7）而不是三年级：g7 的英语词条 100% 有音标，
   // 三年级还混着 hot dog / pencil-case 这类词典查不到的多词短语，截图不稳定。
-  { id: 'game-en', url: '/pages/game/game?grade=g7&level=1&type=word' },
+  { id: 'game-en', url: '/pkg-games/game/game?grade=g7&level=1&type=word' },
   // Boss 关（每学段第 30 关）：用来复查「学段 → Boss 立绘」映射是否生效
-  { id: 'game-boss', url: '/pages/game/game?challenge=1&grade=kg&level=30' },
-  { id: 'math24', url: '/pages/math24/math24' },
-  { id: 'math-balance', url: '/pages/math-balance/math-balance' },
-  { id: 'math-sprint', url: '/pages/math-sprint/math-sprint' },
-  { id: 'memory-grid', url: '/pages/memory-grid/memory-grid' },
-  { id: 'word-build', url: '/pages/word-build/word-build' },
-  { id: 'idiom-build', url: '/pages/idiom-build/idiom-build' },
-  { id: 'match', url: '/pages/match/match' },
-  { id: 'link', url: '/pages/link/link' },
-  { id: 'snake', url: '/pages/snake/snake' },
-  { id: 'sudoku', url: '/pages/sudoku/sudoku' },
-  { id: 'g2048', url: '/pages/g2048/g2048' },
-  { id: 'klotski', url: '/pages/klotski/klotski' },
+  { id: 'game-boss', url: '/pkg-games/game/game?challenge=1&grade=kg&level=30' },
+  { id: 'math24', url: '/pkg-games/math24/math24' },
+  { id: 'math-balance', url: '/pkg-games/math-balance/math-balance' },
+  { id: 'math-sprint', url: '/pkg-games/math-sprint/math-sprint' },
+  { id: 'memory-grid', url: '/pkg-games/memory-grid/memory-grid' },
+  { id: 'word-build', url: '/pkg-games/word-build/word-build' },
+  { id: 'idiom-build', url: '/pkg-games/idiom-build/idiom-build' },
+  { id: 'match', url: '/pkg-games/match/match' },
+  { id: 'link', url: '/pkg-games/link/link' },
+  { id: 'snake', url: '/pkg-games/snake/snake' },
+  { id: 'sudoku', url: '/pkg-games/sudoku/sudoku' },
+  { id: 'g2048', url: '/pkg-games/g2048/g2048' },
+  { id: 'klotski', url: '/pkg-games/klotski/klotski' },
   // 一笔画（2026-10-18 换成 demo 的 35 关）：第 7 关 = 五角星，看起点/已走线/提示按钮的排版
-  { id: 'one-stroke', url: '/pages/one-stroke/one-stroke?level=7' },
+  { id: 'one-stroke', url: '/pkg-games/one-stroke/one-stroke?level=7' },
   // 最难的一关（13 点 25 线）用来确认密集图的圆点不会糊在一起
-  { id: 'one-stroke-hard', url: '/pages/one-stroke/one-stroke?level=35' },
+  { id: 'one-stroke-hard', url: '/pkg-games/one-stroke/one-stroke?level=35' },
   // 找规律（2026-10-18 新增）：第 1 关看 6 格数字题，第 28 关看 8 格图形题（最挤的布局）
-  { id: 'pattern', url: '/pages/pattern/pattern?level=1' },
-  { id: 'pattern-hard', url: '/pages/pattern/pattern?level=28' },
+  { id: 'pattern', url: '/pkg-games/pattern/pattern?level=1' },
+  { id: 'pattern-hard', url: '/pkg-games/pattern/pattern?level=28' },
   // 认钟表（2026-10-18 新增）：第 1 关整点半点、第 30 关 24 时制（数字牌布局）
-  { id: 'clock', url: '/pages/clock/clock?level=1' },
-  { id: 'clock-hard', url: '/pages/clock/clock?level=30' },
+  { id: 'clock', url: '/pkg-games/clock/clock?level=1' },
+  { id: 'clock-hard', url: '/pkg-games/clock/clock?level=30' },
   // 词义迷宫（2026-10-21 重做）：第 1 关 3 道门、第 30 关 7 道门（最挤）
-  { id: 'maze', url: '/pages/maze/maze?level=1' },
-  { id: 'maze-hard', url: '/pages/maze/maze?level=30' },
+  { id: 'maze', url: '/pkg-games/maze/maze?level=1' },
+  { id: 'maze-hard', url: '/pkg-games/maze/maze?level=30' },
   // 汉诺塔（2026-10-18 新增）：第 1 关 3 盘、第 6 关 8 盘（最高）
-  { id: 'hanoi', url: '/pages/hanoi/hanoi?level=1' },
-  { id: 'hanoi-hard', url: '/pages/hanoi/hanoi?level=6' },
-  { id: 'quiz', url: '/pages/quiz/quiz?challenge=1&line=mode_quiz&grade=kg&level=1' },
-  { id: 'bounce', url: '/pages/bounce/bounce' },
+  { id: 'hanoi', url: '/pkg-games/hanoi/hanoi?level=1' },
+  { id: 'hanoi-hard', url: '/pkg-games/hanoi/hanoi?level=6' },
+  { id: 'quiz', url: '/pkg-games/quiz/quiz?challenge=1&line=mode_quiz&grade=kg&level=1' },
+  { id: 'bounce', url: '/pkg-games/bounce/bounce' },
   { id: 'index', url: '/pages/index/index' },
   { id: 'playlist', url: '/pages/playlist/playlist' },
   { id: 'study', url: '/pages/study/study' },
@@ -67,9 +67,9 @@ const PAGES = [
   // 学习报告：检查「薄弱题型（错题分布）」是否显示中文类型名
   { id: 'report', url: '/pages/report/report' },
   { id: 'wrong-review', url: '/pages/wrong-review/wrong-review' },
-  { id: 'level', url: '/pages/level/level' },
-  { id: 'level-line', url: '/pages/level/level?mode=link' },
-  { id: 'puzzle-level', url: '/pages/puzzle-level/puzzle-level?mode=onestroke' },
+  { id: 'level', url: '/pkg-games/level/level' },
+  { id: 'level-line', url: '/pkg-games/level/level?mode=link' },
+  { id: 'puzzle-level', url: '/pkg-games/puzzle-level/puzzle-level?mode=onestroke' },
   { id: 'bank', url: '/pages/bank/bank' },
   { id: 'rank', url: '/pages/rank/rank' },
   { id: 'rank-info', url: '/pages/rank-info/rank-info?stars=146' },
@@ -83,7 +83,7 @@ const PAGES = [
   { id: 'daily-challenge', url: '/pages/daily-challenge/daily-challenge' },
   { id: 'season', url: '/pages/season/season' },
   { id: 'pk', url: '/pages/pk/pk' },
-  { id: 'result', url: '/pages/result/result?win=1&score=120&correctCount=8&totalQ=10&grade=kg&level=1' }
+  { id: 'result', url: '/pkg-games/result/result?win=1&score=120&correctCount=8&totalQ=10&grade=kg&level=1' }
 ];
 
 function parseArgs(argv) {

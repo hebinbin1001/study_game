@@ -59,14 +59,26 @@ check(tabStateOk, 'tabBar 选中/未选中图标必须不同（防止选中态�
   check(ok, `组件 ${c} 四件套齐全`);
 });
 
+// 2026-10-28：21 个玩法页 + level / puzzle-level / result 已迁进分包 pkg-games
+// （主包 1.76MB → 1.27MB）。页面源码可能在 pages/ 或 pkg-games/ 下，
+// 这里统一解析，避免每挪一次目录就改一串字符串。
+function mpPath(pg, ext) {
+  const a = `miniprogram/pages/${pg}/${pg}.${ext}`;
+  if (fs.existsSync(a)) return a;
+  return `miniprogram/pkg-games/${pg}/${pg}.${ext}`;
+}
+function mpRead(pg, ext) {
+  return fs.readFileSync(mpPath(pg, ext), 'utf8');
+}
+
 // 3) 玩法 tab：全部已开放玩法跳转 URL 存在，弹弹球走独立无尽模式页
 // 玩法目录已抽到 utils/game-catalog.js（2026-09-13）：清单断言看目录文件，
 // 再单独校验玩法 tab 确实引用这份公共目录（防止两处又各写一份）。
 const src = fs.readFileSync('miniprogram/utils/game-catalog.js', 'utf8');
 const playlistSrc = fs.readFileSync('miniprogram/pages/playlist/playlist.js', 'utf8');
 check(playlistSrc.indexOf('utils/game-catalog') >= 0, '玩法 tab 使用公共玩法目录（utils/game-catalog.js）');
-const urls = [...src.matchAll(/url: '(\/pages\/[^']+)'/g)].map((m) => m[1]);
-// 允许带 query（如 /pages/level/level?mode=link）：校验时只看路径部分
+const urls = [...src.matchAll(/url: '(\/(?:pages|pkg-games)\/[^']+)'/g)].map((m) => m[1]);
+// 允许带 query（如 /pkg-games/level/level?mode=link）：校验时只看路径部分
 const missing = urls.filter((u) => !fs.existsSync(`miniprogram${u.split('?')[0]}.js`));
 check(missing.length === 0, `玩法跳转 ${urls.length} 个 URL 均存在` + (missing.length ? ' 缺:' + missing : ''));
 const unlocked = (src.match(/unlocked: true/g) || []).length;
@@ -77,16 +89,16 @@ check(/key: 'klotski'[^}]*puzzle-level\?mode=klotski/.test(src.replace(/\s+/g, '
 const casualEntries = src.match(/section: 'casual'[^}]*url: '([^']+)'/g) || [];
 check(casualEntries.length >= 8, '数字智力类至少 8 款有 url（实际 ' + casualEntries.length + '）');
 const casualNeedsLevelPage = src.match(/key: '(?!bounce')[^']+'[^}]*section: 'casual'[^}]*url: '([^']+)'/g) || [];
-check(casualNeedsLevelPage.every((e) => e.indexOf('url: \'/pages/puzzle-level/puzzle-level?mode=') >= 0),
+check(casualNeedsLevelPage.every((e) => e.indexOf('url: \'/pkg-games/puzzle-level/puzzle-level?mode=') >= 0),
   '除无尽模式弹弹球外，数字智力类全部走关卡页 puzzle-level', casualNeedsLevelPage.length + ' 款');
 const bounceUnlocked = /key: 'bounce',[^}]*unlocked: true/.test(src.replace(/\s+/g, ' '));
 check(bounceUnlocked, '弹弹球已开放');
-check(/key: 'bounce',[^}]*url: '\/pages\/bounce\/bounce'/.test(src.replace(/\s+/g, ' ')),
+check(/key: 'bounce',[^}]*url: '\/pkg-games\/bounce\/bounce'/.test(src.replace(/\s+/g, ' ')),
   '弹弹球入口指向玩法页');
 
 // 4) 每日一题 / checkin / 排行榜 / 自定义 关键页存在
 ['daily-question', 'checkin', 'rank', 'custom-levels', 'bank', 'sudoku', 'match', 'link', 'snake', 'letter-bubble', 'math24', 'g2048', 'klotski', 'agreement'].forEach((pg) => {
-  check(fs.existsSync(`miniprogram/pages/${pg}/${pg}.js`), `关键页 pages/${pg} 存在`);
+  check(fs.existsSync(mpPath(pg, 'js')), `关键页 ${pg} 存在`);
 });
 
 // 5) auth/app/index 关键改动痕迹（协议前置/无自动登录）
@@ -105,14 +117,14 @@ check(idxSrc.includes('_doLogin') && idxSrc.includes('ensureAgreement'), '首页
 //   分享漏了 = 右上角转发不出去。静态断言把它们钉住，改页面时不会悄悄丢。
 const GATED_PAGES = ['avatar', 'rank', 'wrong-book', 'checkin', 'achievement', 'bank'];
 GATED_PAGES.forEach((pg) => {
-  const js = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.js`, 'utf8');
-  const wxml = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.wxml`, 'utf8');
+  const js = mpRead(pg, 'js');
+  const wxml = mpRead(pg, 'wxml');
   check(js.includes('auth.requireLogin'), `受限页 pages/${pg} 已接门禁（auth.requireLogin）`);
   check(wxml.includes('class="gate-bar"') && wxml.includes('bindtap="onGateLogin"'),
     `受限页 pages/${pg} 有登录引导条 + 「去登录」按钮`);
 });
-const resultJs = fs.readFileSync('miniprogram/pages/result/result.js', 'utf8');
-const resultWxml = fs.readFileSync('miniprogram/pages/result/result.wxml', 'utf8');
+const resultJs = fs.readFileSync('miniprogram/pkg-games/result/result.js', 'utf8');
+const resultWxml = fs.readFileSync('miniprogram/pkg-games/result/result.wxml', 'utf8');
 check(resultWxml.includes('class="gate-bar"') && resultJs.includes('onLoginTap'),
   '结算页有游客「登录保存成绩」提示条（M5 T2.4）');
 const appWxssSrc = fs.readFileSync('miniprogram/app.wxss', 'utf8');
@@ -120,7 +132,7 @@ check(appWxssSrc.includes('.gate-bar'), '门禁引导条样式统一在 app.wxss
 
 // 分享：关键页必须能转发（M5 T4.1）
 ['result', 'game', 'me', 'rank', 'rank-info', 'achievement', 'wrong-book', 'avatar', 'checkin', 'bank'].forEach((pg) => {
-  const js = fs.readFileSync(`miniprogram/pages/${pg}/${pg}.js`, 'utf8');
+  const js = mpRead(pg, 'js');
   check(js.includes('onShareAppMessage'), `pages/${pg} 支持分享（onShareAppMessage）`);
 });
 

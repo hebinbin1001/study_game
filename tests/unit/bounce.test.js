@@ -15,7 +15,7 @@ global.wx = {
 let def = null;
 const prevPage = global.Page;
 global.Page = function (o) { def = o; };
-require('../../miniprogram/pages/bounce/bounce');
+require('../../miniprogram/pkg-games/bounce/bounce');
 global.Page = prevPage;
 
 s.test('只从纯英文 w1 词条出题，并带可用释义', () => {
@@ -32,7 +32,7 @@ s.test('只从纯英文 w1 词条出题，并带可用释义', () => {
 });
 
 s.test('下落节奏不短于 3 秒，生成间隔不短于 1.5 秒', () => {
-  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages/bounce/bounce.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/bounce/bounce.js'), 'utf8');
   const fall = parseInt((/FALL_MS\s*=\s*(\d+)/.exec(src) || [])[1], 10);
   const spawn = parseInt((/SPAWN_MS\s*=\s*(\d+)/.exec(src) || [])[1], 10);
   const step = parseFloat((/b\.y\s*\+=\s*([\d.]+)/.exec(src) || [])[1]);
@@ -42,7 +42,7 @@ s.test('下落节奏不短于 3 秒，生成间隔不短于 1.5 秒', () => {
 });
 
 s.test('正确球与错误球同色，避免靠颜色作答', () => {
-  const css = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages/bounce/bounce.wxss'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/bounce/bounce.wxss'), 'utf8');
   s.assert.contains(css, '.ball.ok, .ball.bad');
   s.assert.ok(!/\.ball\.ok\s*\{[^}]*#7bd389/.test(css), '正确球仍有专属绿色');
   s.assert.ok(!/\.ball\.bad\s*\{[^}]*#ff8fae/.test(css), '错误球仍有专属红色');

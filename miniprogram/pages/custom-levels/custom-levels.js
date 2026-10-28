@@ -127,7 +127,7 @@ Page({
     var self = this;
     request.get('/api/level/import?code=' + e.currentTarget.dataset.code).then(function (data) {
       wx.navigateTo({
-        url: '/pages/game/game?customLevel=' + encodeURIComponent(JSON.stringify(data))
+        url: '/pkg-games/game/game?customLevel=' + encodeURIComponent(JSON.stringify(data))
       });
     }).catch(function () {
       wx.showToast({ title: '加载失败', icon: 'none' });

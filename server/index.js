@@ -35,6 +35,8 @@ const seasonRouter = require("./routes/season");
 const pkRouter = require("./routes/pk");
 // 2026-10-28 新增：订阅消息（端上拉模板配置 + 上报「允许」）
 const subscribeRouter = require("./routes/subscribe");
+// 生词本（2026-10-28）：收藏 / 取消 / 列表 / 角标
+const favoriteRouter = require("./routes/favorite");
 
 const app = express();
 
@@ -128,6 +130,7 @@ app.use("/api/season", openid, seasonRouter);
 app.use("/api/pk", openid, pkRouter);
 // 订阅消息（2026-10-28）：模板 ID 走环境变量，未配置时 config 返回空对象，端上不弹框
 app.use("/api/subscribe", openid, subscribeRouter);
+app.use("/api/favorite", openid, favoriteRouter);
 // 头像图片（2026-09-19）：公开可读，不能挂 openid 中间件（<image> 不带自定义头）
 app.use("/api/avatar", avatarFileRouter);
 

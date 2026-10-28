@@ -25,7 +25,7 @@ const H = require('./lib/harness');
 const C = require('../miniprogram/utils/constants');
 const shoot = require('../miniprogram/game/shoot');
 
-const GAME_URL = '/pages/game/game?grade=kg&level=1';
+const GAME_URL = '/pkg-games/game/game?grade=kg&level=1';
 const EXPECTED_TOTAL_Q = 10;
 const INIT_LIVES = C.GAME_CONFIG.initLives;
 const LIVES_TEXT = '❤'.repeat(INIT_LIVES);
@@ -60,8 +60,8 @@ H.runSuite('verify-game（字母射击 · 2026-09-18 改版）', async function 
   const page = await H.goto(miniProgram, GAME_URL, 2000);
 
   let cur = await miniProgram.currentPage();
-  ck.check('进入关卡后停留在游戏页（未自动跳结算页）', cur.path === 'pages/game/game', '实际路径 = ' + cur.path);
-  if (cur.path !== 'pages/game/game') return;
+  ck.check('进入关卡后停留在游戏页（未自动跳结算页）', cur.path === 'pkg-games/game/game', '实际路径 = ' + cur.path);
+  if (cur.path !== 'pkg-games/game/game') return;
 
   ck.check('游戏页根容器 .gs-page 已渲染', !!(await H.waitForSelector(page, '.gs-page', 8000)));
 
@@ -181,13 +181,13 @@ H.runSuite('verify-game（字母射击 · 2026-09-18 改版）', async function 
     if (!ok) { await page.callMethod('_testTapCorrect'); }
     await page.waitFor(1600);
     const cur2 = await miniProgram.currentPage();
-    if (cur2.path !== 'pages/game/game') break;
+    if (cur2.path !== 'pkg-games/game/game') break;
   }
   await page.waitFor(1500);
   const endPage = await miniProgram.currentPage();
   ck.check('护盾耗尽后离开游戏页（跳结算页）',
-    endPage.path === 'pages/result/result', '实际 = ' + endPage.path);
-  if (endPage.path === 'pages/result/result') {
+    endPage.path === 'pkg-games/result/result', '实际 = ' + endPage.path);
+  if (endPage.path === 'pkg-games/result/result') {
     const rd = await endPage.data();
     ck.check('结算页进入失败态（data.failed = true）', rd.failed === true, '实际 failed = ' + rd.failed);
     ck.check('结算页标题为失败文案', rd.titleText === '再接再厉！', '实际 = ' + JSON.stringify(rd.titleText));

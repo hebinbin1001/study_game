@@ -120,6 +120,12 @@ Page({
   },
 
   // 给未解锁形象附加「达成条件」文案与是否达标（基于 /api/rank/info，与后端判定同口径）
+  //
+  // 口径对齐（2026-10-28 修）：两条线各自读「服务端真正拿去比的那个数」——
+  //   · 星星类：服务端比 RankRecord.stars 原始值（晋级考试只封顶段位，不封顶皮肤奖励）
+  //             → 端上必须用 rawStars。原来读封顶后的 info.stars，会被封顶的玩家看到
+  //             「还差 131 星」，点下去却直接解锁成功。
+  //   · 段位类：服务端比的是封顶后的段位 → 端上用 info.rankId（它就是封顶后现算的）。
   _attachHint: function (item) {
     if (!item || item.unlocked) return item;
     var info = this.data.rankInfo || {};
@@ -127,7 +133,7 @@ Page({
     var hint = '';
     var can = false;
     if (item.unlockType === 'stars') {
-      var curStars = info.stars || 0;
+      var curStars = (typeof info.rawStars === 'number') ? info.rawStars : (info.stars || 0);
       can = curStars >= v;
       hint = can
         ? '条件已满足，可直接解锁'

@@ -58,6 +58,10 @@ Page({
     correct: false,
     showFeedback: false,
     completed: false,
+    // 2026-10-28：原来 currentItem 为空且 completed 为 false 时，题卡区整块空白 ——
+    // 首屏加载中、请求失败都落在这个状态。这两个标记把它们区分出来。
+    loading: true,
+    loadError: false,
     noDue: false,          // 「继续复习」时若没有到期题 → 完成页给明确说明
     correctCount: 0,
     totalCount: 0,         // ⚠️ 现在是「本关题数」，不再是整池总数
@@ -138,7 +142,7 @@ Page({
         self._levelActive = false;
         self.setData({
           completed: true, totalCount: 0, currentItem: null, noDue: true,
-          hasMore: false, levelRate: 0
+          hasMore: false, levelRate: 0, loading: false, loadError: false
         });
         return;
       }
@@ -147,7 +151,12 @@ Page({
       self._startLevel(pending);
     }).catch(function () {
       self._levelActive = false;
-      self.setData({ completed: true, totalCount: 0, currentItem: null, hasMore: false });
+      // 2026-10-28：失败原来直接塞 completed: true —— 用户看到的是「复习完成 🎉」庆祝视图，
+      // 会把「网络挂了」误认成「今天没题了」。改为独立失败态 + 重试入口。
+      self.setData({
+        loading: false, loadError: true,
+        completed: false, currentItem: null, totalCount: 0, hasMore: false
+      });
     });
   },
 
@@ -162,6 +171,8 @@ Page({
       hasMore: pool.length > level.length,
       currentIndex: 0,
       currentItem: level[0],
+      loading: false,
+      loadError: false,
       correctCount: 0,
       levelRate: 0,
       progressPct: 0,

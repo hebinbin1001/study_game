@@ -1,0 +1,20 @@
+<!-- 玩法操作引导（2026-10-28）：每款玩法只在第一次进入时弹一次。
+     卡片式而不是气泡式：玩法页布局各不相同（画布 / 网格 / 列表），
+     气泡定位到具体元素要逐页适配，且页面重排后会指错位置。 -->
+<view wx:if="{{show}}" class="hp-mask" catchtouchmove="noop">
+  <view class="hp-dim"></view>
+  <view class="hp-card">
+    <view class="hp-head">
+      <text class="hp-ic">{{ic}}</text>
+      <text class="hp-t">{{t}}</text>
+    </view>
+    <view class="hp-list">
+      <view class="hp-li" wx:for="{{tips}}" wx:key="*this">
+        <text class="hp-n">{{index + 1}}</text>
+        <text class="hp-tx">{{item}}</text>
+      </view>
+    </view>
+    <view class="hp-btn" bindtap="close">知道了，开打</view>
+    <view class="hp-hint">每款玩法只提示这一次</view>
+  </view>
+</view>

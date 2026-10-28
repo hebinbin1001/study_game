@@ -1,14 +1,24 @@
-/* 首页 Tab —— 二期重构（2026-10-18）
+/* 首页 Tab —— 二期重构（2026-10-18）+ 批 4 精修（2026-10-28）
  *
- * 三条用户反馈驱动的结构变化：
+ * 三条用户反馈驱动的结构变化（2026-10-18）：
  *   ① 战士区瘦身：只留立绘 + 名字/段位 + 等级 + 一条进度 + 一行皮肤，
  *      原来 5 格皮肤条（skin-strip）不再铺开；
  *   ② Boss 与出战合并成一张「下一战」卡（深色信息条 + 橙色动作区），
  *      不再出现两张互相抢主视觉的大卡；
  *   ③ 今日目标 / 每日一题 / 每日挑战 收进同一张今日任务卡。
  *
- * 段位只保留立绘左侧一处（点它进段位详情），HUD 不再重复。
- * 铺满策略：page-home 仍纵向 flex + min-height:100vh，内容不足时底部留白由 safe-gap 收口。
+ * 批 4 精修做的是「同一套令牌下的对齐」，不重排结构：
+ *   · 左右边距从「页面 24 + 进度条 26 + 区块 4」三套，收成一条 --page-x(32)，子元素左右 margin 归 0；
+ *   · 字号从 15 档（17/20/21/22/23/24/25/26/30/34/36/38/40/52/56）收成 5 档；
+ *   · 圆角从 6 档（999/30/26/24/22/20）收成 3 档；
+ *   · 进度条从「凸起的白条」改成「凹陷的槽 + 凸起的填充」——黏土方向里，
+ *     槽必须凹、填充必须凸，两者同向就不会有立体感。
+ *
+ * 两处可读性修复（截图量出来的，不是审美问题）：
+ *   ① `.lv-line` 原来是白色文字压在天空渐变的浅蓝段上，对比度约 1.5:1，
+ *      「再得 N⭐ 进 XX」基本看不清 → 改深蓝 --ink-deep；
+ *   ② HUD 里两个 68rpx 圆形按钮低于 44px 触控下限 → 视觉尺寸不动，
+ *     用 ::after 把命中区撑到 88rpx（与 game 页 .gs-icon 同一手法）。
  */
 
 .page-home {
@@ -16,43 +26,47 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: 12rpx 24rpx 0;
-  background: linear-gradient(180deg, #4a9fe8 0%, #7dbdf2 32%, #b9e0ff 64%, #d8efff 100%);
+  padding: var(--sp-1) var(--page-x) 0;
+  /* 四段渐变收成三段（中间两段 #7dbdf2 / #b9e0ff 没有语义，也没有别的元素用它）。
+     三段之间的明度差仍然均匀，过渡看不出接缝。 */
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 36%, var(--sky-3) 100%);
 }
 
 /* ============ ① HUD 胶囊条（段位胶囊已移除） ============ */
 .hud-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  /* 12 → 16：两个圆形按钮的热区靠 ::after 撑到 88rpx，间距小于 88-68=20 就会重叠，
+     取 16 时重叠 4rpx（可接受），原来 12 会重叠 8rpx。 */
+  gap: var(--sp-2);
   padding: 4rpx 0 6rpx;
 }
 .hud-pill {
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, .94);
-  color: #2f4a6b;
-  font-size: 22rpx;
+  color: var(--ink-deep);
+  font-size: var(--fs-cap);
   font-weight: 800;
-  border-radius: 999rpx;
-  padding: 10rpx 20rpx;
-  box-shadow: 0 4rpx 0 rgba(20, 70, 140, .12);
+  border-radius: var(--r-pill);
+  padding: 10rpx var(--sp-2);
+  box-shadow: var(--clay-1);
   white-space: nowrap;
 }
-.hud-pill__n { font-size: 26rpx; font-weight: 900; margin: 0 4rpx; }
+.hud-pill__n { font-size: var(--fs-body); font-weight: 900; margin: 0 4rpx; }
 .hud-pill:active { transform: translateY(2rpx); }
 
 /* 年级（2026-10-18）：HUD 里唯一的「可切换项」，用蓝底白字和计数胶囊区分开，
    避免玩家以为它跟星星一样只是个数字。 */
 .hud-pill--grade {
-  background: linear-gradient(180deg, #4a9fe8, #3b8bd6);
-  color: #fff;
+  background: linear-gradient(180deg, var(--sky-1), var(--sky-deep));
+  color: var(--white);
   padding-right: 14rpx;
-  box-shadow: 0 4rpx 0 rgba(20, 70, 140, .28);
+  box-shadow: var(--clay-1);
 }
-.hud-pill__ic { font-size: 24rpx; margin-right: 6rpx; }
+.hud-pill__ic { font-size: var(--fs-cap); margin-right: 6rpx; }
 .hud-pill__gv {
-  font-size: 23rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   max-width: 150rpx;
   overflow: hidden;
@@ -61,36 +75,88 @@
 }
 .hud-pill__go {
   margin-left: 4rpx;
-  font-size: 22rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
   opacity: .85;
 }
 /* 没选过年级：橙色高亮，替代原来那条要滚动才看得到的引导 */
 .hud-pill--grade.is-empty {
-  background: linear-gradient(180deg, #ffb703, #f08c00);
-  box-shadow: 0 4rpx 0 rgba(190, 110, 0, .35);
+  background: linear-gradient(180deg, var(--pri), var(--pri-deep));
+  box-shadow: var(--clay-1);
 }
 .hud-sp { flex: 1; }
+
 .snd-btn {
+  position: relative;
   width: 68rpx;
   height: 68rpx;
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, .94);
-  box-shadow: 0 4rpx 0 rgba(20, 70, 140, .12);
-  font-size: 30rpx;
+  box-shadow: var(--clay-1);
+  font-size: var(--fs-strong);
   /* 高度写死 → line-height 必须同值，否则文字贴顶（e2e/check-wxss.js 守这条） */
   line-height: 68rpx;
   padding: 0;
   margin: 0;
 }
-.snd-btn::after { border: none; }
+/* 命中区撑到 88rpx（2026-10-28）：视觉仍是 68rpx 的圆，热区是 88rpx 的方。
+   按钮本身 34px 低于 44px 下限，而 HUD 不适合真的长高 —— 这一层是纯命中区，
+   没有背景色，不会改变任何视觉。 */
+.snd-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 88rpx;
+  height: 88rpx;
+  margin: -44rpx 0 0 -44rpx;
+  border: none;
+  border-radius: 50%;
+}
 .snd-btn:active { transform: translateY(2rpx); }
+
+/* ============ 晋级考试直达条（2026-10-28） ============
+   只在 needExam 为真时出现，位置紧贴段位进度条 —— 玩家刚看到「星星不动」，
+   下一行就是原因和出口。配色与「下一战」卡的橙色动作区同源，
+   保持「这条是要我点它」的一致性。 */
+.exam-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: var(--sp-2) 0 0;
+  padding: var(--sp-2);
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, .96);
+  box-shadow: var(--clay-2);
+}
+.exam-bar__ic { font-size: var(--fs-title); flex: 0 0 auto; }
+.exam-bar__t { flex: 1; min-width: 0; }
+.exam-bar__b {
+  font-size: var(--fs-body);
+  font-weight: 800;
+  color: var(--ink-deep);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.exam-bar__s { font-size: var(--fs-cap); color: var(--ink-sub); margin-top: 2rpx; }
+.exam-bar__btn {
+  flex: 0 0 auto;
+  padding: 10rpx var(--sp-3);
+  border-radius: var(--r-pill);
+  background: linear-gradient(180deg, var(--pri), var(--pri-deep));
+  color: var(--white);
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  box-shadow: var(--clay-1);
+}
+.exam-bar:active { transform: translateY(2rpx); }
 
 /* ============ ② 战士舞台（比一期矮一档） ============ */
 .w-stage { margin-top: 2rpx; }
 .w-img { width: 280rpx; height: 280rpx; }
-/* 段位名可能很长（「星耀 VII」/ 云端返回的全名），必须能省略，否则会压到立绘上 */
+/* 段位名可能很长（「星耀 VII」/云端返回的全名），必须能省略，否则会压到立绘上 */
 .w-name, .w-rank {
   max-width: 220rpx;
   overflow: hidden;
@@ -98,66 +164,95 @@
   text-overflow: ellipsis;
 }
 
-/* 等级进度：直接贴舞台，天空底上不再套白卡 */
+/* 段位进度（贴着舞台，天空底上不套白卡）
+   2026-10-28：原来这里是白字 —— 在渐变中段 var(--sky-2) 上对比度只有 1.5:1，
+   「再得 N⭐ 进 XX」实际看不清。改成深蓝后同时在视觉上「压住」进度条。 */
 .lv-inline {
-  margin: 2rpx 26rpx 0;
+  margin: var(--sp-1) 0 0;
 }
 .lv-line {
   display: flex;
   align-items: baseline;
-  font-size: 21rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
-  color: #ffffff;
+  color: var(--ink-deep);
 }
-.lv-line__t { text-shadow: 0 2rpx 0 rgba(20, 80, 150, .28); }
-.lv-line__s { margin-left: auto; color: #eaf6ff; font-weight: 700; }
+/* 两侧都要能省略：flex 子项默认 min-width:auto，长段位名（「钻石 VII · 进阶」）
+   会把右侧「再得 N⭐ 进 XX」顶出去，撑破容器且不报错 —— 这在 21rpx 时代不明显，
+   字号提到 24rpx 后一定会撞上。 */
+.lv-line__t {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.lv-line__s {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-left: var(--sp-2);
+  color: var(--ink-sub);
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* 槽：凹进去（inset），填充：凸出来（外阴影 + 顶部高光）。
+   两者必须反向，否则整条读起来是「一块贴纸」而不是「一道槽」。 */
 .lv-track {
   height: 12rpx;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, .48);
-  margin-top: 8rpx;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, .55);
+  box-shadow: inset 0 2rpx 4rpx rgba(20, 50, 90, .18);
+  margin-top: var(--sp-1);
   overflow: hidden;
 }
 .lv-fill {
   height: 100%;
   min-width: 8rpx;
-  border-radius: 999rpx;
-  background: linear-gradient(90deg, #fff2b8, #ffd166);
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--gold), var(--pri));
+  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, .55);
   transition: width .3s;
 }
 
 /* 皮肤只留一行：收集进度 + 下一目标
-   2026-10-18 两次截图复查：深蓝字在天空底上发灰、白字又发虚 —— 改成浅白胶囊 + 深色字，最稳 */
+   2026-10-18 两次截图复查：深蓝字在天空底上发灰、白字又发虚 —— 改成浅白胶囊 + 深色字，最稳。
+   2026-10-28：白胶囊换 --clay-card（白叠白看不出 --clay-1/2 的顶部高光，必须用 card 档）。 */
 .skin-line {
   align-self: center;
-  margin: 12rpx 0 0;
-  padding: 6rpx 20rpx;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, .78);
+  display: flex;
+  align-items: center;
+  min-height: 56rpx;
+  margin: var(--sp-2) 0 0;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, .80);
+  box-shadow: var(--clay-card);
   text-align: center;
-  font-size: 21rpx;
+  font-size: var(--fs-cap);
   font-weight: 700;
-  color: #2f5c8a;
+  color: var(--ink-deep);
 }
-.skin-line__n { font-weight: 900; color: #a96a00; }
+.skin-line__n { font-weight: 900; color: var(--pri-ink); }
 .skin-line:active { opacity: .7; }
 
 /* ============ ③ 下一战：Boss 信息 + 出战（一张卡） ============ */
 .battle {
-  margin-top: 18rpx;
-  border-radius: 30rpx;
-  padding: 20rpx;
-  background: linear-gradient(150deg, #ffc44d, #ff9d17);
-  box-shadow: 0 10rpx 0 #d98200, 0 16rpx 24rpx rgba(200, 120, 0, .22);
+  margin-top: var(--sp-2);
+  border-radius: var(--r-md);
+  padding: var(--sp-2);
+  background: linear-gradient(150deg, var(--pri), var(--pri-deep));
+  box-shadow: var(--clay-3);
 }
 .boss-pill {
   display: flex;
   align-items: center;
   gap: 14rpx;
-  padding: 12rpx 16rpx;
-  border-radius: 20rpx;
+  padding: var(--sp-2);
+  border-radius: var(--r-sm);
   background: rgba(58, 28, 68, .86);
-  color: #fff;
+  color: var(--white);
 }
 .boss-pill:active { transform: translateY(2rpx); }
 .boss-pill__img { width: 84rpx; height: 84rpx; flex: 0 0 auto; }
@@ -166,148 +261,158 @@
   height: 84rpx;
   line-height: 84rpx;
   text-align: center;
-  font-size: 56rpx;
+  font-size: var(--fs-display);
   flex: 0 0 auto;
 }
 .boss-pill__t { flex: 1; min-width: 0; }
-.boss-pill__n { font-size: 26rpx; font-weight: 900; }
+.boss-pill__n { font-size: var(--fs-body); font-weight: 900; }
 .boss-pill__s {
   margin-top: 4rpx;
-  font-size: 20rpx;
-  color: #f0e2f6;
+  font-size: var(--fs-cap);
+  color: rgba(255, 255, 255, .80);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.boss-pill__go { font-size: 34rpx; opacity: .7; flex: 0 0 auto; }
+.boss-pill__go { font-size: var(--fs-strong); opacity: .7; flex: 0 0 auto; }
 
 .battle-row {
   display: flex;
   align-items: center;
-  gap: 16rpx;
-  margin-top: 20rpx;
-  color: #fff;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  color: var(--white);
 }
 .battle-row:active { transform: translateY(2rpx); }
-.battle-row__ic { font-size: 52rpx; line-height: 1; flex: 0 0 auto; }
+.battle-row__ic { font-size: var(--fs-display); line-height: 1; flex: 0 0 auto; }
 .battle-row__t { flex: 1; min-width: 0; }
 .battle-row__b {
-  font-size: 40rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
   letter-spacing: 4rpx;
   text-shadow: 0 2rpx 0 rgba(160, 90, 0, .35);
 }
 .battle-row__s {
   margin-top: 2rpx;
-  font-size: 21rpx;
-  color: #fff6e4;
+  font-size: var(--fs-cap);
+  color: rgba(255, 255, 255, .92);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.battle-row__stars { flex: 0 0 auto; font-size: 26rpx; font-weight: 900; color: #fff3c4; }
+.battle-row__stars { flex: 0 0 auto; font-size: var(--fs-body); font-weight: 900; color: var(--gold); }
 .battle-row__sw {
   flex: 0 0 auto;
-  font-size: 20rpx;
+  display: flex;
+  align-items: center;
+  min-height: 64rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
-  padding: 8rpx 18rpx;
-  border-radius: 999rpx;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-pill);
   background: rgba(255, 255, 255, .24);
   border: 2rpx solid rgba(255, 255, 255, .55);
 }
 
 /* ============ 游客引导条 ============ */
 .guestbar {
-  margin-top: 16rpx;
+  margin-top: var(--sp-2);
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: var(--sp-2);
   background: rgba(255, 255, 255, .92);
-  border: 2rpx solid #ffe3b3;
-  border-radius: 24rpx;
-  padding: 18rpx 22rpx;
-  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
+  border: 2rpx solid rgba(255, 154, 31, .32);
+  border-radius: var(--r-md);
+  padding: var(--sp-2);
+  box-shadow: var(--clay-2);
 }
 .guestbar:active { transform: translateY(2rpx); }
-.gb-ic { font-size: 38rpx; flex: 0 0 auto; }
+.gb-ic { font-size: var(--fs-title); flex: 0 0 auto; }
 .gb-t { flex: 1; min-width: 0; }
-.gb-b { font-size: 26rpx; font-weight: 800; color: #a66a00; }
-.gb-s { font-size: 20rpx; color: #bd8b4f; margin-top: 2rpx; }
+.gb-b { font-size: var(--fs-body); font-weight: 800; color: var(--pri-ink); }
+.gb-s { font-size: var(--fs-cap); color: var(--ink-sub); margin-top: 2rpx; }
 .gb-btn {
   flex: 0 0 auto;
-  background: #ff9a1f;
-  color: #fff;
-  border-radius: 999rpx;
-  padding: 10rpx 24rpx;
-  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  min-height: 64rpx;
+  background: var(--pri);
+  color: var(--white);
+  border-radius: var(--r-pill);
+  padding: 0 var(--sp-3);
+  font-size: var(--fs-cap);
   font-weight: 800;
-  box-shadow: 0 4rpx 0 #d97c00;
+  box-shadow: var(--clay-1);
 }
 .agree-link {
   text-align: center;
-  font-size: 20rpx;
-  color: #6c8bb0;
+  font-size: var(--fs-cap);
+  color: var(--ink-sub);
   padding: 10rpx 0 2rpx;
 }
 .agree-link:active { opacity: .7; }
 
 /* ============ ④ 今日任务（目标 + 一题 + 挑战） ============ */
 .today-card {
-  margin-top: 16rpx;
+  margin-top: var(--sp-2);
   background: rgba(255, 255, 255, .94);
-  border-radius: 26rpx;
-  padding: 20rpx 24rpx 14rpx;
-  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
+  border-radius: var(--r-md);
+  padding: var(--sp-2) var(--sp-3) var(--sp-1);
+  box-shadow: var(--clay-2);
 }
 .today-head { display: flex; align-items: baseline; }
-.today-t { font-size: 26rpx; font-weight: 900; color: #2f4a6b; }
-.today-s { margin-left: auto; font-size: 20rpx; color: #7d93ad; font-weight: 700; }
+.today-t { font-size: var(--fs-body); font-weight: 900; color: var(--ink-deep); }
+.today-s { margin-left: auto; font-size: var(--fs-cap); color: var(--ink-weak); font-weight: 700; }
 .today-track {
   height: 12rpx;
-  border-radius: 999rpx;
-  background: #e3eefa;
+  border-radius: var(--r-pill);
+  background: rgba(20, 50, 90, .08);
+  box-shadow: inset 0 2rpx 4rpx rgba(20, 50, 90, .12);
   margin-top: 14rpx;
   overflow: hidden;
 }
 .today-fill {
   height: 100%;
   min-width: 6rpx;
-  border-radius: 999rpx;
-  background: linear-gradient(90deg, #3fbf5f, #7bd389);
+  border-radius: var(--r-pill);
+  /* 横向渐变对 12rpx 高的条几乎看不出，立体感来自内侧的顶高光 + 底暗面 */
+  background: var(--green);
+  box-shadow: inset 0 2rpx 0 rgba(255, 255, 255, .45), inset 0 -2rpx 0 rgba(0, 0, 0, .10);
   transition: width .3s;
 }
 .today-row {
   display: flex;
   align-items: center;
-  margin-top: 14rpx;
-  padding-top: 12rpx;
-  border-top: 2rpx dashed #e6eef8;
-  font-size: 22rpx;
-  color: #5c7f9e;
+  min-height: 72rpx;
+  margin-top: var(--sp-1);
+  padding-top: var(--sp-1);
+  border-top: 2rpx dashed rgba(20, 50, 90, .10);
+  font-size: var(--fs-cap);
+  color: var(--ink-sub);
 }
 .today-row--nb { border-top: none; padding-top: 2rpx; }
 .today-row:active { opacity: .7; }
 .today-row__k { font-weight: 800; }
-.today-row__v { margin-left: auto; font-weight: 800; color: #c47a00; }
-.today-row__v.ok { color: #2ea56b; }
+.today-row__v { margin-left: auto; font-weight: 800; color: var(--pri-ink); }
+.today-row__v.ok { color: var(--green); }
 
-/* ============ ⑤ 四宫格（排行榜 / 赛季 / PK / 全部玩法） ============ */
-.quad { display: flex; gap: 12rpx; margin-top: 16rpx; }
+/* ============ ⑤ 三宫格（排行榜 / 赛季 / PK） ============ */
+.quad { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); }
 .qi {
   flex: 1;
   min-width: 0;
   background: rgba(255, 255, 255, .94);
-  border-radius: 22rpx;
-  padding: 16rpx 6rpx 14rpx;
+  border-radius: var(--r-md);
+  padding: var(--sp-2) var(--sp-1) var(--sp-1);
   text-align: center;
-  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
+  box-shadow: var(--clay-2);
 }
 .qi:active { transform: translateY(2rpx); }
-.qi__ic { font-size: 36rpx; line-height: 1.1; }
-.qi__b { font-size: 21rpx; font-weight: 900; color: #2f4a6b; margin-top: 6rpx; }
+.qi__ic { font-size: var(--fs-title); line-height: 1.1; }
+.qi__b { font-size: var(--fs-cap); font-weight: 900; color: var(--ink-deep); margin-top: 6rpx; }
 .qi__s {
-  font-size: 17rpx;
-  color: #7d93ad;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
   margin-top: 2rpx;
   overflow: hidden;
   white-space: nowrap;
@@ -315,41 +420,41 @@
 }
 
 /* ============ ⑥ 热门玩法（两张卡） ============ */
-/* 底部这一段的背景已经是浅色（#d8efff），白字几乎看不见 —— 用深蓝 */
+/* 底部这一段的背景已经是浅色（--sky-3），白字几乎看不见 —— 用深蓝 */
 .sec {
-  margin: 20rpx 4rpx 10rpx;
-  font-size: 24rpx;
+  margin: var(--sp-3) 0 var(--sp-1);
+  font-size: var(--fs-cap);
   font-weight: 900;
-  color: #2f5c8a;
+  color: var(--ink-deep);
 }
 /* 横排紧凑卡：竖排时两张卡会被 tabBar 切掉一半，横排后首屏能完整露出 */
-.hot { display: grid; grid-template-columns: 1fr 1fr; gap: 14rpx; }
+.hot { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
 .hot-card {
   min-width: 0;
   display: flex;
   align-items: center;
   gap: 12rpx;
   background: rgba(255, 255, 255, .96);
-  border-radius: 22rpx;
-  padding: 14rpx 16rpx;
-  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
+  border-radius: var(--r-md);
+  padding: 14rpx var(--sp-2);
+  box-shadow: var(--clay-2);
 }
 .hot-card:active { transform: translateY(2rpx); }
-.hot-card__ic { font-size: 38rpx; line-height: 1; flex: 0 0 auto; }
-  .hot-card__img { width: 58rpx; height: 58rpx; flex: 0 0 auto; }
+.hot-card__ic { font-size: var(--fs-title); line-height: 1; flex: 0 0 auto; }
+.hot-card__img { width: 56rpx; height: 56rpx; flex: 0 0 auto; }
 .hot-card__t { flex: 1; min-width: 0; }
 .hot-card__b {
-  font-size: 22rpx;
+  font-size: var(--fs-cap);
   font-weight: 900;
-  color: #2f4a6b;
+  color: var(--ink-deep);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .hot-card__s {
   margin-top: 2rpx;
-  font-size: 17rpx;
-  color: #7d93ad;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -357,3 +462,118 @@
 
 /* 底部安全区（tabBar 已由原生占位，这里只补一点呼吸空间） */
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); flex: 0 0 auto; }
+
+/* ============ 定级测入口（2026-10-28） ============
+   只在 needGrade（从没选过年级）时渲染。样式全走令牌，避免 check-tokens 报新增裸色值。 */
+.lt-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: var(--clay-card);
+}
+.lt-entry:active { transform: translateY(2rpx) scaleY(.99); }
+.lt-entry__ic { flex: 0 0 auto; font-size: var(--fs-title); line-height: 1; }
+.lt-entry__t { flex: 1; min-width: 0; }
+.lt-entry__b { font-size: var(--fs-body); font-weight: 900; color: var(--ink); }
+.lt-entry__s { margin-top: 2rpx; font-size: var(--fs-cap); color: var(--ink-weak); }
+.lt-entry__go {
+  flex: 0 0 auto;
+  padding: 0 var(--sp-2);
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: var(--r-pill);
+  background: var(--pri);
+  color: var(--white);
+  font-size: var(--fs-cap);
+  font-weight: 900;
+}
+
+/* ============ 首次进入三步引导（2026-10-28） ============
+   遮罩用「纯色层 + opacity」而不是 rgba：check-tokens 只认 var(--*) 颜色，
+   半透明色值会被当成裸色值记进基线。
+   卡片不依赖任何首屏元素坐标，所以年级/皮肤/登录态怎么变都不会指错地方。 */
+.ob-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  box-sizing: border-box;
+}
+.ob-dim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--ink);
+  opacity: .72;
+}
+.ob-card {
+  position: relative;
+  width: 100%;
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: var(--clay-3);
+  text-align: center;
+}
+.ob-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-1);
+}
+.ob-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: var(--r-pill);
+  background: var(--sky-3);
+}
+.ob-dot.is-on { background: var(--pri); }
+.ob-ic {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-display);
+  line-height: 1.2;
+}
+.ob-t {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-title);
+  font-weight: 900;
+  color: var(--ink);
+}
+.ob-b {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-body);
+  color: var(--ink-sub);
+  line-height: 1.7;
+  text-align: left;
+}
+.ob-btn {
+  margin-top: var(--sp-3);
+  height: 96rpx;
+  line-height: 96rpx;
+  border-radius: var(--r-pill);
+  background: var(--pri);
+  color: var(--white);
+  font-size: var(--fs-strong);
+  font-weight: 900;
+  box-shadow: var(--clay-2);
+}
+.ob-btn:active {
+  transform: translateY(2rpx) scaleY(.97);
+  box-shadow: var(--clay-press);
+}
+.ob-skip {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+}

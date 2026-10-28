@@ -1,0 +1,73 @@
+<!-- 认钟表（数字智力第 10 款）：30 关 × 每关 10 题，难度只靠关卡序号，不接年级 -->
+<view class="page-clock">
+
+  <!-- 顶部三格（沿用统一 HUD 视觉） -->
+  <view class="hud">
+    <view class="chip"><view class="k">关卡</view><view class="v">{{levelText}}</view></view>
+    <view class="chip"><view class="k">题号</view><view class="v">{{qText}}</view></view>
+    <view class="chip"><view class="k">答对</view><view class="v">{{rightText}}</view></view>
+    <warrior-badge size="sm" />
+    <game-pause
+      inline
+      open="{{paused}}"
+      showFab="{{!settle}}"
+      sub="第 {{levelText}} 关"
+      bind:pause="onGamePause"
+      bind:resume="onGameResume"
+      bind:restart="onGameRestart"
+      bind:quit="onGameQuit" />
+  </view>
+
+  <view class="bar"><view class="bar-fill" style="width: {{pct}}%;"></view></view>
+
+  <!-- 题干：第一行是题面（时刻/问题），第二行是问句；答完换成规则解释 -->
+  <view class="banner {{fb}}">
+    <view class="main">{{prompt}}</view>
+    <view class="sub">{{sub}}</view>
+  </view>
+
+  <!-- 题板：表盘（认读/经过时间/24 时制）或大号数字牌（24→12 时制，表盘会剧透答案） -->
+  <view class="stage">
+    <view class="dial" wx:if="{{faceShow}}">
+      <view class="dial-face"></view>
+      <!-- 60 个刻度（每 5 个加粗）+ 12/3/6/9 四个数字：纯 CSS，不用图也不用 canvas -->
+      <view
+        class="tick {{item % 30 === 0 ? 'big' : ''}}"
+        wx:for="{{ticks}}"
+        wx:key="*this"
+        style="transform: rotate({{item}}deg);"></view>
+      <view class="num n12">12</view>
+      <view class="num n3">3</view>
+      <view class="num n6">6</view>
+      <view class="num n9">9</view>
+      <view class="hand hour" style="transform: rotate({{hourDeg}}deg);"></view>
+      <view class="hand minute" style="transform: rotate({{minDeg}}deg);"></view>
+      <view class="pin"></view>
+    </view>
+    <view class="digital" wx:else>{{faceText}}</view>
+    <view class="stage-tip">{{stageTip}}</view>
+  </view>
+
+  <!-- 四个选项（2×2） -->
+  <view class="opts">
+    <view
+      wx:for="{{options}}"
+      wx:key="index"
+      class="opt {{item.cls}}"
+      data-idx="{{index}}"
+      bindtap="tapOption">{{item.v}}</view>
+  </view>
+
+  <view class="foot">看不清就数格子：每一大格 5 分钟</view>
+
+  <settle-pop
+    visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
+    title="{{overTitle}}" msg="{{overMsg}}" hint="{{overHint}}"
+    show-next="{{showNext}}" next-text="下一关 ▶"
+    bind:retry="onRetry" bind:next="onNext" />
+
+</view>
+
+<!-- 首次进入的操作引导（2026-10-28）：每款玩法只弹一次，文案在 utils/game-howto.js。
+     放在页面最外层，组件自身 fixed 定位，不影响任何已有布局。 -->
+<how-to-play game="clock" />

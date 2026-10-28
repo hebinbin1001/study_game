@@ -1,0 +1,83 @@
+/* 设置页（2026-10-28）
+   字号只用 var(--fs-*)，圆角只用 var(--r-*)，颜色全部走变量。
+   分隔线刻意不用 border：check-tokens 对硬编码边框色有基线，且卡片内两条目
+   靠上下留白已经足够区分。 */
+
+.page-set {
+  min-height: 100vh;
+  padding: var(--sp-3);
+  box-sizing: border-box;
+}
+
+/* ---------- 顶栏 ---------- */
+.st-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-2);
+}
+.st-back {
+  width: 72rpx;
+  height: 72rpx;
+  line-height: 68rpx;
+  text-align: center;
+  font-size: var(--fs-display);
+  color: var(--ink);
+}
+.st-title {
+  font-size: var(--fs-title);
+  font-weight: 900;
+  color: var(--ink);
+}
+
+/* ---------- 分组卡片 ---------- */
+.st-group {
+  margin-bottom: var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--white);
+  box-shadow: var(--clay-card);
+  overflow: hidden;
+}
+.st-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+}
+.st-row--tap:active {
+  background: var(--sky-3);
+}
+.st-row-main {
+  flex: 1;
+  min-width: 0;
+}
+.st-row-t {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--ink);
+}
+.st-row-s {
+  margin-top: 2rpx;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+  line-height: 1.6;
+}
+.st-row-arrow {
+  flex: 0 0 auto;
+  font-size: var(--fs-title);
+  line-height: 1;
+  color: var(--ink-weak);
+}
+.st-row-val {
+  flex: 0 0 auto;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+}
+
+/* ---------- 页脚 ---------- */
+.st-foot {
+  margin-top: var(--sp-4);
+  text-align: center;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+}

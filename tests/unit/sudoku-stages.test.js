@@ -17,7 +17,7 @@ const s = suite('数独关卡档位');
 
 const sudoku = require('../../miniprogram/game/sudoku');
 
-// 与 pages/sudoku/sudoku.js 的 STAGES 保持一致
+// 与 pkg-games/sudoku/sudoku.js 的 STAGES 保持一致
 const STAGES = [
   { from: 1, to: 6, n: 4, givens: 10, name: '4×4 入门' },
   { from: 7, to: 12, n: 4, givens: 7, name: '4×4 挑战' },

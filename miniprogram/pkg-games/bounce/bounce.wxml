@@ -1,0 +1,58 @@
+<!-- 单词弹弹球（B6-7）：接住释义球 -->
+<view class="page-bounce">
+  <!-- 2026-10-17：删掉页内「返回 + 标题」（原生导航栏已有）；操作提示并进 HUD 行。 -->
+
+  <view class="hud">
+    <view class="hud-chip">❤️ {{lives}}</view>
+    <view class="hud-chip">分 {{score}}</view>
+    <view class="hud-chip">最高 {{best}}</view>
+    <game-pause
+      inline
+      open="{{paused}}"
+      showFab="{{!over}}"
+      bind:pause="onGamePause"
+      bind:resume="onGameResume"
+      bind:restart="onGameRestart"
+      bind:quit="onGameQuit" />
+  </view>
+
+  <!-- 单词目标卡 -->
+  <view class="word-card">
+    <view class="w-emoji">🏐</view>
+    <view class="w-main">
+      <view class="w-tip">接住这个词对应的释义球</view>
+      <view class="w-word">{{word}}</view>
+    </view>
+  </view>
+
+  <!-- 球场 -->
+  <view class="court">
+    <!-- 三条轨道 + 落球 -->
+    <view wx:for="{{balls}}" wx:key="id" class="ball {{item.ok ? 'ok' : 'bad'}}"
+      style="left: {{item.col * 33.3 + 2}}%; top: {{item.y}}%;">{{item.text}}</view>
+    <!-- 篮子 -->
+    <view class="basket" style="left: {{basket * 33.3 + 2}}%;">🛒</view>
+  </view>
+
+  <view class="move-row">
+    <view class="m-btn" data-d="-1" bindtap="move">◀</view>
+    <view class="m-btn" data-d="1" bindtap="move">▶</view>
+  </view>
+  <view class="foot-tip">左右移动篮子接「正确释义」球(+10)，接错扣命</view>
+
+  <battle-fx trigger="{{fxSeq}}" mode="{{fxMode}}" text="{{fxText}}" />
+
+  <!-- 结算统一走公共组件（2026-10-17） -->
+  <settle-pop visible="{{over}}" stars-text="{{starsText}}"
+    title="游戏结束" msg="得分 {{score}} · 最高 {{best}}"
+    bind:retry="again">
+    <button class="btn btn-ghost" bindtap="goBack">返回关卡</button>
+  </settle-pop>
+
+  <view class="safe-gap"></view>
+
+</view>
+
+<!-- 首次进入的操作引导（2026-10-28）：每款玩法只弹一次，文案在 utils/game-howto.js。
+     放在页面最外层，组件自身 fixed 定位，不影响任何已有布局。 -->
+<how-to-play game="bounce" />

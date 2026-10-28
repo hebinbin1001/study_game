@@ -1,0 +1,89 @@
+<!-- 结算页（T16 · UI 重设计）：
+     ⭐ 星级大展示 + 数据卡（得分/答对/正确率/最高连击）+ 按压感按钮
+     关联需求：REQ-GAME-11（失败态）、REQ-GAME-12（星级评定）、REQ-GAME-15（结算展示） -->
+<view class="page-result">
+  <!-- M5 T2.4：游客结算提示（成绩只存本机，登录后同步云端） -->
+  <view class="gate-bar" wx:if="{{!loggedIn}}">
+    <text class="gate-emoji">💾</text>
+    <text class="gate-text">{{gateText}}</text>
+    <button class="gate-btn" bindtap="onLoginTap">登录保存</button>
+  </view>
+
+  <!-- ⭐ 大星级展示（REQ-GAME-12，js 预处理 starArr） -->
+  <view class="big-stars">
+    <text
+      wx:for="{{starArr}}"
+      wx:key="*this"
+      class="big-star {{item ? 'on' : 'off'}}">{{item ? '⭐' : '☆'}}</text>
+  </view>
+
+  <!-- 我的战士（2026-10-08）：赢了举剑欢呼、输了垂头 —— 皮肤在这里「有情绪」。
+       用同一批立绘 + CSS 动画实现，不需要新素材。 -->
+  <view class="hero-mood {{failed ? 'hero-mood--lose' : 'hero-mood--win'}}">
+    <warrior-badge size="md" />
+  </view>
+
+  <!-- 结算面板 -->
+  <view class="result-panel">
+    <!-- 标题：通关 / 失败（REQ-GAME-11） -->
+    <view class="res-title {{failed ? 'res-title-fail' : ''}}">{{titleText}}</view>
+    <view class="res-sub">{{failed ? '别灰心，再来一次一定行！' : '太棒了，继续加油！'}}</view>
+    <!-- 「差一点」提示（2026-10-17）：差 1 题掉星时明确告诉玩家还差多少 -->
+    <view wx:if="{{hintText}}" class="res-hint">{{hintText}}</view>
+
+    <!-- 统计数据卡（REQ-GAME-15） -->
+    <view class="stats-grid">
+      <view class="stat-box stat-box--blue">
+        <view class="stat-emoji">💯</view>
+        <view class="stat-value">{{score}}</view>
+        <view class="stat-label">得分</view>
+      </view>
+      <view class="stat-box stat-box--green">
+        <view class="stat-emoji">🎯</view>
+        <view class="stat-value">{{correctCount}}/{{totalQ}}</view>
+        <view class="stat-label">答对</view>
+      </view>
+      <view class="stat-box stat-box--purple">
+        <view class="stat-emoji">📈</view>
+        <view class="stat-value">{{ratePercent}}%</view>
+        <view class="stat-label">正确率</view>
+      </view>
+      <view class="stat-box stat-box--orange">
+        <view class="stat-emoji">🔥</view>
+        <view class="stat-value">{{maxCombo}}</view>
+        <view class="stat-label">最高连击</view>
+      </view>
+    </view>
+
+    <!-- 本局错题回顾（R4）：答错的词条 + 释义（+ 可选例句） -->
+    <view wx:if="{{hasWrong}}" class="wrong-card">
+      <view class="wrong-head">
+        <text class="wrong-title">📕 本局错题</text>
+        <text class="wrong-count">{{wrongItems.length}} 题</text>
+      </view>
+      <view wx:for="{{wrongItems}}" wx:key="word" class="wrong-item">
+        <view class="wrong-item__main">
+          <view class="wrong-word">{{item.word}}</view>
+          <view class="wrong-hint">{{item.hint}}</view>
+          <view wx:if="{{item.ex}}" class="wrong-ex">{{item.ex}}</view>
+        </view>
+        <!-- 生词本收藏（2026-10-28）：catchtap 阻止冒泡，这一行没有整行点击行为，
+             但将来加「点卡片看详情」时不会被这颗星误触 -->
+        <view class="fav-btn {{item.fav ? 'is-on' : ''}}" data-i="{{index}}" catchtap="favWord">{{item.fav ? '★' : '☆'}}</view>
+      </view>
+      <view class="wrong-tip">答错的词会自动进入错题本（需登录），点 ☆ 可另收进生词本</view>
+    </view>
+
+    <!-- 操作按钮（REQ-GAME-15）
+         2026-10-28：原来 3 个按钮各 248rpx + margin 24rpx = 768rpx，
+         而结算面板内容区只有约 540rpx —— flex 把每个压到 164rpx，
+         「下一关 ▶」的文字几乎贴到边框。改为「主操作通栏 + 次操作并排」。 -->
+    <view class="res-btns">
+      <button wx:if="{{showNext}}" class="btn btn-res btn-green" bindtap="onNext">下一关 ▶</button>
+      <view class="res-btns__row">
+        <button class="btn btn-res btn-blue" bindtap="playAgain">再玩一次</button>
+        <button class="btn btn-res btn-orange" bindtap="goHome">回首页</button>
+      </view>
+    </view>
+  </view>
+</view>

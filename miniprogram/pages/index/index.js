@@ -22,10 +22,42 @@ var skins = require('../../utils/skins');
 var rankLadder = require('../../utils/rank-ladder');
 var bossLadder = require('../../utils/boss-ladder');
 
+/**
+ * 首次进入的三步引导（2026-10-28）
+ *
+ * 为什么是这三步：现有玩法内教程（game.js 的 TUTORIAL_STEPS）只讲「这一局怎么打」，
+ * 而新用户第一屏真正需要知道的是「这产品怎么长起来的」—— 选年级（题目从哪来）、
+ * 打一关（星星从哪来）、星星变段位（为什么要一直打）。前两步各自对应首屏的一个可点区域，
+ * 第三步解释的是留存理由，所以放在最后。
+ *
+ * 为什么用全屏卡片而不是气泡定位：气泡要算元素坐标，首屏元素随年级/登录态/皮肤状态
+ * 高度都在变（战士舞台、exam-bar、皮肤行都是条件渲染），定位错了会指到空白处；
+ * 卡片式不依赖布局，且三句话本来就自成一段话。
+ */
+var ONBOARD_STEPS = [
+  {
+    ic: '🏫',
+    t: '第一步 · 先定年级',
+    b: '顶部这枚「选年级」决定全站出哪一档题：主线 30 关、玩法线、每日挑战都跟着它走。不知道选哪个，下面有条 10 题的小测试。'
+  },
+  {
+    ic: '⚔️',
+    t: '第二步 · 点「出战」',
+    b: '每关 10 题，答对就掉 ⭐。答错不扣星，只是少拿一颗 —— 所以放心点。'
+  },
+  {
+    ic: '🏅',
+    t: '第三步 · 星星会变成段位',
+    b: '攒够星星就升段。升到某个段位的上限后，要先通过晋级试才能继续涨星，首页会给入口。'
+  }
+];
+var ONBOARD_KEY = 'ww_onboard_done';
+
 Page({
   // 实例级标志（不在 data，避免渲染）；登录/协议进行中置 true，防 nudge 弹窗互顶
   _loginBusy: false,
   _nudgeTimer: null,
+  _onboardTimer: null,
   // 加载失败过的立绘 URL（2026-10-19）：按 URL 记而不是只记一个布尔量，
   // 否则第一张图挂了之后，换成别的皮肤也永远显示 emoji（换皮肤看起来「没生效」）。
   _imgErr: {},
@@ -65,11 +97,19 @@ Page({
     warriorImg: '',           // 立绘 URL（CDN；空则回退 emoji）
     warriorEmoji: '⚔️',
     warriorImgErr: false,     // 立绘加载失败 → 回退 emoji，避免裂图
-    lvCell: 1,                // 等级 = 段位阶梯 cell（星星推导）
-    lvPercent: 0,             // 本級进度（0~100）
-    lvNeed: 0,                // 距下一级还差多少星
-    lvNext: '',               // 下一级名称
-    rankShort: '青铜',        // 大段名（顶部胶囊用，避免长段位名撑破）
+    // —— 段位进度（2026-10-28：砍掉「等级」—— Lv 与段位都由同一颗星推导，
+    //     是两个名字讲同一件事；全站只保留「段位」一套进度语义） ——
+    rankPercent: 0,           // 当前小级的进度百分比
+    rankNeed: 0,              // 距下一小级还差多少星
+    rankNextName: '',         // 下一级的段位名（如「白银 I」）
+    rankShort: '青铜',        // 大段名（立绘左侧那枚段位 chip 用，避免长段位名撑破）
+    // —— 晋级考试（2026-10-28）——
+    // 服务端 /api/rank/info 已经在返回 needExam + nextExamTier（server/routes/rank.js），
+    // 之前首页只取了 rankName/stars，于是被封顶的玩家对着一条永远不动的进度条、
+    // 还不知道唯一的解封方式藏在三级页面里。这里把字段接住并在首屏给出直达入口。
+    needExam: false,          // 星星已被封顶（未通过下一个大段的晋级考试）
+    examTierKey: '',          // 该考的大段 key（如 bronze）
+    examTierName: '',         // 该考的大段名（如「青铜」）
     // —— 皮肤收集条 ——
     skinCells: [],            // 5 格：当前皮肤 + 已拥有 + 下一个待解锁（next 金框）
     skinOwned: 0,
@@ -83,7 +123,12 @@ Page({
     bossImgErr: false,
     bossHint: '',
     // 底部「热门玩法」：先用本机常玩兜底，随后用服务端玩法热度覆盖（见 _loadHotGames）
-    hotGames: []
+    hotGames: [],
+    // —— 首次引导（2026-10-28）——
+    onboardVisible: false,
+    onboardStep: 0,
+    onboardTotal: 3,
+    onboardCur: null
   },
 
   onShow: function () {
@@ -98,12 +143,52 @@ Page({
     var self = this;
     if (this._nudgeTimer) clearTimeout(this._nudgeTimer);
     this._nudgeTimer = setTimeout(function () { self._maybeNudgeLogin(); }, 900);
+    // 首次引导（2026-10-28）：延后 600ms 让首屏先画出来，否则蒙层会盖在空白上
+    this._maybeShowOnboard();
   },
 
   onHide: function () {
     // 离开首页时取消挂起的 nudge 定时器，避免在其他页面意外弹窗
     if (this._nudgeTimer) { clearTimeout(this._nudgeTimer); this._nudgeTimer = null; }
+    if (this._onboardTimer) { clearTimeout(this._onboardTimer); this._onboardTimer = null; }
   },
+
+  // —— 首次引导（2026-10-28） ——
+  /**
+   * 只在「从没走完过引导」时展示，一次即止（ww_onboard_done）。
+   * 游客与登录用户都走同一套：三条信息与账号无关。
+   */
+  _maybeShowOnboard: function () {
+    if (this.data.onboardVisible) return;
+    try { if (storage.get(ONBOARD_KEY)) return; } catch (e) { /* 读不到就当作没走过 */ }
+    if (this._onboardTimer) return;
+    var self = this;
+    this._onboardTimer = setTimeout(function () {
+      self._onboardTimer = null;
+      self.setData({
+        onboardVisible: true,
+        onboardStep: 0,
+        onboardTotal: ONBOARD_STEPS.length,
+        onboardCur: ONBOARD_STEPS[0]
+      });
+    }, 600);
+  },
+
+  /** 下一步；最后一步变成「开始闯关」并收尾 */
+  nextOnboard: function () {
+    var next = (this.data.onboardStep || 0) + 1;
+    if (next >= ONBOARD_STEPS.length) { this.finishOnboard(); return; }
+    this.setData({ onboardStep: next, onboardCur: ONBOARD_STEPS[next] });
+  },
+
+  /** 跳过 / 走完：写标记，此后不再出现 */
+  finishOnboard: function () {
+    try { storage.set(ONBOARD_KEY, '1'); } catch (e) { /* 存储不可用就下次再来一遍，不阻断 */ }
+    this.setData({ onboardVisible: false, onboardCur: null });
+  },
+
+  /** 蒙层里阻止滚动穿透（catchtouchmove 需要一个已存在的方法，不能空绑） */
+  noop: function () {},
 
   _restoreCloudStars: function () {
     var self = this;
@@ -308,10 +393,10 @@ Page({
     }
 
     return {
-      lvCell: cell,
-      lvPercent: prog.isMaxRank ? 100 : prog.progressPercent,
-      lvNeed: prog.starsNeeded,
-      lvNext: prog.nextName,
+      // 段位进度 = 唯一的成长条（星星 → 小级 → 大段，见 utils/rank-ladder.js）
+      rankPercent: prog.isMaxRank ? 100 : prog.progressPercent,
+      rankNeed: prog.starsNeeded,
+      rankNextName: prog.nextName,
       rankShort: prog.current.bigRank.name,
       warriorName: warriorName,
       warriorImg: wSkin.image || '',
@@ -365,10 +450,18 @@ Page({
       // 星星口径与「我的」页同源：都用云端累计星（登录态下两页数字必须一致）
       self.setData({ rankName: d.rankName || '' });
       if (typeof d.stars === 'number') {
-        // 星星变了 → 等级、进度条、皮肤收集条都要跟着重算（否则等级与星星打架）
+        // 星星变了 → 段位进度条、皮肤收集条都要跟着重算（否则段位与星星打架）
         self.setData(self._heroData(d.stars, self.data.streakDays));
         self.setData({ totalStars: d.stars });
       }
+      // 晋级考试封顶（2026-10-28）：needExam 为真说明上面的 stars 是「封顶值」——
+      // 玩家再怎么玩，这条进度条也不会动，必须在同一个位置把解封入口讲明白，
+      // 否则就是一条永远不变的假承诺（详见 docs/全量检查报告-架构玩法布局.md §1）。
+      self.setData({
+        needExam: !!d.needExam,
+        examTierKey: d.nextExamTier || '',
+        examTierName: self._bigRankName(d.nextExamTier || '')
+      });
       try { storage.set('ww_rank_name', d.rankName || ''); } catch (e) {}
     }).catch(function () {});
     // 我的排名（总榜）
@@ -524,6 +617,8 @@ Page({
   _maybeNudgeLogin: function () {
     // 登录/协议流程进行中 → 本次不弹（也不标记，留待下次 onShow），避免 modal 互顶
     if (this._loginBusy) return;
+    // 首次引导还在屏上 → 更不能弹（两个弹窗叠起来，用户只会点掉上面那个）
+    if (this.data.onboardVisible) return;
     if (auth.isLoggedIn()) return;
     if (storage.get('ww_login_nudge')) return;
     var totalStars = this.data.totalStars || 0;
@@ -551,13 +646,13 @@ Page({
   // 并带上 challenge=1 与关卡种子，玩法页据此固定题面、结算写挑战星级。
   goContinue: function () {
     if (!this.data.continuePlayable) {
-      wx.navigateTo({ url: '/pages/level/level' });
+      wx.navigateTo({ url: '/pkg-games/level/level' });
       return;
     }
     var lv = challenge.levelAt(this.data.continueGrade, this.data.continueLevel);
     var url = challenge.pageUrl(lv, this.data.continueGrade);
     if (!url) {
-      url = '/pages/game/game?challenge=1&grade=' + this.data.continueGrade
+      url = '/pkg-games/game/game?challenge=1&grade=' + this.data.continueGrade
         + '&level=' + this.data.continueLevel;
     }
     wx.navigateTo({ url: url });
@@ -565,7 +660,17 @@ Page({
 
   // 换关卡 → 关卡选择页
   goLevel: function () {
-    wx.navigateTo({ url: '/pages/level/level' });
+    wx.navigateTo({ url: '/pkg-games/level/level' });
+  },
+
+  /**
+   * 定级测（2026-10-28）
+   *
+   * 入口只在 needGrade 时出现：没选过年级的新用户不知道自己要练哪一档，
+   * 让他「自己猜」是首屏最贵的一次流失。测完页面里会把推荐年级写进全局设置。
+   */
+  goLevelTest: function () {
+    wx.navigateTo({ url: '/pages/level-test/level-test' });
   },
 
   /**
@@ -657,6 +762,34 @@ Page({
     wx.navigateTo({ url: '/pages/rank-info/rank-info?stars=' + (this.data.totalStars || 0) });
   },
 
+  /**
+   * 去考晋级试（2026-10-28 新增）
+   *
+   * 为什么要有这个入口：段位升学被 exam-gate 卡住时，玩家唯一的解封动作是「考一次试」，
+   * 但考试页原本只能从首页 → 我的战士左侧段位 chip → 段位详情页里才找得到（三级）。
+   * 现在被封顶时首屏直接给一条（见 index.wxml 的 exam-bar），点了就到。
+   *
+   * 参数对账：tier 由服务端重算为准（端上只传，服务端会比对 nextTierToExam），
+   * 改包传别的 tier 过不了服务端那一关（server/routes/rank.js 的 /exam/pass）。
+   */
+  goExam: function () {
+    var key = this.data.examTierKey || '';
+    var name = this.data.examTierName || '';
+    wx.navigateTo({
+      url: '/pages/rank-exam/rank-exam?tier=' + encodeURIComponent(key)
+        + '&tierName=' + encodeURIComponent(name)
+    });
+  },
+
+  /** 大段 key → 中文名（认不出返回空串，调用方回退文案） */
+  _bigRankName: function (key) {
+    var list = rankLadder.BIG_RANKS || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].key === key) return list[i].name;
+    }
+    return '';
+  },
+
   // —— 全局年级（2026-10-18）：HUD 胶囊 + grade-picker ——
   /** 打开年级选择器（与「我的 → 当前年级」同一个组件） */
   openGradePicker: function () {
@@ -706,20 +839,27 @@ Page({
 
   // 推荐玩法：字母射击→关卡选择
   goShoot: function () {
-    wx.navigateTo({ url: '/pages/level/level' });
+    wx.navigateTo({ url: '/pkg-games/level/level' });
   },
 
   // 推荐玩法：数独（B6 已实现）
   goSudoku: function () {
-    wx.navigateTo({ url: '/pages/sudoku/sudoku' });
+    wx.navigateTo({ url: '/pkg-games/sudoku/sudoku' });
   },
 
   // 推荐玩法：词义消消乐（B6 已实现）
   goMatch: function () {
-    wx.navigateTo({ url: '/pages/match/match' });
+    wx.navigateTo({ url: '/pkg-games/match/match' });
   },
 
   onShareAppMessage: function () {
     return { title: '词力战士 - 打怪学字词，闯关赢星星', path: '/pages/index/index' };
+  },
+
+  // 2026-10-28：补朋友圈分享（原来全站 0 处 onShareTimeline）。
+  // 「晒段位 / 晒连胜」这类内容在朋友圈的传播效率比一对一转发高，
+  // 而拉新阶段最缺的就是这个入口。query 留空 → 落首页，走完整取流程。
+  onShareTimeline: function () {
+    return { title: '打怪学词还能上段位，我在词力战士等你来追', query: '' };
   }
 });

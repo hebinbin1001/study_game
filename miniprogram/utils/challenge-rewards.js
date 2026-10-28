@@ -20,11 +20,14 @@ var storage = require('./storage');
 
 var CLAIM_KEY = 'ww_chest_claimed';
 
-/** 里程碑（每通 N 关一个宝箱） */
+/** 里程碑（每通 N 关一个宝箱）
+ *  2026-10-28：label 缩短过一轮 —— 三个宝箱并排在进度卡里，每个 chip 只有约 200rpx
+ *  （24rpx 字号 ≈ 6 个字），原来的「30 关 · 学段毕业宝箱」会被 ellipsis 截成
+ *  「30 关·学段毕…」。宝箱图标（📦/🎁/🔒）已经把「宝箱」讲清楚了，文字只留关卡数。 */
 var CHESTS = [
-  { at: 10, stars: 10, label: '10 关宝箱' },
-  { at: 20, stars: 20, label: '20 关宝箱' },
-  { at: 30, stars: 30, label: '30 关 · 学段毕业宝箱' }
+  { at: 10, stars: 10, label: '10 关' },
+  { at: 20, stars: 20, label: '20 关' },
+  { at: 30, stars: 30, label: '30 关 · 毕业' }
 ];
 
 // 挑战关卡星的存档命名空间（与 utils/challenge.js 的 STAR_KEY 一致）

@@ -1,0 +1,83 @@
+<!-- 2048（B6-3 固定关卡） -->
+<view class="page-2048">
+  <!-- 2026-10-17：删掉页内「返回 + 标题 + 选关胶囊」（原生导航栏已有返回与页面名）。
+       关卡信息在对局 HUD 的「目标/最大块/得分/步数」与底部「关卡列表」里都有。 -->
+
+  <!-- 选关 -->
+  <block wx:if="{{!playing}}">
+    <view class="intro">
+      <view class="i-t">滑动合成目标数字</view>
+      <view class="i-s">目标逐步提升：32 → 64 → … → 2048 · 不限步数，步数越少星星越多</view>
+    </view>
+    <view class="levels">
+      <view
+        wx:for="{{levelInfo}}"
+        wx:key="no"
+        class="lv {{curLevel === item.no ? 'on' : ''}}"
+        data-no="{{item.no}}"
+        bindtap="pickLevel">
+        <view class="lv-target">{{item.target}}</view>
+        <view class="lv-steps">3★ {{item.par}} 步</view>
+      </view>
+    </view>
+
+    <!-- 挑战模式（冲 2048，只比最少步数） -->
+    <view class="challenge-card" bindtap="startChallenge">
+      <view class="cc-left">
+        <view class="cc-title">🏆 挑战模式</view>
+        <view class="cc-sub">冲 2048 · 不限步数，只比谁用得更少</view>
+      </view>
+      <view class="cc-best">{{challengeBest > 0 ? ('最佳 ' + challengeBest + ' 步') : '来试试'}}</view>
+    </view>
+  </block>
+
+  <!-- 对局 -->
+  <block wx:else>
+    <view class="hud">
+      <view class="hud-box"><view class="h-num">{{target}}</view><view class="h-lab">目标</view></view>
+      <view class="hud-box"><view class="h-num">{{maxTile}}</view><view class="h-lab">最大块</view></view>
+      <view class="hud-box"><view class="h-num">{{score}}</view><view class="h-lab">得分</view></view>
+      <view class="hud-box"><view class="h-num">{{usedSteps}}</view><view class="h-lab">步数</view></view>
+      <!-- 暂停键进 HUD 行（2026-10-18）：不再 fixed 悬浮 -->
+      <game-pause
+        inline
+        open="{{paused}}"
+        showFab="{{playing}}"
+        sub="第 {{curLevel}} 关 · {{usedSteps}} 步"
+        bind:pause="onGamePause"
+        bind:resume="onGameResume"
+        bind:restart="onGameRestart"
+        bind:quit="onGameQuit" />
+    </view>
+
+    <!-- 滑动操作：catchtouchmove 阻止页面跟着滚，否则竖滑可能被页面滚动吃掉手感 -->
+    <view class="board b-tray b-in"
+      bindtouchstart="onTouchStart"
+      catchtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd">
+      <view
+        wx:for="{{cells}}"
+        wx:key="index"
+        class="cell c{{item.v}} b-face">{{item.v || ''}}</view>
+    </view>
+
+    <view class="tip">{{tipText}}</view>
+  </block>
+
+  <!-- 结算统一走公共组件（2026-10-17） -->
+  <settle-pop visible="{{over}}" win="{{win}}" stars-text="{{win ? starsText : ''}}"
+    title="{{win ? '过关！' : '未达成'}}" msg="{{overMsg}}"
+    hint="{{hintText}}"
+    show-next="{{win}}" next-text="下一关 ▶"
+    bind:retry="again" bind:next="goNext">
+    <button class="btn btn-ghost" bindtap="goLevels">关卡列表</button>
+  </settle-pop>
+
+  <view class="safe-gap"></view>
+</view>
+
+
+
+<!-- 首次进入的操作引导（2026-10-28）：每款玩法只弹一次，文案在 utils/game-howto.js。
+     放在页面最外层，组件自身 fixed 定位，不影响任何已有布局。 -->
+<how-to-play game="g2048" />

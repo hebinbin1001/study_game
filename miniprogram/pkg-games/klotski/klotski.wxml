@@ -1,0 +1,141 @@
+<!-- 华容道（数字智力玩法 · A 类固定关卡；纯 CSS 方块，无图片素材） -->
+<view class="page-klotski">
+  <!-- 2026-10-17：删掉页内「返回 + 标题 + 选关胶囊」（原生导航栏已有返回与页面名）；
+       关卡与步数在选关分组/对局 HUD 里都有，「关卡列表」按钮也保留。 -->
+
+  <!-- ============ 选关（按档位分组） ============ -->
+  <block wx:if="{{!playing}}">
+    <view class="k-intro">
+      <view class="ki-t">把「曹操」移到下方出口</view>
+      <view class="ki-s">拖动棋子滑到尽头 · 一次连续滑动算 1 步 · 越接近最少步数星级越高</view>
+    </view>
+
+    <view class="k-group" wx:for="{{levelGroups}}" wx:key="tier">
+      <view class="kg-head">
+        <text class="kg-title">{{item.tier}}</text>
+        <text class="kg-count">{{item.done}}/{{item.levels.length}}</text>
+      </view>
+      <view class="kg-list">
+        <view
+          wx:for="{{item.levels}}"
+          wx:for-item="lv"
+          wx:key="no"
+          class="kg-item {{lv.locked ? 'locked' : ''}} {{lv.classic ? 'classic' : ''}}"
+          data-no="{{lv.no}}"
+          bindtap="pickLevel">
+          <view class="kg-no">{{lv.locked ? '🔒' : lv.no}}</view>
+          <!-- 锁定格只留「第 N 关」：名字/最短步数/三颗空星对未解锁玩家没有信息量（2026-10-17） -->
+          <view class="kg-name">{{lv.locked ? '第 ' + lv.no + ' 关' : lv.name}}</view>
+          <block wx:if="{{!lv.locked}}">
+            <view class="kg-meta">{{lv.minMoves}} 步</view>
+            <view class="kg-stars">
+              <text class="ks {{lv.starArr[0] ? 'on' : ''}}">★</text>
+              <text class="ks {{lv.starArr[1] ? 'on' : ''}}">★</text>
+              <text class="ks {{lv.starArr[2] ? 'on' : ''}}">★</text>
+            </view>
+          </block>
+        </view>
+      </view>
+    </view>
+    <view class="safe-gap"></view>
+  </block>
+
+  <!-- ============ 对局 ============ -->
+  <block wx:else>
+    <view class="k-hud">
+      <view class="kh-box">
+        <view class="kh-num">{{moves}}</view>
+        <view class="kh-lab">步数</view>
+      </view>
+      <view class="kh-box">
+        <view class="kh-num">{{minMoves}}</view>
+        <view class="kh-lab">最少步</view>
+      </view>
+      <view class="kh-box">
+        <view class="kh-num">{{levelName}}</view>
+        <view class="kh-lab">{{tier}} · 第 {{curLevel}} 关</view>
+      </view>
+      <!-- 暂停 / 音效（统一组件，2026-10-18 进 HUD 行，不再 fixed 悬浮） -->
+      <game-pause
+        inline
+        open="{{paused}}"
+        showFab="{{playing && !over}}"
+        sub="第 {{curLevel}} 关 · {{moves}} 步"
+        bind:pause="onGamePause"
+        bind:resume="onGameResume"
+        bind:restart="onGameRestart"
+        bind:quit="onGameQuit" />
+    </view>
+
+    <!-- 棋盘：5×4；棋子用百分比定位，天然适配任意屏宽 -->
+    <view class="k-board" style="{{boardStyle}}">
+      <!-- 底格（出口高亮） -->
+      <view
+        wx:for="{{cells}}"
+        wx:key="i"
+        class="k-cell {{item.gate ? 'gate' : ''}}"
+        style="{{item.style}}">
+        <view wx:if="{{item.gate}}" class="k-gate-arrow">▼</view>
+        <text wx:if="{{item.gate}}" class="k-gate-text">出</text>
+      </view>
+
+      <!-- 棋子 -->
+      <view
+        wx:for="{{pieces}}"
+        wx:key="i"
+        class="k-piece {{item.cls}} {{selected === item.i ? 'on' : ''}}"
+        style="{{item.style}}"
+        data-i="{{item.i}}"
+        catchtouchstart="onTouchStart"
+        catchtouchmove="onTouchMove"
+        catchtouchend="onTouchEnd">
+        <view class="kp-face">
+          <text class="kp-glyph">{{item.glyph}}</text>
+          <text class="kp-name">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提示条 -->
+    <view class="k-tip" wx:if="{{hint}}">
+      💡 把高亮的棋子向 {{hint.dx > 0 ? '右' : (hint.dx < 0 ? '左' : (hint.dy > 0 ? '下' : '上'))}} 滑 {{hint.dist}} 格（整体最少还需 {{hint.left}} 步）
+    </view>
+    <view class="k-tip dim" wx:else>拖动棋子滑到尽头 · 一次连续滑动算 1 步</view>
+
+    <!-- 操作区 -->
+    <view class="k-ops">
+      <view class="op" bindtap="hint"><text class="op-i">💡</text><text class="op-t">提示</text></view>
+      <view class="op {{canUndo ? '' : 'off'}}" bindtap="undo"><text class="op-i">↩️</text><text class="op-t">撤销</text></view>
+      <view class="op" bindtap="restart"><text class="op-i">🔄</text><text class="op-t">重来</text></view>
+      <view class="op" bindtap="demo"><text class="op-i">▶️</text><text class="op-t">演示</text></view>
+    </view>
+
+    <!-- 2026-10-18：方向键已删除 —— 拖拽本身就是主操作，方向键既占高度又与星级口径纠缠 -->
+    <view class="safe-gap"></view>
+
+    <!-- 结算（公共弹层；外面裹一层页面级容器，便于端到端断言"弹层已挂载"） -->
+    <view class="k-settle" wx:if="{{over}}">
+      <settle-pop
+        visible="{{over}}"
+        win="{{win}}"
+        stars-text="{{starsText}}"
+        title="{{settleTitle}}"
+        msg="{{settleMsg}}"
+        show-retry="{{false}}"
+        custom-ops="{{true}}">
+        <view class="s-btns">
+          <button class="s-btn primary" bindtap="goNext" wx:if="{{curLevel < totalLevels}}">下一关 ▶</button>
+          <button class="s-btn" bindtap="again">重玩本关</button>
+          <button class="s-btn ghost" bindtap="goLevels">关卡列表</button>
+        </view>
+      </settle-pop>
+    </view>
+  </block>
+</view>
+
+<!-- 战士徽章（2026-10-08）：玩法页常驻「我的战士」，点一下去换皮肤。
+     皮肤原来只在字母射击能看见，因为别的玩法界面没有角色的位置 —— 这个徽章就是那个位置。 -->
+
+<!-- 首次进入的操作引导（2026-10-28）：每款玩法只弹一次，文案在 utils/game-howto.js。
+     放在页面最外层，组件自身 fixed 定位，不影响任何已有布局。 -->
+<how-to-play game="klotski" />

@@ -30,15 +30,24 @@
     <button class="snd-btn" bindtap="toggleSound" hover-class="none">{{soundOn ? '🔊' : '🔇'}}</button>
   </view>
 
+  <!-- 定级测入口（2026-10-28，只在「没选过年级」时出现）
+       为什么只给新用户：老用户已经知道自己该练哪个年级，这条对他只是占位；
+       新用户才是「不知道该选哪个」的人 —— 而这恰好是他打开小程序第一分钟的问题。
+       测完会自动写入全局年级，等于把「选年级」这一步从猜变成测。 -->
+  <view wx:if="{{needGrade}}" class="lt-entry" bindtap="goLevelTest">
+    <text class="lt-entry__ic">🎯</text>
+    <view class="lt-entry__t">
+      <view class="lt-entry__b">不知道从哪个年级开始？</view>
+      <view class="lt-entry__s">10 道题测出水平 · 约 1 分钟 · 不用登录</view>
+    </view>
+    <view class="lt-entry__go">去测 ›</view>
+  </view>
+
   <!-- ② 战士舞台（点立绘换皮肤；点段位看段位详情） -->
   <view class="w-stage" bindtap="goAvatarSkin">
     <view class="w-side w-side--left">
       <view class="w-name">{{warriorName}}</view>
       <view class="w-rank" catchtap="goRankInfo">🏅 {{rankName || rankShort}} ›</view>
-    </view>
-    <view class="w-side w-side--right">
-      <view class="w-lv">Lv.{{lvCell}}</view>
-      <view class="w-lv-lab">等级</view>
     </view>
     <image
       wx:if="{{warriorImg && !warriorImgErr}}"
@@ -49,15 +58,30 @@
     <view wx:else class="w-emoji">{{warriorEmoji}}</view>
   </view>
 
-  <!-- 等级进度（贴着舞台，天空底：不再单独占一张白卡）
-       注意：这里只写 Lv，不要再带段位名 —— 段位已经在左侧出现一次，
-       写成「Lv.44 → 钻石 IX」等于把段位又讲了一遍（二期返工点）。 -->
+  <!-- 段位进度（2026-10-28：这里原本是「等级 Lv」条 ——
+       Lv 与左侧段位都由同一颗星推导，等于同一个数字讲两遍，已砍掉，
+       只留段位这一套进度语义；进度条本体保留，否则舞台下方会空一块。）
+       星星被晋级考试封顶时，右侧不再写「再得 N⭐」（那是句永远不变的假承诺），
+       改由下方 exam-bar 给出唯一的解封动作。 -->
   <view class="lv-inline">
     <view class="lv-line">
-      <text class="lv-line__t">Lv.{{lvCell}}{{lvNext ? '' : ' · 满级'}}</text>
-      <text class="lv-line__s">{{lvNeed > 0 ? ('再得 ' + lvNeed + '⭐ 升级') : '已达最高等级'}}</text>
+      <text class="lv-line__t">{{rankName || rankShort}}</text>
+      <text class="lv-line__s">{{needExam ? '星星已被封顶' : (rankNeed > 0 ? ('再得 ' + rankNeed + '⭐ 进 ' + rankNextName) : '已达最高段位')}}</text>
     </view>
-    <view class="lv-track"><view class="lv-fill" style="width:{{lvPercent}}%"></view></view>
+    <view class="lv-track"><view class="lv-fill" style="width:{{needExam ? 100 : rankPercent}}%"></view></view>
+  </view>
+
+  <!-- 晋级考试直达条（2026-10-28 新增，仅被封顶时渲染）
+       为什么必须有：exam-gate 规定「没通过下一个大段的晋级试 → 星星对外封顶」，
+       而解封入口原本只在三级页面（首页 → 段位 chip → 段位详情 → 去考试）。
+       玩家看到的是「再玩多少星星都不涨」，这一条把原因和出口一起摆到首屏。 -->
+  <view wx:if="{{needExam}}" class="exam-bar" bindtap="goExam">
+    <text class="exam-bar__ic">🎓</text>
+    <view class="exam-bar__t">
+      <view class="exam-bar__b">星星已达{{rankShort}}上限 · 去考{{examTierName}}晋级试</view>
+      <view class="exam-bar__s">本学段题库随机 10 题全对通过，通过即解封</view>
+    </view>
+    <view class="exam-bar__btn">去考试</view>
   </view>
 
   <!-- 皮肤只留一行：收集进度 + 下一个目标（点击进图鉴） -->
@@ -177,4 +201,24 @@
   <!-- 全局年级选择器（与「我的 → 当前年级」同一个组件，2026-10-18） -->
   <grade-picker visible="{{gradePickerVisible}}" value="{{gradeKey}}"
     bind:pick="onGradePick" bind:close="onGradeClose" />
+
+  <!-- 首次进入三步引导（2026-10-28）：只走一次，ww_onboard_done 记标记。
+       为什么用整屏卡片而不是气泡：首屏元素高度随年级/登录态/皮肤条件渲染在变，
+       气泡若按坐标定位会指到空白处。三句话本身也自成一段说明，不需要指位置。 -->
+  <view wx:if="{{onboardVisible}}" class="ob-mask" catchtouchmove="noop">
+    <view class="ob-dim"></view>
+    <view class="ob-card">
+      <view class="ob-dots">
+        <view wx:for="{{onboardTotal}}" wx:key="*this"
+          class="ob-dot {{index <= onboardStep ? 'is-on' : ''}}"></view>
+      </view>
+      <view class="ob-ic">{{onboardCur.ic}}</view>
+      <view class="ob-t">{{onboardCur.t}}</view>
+      <view class="ob-b">{{onboardCur.b}}</view>
+      <view class="ob-btn" bindtap="nextOnboard">
+        {{onboardStep + 1 >= onboardTotal ? '开始闯关' : '下一步'}}
+      </view>
+      <view class="ob-skip" bindtap="finishOnboard">跳过</view>
+    </view>
+  </view>
 </view>

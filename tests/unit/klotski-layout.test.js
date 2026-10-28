@@ -43,7 +43,7 @@ global.wx = {
 let def = null;
 const prevPage = global.Page;
 global.Page = (o) => { def = o; };
-require('../../miniprogram/pages/klotski/klotski');
+require('../../miniprogram/pkg-games/klotski/klotski');
 global.Page = prevPage;
 
 function makePage() {
@@ -124,7 +124,7 @@ s.test('尺寸没变时不重复 setData（避免无谓渲染）', () => {
 s.test('方向键已删除（页面不再有 nudge / .k-pad）', () => {
   const fs = require('fs');
   const path = require('path');
-  const dir = path.join(__dirname, '../../miniprogram/pages/klotski');
+  const dir = require('./_mp').pageDir('klotski');
   const wxml = fs.readFileSync(path.join(dir, 'klotski.wxml'), 'utf8');
   const js = fs.readFileSync(path.join(dir, 'klotski.js'), 'utf8');
   const wxss = fs.readFileSync(path.join(dir, 'klotski.wxss'), 'utf8');
@@ -137,7 +137,7 @@ s.test('方向键已删除（页面不再有 nudge / .k-pad）', () => {
 s.test('通关结算不再出现「再玩一次 + 重玩本关」两个同义按钮', () => {
   const fs = require('fs');
   const path = require('path');
-  const wxml = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages/klotski/klotski.wxml'), 'utf8');
+  const wxml = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/klotski/klotski.wxml'), 'utf8');
   s.assert.contains(wxml, 'custom-ops="{{true}}"', '页面自备按钮时必须关掉组件默认按钮');
   const pop = fs.readFileSync(path.join(__dirname, '../../miniprogram/components/settle-pop/settle-pop.wxml'), 'utf8');
   s.assert.contains(pop, '!customOps && win && !showNext', '组件的「再玩一次」要能被 customOps 关掉');

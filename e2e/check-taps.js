@@ -105,10 +105,27 @@ function checkOne(dir, name, kind) {
 }
 
 // ---------- 页面 ----------
-fs.readdirSync(PAGES_DIR).forEach(function (d) {
-  const dir = path.join(PAGES_DIR, d);
-  if (!fs.statSync(dir).isDirectory()) return;
-  checkOne(dir, d, 'page');
+// 2026-10-28：21 个玩法页 + level / puzzle-level / result 迁进了分包 pkg-games。
+// 目录列表改成「按 app.json 实际声明推导」，否则分包里的页面会悄悄失去这条护栏
+// （bindtap 写错方法名在开发者工具里不报错，只是点了没反应）。
+function appRootDirs() {
+  let cfg = null;
+  try { cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'app.json'), 'utf8')); } catch (e) { return ['pages']; }
+  const roots = ['pages'];
+  ((cfg && cfg.subPackages) || []).forEach(function (sp) {
+    if (sp && sp.root && roots.indexOf(sp.root) < 0) roots.push(sp.root);
+  });
+  return roots;
+}
+
+appRootDirs().forEach(function (rootName) {
+  const rootDir = path.join(ROOT, rootName);
+  if (!fs.existsSync(rootDir)) return;
+  fs.readdirSync(rootDir).forEach(function (d) {
+    const dir = path.join(rootDir, d);
+    if (!fs.statSync(dir).isDirectory()) return;
+    checkOne(dir, d, 'page');
+  });
 });
 
 // ---------- 自定义组件 ----------

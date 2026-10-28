@@ -27,6 +27,8 @@ function setSoundEnabled(on) {
 
 // ============ 一、TTS 发音（微信同声传译插件） ============
 
+var _ttsWarned = false;
+
 /** 获取 TTS 插件（未声明/不可用时返回 null，调用方静默降级） */
 function getTTS() {
   try {
@@ -34,6 +36,15 @@ function getTTS() {
     const p = requirePlugin('WechatSI');
     return p && typeof p.textToSpeech === 'function' ? p : null;
   } catch (e) {
+    // 2026-10-28：这里原来完全静默。app.json 没声明 WechatSI 插件时，
+    // requirePlugin 必然抛错 → 发音 100% 失效，但开发者工具里连一条日志都没有，
+    // 这个洞被瞒了很久（全站 3 处发音调用从来没响过）。
+    // 只警告一次，避免每答一题刷一条。
+    if (!_ttsWarned && typeof console !== 'undefined' && console.warn) {
+      _ttsWarned = true;
+      console.warn('[tts] 发音不可用：app.json 未声明 WechatSI 插件，'
+        + '详见 docs/玩法与功能缺失清单.md §1.1');
+    }
     return null;
   }
 }

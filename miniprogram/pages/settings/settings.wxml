@@ -1,0 +1,46 @@
+<!-- 设置页（2026-10-28）
+     结构照微信原生设置页：分组卡片 + 左侧标题 + 右侧控件。
+     没有「保存」按钮 —— 每一项都是即时生效的，加保存反而让用户以为点了才算。 -->
+<view class="page-set">
+  <view class="st-head">
+    <view class="st-back" bindtap="goBack">‹</view>
+    <view class="st-title">设置</view>
+  </view>
+
+  <view class="st-group">
+    <view class="st-row">
+      <view class="st-row-main">
+        <view class="st-row-t">声音</view>
+        <view class="st-row-s">发音、答对/答错音效统一受此开关控制</view>
+      </view>
+      <switch checked="{{soundOn}}" color="#ff9a1f" bindchange="toggleSound" />
+    </view>
+  </view>
+
+  <view class="st-group">
+    <view class="st-row st-row--tap" bindtap="clearCache">
+      <view class="st-row-main">
+        <view class="st-row-t">清理临时缓存</view>
+        <view class="st-row-s">不影响星星、段位、皮肤与登录状态</view>
+      </view>
+      <view class="st-row-arrow">›</view>
+    </view>
+    <view class="st-row st-row--tap" bindtap="openAgreement">
+      <view class="st-row-main">
+        <view class="st-row-t">用户协议与隐私</view>
+      </view>
+      <view class="st-row-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="st-group">
+    <view class="st-row">
+      <view class="st-row-main">
+        <view class="st-row-t">版本</view>
+      </view>
+      <view class="st-row-val">{{version}}</view>
+    </view>
+  </view>
+
+  <view class="st-foot">词力战士 · 边玩边记字词</view>
+</view>

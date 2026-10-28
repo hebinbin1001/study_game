@@ -35,7 +35,7 @@ const wbLib = require('../miniprogram/game/word-build');
 const rng = require('../miniprogram/utils/rng');
 
 const HOME_URL = '/pages/index/index';
-const LEVEL_URL = '/pages/level/level';
+const LEVEL_URL = '/pkg-games/level/level';
 const GRADE = 'g3';          // 用例固定用一个学段，期望值可复算
 // P2 后模板（6 款轮换，每款 5 关）：1 字母射击 → 2 消消乐 → 3 字母拼词 → 4 连连看 → 5 成语 → 6 贪吃蛇
 const WB_LEVEL = 3;                 // 字母拼词
@@ -275,7 +275,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
 
   console.log('[3/8] 固定题面：字母拼词挑战关两次进入一致，且等于独立复算值');
   const expWb = expectWordBuild(GRADE, WB_LEVEL);
-  const wbUrl = '/pages/word-build/word-build?challenge=1&grade=' + GRADE
+  const wbUrl = '/pkg-games/word-build/word-build?challenge=1&grade=' + GRADE
     + '&level=' + WB_LEVEL + '&seed=' + challenge.seedOf(GRADE, WB_LEVEL);
   const wb1 = await H.goto(miniProgram, wbUrl, 1800);
   const wbD1 = await wb1.data();
@@ -353,7 +353,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
 
   console.log('[5/8] 连连看挑战关：种子牌面 + 换局重排');
   const expLink0 = expectLink(GRADE, LINK_LEVEL, 0);
-  const linkUrl = '/pages/link/link?challenge=1&grade=' + GRADE
+  const linkUrl = '/pkg-games/link/link?challenge=1&grade=' + GRADE
     + '&level=' + LINK_LEVEL + '&seed=' + challenge.seedOf(GRADE, LINK_LEVEL);
   const lk1 = await H.goto(miniProgram, linkUrl, 1800);
   const lkD1 = await lk1.data();
@@ -392,7 +392,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
   ck.check('换局后牌面下标仍完整（16 张）', (lkD3.cards || []).length === 16);
 
   console.log('[6/8] 挑战星级写入 <grade>@challenge@<level>（不污染自由练存档）');
-  const resUrl = '/pages/result/result?challenge=1&grade=' + GRADE + '&level=' + WB_LEVEL
+  const resUrl = '/pkg-games/result/result?challenge=1&grade=' + GRADE + '&level=' + WB_LEVEL
     + '&type=&custom=0&win=1&score=80&correctCount=8&totalQ=8&stars=3&maxCombo=5';
   await H.goto(miniProgram, resUrl, 1500);
   let starsStore = await miniProgram.callWxMethod('getStorageSync', 'ww_stars');
@@ -403,7 +403,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     !(starsStore && starsStore[GRADE + '_' + WB_LEVEL]),
     '实际 = ' + JSON.stringify(starsStore && starsStore[GRADE + '_' + WB_LEVEL]));
 
-  const resUrl2 = '/pages/result/result?challenge=0&grade=' + GRADE + '&level=' + WB_LEVEL
+  const resUrl2 = '/pkg-games/result/result?challenge=0&grade=' + GRADE + '&level=' + WB_LEVEL
     + '&type=idiom&custom=0&win=1&score=80&correctCount=8&totalQ=8&stars=3&maxCombo=5';
   await H.goto(miniProgram, resUrl2, 1500);
   starsStore = await miniProgram.callWxMethod('getStorageSync', 'ww_stars');
@@ -496,7 +496,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
     await ct.tap();
     await home3.waitFor(2200);
     const cur4 = await miniProgram.currentPage();
-    ck.check('落到 Boss 玩法页 pages/game/game', cur4.path === 'pages/game/game', '实际 = ' + cur4.path);
+    ck.check('落到 Boss 玩法页 pkg-games/game/game', cur4.path === 'pkg-games/game/game', '实际 = ' + cur4.path);
     const bossData = await cur4.data();
     ck.check('Boss 关玩法页收到 challenge=1（挑战模式）', bossData.challenge === true,
       '实际 = ' + bossData.challenge);
@@ -516,7 +516,7 @@ H.runSuite('verify-challenge（挑战主线）', async function (miniProgram, ck
       !!(await H.waitForSelector(cur4, '.gs-slot', 15000)) &&
       !!(await H.waitForSelector(cur4, '.gs-bullet', 15000)));
     ck.check('全程未崩溃（停在 Boss 玩法页）',
-      (await miniProgram.currentPage()).path === 'pages/game/game');
+      (await miniProgram.currentPage()).path === 'pkg-games/game/game');
   }
 
   // 恢复跑测试前的真实存档（见函数开头的说明）

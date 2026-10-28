@@ -35,7 +35,10 @@
         <view class="stat-label">答题数</view>
       </view>
       <view class="stat-card">
-        <view class="stat-num">{{avgRate}}%</view>
+        <view class="stat-num">
+          <block wx:if="{{totalQ > 0}}">{{avgRate}}%</block>
+          <block wx:else>--</block>
+        </view>
         <view class="stat-label">正确率</view>
       </view>
     </view>
@@ -66,9 +69,9 @@
       <view class="trend">
         <view class="trend-item" wx:for="{{trend}}" wx:key="date">
           <view class="trend-bar-wrap">
-            <view class="trend-bar" style="height:{{item.rate}}%;"></view>
+            <view class="trend-bar" style="height:{{item.hasQ ? item.rate : 0}}%;"></view>
           </view>
-          <view class="trend-val">{{item.rate}}%</view>
+          <view class="trend-val">{{item.hasQ ? item.rate + '%' : '—'}}</view>
           <view class="trend-date">{{item.dateShort}}</view>
         </view>
       </view>

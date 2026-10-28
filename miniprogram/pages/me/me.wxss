@@ -1,13 +1,31 @@
-/* 个人中心页（M6-N）：卡通白卡 + 硬阴影 + 设计 token */
+/* 个人中心页（M6-N）：卡通白卡 + 黏土阴影 + 设计令牌
+ *
+ * 批 4 精修（2026-10-28）：
+ *   · 字号 12 档（72/44/40/38/34/32/30/28/26/24/22）收成 5 档；
+ *   · 圆角 6 档（36/32/30/28/24/20）收成 3 档；
+ *   · 统计三格原本是 `0 6rpx 16rpx` 软阴影 —— 它不是「硬底边」所以批 3 没被替换，
+ *     结果资料卡和菜单卡是黏土、三格是贴纸。这里换成 --clay-card 对齐；
+ *   · 「编辑 / 登录」按钮 60rpx（30px）低于 44px 触控下限 → 88rpx。
+ *
+ * 安全区：原来 `.page-me` 的 padding-bottom 和 `.safe-gap` 各算了一次
+ * `env(safe-area-inset-bottom)`，实际底部留白 = 48 + 24 + 2×安全区。
+ * 现在只留 padding-bottom 这一处（wxml 里那行 safe-gap 一并删掉）。
+ *
+ * 背景（2026-10-28 用户确认可改）：原来是 #7ec8ff → #b9e3ff → #e4f6ff 的第三套天空色，
+ * 和首页的 #4a9fe8 → #d8efff 不是同一套，切 tab 时能明显看出色差。
+ * 现在统一走 --sky-1/2/3 三段渐变，四个 tab 页终于同一种底。
+ * 连带调整：不在白卡内的文字（分组标题、版本号）原来是 --ink-weak，
+ * 压在 #8fcbf7 上对比度不足，改 --ink-sub / --ink-deep。
+ */
 page {
-  background: linear-gradient(180deg, #7ec8ff 0%, #b9e3ff 55%, #e4f6ff 100%);
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 36%, var(--sky-3) 100%);
   min-height: 100vh;
-  color: #3a3a5c;
+  color: var(--ink);
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 
 .page-me {
-  padding: 40rpx 32rpx;
+  padding: var(--sp-4) var(--page-x);
   padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
@@ -16,95 +34,106 @@ page {
 .profile-card {
   display: flex;
   align-items: center;
-  background: #ffffff;
-  border-radius: 36rpx;
-  padding: 36rpx 32rpx;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.08), 0 18rpx 36rpx rgba(0, 0, 0, 0.1);
+  background: var(--white);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--page-x);
+  box-shadow: var(--clay-3);
 }
 .avatar {
   width: 128rpx;
   height: 128rpx;
   border-radius: 50%;
   overflow: hidden;
-  background: #e8f0fa;
+  background: rgba(20, 50, 90, .06);
   flex-shrink: 0;
 }
 .avatar--default {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 72rpx;
+  font-size: var(--fs-display);
 }
 .info {
   flex: 1;
-  margin-left: 28rpx;
+  min-width: 0;
+  margin-left: var(--sp-3);
   overflow: hidden;
 }
 .name {
-  font-size: 38rpx;
+  font-size: var(--fs-title);
   font-weight: 900;
-  color: #3a3a5c;
+  color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .meta {
-  margin-top: 14rpx;
+  margin-top: var(--sp-1);
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
 }
 .meta-chip {
-  font-size: 22rpx;
-  color: #5c7f9e;
-  background: #f0f4fa;
-  padding: 4rpx 16rpx;
-  border-radius: 20rpx;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48rpx;
+  font-size: var(--fs-cap);
+  color: var(--ink-sub);
+  background: rgba(20, 50, 90, .05);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-pill);
   font-weight: 700;
 }
+.meta-chip:active { opacity: .72; }
+/* 88rpx：原本 60rpx（30px），是这一页唯一的「编辑」入口，低于 44px 摸起来发飘 */
 .edit-hint {
   flex-shrink: 0;
-  padding: 0 30rpx;
-  height: 60rpx;
-  line-height: 60rpx;
-  border-radius: 30rpx;
-  background: #4cc9f0;
-  color: #ffffff;
-  font-size: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 128rpx;
+  height: 88rpx;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--blue);
+  color: var(--white);
+  font-size: var(--fs-body);
   font-weight: 900;
+  box-shadow: var(--clay-1);
 }
+.edit-hint:active { transform: translateY(2rpx) scaleY(.97); }
 .edit-hint.hint-login {
-  background: #FF9800;
+  background: var(--pri);
 }
 
 /* 游客说明卡 */
 .guest-card {
   display: flex;
   align-items: flex-start;
-  gap: 20rpx;
-  margin-top: 28rpx;
-  background: #FFF7EC;
-  border: 2rpx solid #FFE3B3;
-  border-radius: 28rpx;
-  padding: 26rpx 28rpx;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  background: rgba(255, 154, 31, .08);
+  border: 2rpx solid rgba(255, 154, 31, .28);
+  border-radius: var(--r-md);
+  padding: var(--sp-3);
 }
-.gc-ic { font-size: 44rpx; flex-shrink: 0; }
+.gc-ic { font-size: var(--fs-title); flex-shrink: 0; }
 .gc-t { flex: 1; min-width: 0; }
-.gc-b { font-size: 28rpx; font-weight: 800; color: #A66A00; }
-.gc-s { font-size: 22rpx; color: #C08B4A; line-height: 1.5; margin-top: 6rpx; }
+.gc-b { font-size: var(--fs-body); font-weight: 800; color: var(--pri-ink); }
+.gc-s { font-size: var(--fs-cap); color: var(--ink-sub); line-height: 1.5; margin-top: 6rpx; }
 
 
 /* 统计三格 */
 .stat-row {
   display: flex;
-  gap: 16rpx;
-  margin-top: 28rpx;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
 }
 .stat-box {
   flex: 1;
-  background: #ffffff;
-  border-radius: 24rpx;
-  padding: 16rpx 8rpx 14rpx;
+  background: var(--white);
+  border-radius: var(--r-md);
+  padding: var(--sp-2) var(--sp-1) var(--sp-1);
   min-height: 142rpx;
   box-sizing: border-box;
   display: flex;
@@ -112,103 +141,114 @@ page {
   align-items: center;
   justify-content: center;
   text-align: center;
-  box-shadow: 0 6rpx 16rpx rgba(30, 60, 120, .08);
+  box-shadow: var(--clay-card);
   min-width: 0;
 }
-.stat-box:active { transform: translateY(2rpx); }
+.stat-box:active { transform: translateY(2rpx) scaleY(.98); }
 .stat-ic {
   width: 44rpx;
   height: 44rpx;
   line-height: 44rpx;
-  font-size: 32rpx;
+  font-size: var(--fs-strong);
   text-align: center;
 }
 .stat-num {
   max-width: 100%;
   margin-top: 4rpx;
-  font-size: 34rpx;
+  font-size: var(--fs-strong);
   font-weight: 900;
-  color: #3a3a5c;
+  color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.stat-box--rank .stat-num { font-size: 28rpx; }
+.stat-box--rank .stat-num { font-size: var(--fs-body); }
 .stat-lab {
-  font-size: 22rpx;
-  color: #6b7688;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
   margin-top: 4rpx;
   white-space: nowrap;
 }
 
 /* 功能菜单 */
 /* 菜单分组（2026-10-17）：成长 / 对战 / 学习 */
-.menu-group { margin-top: 28rpx; }
+.menu-group { margin-top: var(--sp-3); }
 .menu-group-title {
-  margin: 0 8rpx 10rpx;
-  font-size: 24rpx;
+  margin: 0 var(--sp-1) 10rpx;
+  font-size: var(--fs-cap);
   font-weight: 800;
-  color: #8aa0b8;
+  /* 直接压在天空底上（不在白卡里），--ink-weak 在 #8fcbf7 上只有 2:1，读不出来 */
+  color: var(--ink-deep);
   letter-spacing: 2rpx;
 }
 .menu-card {
-  background: #ffffff;
-  border-radius: 32rpx;
+  background: var(--white);
+  border-radius: var(--r-md);
   overflow: hidden;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.06), 0 18rpx 36rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-3);
 }
 .menu-row {
   display: flex;
   align-items: center;
-  padding: 0 32rpx;
+  padding: 0 var(--page-x);
   height: 108rpx;
-  border-bottom: 2rpx solid #f2f6fb;
+  border-bottom: 2rpx solid rgba(20, 50, 90, .06);
 }
 .menu-row:last-child {
   border-bottom: none;
 }
 .menu-row:active {
-  background: #f6f9fd;
+  background: rgba(20, 50, 90, .05);
 }
+/* emoji 也居中：原来只给了 width:56rpx 没给对齐，窄 emoji（👗）右半边是空的，
+   文字起始位置就跟着「看起来不齐」—— 实际 x 相同，是图标在框里偏左造成的错觉。 */
 .menu-emoji {
-  font-size: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-title);
   width: 56rpx;
   flex-shrink: 0;
 }
 .menu-name {
   flex: 1;
-  font-size: 30rpx;
+  min-width: 0;
+  font-size: var(--fs-body);
   font-weight: 700;
-  color: #3a3a5c;
+  color: var(--ink);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .menu-arrow {
-  font-size: 44rpx;
-  color: #c9d6e8;
+  font-size: var(--fs-title);
+  color: rgba(20, 50, 90, .20);
   font-weight: 700;
 }
 
 /* 账号区：复用菜单行，只给「注销账号」红色文字 */
-.menu-name--danger { color: #ff5a5a; }
+.menu-name--danger { color: var(--danger); }
 
 /* 底部：协议 + 版本号（协议从菜单移出，2026-10-17） */
 .version-row {
-  margin-top: 40rpx;
+  margin-top: var(--sp-4);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8rpx;
+  gap: var(--sp-1);
 }
 .version-link {
-  font-size: 22rpx;
-  color: #6b8fb5;
+  font-size: var(--fs-cap);
+  color: var(--ink-sub);
   text-decoration: underline;
+  padding: var(--sp-1) var(--sp-2);
 }
 .version {
   text-align: center;
-  font-size: 22rpx;
-  color: #8aa0b8;
+  font-size: var(--fs-cap);
+  color: var(--ink-weak);
+  padding: var(--sp-1) var(--sp-2);
 }
-.safe-gap { height: calc(env(safe-area-inset-bottom) + 24rpx); }
 .rank-badge {
   width: 44rpx;
   height: 44rpx;

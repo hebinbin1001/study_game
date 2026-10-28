@@ -15,35 +15,12 @@
   display: flex;
   align-items: center;
   margin-bottom: 32rpx;
-}
-
-.back-pill {
-  min-width: 140rpx;
-  padding: 0 24rpx;
-  height: 76rpx;
-  line-height: 76rpx;
-  font-size: 26rpx;
-  font-weight: 700;
-  border-radius: 38rpx;
-  background: rgba(255, 255, 255, 0.9);
-  color: #3a3a5c;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.08), 0 12rpx 24rpx rgba(0, 0, 0, 0.08);
-  transition: transform 0.12s;
-}
-.back-pill:active {
-  transform: translateY(4rpx);
-  box-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.08);
-}
-button.back-pill::after {
-  border: none;
-}
-
-.header-title {
+}.header-title {
   flex: 1;
   text-align: center;
-  font-size: 40rpx;
+  font-size: 38rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   letter-spacing: 6rpx;
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
   margin-right: 140rpx; /* 平衡返回按钮宽度，标题保持视觉居中 */
@@ -53,7 +30,7 @@ button.back-pill::after {
 .card-title {
   font-size: 32rpx;
   font-weight: 900;
-  color: #3a3a5c;
+  color: var(--ink);
   margin-bottom: 28rpx;
 }
 
@@ -71,8 +48,8 @@ button.back-pill::after {
 }
 
 .share-tip {
-  font-size: 26rpx;
-  color: #5c7f9e;
+  font-size: 28rpx;
+  color: var(--ink-sub);
   margin-bottom: 32rpx;
 }
 
@@ -85,7 +62,7 @@ button.back-pill::after {
   margin-bottom: 44rpx;
   padding: 24rpx 20rpx;
   background: #fff7e0;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.06);
 }
 
@@ -93,18 +70,18 @@ button.back-pill::after {
 .btn-copy {
   min-width: 320rpx;
   padding: 26rpx 0;
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 900;
   letter-spacing: 4rpx;
-  border-radius: 44rpx;
-  background: #ffb703;
-  color: #ffffff;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.15), 0 18rpx 36rpx rgba(0, 0, 0, 0.12);
+  border-radius: 999rpx;
+  background: var(--pri);
+  color: var(--white);
+  box-shadow: var(--clay-3);
   transition: transform 0.12s;
 }
 .btn-copy:active {
   transform: translateY(6rpx);
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.15);
+  box-shadow: var(--clay-1);
 }
 button.btn-copy::after {
   border: none;
@@ -126,10 +103,10 @@ button.btn-copy::after {
   flex: 1;
   padding: 24rpx;
   background: #f2f7fc;
-  border-radius: 20rpx;
+  border-radius: 28rpx;
   border: 4rpx solid #e1edf6;
-  color: #3a3a5c;
-  font-size: 36rpx;
+  color: var(--ink);
+  font-size: 38rpx;
   font-weight: 900;
   text-align: center;
   letter-spacing: 12rpx;
@@ -147,18 +124,18 @@ button.btn-copy::after {
 .btn-import {
   min-width: 180rpx;
   padding: 0 32rpx;
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 900;
   letter-spacing: 4rpx;
-  border-radius: 44rpx;
-  background: #4cc9f0;
-  color: #ffffff;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.15), 0 14rpx 28rpx rgba(0, 0, 0, 0.1);
+  border-radius: 999rpx;
+  background: var(--blue);
+  color: var(--white);
+  box-shadow: var(--clay-2);
   transition: transform 0.12s;
 }
 .btn-import:active {
   transform: translateY(6rpx);
-  box-shadow: 0 3rpx 0 rgba(0, 0, 0, 0.15);
+  box-shadow: var(--clay-1);
 }
 button.btn-import::after {
   border: none;
@@ -166,8 +143,8 @@ button.btn-import::after {
 
 .input-hint {
   margin-top: 20rpx;
-  font-size: 22rpx;
-  color: #8a9bb5;
+  font-size: 24rpx;
+  color: var(--ink-weak);
   text-align: center;
 }
 
@@ -177,9 +154,9 @@ button.btn-import::after {
 }
 
 .level-title {
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: 900;
-  color: #3a3a5c;
+  color: var(--ink);
   margin-bottom: 20rpx;
 }
 
@@ -194,16 +171,16 @@ button.btn-import::after {
 .level-meta .tag {
   font-size: 24rpx;
   padding: 8rpx 20rpx;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
 }
 
 .level-description {
-  font-size: 26rpx;
-  color: #5c7f9e;
+  font-size: 28rpx;
+  color: var(--ink-sub);
   margin-bottom: 28rpx;
   line-height: 1.6;
   background: #f2f7fc;
-  border-radius: 20rpx;
+  border-radius: 28rpx;
   padding: 20rpx 24rpx;
 }
 
@@ -213,15 +190,15 @@ button.btn-import::after {
   font-size: 32rpx;
   font-weight: 900;
   letter-spacing: 4rpx;
-  border-radius: 44rpx;
-  background: #7bd389;
-  color: #ffffff;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.15), 0 18rpx 36rpx rgba(0, 0, 0, 0.12);
+  border-radius: 999rpx;
+  background: var(--green);
+  color: var(--white);
+  box-shadow: var(--clay-3);
   transition: transform 0.12s;
 }
 .btn-start:active {
   transform: translateY(6rpx);
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.15);
+  box-shadow: var(--clay-1);
 }
 button.btn-start::after {
   border: none;
@@ -235,12 +212,12 @@ button.btn-start::after {
 
 .empty-text {
   font-size: 28rpx;
-  color: #5c7f9e;
+  color: var(--ink-sub);
   font-weight: 700;
   margin-bottom: 8rpx;
 }
 
 .empty-sub {
   font-size: 24rpx;
-  color: #8a9bb5;
+  color: var(--ink-weak);
 }

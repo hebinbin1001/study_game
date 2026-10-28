@@ -94,7 +94,7 @@ s.test('关卡描述字段齐备且越界返回 null', () => {
 s.test('跳转 URL 带齐 challenge/grade/level/seed', () => {
   const lv = challenge.levelAt('g1', 4);      // 第 4 关 = 词语连连看
   const url = challenge.pageUrl(lv, 'g1');
-  s.assert.contains(url, '/pages/link/link?');
+  s.assert.contains(url, '/pkg-games/link/link?');
   s.assert.contains(url, 'challenge=1');
   s.assert.contains(url, 'grade=g1');
   s.assert.contains(url, 'level=4');
@@ -189,7 +189,8 @@ s.test('星级折算：答对率 90/70/60 与剩余命 3/2/1', () => {
 // 现在统一按正确率；这条护栏防止有人改回按命给星。
 s.test('玩法页星级口径：match / link / snake 不得再调用 starsByLives', () => {
   ['match', 'link', 'snake'].forEach(function (d) {
-    var p = path.join(__dirname, '..', '..', 'miniprogram', 'pages', d, d + '.js');
+    // 2026-10-28：玩法页已迁进分包，位置由 _mp.pageDir 决定
+    var p = path.join(require('./_mp').pageDir(d), d + '.js');
     var src = fs.readFileSync(p, 'utf8');
     s.assert.ok(src.indexOf('starsByLives') === -1, d + ' 仍在按剩余命给星（应改 starsByRightRate）');
     s.assert.ok(src.indexOf('starsByRightRate') !== -1, d + ' 未按正确率折算星级');
@@ -313,6 +314,41 @@ s.test('随机源：pickN 取数不重复、不越界、不改入参', () => {
   s.assert.equal(rng.pickN(list, 99).length, 8, 'n 超长时返回整个列表');
   s.assert.equal(rng.pickN(list, 0).length, 0);
   s.assert.equal(rng.pickN(null, 3).length, 0, '空列表安全返回');
+});
+
+// ---- 关卡题目轮换（2026-10-28）----
+
+s.test('seedOf：同一天内同一关一致（预习卡与实战必须同题）', () => {
+  const t1 = new Date('2026-10-28T02:00:00Z').getTime(); // 北京 10:00
+  const t2 = new Date('2026-10-28T13:00:00Z').getTime(); // 北京 21:00
+  s.assert.equal(challenge.seedOf('g3', 5, t1), challenge.seedOf('g3', 5, t2));
+});
+
+s.test('seedOf / lineSeedOf：跨天换一套（否则重玩等于背答案位置）', () => {
+  const d1 = new Date('2026-10-28T02:00:00Z').getTime();
+  const d2 = new Date('2026-10-29T02:00:00Z').getTime();
+  s.assert.notEqual(challenge.seedOf('g3', 5, d1), challenge.seedOf('g3', 5, d2));
+  s.assert.notEqual(
+    challenge.lineSeedOf('g3', 'shoot', 3, d1),
+    challenge.lineSeedOf('g3', 'shoot', 3, d2)
+  );
+});
+
+s.test('dayStamp：按东八区切天（UTC 16:00 已是北京第二天）', () => {
+  s.assert.equal(challenge.dayStamp(new Date('2026-10-28T15:59:59Z').getTime()), '20261028');
+  s.assert.equal(challenge.dayStamp(new Date('2026-10-28T16:00:00Z').getTime()), '20261029');
+});
+
+s.test('同一种子取题一致：预习卡与实战传同一个 seed 时必须同题', () => {
+  const t = new Date('2026-10-28T02:00:00Z').getTime();
+  const seed = challenge.seedOf('g3', 7, t);
+  const a = challenge.pickItems('g3', 7, 10, '', seed);
+  const b = challenge.pickItems('g3', 7, 10, '', seed);
+  s.assert.true(a.length > 0);
+  s.assert.deepEqual(
+    a.map(function (x) { return x.a || x.q; }),
+    b.map(function (x) { return x.a || x.q; })
+  );
 });
 
 s.done();

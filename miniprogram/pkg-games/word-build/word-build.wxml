@@ -1,0 +1,50 @@
+<!-- 字母拼词工坊（玩法落地：demo g2）：看中文意思拼出英文单词 -->
+<view class="page-word-build">
+
+  <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />
+
+  <view class="prompt">
+    <view class="label">{{promptLabel}}</view>
+    <view class="cn">{{prompt}}</view>
+    <view class="meta">{{meta}}</view>
+  </view>
+
+  <view class="slots {{slotsCls}}">
+    <view
+      wx:for="{{slots}}"
+      wx:key="index"
+      class="slot {{item.filled ? 'filled' : ''}} {{item.cls}}"
+      data-idx="{{index}}"
+      catchtap="tapSlot">{{item.ch}}</view>
+  </view>
+
+  <view class="poolWrap">
+    <view class="pool">
+      <view
+        wx:for="{{tiles}}"
+        wx:key="index"
+        class="tile {{item.used ? 'used' : ''}}"
+        data-idx="{{index}}"
+        catchtap="tapTile">{{item.ch}}</view>
+    </view>
+  </view>
+
+  <view class="foot">
+    <view class="btn ghost" bindtap="onHint">💡 提示首字母</view>
+    <view class="btn" bindtap="onCheck">提交</view>
+  </view>
+
+  <battle-fx trigger="{{fxSeq}}" mode="{{fxMode}}" text="{{fxText}}" />
+
+<settle-pop
+    visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
+    title="{{win ? '本局完成' : '生命用完了'}}" msg="{{overMsg}}"
+    hint="{{hintText}}"
+    showNext="{{showNext}}" bind:retry="onRetry" bind:next="onNext" />
+</view>
+
+
+
+<!-- 首次进入的操作引导（2026-10-28）：每款玩法只弹一次，文案在 utils/game-howto.js。
+     放在页面最外层，组件自身 fixed 定位，不影响任何已有布局。 -->
+<how-to-play game="wordbuild" />

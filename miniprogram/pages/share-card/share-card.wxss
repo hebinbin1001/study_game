@@ -1,8 +1,13 @@
-/* 战绩分享卡页（M6-K） */
+/* 战绩分享卡页（M6-K）
+   2026-10-28：底色由深色（#1b2735→#12171f）改为与全站一致的天空浅色。
+   原因：AGENTS.md §5 定的硬约定是「统一浅色主题」，而深色模式在这个项目里
+   已经踩过一次坑（只改底色的半成品深色适配让 18 个页面整片发黑）。
+   这张卡片本身就是浅色配色（导出图是浅底），页面深色反而和卡片撞。 */
 page {
-  background: linear-gradient(180deg, #1b2735 0%, #22303f 60%, #12171f 100%);
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 58%, var(--sky-3) 100%);
+  background-color: var(--sky-3);
   min-height: 100vh;
-  color: #dce4f0;
+  color: var(--ink);
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 
@@ -16,15 +21,15 @@ page {
 }
 
 .pg-title {
-  font-size: 44rpx;
+  font-size: 48rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   letter-spacing: 4rpx;
-  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.2);
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
 }
 .pg-sub {
   font-size: 24rpx;
-  color: #9fb0c8;
+  color: var(--ink-sub);
   margin-top: 12rpx;
   margin-bottom: 28rpx;
 }
@@ -34,9 +39,9 @@ page {
   position: relative;
   width: 600rpx;
   height: 900rpx;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   overflow: hidden;
-  box-shadow: 0 14rpx 0 rgba(0, 0, 0, 0.18), 0 24rpx 48rpx rgba(0, 0, 0, 0.35);
+  box-shadow: var(--clay-3);
 }
 .share-canvas {
   width: 600rpx;
@@ -59,10 +64,10 @@ page {
   width: 270rpx;
   height: 96rpx;
   line-height: 96rpx;
-  border-radius: 48rpx;
-  font-size: 30rpx;
+  border-radius: var(--r-pill);
+  font-size: 32rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   text-align: center;
   padding: 0;
   margin: 0;
@@ -71,20 +76,20 @@ page {
   border: none;
 }
 .btn-act--save {
-  background: #4cc9f0;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.2);
+  background: var(--blue);
+  box-shadow: var(--clay-2);
 }
 .btn-act--share {
-  background: #ffb703;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.2);
+  background: var(--pri);
+  box-shadow: var(--clay-2);
 }
 .btn-act[disabled] {
   opacity: 0.5;
 }
 
-.back-link {
+/* 2026-10-28：原 .back-link 是死代码 —— wxml 里写的是 class="btn-back"（全局胶囊返回），
+   页面又单独定义了 .back-link 却没人引用。删掉，返回统一走 app.wxss 的 .btn-back；
+   这里只补一条本页需要的间距（全局件不加页级 margin）。 */
+.page-share .btn-back {
   margin-top: 40rpx;
-  font-size: 28rpx;
-  color: #9fb0c8;
-  padding: 12rpx 24rpx;
 }

@@ -47,7 +47,7 @@ var MODES = {
     gameType: 'word_warrior',        // 成绩表 game_type（小写，服务端正则只收 [a-z0-9_]）
     label: '字母射击',
     emoji: '🎯',
-    page: '/pages/game/game',
+    page: '/pkg-games/game/game',
     starBasis: '正确率 90/70/60（命数见关卡参数：普通关 5 命、Boss 关 7 命）'
   },
   wordBuild: {
@@ -55,7 +55,7 @@ var MODES = {
     gameType: 'word_build',
     label: '字母拼词',
     emoji: '🔤',
-    page: '/pages/word-build/word-build',
+    page: '/pkg-games/word-build/word-build',
     starBasis: '答对率 90/70/60'
   },
   link: {
@@ -63,7 +63,7 @@ var MODES = {
     gameType: 'link',
     label: '词语连连看',
     emoji: '🔗',
-    page: '/pages/link/link',
+    page: '/pkg-games/link/link',
     // 2026-10-17 用户拍板：全玩法统一按正确率给星（原「剩余命 3/2/1」错一次就掉星，与射击不等价）
     starBasis: '正确率 90/70/60（正确对数 / 总对数）'
   },
@@ -72,7 +72,7 @@ var MODES = {
     gameType: 'match',
     label: '词义消消乐',
     emoji: '🃏',
-    page: '/pages/match/match',
+    page: '/pkg-games/match/match',
     starBasis: '正确率 90/70/60（正确对数 / 总对数）'
   },
   idiom: {
@@ -80,7 +80,7 @@ var MODES = {
     gameType: 'idiom',
     label: '成语拼字',
     emoji: '🀄',
-    page: '/pages/idiom-build/idiom-build',
+    page: '/pkg-games/idiom-build/idiom-build',
     starBasis: '答对率 90/70/60（5 命）'
   },
   snake: {
@@ -88,7 +88,7 @@ var MODES = {
     gameType: 'snake',
     label: '单词贪吃蛇',
     emoji: '🐍',
-    page: '/pages/snake/snake',
+    page: '/pkg-games/snake/snake',
     starBasis: '正确率 90/70/60（拼完词数 / 尝试次数）'
   },
   // 2026-09-19 新增（一期第 4 件）：限时抢答
@@ -97,7 +97,7 @@ var MODES = {
     gameType: 'quiz',
     label: '限时抢答',
     emoji: '⚡',
-    page: '/pages/quiz/quiz',
+    page: '/pkg-games/quiz/quiz',
     starBasis: '答对率 90/70/60（倒计时内抢答，答错扣 2 秒）'
   },
   letterBubble: {
@@ -105,7 +105,7 @@ var MODES = {
     gameType: 'letter_bubble',
     label: 'Boss 补字母泡泡龙',
     emoji: '🛡️',
-    page: '/pages/letter-bubble/letter-bubble',
+    page: '/pkg-games/letter-bubble/letter-bubble',
     starBasis: '零失误完成词数 / 总词数（90/70/60）'
   }
 };
@@ -285,23 +285,56 @@ function subOf(gradeKey, mode, level) {
 
 // ============ 三、种子与随机源 ============
 /**
- * 关卡种子：同一学段同一关恒定。
- * @param {string} gradeKey
- * @param {number} level
- * @returns {number} 32 位整数
+ * 东八区日期戳（YYYYMMDD）。纯函数，不依赖 wx / storage，单测可直接注入 at。
+ *
+ * 为什么要按天换题（2026-10-28）：
+ *   原来种子只含「学段+关卡」，同一关永远是同一套题 —— 孩子打到第 3 遍就开始
+ *   记答案的位置，题目失去检测作用；预习卡也永远是那 10 个词。
+ *
+ * 为什么是「按天」而不是「每次进入都换」：
+ *   · 预习卡和实战必须同题（预习用 pickItems + seed，实战用同一个 seed）。
+ *     如果每次进入都换，用户「预习完 → 退出 → 再进 → 开始」就会换一套，预习白做；
+ *   · 按天换天然满足「同一天内预习与实战一致」，第二天自动换新题。
+ *
+ * 已知代价：23:59 预习、00:01 开打会错开一套题。这个边界一天只出现一次，
+ *   后果只是「预习的词和考的略有不同」，不产生错误数据。相比之下，把 attempt
+ *   种子存进 storage 会引入更麻烦的问题（换设备 / 清缓存 / 跨天残留旧种子，
+ *   反而可能永远不再换题），所以这里选按天。
+ *
+ * @param {number} [at] 毫秒时间戳，不传取当前时间
+ * @returns {string}
  */
-function seedOf(gradeKey, level) {
-  return rng.hashSeed('challenge:' + gradeKeyOf(gradeKey) + ':' + (parseInt(level, 10) || 1));
+function dayStamp(at) {
+  var t = (at === undefined || at === null) ? Date.now() : Number(at);
+  if (!Number.isFinite(t)) t = Date.now();
+  var d = new Date(t + 8 * 3600 * 1000); // 容器/设备可能是 UTC，统一按东八区切天
+  var m = d.getUTCMonth() + 1;
+  var day = d.getUTCDate();
+  return '' + d.getUTCFullYear() + (m < 10 ? '0' : '') + m + (day < 10 ? '0' : '') + day;
 }
 
 /**
- * 关卡随机源（同一关每次进入得到同一串随机数）。
+ * 关卡种子：同一学段同一关、**同一天**恒定；跨天换一套。
  * @param {string} gradeKey
  * @param {number} level
+ * @param {number} [at] 毫秒时间戳，不传取当前时间（单测注入用）
+ * @returns {number} 32 位整数
+ */
+function seedOf(gradeKey, level, at) {
+  return rng.hashSeed(
+    'challenge:' + gradeKeyOf(gradeKey) + ':' + (parseInt(level, 10) || 1) + ':d' + dayStamp(at)
+  );
+}
+
+/**
+ * 关卡随机源（同一关当天每次进入得到同一串随机数）。
+ * @param {string} gradeKey
+ * @param {number} level
+ * @param {number} [at]
  * @returns {function(): number}
  */
-function rngFor(gradeKey, level) {
-  return rng.makeRng(seedOf(gradeKey, level));
+function rngFor(gradeKey, level, at) {
+  return rng.makeRng(seedOf(gradeKey, level, at));
 }
 
 // ============ 四、关卡查询 ============
@@ -358,7 +391,7 @@ function levelsOfMode(gradeKey, mode) {
  * 组装玩法页跳转 URL（挑战模式）。
  * @param {Object} lv levelAt() 的结果
  * @param {string} gradeKey
- * @returns {string} 如 /pages/word-build/word-build?challenge=1&grade=g3&level=2&seed=123
+ * @returns {string} 如 /pkg-games/word-build/word-build?challenge=1&grade=g3&level=2&seed=123
  */
 function pageUrl(lv, gradeKey) {
   if (!lv) return '';
@@ -610,9 +643,18 @@ function lineMode(key) {
   return isLineKey(key) ? String(key).slice(LINE_PREFIX.length) : '';
 }
 
-/** 玩法线关卡种子（同一关每次一致） */
-function lineSeedOf(gradeKey, mode, level) {
-  return rng.hashSeed('line:' + gradeKeyOf(gradeKey) + ':' + mode + ':' + (parseInt(level, 10) || 1));
+/**
+ * 玩法线关卡种子（同一关当天一致，跨天换一套）。
+ * 与主线同一口径：不换的话「同一种玩法同一关」永远是同一批题，重玩等于重复。
+ * @param {string} gradeKey
+ * @param {string} mode
+ * @param {number} level
+ * @param {number} [at]
+ */
+function lineSeedOf(gradeKey, mode, level, at) {
+  return rng.hashSeed(
+    'line:' + gradeKeyOf(gradeKey) + ':' + mode + ':' + (parseInt(level, 10) || 1) + ':d' + dayStamp(at)
+  );
 }
 
 /** 参数摘要文案（玩法线的关卡行副标题） */
@@ -709,7 +751,7 @@ function lineLevelsOf(gradeKey, mode) {
 
 /**
  * 玩法线跳转 URL。
- * @returns {string} 如 /pages/link/link?challenge=1&line=mode_link&grade=g3&level=7&seed=123
+ * @returns {string} 如 /pkg-games/link/link?challenge=1&line=mode_link&grade=g3&level=7&seed=123
  */
 function lineUrl(gradeKey, mode, level) {
   var lv = lineLevelAt(gradeKey, mode, level);
@@ -830,6 +872,7 @@ module.exports = {
   paramsOf: paramsOf,
   subOf: subOf,
   seedOf: seedOf,
+  dayStamp: dayStamp,
   rngFor: rngFor,
   pageUrl: pageUrl,
   pickItems: pickItems,

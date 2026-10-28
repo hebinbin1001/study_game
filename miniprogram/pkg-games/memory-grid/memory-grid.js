@@ -1,0 +1,222 @@
+// 记忆矩阵（玩法落地：demo g7）——亮格记忆，程序生成关卡，与词库无关
+// 规则：亮起 N 格 → 熄灭 → 凭记忆点出；点错扣命（3 命）并把正确答案标出来；
+// 全对过关，逐关多亮一格、展示更短。进度本地存档（固定玩法不计入字词进度）。
+var lib = require('../../game/memory-grid');
+var storage = require('../../utils/storage');
+var playReport = require('../../utils/play-report');
+var puzzleLevels = require('../../utils/puzzle-levels');
+var puzzleProgress = require('../../utils/puzzle-progress');
+
+Page({
+  data: {
+    lives: 3,
+    score: 0,
+    scoreText: '分',
+    hudText: '',
+    cells: [],          // [{cls}]
+    phase: 'watch',     // watch 观察 / play 作答 / reveal 揭晓
+    mainText: '',
+    subText: '',
+    locked: true,
+    settle: false,
+    win: false,
+    starsText: '',
+    overMsg: ''
+  },
+
+  _level: 1,
+  _lives: 3,
+  _score: 0,
+  _targets: [],
+  _found: {},
+  _timers: [],
+
+  onLoad: function (options) {
+    // 数字智力关卡页可指定从第几关开始（?level=N）
+    this._levelMax = puzzleLevels.totalOf('memory') || 30;
+    this.start(parseInt((options || {}).level, 10) || 0);
+  },
+  onUnload: function () { this._clearTimers(); },
+  // 切后台 = 自动暂停（记忆阶段的时间不能在人不在的时候流走）
+  onHide: function () {
+    this._clearTimers();
+    if (!this.data.settle) this.setData({ paused: true });
+  },
+  // 暂停 / 恢复：记忆阶段（watch）的定时器被清掉后没法自动翻面，恢复时重看一遍这一关
+  _onPause: function () { this._clearTimers(); },
+  _onResume: function () {
+    if (this.data.settle) return;
+    if (this.data.phase === 'watch') this._startLevel();
+  },
+
+  _clearTimers: function () {
+    this._timers.forEach(function (t) { clearTimeout(t); });
+    this._timers = [];
+  },
+  _later: function (fn, ms) { this._timers.push(setTimeout(fn, ms)); },
+
+  start: function (levelNo) {
+    var no = parseInt(levelNo, 10);
+    this._level = (no >= 1) ? no : 1;
+    this._lives = 3;
+    this._score = 0;
+    this.setData({ settle: false, win: false, starsText: '', overMsg: '' });
+    this._startLevel();
+  },
+
+  _buildCells: function () {
+    var arr = [];
+    for (var i = 0; i < lib.GRID; i++) arr.push({ cls: '' });
+    return arr;
+  },
+
+  _startLevel: function () {
+    this._clearTimers();
+    this._found = {};
+    this._targets = lib.pickTargets(lib.targetCount(this._level), lib.GRID);
+    var cells = this._buildCells();
+    this._targets.forEach(function (i) { cells[i].cls = 'lit'; });
+
+    this.setData({
+      cells: cells,
+      phase: 'watch',
+      locked: true,
+      lives: this._lives,
+      score: this._score,
+      hudText: '第 ' + this._level + ' 关',
+      mainText: '记住 ' + this._targets.length + ' 个亮格',
+      subText: '约 ' + (lib.showMs(this._level) / 1000).toFixed(1) + ' 秒后消失'
+    });
+
+    var self = this;
+    this._later(function () {
+      var cleared = self._buildCells();
+      self.setData({
+        cells: cleared,
+        phase: 'play',
+        locked: false,
+        mainText: '点出刚才亮过的格子',
+        subText: '还需点出 ' + self._targets.length + ' 个'
+      });
+    }, lib.showMs(this._level));
+  },
+
+  tapCell: function (e) {
+    if (this.data.locked) return;
+    var idx = e.currentTarget.dataset.idx;
+    if (this._found[idx]) return;
+
+    if (this._targets.indexOf(idx) !== -1) {
+      this._found[idx] = true;
+      var patch = {};
+      patch['cells[' + idx + '].cls'] = 'found';
+      var left = this._targets.length - Object.keys(this._found).length;
+      patch.subText = left > 0 ? ('还需点出 ' + left + ' 个') : '全部找对！';
+      this.setData(patch);
+      if (left === 0) this._levelClear();
+      return;
+    }
+
+    // 点错：扣命 + 把正确格标出来，让玩家看清
+    this._lives--;
+    var self = this;
+    var patch2 = {};
+    patch2['cells[' + idx + '].cls'] = 'wrong';
+    this._targets.forEach(function (i) {
+      if (!self._found[i]) patch2['cells[' + i + '].cls'] = 'reveal';
+    });
+    patch2.locked = true;
+    patch2.phase = 'reveal';
+    patch2.lives = this._lives;
+    patch2.mainText = '粉色就是刚才亮起的格子';
+    patch2.subText = '剩余命数 ' + Math.max(0, this._lives);
+    this.setData(patch2);
+
+    this._later(function () {
+      if (self._lives <= 0) { self._finish(); return; }
+      self._startLevel();   // 同一关重来
+    }, 1500);
+  },
+
+  _levelClear: function () {
+    var self = this;
+    this._score += 10;
+    // 本地关卡进度（2026-09-29 修）：过一关记一关，关卡页据此解锁下一关
+    puzzleProgress.markCleared('memory', this._level);
+    this.setData({
+      locked: true,
+      phase: 'reveal',
+      score: this._score,
+      mainText: '第 ' + this._level + ' 关通过！',
+      subText: '准备下一关（格更多、时间更短）'
+    });
+    this._later(function () {
+      self._level++;
+      self._startLevel();
+    }, 900);
+  },
+
+  _finish: function () {
+    this._clearTimers();
+    var cleared = this._level - 1;
+    var stars = lib.starsFor(cleared);
+    var best = storage.get('ww_memory_best') || 0;
+    if (cleared > best) { best = cleared; storage.set('ww_memory_best', best); }
+    // 上报本局成绩（game_type=memory）：供「玩法进度榜」与玩法类成就使用
+    if (stars > 0) {
+      playReport.reportPlay({
+        gameType: 'memory',
+        grade: 'all',
+        level: Math.max(1, cleared),
+        score: this._score || 0,
+        correct: Math.max(0, cleared),
+        total: cleared,
+        stars: stars
+      });
+    }
+    this.setData({
+      locked: true,
+      settle: true,
+      win: stars >= 1,
+      starsText: stars > 0 ? '⭐'.repeat(stars) : '',
+      overMsg: '通过 ' + cleared + ' 关 · 最高纪录 ' + best + ' 关\n总分 ' + this._score,
+      // 「下一关」（2026-09-18）：本局到达第 _level 关，结算后可直接从更高的下一关继续
+      showNext: (this._level + 1) <= (this._levelMax || 30)
+    });
+  },
+
+  onRetry: function () { this.start(); },
+
+  /** 下一关：从「本局到达的关号 + 1」重新开局（难度更高） */
+  onNext: function () {
+    var next = (this._level || 1) + 1;
+    if (next > (this._levelMax || 30)) return;
+    wx.redirectTo({ url: '/pkg-games/memory-grid/memory-grid?level=' + next });
+  },
+  goBack: function () { wx.navigateBack(); },
+
+  onShareAppMessage: function () {
+    return { title: '词力战士 - 记忆矩阵', path: '/pages/playlist/playlist' };
+  },
+
+  // ============ 暂停 / 音效（统一组件 game-pause） ============
+  onGamePause: function () {
+    this.setData({ paused: true });
+    if (this._onPause) this._onPause();
+  },
+
+  onGameResume: function () {
+    this.setData({ paused: false });
+    if (this._onResume) this._onResume();
+  },
+
+  onGameRestart: function () {
+    this.setData({ paused: false });
+    this.start(this._level);
+  },
+
+  onGameQuit: function () {
+    this.setData({ paused: false });
+    wx.navigateBack();
+  }
+});

@@ -44,6 +44,8 @@ const PkMatch = require("./models/pk-match")(sequelize);
 const AdminControl = require("./models/admin-control")(sequelize);
 // 2026-10-28 订阅消息：授权/发送记录（表结构见 ensure-tables.js）
 const SubscribeGrant = require("./models/subscribe-grant")(sequelize);
+// 生词本（2026-10-28）：用户主动收藏的词，与被动收集的 WrongRecord 是两条线
+const WordFavorite = require("./models/word-favorite")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
@@ -174,4 +176,5 @@ module.exports = {
   PkMatch,
   AdminControl,
   SubscribeGrant,
+  WordFavorite,
 };

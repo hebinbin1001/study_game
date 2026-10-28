@@ -31,7 +31,7 @@ const H = require('./lib/harness');
 const linkLib = require('../miniprogram/game/link');
 const challenge = require('../miniprogram/utils/challenge');
 
-const PAGE_URL = '/pages/link/link';
+const PAGE_URL = '/pkg-games/link/link';
 const COLS = 4;
 const TILE_COUNT = COLS * COLS;
 const PAIR_COUNT = TILE_COUNT / 2;
@@ -173,8 +173,8 @@ H.runSuite('verify-link（词语连连看）', async function (miniProgram, ck) 
   const page = await H.goto(miniProgram, PAGE_URL, 1800);
 
   const cur = await miniProgram.currentPage();
-  ck.check('进入连连看页', cur.path === 'pages/link/link', '实际 = ' + cur.path);
-  if (cur.path !== 'pages/link/link') return;
+  ck.check('进入连连看页', cur.path === 'pkg-games/link/link', '实际 = ' + cur.path);
+  if (cur.path !== 'pkg-games/link/link') return;
 
   ck.check('根容器 .page-link 已渲染', !!(await H.waitForSelector(page, '.page-link', 8000)));
 
@@ -339,5 +339,5 @@ H.runSuite('verify-link（词语连连看）', async function (miniProgram, ck) 
   // 收尾
   console.log('[6/6] 校验页面未跳转/未崩溃');
   const end = await miniProgram.currentPage();
-  ck.check('流程结束后仍在连连看页', end.path === 'pages/link/link', '实际 = ' + end.path);
+  ck.check('流程结束后仍在连连看页', end.path === 'pkg-games/link/link', '实际 = ' + end.path);
 });

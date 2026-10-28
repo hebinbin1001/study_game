@@ -141,6 +141,26 @@ const TABLES = [
       ' PRIMARY KEY (`id`),' +
       ' UNIQUE KEY `uniq_subscribe_openid_scene` (`openid`, `scene`)' +
       ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=\'订阅消息授权与发送记录\''
+  },
+  {
+    name: 'word_favorites',
+    ddl:
+      'CREATE TABLE IF NOT EXISTS `word_favorites` (' +
+      ' `id` INT NOT NULL AUTO_INCREMENT COMMENT \'主键\',' +
+      ' `openid` VARCHAR(64) NOT NULL COMMENT \'用户标识\',' +
+      ' `word` VARCHAR(64) NOT NULL COMMENT \'词条（英语单词或成语，已去挖空标记）\',' +
+      ' `grade` VARCHAR(16) NOT NULL DEFAULT \'\' COMMENT \'学段 key（收藏时快照）\',' +
+      ' `type` VARCHAR(16) NOT NULL DEFAULT \'\' COMMENT \'题型（收藏时快照）\',' +
+      ' `hint` VARCHAR(128) NOT NULL DEFAULT \'\' COMMENT \'释义/提示（收藏时快照）\',' +
+      ' `ipa` VARCHAR(64) NOT NULL DEFAULT \'\' COMMENT \'音标（没有就空串）\',' +
+      ' `source` VARCHAR(16) NOT NULL DEFAULT \'manual\' COMMENT \'来源：wrong/result/preview/manual\',' +
+      ' `createdAt` DATETIME NOT NULL COMMENT \'创建时间\',' +
+      ' `updatedAt` DATETIME NOT NULL COMMENT \'更新时间\',' +
+      ' PRIMARY KEY (`id`),' +
+      // 唯一键按 word 而不是 questionId：同一个词从拼写题和选择题收藏，用户心里是同一条
+      ' UNIQUE KEY `uniq_favorite_openid_word` (`openid`, `word`),' +
+      ' KEY `idx_favorite_openid_updated` (`openid`, `updatedAt`)' +
+      ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=\'生词本\''
   }
 ];
 

@@ -69,8 +69,32 @@ s.test('scoreOf：答对为主，用时短有加分', () => {
   s.assert.true(P.scoreOf({ correct: 9, total: 10, ms: 1000 }) < P.scoreOf({ correct: 10, total: 10, ms: 600000 }));
 });
 
-s.test('isExpired：超过 3 天算过期', () => {
-  s.assert.equal(P.PK_EXPIRE_DAYS, 3);
+s.test('邀请回执：被应战就 +1 星，输了也有（2026-10-28）', () => {
+  s.assert.equal(P.PK_INVITE_BONUS, 1);
+  // 发起人赢：3（胜负）+ 1（回执）
+  s.assert.equal(P.challengerBaseOf('challenger'), 4);
+  // 发起人输：0 + 1 —— 这一条是这次改动的核心，分享出去不能零回执
+  s.assert.equal(P.challengerBaseOf('opponent'), 1);
+  // 平局：1 + 1
+  s.assert.equal(P.challengerBaseOf('draw'), 2);
+  // 应战方不受影响（回执只给发起人）
+  s.assert.equal(P.rewardOf('opponent', false), 3);
+});
+
+s.test('邀请回执计入每日上限，不能单独刷', () => {
+  // 今天已经拿满 10 星 → 被应战也不再发（哪怕只是 1 星回执）
+  s.assert.equal(P.capDaily(10, P.challengerBaseOf('opponent')), 0);
+  // 还剩 1 星额度 → 输的那场正好用掉这 1 星回执
+  s.assert.equal(P.capDaily(9, P.challengerBaseOf('opponent')), 1);
+  // 还剩 2 星额度，本该拿 4 星 → 只发 2，且优先保证胜负奖励（元信息见下）
+  s.assert.equal(P.capDaily(8, P.challengerBaseOf('challenger')), 2);
+  // 回执不会把上限顶高：任何 outcome 下 capDaily 都不超过剩余额度
+  ['challenger', 'opponent', 'draw'].forEach(function (o) {
+    s.assert.ok(P.capDaily(0, P.challengerBaseOf(o)) <= P.PK_DAILY_CAP, o + ' 超过日上限');
+  });
+});
+
+s.test('isExpired：超过 3 天算过期', () => {  s.assert.equal(P.PK_EXPIRE_DAYS, 3);
   const now = new Date('2026-10-08T12:00:00+08:00').getTime();
   s.assert.false(P.isExpired(new Date(now - 2 * 24 * 3600 * 1000), now));
   s.assert.false(P.isExpired(new Date(now - 3 * 24 * 3600 * 1000), now), '整 3 天边界仍可应战');

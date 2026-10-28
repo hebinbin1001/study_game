@@ -16,13 +16,13 @@
 const H = require('./lib/harness');
 const m24 = require('../miniprogram/game/math24');
 
-const URL = '/pages/math24/math24';
+const URL = '/pkg-games/math24/math24';
 const OP_INDEX = { '+': 0, '-': 1, '*': 2, '/': 3 };   // 与页面上四个运算符按钮的顺序一致
 
 H.runSuite('verify-math24（算 24 点 · 合并式）', async function (miniProgram, ck) {
   console.log('[1/7] 进入算 24 点');
   const page = await H.goto(miniProgram, URL, 1800);
-  ck.check('进入算 24 点页', (await miniProgram.currentPage()).path === 'pages/math24/math24');
+  ck.check('进入算 24 点页', (await miniProgram.currentPage()).path === 'pkg-games/math24/math24');
   ck.check('根容器 .page-24 已渲染', !!(await H.waitForSelector(page, '.page-24', 8000)));
   // 算 24 点会恢复上次断点；用例必须从第 1 关新局开始，否则上次的半局牌面会让初始断言假失败。
   await page.callMethod('startLevel', 1);
@@ -173,5 +173,5 @@ H.runSuite('verify-math24（算 24 点 · 合并式）', async function (miniPro
   ck.check('结算已弹出（data.over）', d.over === true);
   ck.check('通关判定为胜利（data.win）', d.win === true);
   ck.check('最少步通关给 3 星', d.starsText === '⭐⭐⭐', '实际 = ' + JSON.stringify(d.starsText));
-  ck.check('流程结束后仍在算 24 点页', (await miniProgram.currentPage()).path === 'pages/math24/math24');
+  ck.check('流程结束后仍在算 24 点页', (await miniProgram.currentPage()).path === 'pkg-games/math24/math24');
 });

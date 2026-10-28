@@ -69,6 +69,9 @@ Page({
           return {
             date: t.date,
             rate: t.rate,
+            // 2026-10-28：当天只玩了休闲玩法（数独/2048…）时没有题目可算正确率，
+            // 标 hasQ=false，端上显示「—」而不是一条 0% 的空柱（那是假数据）。
+            hasQ: (t.questions || 0) > 0,
             dateShort: String(t.date || '').slice(5)   // 2026-09-13 → 09-13
           };
         }),

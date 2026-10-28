@@ -1,0 +1,55 @@
+<!-- 算式天平（玩法落地：demo g5）：把数字放上右盘，让天平平衡 -->
+<view class="page-balance">
+
+  <game-hud lives="{{lives}}" score="{{score}}" scoreText="{{scoreText}}" extra="{{hudText}}" />
+
+  <view class="tip">让天平平衡：左盘算式的答案是多少？从下面挑一个数字放到右盘。</view>
+
+  <view class="scaleBox">
+    <view class="scale">
+      <!-- 横梁：右盘更重 → 顺时针下沉（正角度）；托盘反向旋转保持水平 -->
+      <view class="beam" style="transform: rotate({{tilt}}deg);">
+        <view class="pillar" style="transform: translateX(-50%) rotate({{tiltNeg}}deg);"></view>
+        <view class="pan left" style="transform: rotate({{tiltNeg}}deg);">
+          <view class="plate">
+            <view class="val">{{expr}}</view>
+            <view class="sub">左盘算式</view>
+          </view>
+        </view>
+        <view class="pan right" style="transform: rotate({{tiltNeg}}deg);">
+          <view class="plate {{panCls}}">
+            <view class="val {{rightEmpty ? 'empty' : ''}}">{{rightVal}}</view>
+            <view class="sub">右盘</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="trend">{{trend}}</view>
+  </view>
+
+  <view class="chips">
+    <view
+      wx:for="{{options}}"
+      wx:key="index"
+      class="num {{picked === index ? (index === rightIdx ? 'ok' : 'bad') : ''}}"
+      data-idx="{{index}}"
+      catchtap="tapOption">{{item}}</view>
+  </view>
+
+  <view class="foot">
+    <view class="btn ghost" bindtap="onRestart">重开一局</view>
+  </view>
+
+  <settle-pop
+    visible="{{settle}}" win="{{win}}" starsText="{{starsText}}"
+    title="{{win ? '本局完成' : '生命用完了'}}" msg="{{overMsg}}"
+    hint="{{hintText}}"
+    showNext="{{showNext}}" nextText="下一关（更高年级）▶"
+    bind:retry="onRetry" bind:next="onNext" />
+</view>
+
+
+
+<!-- 首次进入的操作引导（2026-10-28）：每款玩法只弹一次，文案在 utils/game-howto.js。
+     放在页面最外层，组件自身 fixed 定位，不影响任何已有布局。 -->
+<how-to-play game="balance" />

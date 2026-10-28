@@ -118,7 +118,7 @@ s.test('15 个玩法页都接了 game-pause（源码护栏）', () => {
   const PAGES = ['klotski', 'g2048', 'sudoku', 'math24', 'one-stroke', 'maze', 'hanoi',
     'pattern', 'clock', 'math-sprint', 'memory-grid', 'link', 'snake', 'bounce', 'letter-bubble'];
   PAGES.forEach(function (p) {
-    const dir = path.join(__dirname, '../../miniprogram/pages', p);
+    const dir = require('./_mp').pageDir(p);
     const wxml = fs.readFileSync(path.join(dir, p + '.wxml'), 'utf8');
     const json = fs.readFileSync(path.join(dir, p + '.json'), 'utf8');
     const js = fs.readFileSync(path.join(dir, p + '.js'), 'utf8');
@@ -149,7 +149,10 @@ s.test('暂停键视觉改版：不得再用字符 Ⅱ / 不得再默认悬浮�
   s.assert.contains(wxml, 'gp-fab-bar', '暂停图标应由 view 圆角竖条绘制');
   s.assert.contains(bare, 'gp-fab--inline', '应保留 inline 模式（进 HUD 行内）');
   s.assert.contains(bare, 'align-self: center', '进 HUD 行后应垂直居中');
-  s.assert.contains(bare, '#3a3a5c', '暂停键应为深色实心（浅色背景下白圈会糊成一团）');
+  // 2026-10-28 批 5：色值已令牌化（app.wxss 的 --ink 就是 #3a3a5c），
+  // 钉死字面量会误杀合规写法，所以两种写法都认。
+  s.assert.ok(/background:\s*(#3a3a5c|var\(--ink\))/.test(bare),
+    '暂停键应为深色实心（浅色背景下白圈会糊成一团）');
 });
 
 s.test('15 个玩法页的暂停键都在 HUD 行内（不再 fixed 悬浮）', () => {
@@ -158,7 +161,7 @@ s.test('15 个玩法页的暂停键都在 HUD 行内（不再 fixed 悬浮）', 
   const PAGES = ['klotski', 'g2048', 'sudoku', 'math24', 'one-stroke', 'maze', 'hanoi',
     'pattern', 'clock', 'math-sprint', 'memory-grid', 'link', 'snake', 'bounce', 'letter-bubble'];
   PAGES.forEach(function (p) {
-    const dir = path.join(__dirname, '../../miniprogram/pages', p);
+    const dir = require('./_mp').pageDir(p);
     const wxml = fs.readFileSync(path.join(dir, p + '.wxml'), 'utf8');
     const wxss = fs.readFileSync(path.join(dir, p + '.wxss'), 'utf8');
     // 每个 game-pause 都必须带 inline

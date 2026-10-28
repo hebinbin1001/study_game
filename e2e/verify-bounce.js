@@ -14,7 +14,7 @@ const H = require('./lib/harness');
 
 H.runSuite('verify-bounce（单词弹弹球）', async function (miniProgram, ck) {
   // 进入后立刻冻结，避免自动化工具握手期间已有球落底。
-  const page = await H.goto(miniProgram, '/pages/bounce/bounce', 0);
+  const page = await H.goto(miniProgram, '/pkg-games/bounce/bounce', 0);
   ck.check('玩法根容器渲染', !!(await H.waitForSelector(page, '.court', 8000)));
 
   await page.callMethod('_stopLoops');

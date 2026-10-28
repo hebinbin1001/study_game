@@ -34,8 +34,8 @@ const { spawnSync } = require('child_process');
 const MODULES = [
   {
     id: 'static',
-    name: '静态护栏（语法 / 结构 / WXSS）',
-    stages: ['syntax', 'structure', 'wxss', 'taps'],
+    name: '静态护栏（语法 / 结构 / WXSS / 设计令牌）',
+    stages: ['syntax', 'structure', 'wxss', 'tokens', 'taps'],
     unit: []
   },
   {
@@ -67,7 +67,11 @@ const MODULES = [
     id: 'wordgames',
     name: '题库类玩法（连连看 / 消消乐 / 拼词 / 成语 / 贪吃蛇 / 弹弹球 / 抢答）',
     stages: ['link', 'snake', 'bounce', 'quiz', 'letterBubble'],
-    unit: ['word-build', 'quiz', 'quiz-bank', 'bounce', 'letter-bubble', 'battle-fx']
+    unit: ['word-build', 'quiz', 'quiz-bank', 'bounce', 'letter-bubble', 'battle-fx',
+      // 2026-10-28 玩法上报口径（休闲只给星、字词必须带真实题量）
+      'casual-play-report',
+      // 2026-10-28 首次进入的操作引导（21 个玩法页各挂一处，漏挂是静默失效）
+      'game-howto']
   },
   {
     id: 'puzzle',
@@ -75,7 +79,7 @@ const MODULES = [
     stages: ['math24', 'klotski', 'g2048', 'puzzleLevel'],
     unit: ['balance', 'math-sprint', 'memory-grid', 'one-stroke', 'pattern', 'clock', 'maze', 'hanoi', 'math24-levels',
       'klotski', 'klotski-levels', 'g2048-levels', 'sudoku-stages', 'puzzle-levels',
-      'sprint-balance-grade']
+      'sprint-balance-grade', 'casual-play-report']
   },
   {
     id: 'user',
@@ -87,14 +91,20 @@ const MODULES = [
       // 2026-10-08 补登记：这两个一直没归到模块，跑 --module=user 时会漏掉
       'exam-gate', 'nickname-util', 'ranklist-sql-alias', 'pk-ui', 'daily-checkin-flow',
       // 2026-10-25 错题复习十题一关
-      'wrong-review-flow', 'study-pages-ux']
+      'wrong-review-flow', 'study-pages-ux',
+      // 2026-10-28 字词定级测（推荐年级会写进全局设置，判错整站错档）
+      'level-test',
+      // 2026-10-28 生词本（字段规范化错了会让同一个词存成两条）
+      'favorite-book']
   },
   {
     id: 'social',
     name: '每日挑战 / 赛季 / 好友 PK（2026-10-08 三件套）',
     stages: ['social'],
     unit: ['beijing-time', 'pk-rules', 'season-rewards', 'seed-parity', 'grade-keys-parity',
-      'quick-quiz', 'day-key']
+      'quick-quiz', 'day-key',
+      // 2026-10-28 订阅消息（首个场景就是 PK 被应战，挂在 social 下）
+      'subscribe']
   },
   {
     id: 'server',
@@ -122,6 +132,7 @@ const STAGE_MODULE = {
   syntax: 'static',
   structure: 'static',
   wxss: 'static',
+  tokens: 'static',
   taps: 'static',
   assets: 'assets',
   unit: '(unit)',
@@ -195,6 +206,9 @@ const PATH_RULES = [
     modules: ['puzzle'] },
   { re: /^miniprogram\/data\//, modules: ['puzzle', 'dict'] },
   { re: /^miniprogram\/pages\/bounce\//, modules: ['wordgames'] },
+  // 玩法操作引导（2026-10-28）：文案 + 组件 + 21 个玩法页的挂载点
+  { re: /^miniprogram\/utils\/game-howto\.js$/, modules: ['wordgames', 'puzzle', 'challenge'] },
+  { re: /^miniprogram\/components\/how-to-play\//, modules: ['wordgames', 'puzzle'] },
   { re: /^miniprogram\/pages\/(math24|math-sprint|memory-grid|math-balance|one-stroke|pattern|clock|maze|hanoi|sudoku|g2048|klotski)\//,
     modules: ['puzzle'] },
 
@@ -207,9 +221,12 @@ const PATH_RULES = [
   { re: /^e2e\/verify-daily-checkin\.js$/, modules: ['user'] },
   { re: /^e2e\/verify-bank\.js$/, modules: ['dict', 'user'] },
   { re: /^e2e\/verify-wrong-book-ux\.js$/, modules: ['user'] },
-  { re: /^miniprogram\/pages\/(me|rank|achievement|avatar|nickname|wrong-book|wrong-review|checkin|daily-question|report|custom-levels|level-editor|level-share)\//,
+  { re: /^miniprogram\/pages\/(me|rank|achievement|avatar|nickname|wrong-book|wrong-review|favorite|checkin|daily-question|report|custom-levels|level-editor|level-share)\//,
     modules: ['user'] },
   { re: /^miniprogram\/pages\/bank\//, modules: ['dict', 'user'] },
+  // 定级测（2026-10-28）：跨 14 个学段取词估词量，动 dict/词库也会牵连它
+  { re: /^miniprogram\/pages\/level-test\//, modules: ['user', 'pages', 'dict'] },
+  { re: /^miniprogram\/utils\/level-test\.js$/, modules: ['user', 'dict'] },
   // 管理后台（2026-09-29）：页面在端上、规则在后端，两边都得验；页面清单也要跟着跑
   { re: /^miniprogram\/pages\/admin\//, modules: ['user', 'server', 'pages'] },
   { re: /^miniprogram\/utils\/(storage|auth|skins|review|wrong-book-view|achievement-view|rel-time)\.js$/,
@@ -231,8 +248,15 @@ const PATH_RULES = [
   { re: /^server\/(beijing-time|pk-rules|season-rewards|seed|grade-keys|book-keys|score-formula|reward-stars|table-missing)\.js$/,
     modules: ['social', 'server'] },
   { re: /^server\/routes\/(daily-challenge|season|pk)\.js$/, modules: ['social', 'server'] },
+  // 2026-10-28 订阅消息：场景表 + 端上封装 + 配置/上报路由
+  { re: /^server\/subscribe\.js$/, modules: ['social', 'server'] },
+  { re: /^server\/routes\/subscribe\.js$/, modules: ['social', 'server'] },
+  { re: /^miniprogram\/utils\/subscribe\.js$/, modules: ['social', 'pages'] },
   { re: /^server\/routes\/(daily|checkin)\.js$/, modules: ['user', 'server'] },
   { re: /^server\/wrong-book\.js$/, modules: ['user', 'server'] },
+  // 生词本（2026-10-28）：纯逻辑与路由都归 user 模块，页面在 pages/favorite
+  { re: /^server\/favorite-book\.js$/, modules: ['user', 'server'] },
+  { re: /^server\/routes\/favorite\.js$/, modules: ['user', 'server'] },
   // 排行榜后端：页面在 user 模块，SQL 规则也在那里验
   { re: /^server\/routes\/ranklist\.js$/, modules: ['user', 'server'] },
   { re: /^server\//, modules: ['server'] },

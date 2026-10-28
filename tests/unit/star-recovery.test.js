@@ -49,7 +49,7 @@ s.test('恢复只增不减，并忽略 0 星记录', () => {
 s.test('服务端提供历史接口，页面上报开始保留主线/玩法线命名空间', () => {
   const score = fs.readFileSync(path.join(ROOT, 'server/routes/score.js'), 'utf8');
   const report = fs.readFileSync(path.join(ROOT, 'miniprogram/utils/play-report.js'), 'utf8');
-  const result = fs.readFileSync(path.join(ROOT, 'miniprogram/pages/result/result.js'), 'utf8');
+  const result = fs.readFileSync(path.join(ROOT, 'miniprogram/pkg-games/result/result.js'), 'utf8');
   s.assert.contains(score, 'router.get("/history"');
   s.assert.contains(score, 'typeKey: row.type_key');
   s.assert.contains(report, 'type: d.typeKey');

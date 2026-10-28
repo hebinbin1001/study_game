@@ -1,9 +1,0 @@
-{
-  "usingComponents": {
-    "settle-pop": "/components/settle-pop/settle-pop",
-    "game-pause": "/components/game-pause/game-pause"
-  },
-  "navigationBarTitleText": "词义迷宫",
-  "navigationBarBackgroundColor": "#3F5B8B",
-  "navigationBarTextStyle": "white"
-}

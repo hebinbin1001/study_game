@@ -3,7 +3,7 @@
   padding: 16rpx 30rpx calc(env(safe-area-inset-bottom) + 20rpx);
   height: 100vh;
   box-sizing: border-box;
-  color: #3a3a5c;
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #8fd0ff 0%, #c9ecff 60%, #eaf8ff 100%);
@@ -17,42 +17,7 @@
   margin: 6rpx 0 20rpx;
   flex: 0 0 auto;
 }
-.back-pill {
-  /* 2026-09-29 修：原来是 88×88 的**圆形**（只放一个「‹」），
-     但玩法详情里文案变成了「‹ 全部玩法」，字一多就在圆里挤变形。
-     改成按内容自适应的胶囊：宽度不写死，左右留内边距。 */
-  flex: 0 0 auto;
-  height: 76rpx;
-  min-width: 76rpx;
-  padding: 0 28rpx;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 999rpx;
-  font-size: 28rpx;
-  color: #3a3a5c;
-  font-weight: 800;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.06);
-  line-height: 1;
-  white-space: nowrap;
-}
-.back-pill::after { border: none; }
 .rank-title-area { flex: 1; }
-.rank-title {
-  font-size: 40rpx;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: 4rpx;
-  text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
-}
-.rank-title-sub {
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.92);
-  margin-top: 4rpx;
-}
-
 .rank-title-emoji {
   font-size: 76rpx;
   line-height: 1;
@@ -62,7 +27,7 @@
 .rank-title {
   font-size: 48rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   letter-spacing: 8rpx;
   text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
 }
@@ -86,28 +51,28 @@
   padding: 18rpx;
   font-size: 28rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--white);
   background: rgba(255, 255, 255, 0.28);
   border-radius: 28rpx;
   transition: transform 0.12s;
 }
 
 .tab.active {
-  background: #ffb703;
-  color: #ffffff;
+  background: var(--pri);
+  color: var(--white);
   text-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.1);
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--clay-2);
 }
 
 /* ============ 我的排名卡（金色高亮） ============ */
 .my-rank {
-  background: linear-gradient(135deg, #ffd166 0%, #ffb703 100%);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--pri) 100%);
   border-radius: 28rpx;
   padding: 28rpx;
   margin-bottom: 28rpx;
   display: flex;
   align-items: center;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-2);
 }
 
 .my-rank-crown {
@@ -123,13 +88,13 @@
 }
 
 .my-rank-label {
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: #6b4e00;
   font-weight: 700;
 }
 
 .my-rank-value {
-  font-size: 44rpx;
+  font-size: 48rpx;
   font-weight: 900;
   color: #3b3b5f;
   line-height: 1.2;
@@ -148,7 +113,7 @@
   width: 72rpx;
   height: 72rpx;
   border-radius: 50%;
-  border: 4rpx solid #ffffff;
+  border: 4rpx solid var(--white);
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -170,7 +135,7 @@
 }
 
 .my-stars {
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: #6b4e00;
   font-weight: 700;
 }
@@ -182,54 +147,22 @@
   gap: 20rpx;
 }
 
-.rank-item {
-  display: flex;
-  align-items: center;
-  padding: 24rpx;
-  background: #ffffff;
-  border-radius: 28rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
-  border: 4rpx solid transparent;
-  box-sizing: border-box;
-  transition: transform 0.12s;
-}
-
-.rank-item.me {
-  background: #fff7e0;
-  border-color: #ffb703;
-}
-
-.rank-number {
-  width: 64rpx;
-  height: 64rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  font-weight: 900;
-  color: #8a9bb5;
-  background: #eef3fa;
-  border-radius: 50%;
-  margin-right: 20rpx;
-  flex-shrink: 0;
-}
-
 .rank-number.top1 {
-  background: #ffd166;
+  background: var(--gold);
   color: #6b4e00;
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--clay-1);
 }
 
 .rank-number.top2 {
   background: #c9d6e8;
   color: #4a5568;
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--clay-1);
 }
 
 .rank-number.top3 {
   background: #eab68c;
   color: #7a4a1d;
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--clay-1);
 }
 
 /* 头像兜底：没有头像时用昵称首字占位（2026-09-13 用户反馈「名称前留了两个空」） */
@@ -238,8 +171,8 @@
   align-items: center;
   justify-content: center;
   background: #e8f0fa;
-  color: #5c7f9e;
-  font-size: 30rpx;
+  color: var(--ink-sub);
+  font-size: 32rpx;
   font-weight: 900;
 }
 /* 段位徽章（大段 8 枚，走云托管） */
@@ -250,34 +183,9 @@
   margin-right: 12rpx;
 }
 
-.rank-avatar {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  margin-right: 20rpx;
-  border: 4rpx solid #eef3fa;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.rank-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.rank-nickname {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #3b3b5f;
-  margin-bottom: 6rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .rank-stars {
-  font-size: 22rpx;
-  color: #5c7f9e;
+  font-size: 24rpx;
+  color: var(--ink-sub);
 }
 
 .rank-detail {
@@ -286,18 +194,18 @@
 }
 
 .rank-rankName {
-  font-size: 22rpx;
+  font-size: 24rpx;
   font-weight: 700;
-  color: #b388ff;
+  color: var(--purple);
   background: rgba(179, 136, 255, 0.14);
   padding: 4rpx 14rpx;
-  border-radius: 20rpx;
+  border-radius: 28rpx;
   display: inline-block;
   margin-bottom: 8rpx;
 }
 
 .rank-score {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 900;
   color: #3b3b5f;
 }
@@ -307,7 +215,7 @@
   background: rgba(255, 255, 255, 0.85);
   border-radius: 28rpx;
   padding: 60rpx 30rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.06), 0 14rpx 28rpx rgba(0, 0, 0, 0.06);
+  box-shadow: var(--clay-2);
 }
 
 .empty-text {
@@ -326,25 +234,25 @@
 
 .btn-page {
   padding: 16rpx 32rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 700;
-  background: #4cc9f0;
-  color: #ffffff;
+  background: var(--blue);
+  color: var(--white);
   border-radius: 28rpx;
   line-height: 1.4;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
+  box-shadow: var(--clay-2);
   transition: transform 0.12s;
 }
 
 .btn-page:active {
   transform: translateY(4rpx);
-  box-shadow: 0 2rpx 0 rgba(0, 0, 0, 0.12);
+  box-shadow: var(--clay-1);
 }
 
 .btn-page[disabled] {
   opacity: 0.5;
   background: #c9d6e8;
-  color: #ffffff;
+  color: var(--white);
 }
 
 button.btn-page::after {
@@ -354,10 +262,10 @@ button.btn-page::after {
 .page-info {
   font-size: 24rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--white);
   background: rgba(255, 255, 255, 0.85);
   padding: 10rpx 24rpx;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
 }
 
 /* ============ 返回按钮 ============ */
@@ -366,18 +274,18 @@ button.btn-page::after {
   width: 320rpx;
   padding: 20rpx 0;
   background: rgba(255, 255, 255, 0.9);
-  color: #3a3a5c;
-  font-size: 30rpx;
+  color: var(--ink);
+  font-size: 32rpx;
   font-weight: 700;
-  border-radius: 40rpx;
+  border-radius: 28rpx;
   line-height: 1.4;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-2);
   transition: transform 0.12s;
 }
 
 .btn-back:active {
   transform: translateY(4rpx);
-  box-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-1);
 }
 
 button.btn-back::after {
@@ -398,7 +306,7 @@ button.btn-back::after {
   display: inline-flex;
   align-items: center;
   background: rgba(255, 255, 255, .92);
-  color: #5c7f9e;
+  color: var(--ink-sub);
   border-radius: 999rpx;
   padding: 12rpx 28rpx;
   font-size: 24rpx;
@@ -406,7 +314,7 @@ button.btn-back::after {
   margin-right: 14rpx;
   flex: 0 0 auto;
 }
-.chip.on { background: #ffb703; color: #fff; }
+.chip.on { background: var(--pri); color: var(--white); }
 
 /* ============ 玩法榜总览卡片（2026-09-18） ============ */
 .game-cards { display: flex; flex-direction: column; gap: 16rpx; padding: 4rpx 0 8rpx; }
@@ -415,25 +323,25 @@ button.btn-back::after {
   align-items: center;
   gap: 18rpx;
   padding: 20rpx 22rpx;
-  border-radius: 26rpx;
+  border-radius: 28rpx;
   background: rgba(255, 255, 255, .96);
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .06);
+  box-shadow: var(--clay-2);
 }
 .gcard-icon {
   flex: 0 0 auto;
   width: 78rpx;
   height: 78rpx;
-  border-radius: 22rpx;
+  border-radius: 28rpx;
   background: #eef5fb;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40rpx;
+  font-size: 38rpx;
 }
 .gcard-main { flex: 1 1 auto; min-width: 0; }
-.gcard-name { font-size: 30rpx; font-weight: 900; color: #2f5470; }
+.gcard-name { font-size: 32rpx; font-weight: 900; color: #2f5470; }
 .gcard-meta { margin-top: 4rpx; }
-.gcard-me { font-size: 22rpx; font-weight: 800; color: #4a90d9; }
+.gcard-me { font-size: 24rpx; font-weight: 800; color: #4a90d9; }
 .gcard-me.none { color: #93a9bd; font-weight: 700; }
 .gcard-champ {
   margin-top: 4rpx;
@@ -441,11 +349,11 @@ button.btn-back::after {
   align-items: center;
   justify-content: space-between;
   gap: 10rpx;
-  font-size: 21rpx;
+  font-size: 24rpx;
   color: #7b93ad;
 }
 .gcard-players { flex: 0 0 auto; color: #b0c1d1; }
-.gcard-arrow { flex: 0 0 auto; font-size: 34rpx; color: #c3ccda; font-weight: 700; }
+.gcard-arrow { flex: 0 0 auto; font-size: 32rpx; color: #c3ccda; font-weight: 700; }
 
 /* 详情头部 */
 .no-nick {
@@ -455,13 +363,13 @@ button.btn-back::after {
   gap: 12rpx;
   margin: 0 0 14rpx;
   padding: 18rpx 22rpx;
-  border-radius: 22rpx;
+  border-radius: 28rpx;
   background: rgba(255, 255, 255, .95);
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .06);
+  box-shadow: var(--clay-2);
 }
 .no-nick-ic { font-size: 32rpx; flex: 0 0 auto; }
-.no-nick-t { flex: 1 1 auto; font-size: 23rpx; font-weight: 800; color: #2f5470; }
-.no-nick-arrow { flex: 0 0 auto; font-size: 34rpx; color: #c3ccda; font-weight: 700; }
+.no-nick-t { flex: 1 1 auto; font-size: 24rpx; font-weight: 800; color: #2f5470; }
+.no-nick-arrow { flex: 0 0 auto; font-size: 32rpx; color: #c3ccda; font-weight: 700; }
 
 .detail-head {
   flex: 0 0 auto;
@@ -470,15 +378,15 @@ button.btn-back::after {
   gap: 12rpx;
   margin: 6rpx 4rpx 10rpx;
 }
-.detail-icon { font-size: 34rpx; }
-.detail-name { font-size: 30rpx; font-weight: 900; color: #ffffff; }
-.detail-count { font-size: 22rpx; color: rgba(255, 255, 255, .85); }
+.detail-icon { font-size: 32rpx; }
+.detail-name { font-size: 32rpx; font-weight: 900; color: var(--white); }
+.detail-count { font-size: 24rpx; color: rgba(255, 255, 255, .85); }
 
 /* 榜题 */
 .board-label {
   flex: 0 0 auto;
-  font-size: 22rpx;
-  color: #ffffff;
+  font-size: 24rpx;
+  color: var(--white);
   font-weight: 700;
   margin: 8rpx 0 12rpx;
   opacity: .95;
@@ -492,35 +400,52 @@ button.btn-back::after {
   align-items: center;
   padding: 20rpx 22rpx;
   margin-bottom: 14rpx;
-  background: #ffffff;
-  border-radius: 26rpx;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .05);
+  background: var(--white);
+  border-radius: var(--r-md);
+  /* border 常驻透明：将来做选中态时加 border-color 不会让行高跳一下 */
+  border: 4rpx solid transparent;
+  box-sizing: border-box;
+  box-shadow: var(--clay-2);
 }
-.rank-item.me { outline: 4rpx solid #ffb703; }
+.rank-item.me { outline: 4rpx solid var(--pri); }
 .rank-number {
   width: 56rpx; height: 56rpx;
   flex: 0 0 56rpx;
-  border-radius: 16rpx;
+  margin-right: 16rpx;
+  border-radius: var(--r-sm);
   display: flex; align-items: center; justify-content: center;
   font-size: 28rpx; font-weight: 900;
-  color: #8a9bb5;
+  color: var(--ink-weak);
 }
 .rank-number.top1 { background: #ffe9c4; color: #d88a00; }
 .rank-number.top2 { background: #e8edf4; color: #8a94a6; }
 .rank-number.top3 { background: #f6ddc8; color: #c07a3a; }
 .rank-avatar {
   width: 76rpx; height: 76rpx; flex: 0 0 76rpx;
-  border-radius: 50%; margin-left: 14rpx;
+  border-radius: var(--r-pill);
+  /* 2026-10-28 合并重复定义：原来是「前一套 margin-right:20 + 后一套 margin-left:14」
+     同时生效，头像左右间距 20/14 不对称。统一成右侧 16。 */
+  margin: 0 16rpx 0 0;
   background: #e8f0fa;
+  border: 4rpx solid #eef3fa;
+  box-sizing: border-box;
 }
-.rank-info { flex: 1; min-width: 0; margin-left: 18rpx; }
-.rank-nickname { font-size: 28rpx; font-weight: 800; color: #3a3a5c; }
-.rank-rankname { font-size: 20rpx; color: #8a9bb5; margin-top: 4rpx; }
+.rank-info { flex: 1; min-width: 0; }
+.rank-nickname {
+  font-size: var(--fs-body);
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rank-rankname { font-size: 24rpx; color: var(--ink-weak); margin-top: 4rpx; }
 .rank-val {
   flex: 0 0 auto;
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 900;
-  color: #3a3a5c;
+  color: var(--ink);
   margin-left: 12rpx;
 }
 .rank-val--p { color: #d88a00; }

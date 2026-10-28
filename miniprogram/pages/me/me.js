@@ -29,7 +29,7 @@ function bookNameOf(key) {
  * 赛季、好友 PK、错题本 在首页/学习页也有入口 —— 这些重复入口**保留不删**
  * （不同场景下都能到），但按用途归位，找东西不用扫整屏。
  *
- * group 取值：成长 / 对战 / 学习（协议单独放版本行，不再占一整行 108rpx）。
+ * group 取值：成长 / 对战 / 学习 / 通用（协议单独放版本行，不再占一整行 108rpx）。
  */
 var MENU = [
   { emoji: '👗', name: '我的形象 · 皮肤', url: '/pages/avatar/avatar', group: '成长' },
@@ -39,13 +39,21 @@ var MENU = [
   { emoji: '🏅', name: '赛季', url: '/pages/season/season', group: '对战' },
   { emoji: '🤝', name: '好友 PK', url: '/pages/pk/pk', group: '对战' },
   { emoji: '📖', name: '错题本', url: '/pages/wrong-book/wrong-book', group: '学习' },
+  // 生词本（2026-10-28）：主动收藏 vs 错题本的被动收集，两个入口并排放，语义才好区分
+  { emoji: '⭐', name: '生词本', url: '/pages/favorite/favorite', group: '学习' },
+  // 定级测（2026-10-28）：不知道选哪个年级时的答案来源；测完直接改全局年级。
+  // 放在「当前年级」上一行，因为它是决定下面那一项的输入。
+  { emoji: '🎯', name: '字词定级测', url: '/pages/level-test/level-test', group: '学习' },
   // 全局年级（2026-10-18）：决定主线 30 关 / 玩法线 / 词库 / 每日挑战用哪套题；切换不丢已有进度
   { emoji: '🏫', name: '当前年级', action: 'grade', group: '学习' },
   // 教材版本（2026-10-08 二期）：只影响英语出题用哪套词表，不上榜、不影响进度
-  { emoji: '📚', name: '教材版本', action: 'book', group: '学习' }
+  { emoji: '📚', name: '教材版本', action: 'book', group: '学习' },
+  // 设置（2026-10-28）：声音 / 清缓存 / 协议 / 版本。单独一组，不混进学习类
+  { emoji: '⚙️', name: '设置', url: '/pages/settings/settings', group: '通用' }
 ];
 
-var GROUP_ORDER = ['成长', '对战', '学习'];
+// 组顺序即展示顺序；新增组必须同时加到这里，否则菜单项会被静默丢掉（见 refresh 的聚合）
+var GROUP_ORDER = ['成长', '对战', '学习', '通用'];
 
 Page({
   data: {

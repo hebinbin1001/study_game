@@ -7,11 +7,11 @@
 .safe-gap { height: calc(env(safe-area-inset-bottom) + 96rpx); }
 
 .rank-bar {
-  background: #ffffff;
-  border-radius: 32rpx;
+  background: var(--white);
+  border-radius: 28rpx;
   padding: 24rpx 28rpx;
   margin-bottom: 30rpx;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 16rpx 32rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-2);
 }
 
 .rank-info {
@@ -21,14 +21,23 @@
 }
 
 .rank-name {
-  font-size: 36rpx;
+  font-size: 38rpx;
   font-weight: 900;
-  color: #ffb703;
+  color: var(--pri-ink);
 }
 
 .rank-wins, .rank-stars {
   font-size: 28rpx;
-  color: #5c7f9e;
+  color: var(--ink-sub);
+}
+
+/* 封顶说明（2026-10-28）：只在「考试没考过、段位被卡住」时出现，
+   解释为什么段位名和累计星看起来对不上。 */
+.rank-cap {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.4;
+  color: var(--pri-deep);
 }
 
 .skin-tabs {
@@ -37,7 +46,7 @@
   gap: 16rpx;
   margin: 0 0 30rpx;
   padding: 10rpx;
-  border-radius: 30rpx;
+  border-radius: 28rpx;
   background: rgba(255,255,255,.72);
   box-shadow: 0 8rpx 24rpx rgba(31, 66, 105, .1);
 }
@@ -47,13 +56,13 @@
   align-items: center;
   gap: 14rpx;
   padding: 18rpx 20rpx;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   color: #53708d;
   transition: background .18s ease, transform .18s ease;
 }
 .skin-tab.on {
   color: #163f75;
-  background: linear-gradient(135deg, #fff 0%, #e8f3ff 100%);
+  background: linear-gradient(135deg, var(--white) 0%, #e8f3ff 100%);
   box-shadow: inset 0 0 0 3rpx #8ec7ff, 0 6rpx 16rpx rgba(25, 98, 181, .12);
   transform: translateY(-2rpx);
 }
@@ -63,9 +72,9 @@
   height: 54rpx;
   line-height: 54rpx;
   text-align: center;
-  border-radius: 18rpx;
-  font-size: 30rpx;
-  color: #fff;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  color: var(--white);
   box-shadow: inset 0 3rpx 0 rgba(255,255,255,.35);
 }
 .skin-tab__icon.warrior { background: linear-gradient(145deg, #58a7ff, #3371d8); }
@@ -74,7 +83,7 @@
 .skin-tab__title { font-size: 28rpx; font-weight: 900; line-height: 1.2; }
 .skin-tab__meta {
   margin-top: 4rpx;
-  font-size: 19rpx;
+  font-size: 24rpx;
   font-weight: 650;
   color: #8395aa;
   white-space: normal;
@@ -86,9 +95,9 @@
 }
 
 .section-title {
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   letter-spacing: 4rpx;
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, 0.12);
   margin-bottom: 20rpx;
@@ -104,11 +113,11 @@
 .avatar-item {
   width: 335rpx;
   min-height: 500rpx;
-  background: #ffffff;
+  background: var(--white);
   border-radius: 28rpx;
   padding: 22rpx;
   text-align: center;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 14rpx 28rpx rgba(0, 0, 0, 0.08);
+  box-shadow: var(--clay-2);
   border: 4rpx solid transparent;
   box-sizing: border-box;
   display: flex;
@@ -117,24 +126,24 @@
 }
 
 .avatar-item.active {
-  border-color: #ffb703;
+  border-color: var(--pri);
   background: #fff7e0;
 }
 
 .avatar-rarity {
-  font-size: 20rpx;
+  font-size: 24rpx;
   padding: 4rpx 14rpx;
-  border-radius: 20rpx;
+  border-radius: 28rpx;
   margin-bottom: 12rpx;
   align-self: center;
   display: inline-block;
   font-weight: 700;
 }
 
-.avatar-rarity.common { background: #c9d6e8; color: #3a3a5c; }
-.avatar-rarity.rare { background: #4cc9f0; color: #0b4a5e; }
-.avatar-rarity.epic { background: #b388ff; color: #3b1a6b; }
-.avatar-rarity.legend { background: #ffb703; color: #6b4e00; }
+.avatar-rarity.common { background: #c9d6e8; color: var(--ink); }
+.avatar-rarity.rare { background: var(--blue); color: #0b4a5e; }
+.avatar-rarity.epic { background: var(--purple); color: #3b1a6b; }
+.avatar-rarity.legend { background: var(--pri); color: #6b4e00; }
 
 .avatar-emoji {
   display: block;
@@ -150,7 +159,7 @@
   width: 100%;
   height: 230rpx;
   margin: 0 auto 14rpx;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,8 +182,8 @@
 }
 
 .avatar-name {
-  font-size: 26rpx;
-  color: #3a3a5c;
+  font-size: 28rpx;
+  color: var(--ink);
   font-weight: 800;
   margin-bottom: 10rpx;
   min-height: 70rpx;
@@ -188,7 +197,7 @@
 }
 
 .avatar-status {
-  font-size: 22rpx;
+  font-size: 24rpx;
   min-height: 104rpx;
   display: flex;
   flex-direction: column;
@@ -196,16 +205,16 @@
   justify-content: flex-start;
 }
 
-.status-unlocked { color: #7bd389; font-weight: 700; }
-.status-using { color: #ffb703; font-weight: 700; }
+.status-unlocked { color: var(--green); font-weight: 700; }
+.status-using { color: var(--pri); font-weight: 700; }
 .status-locked { color: #9aa7bc; }
 .avatar-unlock-note {
   width: 100%;
   margin-top: 4rpx;
   padding: 0 4rpx;
   box-sizing: border-box;
-  color: #8a9bb5;
-  font-size: 20rpx;
+  color: var(--ink-weak);
+  font-size: 24rpx;
   line-height: 1.35;
   font-weight: 600;
   display: -webkit-box;
@@ -231,23 +240,23 @@
   margin: 0;
   padding: 0;
   font-size: 24rpx;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   font-weight: 700;
 }
 
-.btn-use { background: #7bd389; color: #14532d; }
-.btn-unlock { background: #ffb703; color: #6b4e00; }
+.btn-use { background: var(--green); color: #14532d; }
+.btn-unlock { background: var(--pri); color: #6b4e00; }
 .action-current, .action-auto {
   display: block;
   width: 100%;
   height: 64rpx;
   line-height: 64rpx;
-  border-radius: 24rpx;
-  font-size: 23rpx;
+  border-radius: 28rpx;
+  font-size: 24rpx;
   font-weight: 800;
 }
 .action-current { background: #fff4d6; color: #9a6700; }
-.action-auto { background: #eef3fa; color: #5c7f9e; }
+.action-auto { background: #eef3fa; color: var(--ink-sub); }
 
 button.btn-use::after,
 button.btn-unlock::after {

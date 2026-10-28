@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "game-hud": "/components/game-hud/game-hud",
+    "settle-pop": "/components/settle-pop/settle-pop",
+    "how-to-play": "/components/how-to-play/how-to-play"
+  },
+  "navigationBarTitleText": "词义消消乐",
+  "navigationBarBackgroundColor": "#5aa9e6",
+  "navigationBarTextStyle": "white"
+}

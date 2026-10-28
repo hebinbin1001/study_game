@@ -1,0 +1,41 @@
+<!-- 词义消消乐（B6-2）：词↔义配对消除 -->
+<view class="page-match">
+  <!-- 2026-10-17：删掉页内「返回 + 标题」——原生导航栏已经有返回和「词义消消乐」，
+       这里再放一遍等于两个返回键、两行标题，白吃掉约 90px 首屏。 -->
+
+  <!-- HUD（公共组件） -->
+  <game-hud lives="{{lives}}" extra="{{hudExtra}}" score="{{0}}" score-text="" />
+
+  <!-- 棋盘 4×4 -->
+  <view class="board b-tray b-in">
+    <view
+      wx:for="{{cards}}"
+      wx:key="index"
+      class="tile b-face b-press {{item.t === 'w' ? 'word' : ''}} {{item.long ? 'long' : ''}} {{item.sel ? 'b-sel' : ''}} {{item.hit ? 'hit' : ''}} {{item.gone ? 'gone' : ''}} {{item.miss ? 'miss' : ''}}"
+      data-idx="{{index}}"
+      bindtap="tapCard">{{item.lab}}</view>
+  </view>
+
+  <view class="tip">{{tip}}</view>
+
+  <battle-fx trigger="{{fxSeq}}" mode="{{fxMode}}" text="{{fxText}}" />
+
+  <!-- 结算（公共组件 + 自定义操作） -->
+  <settle-pop visible="{{over}}" win="{{win}}" stars-text="{{starsText}}"
+    title="{{win ? '全部消除！' : '生命耗尽'}}" msg="{{win ? '获得 ' + stars + ' 星 · 错 ' + mistakes + ' 次' : '再试一次一定能行！'}}"
+    hint="{{hintText}}"
+    show-retry="{{!win}}" show-next="{{showNext}}" bind:next="onNext">
+    <view class="s-btns">
+      <button class="btn-main" bindtap="again">再来一局</button>
+      <button class="btn-ghost" bindtap="changeGrade">换学段</button>
+    </view>
+  </settle-pop>
+
+  <view class="safe-gap"></view>
+</view>
+
+
+
+<!-- 首次进入的操作引导（2026-10-28）：每款玩法只弹一次，文案在 utils/game-howto.js。
+     放在页面最外层，组件自身 fixed 定位，不影响任何已有布局。 -->
+<how-to-play game="match" />

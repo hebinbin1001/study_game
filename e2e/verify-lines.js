@@ -15,7 +15,7 @@
  *   E. 玩法 tab 二级分段：闯关线 6 款（都带 lineMode）/ 数字智力 9 款。
  *
  * 踩坑备注：
- *   · currentPage().path 不带前导斜杠（实际 = pages/link/link）；
+ *   · currentPage().path 不带前导斜杠（实际 = pkg-games/link/link）；
  *   · 牌面是 onLoad → newRound 之后才 setData，直接读 data 会读到空数组，必须轮询等；
  *   · 模拟器存档跨用例持久，判断「有没有误写别的命名空间」要用前后快照比对，不能看键存在与否。
  *
@@ -24,8 +24,8 @@
 
 const H = require('./lib/harness');
 
-const LINE_URL = '/pages/level/level?mode=link';
-const LINK_PAGE = 'pages/link/link';
+const LINE_URL = '/pkg-games/level/level?mode=link';
+const LINK_PAGE = 'pkg-games/link/link';
 
 async function main() {
   const ck = H.createChecker();
@@ -95,7 +95,7 @@ async function main() {
 
     // ---------- D. 种子可复现 ----------
     console.log('[4/5] 同一关两次进牌面一致；相邻关不同');
-    const url1 = '/pages/link/link?challenge=1&line=mode_link&grade=' + gradeKey + '&level=7';
+    const url1 = '/pkg-games/link/link?challenge=1&line=mode_link&grade=' + gradeKey + '&level=7';
     const p1 = await H.goto(mp, url1, 1500);
     const d1 = await H.waitForData(p1, function (d) { return (d.cards || []).length === 16; },
       15000, 'line-7-cards');
@@ -105,7 +105,7 @@ async function main() {
       15000, 'line-7-cards-again');
     const labs2 = (d2 && d2.cards || []).map(function (c) { return c.lab; }).join('|');
     ck.check('同一关两次牌面一致（种子可复现）', !!labs1 && labs1 === labs2);
-    const p3 = await H.goto(mp, '/pages/link/link?challenge=1&line=mode_link&grade=' + gradeKey + '&level=8', 1500);
+    const p3 = await H.goto(mp, '/pkg-games/link/link?challenge=1&line=mode_link&grade=' + gradeKey + '&level=8', 1500);
     const d3 = await H.waitForData(p3, function (d) { return (d.cards || []).length === 16; },
       15000, 'line-8-cards');
     const labs3 = (d3 && d3.cards || []).map(function (c) { return c.lab; }).join('|');
@@ -134,7 +134,7 @@ async function main() {
 
     // ---------- F. 最后一关不给「下一关」（放在最后：会 reLaunch，销毁前面的 page 句柄） ----------
     console.log('[6/6] 最后一关不给「下一关」');
-    const lastUrl = '/pages/link/link?challenge=1&line=mode_link&grade=' + gradeKey + '&level=30';
+    const lastUrl = '/pkg-games/link/link?challenge=1&line=mode_link&grade=' + gradeKey + '&level=30';
     const pLast = await H.goto(mp, lastUrl, 1500);
     const dLast = await H.waitForData(pLast, function (d) { return (d.cards || []).length === 16; },
       15000, 'line-30-cards');

@@ -62,4 +62,52 @@ s.test('请求题数超过题库容量时取全量（不报错）', () => {
   s.assert.true(list.length <= 9999);
 });
 
+// ---- buildQuizFromItems（2026-10-28 生词本组局）----
+
+s.test('buildQuizFromItems：同种子出同一套题（重练不该靠记位置蒙对）', () => {
+  const items = [
+    { word: 'apple', hint: '苹果' },
+    { word: 'banana', hint: '香蕉' },
+    { word: 'cat', hint: '猫' },
+  ];
+  const pool = quiz.buildQuiz('g3', 'pool-seed', 10);
+  const a = quiz.buildQuizFromItems(items, 'fav-1', 3, pool);
+  const b = quiz.buildQuizFromItems(items, 'fav-1', 3, pool);
+  s.assert.deepEqual(a, b);
+  s.assert.equal(a.length, 3);
+});
+
+s.test('buildQuizFromItems：干扰项来自传入的词库池，而不是只有收藏的那几个', () => {
+  const items = [{ word: 'apple', hint: '苹果' }];
+  const pool = quiz.buildQuiz('g3', 'pool-seed', 30);
+  const list = quiz.buildQuizFromItems(items, 'fav-2', 1, pool);
+  s.assert.equal(list.length, 1);
+  const q = list[0];
+  s.assert.equal(q.word, 'apple');
+  s.assert.equal(q.options.length, 4); // 只收藏 1 个词也能凑满 4 个选项
+  const texts = q.options.map(function (o) { return o.text; });
+  s.assert.true(texts.indexOf('苹果') >= 0);
+  // 干扰项不能是兜底占位 —— 那说明池子没被用上
+  s.assert.false(texts.indexOf('以上都不是') >= 0);
+});
+
+s.test('buildQuizFromItems：收藏项没有 a/q 字段也能出题（wordOf 兼容 item.word）', () => {
+  const items = [
+    { word: 'take off', hint: '起飞' },
+    { word: 'look up', hint: '查阅' },
+  ];
+  const list = quiz.buildQuizFromItems(items, 'fav-3', 2, []);
+  s.assert.equal(list.length, 2);
+  list.forEach(function (q) {
+    s.assert.true(q.word.length > 0);
+    s.assert.equal(q.options.length, 4);
+  });
+  s.assert.equal(quiz.wordOf({ word: 'hello' }), 'hello');
+});
+
+s.test('buildQuizFromItems：空列表返回空数组，不抛异常（空生词本点组局）', () => {
+  s.assert.deepEqual(quiz.buildQuizFromItems([], 'x', 10), []);
+  s.assert.deepEqual(quiz.buildQuizFromItems(null, 'x', 10), []);
+});
+
 s.done();

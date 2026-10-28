@@ -8,32 +8,24 @@
  */
 
 /* ============ 全局基座 ============ */
+/* 2026-10-28（批 5）：这里原本还有一整套 --sky1 / --sky2 / --pink / --orange 变量声明，
+   但末尾的正式令牌块又定义了一遍同名变量（优先级相同 → 后者胜出），
+   等于这套声明从来没生效过，还埋着「两处同名不同值」的雷（--sky1 一边 #7ec8ff、
+   一边 var(--sky-2)；--orange 一边 var(--pri)、一边 --pri）。已整块删除，
+   令牌只保留文件末尾那一处真相源。 */
 page {
-  /* 卡通配色变量（供各页面引用） */
-  --sky1: #7ec8ff;      /* 天空浅蓝 */
-  --sky2: #d8efff;      /* 天空更浅蓝 */
-  --pink: #ff5d8f;      /* 卡通粉 */
-  --orange: #ffb703;    /* 卡通橙 */
-  --blue: #4cc9f0;      /* 卡通蓝 */
-  --green: #7bd389;     /* 卡通绿 */
-  --purple: #b388ff;    /* 卡通紫 */
-  --ink: #3a3a5c;       /* 主文字墨色 */
-  --text-sub: #5c7f9e;  /* 次要文字 */
-  --gold: #ffd166;      /* 星星/成就金 */
-  --danger: #ff5a5a;    /* 危险/错误红 */
-
-  /* 暖色天空渐变背景
+  /* 暖色天空渐变背景（三档全部来自 --sky-* 令牌，与四个 tab 页同一套）
      2026-10-18：去掉 background-attachment: fixed。
      微信 WebView（iOS 尤其明显）里固定背景只铺「首屏视口」，内容一旦超过一屏，
      滚动出来的下半部分就没有背景（用户反馈「文字超过一页，背景没跟上」）。
      改为跟随 page 高度拉伸，长列表页也能铺满。 */
-  background: linear-gradient(180deg, #5aa9e6 0%, #a3d5ff 60%, #d8efff 100%);
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 60%, var(--sky-3) 100%);
   /* 兜底底色：万一某个老版本 WebView 对长页面渐变的裁剪仍有偏差，
      露出来的也是浅蓝而不是刺眼的白 */
-  background-color: #d8efff;
+  background-color: var(--sky-3);
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  color: #3a3a5c;
-  font-size: 28rpx;
+  color: var(--ink);
+  font-size: var(--fs-body);
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -52,15 +44,15 @@ page {
 .page-title {
   font-size: 48rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   letter-spacing: 8rpx;
   text-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.12);
   margin: 40rpx 0 0;
 }
 
 .page-sub {
-  color: #5c7f9e;
-  font-size: 26rpx;
+  color: var(--ink-sub);
+  font-size: 24rpx;
   letter-spacing: 8rpx;
   margin: 12rpx 0 40rpx;
 }
@@ -85,14 +77,14 @@ page {
 .g-title {
   font-size: 38rpx;
   font-weight: 900;
-  color: #fff;
+  color: var(--white);
   text-shadow: 0 4rpx 0 rgba(0, 0, 0, .12);
 }
 
 .g-chip {
   margin-left: auto;
   background: rgba(255, 255, 255, .92);
-  color: #5c7f9e;
+  color: var(--ink-sub);
   font-size: 24rpx;
   font-weight: 800;
   padding: 10rpx 22rpx;
@@ -109,13 +101,13 @@ page {
 .g-hud-box {
   flex: 1;
   background: rgba(255, 255, 255, .94);
-  border-radius: 20rpx;
+  border-radius: 28rpx;
   padding: 12rpx 8rpx;
   text-align: center;
 }
 
-.g-hud-num { font-size: 32rpx; font-weight: 900; color: #3a3a5c; }
-.g-hud-lab { font-size: 20rpx; color: #8a9bb5; margin-top: 4rpx; }
+.g-hud-num { font-size: 32rpx; font-weight: 900; color: var(--ink); }
+.g-hud-lab { font-size: 24rpx; color: var(--ink-weak); margin-top: 4rpx; }
 
 /* 胶囊型 HUD（数独/24 点/连连看/贪吃蛇/消消乐共用；原来 5 个页面各写一份，只有 padding 和字号差 1~2rpx） */
 .hud {
@@ -128,23 +120,23 @@ page {
 
 .hud-chip {
   background: rgba(255, 255, 255, .92);
-  color: #3a3a5c;
+  color: var(--ink);
   border-radius: 999rpx;
   padding: 12rpx 30rpx;
-  font-size: 26rpx;
+  font-size: 24rpx;
   font-weight: 800;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .05);
+  box-shadow: var(--clay-1);
 }
 
 .btn {
   border: none;
-  border-radius: 44rpx;
+  border-radius: 999rpx;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--white);
   text-align: center;
   letter-spacing: 4rpx;
-  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.18), 0 20rpx 40rpx rgba(0, 0, 0, 0.12);
-  transition: transform 0.12s;
+  box-shadow: var(--clay-3);
+  transition: transform 0.12s, box-shadow 0.12s;
 }
 
 /**
@@ -171,11 +163,57 @@ button::after {
 button.btn {
   padding: 0;
   margin: 0;
-  background: #ffb703;
+  background: var(--pri);
 }
 .btn:active {
-  transform: translateY(6rpx);
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.18);
+  /* 黏土按压（2026-10-28）：从「整体下沉 6rpx」改成「压扁 + 内厚变薄」。
+     下沉会让按钮在按下瞬间与周围元素脱开，压扁更像软胶被按进去。 */
+  transform: translateY(2rpx) scaleY(.97);
+  box-shadow: var(--clay-press);
+}
+
+/* ============ 按钮四态补齐（2026-10-28 · 批 3） ============
+   改版前实测：49 个页面里 `:disabled` 只出现过 1 次，`disabled=` 属性只用在 3 处。
+   也就是说「按不了」这件事基本没有视觉表达 —— 用户点了没反应，会以为是卡住。
+
+   三态定义：
+     默认  黏土厚度（--clay-2 / --clay-3，由各按钮自己给）
+     按下  压扁 + 内厚变薄（.btn:active，已在上方）
+     禁用  去掉厚度 + 半透明（--clay-off：没有厚度就没有「可按」的隐喻）
+     加载  旋转环 + 禁止点击（.btn--loading）
+
+   注意 `button[disabled]` 必须显式杀掉 :active —— 小程序在 disabled 状态下
+   仍会触发 :active 伪类（不是 bug，是 CSS 语义），不杀的话按下去还会压扁。 */
+button[disabled],
+button.btn[disabled],
+.btn--off {
+  opacity: .55;
+  box-shadow: var(--clay-off);
+}
+button[disabled]:active,
+button.btn[disabled]:active,
+.btn--off:active {
+  transform: none;
+  box-shadow: var(--clay-off);
+}
+
+.btn--loading {
+  pointer-events: none;
+  opacity: .9;
+}
+.btn--loading::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 26rpx;
+  height: 26rpx;
+  margin-right: 14rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, .45);
+  border-top-color: var(--white);
+  animation: btnSpin .7s linear infinite;
+}
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
 }
 
 /* 结算弹层里的次要操作（返回关卡 / 关卡列表）
@@ -185,20 +223,20 @@ button.btn {
   width: 100%;
   height: 92rpx;
   margin-top: 18rpx;
-  border-radius: 46rpx;
+  border-radius: var(--r-pill);
   background: #eef2f8;
-  color: #5c7f9e;
-  font-size: 30rpx;
+  color: var(--ink-sub);
+  font-size: 32rpx;
   font-weight: 900;
-  box-shadow: 0 10rpx 0 rgba(0, 0, 0, 0.06);
+  box-shadow: var(--clay-card);
 }
 
 /* 主按钮（大号，常用于「开始游戏」） */
 .btn-primary {
   width: 480rpx;
   height: 128rpx;
-  font-size: 44rpx;
-  background: #ffb703;
+  font-size: 48rpx;
+  background: var(--pri);
   line-height: 128rpx;
 }
 
@@ -208,23 +246,23 @@ button.btn {
   padding: 0 40rpx;
   height: 88rpx;
   font-size: 32rpx;
-  background: #4cc9f0;
+  background: var(--blue);
   line-height: 88rpx;
 }
 
 /* 按钮配色变体（对应原型 .btn-xxx） */
-.btn-blue { background: #4cc9f0; }
-.btn-purple { background: #b388ff; }
-.btn-green { background: #7bd389; }
-.btn-pink { background: #ff5d8f; }
-.btn-orange { background: #ffb703; }
+.btn-blue { background: var(--blue); }
+.btn-purple { background: var(--purple); }
+.btn-green { background: var(--green); }
+.btn-pink { background: var(--pink); }
+.btn-orange { background: var(--pri); }
 
 /* ============ 通用卡片 ============ */
 .card {
-  background: #ffffff;
-  border-radius: 40rpx;
-  box-shadow: 0 12rpx 0 rgba(0, 0, 0, 0.1), 0 24rpx 48rpx rgba(0, 0, 0, 0.12);
-  padding: 40rpx;
+  background: var(--white);
+  border-radius: var(--r-md);
+  box-shadow: var(--clay-card);
+  padding: var(--sp-4);
 }
 
 /* ============ 布局辅助 ============ */
@@ -238,7 +276,7 @@ button.btn {
   justify-content: center;
   min-height: 240rpx;
   color: #8899aa;
-  font-size: 30rpx;
+  font-size: 32rpx;
   text-align: center;
 }
 
@@ -264,28 +302,28 @@ button.btn {
    ========================================================================== */
 
 /* ---- 尺寸档 ---- */
-.btn-lg { height: 128rpx; font-size: 42rpx; padding: 0 56rpx; }
+.btn-lg { height: 128rpx; font-size: 38rpx; padding: 0 56rpx; }
 .btn-md { height: 96rpx; font-size: 32rpx; padding: 0 40rpx; }
-.btn-sm { height: 72rpx; font-size: 26rpx; padding: 0 28rpx; border-radius: 36rpx; }
+.btn-sm { height: 88rpx; font-size: var(--fs-cap); padding: 0 32rpx; border-radius: var(--r-pill); }
 
 /* ---- 语义档 ---- */
 /* 主操作：下一关 / 开始 / 保存 */
 .btn-next {
-  background: linear-gradient(135deg, #7bd389, #4caf50);
-  box-shadow: 0 10rpx 0 rgba(40, 120, 60, .28), 0 16rpx 30rpx rgba(0, 0, 0, .1);
+  background: linear-gradient(135deg, var(--green), #4caf50);
+  box-shadow: var(--clay-3);
 }
 /* 重玩：蓝 */
 .btn-retry {
-  background: linear-gradient(135deg, #6fc3ff, #3f8fe0);
-  box-shadow: 0 10rpx 0 rgba(30, 90, 150, .26), 0 16rpx 30rpx rgba(0, 0, 0, .1);
+  background: linear-gradient(135deg, var(--sky-2), #3f8fe0);
+  box-shadow: var(--clay-3);
 }
 /* 次要操作：白底描边，用在「回首页」「取消」这类不想抢注意力的位置 */
 .btn-ghost {
-  background: #ffffff;
-  color: #5c7f9e;
-  box-shadow: 0 8rpx 0 rgba(28, 53, 92, .1);
+  background: var(--white);
+  color: var(--ink-sub);
+  box-shadow: var(--clay-card);
 }
-.btn-ghost.btn { color: #5c7f9e; }
+.btn-ghost.btn { color: var(--ink-sub); }
 
 /**
  * 返回：统一胶囊（白底 + 左箭头 + 轻微阴影）。
@@ -295,21 +333,24 @@ button.btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 72rpx;
+  /* 2026-10-28：72 → 88rpx。72rpx 只有 36px，低于 44px 的触控下限；
+     这个类被 16 个页面引用，改这一处等于一次性修完 16 个返回按钮的热区。 */
+  height: 88rpx;
+  min-width: 88rpx;
   padding: 0 30rpx 0 22rpx;
-  border-radius: 999rpx;
+  border-radius: var(--r-pill);
   background: rgba(255, 255, 255, .92);
-  color: #3a3a5c;
-  font-size: 28rpx;
+  color: var(--ink);
+  font-size: var(--fs-body);
   font-weight: 800;
   letter-spacing: 1rpx;
-  box-shadow: 0 6rpx 16rpx rgba(28, 53, 92, .12);
-  transition: transform .12s;
+  box-shadow: var(--clay-1);
+  transition: transform .12s, box-shadow .12s;
 }
 .btn-back::before {
   content: '‹';
   margin-right: 10rpx;
-  font-size: 42rpx;
+  font-size: 38rpx;
   line-height: 1;
   font-weight: 900;
 }
@@ -323,8 +364,8 @@ button.btn {
   height: 88rpx;
   border-radius: 28rpx;
   background: rgba(255, 255, 255, 0.85);
-  color: #3a3a5c;
-  font-size: 40rpx;
+  color: var(--ink);
+  font-size: 38rpx;
   font-weight: 900;
   display: flex;
   align-items: center;
@@ -337,7 +378,7 @@ button.btn {
 /* 软卡片变体：浅底、更轻阴影（用于内嵌信息卡） */
 .card--soft {
   background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, 0.06), 0 12rpx 24rpx rgba(0, 0, 0, 0.06);
+  box-shadow: var(--clay-card);
 }
 
 /* 标签 / 徽章（稀有度、成就、签到天数等） */
@@ -345,23 +386,23 @@ button.btn {
 .badge {
   display: inline-block;
   padding: 4rpx 16rpx;
-  border-radius: 20rpx;
-  font-size: 22rpx;
+  border-radius: 28rpx;
+  font-size: 24rpx;
   font-weight: 700;
   line-height: 1.4;
 }
 .tag {
   background: rgba(255, 255, 255, 0.85);
-  color: #5c7f9e;
+  color: var(--ink-sub);
 }
 .badge {
-  background: #ffd166;
+  background: var(--gold);
   color: #6b4e00;
 }
-.badge--green { background: #7bd389; color: #fff; }
-.badge--blue { background: #4cc9f0; color: #fff; }
-.badge--pink { background: #ff5d8f; color: #fff; }
-.badge--purple { background: #b388ff; color: #fff; }
+.badge--green { background: var(--green); color: var(--white); }
+.badge--blue { background: var(--blue); color: var(--white); }
+.badge--pink { background: var(--pink); color: var(--white); }
+.badge--purple { background: var(--purple); color: var(--white); }
 
 /* 大 emoji 头像容器（皮肤/吉祥物展示） */
 .emoji-avatar {
@@ -371,8 +412,8 @@ button.btn {
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, 0.08), 0 16rpx 32rpx rgba(0, 0, 0, 0.08);
+  background: var(--white);
+  box-shadow: var(--clay-card);
 }
 .emoji-avatar text {
   font-size: 96rpx;
@@ -400,14 +441,14 @@ button.btn {
 .progress-bar {
   width: 100%;
   height: 20rpx;
-  border-radius: 10rpx;
+  border-radius: var(--r-pill);
   background: rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 .progress-bar__fill {
   height: 100%;
-  border-radius: 10rpx;
-  background: linear-gradient(90deg, #4cc9f0, #7bd389);
+  border-radius: 16rpx;
+  background: linear-gradient(90deg, var(--blue), var(--green));
   transition: width 0.3s ease;
 }
 
@@ -426,25 +467,22 @@ button.btn {
 .b-tray {
   background: rgba(255, 255, 255, 0.17);
   border: 2rpx solid rgba(255, 255, 255, 0.3);
-  border-radius: 26rpx;
+  border-radius: 28rpx;
   padding: 16rpx;
   box-sizing: border-box;
   box-shadow: inset 0 8rpx 18rpx rgba(16, 44, 78, 0.16);
 }
 .b-face {
-  background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
-  box-shadow: 0 6rpx 0 rgba(18, 44, 78, 0.16), 0 8rpx 16rpx rgba(18, 44, 78, 0.12),
-    inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+  background: linear-gradient(180deg, var(--white) 0%, #eef4fb 100%);
+  box-shadow: var(--clay-2);
 }
 .b-press:active {
   transform: translateY(3rpx);
-  box-shadow: 0 3rpx 0 rgba(18, 44, 78, 0.16), 0 4rpx 8rpx rgba(18, 44, 78, 0.1),
-    inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+  box-shadow: var(--clay-press);
 }
 .b-sel {
   transform: translateY(-4rpx);
-  box-shadow: 0 0 0 6rpx #ffb703, 0 6rpx 0 rgba(180, 120, 0, 0.3),
-    0 8rpx 16rpx rgba(180, 120, 0, 0.2), inset 0 2rpx 0 rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 6rpx var(--pri), var(--clay-2);
 }
 /* 入场：整块棋盘轻微铺开（一次性，不打扰对局节奏） */
 @keyframes bBoardIn {
@@ -464,10 +502,10 @@ button.btn {
   padding: 20rpx 24rpx;
   background: #fff8e6;
   border: 2rpx solid #ffd8a8;
-  border-radius: 18rpx;
+  border-radius: 16rpx;
   box-shadow: 0 4rpx 12rpx rgba(200, 140, 0, 0.08);
 }
-.gate-bar .gate-emoji { flex: none; font-size: 34rpx; margin-right: 14rpx; }
+.gate-bar .gate-emoji { flex: none; font-size: 32rpx; margin-right: 14rpx; }
 .gate-bar .gate-text {
   flex: 1;
   font-size: 24rpx;
@@ -481,9 +519,9 @@ button.btn {
   height: 60rpx;
   font-size: 24rpx;
   font-weight: 700;
-  color: #fff;
+  color: var(--white);
   background: #ff9800;
-  border-radius: 30rpx;
+  border-radius: var(--r-pill);
 }
 .gate-bar .gate-btn::after { border: none; }
 
@@ -567,49 +605,43 @@ page {
   flex-direction: column;
   align-items: flex-start;
 }
-.w-side--right { right: 0; align-items: flex-end; }
+/* 2026-10-28：这里原本是 .w-side--right + .w-lv/.w-lv-lab（战士舞台右上角的「Lv.X 等级」）。
+   等级与左侧段位都由同一颗星推导，属于同一个数字讲两遍，已随「砍 Lv、只留段位」一并删除；
+   DOM 与样式同时清掉，避免留下没人引用的死规则。 */
 /* 左侧标签必须显式 left:0 —— 绝对定位不写 left/right 会退回到文档流位置，
    在小屏上会压到立绘身上（首页真机复查踩过）。 */
 .w-side--left { left: 0; }
 .w-name {
   max-width: 240rpx;
-  background: #fff;
+  background: var(--white);
   color: #3a5a80;
-  font-size: 26rpx;
+  font-size: 24rpx;
   font-weight: 900;
   border-radius: 999rpx;
   padding: 6rpx 20rpx;
-  box-shadow: 0 4rpx 0 rgba(20, 70, 140, .12);
+  box-shadow: var(--clay-1);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .w-rank {
   margin-top: 8rpx;
-  background: linear-gradient(160deg, #ffe9b8, #ffd166);
+  background: linear-gradient(160deg, #ffe9b8, var(--gold));
   color: #8a5a00;
-  font-size: 20rpx;
+  font-size: 24rpx;
   font-weight: 900;
   border-radius: 999rpx;
   padding: 4rpx 16rpx;
 }
-.w-lv {
-  font-size: 52rpx;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  text-shadow: 0 3rpx 0 rgba(20, 80, 150, .35);
-}
-.w-lv-lab { font-size: 20rpx; color: #e8f4ff; margin-top: 4rpx; }
 
 /* ---- 皮肤收集条 ---- */
 .skin-strip {
   width: 100%;
   background: rgba(255, 255, 255, .92);
-  border-radius: 22rpx;
+  border-radius: 28rpx;
   padding: 14rpx 18rpx;
   box-sizing: border-box;
-  box-shadow: 0 6rpx 0 rgba(20, 70, 140, .10);
+  box-shadow: var(--clay-card);
 }
 .skin-strip__head {
   display: flex;
@@ -620,8 +652,8 @@ page {
 }
 .skin-strip__prog {
   margin-left: auto;
-  font-size: 20rpx;
-  color: #8a9bb5;
+  font-size: 24rpx;
+  color: var(--ink-weak);
   font-weight: 700;
 }
 .skin-strip__row { display: flex; gap: 12rpx; margin-top: 12rpx; }
@@ -638,33 +670,33 @@ page {
 .skin-cell__img { width: 76rpx; height: 76rpx; }
 .skin-cell--locked { background: #eef2f8; }
 .skin-cell--locked .skin-cell__img { filter: grayscale(1) brightness(.55); }
-.skin-cell--next { box-shadow: 0 0 0 4rpx #ffb703; }
+.skin-cell--next { box-shadow: 0 0 0 4rpx var(--pri); }
 .skin-cell__lock { font-size: 32rpx; }
 
 /* ---- Boss 预告卡 ---- */
 .boss-card {
   width: 100%;
   box-sizing: border-box;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   padding: 16rpx 20rpx;
   display: flex;
   align-items: center;
   gap: 16rpx;
   background: linear-gradient(120deg, #4a3060, #7a3a5e);
-  box-shadow: 0 8rpx 0 rgba(50, 20, 70, .35);
-  color: #fff;
+  box-shadow: var(--clay-2);
+  color: var(--white);
 }
 .boss-card__img { width: 110rpx; height: 110rpx; flex: 0 0 auto; }
 .boss-card__emoji { font-size: 72rpx; flex: 0 0 auto; }
 .boss-card__t { flex: 1; min-width: 0; }
 .boss-card__name {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 900;
   text-shadow: 0 2rpx 0 rgba(0, 0, 0, .3);
   display: block;
 }
 .boss-card__sub {
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: #f0c8e0;
   display: block;
   margin-top: 4rpx;
@@ -672,7 +704,7 @@ page {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.boss-card__go { font-size: 44rpx; font-weight: 900; opacity: .9; }
+.boss-card__go { font-size: 48rpx; font-weight: 900; opacity: .9; }
 
 /* ---- 对局：战士 VS Boss 双血条 ---- */
 .vs-bar {
@@ -697,16 +729,16 @@ page {
 .vs-ava--boss { border-color: #ffb0d0; }
 .vs-ava__img { width: 104rpx; height: 104rpx; }
 .vs-name {
-  font-size: 22rpx;
+  font-size: 24rpx;
   font-weight: 800;
-  color: #fff;
+  color: var(--white);
   margin-top: 6rpx;
   text-shadow: 0 2rpx 0 rgba(0, 0, 0, .25);
 }
 .vs-mid {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 900;
-  color: #ffd166;
+  color: var(--gold);
   text-shadow: 0 2rpx 0 rgba(0, 0, 0, .3);
 }
 .hp {
@@ -717,7 +749,7 @@ page {
   overflow: hidden;
 }
 .hp__fill { height: 100%; border-radius: 999rpx; }
-.hp__fill--me { background: linear-gradient(90deg, #7bd389, #4caf50); }
+.hp__fill--me { background: linear-gradient(90deg, var(--green), #4caf50); }
 .hp__fill--boss { background: linear-gradient(90deg, #ff8a8a, #f23050); }
 
 /* ---- 结算：下一款皮肤解锁钩子 ---- */
@@ -725,17 +757,17 @@ page {
   width: 100%;
   box-sizing: border-box;
   background: linear-gradient(120deg, #fff8e0, #ffedc2);
-  border: 3rpx solid #ffd166;
-  border-radius: 22rpx;
+  border: 3rpx solid var(--gold);
+  border-radius: 28rpx;
   padding: 14rpx 18rpx;
   display: flex;
   align-items: center;
   gap: 14rpx;
-  box-shadow: 0 6rpx 0 rgba(180, 130, 0, .15);
+  box-shadow: var(--clay-1);
 }
 .unlock-bar__img { width: 88rpx; height: 88rpx; flex: 0 0 auto; }
-.unlock-bar__t { flex: 1; min-width: 0; font-size: 22rpx; color: #8a5a00; line-height: 1.5; }
-.unlock-bar__t b { font-size: 26rpx; display: block; }
+.unlock-bar__t { flex: 1; min-width: 0; font-size: 24rpx; color: #8a5a00; line-height: 1.5; }
+.unlock-bar__t b { font-size: 24rpx; display: block; }
 
 /* ============ 深色模式兜底：已移除（2026-09-12） ============
    背景：这里原先有一段 `@media (prefers-color-scheme: dark)`，只把 page 底色改成近黑 (#12171f)、
@@ -745,3 +777,105 @@ page {
    结论：对这款卡通教育游戏，**统一浅色主题**才是正确做法（多数页面本身就写死了浅色渐变背景），
    故移除该兜底。将来真要支持深色模式，必须逐页做完整的深色配色（不能只改 page 底），
    并补一条「深色模式截图回归」的用例，否则会重现同样的问题。 */
+
+/* ==========================================================================
+   设计令牌 · 唯一真相源（2026-10-28 · D「黏土玩具」方向）
+   ==========================================================================
+
+   为什么要有这一块（不是「再加一层规范」，是补上从来没有过的那一层）：
+     改版前实测 —— 2115 条色值 / 580 种不同颜色 / 45 档字号 / 24 档圆角 / 6 种页面边距，
+     而 `var(--*)` 全站只用过 50 次，**且全部是 JS 注入的动画坐标**（--target-x 等），
+     颜色 token 一次都没有被引用过。也就是说：上面那些 --sky1 / --orange 定义了等于没定义，
+     每个页面都在自己发明数值。2026-10-09 那份设计文档定过「色值 330 → 24」，
+     19 天后实测涨到 580 —— 没有护栏的规范等于不存在。
+
+   本块放在文件末尾，是刻意的：CSS 自定义属性后定义覆盖先定义，
+   这样能盖住上面两块 page{} 里遗留的旧值（--ink-sub 等），无需改动老代码。
+
+   使用规则（由 e2e/check-tokens.js 强制，存量按基线豁免、只许降不许升）：
+     1. 颜色只准 var(--*)，禁止裸写 #色值
+     2. font-size 只准 48 / 38 / 32 / 28 / 24（最小 24rpx，不再有 22rpx 及以下）
+     3. border-radius 只准 16 / 28 / 999rpx（另允许 0 与 50% 这两个非圆角语义值）
+     4. 阴影只准用 --clay-* 四档，禁止再写「外部硬底边」0 Nrpx 0
+
+   黏土化（D 方向）的核心就是把旧写法 `0 12rpx 0 rgba(...)`（外部硬边，塑料片）
+   换成 `inset 0 -12rpx 0 ... + inset 高光 + 外柔影`（内侧厚度，软胶）。
+   厚度值可以沿用原值，所以「批量替换」不会改变任何元素的尺寸与布局。
+   ========================================================================== */
+page {
+  /* ---- 文字角色 ---- */
+  --ink: #3a3a5c;        /* 主文字（白底/卡片内） */
+  --ink-sub: #5c7f9e;    /* 次要文字 */
+  --ink-weak: #8a9bb5;   /* 辅助/占位/未解锁 */
+  --ink-deep: #2f4a6b;   /* 天空蓝底上的标题。和 --ink 是两个语义：
+                            --ink 是紫调深灰（白卡片上），--ink-deep 是蓝调深色（浅蓝天空上）。
+                            实测 var(--ink) 在 var(--sky-3) 上会显脏发紫，所以这一档必须单独存在。 */
+
+  /* ---- 品牌 ---- */
+  --pri: #ff9a1f;        /* 主操作橙。2026-10-28 由 #ffb703 调深：#ffb703 偏黄，
+                            叠白色内高光后两者糊在一起，黏土按钮会失去立体 */
+  --pri-deep: #d97c00;   /* 橙的内侧暗面（渐变端/描边，不做文字） */
+  --pri-ink: #a26a00;    /* 橙系深色「文字」。星星数、金币数这类白底小字必须用它：
+                            --pri-deep 在白底上对比度只有 3.4:1，用于 24rpx 以下会看不清 */
+  --sky-1: #4a9fe8;
+  --sky-2: #8fcbf7;
+  --sky-3: #d8efff;
+  --sky-deep: #3b8bd6;   /* 天空渐变深端（年级胶囊等蓝底元素的暗面） */
+
+  /* ---- 功能色 ---- */
+  --blue: #4cc9f0;
+  --green: #3fbf5f;      /* 由 #7bd389 加深：白字对比度更足（旧值 2.1:1，新值 2.9:1） */
+  --pink: #ff5d8f;
+  --purple: #b388ff;
+  --gold: #ffd166;
+  --danger: #ff5a5a;
+  --white: #ffffff;
+
+  /* ---- 字号（5 档，相邻差 ≥4rpx）---- */
+  --fs-display: 48rpx;   /* 结算大标题 / Boss 名 */
+  --fs-title: 38rpx;     /* 页面标题 / 区块标题 */
+  --fs-strong: 32rpx;    /* 按钮文字 / 数字 / 小标题 */
+  --fs-body: 28rpx;      /* 正文（全局默认） */
+  --fs-cap: 24rpx;       /* 说明 / 标签 / HUD label（最小档） */
+
+  /* ---- 间距（4 档；4rpx 仅用于视觉微调，不入档）---- */
+  --sp-1: 8rpx;
+  --sp-2: 16rpx;
+  --sp-3: 24rpx;
+  --sp-4: 32rpx;
+
+  /* ---- 圆角（3 档）---- */
+  --r-sm: 16rpx;         /* 小件 / 格子 / 图标底 */
+  --r-md: 28rpx;         /* 卡片 / 面板 */
+  --r-pill: 999rpx;      /* 按钮 / chip / 标签 / 头像 */
+
+  /* ---- 页面左右边距 ---- */
+  --page-x: 32rpx;
+
+  /* ---- 黏土阴影（D 方向核心，四档 + 按压 + 禁用）----
+     每档都由三部分组成，缺一不可：
+       inset 下暗   = 厚度（替代原来的外部硬底边，所以形状完全不变）
+       inset 上亮   = 软胶的顶部高光（黏土质感的来源）
+       外部柔影      = 让元素离开页面，而不是贴在上面
+     注意：白底元素别用 --clay-1/2/3 —— 白叠白看不出高光，要用 --clay-card。 */
+  --clay-1: inset 0 -4rpx 0 rgba(20, 50, 90, .10), inset 0 3rpx 0 rgba(255, 255, 255, .45), 0 3rpx 6rpx rgba(20, 50, 90, .10);
+  --clay-2: inset 0 -6rpx 0 rgba(20, 50, 90, .12), inset 0 5rpx 0 rgba(255, 255, 255, .50), 0 6rpx 14rpx rgba(20, 50, 90, .12);
+  --clay-3: inset 0 -10rpx 0 rgba(20, 50, 90, .15), inset 0 8rpx 0 rgba(255, 255, 255, .55), 0 14rpx 28rpx rgba(20, 50, 90, .16);
+  --clay-card: inset 0 -8rpx 0 rgba(20, 50, 90, .07), 0 8rpx 18rpx rgba(20, 50, 90, .10);
+  --clay-press: inset 0 -2rpx 0 rgba(20, 50, 90, .12), inset 0 2rpx 0 rgba(255, 255, 255, .50), 0 2rpx 4rpx rgba(20, 50, 90, .10);
+  --clay-off: inset 0 -3rpx 0 rgba(20, 50, 90, .06), inset 0 3rpx 0 rgba(255, 255, 255, .30);
+
+  /* ---- 迁移别名（2026-10-28 起保留，批 5 收口后删除）----
+     现存代码引用这些旧名的次数为 0（实测），保留只是为了「万一」和可读性；
+     新代码一律用上面的正式名。 */
+  --sky1: var(--sky-2);
+  --sky2: var(--sky-3);
+  --sky-top: var(--sky-1);
+  --sky-mid: var(--sky-2);
+  --sky-bot: var(--sky-3);
+  --orange: var(--pri);
+  --cta: var(--pri);
+  --cta-deep: var(--pri-deep);
+  --win: var(--green);
+  --text-sub: var(--ink-sub);
+}

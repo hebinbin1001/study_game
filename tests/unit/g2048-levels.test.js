@@ -93,7 +93,7 @@ s.test('难度分档：目标不降级、挑战档 par 少于同目标的入门�
 });
 
 s.test('页面：不再按步数判负，星级按 par 折算，HUD 显示已用步数', () => {
-  const jsPath = path.join(__dirname, '../../miniprogram/pages/g2048/g2048.js');
+  const jsPath = path.join(__dirname, '../../miniprogram/pkg-games/g2048/g2048.js');
   const src = fs.readFileSync(jsPath, 'utf8');
   // 去掉注释再查（注释里会写「不再使用 stepsLimit 判负」，直接查会误报）
   const code = src.replace(/^\s*\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
@@ -104,7 +104,7 @@ s.test('页面：不再按步数判负，星级按 par 折算，HUD 显示已用
   s.assert.ok(/ratio\s*<=\s*1\.5/.test(code), '星级档位应相对 par（≤1 倍 3★ / ≤1.5 倍 2★）');
   s.assert.ok(/r\.gameover/.test(code), '棋盘无路可走时仍应判负');
 
-  const wxml = fs.readFileSync(path.join(__dirname, '../../miniprogram/pages/g2048/g2048.wxml'), 'utf8');
+  const wxml = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/g2048/g2048.wxml'), 'utf8');
   s.assert.ok(!/剩余步/.test(wxml), 'HUD 不该再显示「剩余步」');
   s.assert.ok(/\{\{usedSteps\}\}/.test(wxml), 'HUD 应显示已用步数');
   s.assert.ok(/3★ \{\{item\.par\}\} 步/.test(wxml), '选关卡片应说明该关 3★ 步数');

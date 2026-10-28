@@ -3,6 +3,8 @@
 // 玩法：发起人先打 10 题 → 生成一张「战帖」（题目种子 + 发起人成绩）→ 分享给好友；
 // 好友点开链接、用**同一套题**打一遍 → 服务端判胜负（先比正确率、再比用时）。
 // 奖励：胜 +3 星、平 +1 星、负 0 星；每人每天最多靠 PK 拿 10 星。
+//      2026-10-28 起，战帖被好友应战后**发起人**额外 +1 星（不论输赢，同样计入 10 星上限）。
+//      原因是分享对发起人本来是零回执：发出去没人打、打了也看不到，分享链在这里就断了。
 //
 // 为什么不做实时对战：云托管上做长连接 + 匹配 + 掉线处理成本高、故障率高，
 // 而学生玩家同时在线概率低，实时匹配大概率空等（规划文档已拍板用异步战帖）。
@@ -173,6 +175,33 @@ Page({
     });
   },
 
+  /**
+   * 应战结果页的「🔔 有人应战我时提醒我」——顺路续一张票（2026-10-28）。
+   *
+   * 和 askNotify 的区别：那个是用户主动点，每次都弹、每次都回话；
+   * 这个是搭在「刚打完一局」旁边的，一天最多一次、被拒过就不再问，
+   * 所以走 ensure 并且只有成功才给反馈 —— 否则每次看结果都被一句提示打断。
+   */
+  renewNotify: function () {
+    var self = this;
+    subscribe.ensure('pk_accept').then(function (r) {
+      if (r.ok) {
+        self.setData({ subOn: true });
+        wx.showToast({ title: '已开启，有人应战你就能收到', icon: 'none' });
+        return;
+      }
+      if (r.reason === 'already') {
+        // 一天只需要一张票。用户记不住自己点过，所以要给一句话，不然像点坏了。
+        wx.showToast({ title: '今天的提醒已经开过了', icon: 'none' });
+        return;
+      }
+      if (r.reason === 'off' || r.reason === 'no-template' || r.reason === 'unsupported') {
+        return; // 拒过 / 模板没配 / 基础库不支持：一律不打扰
+      }
+      wx.showToast({ title: '暂时开不了提醒，不影响对战', icon: 'none' });
+    });
+  },
+
   onShow: function () {
     this.setData({ loggedIn: auth.isLoggedIn() });
   },
@@ -227,6 +256,7 @@ Page({
           } else if (it.expired) stateText = '已过期';
           return {
             code: it.code,
+            lineMode: it.lineMode || 'shoot',
             modeLabel: it.modeLabel,
             grade: it.grade,
             level: it.level,
@@ -279,8 +309,29 @@ Page({
     this._startQuiz(m.grade, m.seed);
   },
 
-  _requireLogin: function () {
-    if (auth.isLoggedIn()) return true;
+  /**
+   * 再战（2026-10-28）：用「我的战帖」里那场的玩法/学段/关卡，重新发起一张新战帖。
+   *
+   * 为什么要有：战帖打完就断，好友关系只剩一条历史记录 —— 想继续比只能退出去重新
+   * 「发起挑战」，而那条路径固定是字母射击第 1 关（startCreate 里写死的），等于把
+   * 上一场的选择丢了。这里把它带过来，一次点击即进入答题。
+   * 注意用**新种子**（localSeed）：再战要出不同的题，不能复用上一张战帖的题面。
+   */
+  startRematch: function (e) {
+    if (!this._requireLogin()) return;
+    var d = (e && e.currentTarget && e.currentTarget.dataset) || {};
+    var mode = String(d.mode || 'shoot');
+    var grade = String(d.grade || storage.getLastGrade() || constants.GRADES[0].key);
+    var level = Math.max(1, parseInt(d.level, 10) || 1);
+    this._mode = 'create';
+    this._seed = localSeed();
+    this._grade = grade;
+    this._lineMode = mode;
+    this._level = level;
+    this._startQuiz(grade, this._seed);
+  },
+
+  _requireLogin: function () {    if (auth.isLoggedIn()) return true;
     var self = this;
     auth.promptLogin('好友 PK 需要登录（成绩要记到你的账号）').then(function (u) {
       if (u) self.setData({ loggedIn: true });

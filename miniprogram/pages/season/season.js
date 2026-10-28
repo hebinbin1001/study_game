@@ -109,5 +109,16 @@ Page({
       title: '词力战士 - ' + name + '，来冲榜拿奖励',
       path: '/pages/season/season'
     };
+  },
+
+  // 2026-10-28：朋友圈版。赛季排名天然是「可炫耀」的内容，
+  // 有排名就报排名，没有就报赛季名（不带 0 名这种尴尬数字）。
+  onShareTimeline: function () {
+    var name = (this.data.season && this.data.season.name) || '词力战士赛季';
+    var rank = (this.data.me && this.data.me.rank) || 0;
+    return {
+      title: rank > 0 ? (name + '，我现在排第 ' + rank + ' 名') : (name + '，来冲榜拿奖励'),
+      query: ''
+    };
   }
 });

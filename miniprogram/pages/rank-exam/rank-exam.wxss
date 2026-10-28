@@ -10,10 +10,10 @@ page {
 /* 头部 */
 .ex-head { text-align: center; margin-bottom: 30rpx; }
 .ex-title {
-  font-size: 46rpx; font-weight: 900; color: #fff;
+  font-size: 48rpx; font-weight: 900; color: var(--white);
   letter-spacing: 4rpx; text-shadow: 0 6rpx 0 rgba(0, 0, 0, .12);
 }
-.ex-sub { margin-top: 12rpx; font-size: 24rpx; color: #fff; opacity: .9; }
+.ex-sub { margin-top: 12rpx; font-size: 24rpx; color: var(--white); opacity: .9; }
 
 /* 进度 */
 .ex-progress { margin-bottom: 30rpx; }
@@ -22,16 +22,16 @@ page {
 }
 .ex-bar-fill {
   height: 16rpx; border-radius: 999rpx;
-  background: linear-gradient(90deg, #ffb703, #ff8a00);
+  background: linear-gradient(90deg, var(--pri), #ff8a00);
   transition: width .3s;
 }
-.ex-count { margin-top: 12rpx; text-align: center; font-size: 24rpx; color: #3a3a5c; font-weight: 700; }
+.ex-count { margin-top: 12rpx; text-align: center; font-size: 24rpx; color: var(--ink); font-weight: 700; }
 
 /* 题面 */
 .ex-stem {
-  background: #fff; border-radius: 32rpx; padding: 46rpx 32rpx;
-  text-align: center; font-size: 42rpx; font-weight: 900; color: #2f5470;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .06), 0 14rpx 28rpx rgba(0, 0, 0, .08);
+  background: var(--white); border-radius: 28rpx; padding: 46rpx 32rpx;
+  text-align: center; font-size: 38rpx; font-weight: 900; color: #2f5470;
+  box-shadow: var(--clay-2);
   margin-bottom: 34rpx; line-height: 1.4; word-break: break-all;
 }
 
@@ -39,44 +39,44 @@ page {
 .ex-options { display: flex; flex-direction: column; gap: 20rpx; }
 .ex-option {
   display: flex; align-items: center; justify-content: space-between;
-  background: #fff; border-radius: 24rpx; padding: 34rpx 30rpx;
-  box-shadow: 0 6rpx 0 rgba(0, 0, 0, .05);
+  background: var(--white); border-radius: 28rpx; padding: 34rpx 30rpx;
+  box-shadow: var(--clay-2);
   transition: transform .12s, background .15s;
 }
 .ex-option:active { transform: translateY(4rpx); }
-.ex-option-text { font-size: 34rpx; font-weight: 700; color: #3a3a5c; }
-.ex-option-mark { font-size: 36rpx; font-weight: 900; }
+.ex-option-text { font-size: 32rpx; font-weight: 700; color: var(--ink); }
+.ex-option-mark { font-size: 38rpx; font-weight: 900; }
 .ex-option--right { background: #e8f8ec; }
 .ex-option--right .ex-option-mark { color: #2f9e44; }
 .ex-option--wrong { background: #fdecea; }
 .ex-option--wrong .ex-option-mark { color: #e03131; }
 
-.ex-tip { margin-top: 28rpx; text-align: center; font-size: 22rpx; color: #6b87a3; }
+.ex-tip { margin-top: 28rpx; text-align: center; font-size: 24rpx; color: #6b87a3; }
 
 /* 结果页 */
 .ex-result {
-  margin-top: 90rpx; background: #fff; border-radius: 40rpx;
+  margin-top: 90rpx; background: var(--white); border-radius: 28rpx;
   padding: 60rpx 40rpx; text-align: center;
-  box-shadow: 0 8rpx 0 rgba(0, 0, 0, .06), 0 16rpx 32rpx rgba(0, 0, 0, .08);
+  box-shadow: var(--clay-2);
 }
 .ex-emoji { font-size: 130rpx; line-height: 1; animation: exPop .5s cubic-bezier(.34, 1.56, .64, 1) 1; }
 @keyframes exPop {
   0% { transform: scale(.4); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
-.ex-result-title { margin-top: 24rpx; font-size: 46rpx; font-weight: 900; color: #2f5470; }
-.ex-result-sub { margin-top: 14rpx; font-size: 26rpx; color: #5c7f9e; line-height: 1.5; }
+.ex-result-title { margin-top: 24rpx; font-size: 48rpx; font-weight: 900; color: #2f5470; }
+.ex-result-sub { margin-top: 14rpx; font-size: 28rpx; color: var(--ink-sub); line-height: 1.5; }
 .ex-result-note {
-  margin-top: 26rpx; padding: 20rpx 24rpx; border-radius: 20rpx;
-  background: #f2f8ff; font-size: 23rpx; color: #4c7396; line-height: 1.6; text-align: left;
+  margin-top: 26rpx; padding: 20rpx 24rpx; border-radius: 28rpx;
+  background: #f2f8ff; font-size: 24rpx; color: #4c7396; line-height: 1.6; text-align: left;
 }
 .ex-btn {
-  margin-top: 40rpx; height: 96rpx; line-height: 96rpx; border-radius: 48rpx;
+  margin-top: 40rpx; height: 96rpx; line-height: 96rpx; border-radius: var(--r-pill);
   font-size: 32rpx; font-weight: 800; border: none;
 }
 .ex-btn--primary {
-  background: linear-gradient(135deg, #ffb703, #ff8a00); color: #fff;
-  box-shadow: 0 8rpx 0 rgba(200, 110, 0, .28);
+  background: linear-gradient(135deg, var(--pri), #ff8a00); color: var(--white);
+  box-shadow: var(--clay-2);
 }
 .ex-btn--primary::after { border: none; }
-.ex-back { margin-top: 28rpx; font-size: 26rpx; color: #5c7f9e; }
+.ex-back { margin-top: 28rpx; font-size: 28rpx; color: var(--ink-sub); }

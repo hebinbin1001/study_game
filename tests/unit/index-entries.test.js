@@ -20,7 +20,16 @@ const path = require('path');
 const { suite } = require('./_runner');
 
 const ROOT = path.join(__dirname, '..', '..');
-const read = function (p) { return fs.readFileSync(path.join(ROOT, p), 'utf8'); };
+// 2026-10-28：玩法页迁进分包 pkg-games 后，同一个页面可能在 miniprogram/pages 或
+// miniprogram/pkg-games 下，交给 _mp.readMp 自动定位；本文件还要读 app.json 等根目录文件，
+// 所以找不到时回退到原生读取，不当成失败。
+const mp = require('./_mp');
+const read = function (p) {
+  if (p.indexOf('miniprogram/') === 0) {
+    try { return mp.readMp(p); } catch (e) { /* 交给下面的原生读取兜最后一次 */ }
+  }
+  return fs.readFileSync(path.join(ROOT, p), 'utf8');
+};
 
 const wxml = read('miniprogram/pages/index/index.wxml');
 const js = read('miniprogram/pages/index/index.js');
@@ -44,7 +53,9 @@ const ENTRIES = [
   { method: 'goAvatarSkin',     desc: '战士立绘 / 皮肤行 → 皮肤图鉴' },
   // —— 2026-10-18 二期：四宫格第四格 ——
   // —— 2026-10-18 全局年级：HUD 最左胶囊 ——
-  { method: 'openGradePicker',  desc: '年级胶囊 → 全局年级选择器' }
+  { method: 'openGradePicker',  desc: '年级胶囊 → 全局年级选择器' },
+  // —— 2026-10-28 晋级考试：星星被 exam-gate 封顶时的唯一解封入口（原本藏在三级页） ——
+  { method: 'goExam',           desc: '段位封顶提示 → 晋级考试页' }
 ];
 
 const s = suite('首页入口兼容（UI 重做一期）');
@@ -79,10 +90,28 @@ s.test('index.js 里所有 /pages/xxx 跳转目标都已在 app.json 注册', fu
   s.assert.deepEqual(bad, [], '跳转到未注册页面（会 404）：' + bad.join(', '));
 });
 
-s.test('主题区结构仍在（立绘 / 等级进度 / 皮肤一行 / 下一战），别被后续改动删掉', function () {
+s.test('主题区结构仍在（立绘 / 段位进度 / 皮肤一行 / 下一战），别被后续改动删掉', function () {
   ['w-stage', 'lv-inline', 'skin-line', 'battle', 'boss-pill', 'battle-row'].forEach(function (cls) {
     s.assert.ok(wxml.indexOf(cls) !== -1, '首页缺少主题模块：' + cls);
   });
+});
+
+// 2026-10-28：等级（Lv）与段位原本都由同一颗星推导，是同一个数字讲两遍 → 已砍掉 Lv，
+// 只留段位。这条护栏防止「Lv」被后人当成一个独立系统重新加回来。
+s.test('首页只留段位一套进度语义（Lv 不得复活）', function () {
+  s.assert.ok(js.indexOf('lvCell') === -1, 'index.js 仍保留 lvCell（等级 = 段位 cell，已废弃）');
+  s.assert.ok(js.indexOf('lvNeed') === -1, 'index.js 仍保留 lvNeed');
+  s.assert.ok(wxml.indexOf('Lv.') === -1, 'index.wxml 仍在渲染 Lv.');
+  s.assert.ok(wxml.indexOf('{{rankName') !== -1, '段位进度条应展示段位名（rankName）');
+});
+
+// 2026-10-28：星星被 exam-gate 封顶时，玩家必须能在首屏看到原因和出口，
+// 否则对着一条永远不变的进度条，且解封入口藏在三级页（详见 docs/全量检查报告 §1）。
+s.test('段位封顶时首页给出晋级考试入口（needExam → goExam）', function () {
+  s.assert.ok(js.indexOf('needExam') !== -1, 'index.js 没接服务端的 needExam 字段');
+  s.assert.ok(js.indexOf('examTierKey') !== -1, 'index.js 没接服务端的 nextExamTier 字段');
+  s.assert.ok(wxml.indexOf('exam-bar') !== -1, 'wxml 缺少晋级考试提示条 exam-bar');
+  s.assert.ok(/wx:if="{{needExam}}"/.test(wxml), '考试条必须按需渲染（未封顶时不出现）');
 });
 
 s.test('主题区不吞掉功能入口：每个 tab 之外的重点页面至少有一条首页入口', function () {
@@ -90,8 +119,12 @@ s.test('主题区不吞掉功能入口：每个 tab 之外的重点页面至少�
   const mustFromHome = ['rank', 'rank-info', 'daily-question', 'daily-challenge', 'season', 'pk', 'level'];
   const homeSources = js + wxml;
   mustFromHome.forEach(function (key) {
-    s.assert.ok(homeSources.indexOf('/pages/' + key + '/') !== -1,
-      '首页没有通往 pages/' + key + ' 的入口');
+    // 2026-10-28：level 等玩法链路页面已迁进分包 pkg-games，
+    // 这里的判据放宽为「主包 pages/ 或分包 pkg-games/ 任一路径命中」都算数。
+    const inMain = homeSources.indexOf('/pages/' + key + '/') !== -1;
+    const inSubpkg = homeSources.indexOf('/pkg-games/' + key + '/') !== -1;
+    s.assert.ok(inMain || inSubpkg,
+      '首页没有通往 ' + key + ' 的入口（既不在 pages/ 也不在 pkg-games/）');
   });
 });
 
@@ -138,7 +171,7 @@ PAGES.forEach(function (p) {
 });
 
 s.test('关卡页保留 Boss 主题与继续入口所需的字段渲染', function () {
-  const w = read('miniprogram/pages/level/level.wxml');
+  const w = read('miniprogram/pkg-games/level/level.wxml');
   ['continue-bar', 'lvrow', 'lv-boss', 'chest-chip'].forEach(function (cls) {
     s.assert.ok(w.indexOf(cls) !== -1, '关卡页缺少模块：' + cls);
   });
@@ -187,8 +220,8 @@ s.test('战士徽章不再用 fixed 悬浮（会压住 HUD / 题目卡）', func
 // 规则（用户拍板）：主线只能从首页进入；玩法页进去的都是自由玩。
 // 落地方式：关卡页不再提供「主线 / 自由练」横跳，视图由入口的 ?mode= 决定。
 s.test('关卡页不再提供「主线 / 自由练」横跳，也不再有「想自由玩」入口', function () {
-  const w = read('miniprogram/pages/level/level.wxml');
-  const js = read('miniprogram/pages/level/level.js');
+  const w = read('miniprogram/pkg-games/level/level.wxml');
+  const js = read('miniprogram/pkg-games/level/level.js');
   s.assert.ok(w.indexOf('view-seg') === -1, '关卡页仍有分段容器 view-seg');
   s.assert.ok(w.indexOf('pickView') === -1, '关卡页仍有分段切换 pickView');
   s.assert.ok(js.indexOf('pickView') === -1, 'level.js 仍保留 pickView 死方法');
@@ -222,8 +255,8 @@ s.test('年级收敛：五个页面都接同一套 grade-picker，且不再有�
 // ============ 关卡页去掉「二次选玩法」（2026-10-18） ============
 // 玩法在玩法 tab 已经选过一次；带 ?mode= 进来的关卡页不该再列 7 条玩法线。
 s.test('关卡页不再有玩法/题型切换条（避免二次选玩法）', function () {
-  const w = read('miniprogram/pages/level/level.wxml');
-  const js = read('miniprogram/pages/level/level.js');
+  const w = read('miniprogram/pkg-games/level/level.wxml');
+  const js = read('miniprogram/pkg-games/level/level.js');
   s.assert.ok(w.indexOf('type-tabs') === -1, '关卡页仍有 type-tabs 切换条');
   s.assert.ok(w.indexOf('bindtap="pickType"') === -1, '关卡页 wxml 仍绑 pickType');
   s.assert.ok(js.indexOf('pickType: function') === -1, 'level.js 仍保留 pickType 死方法');
@@ -231,8 +264,8 @@ s.test('关卡页不再有玩法/题型切换条（避免二次选玩法）', fu
 });
 
 s.test('关卡页顶部按入口显示视图名（主线 / 玩法名 · 30 关）', function () {
-  const js = read('miniprogram/pages/level/level.js');
-  const w = read('miniprogram/pages/level/level.wxml');
+  const js = read('miniprogram/pkg-games/level/level.js');
+  const w = read('miniprogram/pkg-games/level/level.wxml');
   s.assert.ok(js.indexOf('viewLabel') !== -1, '缺少 viewLabel');
   s.assert.ok(w.indexOf('{{viewLabel}}') !== -1, '顶部没有渲染 viewLabel');
   s.assert.ok(js.indexOf("'主线 30 关'") !== -1, '主线视图文案缺失');

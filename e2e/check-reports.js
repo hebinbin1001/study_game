@@ -28,27 +28,27 @@ const catalog = require(path.join(ROOT, 'utils', 'game-catalog'));
 
 /** 玩法 key → 页面路径（与 pages/puzzle-level 的 GAME_PAGE 同口径） */
 const PAGE_OF = {
-  shoot: 'pages/game/game',
-  match: 'pages/match/match',
-  link: 'pages/link/link',
-  wordbuild: 'pages/word-build/word-build',
-  idiombuild: 'pages/idiom-build/idiom-build',
-  snake: 'pages/snake/snake',
-  quiz: 'pages/quiz/quiz',
-  letterBubble: 'pages/letter-bubble/letter-bubble',
-  sudoku: 'pages/sudoku/sudoku',
-  math24: 'pages/math24/math24',
-  sprint: 'pages/math-sprint/math-sprint',
-  balance: 'pages/math-balance/math-balance',
-  g2048: 'pages/g2048/g2048',
-  memory: 'pages/memory-grid/memory-grid',
-  onestroke: 'pages/one-stroke/one-stroke',
-  pattern: 'pages/pattern/pattern',
-  clock: 'pages/clock/clock',
-  maze: 'pages/maze/maze',
-  hanoi: 'pages/hanoi/hanoi',
-  klotski: 'pages/klotski/klotski',
-  bounce: 'pages/bounce/bounce'
+  shoot: 'pkg-games/game/game',
+  match: 'pkg-games/match/match',
+  link: 'pkg-games/link/link',
+  wordbuild: 'pkg-games/word-build/word-build',
+  idiombuild: 'pkg-games/idiom-build/idiom-build',
+  snake: 'pkg-games/snake/snake',
+  quiz: 'pkg-games/quiz/quiz',
+  letterBubble: 'pkg-games/letter-bubble/letter-bubble',
+  sudoku: 'pkg-games/sudoku/sudoku',
+  math24: 'pkg-games/math24/math24',
+  sprint: 'pkg-games/math-sprint/math-sprint',
+  balance: 'pkg-games/math-balance/math-balance',
+  g2048: 'pkg-games/g2048/g2048',
+  memory: 'pkg-games/memory-grid/memory-grid',
+  onestroke: 'pkg-games/one-stroke/one-stroke',
+  pattern: 'pkg-games/pattern/pattern',
+  clock: 'pkg-games/clock/clock',
+  maze: 'pkg-games/maze/maze',
+  hanoi: 'pkg-games/hanoi/hanoi',
+  klotski: 'pkg-games/klotski/klotski',
+  bounce: 'pkg-games/bounce/bounce'
 };
 
 /** 字母射击的成绩在结算页上报（reportScore → /api/score） */
@@ -76,7 +76,7 @@ catalog.forEach(function (g) {
   const hit = src.indexOf('reportPlay(') >= 0 || src.indexOf('/api/score') >= 0;
   if (hit) return;
   if (VIA_RESULT.indexOf(g.key) >= 0) {
-    const resultSrc = fs.readFileSync(path.join(ROOT, 'pages/result/result.js'), 'utf8');
+    const resultSrc = fs.readFileSync(path.join(ROOT, 'pkg-games/result/result.js'), 'utf8');
     if (resultSrc.indexOf('/api/score') >= 0) return;   // 结算页代传
   }
   console.log('[FAIL] ' + g.key + '（' + g.name + '）没有任何成绩上报 —— 玩法进度榜会一直空着');
@@ -98,7 +98,7 @@ function writesLocalProgress(rel) {
     return PAGE_OF[k] === rel && VIA_RESULT.indexOf(k) >= 0;
   });
   if (isShootLike) {
-    const resultSrc = stripLineComments(fs.readFileSync(path.join(ROOT, 'pages/result/result.js'), 'utf8'));
+    const resultSrc = stripLineComments(fs.readFileSync(path.join(ROOT, 'pkg-games/result/result.js'), 'utf8'));
     if (resultSrc.indexOf('saveStars(') >= 0) return true;
   }
   return false;

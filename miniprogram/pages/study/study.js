@@ -15,6 +15,9 @@ Page({
     // 2026-10-17：报告正确率提到数据卡上。avgRate < 0 表示还没拿到数据（游客 / 接口失败），
     // 模板显示 "--"，避免把「0%」误当成真实正确率。
     avgRate: -1,
+    // 2026-10-28：正确率只统计字词类玩法（休闲玩法的题量落 0）。hasQuiz=false 表示
+    // 近 7 天只在玩数独/2048 这类，没有可算正确率的答题 —— 显示 "-- 还没答题" 而不是 0%。
+    hasQuiz: true,
     weakList: []        // 本周薄弱题型 Top3（{ code, label, count }）
   },
 
@@ -65,6 +68,7 @@ Page({
       if (!d) return;
       var upd = {};
       if (typeof d.avgRate === 'number') upd.avgRate = d.avgRate;
+      upd.hasQuiz = (d.totalQ || 0) > 0;
       var byType = d.wrongByType || [];
       var list = [];
       for (var i = 0; i < byType.length && list.length < 3; i++) {
@@ -85,6 +89,19 @@ Page({
   // —— 入口 ——
   goReport: function () { this._guard('/pages/report/report', '学习报告需登录查看'); },
   goWrongBook: function () { this._guard('/pages/wrong-book/wrong-book', '错题本需登录同步'); },
+
+  /**
+   * 数据卡上的「复习 ›」：跳过错题本列表直接开练。
+   * 不带 due=1 —— /api/wrong/stats 只给 pending 总数、没有「今日到期」，
+   * 带 due 可能进去一题都没有；全池复习与错题本页的降级路径一致。
+   */
+  goReview: function () {
+    if (!this.data.loggedIn || !(this.data.wrongCount > 0)) {
+      this.goWrongBook();
+      return;
+    }
+    wx.navigateTo({ url: '/pages/wrong-review/wrong-review' });
+  },
 
   // 每日一题·签到（答对即签到；B2 已接入每日一题页）
   goDaily: function () {

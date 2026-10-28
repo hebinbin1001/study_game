@@ -7,13 +7,17 @@
     <button class="gate-btn" bindtap="onGateLogin">去登录</button>
   </view>
 
-  <!-- 段位信息栏 -->
+  <!-- 段位信息栏
+       星星口径（2026-10-28）：这里显示「累计星」（真实累积值）—— 皮肤就是按它解锁的。
+       被晋级考试封顶时，段位名仍是封顶后的段位，下面补一句说明，
+       否则会出现「段位青铜、累计星 300」这种看不懂的组合。 -->
   <view class="rank-bar">
     <view class="rank-info">
       <text class="rank-name">{{rankInfo.rankName || '青铜'}}</text>
       <text class="rank-wins">胜场: {{rankInfo.wins || 0}}</text>
-      <text class="rank-stars">星数: {{rankInfo.stars || 0}}</text>
+      <text class="rank-stars">累计星: {{rankInfo.rawStars || rankInfo.stars || 0}}</text>
     </view>
+    <view class="rank-cap" wx:if="{{rankInfo.needExam}}">段位已封顶 · 星星照常累积，去首页考晋级试解封</view>
   </view>
 
   <view class="skin-tabs">

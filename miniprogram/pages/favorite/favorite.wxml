@@ -1,0 +1,85 @@
+<!-- 生词本（2026-10-28）
+     三态：list（清单）/ quiz（练习）/ done（结果），同一页内切换，不跳页。
+     练习态刻意做成极简：没有计时、没有连击、没有星 —— 它不是闯关，是复习。
+-->
+<view class="page-fav">
+  <view class="gate-bar" wx:if="{{needLogin}}">
+    <text class="gate-emoji">🔒</text>
+    <text class="gate-text">登录后可以收藏生词</text>
+    <button class="gate-btn" bindtap="onGateLogin">去登录</button>
+  </view>
+
+  <block wx:if="{{!needLogin}}">
+    <view class="fv-head">
+      <view class="fv-back" bindtap="goBack">‹</view>
+      <view class="fv-head-t">
+        <view class="fv-title">生词本</view>
+        <view class="fv-sub">共 {{total}} 个词</view>
+      </view>
+      <view class="fv-icon" wx:if="{{items.length}}" bindtap="startQuiz">▶</view>
+    </view>
+
+    <!-- 清单 -->
+    <block wx:if="{{mode === 'list'}}">
+      <view wx:if="{{loading}}" class="fv-tip">加载中…</view>
+
+      <view wx:elif="{{!items.length}}" class="fv-empty">
+        <view class="fv-empty-ic">⭐</view>
+        <view class="fv-empty-t">还没有收藏的词</view>
+        <view class="fv-empty-b">答题、复习、闯关时点 ⭐ 就能把词收进这里，之后可以专门练一遍。</view>
+      </view>
+
+      <view wx:else>
+        <view wx:for="{{items}}" wx:key="word" class="fv-card">
+          <view class="fv-card-main">
+            <view class="fv-word">
+              {{item.word}}
+              <text wx:if="{{item.ipa}}" class="fv-ipa">/{{item.ipa}}/</text>
+            </view>
+            <view class="fv-hint">{{item.hint}}</view>
+          </view>
+          <view class="fv-del" data-word="{{item.word}}" bindtap="remove">✕</view>
+        </view>
+
+        <view class="fv-gap"></view>
+        <button class="fv-start" bindtap="startQuiz">用生词本组一局</button>
+        <view class="fv-note">练习模式 · 不计星、不写学习报告</view>
+      </view>
+    </block>
+
+    <!-- 练习 -->
+    <block wx:elif="{{mode === 'quiz'}}">
+      <view class="qz-card">
+        <view class="qz-bar">
+          <text class="qz-progress">{{qi + 1}} / {{quiz.length}}</text>
+          <text class="qz-tag">练习</text>
+        </view>
+
+        <view class="qz-word">{{cur.word}}</view>
+        <view class="qz-sub">{{cur.sub}}</view>
+
+        <view class="qz-opts">
+          <view
+            wx:for="{{cur.options}}"
+            wx:key="key"
+            class="qz-opt {{judged && item.key === cur.answerKey ? 'is-ok' : ''}} {{judged && item.key === picked && item.key !== cur.answerKey ? 'is-bad' : ''}}"
+            data-key="{{item.key}}"
+            bindtap="pick">{{item.text}}</view>
+        </view>
+
+        <button wx:if="{{judged}}" class="qz-next" bindtap="next">{{qi + 1 >= quiz.length ? '看结果' : '下一题'}}</button>
+      </view>
+    </block>
+
+    <!-- 结果 -->
+    <block wx:elif="{{mode === 'done'}}">
+      <view class="qz-card qz-done">
+        <view class="qz-done-ic">{{rate >= 80 ? '🎉' : '💪'}}</view>
+        <view class="qz-done-t">答对 {{correctCount}} / {{quiz.length}}</view>
+        <view class="qz-done-b">正确率 {{rate}}%</view>
+        <button class="qz-next" bindtap="retry">再练一遍</button>
+        <view class="qz-link" bindtap="backToList">回到生词本</view>
+      </view>
+    </block>
+  </block>
+</view>

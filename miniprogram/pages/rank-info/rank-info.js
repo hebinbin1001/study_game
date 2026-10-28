@@ -106,5 +106,15 @@ Page({
       title: name ? ('词力战士 - 我已经是「' + name + '」了，来挑战我！') : '词力战士 - 看看段位阶梯，一起冲榜',
       path: '/pages/index/index'
     };
+  },
+
+  // 2026-10-28：朋友圈版。带上 stars 让点进来的人直接看到「分享者的段位」，
+  // 而不是一个什么都不显示的段位页（onLoad 认 ?stars=N）。
+  onShareTimeline: function () {
+    var name = this.data.name || '';
+    return {
+      title: name ? ('我在词力战士已经是「' + name + '」了，你能追上吗') : '看看词力战士的段位阶梯',
+      query: 'stars=' + (this.data.stars || 0)
+    };
   }
 });

@@ -33,7 +33,7 @@
 
 const H = require('./lib/harness');
 
-const PAGE_URL = '/pages/snake/snake';
+const PAGE_URL = '/pkg-games/snake/snake';
 const SIZE = 10;
 const CELL_COUNT = SIZE * SIZE;
 const LIVES = 3;
@@ -224,8 +224,8 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
   const page = await H.goto(miniProgram, PAGE_URL, 400);
 
   const cur = await miniProgram.currentPage();
-  ck.check('进入贪吃蛇页', cur.path === 'pages/snake/snake', '实际 = ' + cur.path);
-  if (cur.path !== 'pages/snake/snake') return;
+  ck.check('进入贪吃蛇页', cur.path === 'pkg-games/snake/snake', '实际 = ' + cur.path);
+  if (cur.path !== 'pkg-games/snake/snake') return;
 
   await freeze(page);
   ck.check('已冻结主循环（_stopLoop）', true);
@@ -449,7 +449,7 @@ H.runSuite('verify-snake（单词贪吃蛇）', async function (miniProgram, ck)
   // 收尾
   console.log('[10/10] 校验页面未跳转/未崩溃');
   const end = await miniProgram.currentPage();
-  ck.check('流程结束后仍在贪吃蛇页', end.path === 'pages/snake/snake', '实际 = ' + end.path);
+  ck.check('流程结束后仍在贪吃蛇页', end.path === 'pkg-games/snake/snake', '实际 = ' + end.path);
   const finalData = await page.data();
   ck.check('全程未意外结算', finalData.over === false,
     '实际 over = ' + finalData.over + ' · lives = ' + finalData.lives);

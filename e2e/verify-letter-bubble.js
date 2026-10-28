@@ -15,7 +15,7 @@ fs.mkdirSync(ART_DIR, { recursive: true });
 
 H.runSuite('verify-letter-bubble（Boss 补字母泡泡龙）', async function (miniProgram, ck) {
   const seed = challenge.lineSeedOf('kg', 'letterBubble', 1);
-  const url = '/pages/letter-bubble/letter-bubble?challenge=1&line=mode_letterBubble&grade=kg&level=1&seed=' + seed;
+  const url = '/pkg-games/letter-bubble/letter-bubble?challenge=1&line=mode_letterBubble&grade=kg&level=1&seed=' + seed;
   const page = await H.goto(miniProgram, url, 1800);
 
   ck.check('玩法根容器渲染', !!(await H.waitForSelector(page, '.lb-page', 8000)));

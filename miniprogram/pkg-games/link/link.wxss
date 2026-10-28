@@ -1,0 +1,88 @@
+/* 词语连连看（B6-5） */
+.page-link {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 16rpx 30rpx calc(20rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--sky-1) 0%, #7dbdf2 32%, #b9e0ff 64%, var(--sky-3) 100%);
+}
+/* 头部/HUD 统一到 app.wxss 的 .g-head/.g-title/.g-chip/.hud/.hud-chip（2026-09-12 视觉统一） */
+.page-link .hud { flex-wrap: nowrap; gap: 12rpx; }
+.page-link .hud-chip {
+  white-space: nowrap;
+  font-size: 28rpx;
+  padding: 0 20rpx;
+  min-height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+}
+.heart { font-size: 32rpx; line-height: 1; }
+.pair-num { font-size: 32rpx; font-weight: 900; color: #2d4a7a; }
+.ctx-pill {
+  flex: 0 0 auto;
+  align-self: center;
+  margin-top: 10rpx;
+  padding: 5rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, .22);
+  color: var(--white);
+  font-size: 24rpx;
+  font-weight: 800;
+}
+.board {
+  /* 棋盘贴着自己的格子，不再被拉伸（否则底槽里会出现一大片空白），
+     margin:auto 上下平分剩余空间 → 头部在顶、棋盘居中、提示贴底 */
+  flex: 0 0 auto;
+  margin: auto 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+  align-content: center;
+}
+.tile {
+  aspect-ratio: 1/1;
+  border-radius: 16rpx;
+  display: flex; align-items: center; justify-content: center;
+  padding: 6rpx; box-sizing: border-box;
+  color: var(--ink);
+  font-size: 28rpx; font-weight: 800; text-align: center;
+  word-break: break-all;
+}
+/* 长词收一档字号（同 match 页） */
+.tile.long { font-size: 24rpx; letter-spacing: -0.5rpx; line-height: 1.2; }
+.tile.word { color: #4285F4; font-size: 32rpx; }
+/* 词卡选中：金色环（.b-sel）+ 微暖底，和义卡区分得更清楚 */
+.tile.word.b-sel { background: linear-gradient(180deg, #fffdf6 0%, #eaf3ff 100%); }
+/* 消掉：淡出 + 缩小，别"啪"地消失 */
+.tile.gone {
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity .28s ease, transform .28s ease;
+  pointer-events: none;
+}
+.tile.err { background: linear-gradient(180deg, #ff9cbc 0%, #ff7ba4 100%); color: var(--white); animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-6rpx); } 75% { transform: translateX(6rpx); } }
+
+.tip { flex: 0 0 auto; text-align: center; font-size: 24rpx; color: #4a6b8a; opacity: 1; margin: 14rpx 0 6rpx; }
+
+.over-mask {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(20,34,56,.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.over-card { width: 600rpx; background: var(--white); border-radius: 28rpx; padding: 44rpx 36rpx; text-align: center; }
+.o-stars { font-size: 72rpx; color: var(--pri); letter-spacing: 8rpx; }
+.o-title { font-size: 48rpx; font-weight: 900; color: #2e8b57; margin-top: 10rpx; }
+.o-title.fail { color: #e62e2e; }
+.btn { margin-top: 20rpx; width: 100%; height: 92rpx; line-height: 92rpx; border-radius: var(--r-pill); background: var(--pri); color: var(--white); font-size: 32rpx; font-weight: 900; box-shadow: var(--clay-3); }
+.btn::after { border: none; }
+/* 「下一关」按钮（2026-09-18） */
+.btn.b2 { background: linear-gradient(135deg, #4285F4, #6AA6F5); color: var(--white); }
+.btn.b1 { background: #eef2f8; color: var(--ink-sub); box-shadow: var(--clay-3); }
+
+.safe-gap { height: calc(env(safe-area-inset-bottom) + 12rpx); }
+
+/* 右上角固定暂停按钮让位（components/game-pause）：HUD 右端不压住内容 / 战士徽章 */

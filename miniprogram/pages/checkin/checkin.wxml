@@ -13,6 +13,13 @@
     <button class="gate-btn" bindtap="onGateLogin">去登录</button>
   </view>
 
+  <!-- 加载失败提示（2026-10-28）：原来失败与「本月没签过」都渲染成空日历，
+       用户分不清是网络问题还是真没签到。现在明确提示并给重试入口。 -->
+  <view class="load-err" wx:if="{{loadError}}">
+    <text class="load-err__text">签到记录加载失败，请检查网络后重试</text>
+    <view class="load-err__btn" bindtap="loadData">重试</view>
+  </view>
+
   <!-- 今日状态卡 -->
   <view class="today-card">
     <view class="tc-left">

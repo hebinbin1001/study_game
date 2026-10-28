@@ -28,7 +28,7 @@ const H = require('./lib/harness');
 const K = require('../miniprogram/game/klotski');
 const LEVELS = require('../miniprogram/data/klotski-levels');
 
-const PAGE_URL = '/pages/klotski/klotski';
+const PAGE_URL = '/pkg-games/klotski/klotski';
 const L1 = LEVELS.levels[0];
 const L2 = LEVELS.levels[1];
 
@@ -47,7 +47,7 @@ H.runSuite('verify-klotski（华容道）', async function (miniProgram, ck) {
 
   console.log('[1/7] 选关页：30 关分 5 档渲染');
   const page = await H.goto(miniProgram, PAGE_URL, 1800);
-  ck.check('进入华容道页', (await miniProgram.currentPage()).path === 'pages/klotski/klotski');
+  ck.check('进入华容道页', (await miniProgram.currentPage()).path === 'pkg-games/klotski/klotski');
   ck.check('根容器 .page-klotski 已渲染', !!(await H.waitForSelector(page, '.page-klotski', 8000)));
 
   const d0 = await page.data();
@@ -187,5 +187,5 @@ H.runSuite('verify-klotski（华容道）', async function (miniProgram, ck) {
     '实际 = ' + JSON.stringify(stars2['klotski_' + L2.no]));
 
   const cur = await miniProgram.currentPage();
-  ck.check('全程未崩溃（仍在华容道页）', cur.path === 'pages/klotski/klotski', '实际 = ' + cur.path);
+  ck.check('全程未崩溃（仍在华容道页）', cur.path === 'pkg-games/klotski/klotski', '实际 = ' + cur.path);
 });

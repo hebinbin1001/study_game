@@ -1,0 +1,227 @@
+/* 认钟表（数字智力第 10 款）—— 暖橙主题，与数独（蓝）/ 一笔画（青绿）/ 找规律（紫）区分 */
+page {
+  background: linear-gradient(180deg, #f0a020 0%, #ffc266 30%, #ffe6c2 62%, #fff8ee 100%);
+  min-height: 100vh;
+}
+
+/* min-height 而不是 height: 100vh —— 内容比一屏高时自然长高（可滚动），
+   不会把底部选项压出屏幕。 */
+.page-clock {
+  min-height: 100vh;
+  padding: 20rpx 32rpx calc(36rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+
+.hud { display: flex; gap: 16rpx; align-items: stretch; }
+.chip {
+  flex: 1;
+  background: var(--white);
+  border-radius: 28rpx;
+  padding: 14rpx 8rpx;
+  text-align: center;
+  box-shadow: var(--clay-2);
+}
+.chip .k { font-size: 24rpx; color: #b08858; }
+.chip .v { font-size: 32rpx; font-weight: 900; color: #b35c00; margin-top: 2rpx; }
+
+.bar { height: 12rpx; border-radius: var(--r-pill); background: #ffe4bd; overflow: hidden; flex: 0 0 auto; }
+.bar-fill {
+  height: 100%;
+  border-radius: 16rpx;
+  background: linear-gradient(90deg, #ff8a00, #ffc93c);
+  transition: width 0.25s ease;
+}
+
+.banner {
+  flex: 0 0 auto;
+  background: var(--white);
+  border-radius: 28rpx;
+  padding: 18rpx 24rpx;
+  text-align: center;
+  box-shadow: var(--clay-2);
+}
+.banner .main { font-size: 38rpx; font-weight: 900; color: #b35c00; letter-spacing: 1rpx; }
+/* 副标题固定两行高：从「看时针和分针的位置」换成规则解释时不跳动 */
+.banner .sub {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #a58256;
+  line-height: 1.4;
+  min-height: 34rpx;
+}
+.banner.good { background: #e9fbef; }
+.banner.good .main { color: #1b8f4b; }
+.banner.good .sub { color: #3f8f63; }
+.banner.bad { background: #fff0f0; }
+.banner.bad .main { color: #d64545; }
+.banner.bad .sub { color: #a85858; }
+
+/* ---------- 题板 ---------- */
+.stage {
+  flex: 1 1 auto;
+  min-height: 460rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14rpx;
+  padding: 20rpx 20rpx 12rpx;
+  background: var(--white);
+  border-radius: 28rpx;
+  box-shadow: var(--clay-3);
+}
+
+/* ---------- 表盘（纯 CSS：60 个刻度 view + 两根 rotate 指针，不用图、不用 canvas）
+   刻度用绝对定位 + transform-origin 指到圆心旋转，比 conic-gradient 稳：
+   后者在老基础库 / 部分安卓内核上不生效，会变成一块纯色圆。 ---------- */
+.dial {
+  position: relative;
+  width: 400rpx;
+  height: 400rpx;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #fffdf9;
+  box-shadow: inset 0 0 0 4rpx #ffe0b0, 0 10rpx 22rpx rgba(176, 110, 8, 0.14);
+}
+.dial-face {
+  position: absolute;
+  left: 22rpx; top: 22rpx; right: 22rpx; bottom: 22rpx;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: inset 0 2rpx 8rpx rgba(176, 110, 8, 0.08);
+}
+/* 刻度：默认在 12 点方向，绕圆心旋转 i*6 度 */
+.tick {
+  position: absolute;
+  left: 50%;
+  top: 16rpx;
+  width: 3rpx;
+  height: 12rpx;
+  margin-left: -1.5rpx;
+  border-radius: 0rpx;
+  background: #e8c89a;
+  /* 圆心 = 距顶部 200rpx（表盘半径）→ 减去 top 16rpx + 刻度高一半 6rpx */
+  transform-origin: 50% 178rpx;
+}
+.tick.big {
+  width: 5rpx;
+  height: 20rpx;
+  margin-left: -2.5rpx;
+  background: #c98f3a;
+  transform-origin: 50% 174rpx;
+}
+
+.num {
+  position: absolute;
+  font-size: 32rpx;
+  font-weight: 900;
+  color: #8a6432;
+  line-height: 1;
+}
+.n12 { top: 46rpx; left: 50%; transform: translateX(-50%); }
+.n3 { right: 46rpx; top: 50%; transform: translateY(-50%); }
+.n6 { bottom: 42rpx; left: 50%; transform: translateX(-50%); }
+.n9 { left: 46rpx; top: 50%; transform: translateY(-50%); }
+
+.hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  border-radius: 16rpx;
+  transform-origin: 50% 100%;
+}
+/* 时针：短粗、深色；分针：细长、品牌橙 —— 一眼能分出哪根是哪根 */
+.hand.hour {
+  width: 16rpx;
+  height: 110rpx;
+  margin-left: -8rpx;
+  background: #4a3520;
+  box-shadow: 0 2rpx 4rpx rgba(74, 53, 32, 0.2);
+}
+.hand.minute {
+  width: 10rpx;
+  height: 152rpx;
+  margin-left: -5rpx;
+  background: #f08a1d;
+  box-shadow: 0 2rpx 4rpx rgba(240, 138, 29, 0.25);
+}
+.pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24rpx;
+  height: 24rpx;
+  margin: -12rpx 0 0 -12rpx;
+  border-radius: 50%;
+  background: #4a3520;
+  box-shadow: 0 0 0 6rpx rgba(255, 255, 255, 0.9);
+  z-index: 3;
+}
+
+/* 数字牌：24 时制 → 下午几点时用，表盘会直接把答案画出来 */
+.digital {
+  width: 400rpx;
+  height: 400rpx;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 28rpx;
+  background: #fff8ec;
+  border: 4rpx dashed #f0c88a;
+  font-size: 88rpx;
+  font-weight: 900;
+  letter-spacing: 4rpx;
+  color: #8a5a00;
+}
+
+.stage-tip { font-size: 24rpx; color: #b08858; min-height: 28rpx; }
+
+/* ---------- 选项 ---------- */
+.opts {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+.opt {
+  height: 120rpx;
+  box-sizing: border-box;
+  background: var(--white);
+  border: 4rpx solid var(--white);
+  border-radius: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #43342a;
+  letter-spacing: 1rpx;
+  box-shadow: var(--clay-2);
+}
+/* 对错态用浅底 + 粗描边（与找规律同口径，不用实心色块压字） */
+.opt.ok {
+  background: #e9fbef;
+  border-color: #3fc26b;
+  color: #1b8f4b;
+  box-shadow: var(--clay-2);
+}
+.opt.bad {
+  background: #fff0f0;
+  border-color: #f2635f;
+  color: #d64545;
+  box-shadow: var(--clay-2);
+}
+
+.foot {
+  flex: 0 0 auto;
+  text-align: center;
+  font-size: 24rpx;
+  color: #a06a22;
+  opacity: 0.85;
+}
+
+/* 右上角固定暂停按钮让位（components/game-pause）：HUD 右端不压住内容 / 战士徽章 */

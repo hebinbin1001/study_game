@@ -95,7 +95,10 @@
     <text class="version-link" bindtap="goAgreement">用户协议与隐私政策</text>
     <text class="version" bindtap="onVersionTap">词力战士 · Word Warrior v1.2.0</text>
   </view>
-  <view class="safe-gap"></view>
+
+  <!-- 2026-10-28 删掉 <view class="safe-gap">：
+       .page-me 的 padding-bottom 已经含 env(safe-area-inset-bottom)，
+       再叠一个 .safe-gap 等于安全区算了两次，底部会多出一条看不见的空隙。 -->
 
   <!-- 全局年级选择器（2026-10-18）：年级是学习设置，只在这里和页面里的年级文字处修改 -->
   <grade-picker visible="{{gradePickerVisible}}" value="{{gradeKey}}"
