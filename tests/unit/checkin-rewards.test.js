@@ -76,14 +76,21 @@ s.test('口径一致性护栏：签到页阶梯与后端 MILESTONE 对齐，服�
 
   // 2) 打卡入口（每日一题 daily.js）不得再出现旧口径的硬编码数值
   const dailySrc = fs.readFileSync(path.join(ROOT, 'server/routes/daily.js'), 'utf8');
+  // 2026-10-29：算奖励/重算段位星的代码搬到了 checkin-core.js（两个打卡入口共用一份），
+  // 所以旧口径的排查范围要跟着扩到 core，否则「搬走后偷偷写回旧值」就漏了。
+  const coreSrc = fs.readFileSync(path.join(ROOT, 'server/checkin-core.js'), 'utf8');
   [30, 100, 200, 500].forEach((legacy) => {
     s.assert.ok(dailySrc.indexOf('rewardStars = ' + legacy) < 0,
       'daily.js 不应再硬编码旧奖励 ' + legacy);
+    s.assert.ok(coreSrc.indexOf('rewardStars = ' + legacy) < 0,
+      'checkin-core.js 不应再硬编码旧奖励 ' + legacy);
   });
-  s.assert.ok(dailySrc.indexOf('rewardForStreak') >= 0,
-    'daily.js 应复用 checkin-rewards 的 rewardForStreak');
-  s.assert.ok(dailySrc.indexOf('syncRankStars') >= 0,
-    'daily.js 打卡后应重算段位星（而不是直接 stars +=）');
+  s.assert.ok(dailySrc.indexOf('checkin-core') >= 0,
+    'daily.js 应复用 checkin-core 的 doCheckin（每日一题是页面上真正的打卡入口）');
+  s.assert.ok(coreSrc.indexOf('rewardForStreak') >= 0,
+    'checkin-core 应复用 checkin-rewards 的 rewardForStreak');
+  s.assert.ok(coreSrc.indexOf('syncRankStars') >= 0,
+    '签到后应重算段位星（而不是直接 stars +=）');
 
   // 3) 签到路由同样不得直接累加星星（会被重算覆盖）——先去掉行注释再检查，避免注释里的说明误伤
   //    2026-10-18 修：原来按行 replace(/\/\/.*$/) 剥离，遇到 CRLF 行尾时 `.` 不匹配 \r、

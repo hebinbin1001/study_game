@@ -40,6 +40,10 @@ Page({
       { day: 14, stars: 8, label: '额外 +8⭐' },
       { day: 30, stars: 15, label: '额外 +15⭐' }
     ],
+    // 补签卡（2026-10-29）：cards = 可用张数，can = 现在能不能补，target = 补哪天，
+    // reason = 不能补的原因（no_card / already / no_prev）。口径见 server/makeup-card.js：
+    // 严格连续满 7 天得 1 张，只能补「昨天」，且前天必须有签到记录。
+    makeup: { cards: 0, can: false, target: '', reason: '' },
     // M5 T2.3 门禁：未登录（直接 URL 进来）时展示引导条，不发请求
     needLogin: false,
     gateText: ''
@@ -80,7 +84,7 @@ Page({
       var data = res[0] || null;
       var daily = res[1] || null;
       if (!data) {
-        self.setData({ today: self._today(), loadError: failed });
+        self.setData({ today: self._today(), loadError: failed, makeup: self._emptyMakeup() });
         return;
       }
       var today = self._today();
@@ -95,8 +99,41 @@ Page({
         currentStreak: data.currentStreak || 0,
         totalCheckins: data.totalCheckins || 0,
         calCells: self._buildCells(signedDates),
-        milestones: self._buildMilestones(daily)
+        milestones: self._buildMilestones(daily),
+        makeup: data.makeup || self._emptyMakeup()
       });
+    });
+  },
+
+  /** 补签卡的空态（老后端还没有这个字段时兜底，页面不会因为 undefined 报错） */
+  _emptyMakeup: function () {
+    return { cards: 0, can: false, target: '', reason: '' };
+  },
+
+  /**
+   * 用一张补签卡补昨天。
+   *
+   * 不做二次确认弹窗：卡片上已经写清「昨天（10-28）断签了，用一张接上连续」，
+   * 再弹一个 modal 只是重复一遍同样的话。用 wx.showLoading 顶住连点即可
+   * （失败时服务端的条件更新也会挡住重复消费，前端这道锁是省一次无谓请求）。
+   */
+  useMakeup: function () {
+    var self = this;
+    if (this._mkBusy) return;
+    this._mkBusy = true;
+    wx.showLoading({ title: '补签中', mask: true });
+    request.post('/api/checkin/makeup', {}).then(function (d) {
+      wx.hideLoading();
+      self._mkBusy = false;
+      var r = d || {};
+      wx.showToast({ title: '补上了，连续 ' + (r.streak || 1) + ' 天', icon: 'none' });
+      self.loadData();
+    }).catch(function (e) {
+      wx.hideLoading();
+      self._mkBusy = false;
+      // 失败也刷新：可能是并发/状态过期（比如刚在别的设备上补过了）
+      wx.showToast({ title: (e && e.message) || '补签失败，稍后再试', icon: 'none' });
+      self.loadData();
     });
   },
 

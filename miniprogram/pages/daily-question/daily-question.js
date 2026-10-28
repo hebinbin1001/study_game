@@ -166,6 +166,16 @@ Page({
           content: rewards.map(function (r) { return '连续 ' + r.day + ' 天：解锁 ' + r.skinName; }).join('\n'),
           showCancel: false
         });
+      } else if (d.cardGranted) {
+        // 补签卡（2026-10-29）：严格连续满 7 天得 1 张。
+        // 用 modal 而不是塞进上面的 toast —— toast 一行约 14 个汉字，
+        // 「+5⭐ · 连续 7 天 · 补签卡 +1」会被截掉尾巴，用户根本不知道拿到什么。
+        // 与皮肤里程碑不会同时发生（30/60/100/250/365 都不是 7 的倍数），所以不用排队。
+        wx.showModal({
+          title: '🎫 获得补签卡',
+          content: '连续签到满 ' + (d.streak || 7) + ' 天，得 1 张补签卡。哪天忘了签，可以在签到日历里补上，连续天数不会断。',
+          showCancel: false
+        });
       }
     }).catch(function () {
       // 服务端未确认签到前绝不能本地标记“已签到”，否则用户会失去重试入口。

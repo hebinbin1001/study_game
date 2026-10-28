@@ -20,7 +20,7 @@ const SRC = fs.readFileSync(path.join(__dirname, '../../server/ensure-tables.js'
 
 s.test('导出的是函数，且带上清单常量', () => {
   s.assert.equal(typeof ensure, 'function');
-  s.assert.equal(ensure.TABLES.length, 7);
+  s.assert.equal(ensure.TABLES.length, 8);
   s.assert.equal(ensure.COLUMNS.length, 1);
   s.assert.equal(ensure.INDEXES.length, 1);
 });
@@ -29,7 +29,7 @@ s.test('新表齐备且都用 CREATE TABLE IF NOT EXISTS', () => {
   const names = ensure.TABLES.map(function (t) { return t.name; });
   // 精确比对（而不是「至少包含」）：多一张没人知道的表 = 线上多一份没人维护的 DDL
   s.assert.deepEqual(names, ['daily_scores', 'season_claims', 'pk_matches', 'admin_controls',
-    'milestone_claims', 'subscribe_grants', 'word_favorites']);
+    'milestone_claims', 'subscribe_grants', 'word_favorites', 'makeup_cards']);
   ensure.TABLES.forEach(function (t) {
     s.assert.contains(t.ddl, 'CREATE TABLE IF NOT EXISTS `' + t.name + '`');
   });

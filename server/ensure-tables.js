@@ -161,6 +161,24 @@ const TABLES = [
       ' UNIQUE KEY `uniq_favorite_openid_word` (`openid`, `word`),' +
       ' KEY `idx_favorite_openid_updated` (`openid`, `updatedAt`)' +
       ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=\'生词本\''
+  },
+  {
+    name: 'makeup_cards',
+    ddl:
+      'CREATE TABLE IF NOT EXISTS `makeup_cards` (' +
+      ' `id` INT NOT NULL AUTO_INCREMENT COMMENT \'主键\',' +
+      ' `openid` VARCHAR(64) NOT NULL COMMENT \'用户标识\',' +
+      ' `streakAt` INT NOT NULL COMMENT \'在哪个连续天数里程碑获得（7/14/21…）\',' +
+      ' `usedFor` VARCHAR(10) NULL DEFAULT NULL COMMENT \'补签的日期（NULL = 未使用）\',' +
+      ' `usedAt` DATETIME NULL DEFAULT NULL COMMENT \'使用时间\',' +
+      ' `createdAt` DATETIME NOT NULL COMMENT \'创建时间\',' +
+      ' `updatedAt` DATETIME NOT NULL COMMENT \'更新时间\',' +
+      ' PRIMARY KEY (`id`),' +
+      // 同一里程碑只发一次：补签重算 / 接口重试 / 并发都靠这个键兜住
+      ' UNIQUE KEY `uniq_makeup_openid_streak` (`openid`, `streakAt`),' +
+      // 查「有没有未使用的卡」走这条（usedFor IS NULL）
+      ' KEY `idx_makeup_openid_used` (`openid`, `usedFor`)' +
+      ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT=\'补签卡\''
   }
 ];
 

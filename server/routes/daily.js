@@ -1,8 +1,10 @@
 const express = require("express");
 const { CheckinRecord, MilestoneClaim, UserAvatar, Avatar } = require("../db");
-// 签到奖励口径（2026-09-13 重标）：每天 1 星 + 里程碑当天一次性额外 2/5/8/15，见 server/checkin-rewards.js
-const { rewardForStreak } = require("../checkin-rewards");
-const rankRouter = require("./rank");
+// 签到核心（2026-10-29 抽出）：与 routes/checkin.js 共用一份实现。
+// 每日一题才是页面上真正的打卡入口，所以补签卡的发卡逻辑必须挂在这里。
+// 送星口径（每天 1 星 + 连续 3/7/14/30 当天额外 2/5/8/15）在 checkin-rewards.js，
+// 由核心统一调用 —— 本文件不再自己算。
+const { doCheckin } = require("../checkin-core");
 const time = require("../beijing-time");
 const { isMissingTable } = require("../table-missing");
 
@@ -19,35 +21,6 @@ const MILESTONE_SKINS = [
   { day: 250, avatarId: "milestone_250" },
   { day: 365, avatarId: "milestone_365" },
 ];
-
-/** 复用签到核心：完成每日一题 → 今日签到（轨道 A 送星，规则与现状 checkin 一致） */
-async function doDailyCheckin(openid) {
-  const todayDate = time.todayKey();
-  const existing = await CheckinRecord.findOne({ where: { openid, date: todayDate } });
-  if (existing) {
-    return { already: true, date: todayDate, streak: existing.streak };
-  }
-
-  // 昨日 → 连续天数
-  const yesterdayDate = time.dayKeyOffset(-1);
-  const yRec = await CheckinRecord.findOne({ where: { openid, date: yesterdayDate } });
-  let streak = 1;
-  if (yRec) streak = yRec.streak + 1;
-
-  const record = await CheckinRecord.create({ openid, date: todayDate, streak });
-
-  // 轨道 A：送星（2026-09-13 重标：每天 1 星 + 连续 3/7/14/30 天当天额外一次性送星）
-  // ⚠️ 不再直接 stars += 奖励：段位星现在是「答题去重星 + 签到累计奖励」现算，
-  //    直接加会被下一次通关/签到的重算覆盖掉，等于白签（见 rank.syncRankStars）。
-  const rewardStars = rewardForStreak(streak);
-  try {
-    await rankRouter.syncRankStars(openid);
-  } catch (e) {
-    console.error("每日一题打卡后重算段位星失败（不影响打卡本身）：", e && e.message);
-  }
-
-  return { recordId: record.recordId, date: todayDate, streak, rewardStars, already: false };
-}
 
 /** 检查并发放已达成的里程碑皮肤（幂等：已领取的跳过） */
 async function claimMilestoneSkins(openid, streak) {
@@ -122,7 +95,7 @@ router.post("/answer", async (req, res) => {
       return res.send({ code: 0, data: { ok: false, message: "答错了，再试一次吧" } });
     }
 
-    const c = await doDailyCheckin(openid);
+    const c = await doCheckin(openid);
     if (c.already) {
       return res.send({ code: 0, data: { ok: true, already: true, streak: c.streak || 0, rewards: [] } });
     }
@@ -140,6 +113,8 @@ router.post("/answer", async (req, res) => {
         ok: true,
         streak: c.streak,
         rewardStars: c.rewardStars || 0,
+        // 严格连续满 7 天时发了补签卡（2026-10-29），端上据此提示一句
+        cardGranted: !!c.cardGranted,
         milestones: rewards,
       },
     });

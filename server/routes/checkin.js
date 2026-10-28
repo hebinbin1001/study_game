@@ -1,58 +1,16 @@
 const express = require("express");
 const { Op } = require("sequelize");
-const { CheckinRecord, RankRecord, User, Score } = require("../db");
+const { CheckinRecord, RankRecord, User, Score, MakeupCard, sequelize } = require("../db");
 // 签到奖励口径（2026-09-13 重标）：每天 1 星 + 里程碑 2/5/8/15，见 server/checkin-rewards.js
 const { rewardForStreak } = require("../checkin-rewards");
+// 补签卡口径（2026-10-29）：严格连续 7 天发 1 张、只能补昨天，见 server/makeup-card.js
+const makeupRules = require("../makeup-card");
+// 签到核心（2026-10-29 抽出）：与 routes/daily.js 的每日一题打卡共用一份实现
+const { doCheckin } = require("../checkin-core");
 const rankRouter = require("./rank");
 const time = require("../beijing-time");
 
 const router = express.Router();
-
-/**
- * 执行签到（POST / 与 POST /auto 共用）。
- * @param {string} openid
- * @returns {Promise<Object>} { already } 或 { recordId,date,streak,rewardStars,already:false }
- */
-async function doCheckin(openid) {
-  const todayDate = time.todayKey();
-
-  const existing = await CheckinRecord.findOne({
-    where: { openid, date: todayDate },
-  });
-  if (existing) return { already: true };
-
-  // 昨日记录 → 连续天数
-  const yesterdayDate = time.dayKeyOffset(-1);
-  const yesterdayRecord = await CheckinRecord.findOne({
-    where: { openid, date: yesterdayDate },
-  });
-
-  let streak = 1;
-  if (yesterdayRecord) streak = yesterdayRecord.streak + 1;
-
-  const record = await CheckinRecord.create({ openid, date: todayDate, streak });
-
-  // 奖励星数（连续 3/7/14/30 递增）
-  // 2026-09-13 重标：旧值（10/30/100/200/500）一个月就能签到满级，改为小额长期奖励
-  const rewardStars = rewardForStreak(streak);
-
-  // 累加段位星数（无段位记录则建档）
-  // ⚠️ 不再直接 stars += 奖励：段位星现在是「答题去重星 + 签到累计奖励」现算
-  //    （见 rank.syncRankStars）。直接加会被下一次通关重算覆盖掉，等于白签。
-  try {
-    await rankRouter.syncRankStars(openid);
-  } catch (e) {
-    console.error("签到后重算段位星失败（不影响签到本身）：", e && e.message);
-  }
-
-  return {
-    recordId: record.recordId,
-    date: todayDate,
-    streak,
-    rewardStars,
-    already: false,
-  };
-}
 
 /**
  * POST /api/checkin —— 手动签到
@@ -114,6 +72,25 @@ router.post("/auto", async (req, res) => {
 });
 
 /**
+ * 补签卡状态（卡数 / 能不能补 / 补哪天 / 不能补的原因）。
+ *
+ * 为什么单独查最近几天，而不复用 GET / 里那份 records：那份受 `month` 参数影响，
+ * 今天正好是 1 号时，昨天和前天的记录根本不在数组里，补签判断会错成「前天没签」。
+ *
+ * @param {string} openid
+ * @param {string} todayDate 东八区今天
+ */
+async function makeupStateOf(openid, todayDate) {
+  const cards = await MakeupCard.count({ where: { openid, usedFor: null } });
+  const recent = await CheckinRecord.findAll({
+    where: { openid, date: { [Op.gte]: time.dayKeyOffset(-7) } },
+    order: [["date", "ASC"]],
+  });
+  const plan = makeupRules.planMakeup(recent, cards, todayDate);
+  return { cards: cards, can: plan.can, target: plan.target, reason: plan.reason };
+}
+
+/**
  * GET /api/checkin —— 获取签到记录
  */
 router.get("/", async (req, res) => {
@@ -152,12 +129,109 @@ router.get("/", async (req, res) => {
       if (yesterdayRecord) currentStreak = yesterdayRecord.streak;
     }
 
+    // 补签卡状态：表还没建（新功能未部署）时不能把整个签到日历拖垮
+    let makeup = null;
+    try { makeup = await makeupStateOf(openid, todayDate); }
+    catch (e) { console.error("读取补签卡状态失败（不影响签到日历）：", e && e.message); }
+
     res.send({
       code: 0,
-      data: { records, currentStreak, totalCheckins: records.length },
+      data: { records, currentStreak, totalCheckins: records.length, makeup },
     });
   } catch (err) {
     console.error("GET /api/checkin 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
+/** 补签失败的业务码（端上也有自己的文案，这里给一份便于接口调试） */
+const MAKEUP_FAIL = {
+  no_card: { code: 4001, message: "没有可用的补签卡" },
+  already: { code: 4002, message: "昨天已经签过了，不用补" },
+  no_prev: { code: 4003, message: "前天也没有签到记录，补一天接不回来" },
+  bad_date: { code: 4004, message: "日期异常，稍后再试" },
+};
+
+/**
+ * POST /api/checkin/makeup —— 用一张补签卡补昨天（2026-10-29）
+ *
+ * 口径（见 server/makeup-card.js）：只能补昨天，且前天必须有签到记录；
+ * 补签后会**重算**该用户从昨天起的所有 streak（streak 是冗余存储，
+ * 不重算的话用户看到的是「日历补上了、连续天数还是断的」，而且之后每天
+ * 都在错误的地基上继续 +1）。
+ *
+ * 返回：{ date, streak, rewardStars, cardsLeft }
+ */
+router.post("/makeup", async (req, res) => {
+  try {
+    const openid = req.openid;
+    if (!openid) {
+      return res.send({ code: 1001, data: null, message: "未识别用户（openid 缺失）" });
+    }
+
+    const today = time.todayKey();
+    let reason = "";
+    const out = await sequelize.transaction(async (t) => {
+      const cards = await MakeupCard.count({ where: { openid, usedFor: null }, transaction: t });
+      const recent = await CheckinRecord.findAll({
+        where: { openid, date: { [Op.gte]: time.dayKeyOffset(-7) } },
+        order: [["date", "ASC"]],
+        transaction: t,
+      });
+      const plan = makeupRules.planMakeup(recent, cards, today);
+      if (!plan.can) { reason = plan.reason; throw new Error("makeup_rejected"); }
+
+      // 闸门：只有「条件更新成功」的那个请求能往下走。
+      // 用户连点两下时，第二个请求会在 usedFor IS NULL 上拿到 0 行，直接被挡回。
+      const card = await MakeupCard.findOne({
+        where: { openid, usedFor: null },
+        order: [["id", "ASC"]],
+        transaction: t,
+      });
+      if (!card) { reason = "no_card"; throw new Error("makeup_rejected"); }
+      const [affected] = await MakeupCard.update(
+        { usedFor: plan.target, usedAt: new Date() },
+        { where: { id: card.id, usedFor: null }, transaction: t }
+      );
+      if (!affected) { reason = "no_card"; throw new Error("makeup_rejected"); }
+
+      // 插入补签记录：streak 先给 1，紧接着由 recomputeFrom 算出真值
+      await CheckinRecord.create({ openid, date: plan.target, streak: 1 }, { transaction: t });
+
+      const all = await CheckinRecord.findAll({
+        where: { openid },
+        order: [["date", "ASC"]],
+        transaction: t,
+      });
+      const changes = makeupRules.recomputeFrom(all, plan.target);
+      for (let i = 0; i < changes.length; i++) {
+        await CheckinRecord.update(
+          { streak: changes[i].streak },
+          { where: { openid, date: changes[i].date }, transaction: t }
+        );
+      }
+
+      const hit = changes.find((c) => c.date === plan.target);
+      const streak = hit ? hit.streak : 1;
+      const left = await MakeupCard.count({ where: { openid, usedFor: null }, transaction: t });
+      return { date: plan.target, streak, rewardStars: rewardForStreak(streak), cardsLeft: left };
+    });
+
+    // 段位星 = 答题去重星 + 签到累计奖励（按记录现算，见 routes/rank.js）→
+    // 重算 streak 后奖励星自动跟上，这里只需触发一次同步。失败不影响补签本身。
+    try {
+      await rankRouter.syncRankStars(openid);
+    } catch (e) {
+      console.error("补签后重算段位星失败（不影响补签）：", e && e.message);
+    }
+
+    res.send({ code: 0, data: out });
+  } catch (err) {
+    if (err && err.message === "makeup_rejected") {
+      const f = MAKEUP_FAIL[reason] || MAKEUP_FAIL.bad_date;
+      return res.send({ code: f.code, data: null, message: f.message });
+    }
+    console.error("POST /api/checkin/makeup 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
 });

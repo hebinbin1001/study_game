@@ -45,6 +45,18 @@
     </view>
   </view>
 
+  <!-- 补签卡（2026-10-29）：严格连续签到满 7 天得 1 张，只能补「昨天」。
+       没卡时整张不渲染 —— 没这个机制的人不需要先认识它，签满 7 天自然会看到。 -->
+  <view class="mk-card" wx:if="{{makeup && makeup.cards > 0}}">
+    <view class="mk-left">
+      <view class="mk-title">🎫 补签卡 <text class="mk-num">×{{makeup.cards}}</text></view>
+      <view class="mk-sub" wx:if="{{makeup.can}}">昨天（{{makeup.target}}）断签了，用一张接上连续</view>
+      <view class="mk-sub" wx:elif="{{makeup.reason === 'no_prev'}}">昨天断签了，但前天也没签 —— 补一天接不回来，今天先签上重新开始</view>
+      <view class="mk-sub" wx:else>连续签到满 7 天得 1 张，可补一次忘签</view>
+    </view>
+    <button class="mk-btn" wx:if="{{makeup.can}}" bindtap="useMakeup">用一张</button>
+  </view>
+
   <!-- 本月日历 -->
   <view class="cal-card">
     <view class="cal-title">本月签到</view>

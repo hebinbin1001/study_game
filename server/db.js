@@ -46,6 +46,8 @@ const AdminControl = require("./models/admin-control")(sequelize);
 const SubscribeGrant = require("./models/subscribe-grant")(sequelize);
 // 生词本（2026-10-28）：用户主动收藏的词，与被动收集的 WrongRecord 是两条线
 const WordFavorite = require("./models/word-favorite")(sequelize);
+// 补签卡（2026-10-29）：严格连续 7 天发 1 张，一张卡一行（口径见 server/makeup-card.js）
+const MakeupCard = require("./models/makeup-card")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
@@ -177,4 +179,5 @@ module.exports = {
   AdminControl,
   SubscribeGrant,
   WordFavorite,
+  MakeupCard,
 };

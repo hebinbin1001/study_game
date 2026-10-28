@@ -60,6 +60,38 @@
 .s-num { font-size: var(--fs-display); font-weight: 900; color: var(--ink); }
 .s-lab { font-size: var(--fs-cap); color: var(--ink-weak); margin-top: 4rpx; }
 
+/* ===== 补签卡（2026-10-29）=====
+   有卡才渲染。放在连续天数卡下面、日历上面：用户先是看到「连续 0 天」，
+   紧接着就能看到「昨天断了，用一张接上」，两句连起来才讲得通。 */
+.mk-card {
+  margin-top: 26rpx;
+  background: var(--white); border-radius: 28rpx;
+  padding: 22rpx 26rpx;
+  display: flex; align-items: center;
+  gap: 20rpx;
+  box-shadow: var(--clay-2);
+}
+.mk-left { flex: 1; min-width: 0; }
+.mk-title { font-size: var(--fs-body); font-weight: 900; color: var(--ink); }
+.mk-num { color: var(--pri-ink); }
+.mk-sub {
+  margin-top: 6rpx;
+  font-size: var(--fs-cap);
+  line-height: 1.4;
+  color: var(--ink-sub);
+}
+.mk-btn {
+  flex: 0 0 auto;
+  margin: 0; padding: 0 28rpx;
+  height: 68rpx; line-height: 68rpx;
+  border-radius: 999rpx;
+  font-size: var(--fs-cap); font-weight: 900;
+  color: var(--white); background: var(--pri);
+  box-shadow: var(--clay-1);
+}
+.mk-btn::after { border: none; }
+.mk-btn:active { transform: translateY(2rpx); }
+
 /* 本月日历 */
 .cal-card {
   margin-top: 26rpx;

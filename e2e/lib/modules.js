@@ -115,7 +115,9 @@ const MODULES = [
     name: '云托管后端（接口 / 模型 / Sequelize 用法）',
     stages: [],
     unit: ['sequelize-operators', 'rank-stars', 'checkin-rewards', 'rank-eligibility',
-      'admin-query', 'game-names', 'seed-parity', 'grade-keys-parity', 'ensure-tables']
+      'admin-query', 'game-names', 'seed-parity', 'grade-keys-parity', 'ensure-tables',
+      // 2026-10-29 补签卡：streak 重算算错会让用户从那天起每天的连续天数都错
+      'makeup-card']
   },
   {
     id: 'pages',
@@ -265,6 +267,10 @@ const PATH_RULES = [
   { re: /^server\/routes\/subscribe\.js$/, modules: ['social', 'server'] },
   { re: /^miniprogram\/utils\/subscribe\.js$/, modules: ['social', 'pages'] },
   { re: /^server\/routes\/(daily|checkin)\.js$/, modules: ['user', 'server'] },
+  // 签到核心与补签卡规则（2026-10-29）：两个打卡入口共用，改错会同时影响
+  // 「每日一题能签到」和「手动签到」，所以两边的用例都要跑
+  { re: /^server\/(checkin-core|makeup-card)\.js$/, modules: ['user', 'server'] },
+  { re: /^server\/models\/makeup-card\.js$/, modules: ['user', 'server'] },
   { re: /^server\/wrong-book\.js$/, modules: ['user', 'server'] },
   // 生词本（2026-10-28）：纯逻辑与路由都归 user 模块，页面在 pages/favorite
   { re: /^server\/favorite-book\.js$/, modules: ['user', 'server'] },

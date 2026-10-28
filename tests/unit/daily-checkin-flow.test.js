@@ -25,9 +25,18 @@ s.test('生产补表包含 milestone_claims', () => {
 s.test('每日一题与签到统一使用北京时间自然日', () => {
   const daily = read('server/routes/daily.js');
   const checkin = read('server/routes/checkin.js');
-  [daily, checkin].forEach(function (src) {
-    s.assert.contains(src, 'time.todayKey()');
-    s.assert.contains(src, 'time.dayKeyOffset(-1)');
+  const core = read('server/checkin-core.js');
+
+  // 2026-10-29：签到核心里抽出了 checkin-core.js（两个打卡入口共用一份实现）。
+  // 所以「两边口径一致」的证明方式也跟着变：不再是各自都有 todayKey，
+  // 而是**两边都只能走 core**，日期口径只存在一份。
+  s.assert.contains(daily, 'checkin-core', '每日一题应复用签到核心');
+  s.assert.contains(checkin, 'checkin-core', '签到路由应复用签到核心');
+
+  s.assert.contains(core, 'time.todayKey()');
+  s.assert.contains(core, 'time.dayKeyOffset(-1)');
+
+  [daily, checkin, core].forEach(function (src) {
     s.assert.doesNotMatch(src, /toISOString\(\)\.split\(["']T["']\)/);
   });
 });
