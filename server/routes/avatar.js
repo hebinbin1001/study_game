@@ -1,5 +1,10 @@
 const express = require("express");
 const { Avatar, UserAvatar, RankRecord } = require("../db");
+// 段位封顶现算（2026-10-28）：段位类皮肤要按「封顶后的段位」判定，
+// 而库里的 rankId 是按真实累计星写的，不能直接拿来比。
+const rankRouter = require("./rank");
+const examGate = require("../exam-gate");
+const ladder = require("../rank-ladder");
 
 const router = express.Router();
 
@@ -138,7 +143,11 @@ router.post("/unlock", async (req, res) => {
     let canUnlock = avatar.unlockType === "free";
 
     if (!canUnlock && avatar.unlockType === "stars") {
-      // 星数解锁：检查累计星数
+      // 星数解锁：按**真实累计星**判定（RankRecord.stars 原始值）。
+      // 2026-10-28 定口径：晋级考试只封顶「段位」这条线，不封顶皮肤奖励 ——
+      // 否则考不过的孩子连玩了半年该给的皮肤都拿不到，变成双重惩罚。
+      // 端上 avatar 页读 /api/rank/info 的 rawStars 与之对齐（原来读封顶值，
+      // 出现「提示还差 131 星、点下去却解锁成功」）。
       const rankRecord = await RankRecord.findOne({
         where: { openid },
         attributes: ["stars"],
@@ -148,13 +157,18 @@ router.post("/unlock", async (req, res) => {
     }
 
     if (!canUnlock && avatar.unlockType === "rank") {
-      // 段位解锁：检查段位
+      // 段位解锁：按**封顶后的段位**判定（2026-10-28 修口径）。
+      // 原来读 RankRecord.rankId，而那个字段是 syncRankStars 按真实累计星现算的 ——
+      // 被封顶的玩家「段位显示青铜、却能解锁钻石皮肤」。段位在全站只有封顶后一个口径
+      // （/api/rank/info、排行榜、首页进度条都用它），皮肤跟着它走才自洽。
       const rankRecord = await RankRecord.findOne({
         where: { openid },
-        attributes: ["rankId"],
+        attributes: ["stars"],
       });
-      const currentRank = rankRecord ? rankRecord.rankId : 1;
-      canUnlock = currentRank >= avatar.unlockValue;
+      const rawStars = rankRecord ? rankRecord.stars : 0;
+      const cleared = await rankRouter.examClearedTier(openid);
+      const shownStars = examGate.cappedStars(rawStars, cleared);
+      canUnlock = ladder.rankOf(shownStars).rankId >= avatar.unlockValue;
     }
 
     // 关卡解锁（unlockType='level'）—— 2026-09-12 补：原来服务端只处理了

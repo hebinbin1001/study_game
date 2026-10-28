@@ -42,6 +42,8 @@ const DailyScore = require("./models/daily-score")(sequelize);
 const SeasonClaim = require("./models/season-claim")(sequelize);
 const PkMatch = require("./models/pk-match")(sequelize);
 const AdminControl = require("./models/admin-control")(sequelize);
+// 2026-10-28 订阅消息：授权/发送记录（表结构见 ensure-tables.js）
+const SubscribeGrant = require("./models/subscribe-grant")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
@@ -171,4 +173,5 @@ module.exports = {
   SeasonClaim,
   PkMatch,
   AdminControl,
+  SubscribeGrant,
 };

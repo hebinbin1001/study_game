@@ -95,6 +95,13 @@ router.get("/history", async (req, res) => {
  *      可选字段，缺省 0，提供时夹取到 [0, correctCount]（连击不可能超过答对数）。
  * 明显超限/与推导不一致的自报字段将被拒绝或校正，杜绝直接写入。
  *
+ * ── 例外：totalQ=0 的「非答题记录」（2026-10-28 用户拍板 A） ──────────
+ * 数独/华容道/2048 这类玩法没有逐题正确率，只剩「这关值几星」。原来客户端会按
+ * 3 星=10/10 编一组样本骗过上面的推导 —— 星级对了，但学习报告里凭空多出「答对 10 题」。
+ * 现在允许 totalQ=0（同时要求 correctCount=0）表示「本局无题目」：score 记 0，
+ * 星级直接落客户端自报值（校验 0~3 的整数）。学习报告的题量与正确率只统计 total_q>0，
+ * 这类记录自然被排除，而星星、游玩局数、玩法进度榜照常。
+ *
  * @param {Object} body 请求体
  * @returns {Object|null} 规范化后的落库记录；入参缺失/非法返回 null
  */
@@ -121,11 +128,31 @@ function normalizeScoreBody(body) {
     gameType = body.game_type;
   }
 
-  // level / totalQ / correctCount：非负整数
+  // level / totalQ / correctCount：非负整数（totalQ=0 见下面「非答题记录」分支）
   if (!Number.isInteger(level) || level < 1) return null;
-  if (!Number.isInteger(totalQ) || totalQ < 1 || totalQ > MAX_TOTAL_Q) return null;
+  if (!Number.isInteger(totalQ) || totalQ < 0 || totalQ > MAX_TOTAL_Q) return null;
   if (!Number.isInteger(correctCount) || correctCount < 0) return null;
   if (correctCount > totalQ) return null;
+
+  // 非答题记录：休闲/益智玩法（数独、华容道、2048…）没有题目，total_q 落 0。
+  // 星级由玩法自己判（服务端只校验 0~3），题量/正确率写 0 → 学习报告不统计这一局。
+  // 攻击面与改造前持平：以前客户端也能自称 correct=10/total=10 换 3 星。
+  if (totalQ === 0) {
+    if (correctCount !== 0) return null;
+    const claimed = (body.stars === undefined || body.stars === null) ? 0 : body.stars;
+    if (!Number.isInteger(claimed) || claimed < 0 || claimed > 3) return null;
+    return {
+      grade: gradeTrimmed,
+      type_key: typeKey,
+      game_type: gameType,
+      level,
+      score: 0,
+      correct_count: 0,
+      total_q: 0,
+      max_combo: 0,
+      stars: claimed,
+    };
+  }
 
   // maxCombo：可选（前端旧版本可能不传），缺省 0；提供时校正到 [0, correctCount]
   let maxCombo = 0;

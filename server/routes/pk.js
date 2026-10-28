@@ -9,6 +9,7 @@ const time = require("../beijing-time");
 const { displayName } = require("../nickname-util");
 const { isMissingTable } = require("../table-missing");
 const rankRouter = require("./rank");
+const subscribe = require("../subscribe");
 
 const router = express.Router();
 
@@ -23,6 +24,18 @@ const MODE_LABELS = {
   snake: "单词贪吃蛇",
   quiz: "限时抢答"
 };
+
+/**
+ * 应战通知里的「结果」话术（发起人视角）。
+ * 发起人当时不在场，卡片上只写「被应战了」等于没说，得把胜负一起给出来。
+ * @param {string} outcome 'challenger'|'opponent'|'draw'
+ * @returns {string}
+ */
+function notifyOutcomeText(outcome) {
+  if (outcome === "challenger") return "你赢了";
+  if (outcome === "opponent") return "被超过了";
+  return "打平";
+}
 
 /** 生成 8 位短码（大写 base36，避免小写 l/1 混淆的视觉问题不严重，保持简单） */
 function genCode() {
@@ -241,6 +254,8 @@ router.get("/my", async (req, res) => {
       }
       return {
         code: m.code,
+        // lineMode 给端上「再战」用（原来只给了中文 modeLabel，端上无法据此重开同一款玩法）
+        lineMode: m.lineMode,
         modeLabel: m.modeLabel,
         grade: m.grade,
         level: m.level,
@@ -295,6 +310,10 @@ router.get("/:code", async (req, res) => {
  * POST /api/pk/:code/accept
  * body: { correct, total, durationMs }
  * 应战：写入我的成绩 → 判胜负 → 发奖励星（每天封顶 10 星）。
+ *
+ * 2026-10-28 起发起人额外拿「邀请回执」+1 星（PK_INVITE_BONUS）：战帖被好友应战
+ * 就发，不论输赢。否则分享出去对发起人是零回执 —— 分享链在这里断了。
+ * 这份奖励计入 PK_DAILY_CAP，与胜负奖励共用一个上限，不能单独刷。
  */
 router.post("/:code/accept", async (req, res) => {
   try {
@@ -337,7 +356,12 @@ router.post("/:code/accept", async (req, res) => {
     const myEarned = await todayEarned(openid);
     const chEarned = await todayEarned(row.challengerOpenid);
     const myReward = pkRules.capDaily(myEarned, pkRules.rewardOf(outcome, false));
-    const chReward = pkRules.capDaily(chEarned, pkRules.rewardOf(outcome, true));
+    // 发起人这一边多一份「邀请回执」（2026-10-28）：战帖被应战就 +1 星，不论输赢。
+    // 幂等天然成立 —— 本分支跑完 status 就变 done，第二次进入会被上面的「已经打完了」拦住。
+    const chBase = pkRules.challengerBaseOf(outcome);
+    const chReward = pkRules.capDaily(chEarned, chBase);
+    // 实际发出去的邀请星（日上限不够时会先保证胜负奖励，见 capDaily 的截断顺序）
+    const chInviteGranted = Math.max(0, chReward - Math.min(chBase - pkRules.PK_INVITE_BONUS, chReward));
 
     const user = await User.findOne({ where: { openid } });
     await row.update({
@@ -362,6 +386,24 @@ router.post("/:code/accept", async (req, res) => {
       }
     }
 
+    // 订阅消息（2026-10-28）：战帖被应战 → 通知发起人回来看结果。
+    // 旁路动作，**不 await**：模板没配、用户没额度、微信超时，都不该拖住应战响应。
+    // sendScene 内部已吞掉全部异常，这里再兜一层是防「未处理的 rejection」。
+    subscribe
+      .sendScene(
+        row.challengerOpenid,
+        "pk_accept",
+        {
+          opponent: row.opponentNick,
+          // 「对手」两字不能省：卡片上 thing1 是对方昵称，thing2 若只写「8/10 题 · 你赢了」，
+          // 发起人会读成自己的成绩 —— 他当时不在场，没有上下文可纠正。
+          scoreText: "对手 " + s.correct + "/" + s.total + " 题 · " + notifyOutcomeText(outcome),
+          at: Date.now()
+        },
+        { page: "pages/pk/pk?code=" + code }
+      )
+      .catch(function () {});
+
     res.send({
       code: 0,
       data: {
@@ -369,6 +411,7 @@ router.post("/:code/accept", async (req, res) => {
         winner: outcome,
         myReward,
         challengerReward: chReward,
+        challengerInvite: chInviteGranted,
         cappedDaily: myReward < pkRules.rewardOf(outcome, false),
         match: shapeMatch(row, openid, true)
       }

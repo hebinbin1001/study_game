@@ -46,9 +46,15 @@
         <view class="pk-created-s">我的成绩：{{result.scoreText}}</view>
         <view class="pk-code">战帖码 {{code}}</view>
         <button class="btn-lg btn-next pk-share" open-type="share">分享给好友应战</button>
+        <!-- 订阅提醒（2026-10-28）：一次性订阅，点一次允许 = 一张票，所以做成按钮而不是开关。
+             subReady 由服务端配置决定 —— 模板没申请下来时整行不渲染，避免点了没反应。 -->
+        <button wx:if="{{subReady}}" class="btn-md btn-ghost pk-second pk-notify {{subOn ? 'is-on' : ''}}"
+          bindtap="askNotify">{{subOn ? '🔔 已开启应战提醒' : '🔔 好友应战时提醒我'}}</button>
         <button class="btn-md btn-ghost pk-second" bindtap="openMatch" data-code="{{code}}">查看这张战帖</button>
       </view>
-      <view class="pk-tip">好友点开你的分享，会用同一套题作答；他打完你就能看到胜负</view>
+      <!-- 分享动机（2026-10-28）：原来只写「他打完你就能看到胜负」，
+           对发起人来说分享是一次纯成本 —— 加上「被应战就有 1 ⭐」才有回执。 -->
+      <view class="pk-tip">好友点开分享会用同一套题作答。他打完你就能看到胜负，而且不管输赢你都 +1 ⭐（计入每天 10 ⭐ 上限）</view>
     </block>
 
     <!-- ============ 结果对比 ============ -->
@@ -93,6 +99,8 @@
           <view wx:elif="{{match.role === 'challenger' && match.status !== 'done'}}" class="pk-body">
             <view class="pk-my-score">我的成绩：{{match.challenger.scoreText}}</view>
             <button class="btn-lg btn-next pk-share" open-type="share">邀请好友应战</button>
+            <button wx:if="{{subReady}}" class="btn-md btn-ghost pk-second pk-notify {{subOn ? 'is-on' : ''}}"
+              bindtap="askNotify">{{subOn ? '🔔 已开启应战提醒' : '🔔 好友应战时提醒我'}}</button>
             <view class="pk-tip">好友打完之前，看不到他的成绩</view>
           </view>
 
@@ -164,6 +172,14 @@
           <view class="pk-list-right">
             <view class="pk-list-state {{item.win ? 'win' : ''}}">{{item.stateText}}</view>
             <view wx:if="{{item.reward > 0}}" class="pk-list-reward">+{{item.reward}} ⭐</view>
+            <!-- 再战（2026-10-28）：只给已结束的战帖。catchtap 阻止冒泡到整行的 openMatch，
+                 否则点「再战」会先跳进战帖详情。 -->
+            <view wx:if="{{item.status === 'done'}}"
+              class="pk-list-again"
+              data-mode="{{item.lineMode}}"
+              data-grade="{{item.grade}}"
+              data-level="{{item.level}}"
+              catchtap="startRematch">再战</view>
           </view>
         </view>
       </block>

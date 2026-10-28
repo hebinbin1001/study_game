@@ -41,16 +41,24 @@ router.get("/range", async (req, res) => {
     let totalQ = 0;
     let totalCorrect = 0;
     let totalStars = 0;
+    let studyPlays = 0;
+    let casualPlays = 0;
     scores.forEach((s) => {
-      totalQ += s.total_q;
+      // 题量/正确率只统计「真有题目」的记录（2026-10-28）：休闲玩法（数独/华容道/2048…）
+      // 的 total_q 落 0，加进来也不会影响数字，但仍计入闯关次数与星星。
+      const q = Number(s.total_q) || 0;
+      const isStudy = q > 0;
+      if (isStudy) studyPlays += 1; else casualPlays += 1;
+      totalQ += q;
       totalCorrect += s.correct_count;
       totalStars += s.stars || 0;
       const d = isoDay(s.createdAt);
-      if (!dayMap[d]) dayMap[d] = { questions: 0, correct: 0, stars: 0, plays: 0 };
-      dayMap[d].questions += s.total_q;
+      if (!dayMap[d]) dayMap[d] = { questions: 0, correct: 0, stars: 0, plays: 0, casualPlays: 0 };
+      dayMap[d].questions += q;
       dayMap[d].correct += s.correct_count;
       dayMap[d].stars += s.stars || 0;
       dayMap[d].plays += 1;
+      if (!isStudy) dayMap[d].casualPlays += 1;
     });
 
     const trend = Object.keys(dayMap)
@@ -63,6 +71,7 @@ router.get("/range", async (req, res) => {
           questions: v.questions,
           rate: v.questions ? Math.round((v.correct / v.questions) * 100) : 0,
           stars: v.stars,
+          casualPlays: v.casualPlays,
         };
       });
 
@@ -90,6 +99,9 @@ router.get("/range", async (req, res) => {
         avgRate: totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0,
         totalStars,
         totalPlays: scores.length,
+        studyPlays,          // 有题目的局数（字词类，进正确率）
+        casualPlays,         // 休闲玩法局数（只给星星，不计题量）
+        hasQuiz: totalQ > 0, // 端上据此把「0%」显示成「还没答题」
         trend,
         wrongByType,
       },

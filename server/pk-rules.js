@@ -21,6 +21,16 @@ var PK_REWARD = { win: 3, draw: 1, lose: 0 };
 var PK_DAILY_CAP = 10;
 /** 战帖有效期（天）：过期不可应战 */
 var PK_EXPIRE_DAYS = 3;
+/**
+ * 邀请回执（2026-10-28）：战帖被好友应战后，**发起人**额外 +1 星，无论输赢。
+ *
+ * 为什么要有：分享出去之后，发起人在小程序里看不到任何回执 —— 没有奖励也没有提示，
+ * 「分享」这个动作对他来说是一次纯粹的成本。给 1 颗星，分享才有闭环。
+ *
+ * 为什么计入 PK_DAILY_CAP：它和胜负奖励是同一个来源（PkMatch 表里的 reward 字段），
+ * 单独开一个不封顶的口子等于给刷星开新路（找朋友互相应战即可无限刷）。
+ */
+var PK_INVITE_BONUS = 1;
 
 /**
  * 单份成绩的合法性归一化。
@@ -79,6 +89,19 @@ function capDaily(earnedToday, want) {
 }
 
 /**
+ * 发起人本场「应得」的星（封顶前）= 胜负奖励 + 邀请回执。
+ *
+ * 单独抽成函数而不是在路由里相加，是为了让「被应战就有 1 星」这条规则可以单测
+ * —— 它很容易在后续改胜负表时被漏掉（改 rewardOf 不会提醒你这里还有个常量）。
+ *
+ * @param {string} outcome 'challenger'|'opponent'|'draw'
+ * @returns {number}
+ */
+function challengerBaseOf(outcome) {
+  return rewardOf(outcome, true) + PK_INVITE_BONUS;
+}
+
+/**
  * 展示用分数：正确数为主，用时越短加分越多（只用于排序展示，不参与胜负判定）。
  * @param {{correct:number,total:number,ms:number}} s
  * @returns {number}
@@ -99,9 +122,11 @@ module.exports = {
   PK_REWARD: PK_REWARD,
   PK_DAILY_CAP: PK_DAILY_CAP,
   PK_EXPIRE_DAYS: PK_EXPIRE_DAYS,
+  PK_INVITE_BONUS: PK_INVITE_BONUS,
   normalizeScore: normalizeScore,
   outcomeOf: outcomeOf,
   rewardOf: rewardOf,
+  challengerBaseOf: challengerBaseOf,
   capDaily: capDaily,
   scoreOf: scoreOf,
   isExpired: isExpired

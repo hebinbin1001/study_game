@@ -123,6 +123,8 @@ router.post("/sync", async (req, res) => {
 router.syncRankStars = syncRankStars;
 router.syncRankDiagnostics = function () { return { lastSyncAt: lastSyncAt, lastSyncError: lastSyncError }; };
 router.dedupeStars = dedupeStars;
+// 供 avatar.js 复用：「已通过考试的最高大段」是段位封顶的唯一输入，皮肤按段位解锁时要现算
+router.examClearedTier = examClearedTier;
 
 /**
  * GET /api/rank/info —— 获取段位信息

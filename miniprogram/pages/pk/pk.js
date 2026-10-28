@@ -11,8 +11,12 @@ var constants = require('../../utils/constants');
 var request = require('../../utils/request');
 var auth = require('../../utils/auth');
 var storage = require('../../utils/storage');
+var subscribe = require('../../utils/subscribe');
 
 var TOTAL_Q = 10;
+
+/** 本地记录「点过应战提醒」（只影响按钮文案；真正的订阅额度在微信侧，我们查不到） */
+var NOTIFY_KEY = 'ww_pk_notify';
 
 /** 本地生成 PK 种子（先定种子、后答题，保证双方同题） */
 function localSeed() {
@@ -112,14 +116,61 @@ Page({
     lastCorrect: false,
     correctCount: 0,
     progressText: '',
-    result: null
+    result: null,
+    // 订阅提醒（2026-10-28）：服务端配了模板才显示按钮，避免「点了没反应」
+    subReady: false,
+    subOn: false
   },
 
   onLoad: function (query) {
     var code = String((query && query.code) || '').toUpperCase();
-    this.setData({ loggedIn: auth.isLoggedIn(), code: code });
+    this.setData({ loggedIn: auth.isLoggedIn(), code: code, subOn: !!storage.get(NOTIFY_KEY) });
     if (code) this.loadMatch(code);
     else this.loadMy();
+    this._warmSubscribe();
+  },
+
+  /**
+   * 预热订阅配置。
+   * 微信要求订阅弹窗必须紧贴用户点击，网络往返会把这段间隔拉长导致
+   * 「can only be invoked by user TAP gesture」，所以进页面先把配置拉好，
+   * 点按钮时走缓存分支（微任务），不产生真实网络等待。
+   */
+  _warmSubscribe: function () {
+    var self = this;
+    subscribe.warmup().then(function (scenes) {
+      self.setData({ subReady: !!(scenes && scenes.pk_accept) });
+    });
+  },
+
+  /**
+   * 「好友应战时提醒我」。
+   * 一次性订阅：用户点一次允许 = 一张票，所以这个按钮是有意义的动作，
+   * 而不是一个开关 —— 已开启状态只是本地记录，不代表以后不用再点。
+   */
+  askNotify: function () {
+    var self = this;
+    if (!this.data.subReady) {
+      // 服务端没配模板：按钮本来不渲染，这里只是兜底，不打扰用户
+      return;
+    }
+    subscribe.ask('pk_accept').then(function (r) {
+      if (r.ok) {
+        storage.set(NOTIFY_KEY, true);
+        self.setData({ subOn: true });
+        wx.showToast({ title: '已开启，好友应战会通知你', icon: 'none' });
+        return;
+      }
+      if (r.reason === 'reject' || r.reason === 'ban') {
+        wx.showToast({ title: '已取消，随时可以再开', icon: 'none' });
+        return;
+      }
+      if (r.reason === 'no-template' || r.reason === 'unsupported') {
+        self.setData({ subReady: false });
+        return;
+      }
+      wx.showToast({ title: '暂时开不了提醒，不影响对战', icon: 'none' });
+    });
   },
 
   onShow: function () {

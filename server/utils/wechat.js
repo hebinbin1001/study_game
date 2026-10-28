@@ -207,8 +207,100 @@ async function getMiniCode(scene, page, env) {
   return r.buf; // PNG
 }
 
+/** HTTP POST(JSON) → JSON（云托管内网明文通道，免 access_token） */
+function httpPostJson(urlStr, body) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlStr);
+    const payload = JSON.stringify(body || {});
+    const req = http.request(
+      {
+        hostname: url.hostname,
+        port: url.port || 80,
+        path: url.pathname + url.search,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(payload),
+        },
+      },
+      (res) => {
+        let data = "";
+        res.setEncoding("utf8");
+        res.on("data", (c) => (data += c));
+        res.on("end", () => {
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            reject(new Error("微信接口响应解析失败（HTTP " + res.statusCode + "）"));
+          }
+        });
+      }
+    );
+    req.on("error", reject);
+    // 6s 而不是 10s：发送是旁路动作，不能把主流程的响应拖住
+    req.setTimeout(6000, () => req.destroy(new Error("微信接口超时")));
+    req.write(payload);
+    req.end();
+  });
+}
+
+const SUBSCRIBE_SEND_PATH = "/cgi-bin/message/subscribe/send";
+
+/**
+ * 发送订阅消息（subscribeMessage.send）。
+ *
+ * 通道优先级：
+ *   ① 微信云托管「开放接口服务」云调用 —— 容器内 http 内网、免 access_token，
+ *      与 getMiniCode 同一套（前提：控制台白名单加了 POST /cgi-bin/message/subscribe/send）；
+ *   ② 公网 https + access_token —— 本地开发，或白名单没配时兜底，需要 WX_SECRET。
+ *
+ * @param {string} touser 接收者 openid
+ * @param {string} templateId 模板 ID（公众平台 → 订阅消息 → 我的模板）
+ * @param {string} [page] 点击卡片跳转页面（如 'pages/pk/pk'，可带参数，不带前导斜杠）
+ * @param {Object} [data] 模板数据，形如 { thing1: { value: '…' }, date2: { value: '…' } }
+ * @param {string} [state] developer | trial | formal（默认 formal）
+ * @returns {Promise<{errcode:number, errmsg:string}>} 失败不抛异常，用 errcode 表达
+ */
+async function sendSubscribe(touser, templateId, page, data, state) {
+  if (!touser || !templateId) {
+    return { errcode: -1, errmsg: "缺少 touser 或 template_id" };
+  }
+  const body = {
+    touser: String(touser),
+    template_id: String(templateId),
+    page: page || "",
+    data: data || {},
+    miniprogram_state: state || "formal",
+    lang: "zh_CN",
+  };
+
+  // ① 云托管内网（推荐）：不带 access_token
+  try {
+    const j = await httpPostJson("http://api.weixin.qq.com" + SUBSCRIBE_SEND_PATH, body);
+    // 40001/40014 是凭证类错误，正常的内网云调用不会出现；出现说明实际打到了公网站点，交 ② 兜底
+    if (j && j.errcode !== 40001 && j.errcode !== 40014) return j;
+  } catch (err) {
+    // 白名单未配置 / 不在云托管内 / 网络不通 → 落 ②
+  }
+
+  // ② 公网 https + access_token
+  const token = await getAccessToken();
+  if (!token) {
+    return { errcode: -1, errmsg: "无可用调用凭证（开放接口不可用且未配置 WX_SECRET）" };
+  }
+  try {
+    return await httpsPostJson(
+      "https://api.weixin.qq.com" + SUBSCRIBE_SEND_PATH + "?access_token=" + encodeURIComponent(token),
+      body
+    );
+  } catch (err) {
+    return { errcode: -1, errmsg: "发送请求异常：" + err.message };
+  }
+}
+
 module.exports = {
   getAccessToken,
   checkContent,
   getMiniCode,
+  sendSubscribe,
 };
