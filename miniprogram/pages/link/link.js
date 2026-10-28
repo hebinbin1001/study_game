@@ -346,7 +346,8 @@ Page({
       score: stars * 10,
       correct: this.pairsUsed || 0,
       total: this.pairsUsed || 0,
-      stars: stars
+      stars: stars,
+      typeKey: this._line || challenge.STAR_KEY
     });
   },
 

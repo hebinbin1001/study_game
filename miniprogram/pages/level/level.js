@@ -19,6 +19,7 @@ var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 var challenge = require('../../utils/challenge');
+var starRecovery = require('../../utils/star-recovery');
 var rewards = require('../../utils/challenge-rewards');
 var request = require('../../utils/request');
 // 学段 → 镇守 Boss（第 30 关用暗紫卡 + 立绘，和首页 Boss 预告同源）
@@ -85,6 +86,10 @@ Page({
   onShow: function () {
     // 从游戏页 / 登录返回后刷新星级与登录态（REQ-GAME-13、M5）
     this.refreshLevels();
+    var self = this;
+    starRecovery.restoreFromCloud().then(function (result) {
+      if (result && result.restored > 0) self.refreshLevels();
+    }).catch(function () {});
   },
 
   // 年级是全局设置（2026-10-18）：本页不再有 14 个 tab，只读展示 + 点开选择器

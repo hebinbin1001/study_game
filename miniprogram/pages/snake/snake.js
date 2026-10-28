@@ -371,7 +371,8 @@ Page({
       score: this._score,
       correct: this._roundWords.length,
       total: this._roundWords.length,
-      stars: stars
+      stars: stars,
+      typeKey: (this._challenge && this._line) ? this._line : ''
     });
   },
 

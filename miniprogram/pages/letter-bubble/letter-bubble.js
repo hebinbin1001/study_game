@@ -569,7 +569,8 @@ Page({
       correct: this._perfectWords,
       total: this._words.length,
       stars: stars,
-      maxCombo: this._bestCombo
+      maxCombo: this._bestCombo,
+      typeKey: (this._challenge && this._line) ? this._line : ''
     });
 
     this.setData({

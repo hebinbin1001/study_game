@@ -11,6 +11,7 @@ var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 var constants = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
+var starRecovery = require('../../utils/star-recovery');
 // 推荐玩法：玩法目录 + 本机计数（玩得最多的两款，2026-09-13）
 var gameCatalog = require('../../utils/game-catalog');
 var playCounts = require('../../utils/play-counts');
@@ -90,6 +91,7 @@ Page({
     this.setData({ soundOn: soundOn });
     // 游客首屏不再自动弹协议；协议在用户点「登录/注册」后展示（O2）
     this.refresh();
+    this._restoreCloudStars();
     // 玩法热度（6 小时缓存）；失败/游客都退回本机常玩，不影响首屏
     this._loadHotGames();
     // 温和登录提醒延后触发（避开用户主动登录的弹窗时序，防 modal 互顶）
@@ -101,6 +103,18 @@ Page({
   onHide: function () {
     // 离开首页时取消挂起的 nudge 定时器，避免在其他页面意外弹窗
     if (this._nudgeTimer) { clearTimeout(this._nudgeTimer); this._nudgeTimer = null; }
+  },
+
+  _restoreCloudStars: function () {
+    var self = this;
+    starRecovery.restoreFromCloud().then(function (result) {
+      if (result && result.restored > 0) {
+        self.refresh();
+        wx.showToast({ title: '已恢复 ' + result.restored + ' 条关卡记录', icon: 'none' });
+      }
+    }).catch(function () {
+      // 离线时保留本地存档，下次进入自动重试
+    });
   },
 
   // —— 数据刷新 ——

@@ -85,6 +85,11 @@ async function ensureAutomation(options) {
   }
   if (!miniProgram) throw lastErr || new Error('cli auto 连续两次未拉起开发者工具');
   await sleep(opts.compileWaitMs == null ? 4000 : opts.compileWaitMs);
+  try {
+    await miniProgram.callWxMethod('setStorageSync', 'ww_e2e_mode_until', Date.now() + 60 * 60 * 1000);
+  } catch (e) {
+    // 测试隔离标记失败不阻断业务断言
+  }
   return miniProgram;
 }
 

@@ -248,7 +248,8 @@ Page({
       score: stars * 10,
       correct: Math.max(0, correct || 0),
       total: Math.max(0, total || 0),
-      stars: stars
+      stars: stars,
+      typeKey: this._line || challenge.STAR_KEY
     });
   },
 

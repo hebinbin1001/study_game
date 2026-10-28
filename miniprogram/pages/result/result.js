@@ -211,7 +211,9 @@ Page({
       stars: stars,
       maxCombo: maxCombo,
       // B3：题型分类 + 玩法维度（后端进度分榜/统计聚合用）
-      type: this._type || '',
+      type: this._challenge
+        ? (this._line || challenge.STAR_KEY)
+        : ((this._type && this._type !== 'all') ? this._type : ''),
       game_type: 'word_warrior'
     };
 

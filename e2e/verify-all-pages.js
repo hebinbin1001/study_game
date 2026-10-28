@@ -90,12 +90,16 @@ async function connectWithRetry(retries = 30) {
 
 async function ensureAutomation() {
   try {
-    return await automator.connect({ wsEndpoint: `ws://127.0.0.1:${AUTO_PORT}` });
+    const mp = await automator.connect({ wsEndpoint: `ws://127.0.0.1:${AUTO_PORT}` });
+    await mp.callWxMethod('setStorageSync', 'ww_e2e_mode_until', Date.now() + 60 * 60 * 1000);
+    return mp;
   } catch (e) {
     console.log('  automation port not ready, running cli auto...');
   }
   await runCli(['auto', '--project', PROJECT_PATH, '--auto-port', String(AUTO_PORT)]);
-  return connectWithRetry();
+  const mp = await connectWithRetry();
+  try { await mp.callWxMethod('setStorageSync', 'ww_e2e_mode_until', Date.now() + 60 * 60 * 1000); } catch (e) {}
+  return mp;
 }
 
 // 单页面验证

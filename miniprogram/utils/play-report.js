@@ -68,7 +68,7 @@ function reportPlay(p) {
     totalQ: band ? band.total : (d.total || 0),
     stars: d.stars || 0,
     maxCombo: d.maxCombo || 0,
-    type: '',
+    type: d.typeKey || '',
     game_type: d.gameType
   };
   request.post('/api/score', payload).catch(function () {

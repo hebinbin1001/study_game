@@ -278,7 +278,8 @@ Page({
       score: this._score,
       correct: this._right,
       total: total,
-      stars: stars
+      stars: stars,
+      typeKey: this._line || challenge.STAR_KEY
     });
   },
 

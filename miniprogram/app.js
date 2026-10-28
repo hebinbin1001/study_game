@@ -43,6 +43,11 @@ App({
     //    —— O2：首次进入默认「游客模式」，不做自动登录建档；
     //       只有用户点「登录/注册」并经《用户协议与隐私政策》同意后才调微信登录。
     auth.restore();
+    try {
+      require('./utils/star-recovery').restoreFromCloud().catch(function () {});
+    } catch (e) {
+      // 恢复失败不阻塞启动，之后进入首页/关卡页还会重试
+    }
 
     // 3. openid 获取占位（M1 降级实现，见 initOpenid；登录后由网关注入）
     this.initOpenid();

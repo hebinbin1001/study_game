@@ -18,6 +18,72 @@ const MAX_TOTAL_Q = 100;
 const MAX_GRADE_LEN = 16;
 
 /**
+ * GET /api/score/history
+ * 返回当前用户每个（玩法/学段/题型/关卡）的历史最高成绩，供端上恢复被系统清理的 ww_stars。
+ */
+router.get("/history", async (req, res) => {
+  try {
+    if (!req.openid) {
+      return res.send({ code: CODE.USER_UNKNOWN, data: null, message: "未识别用户（openid 缺失）" });
+    }
+    const user = await User.findOne({ where: { openid: req.openid } });
+    if (!user) {
+      return res.send({ code: 0, data: { totalRows: 0, history: [] } });
+    }
+    const rows = await Score.findAll({
+      where: { user_id: user.id },
+      attributes: [
+        "game_type",
+        "grade",
+        "type_key",
+        "level",
+        "stars",
+        "score",
+        "correct_count",
+        "total_q",
+        "createdAt",
+      ],
+      order: [["createdAt", "ASC"]],
+      raw: true,
+    });
+    const best = new Map();
+    rows.forEach((row) => {
+      const key = [
+        row.game_type || "word_warrior",
+        row.grade || "",
+        row.type_key || "",
+        row.level == null ? "" : row.level,
+      ].join("|");
+      const stars = Math.max(0, Math.min(3, Number(row.stars) || 0));
+      const prev = best.get(key);
+      if (!prev || stars > prev.stars) {
+        best.set(key, {
+          gameType: row.game_type || "word_warrior",
+          grade: row.grade || "",
+          typeKey: row.type_key || "",
+          level: Number(row.level) || 0,
+          stars,
+          score: Number(row.score) || 0,
+          correctCount: Number(row.correct_count) || 0,
+          totalQ: Number(row.total_q) || 0,
+          createdAt: row.createdAt,
+        });
+      }
+    });
+    res.send({
+      code: CODE.OK,
+      data: {
+        totalRows: rows.length,
+        history: Array.from(best.values()),
+      },
+    });
+  } catch (err) {
+    console.error("GET /api/score/history 失败：", err);
+    res.send({ code: CODE.INTERNAL_ERROR, data: null, message: "服务内部错误" });
+  }
+});
+
+/**
  * 校验并规范化成绩上报入参（REQ-API-4，加固版）。
  *
  * ── 服务端推导策略 ──────────────────────────────────────────────
