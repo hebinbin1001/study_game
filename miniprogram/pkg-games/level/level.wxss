@@ -493,11 +493,26 @@ page {
 }
 .pv-row {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   padding: 16rpx 12rpx;
   border-bottom: 1rpx solid rgba(20, 50, 90, 0.08);
 }
 .pv-row:last-child { border-bottom: 0; }
+/* 词 + 音标 / 释义 / 喇叭 这一排：例句另起一行，所以横排布局落在这里而不是 .pv-row 上 */
+.pv-line {
+  display: flex;
+  align-items: center;
+}
+/* 例句：比释义弱一档（它是「帮助理解」，不是「要记住的答案」），
+   行高压到 1.5 是因为它会出现换行，太松会让整张预习卡变得又长又散 */
+.pv-ex {
+  margin-top: 8rpx;
+  padding-left: 12rpx;
+  font-size: var(--fs-cap);
+  line-height: 1.5;
+  color: var(--ink-weak);
+  word-break: break-word;
+}
 .pv-word-wrap { flex: 0 0 auto; min-width: 210rpx; }
 .pv-word {
   display: block;

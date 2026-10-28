@@ -130,13 +130,17 @@
 
       <scroll-view class="pv-list" scroll-y="{{true}}">
         <view class="pv-row" wx:for="{{preview.items}}" wx:key="word">
-          <view class="pv-word-wrap">
-            <text class="pv-word">{{item.word}}</text>
-            <text class="pv-ipa" wx:if="{{item.ipa}}">/{{item.ipa}}/</text>
+          <view class="pv-line">
+            <view class="pv-word-wrap">
+              <text class="pv-word">{{item.word}}</text>
+              <text class="pv-ipa" wx:if="{{item.ipa}}">/{{item.ipa}}/</text>
+            </view>
+            <text class="pv-hint">{{item.hint}}</text>
+            <view class="pv-speak" wx:if="{{item.ipa}}"
+              catchtap="speakPreviewWord" data-word="{{item.word}}" data-type="{{item.type}}">🔊</view>
           </view>
-          <text class="pv-hint">{{item.hint}}</text>
-          <view class="pv-speak" wx:if="{{item.ipa}}"
-            catchtap="speakPreviewWord" data-word="{{item.word}}" data-type="{{item.type}}">🔊</view>
+          <!-- 例句（2026-10-28 起分批补）：没有例句的词条不占位，不留空白行 -->
+          <text class="pv-ex" wx:if="{{item.ex}}">{{item.ex}}</text>
         </view>
       </scroll-view>
 

@@ -6,12 +6,13 @@
  *
  * 关联需求：REQ-DICT-3（统一结构）、REQ-DICT-4（本地装载）、REQ-DICT-5（可扩展）
  *
- * 统一 WordItem 结构：{ type, q, a, hint, d? }
+ * 统一 WordItem 结构：{ type, q, a, hint, d?, ex?, ipa? }
  *   - type: 类型码（w1/w2/c1/c2/xhy/zc/fill/trans）
  *   - q:    题目（挖空位置用 * 标记）
  *   - a:    答案
  *   - hint: 提示/释义
  *   - d:    干扰项数组（可选，缺省由出题层补齐）
+ *   - ex:   例句（可选，集中在 data/examples.js，见下方 attachExamples）
  *
  * 内置 JSON 文件结构（data/<grade>.json）：
  *   {
@@ -26,6 +27,7 @@
 
 var constants = require('./constants');
 var bank = require('./bank');
+var EXAMPLES = require('../data/examples');
 
 var GRADES = constants.GRADES;
 
@@ -217,8 +219,54 @@ function rawByGrade(grade) {
     items = [];
   }
 
+  // 例句在「原始内置」这一层补，见下方 attachExamples 的说明
+  items = attachExamples(items, grade);
+
   builtinCache[grade] = items;
   return items;
+}
+
+/**
+ * 给内置词条补上例句（2026-10-28）。
+ *
+ * 补在「原始内置」这一层，而不是各个消费方各补一次：结算页错题卡、预习卡、
+ * 生词本练习都从 dict 取词，补一次全都拿得到，没有第 N 个页面忘了接的可能。
+ *
+ * 词条自己带 `ex` 的优先（用户题库 patch 过的条目走这条路），不被这里覆盖 ——
+ * 否则家长在题库里改过的例句，一升级就被打回原样。
+ *
+ * @param {Array<Object>} items data/*.js 的原始词条
+ * @param {string} grade 学段 key
+ * @returns {Array<Object>} 带 ex 的新数组；一条都没补上时**返回原数组**（不白拷贝）
+ */
+function attachExamples(items, grade) {
+  var table = EXAMPLES[grade];
+  if (!table || !items || !items.length) return items;
+
+  var out = [];
+  var hit = 0;
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    if (!it) { out.push(it); continue; }
+
+    var text = it.ex || '';
+    if (!text) {
+      var a = it.a === undefined || it.a === null ? '' : String(it.a);
+      // 词库里的词形大小写不统一（T-shirt / French fries / P.E.），查表补一次小写兜底
+      text = table[a] || table[a.toLowerCase()] || '';
+    }
+    if (!text) { out.push(it); continue; }
+
+    var copy = {};
+    for (var k in it) {
+      if (Object.prototype.hasOwnProperty.call(it, k)) copy[k] = it[k];
+    }
+    copy.ex = text;
+    out.push(copy);
+    hit++;
+  }
+  // 一条都没补上就原样返回：全站 2400 多条词，为「结构统一」白复制一遍不值
+  return hit ? out : items;
 }
 
 /**
@@ -411,5 +459,8 @@ module.exports = {
   setBook: setBook,
   getBook: getBook,
   bookStat: bookStat,
-  MIN_BOOK_ITEMS: MIN_BOOK_ITEMS
+  MIN_BOOK_ITEMS: MIN_BOOK_ITEMS,
+  // 例句补装（2026-10-28）：纯函数，导出只为单测能直接验「自带 ex 优先」这条规则 ——
+  // 走 loadBuiltin 验不了，因为 builtinCache 是故意的常驻缓存（clearCache 不清它）
+  attachExamples: attachExamples
 };

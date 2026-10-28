@@ -565,7 +565,11 @@ Page({
         word: w,
         hint: it.hint || '',
         ipa: it.ipa || '',
-        type: it.type || ''
+        type: it.type || '',
+        // 例句（2026-10-28 起分批补）：dict 出口已经装好，这里只做透传。
+        // 没有例句的词条留空串而不是 undefined —— wx:if 对两种都判 false，
+        // 但空串让 wxml 侧不用纠结 undefined 的渲染差异。
+        ex: it.ex || ''
       });
     });
     return out;

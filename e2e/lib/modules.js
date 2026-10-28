@@ -35,7 +35,7 @@ const MODULES = [
   {
     id: 'static',
     name: '静态护栏（语法 / 结构 / WXSS / 设计令牌）',
-    stages: ['syntax', 'structure', 'wxss', 'tokens', 'taps'],
+    stages: ['syntax', 'structure', 'wxss', 'tokens', 'navseam', 'taps'],
     unit: []
   },
   {
@@ -49,7 +49,9 @@ const MODULES = [
     name: '词库与常量（题库解析 / 校验 / 敏感词 / 学段题型）',
     stages: ['bank'],
     unit: ['constants', 'data', 'dict', 'bank', 'level-picker', 'parser', 'validator', 'sensitive',
-      'book-words', 'book-keys-parity', 'ipa']
+      'book-words', 'book-keys-parity', 'ipa',
+      // 2026-10-28 词条例句（键悬空 / 句子不含该词 / 缺翻译都只影响显示，不会报错）
+      'examples']
   },
   {
     id: 'challenge',
@@ -135,6 +137,7 @@ const STAGE_MODULE = {
   structure: 'static',
   wxss: 'static',
   tokens: 'static',
+  navseam: 'static',
   taps: 'static',
   assets: 'assets',
   unit: '(unit)',
@@ -209,6 +212,9 @@ const PATH_RULES = [
   // one-stroke-levels：2026-10-18 从 demo 移植的 35 关关卡表，改它必须跑 puzzle
   { re: /^miniprogram\/game\/(klotski|math24|math-sprint|memory-grid|one-stroke(-levels)?|pattern|clock|maze|hanoi|sudoku|tw2048|balance)\.js$/,
     modules: ['puzzle'] },
+  // 词条例句（2026-10-28）：改例句只影响错题卡上那行小字，顺带跑 user 是因为
+  // 错题卡的渲染护栏在那边（wrong-book-view）
+  { re: /^miniprogram\/data\/examples\.js$/, modules: ['dict', 'user'] },
   { re: /^miniprogram\/data\//, modules: ['puzzle', 'dict'] },
   { re: /^miniprogram\/pages\/bounce\//, modules: ['wordgames'] },
   // 玩法操作引导（2026-10-28）：文案 + 组件 + 21 个玩法页的挂载点
@@ -284,7 +290,7 @@ const PATH_RULES = [
   { re: /^e2e\/verify-admin\.js$/, modules: ['user', 'server'] },
   { re: /^e2e\/verify-(all-pages|m2m4)\.js$/, modules: ['pages', 'user'] },
   { re: /^e2e\/probe-pages-load\.js$/, modules: ['pages'] },
-  { re: /^e2e\/(check-assets|check-wxss|structure-check|syntax-check-all)\.js$/, modules: ['static', 'assets'] },
+  { re: /^e2e\/(check-assets|check-wxss|structure-check|syntax-check-all|check-nav-seam)\.js$/, modules: ['static', 'assets'] },
   { re: /^e2e\//, modules: ['static'] },
   { re: /^tests\/unit\//, modules: [] }   // 见 unitModulesForPath（按文件名直接归位）
 ];
