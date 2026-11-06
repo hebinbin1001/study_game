@@ -67,9 +67,12 @@ Page({
     nickname: '',
     avatarUrl: '',
     // 资产条
+    // HUD 里那颗 ⭐ 只显示数字（没有文字标签）：登录后是云端口径的「段位星」
+    // （含晋级考试封顶，封顶时另有 exam-bar 说明），游客退回本机存档星。
+    // 2026-11-06（D12）：原先还有一个没人渲染的 starsLabel 字段写着「累计星星」——
+    // 对封顶玩家是错词，已删除，避免以后有人顺手把它渲染出来。
     totalStars: 0,
     localStars: 0,     // 本机存档星数合计（游客展示用，也用于"登录同步"提醒）
-    starsLabel: '累计星星',  // 登录=累计星星（云端口径）；游客=本机星星
     rankName: '',      // 段位名（登录后云端）
     streakDays: 0,     // 连续天数（checkin）
     // 排行榜行
@@ -283,9 +286,9 @@ Page({
       totalStars: totalStars,
       localStars: totalStars,
       // 口径统一（用户拍板）：首页与我的页都展示同一个数 ——
-      // 登录后取云端累计星（与「我的」页的 /api/rank/info 同源，两页不再打架）；
-      // 游客没有云端数据，退回本机存档星并明确标注，避免被误当成全服资产。
-      starsLabel: loggedIn ? '累计星星' : '本机星星',
+      // 登录后取云端「段位星」（/api/rank/info 的 stars，含晋级考试封顶；真实累计在皮肤页/
+      // 段位详情页看），游客没有云端数据，退回本机存档星。
+      // 2026-11-06（D12）：原来这里还写了一个 starsLabel，但没有任何 wxml 渲染它，已随 D12 删除。
       rankName: rankName,
       streakDays: streakDays,
       continueGrade: lastGrade,

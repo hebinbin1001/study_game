@@ -36,7 +36,9 @@ const MODULES = [
     id: 'static',
     name: '静态护栏（语法 / 结构 / WXSS / 设计令牌）',
     stages: ['syntax', 'structure', 'wxss', 'tokens', 'navseam', 'taps'],
-    unit: []
+    // 2026-11-06：「改动→模块」映射本身的护栏（漏映射会让 --changed 静默漏跑）。
+    // 挂在 static 下：任何改动都会带上静态护栏，顺手就把映射表校验一遍。
+    unit: ['modules-map']
   },
   {
     id: 'assets',
@@ -272,6 +274,38 @@ const PATH_RULES = [
   { re: /^miniprogram\/utils\/ui-icons\.js$/, modules: ['game', 'wordgames', 'puzzle'] },
   { re: /^miniprogram\/utils\/type-label\.js$/, modules: ['user', 'dict'] },
   { re: /^miniprogram\/utils\/game-catalog\.js$/, modules: ['puzzle', 'wordgames', 'pages'] },
+  // 2026-11-06：上面只补了一部分，实测仍有 144/320 个文件推导不出模块（见
+  // tests/unit/modules-map.test.js 的护栏）。根因是 2026-10-28 把 21 个玩法页从
+  // `pages/` 搬到 `pkg-games/`、公共组件与半数 utils 从来就没进过映射表 ——
+  // 于是改这些文件时 `--changed` 会打印「没有映射」然后只跑静态护栏。
+  // 下面按目录补齐；共享组件刻意映射到多个模块（改一个组件会牵连多类玩法）。
+  { re: /^miniprogram\/pkg-games\/level\//, modules: ['challenge'] },
+  { re: /^miniprogram\/pkg-games\/puzzle-level\//, modules: ['puzzle'] },
+  { re: /^miniprogram\/pkg-games\/(game|result)\//, modules: ['game'] },
+  { re: /^miniprogram\/pkg-games\/(link|match|snake|word-build|idiom-build|quiz|bounce|letter-bubble)\//,
+    modules: ['wordgames'] },
+  { re: /^miniprogram\/pkg-games\/(math24|math-sprint|math-balance|memory-grid|one-stroke|pattern|clock|maze|hanoi|g2048|klotski|sudoku)\//,
+    modules: ['puzzle'] },
+  // 公共组件：对局/结算/暂停/进度条/战士徽章被 14~21 个玩法页共用
+  { re: /^miniprogram\/components\/(game-hud|settle-pop|battle-fx|game-pause|warrior-badge)\//,
+    modules: ['game', 'wordgames', 'puzzle'] },
+  // 年级选择器：首页 / 关卡页 / 玩法页 / 我的页四处都用
+  { re: /^miniprogram\/components\/grade-picker\//, modules: ['challenge', 'wordgames', 'puzzle', 'pages'] },
+  // 其余公共 utils（此前一个都没映射）
+  { re: /^miniprogram\/utils\/(avatar-upload)\.js$/, modules: ['user', 'assets'] },
+  { re: /^miniprogram\/utils\/(bank|level-picker)\.js$/, modules: ['dict', 'user'] },
+  { re: /^miniprogram\/utils\/(battle-fx)\.js$/, modules: ['game', 'wordgames'] },
+  { re: /^miniprogram\/utils\/(boss-ladder)\.js$/, modules: ['challenge', 'game', 'pages'] },
+  { re: /^miniprogram\/utils\/(ebbinghaus|rank-badge)\.js$/, modules: ['user'] },
+  { re: /^miniprogram\/utils\/(rank-ladder)\.js$/, modules: ['user', 'server'] },
+  { re: /^miniprogram\/utils\/(game-status)\.js$/, modules: ['server', 'wordgames', 'puzzle'] },
+  { re: /^miniprogram\/utils\/(play-counts)\.js$/, modules: ['pages', 'user'] },
+  { re: /^miniprogram\/utils\/(puzzle-levels|puzzle-progress)\.js$/, modules: ['puzzle'] },
+  // 主包里漏掉的两个页面（rank 规则只匹配 `pages/rank/`，rank-info / rank-exam 不命中）
+  { re: /^miniprogram\/pages\/rank-(info|exam)\//, modules: ['user'] },
+  // 玩法引擎：quiz / letter-bubble 是词库类引擎，shoot 是字母射击
+  { re: /^miniprogram\/game\/(quiz|quiz-bank|letter-bubble)\.js$/, modules: ['wordgames'] },
+  { re: /^miniprogram\/game\/shoot\.js$/, modules: ['game'] },
   { re: /^miniprogram\/utils\/art\.js$/, modules: ['user', 'assets'] },
 
   // 公共模块：刻意映射到多个模块（改一处会牵连多处）
@@ -317,6 +351,10 @@ const PATH_RULES = [
   { re: /^demo\//, modules: [] },
   { re: /^assets-src\//, modules: [] },
   { re: /^(README\.md|\.gitignore|\.dockerignore)$/, modules: [] },
+  // 2026-11-06：仓库根的其他 md（AGENTS.md / 小程序项目档案.md）与 .codeartsdoer/ 规格文档
+  // 之前没有映射，--changed 会打「没有映射」的警告（纯文档，本来就不需要跑用例）
+  { re: /^[^/]+\.md$/, modules: [] },
+  { re: /^\.codeartsdoer\//, modules: [] },
   { re: /^e2e\/verify-(game|result)\.js$/, modules: ['game'] },
   { re: /^e2e\/verify-(link|snake)\.js$/, modules: ['wordgames'] },
   { re: /^e2e\/verify-(math24|klotski|g2048)\.js$/, modules: ['puzzle'] },

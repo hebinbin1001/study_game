@@ -31,12 +31,15 @@
     </view>
   </view>
 
-  <!-- 统计三格 -->
+  <!-- 统计三格
+       2026-11-06（D12）：第一格原名「累计星星」，但它取的是 /api/rank/info 的 stars ——
+       那是**晋级考试封顶后**的段位星，不是真实累计（真实累计在皮肤页/段位详情页看）。
+       对着封顶玩家写「累计」是句错的文案，改叫「段位星」。 -->
   <view class="stat-row">
     <view class="stat-box">
       <view class="stat-ic">⭐</view>
       <view class="stat-num">{{loggedIn ? rankStars : '-'}}</view>
-      <view class="stat-lab">累计星星</view>
+      <view class="stat-lab">段位星</view>
     </view>
     <view class="stat-box stat-box--rank" bindtap="goRankInfo">
       <image

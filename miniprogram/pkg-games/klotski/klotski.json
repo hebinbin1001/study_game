@@ -5,7 +5,7 @@
     "how-to-play": "/components/how-to-play/how-to-play"
   },
   "navigationBarTitleText": "华容道",
-  "navigationBarBackgroundColor": "#4a9fe8",
+  "navigationBarBackgroundColor": "#2d74b8",
   "navigationBarTextStyle": "white",
   "disableScroll": false
 }

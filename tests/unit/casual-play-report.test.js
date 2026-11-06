@@ -12,6 +12,12 @@
  *   ③ 服务端接受 total_q=0 的「非答题记录」，但星级只认 0~3；
  *   ④ 不许再把「星级反推正确率」这套逻辑加回来（源码级防回退）。
  *
+ * 2026-11-06（D12）补一条例外：**连连看（link）** 虽然是字词玩法，但它是「全部配对成功
+ * 才过关」型 —— 被扣命的是错配、不是答错某道题。原代码传 `this.pairsUsed`（该字段从未赋值，
+ * 实际一直是 0/0），但字段名像「已配对数」，补上赋值就会变成恒定 100% 正确率。
+ * 用户拍板改为显式 totalQ=0 只报星级；它**不进** CASUAL_GAME_TYPES（分类不变，
+ * 变的是调用点口径，见最后一条用例）。
+ *
  * 运行：node tests/unit/casual-play-report.test.js
  */
 
@@ -91,6 +97,24 @@ s.test('字词玩法：真实 correct/total 原样上报，不做任何替换', 
   s.assert.equal(posted[0].body.correctCount, 7);
   s.assert.equal(posted[0].body.maxCombo, 4);
   s.assert.equal(posted[0].body.type, 'shoot');
+});
+
+// 2026-11-06（D12）：连连看是「全部配对成功才过关」型玩法，被扣命的是**错配**
+// 而不是答错某道题，没有「每题对错」口径。原代码传 this.pairsUsed，但该字段从未赋值
+// （全仓仅引用处、无赋值）—— 实际一直上报 0/0，并不是真的在报 100% 正确率；
+// 但字段名像「已配对数」，补上赋值就会变成恒定 100%，所以现在显式写 0 并钉死。
+// 注意它**不在** CASUAL_GAME_TYPES 里（那是给没有题目的数字智力用的），这里是调用点的口径。
+s.test('连连看：按非答题记录上报（只报星级），不再依赖未赋值的 pairsUsed', () => {
+  const src = fs.readFileSync(path.join(GAMES_DIR, 'link', 'link.js'), 'utf8');
+  const block = (src.match(/reportPlay\(\{[\s\S]*?\}\)/) || [''])[0];
+  s.assert.ok(block, 'link 应有 reportPlay 上报块');
+  // 只查代码，不查注释 —— 解释「为什么不能传 pairsUsed」的注释里会提到它
+  const code = block.replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+  s.assert.ok(/correct:\s*0/.test(code) && /total:\s*0/.test(code),
+    'link 必须按 totalQ=0 上报（正确率概念不成立，写真实值会污染学习报告）');
+  s.assert.ok(code.indexOf('pairsUsed') < 0,
+    '不要再用 pairsUsed 当正确数/题量（它等于「完成的配对数」，恒等于总数）');
+  s.assert.ok(/stars:\s*stars/.test(code), '星级必须照常上报（这是连连看唯一的成绩）');
 });
 
 s.test('游客不上报（与结算页一致）', () => {

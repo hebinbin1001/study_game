@@ -10,7 +10,7 @@
   color: #203d5b;
   background:
     radial-gradient(circle at 12% 9%, rgba(255,255,255,.58), transparent 21%),
-    linear-gradient(180deg, #4a9fe8 0%, #8fcbf7 40%, #d8efff 82%);
+    linear-gradient(180deg, #2d74b8 0%, #8fcbf7 40%, #d8efff 82%);
 }
 
 .lb-hud {

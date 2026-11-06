@@ -344,8 +344,15 @@ Page({
       grade: this._gradeKey,
       level: this._level,
       score: stars * 10,
-      correct: this.pairsUsed || 0,
-      total: this.pairsUsed || 0,
+      // 2026-11-06（D12 复核）：这里原来传的是 this.pairsUsed —— 而该字段在本文件里
+      // **从来没有被赋过值**（全仓仅这两处引用），所以实际一直上报的是 0/0，
+      // 并不像待办里写的那样在报 100% 正确率。但字段名读起来就是「已配对数」，
+      // 哪天有人顺手补上赋值（this.pairsUsed = this.data.matched）就会变成恒定 100%，
+      // 把字词类平均正确率推高。所以这里显式写 0：连连看是「全部配对成功才过关」型，
+      // 被扣命的是**错配**而不是答错某道题，没有「每题对错」的口径
+      // → 按非答题记录上报，只报星级（服务端见 total_q=0 落非答题记录）。
+      correct: 0,
+      total: 0,
       stars: stars,
       typeKey: this._line || challenge.STAR_KEY
     });

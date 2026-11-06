@@ -19,6 +19,8 @@
 .ri-badge { width: 128rpx; height: 128rpx; }
 .ri-name { font-size: var(--fs-title); font-weight: 900; margin-top: 8rpx; }
 .ri-stars { font-size: var(--fs-cap); opacity: .92; margin-top: 6rpx; }
+/* 2026-11-06（D12）：封顶玩家的真实累计星——比主数字弱一档，说明它只是补充信息 */
+.ri-stars--raw { font-size: var(--fs-cap); opacity: .75; margin-top: 2rpx; }
 .ri-bar {
   height: 16rpx;
   border-radius: 999rpx;

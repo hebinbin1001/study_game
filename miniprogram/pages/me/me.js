@@ -154,7 +154,7 @@ Page({
 
   /** 点段位 → 段位详情页（各段位门槛 + 距下一段还差多少星，第三批 · 第 8 条） */
   goRankInfo: function () {
-    // rankStars = /api/rank/info 返回的云端口径累计星（与「我的」页展示同源）
+    // rankStars = /api/rank/info 的 stars：晋级考试封顶后的「段位星」（2026-11-06 D12 改口径文案）
     wx.navigateTo({ url: '/pages/rank-info/rank-info?stars=' + (this.data.rankStars || 0) });
   },
 

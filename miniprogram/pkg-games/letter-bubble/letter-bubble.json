@@ -1,6 +1,6 @@
 {
   "navigationBarTitleText": "Boss 补字母泡泡龙",
-  "navigationBarBackgroundColor": "#4a9fe8",
+  "navigationBarBackgroundColor": "#2d74b8",
   "navigationBarTextStyle": "white",
   "usingComponents": {
     "settle-pop": "/components/settle-pop/settle-pop",

@@ -5,7 +5,12 @@
   <view class="ri-hero">
     <image wx:if="{{badge}}" class="ri-badge" src="{{badge}}" mode="aspectFit"></image>
     <view class="ri-name">{{name}}</view>
-    <view class="ri-stars">⭐ 累计 {{stars}} 星</view>
+    <!-- 2026-11-06（D12）：这里的 {{stars}} 是**封顶后**的段位星，叫「累计」对封顶玩家是错的。
+         改成「段位星」；被封顶时补一行真实累计值（它只在皮肤页/这里看得到）。 -->
+    <view class="ri-stars">⭐ 段位星 {{stars}}</view>
+    <view wx:if="{{needExam && rawStars > stars}}" class="ri-stars ri-stars--raw">
+      真实累计 {{rawStars}} 星（段位已封顶，考试通过后解封）
+    </view>
     <view class="ri-bar">
       <view class="ri-bar__fill" style="width: {{progress}}%"></view>
     </view>
