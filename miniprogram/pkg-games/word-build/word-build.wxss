@@ -95,7 +95,8 @@ page {
 .tile.used { opacity: 0.25; transform: scale(0.94); }
 
 .foot { display: flex; gap: 16rpx; margin-top: 4rpx; }
-.back { display: flex; }
+/* 2026-11-06：删掉从未被 wxml 引用的 .back（底部只有「提示首字母 / 提交」两个 .btn），
+   死 CSS 会被热区护栏按命名误判成「返回按钮」。 */
 .btn {
   flex: 1;
   height: 88rpx;

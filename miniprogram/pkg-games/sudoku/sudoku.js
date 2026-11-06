@@ -355,5 +355,15 @@ Page({
   onGameQuit: function () {
     this.setData({ paused: false });
     wx.navigateBack();
+  },
+
+  // 分享（2026-11-06 补）：数独页之前漏了，右上角转发会直接失败。
+  // 文案带当前关卡（选关态用已解锁的最大关），入口回玩法 tab。
+  onShareAppMessage: function () {
+    var lv = this.data.playing ? this.data.curLevel : (this.data.curLevel || 1);
+    return {
+      title: '词力战士 - 数独闯关' + (lv ? '（第 ' + lv + ' 关）' : ''),
+      path: '/pages/playlist/playlist'
+    };
   }
 });

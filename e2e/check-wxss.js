@@ -154,10 +154,57 @@ for (const file of files) {
 // 而且都比标准小。60rpx = 30px，手指点不中是常态。
 //
 // 这条规则按「语义命名」守，不按具体类名守 —— 否则下次换个类名又能绕过去。
-// 判定：选择器里含 back / close / quit / exit 的规则，如果显式写了 width 或 height，
-//       就必须 ≥ 88rpx（0 表示隐藏，放行）。
+//
+// 2026-11-06 放宽口径（原规则只认显式 width/height，8 处「靠 padding / 行高撑」的控件
+// 全都绕过去了）：现在把 width / min-width / height / min-height / padding（横竖各自求和）
+// 一起收进来取**最大值**，最大值仍 < 88rpx 才报 —— 只要有一种撑法够大就放行，避免误报
+// 无法静态判定的自动尺寸（例如按钮高度靠 line-height）。一个尺寸线索都没有的规则跳过
+// （它可能继承公共类，比如 .page-share .btn-back 的尺寸来自 app.wxss）。
 {
   const HOT = 88;
+  // 从 padding 简写里取横向 / 纵向和；含 calc()/env()/百分比时无法静态判定，返回 null
+  function paddingSums(body) {
+    const grab = (prop) => {
+      const m = new RegExp('(?:^|[;\\s])' + prop + '\\s*:\\s*([^;]+)').exec(body);
+      return m ? m[1].trim() : null;
+    };
+    const px = (v) => {
+      const s = String(v).trim();
+      if (s === '0') return 0;                                  // 无单位 0 是合法写法
+      const m = /^(-?\d+(?:\.\d+)?)rpx$/.exec(s);
+      return m ? +m[1] : null;
+    };
+    let top = null; let right = null; let bottom = null; let left = null;
+    const shorthand = grab('padding');
+    if (shorthand !== null) {
+      const parts = shorthand.split(/\s+/);
+      // 含 calc()/env()/auto/% 等非纯 rpx 值时不判（宁可漏报也不误报）
+      if (parts.length >= 1 && parts.length <= 4 && parts.every((p) => px(p) !== null)) {
+        const vals = parts.map(px);
+        top = vals[0];
+        right = vals.length > 1 ? vals[1] : vals[0];
+        bottom = vals.length > 2 ? vals[2] : vals[0];
+        left = vals.length > 3 ? vals[3] : right;
+      }
+    }
+    [['padding-top', 'top'], ['padding-right', 'right'], ['padding-bottom', 'bottom'], ['padding-left', 'left']]
+      .forEach((pair) => {
+        const raw = grab(pair[0]);
+        if (raw === null) return;
+        const v = px(raw);
+        if (v === null) return;
+        if (pair[1] === 'top') top = v;
+        if (pair[1] === 'right') right = v;
+        if (pair[1] === 'bottom') bottom = v;
+        if (pair[1] === 'left') left = v;
+      });
+    if (top === null && right === null && bottom === null && left === null) return [];
+    const sums = [];
+    if (top !== null && bottom !== null) sums.push(top + bottom);
+    if (left !== null && right !== null) sums.push(left + right);
+    return sums;
+  }
+
   for (const file of files) {
     const src = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, m => m.replace(/[^\n]/g, ' '));
     const rel = path.relative(ROOT, file);
@@ -167,22 +214,27 @@ for (const file of files) {
       const sels = m[1].trim();
       if (!/(back|close|quit|exit)/i.test(sels)) continue;
       // 排除文字类/装饰类选择器（不是可点控件）
-      if (/(hint|text|tip|label|title|icon|bg|mask|drop|line|arrow)/i.test(sels.replace(/::?[a-z-]+/g, ''))) continue;
+      const bare = sels.replace(/::?[a-z-]+/g, '');
+      if (/(hint|text|tip|label|title|icon|bg|mask|drop|line|arrow)/i.test(bare)) continue;
+      // feedback（反馈浮层）只是恰好含 "back"，不是返回控件
+      if (/feedback/i.test(bare)) continue;
       const body = m[2];
-      const dims = [];
-      const wm = /(?:^|[;\s])width\s*:\s*(\d+)rpx/.exec(body);
-      const hm = /(?:^|[;\s])height\s*:\s*(\d+)rpx/.exec(body);
-      if (wm) dims.push(['width', +wm[1]]);
-      if (hm) dims.push(['height', +hm[1]]);
-      for (const [prop, v] of dims) {
-        if (v === 0) continue;                      // 0 = 隐藏态，不需要热区
-        if (v < HOT) {
-          console.log('[FAIL] ' + rel + ': 「' + sels.split(',').map(s => s.trim()).filter(s => /(back|close|quit|exit)/i.test(s)).join(',')
-            + '」的 ' + prop + ' 只有 ' + v + 'rpx（< ' + HOT + 'rpx = 44pt）——'
-            + '返回/关闭是高频误点按钮，热区小于 44pt 手指很难点中。请改到 ' + HOT + 'rpx 或更大。');
-          bad++;
-        }
-      }
+      const hints = [];
+      ['width', 'min-width', 'height', 'min-height'].forEach((prop) => {
+        const mm = new RegExp('(?:^|[;\\s])' + prop + '\\s*:\\s*(\\d+)rpx').exec(body);
+        if (mm) hints.push([prop, +mm[1]]);
+      });
+      paddingSums(body).forEach((sum) => hints.push(['padding', sum]));
+      // 0 表示隐藏态（width:0 的关闭动画等），不参与最大值比较；全是 0 就当没有线索
+      const positive = hints.filter((h) => h[1] > 0);
+      if (positive.length === 0) continue;          // 无尺寸线索：可能继承公共类，跳过
+      const biggest = positive.reduce((a, b) => (b[1] > a[1] ? b : a));
+      if (biggest[1] >= HOT) continue;
+      console.log('[FAIL] ' + rel + ': 「' + sels.split(',').map(s => s.trim()).filter(s => /(back|close|quit|exit)/i.test(s)).join(',')
+        + '」的触控尺寸最大只有 ' + biggest[1] + 'rpx（来源 ' + biggest[0] + '，< ' + HOT + 'rpx = 44pt）——'
+        + '返回/关闭是高频误点按钮，热区小于 44pt 手指很难点中。'
+        + '请补 min-width/min-height: ' + HOT + 'rpx 或更大（视觉不变，只撑热区）。');
+      bad++;
     }
   }
 }

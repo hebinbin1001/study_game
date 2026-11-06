@@ -47,6 +47,21 @@
 .st-row--tap:active {
   background: var(--sky-3);
 }
+/* 意见反馈（2026-11-06）：open-type="feedback" 只能挂原生 button，
+   把 button 重置成与 .st-row 完全一致的一行 —— 不留原生灰底、圆角与居中文字。 */
+.st-row--btn {
+  width: 100%;
+  justify-content: flex-start;
+  background: transparent;
+  border-radius: 0;
+  font-size: var(--fs-body);
+  font-weight: normal;
+  color: var(--ink);
+  line-height: 1.2;
+  text-align: left;
+  box-sizing: border-box;
+}
+.st-row--btn::after { border: none; }
 .st-row-main {
   flex: 1;
   min-width: 0;

@@ -131,10 +131,19 @@ const appWxssSrc = fs.readFileSync('miniprogram/app.wxss', 'utf8');
 check(appWxssSrc.includes('.gate-bar'), '门禁引导条样式统一在 app.wxss（6 页共用一份）');
 
 // 分享：关键页必须能转发（M5 T4.1）
-['result', 'game', 'me', 'rank', 'rank-info', 'achievement', 'wrong-book', 'avatar', 'checkin', 'bank'].forEach((pg) => {
+// 2026-11-06 补 puzzle-level / sudoku：这两页此前没有 onShareAppMessage，
+// 右上角转发会直接失败（不报错、只有点的人知道）。
+['result', 'game', 'me', 'rank', 'rank-info', 'achievement', 'wrong-book', 'avatar', 'checkin', 'bank',
+  'puzzle-level', 'sudoku'].forEach((pg) => {
   const js = mpRead(pg, 'js');
   check(js.includes('onShareAppMessage'), `pages/${pg} 支持分享（onShareAppMessage）`);
 });
+
+// 意见反馈入口（2026-11-06）：微信唯一可用的反馈通道是 button[open-type="feedback"]，
+// 自己拿 view 搭反馈表单既收不到后台数据、也过不了审核对「反馈渠道」的追问。
+const settingsWxml = fs.readFileSync('miniprogram/pages/settings/settings.wxml', 'utf8');
+check(settingsWxml.includes('open-type="feedback"'),
+  '设置页有「意见反馈」入口（button open-type="feedback"）');
 
 // 7) 用户身份与昵称口径（2026-10-08 大改：微信昵称采集整条线下线）
 //

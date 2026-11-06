@@ -114,5 +114,17 @@ Page({
     wx.navigateTo({ url: page + '?level=' + row.no });
   },
 
-  goBack: function () { wx.navigateBack(); }
+  goBack: function () { wx.navigateBack(); },
+
+  // 分享（2026-11-06 补）：数字智力关卡页之前漏了，右上角转发会直接失败。
+  // 文案带上玩法名与进度，分享出去比「词力战士」四个字有信息量；入口仍回玩法 tab。
+  onShareAppMessage: function () {
+    var name = this.data.name || '数字智力';
+    var cleared = this.data.clearedCount || 0;
+    var total = this.data.totalCount || 0;
+    return {
+      title: '词力战士 - ' + name + (total ? '（已通关 ' + cleared + '/' + total + ' 关）' : ''),
+      path: '/pages/playlist/playlist'
+    };
+  }
 });

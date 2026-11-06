@@ -229,13 +229,20 @@ page {
 
 /* ===== 返回链接 ===== */
 .back-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 触控热区 88rpx（44pt）：「退出登录 / 注销账号」是竖向堆叠的窄文字链接，
+     原热区只有 ~77rpx；撑高后用底部外边距 24 → 13 抵掉，页面总高不变（2026-11-06） */
+  min-height: 88rpx;
   margin-top: 32rpx;
-  margin-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  margin-bottom: calc(13rpx + env(safe-area-inset-bottom));
   font-size: var(--fs-strong);
   color: var(--white);
   opacity: 0.9;
   font-weight: 700;
   padding: 16rpx 48rpx;
+  box-sizing: border-box;
   transition: opacity 0.12s;
 }
 .back-link:active {

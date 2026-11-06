@@ -91,6 +91,14 @@
 }
 .detail-back {
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  /* 触控热区 88rpx（44pt）：文字本身只有 ~54rpx 高，靠 min-height 撑开；
+     上下各 -17rpx 负外边距抵掉多出来的高度，头部行高与文字位置都不变。 */
+  min-width: 88rpx;
+  min-height: 88rpx;
+  margin: -17rpx 0;
+  box-sizing: border-box;
   padding: 10rpx 16rpx 10rpx 0;
   font-size: var(--fs-cap);
   color: var(--link);
@@ -520,7 +528,21 @@
 .filter-sheet { width: 100%; box-sizing: border-box; padding: 28rpx 28rpx calc(34rpx + env(safe-area-inset-bottom)); border-radius: 28rpx 28rpx 0 0; background: var(--white); }
 .filter-head { display: flex; align-items: center; justify-content: space-between; }
 .filter-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
-.filter-close { font-size: var(--fs-body); font-weight: 800; color: var(--link); padding: 8rpx 4rpx; }
+/* 「完成」按钮：触控热区 88rpx（44pt）；右对齐 + inline-flex 保证文字位置不漂，
+   上下负外边距抵掉撑高，筛选弹层头部高度不变（2026-11-06） */
+.filter-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 88rpx;
+  min-height: 88rpx;
+  margin: -16rpx 0;
+  box-sizing: border-box;
+  padding: 8rpx 4rpx;
+  font-size: var(--fs-body);
+  font-weight: 800;
+  color: var(--link);
+}
 .filter-label { margin: 24rpx 0 12rpx; font-size: var(--fs-cap); font-weight: 800; color: var(--ink-weak); }
 .filter-chips { display: flex; flex-wrap: wrap; gap: 12rpx; }
 .filter-chip { padding: 13rpx 22rpx; border-radius: 999rpx; background: #f0f5fa; color: var(--ink-sub); font-size: var(--fs-cap); font-weight: 800; }

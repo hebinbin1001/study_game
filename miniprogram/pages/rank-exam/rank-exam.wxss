@@ -79,4 +79,5 @@ page {
   box-shadow: var(--clay-2);
 }
 .ex-btn--primary::after { border: none; }
-.ex-back { margin-top: 28rpx; font-size: var(--fs-body); color: var(--ink-sub); }
+/* 2026-11-06：删掉从未被 wxml 引用的 .ex-back —— 失败/通过态的返回用的是全局 .btn-back
+   （app.wxss，热区 88rpx），这条死 CSS 会被热区护栏按命名误判成「返回按钮热区不足」。 */

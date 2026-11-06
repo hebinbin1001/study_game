@@ -75,11 +75,30 @@ s.test('校验脚本：音频格式必须在扫描范围内', () => {
   s.assert.ok(/f\.isAudio/.test(src) || /isAudio/.test(src), '校验逻辑要真的用上音频判定');
 });
 
-s.test('校验脚本：整包阈值不能放宽到 2MB 以上', () => {
+s.test('校验脚本：体积三条线（主包 / 单分包 / 总包）不能放宽', () => {
   const src = fs.readFileSync(CHECK_SRC, 'utf8');
-  const mb = Number(constOf(src, 'MAX_PACKAGE_MB'));
-  s.assert.ok(mb > 0, '找不到 MAX_PACKAGE_MB');
-  s.assert.ok(mb <= 1.8, '整包阈值要留余量（微信主包 2MB 硬限），实际 ' + mb + 'MB');
+  // 2026-11-06：原来的 `MAX_PACKAGE_MB = 1.8` 把「主包 + 分包」1.93MB 拿去比主包 2MB 硬限，
+  // 导致包体护栏长期假红。现在拆成三条线，各自守微信的对应硬限，任何一条被放宽都算违约。
+  const main = Number(constOf(src, 'MAX_MAIN_MB'));
+  const sub = Number(constOf(src, 'MAX_SUB_MB'));
+  const total = Number(constOf(src, 'MAX_TOTAL_MB'));
+  s.assert.ok(main > 0, '找不到 MAX_MAIN_MB（主包阈值）');
+  s.assert.ok(sub > 0, '找不到 MAX_SUB_MB（单个分包阈值）');
+  s.assert.ok(total > 0, '找不到 MAX_TOTAL_MB（总包阈值）');
+  s.assert.ok(main <= 1.8, '主包阈值要留余量（微信主包 2MB 硬限），实际 ' + main + 'MB');
+  s.assert.ok(sub <= 2, '单分包阈值不能超过微信 2MB 硬限，实际 ' + sub + 'MB');
+  s.assert.ok(total <= 20, '总包阈值不能超过微信 20MB 硬限，实际 ' + total + 'MB');
+  // 旧常量必须已经拆掉，否则说明有人把「整包比主包」的错口径改回来了
+  s.assert.equal(constOf(src, 'MAX_PACKAGE_MB'), '',
+    'MAX_PACKAGE_MB 已拆成 MAX_MAIN_MB / MAX_SUB_MB / MAX_TOTAL_MB，不应再出现');
+});
+
+s.test('校验脚本：引用扫描必须覆盖分包页（否则分包页会被误报未引用）', () => {
+  const src = fs.readFileSync(CHECK_SRC, 'utf8');
+  s.assert.ok(/subPackages|subpackages/.test(src),
+    'e2e/check-assets.js 要读 app.json 的 subPackages，才能把分包页算成引用入口');
+  s.assert.ok(/sp\.pages/.test(src), '引用入口要遍历 subPackages[].pages');
+  s.assert.ok(/packageOf|readSubRoots/.test(src), '体积要按「主包 / 各分包」分别计算');
 });
 
 s.test('当前素材：没有任何图片或音频超过 200KB', () => {

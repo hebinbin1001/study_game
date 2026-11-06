@@ -158,7 +158,20 @@
 }
 .pk-head { display: flex; align-items: center; justify-content: space-between; }
 .pk-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
-.pk-close { font-size: var(--fs-strong); color: var(--ink-weak); padding: 0 8rpx; }
+/* 「✕」关闭：触控热区 88rpx（44pt）；右对齐保证图形位置不漂，
+   上下负外边距抵掉撑高，弹层头部高度不变（2026-11-06） */
+.pk-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 88rpx;
+  min-height: 88rpx;
+  margin: -21rpx 0;
+  box-sizing: border-box;
+  padding: 0 8rpx;
+  font-size: var(--fs-strong);
+  color: var(--ink-weak);
+}
 .pk-sub { margin-top: 6rpx; font-size: var(--fs-cap); color: var(--ink-weak); }
 
 .pk-scroll { flex: 0 0 auto; width: 100%; white-space: nowrap; margin-top: 14rpx; }

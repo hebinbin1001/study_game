@@ -131,7 +131,11 @@
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-  margin-top: 24rpx;
+  /* 触控热区 88rpx（44pt）：文字/图标本身只有 ~54rpx 高，靠 min-height 撑开；
+     底部 -34rpx 负外边距抵掉多出来的高度，暂停弹层高度不变（2026-11-06）。 */
+  min-height: 88rpx;
+  box-sizing: border-box;
+  margin: 24rpx 0 -34rpx;
   font-size: var(--fs-cap);
   color: #98a4b8;
   padding: 10rpx 0;

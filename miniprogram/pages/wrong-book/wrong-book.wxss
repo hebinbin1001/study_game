@@ -347,7 +347,21 @@ button.btn-review::after { border: none; }
 }
 .filter-head { display: flex; align-items: center; justify-content: space-between; }
 .filter-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
-.filter-close { font-size: var(--fs-body); font-weight: 800; color: var(--link); padding: 8rpx 4rpx; }
+/* 「完成」按钮：触控热区 88rpx（44pt）；右对齐 + inline-flex 保证文字位置不漂，
+   上下负外边距抵掉撑高，筛选弹层头部高度不变（2026-11-06） */
+.filter-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 88rpx;
+  min-height: 88rpx;
+  margin: -16rpx 0;
+  box-sizing: border-box;
+  padding: 8rpx 4rpx;
+  font-size: var(--fs-body);
+  font-weight: 800;
+  color: var(--link);
+}
 .filter-label { margin: 24rpx 0 12rpx; font-size: var(--fs-cap); font-weight: 800; color: var(--ink-weak); }
 .filter-chips { display: flex; flex-wrap: wrap; gap: 12rpx; }
 .filter-chip {

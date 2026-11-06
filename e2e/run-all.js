@@ -43,8 +43,9 @@ const STAGES = [
   // **不能写 var()**，所以令牌体系天然管不到它 —— 同一个天空蓝被写成 #5aa9e6 /
   // #4a9fe8 / #4285F4 三种，用户看到的是一条横向色带断层。这条对账脚本补上缺口。
   { id: 'navseam', layer: '静态', title: '导航栏接缝（nav 色 = 页面背景首色）', script: 'e2e/check-nav-seam.js' },
-  // 包体检查（微信主包 2MB 硬限）：素材已按展示尺寸压缩（原图移出包），这里恢复成**阻断**
-  { id: 'assets', layer: '静态', title: '包体资源检查（整包 ≤1.8MB）', script: 'e2e/check-assets.js' },
+  // 包体检查（微信：主包 2MB / 单分包 2MB / 总包 20MB 三条独立硬限）：素材已按展示尺寸压缩
+  // （原图移出包），这里恢复成**阻断**。2026-11-06 修：原来拿总包比主包上限，长期假红。
+  { id: 'assets', layer: '静态', title: '包体资源检查（主包 ≤1.8MB / 单分包 ≤1.8MB / 总包 ≤20MB）', script: 'e2e/check-assets.js' },
   { id: 'unit', layer: '单元', title: '单元测试套件', script: 'tests/unit/run-all.js' },
   { id: 'game', layer: '端到端', title: '单词闯关（字母射击打怪）', script: 'e2e/verify-game.js' },
   { id: 'result', layer: '端到端', title: '结算页（本局错题回顾）', script: 'e2e/verify-result.js' },
@@ -202,9 +203,18 @@ function resolveSelection(opts) {
     reason = '指定模块：' + want.join(', ');
   } else if (opts.changed) {
     const paths = modules.changedPaths(ROOT);
+    // null = git 命令本身没跑起来（受限环境 spawnSync 会 EPERM）。绝不能当成
+    // 「没有改动」然后只跑静态六项判 PASS —— 那是假绿灯（见 lib/modules.js changedPaths 注释）。
+    if (paths === null) {
+      console.error('');
+      console.error('[FAIL] --changed 无法读取 git 改动：git 命令没有跑起来（受限环境会 EPERM）。');
+      console.error('       这不是「没有改动」！请改用显式模块：node e2e/run-all.js --module=static,assets,unit');
+      console.error('       或先在能跑 git 的终端里确认改动清单，再按模块验证。');
+      process.exit(2);
+    }
     ids = new Set();
     if (!paths.length) {
-      reason = '没有检测到改动文件';
+      reason = '没有检测到改动文件（工作区干净）';
     } else {
       const unknown = [];
       paths.forEach(function (p) {

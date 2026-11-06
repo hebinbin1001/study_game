@@ -51,6 +51,15 @@
       </view>
       <view class="st-row-arrow">›</view>
     </view>
+    <!-- 意见反馈（2026-11-06 补）：反馈只能挂原生 button 的 open-type="feedback"。
+         这里把 button 重置成和 .st-row 一模一样的一行，视觉上不引入第三种条目样式。 -->
+    <button class="st-row st-row--tap st-row--btn" open-type="feedback">
+      <view class="st-row-main">
+        <view class="st-row-t">意见反馈</view>
+        <view class="st-row-s">遇到 bug、想加功能，直接告诉我们</view>
+      </view>
+      <view class="st-row-arrow">›</view>
+    </button>
   </view>
 
   <view class="st-group">

@@ -9,13 +9,20 @@
  *   表现是「开发者工具能跑、真机预览/上传失败」，往往等到提审才发现。这个检查把包体
  *   变成流水线里的红绿灯，换素材时立刻能看见。
  *
- * 判定规则（微信限制的是**整包体积**，所以这里按全部会打包的文件算）：
+ * 判定规则（微信的三个体积限制是**分开口径**的，2026-11-06 校准）：
  *   · **单个图片/音频 > MAX_FILE_KB（200KB，用户 2026-09-12 明确的硬限）→ 失败**；
  *     这是平台侧的单文件上限，跟整包体积是两件事，必须单独守；
  *   · 单个图片 > SOFT_IMAGE_KB（60KB）→ 只提醒不失败（超出会让整包迅速膨胀，
  *     建议按展示尺寸压；原图放 assets-src/ 不参与打包）；
- *   · 整包（代码 + 模板 + 样式 + 词库 + 图片）> MAX_PACKAGE_MB（默认 1.8MB）→ 失败；
- *     留 0.2MB 余量给微信自己的注入内容，别贴着 2MB 上限跑。
+ *   · **主包**（app.js/app.wxss/主包页面/公共模块/词库，不含分包 root）> MAX_MAIN_MB → 失败；
+ *     微信硬限 2MB，本项目自留 0.2MB 余量卡 1.8MB；
+ *   · **单个分包**（app.json.subPackages 各自 root 下的文件）> MAX_SUB_MB → 失败；
+ *     微信硬限 2MB，同样自留余量；
+ *   · **总包**（主包 + 全部分包）> MAX_TOTAL_MB（20MB）→ 失败。
+ *
+ *   历史教训（2026-09-12 ~ 2026-11-06）：早期把「主包 + 分包」的 1.93MB 直接跟主包 2MB
+ *   硬限比，于是 24 个分包页被误报「没有引用」、分包体积被并进主包一起卡 1.8MB，
+ *   护栏长期假红。体积必须按包算，不能拿总包去比主包上限。
  *
  * 允许例外：miniprogram/assets-src/ 放原图（**不参与打包**），本脚本自动跳过。
  *
@@ -37,7 +44,12 @@ const SOFT_IMAGE_KB = 60;
 // 微信上传检测项「图片和音频资源大小超过 200K」判的是**包内图片/音频的总量**，
 // 官方建议超过 200K 就把资源放 CDN、用 URL 引入 —— 这里把它做成硬校验。
 const MAX_MEDIA_TOTAL_KB = 200;
-const MAX_PACKAGE_MB = 1.8;
+// 体积三条线（2026-11-06 按微信平台实际限制重新校准，见文件头注释）：
+//   微信硬限：主包 2MB / 单个分包 2MB / 总包 20MB。主包与分包都自留 0.2MB 余量
+//   （微信上传时会往里注入框架代码），总包离 20MB 还很远，按平台值卡。
+const MAX_MAIN_MB = 1.8;
+const MAX_SUB_MB = 1.8;
+const MAX_TOTAL_MB = 20;
 const IMG_EXT = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
 const AUDIO_EXT = ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.wma', '.flac', '.amr'];
 // 只跳过工具自己生成的依赖目录；其余一律按「会被打进包」来算。
@@ -77,11 +89,41 @@ function walk(dir, out) {
 }
 
 /**
+ * 读 app.json 的分包 root 列表（小程序同时兼容 subPackages / subpackages 两种写法）。
+ * 体积按包计算、引用扫描都要用它，所以单独抽出来。
+ */
+function readSubRoots() {
+  try {
+    const appJson = JSON.parse(fs.readFileSync(path.join(MINIPROGRAM, 'app.json'), 'utf8'));
+    const subs = appJson.subPackages || appJson.subpackages || [];
+    return subs.map((sp) => String(sp.root || '').replace(/^\/+|\/+$/g, '')).filter(Boolean);
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * 文件属于哪个包：命中分包 root 的返回 root 名，否则返回 null（主包）。
+ * root 可能互相嵌套，取最长的那个匹配（最具体）。
+ */
+function packageOf(rel, roots) {
+  let best = null;
+  roots.forEach((root) => {
+    if (rel === root || rel.indexOf(root + '/') === 0) {
+      if (!best || root.length > best.length) best = root;
+    }
+  });
+  return best;
+}
+
+/**
  * 找出打包目录里「没有任何文件引用」的 JS（开发者工具会静默跳过它们）。
  *
- * 入口来源：app.js + app.json 的 pages + 各 json 的 usingComponents；其余按
- * `require('相对路径')` 建立引用关系。只认静态相对路径 require —— 动态拼接的
+ * 入口来源：app.js + app.json 的 pages **与 subPackages[].pages** + 各 json 的 usingComponents；
+ * 其余按 `require('相对路径')` 建立引用关系。只认静态相对路径 require —— 动态拼接的
  * require 会漏判（那种情况本次也没出现），所以结果是**提示**而不是失败。
+ *
+ * 2026-11-06 修：原来只读 app.json.pages，24 个分包页全被误报「未引用」，提示长期刷屏失真。
  */
 function findUnreferencedJs(list) {
   const jsFiles = list.filter((f) => /\.js$/.test(f.file));
@@ -92,6 +134,14 @@ function findUnreferencedJs(list) {
   try {
     const appJson = JSON.parse(fs.readFileSync(path.join(MINIPROGRAM, 'app.json'), 'utf8'));
     (appJson.pages || []).forEach((p) => { entry[p + '.js'] = true; });
+    // 分包页的路径要拼上 root 才是打包目录里的真实路径
+    const subs = appJson.subPackages || appJson.subpackages || [];
+    subs.forEach((sp) => {
+      const root = String(sp.root || '').replace(/^\/+|\/+$/g, '');
+      (sp.pages || []).forEach((p) => {
+        entry[(root ? root + '/' : '') + String(p).replace(/^\/+/, '') + '.js'] = true;
+      });
+    });
   } catch (e) { /* app.json 读不到就算了 */ }
   list.filter((f) => /\.json$/.test(f.file)).forEach((f) => {
     try {
@@ -147,23 +197,48 @@ function main() {
   // 软提醒：只有图片（音频没法"按展示尺寸压"，提示也没意义）
   const soft = images.filter((f) => f.size / 1024 > SOFT_IMAGE_KB).sort((a, b) => b.size - a.size);
 
-  console.log('打包体积估算：' + list.length + ' 个文件 / ' + totalMB.toFixed(2) + ' MB'
+  // ---- 按「主包 / 各分包」分别算体积（2026-11-06 校准的关键）----
+  const subRoots = readSubRoots();
+  const subBytes = {};
+  let mainBytes = 0;
+  subRoots.forEach((r) => { subBytes[r] = 0; });
+  list.forEach((f) => {
+    const pkg = packageOf(f.file, subRoots);
+    if (pkg) subBytes[pkg] += f.size; else mainBytes += f.size;
+  });
+  const mainMB = mainBytes / 1024 / 1024;
+  const subList = subRoots.map((r) => ({ root: r, mb: subBytes[r] / 1024 / 1024 }));
+
+  console.log('打包体积估算：' + list.length + ' 个文件 / 总包 ' + totalMB.toFixed(2) + ' MB'
     + '（其中图片 ' + images.length + ' 张 / ' + imageMB.toFixed(2) + ' MB'
     + '、音频 ' + audios.length + ' 个 / ' + audioMB.toFixed(2) + ' MB）');
-  console.log('阈值：单个图片/音频 ≤ ' + MAX_FILE_KB + 'KB（硬限）、整包 ≤ ' + MAX_PACKAGE_MB + 'MB'
-    + '（微信主包 2MB 硬限）、**包内图片/音频总量 ≤ ' + MAX_MEDIA_TOTAL_KB + 'KB**（微信上传检测项）');
+  console.log('  主包 ' + mainMB.toFixed(2) + ' MB'
+    + (subList.length ? '；分包 ' + subList.map((s) => s.root + ' ' + s.mb.toFixed(2) + ' MB').join(' / ') : '；无分包'));
+  console.log('阈值：主包 ≤ ' + MAX_MAIN_MB + 'MB、单个分包 ≤ ' + MAX_SUB_MB + 'MB'
+    + '（微信硬限均 2MB，自留 0.2MB 余量）、总包 ≤ ' + MAX_TOTAL_MB + 'MB（微信硬限）、'
+    + '单个图片/音频 ≤ ' + MAX_FILE_KB + 'KB、**包内图片/音频总量 ≤ ' + MAX_MEDIA_TOTAL_KB + 'KB**（微信上传检测项）');
 
   if (process.argv.indexOf('--list') !== -1) {
     console.log('');
     console.log('最大的 20 个文件：');
     list.slice(0, 20).forEach((f) => {
-      console.log('  ' + (f.size / 1024).toFixed(1).padStart(8) + ' KB  ' + f.file);
+      const pkg = packageOf(f.file, subRoots);
+      console.log('  ' + (f.size / 1024).toFixed(1).padStart(8) + ' KB  [' + (pkg || '主包') + ']  ' + f.file);
     });
   }
 
   const problems = [];
-  if (totalMB > MAX_PACKAGE_MB) {
-    problems.push('整包 ' + totalMB.toFixed(2) + ' MB，超过 ' + MAX_PACKAGE_MB + 'MB');
+  if (mainMB > MAX_MAIN_MB) {
+    problems.push('主包 ' + mainMB.toFixed(2) + ' MB，超过 ' + MAX_MAIN_MB + 'MB（微信主包硬限 2MB）');
+  }
+  subList.forEach((s) => {
+    if (s.mb > MAX_SUB_MB) {
+      problems.push('分包 ' + s.root + ' ' + s.mb.toFixed(2) + ' MB，超过 ' + MAX_SUB_MB
+        + 'MB（微信单个分包硬限 2MB）');
+    }
+  });
+  if (totalMB > MAX_TOTAL_MB) {
+    problems.push('总包 ' + totalMB.toFixed(2) + ' MB，超过 ' + MAX_TOTAL_MB + 'MB（微信总包硬限）');
   }
   // 图片来源：mediaKB 在下方统计（图片 + 音频），这里先算总量
   const mediaKB = list.filter((f) => f.isImage || f.isAudio)
@@ -209,16 +284,16 @@ function main() {
     console.log((warnOnly ? 'WARN' : 'FAIL') + '  包体超限：');
     problems.forEach((p) => console.log('  ✗ ' + p));
     console.log('');
-    console.log('怎么办（三选一，见 docs/美术素材需求与豆包提示词.md）：');
+    console.log('怎么办（见 docs/美术素材需求与豆包提示词.md）：');
     console.log('  1) 压缩：python e2e/compress-assets.py（原图放 assets-src/ 不参与打包）；');
     console.log('  2) 云存储：图片传对象存储/CDN，端上按 URL 加载；');
-    console.log('  3) 分包：把用到大图的页面拆成分包（单分包 ≤2MB、整包 ≤20MB）。');
+    console.log('  3) 分包：把用到大图的页面拆成分包（微信：主包 ≤2MB、单分包 ≤2MB、总包 ≤20MB）。');
     if (!warnOnly) process.exitCode = 1;
     return;
   }
 
   console.log('');
-  console.log('OK  包体在阈值内');
+  console.log('OK  包体在阈值内（主包 ' + mainMB.toFixed(2) + ' MB / 总包 ' + totalMB.toFixed(2) + ' MB）');
 }
 
 main();

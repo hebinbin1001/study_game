@@ -39,6 +39,8 @@ cd study_game
 # 平时：只跑跟这次改动相关的模块（几秒~几分钟）。模块划分与「文件→模块」映射在
 #       e2e/lib/modules.js，选中模块会自动带上 static 静态护栏（--no-static 可关）。
 node e2e/run-all.js --changed              # 【推荐】按 git 改动自动推导该跑哪些模块
+# ↑ 受限环境里 spawn git 会 EPERM：此时 --changed 直接失败退出码 2 并提示改用 --module=，
+#   不会假装「没有改动」只跑静态判 PASS（2026-11-06 修的假绿灯；旧行为见 git 历史）
 node e2e/run-all.js --module=challenge     # 指定模块：static/assets/dict/challenge/game/wordgames/puzzle/user/server/pages
 node e2e/run-all.js --module=game,puzzle   # 多模块（逗号分隔）
 node e2e/run-all.js --list-modules         # 看模块表；会提示「还没归类的单测文件」
@@ -119,7 +121,8 @@ cloudbase cloudrun list -e prod-d6gnifjoe28cfd96f   # 看服务状态与更新�
 
 - **硬红线：`miniprogram/` 里所有图片 + 音频的体积之和 ≤ 200KB。**
 - 代码包里只放**必要**资源：对局立绘 `assets/skins/`（28 张，192px）+ tabbar 图标 `assets/tab/`（8 张）
-  ≈ 184KB。此外还有单文件 200KB、整包 1.8MB 两条线。
+  ≈ 184KB。此外还有单文件 200KB、主包 1.8MB、单分包 1.8MB、总包 20MB 几条线
+  （2026-11-06 按微信平台的**三条独立硬限**校准：主包 2MB / 单分包 2MB / 总包 20MB，前两条各留 0.2MB 余量）。
 - 其余静态资源一律放**打包路径以外**，用 URL 引入：
   - 成就图标、段位徽章 → 仓库根 **`art/`**，由云托管以 `/assets/**` 静态托管
     （`server/index.js` 挂 `express.static`，`Dockerfile` 里 `COPY art/ /app/art/`）；
@@ -129,6 +132,7 @@ cloudbase cloudrun list -e prod-d6gnifjoe28cfd96f   # 看服务状态与更新�
   - 美术原图（大图）→ `assets-src/`（gitignore，不打包、不入库）。
 - 压缩走现成脚本：`python e2e/compress-assets.py`（成就 → `art/`、皮肤 → 包内 192px）。
 - 校验：`node e2e/check-assets.js`（静态层，超限直接失败退出码 1）：
-  ① 包内图片/音频**总量** ≤200KB；② 单文件 ≤200KB；③ 整包 ≤1.8MB；④ 打包目录纯净度。
+  ① 包内图片/音频**总量** ≤200KB；② 单文件 ≤200KB；③ **主包 ≤1.8MB**（微信 2MB）；
+  ④ **单个分包 ≤1.8MB**（微信 2MB）；⑤ **总包 ≤20MB**（微信 20MB）；⑥ 打包目录纯净度。
 - 音频现状：包内**没有任何音频文件** —— 音效是 `game/audio.js` 用 WebAudio 现场合成的，发音走 TTS 插件。
   将来要加音频，同样计入这 200KB 总量。

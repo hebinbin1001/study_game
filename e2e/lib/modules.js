@@ -42,7 +42,9 @@ const MODULES = [
     id: 'assets',
     name: '资源与包体（图片音频限额 / 打包目录纯净度）',
     stages: ['assets'],
-    unit: ['art-url', 'assets-limit', 'skins-cdn', 'avatar-upload']
+    unit: ['art-url', 'assets-limit', 'skins-cdn', 'avatar-upload',
+      // 2026-11-06 补登记：玩法图标走 CDN（art/game-icons），改图标/目录必须过包体护栏
+      'game-icons']
   },
   {
     id: 'dict',
@@ -51,19 +53,25 @@ const MODULES = [
     unit: ['constants', 'data', 'dict', 'bank', 'level-picker', 'parser', 'validator', 'sensitive',
       'book-words', 'book-keys-parity', 'ipa',
       // 2026-10-28 词条例句（键悬空 / 句子不含该词 / 缺翻译都只影响显示，不会报错）
-      'examples']
+      'examples',
+      // 2026-11-06 补登记：题库与教材同步（越级词 / 音标 / 版本覆盖）+ 类型码中文名
+      'book-sync', 'type-label']
   },
   {
     id: 'challenge',
     name: '闯关与玩法线（主线 30 关 / 关卡页 / 玩法线 / 星级命名空间）',
     stages: ['challenge', 'lines'],
-    unit: ['challenge', 'challenge-lines', 'challenge-rewards', 'stars-reachable', 'next-level', 'rng']
+    unit: ['challenge', 'challenge-lines', 'challenge-rewards', 'stars-reachable', 'next-level', 'rng',
+      // 2026-11-06 补登记：云端成绩恢复关卡记录（app.js / level.js 都会调）
+      'star-recovery']
   },
   {
     id: 'game',
     name: '字母射击对局与结算（引擎 / 出题 / 渲染 / 结算页）',
     stages: ['game', 'result'],
-    unit: ['shoot', 'question', 'battle-fx']
+    unit: ['shoot', 'question', 'battle-fx',
+      // 2026-11-06 补登记：暂停弹层与固定操作按钮图标（对局公共组件，漏挂是静默失效）
+      'game-pause', 'ui-icons']
   },
   {
     id: 'wordgames',
@@ -73,7 +81,9 @@ const MODULES = [
       // 2026-10-28 玩法上报口径（休闲只给星、字词必须带真实题量）
       'casual-play-report',
       // 2026-10-28 首次进入的操作引导（21 个玩法页各挂一处，漏挂是静默失效）
-      'game-howto']
+      'game-howto',
+      // 2026-11-06 补登记：暂停弹层 / 固定操作按钮图标（14 个玩法页共用）
+      'game-pause', 'ui-icons']
   },
   {
     id: 'puzzle',
@@ -81,7 +91,10 @@ const MODULES = [
     stages: ['math24', 'klotski', 'g2048', 'puzzleLevel'],
     unit: ['balance', 'math-sprint', 'memory-grid', 'one-stroke', 'pattern', 'clock', 'maze', 'hanoi', 'math24-levels',
       'klotski', 'klotski-levels', 'g2048-levels', 'sudoku-stages', 'puzzle-levels',
-      'sprint-balance-grade', 'casual-play-report']
+      'sprint-balance-grade', 'casual-play-report',
+      // 2026-11-06 补登记：断点续玩（存档模块 + 6 个数字智力页的接线）、暂停弹层、
+      // 玩法图标（CDN 目录与页面兜底）
+      'puzzle-resume', 'game-pause', 'ui-icons', 'game-icons']
   },
   {
     id: 'user',
@@ -99,7 +112,11 @@ const MODULES = [
       // 2026-10-28 字词定级测（推荐年级会写进全局设置，判错整站错档）
       'level-test',
       // 2026-10-28 生词本（字段规范化错了会让同一个词存成两条）
-      'favorite-book']
+      'favorite-book',
+      // 2026-11-06 补登记：管理端运营控制、皮肤墙布局、换肤回首页、段位封顶存量修复、
+      // 云端成绩恢复、类型码中文名、断点续玩的页面接线
+      'admin-controls', 'avatar-layout', 'avatar-skin-equip', 'backfill-exam-tier',
+      'star-recovery', 'type-label', 'puzzle-resume-pages']
   },
   {
     id: 'social',
@@ -117,13 +134,17 @@ const MODULES = [
     unit: ['sequelize-operators', 'rank-stars', 'checkin-rewards', 'rank-eligibility',
       'admin-query', 'game-names', 'seed-parity', 'grade-keys-parity', 'ensure-tables',
       // 2026-10-29 补签卡：streak 重算算错会让用户从那天起每天的连续天数都错
-      'makeup-card']
+      'makeup-card',
+      // 2026-11-06 补登记：管理端服务端约束 + 老用户段位封顶存量修复
+      'admin-controls', 'backfill-exam-tier']
   },
   {
     id: 'pages',
     name: '页面渲染回归与真机黑屏探针（35 页）',
     stages: ['pages', 'load'],
-    unit: ['play-counts', 'index-entries']
+    unit: ['play-counts', 'index-entries',
+      // 2026-11-06 补登记：断点续玩的 6 个页面接线（关卡页 / 2048 / 华容道 / 汉诺塔…）
+      'puzzle-resume-pages']
   },
   {
     id: 'tools',
@@ -244,6 +265,13 @@ const PATH_RULES = [
   { re: /^miniprogram\/pages\/admin\//, modules: ['user', 'server', 'pages'] },
   { re: /^miniprogram\/utils\/(storage|auth|skins|review|wrong-book-view|achievement-view|rel-time)\.js$/,
     modules: ['user'] },
+  // 2026-11-06：以下公共模块此前不在「改动 → 该跑什么」映射里，改它们只能靠人记 —— 补上。
+  { re: /^miniprogram\/utils\/star-recovery\.js$/, modules: ['user', 'challenge'] },
+  { re: /^miniprogram\/utils\/puzzle-resume\.js$/, modules: ['puzzle', 'pages'] },
+  // 暂停弹层 / 结算弹层的图标映射，玩法页共用
+  { re: /^miniprogram\/utils\/ui-icons\.js$/, modules: ['game', 'wordgames', 'puzzle'] },
+  { re: /^miniprogram\/utils\/type-label\.js$/, modules: ['user', 'dict'] },
+  { re: /^miniprogram\/utils\/game-catalog\.js$/, modules: ['puzzle', 'wordgames', 'pages'] },
   { re: /^miniprogram\/utils\/art\.js$/, modules: ['user', 'assets'] },
 
   // 公共模块：刻意映射到多个模块（改一处会牵连多处）
@@ -361,10 +389,23 @@ function modulesForPath(file) {
   return null;   // null = 没匹配到（调用方会提示补映射）
 }
 
-/** 用 git 看当前改了哪些文件（含未跟踪） */
+/**
+ * 用 git 看当前改了哪些文件（含未跟踪）。
+ *
+ * 返回值三态（2026-11-06 修）：
+ *   · 字符串数组 —— 正常，可能为空（工作区干净）；
+ *   · []          —— 工作区真的没有改动；
+ *   · null        —— **git 命令没跑起来**（spawn 失败 / 非 0 退出）。
+ *
+ * 为什么要把 null 和 [] 分开：受限环境里 spawnSync('git', …) 会直接 EPERM，
+ * 原来两者都返回 []，`--changed` 就打印「没有检测到改动文件」然后只跑静态六项、
+ * 判 PASS —— 这正是本项目最忌讳的**假绿灯**（改动没测就"通过"）。现在调用方
+ * 遇到 null 会出声失败，让人改用 `--module=…` 或修环境，而不是被静默放过。
+ */
 function changedPaths(cwd) {
   const r = spawnSync('git', ['status', '--porcelain'], { cwd: cwd, encoding: 'utf8' });
-  if (r.status !== 0 || !r.stdout) return [];
+  if (r.error || r.status !== 0) return null;
+  if (!r.stdout) return [];
   return r.stdout.split('\n').map(function (line) {
     if (!line.trim()) return '';
     // 形如 " M path" / "?? path" / "R  old -> new"
