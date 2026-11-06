@@ -13,7 +13,7 @@
     <button class="bank-nav-back" bindtap="onHeaderBack">‹</button>
     <view class="bk-head-t">
       <view class="bk-title">{{viewMode === 'library' ? '词库书架' : '词库详情'}}</view>
-      <view class="bk-sub">{{viewMode === 'library' ? '先选词库，再浏览和编辑词条' : activeLibraryLabel}} · {{syncing ? '同步中…' : curBookName}}</view>
+      <view class="bk-head-sub">{{viewMode === 'library' ? '先选词库，再浏览和编辑词条' : activeLibraryLabel}} · {{syncing ? '同步中…' : curBookName}}</view>
     </view>
   </view>
 

@@ -74,9 +74,12 @@ Page({
 
   // 本地出题：看词选义（随机学段+题型，选项=1 正确 + 3 干扰释义）
   _genQuestion: function () {
+    // 2026-11-06 截图巡检：诗句类词条的 hint 是「出处」而不是释义
+    // （如「王维九月九日忆山东兄弟」），当题目或干扰项都会驴唇不对马嘴 → 统一过滤。
+    var quickQuiz = require('../../utils/quick-quiz');
     var grades = constants.GRADES;
     var g = grades[Math.floor(Math.random() * grades.length)];
-    var items = dict.loadByGrade(g.key);
+    var items = (dict.loadByGrade(g.key) || []).filter(quickQuiz.hasMeaningHint);
     if (!items || !items.length) return;
     var item = items[Math.floor(Math.random() * items.length)];
     var correct = item.hint || item.a;

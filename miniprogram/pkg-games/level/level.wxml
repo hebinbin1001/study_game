@@ -48,7 +48,9 @@
         data-at="{{item.at}}"
         bindtap="claimChest">
         <text class="chest-chip__ic">{{item.claimed ? '📦' : (item.claimable ? '🎁' : '🔒')}}</text>
-        <text class="chest-chip__tx">{{item.claimed ? item.label + ' · 已领' : (item.claimable ? item.label + ' · 领取' : item.label)}}</text>
+        <!-- 2026-11-06：可领取/已领取只写动作，避免「30 关 · 毕业」再拼「 · 领取」被截断；
+             未达标时仍显示完整里程碑名（含毕业）。 -->
+        <text class="chest-chip__tx">{{item.claimed ? '已领' : (item.claimable ? '领取' : item.label)}}</text>
       </view>
     </view>
   </view>

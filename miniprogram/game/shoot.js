@@ -96,10 +96,15 @@ function buildPad(needed, bank) {
     const src = candidates.length ? candidates : fallback;
     const ch = src[rand(src.length)];
     // 英文题：同一字母最多比需要的多给一份，避免面板全是同一个字母
+    // 中文题：**同一个字只能出现一次**（答案本身需要的重复已预先放进 pool）——
+    //   2026-11-06 截图巡检发现 kg「刀」的面板里出现了两个「刀」：两个按钮文字一样，
+    //   玩家分不清点哪个，看起来像 bug。实测 300 次抽样有 126 次出现重复格。
     if (isEn) {
       const already = pool.filter((c) => c.toLowerCase() === ch.toLowerCase()).length;
       const need = needed.filter((c) => c.toLowerCase() === ch.toLowerCase()).length;
       if (already > need) continue;
+    } else if (pool.indexOf(ch) !== -1) {
+      continue;
     }
     pool.push(ch);
   }

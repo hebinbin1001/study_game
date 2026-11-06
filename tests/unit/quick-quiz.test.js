@@ -110,4 +110,34 @@ s.test('buildQuizFromItems：空列表返回空数组，不抛异常（空生词
   s.assert.deepEqual(quiz.buildQuizFromItems(null, 'x', 10), []);
 });
 
+// 2026-11-06 截图巡检：每日一题的干扰项里出现了「王维九月九日忆山东兄弟」。
+// 根因是 c2 里 5/7 字的**诗句**词条 hint 存的是「出处」而不是释义，
+// 却被当成「看词选义」的干扰项。这里用构造池钉死过滤规则。
+s.test('诗句的「出处」不会混进看词选义的题目或干扰项（2026-11-06）', () => {
+  const pool = [
+    { type: 'w1', a: 'effort', hint: '努力' },
+    { type: 'w1', a: 'danger', hint: '危险' },
+    { type: 'w1', a: 'finish', hint: '完成' },
+    { type: 'w1', a: 'beautiful', hint: '美丽的' },
+    // 五言诗句：hint 是出处，不是释义 → 不能当题，也不能当干扰项
+    { type: 'c2', q: '*火烧不*', a: '野火烧不尽', hint: '白居易赋得古原草送别' },
+    // 四字成语：hint 是释义 → 正常参与
+    { type: 'c2', q: '*心*意', a: '一心一意', hint: '形容专心' }
+  ];
+  s.assert.equal(quiz.hasMeaningHint(pool[4]), false, '五言诗句不该算「有释义」');
+  s.assert.equal(quiz.hasMeaningHint(pool[5]), true, '四字成语的 hint 是释义，应保留');
+
+  for (let seed = 1; seed <= 30; seed++) {
+    const list = quiz.buildQuizFromItems(pool, 'poem-' + seed, pool.length, pool);
+    s.assert.ok(list.length > 0, '过滤后仍应出得了题');
+    list.forEach((q) => {
+      const texts = q.options.map((o) => o.text);
+      s.assert.ok(texts.indexOf('白居易赋得古原草送别') < 0,
+        '诗句出处混进了选项：' + texts.join(' / '));
+      s.assert.notEqual(q.word, '野火烧不尽', '五言诗句不该出成「看词选义」题');
+      s.assert.equal(q.options.length, 4, '过滤后仍须凑满 4 个选项');
+    });
+  }
+});
+
 s.done();

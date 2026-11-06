@@ -256,9 +256,11 @@ Page({
     // 2026-10-08 再次收紧：加上「👑 BOSS」前缀后，卡片右侧还有「换关卡」按钮，
     // 「玩法 · 学段 · 第 N 关」整串会顶到按钮底下。学段信息在关卡页/首页顶部都有，
     // 这里优先保住「玩什么 + 第几关」。
-    var continueHint = (contLv && contLv.isBoss ? '👑 BOSS · ' : '')
-      + (contLv ? contLv.modeLabel : '字母射击')
-      + ' · 第 ' + cont.level + ' 关'
+    // 2026-11-06：Boss 关不再重复玩法名（「👑 BOSS · 字母射击 · 第 30 关」在卡片里会挤成
+    // 「第 3…」）。Boss 卡就在上面，已经写明是哪个玩法；这里只留「第 N 关」。
+    var continueHint = (contLv && contLv.isBoss
+      ? '👑 BOSS · 第 ' + cont.level + ' 关'
+      : (contLv ? contLv.modeLabel : '字母射击') + ' · 第 ' + cont.level + ' 关')
       + (cont.allPassed ? '（可刷星）' : '');
 
     var dailyDone = false;

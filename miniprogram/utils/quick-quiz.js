@@ -48,6 +48,24 @@ function meaningOf(item) {
 }
 
 /**
+ * 该词条的 hint 是不是「释义」（能不能拿来当看词选义的干扰项）。
+ *
+ * 2026-11-06 截图巡检发现：每日一题的选项里出现了「王维九月九日忆山东兄弟」——
+ * 因为 c2 里 4 字的是成语（hint = 释义「形容专心」），5/7 字的是**古诗名句**
+ * （hint = 出处「王维九月九日忆山东兄弟」）。后者被当成干扰项就会驴唇不对马嘴。
+ * 判据：c2 的答案去星后 ≤4 字才算释义；诗句（五言/七言）不进释义池，也不出「看词选义」题。
+ *
+ * @param {Object} item
+ * @returns {boolean}
+ */
+function hasMeaningHint(item) {
+  var t = String((item && item.type) || '');
+  if (t !== 'c2') return true;
+  var a = String((item && (item.a || item.q || item.word)) || '').replace(/\*/g, '');
+  return a.length <= 4;
+}
+
+/**
  * 组一套题。
  * @param {string} grade 学段 key
  * @param {number|string} seed 种子（数字或字符串，字符串会自动 hash）
@@ -68,9 +86,13 @@ function meaningOf(item) {
  * @param {Array<Object>} distractorPool 干扰项池（为空则退回出题池）
  */
 function buildCore(pickPool, seed, count, distractorPool) {
-  var items = pickPool;
+  // 诗句类词条没有「释义」概念，既不适合当看词选义题，也不能当干扰项；
+  // 过滤后若池子空了（理论上不会）就退回原池，宁可题面一般也别空着。
+  var items = (pickPool || []).filter(hasMeaningHint);
+  if (!items.length) items = pickPool;
   if (!items || !items.length) return [];
-  var poolBase = distractorPool && distractorPool.length ? distractorPool : items;
+  var basePool = (distractorPool && distractorPool.length ? distractorPool : items).filter(hasMeaningHint);
+  var poolBase = basePool.length ? basePool : (distractorPool && distractorPool.length ? distractorPool : items);
 
   var want = Math.max(1, Math.min(parseInt(count, 10) || 10, items.length));
   var rand = rng.makeRng(seed);
@@ -142,5 +164,6 @@ module.exports = {
   buildQuiz: buildQuiz,
   buildQuizFromItems: buildQuizFromItems,
   wordOf: wordOf,
-  meaningOf: meaningOf
+  meaningOf: meaningOf,
+  hasMeaningHint: hasMeaningHint
 };

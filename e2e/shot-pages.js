@@ -78,6 +78,12 @@ const PAGES = [
   { id: 'avatar', url: '/pages/avatar/avatar' },
   { id: 'custom-levels', url: '/pages/custom-levels/custom-levels' },
   { id: 'checkin', url: '/pages/checkin/checkin' },
+  // 设置页（2026-10-28 新增，2026-11-06 补「意见反馈」入口）：之前漏在截图清单外
+  { id: 'settings', url: '/pages/settings/settings' },
+  // 2026-11-06：生词本 / 定级测 之前也漏在截图清单外（头部的对比度问题就是在这些页上发现的）
+  { id: 'favorite', url: '/pages/favorite/favorite' },
+  { id: 'level-test', url: '/pages/level-test/level-test' },
+  { id: 'share-card', url: '/pages/share-card/share-card' },
   { id: 'daily-question', url: '/pages/daily-question/daily-question' },
   // 2026-10-08 三件套：每日挑战 / 赛季 / 好友 PK
   { id: 'daily-challenge', url: '/pages/daily-challenge/daily-challenge' },

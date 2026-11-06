@@ -111,7 +111,10 @@
       <text class="battle-row__ic">⚔️</text>
       <view class="battle-row__t">
         <view class="battle-row__b">出战</view>
-        <view class="battle-row__s">{{continuePlayable ? '继续上次 · ' + continueHint : '从第 1 关开始'}}</view>
+        <!-- 2026-11-06：原来这里还拼了「继续上次 · 」前缀，加上 👑/玩法名后整串被
+             ellipsis 截成「第 3…」（截图巡检发现）。"出战" 本身已表达继续语义，
+             前缀去掉；Boss 关的玩法名在 continueHint 里也不再重复（上面的 Boss 卡有说明）。 -->
+        <view class="battle-row__s">{{continuePlayable ? continueHint : '从第 1 关开始'}}</view>
       </view>
       <text wx:if="{{continueStars > 0}}" class="battle-row__stars">★{{continueStars}}</text>
       <view class="battle-row__sw" catchtap="goLevel">换关卡</view>

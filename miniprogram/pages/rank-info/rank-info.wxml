@@ -14,8 +14,12 @@
     <view class="ri-bar">
       <view class="ri-bar__fill" style="width: {{progress}}%"></view>
     </view>
+    <!-- 2026-11-06（D12 连带修正）：被封顶时展示星数不会再涨，写「还差 N 星」是句
+         做不到的承诺（考试没过就永远差这 1 星）。此时改为指向晋级考试。 -->
     <view class="ri-next">
-      {{isMax ? '已经是最高段位啦 🎉' : ('距离 ' + nextName + ' 还差 ' + need + ' 星')}}
+      <block wx:if="{{isMax}}">已经是最高段位啦 🎉</block>
+      <block wx:elif="{{needExam}}">考试通过后即可进入 {{nextName}}</block>
+      <block wx:else>距离 {{nextName}} 还差 {{need}} 星</block>
     </view>
   </view>
 

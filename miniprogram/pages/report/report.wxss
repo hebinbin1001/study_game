@@ -23,7 +23,8 @@ page {
 .rep-sub {
   text-align: center;
   font-size: var(--fs-cap);
-  color: var(--ink-sub);
+  /* 2026-11-06（D6 回归修正）：副标题压在天色渐变上，深灰在加深后的首色上几乎看不见 → 改白 */
+  color: rgba(255, 255, 255, .85);
   margin: 12rpx 0 28rpx;
 }
 

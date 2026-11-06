@@ -21,7 +21,8 @@
   line-height: 84rpx;
   text-align: center;
   font-size: var(--fs-display);
-  color: var(--ink);
+  /* 2026-11-06（D6 回归修正）：返回箭头直接压在天色渐变上 → 改白 */
+  color: var(--white);
 }
 .fv-head-t {
   flex: 1;
@@ -30,12 +31,15 @@
 .fv-title {
   font-size: var(--fs-title);
   font-weight: 900;
-  color: var(--ink);
+  /* 2026-11-06（D6 回归修正）：头部直接压在天色渐变上，深色字对比度不足 → 改白 */
+  color: var(--white);
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, .12);
 }
 .fv-sub {
   margin-top: 2rpx;
   font-size: var(--fs-cap);
-  color: var(--ink-weak);
+  /* 2026-11-06（D6 回归修正）：压在渐变上 → 改白 85% */
+  color: rgba(255, 255, 255, .85);
 }
 .fv-icon {
   width: 72rpx;

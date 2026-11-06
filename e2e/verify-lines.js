@@ -56,6 +56,15 @@ async function main() {
     const rows = await H.withTimeout(lvPage.$$('.lvrow'), 10000, 'query .lvrow');
     ck.check('关卡行渲染出来了', (rows || []).length === 30, '实际 = ' + (rows || []).length);
     await H.withTimeout(rows[0].tap(), 10000, 'tap first row');
+    // 2026-10-28 起关卡页新增「开打前认词」预习卡：0 星的关点了会先弹 .pv-mask，
+    // 必须再点「开始挑战 ▶」才进对局。2026-11-06 修：本用例一直没处理这一步，
+    // 于是只要该关是全新的（本次 E2E 环境里 g1 玩法线就是 0 星）就一定卡在关卡页。
+    await lvPage.waitFor(800);
+    const pvGo = await lvPage.$('.pv-go');
+    if (pvGo) {
+      await H.withTimeout(pvGo.tap(), 8000, 'tap .pv-go');
+      await lvPage.waitFor(400);
+    }
     await lvPage.waitFor(1500);
     const afterTap = await mp.currentPage();
     ck.check('落到词语连连看页', afterTap.path === LINK_PAGE, '实际 = ' + afterTap.path);
@@ -127,10 +136,22 @@ async function main() {
     const casual = await pl.data();
     ck.check('切到数字智力分段', casual.curSection === 'casual', '实际 = ' + casual.curSection);
     // 2026-10-21：单词弹弹球补齐词库过滤与成绩上报后开放。
-    ck.check('数字智力 13 款可玩', (casual.games || []).length === 13, '实际 = ' + (casual.games || []).length);
-    ck.check('单词弹弹球已进入玩法网格',
-      (casual.games || []).some(function (g) { return g.key === 'bounce'; }),
-      '实际 = ' + JSON.stringify((casual.games || []).map(function (g) { return g.key; })));
+    // 2026-11-06 修：旧断言写死「13 款全部在网格里」，但网格会隐藏**运营暂停**的玩法
+    // （pausedGames 来自 /api/game-status）。线上当前把 bounce 暂停了 → 这条断言
+    // 会随运营开关红/绿，属于环境依赖的假失败。改成「目录数 − 暂停数」的口径。
+    const catalog = require('../miniprogram/utils/game-catalog');
+    const casualCatalog = catalog.filter(function (g) { return g.section === 'casual'; });
+    const paused = casual.pausedGames || [];
+    const expectKeys = casualCatalog
+      .filter(function (g) { return paused.indexOf(g.key) < 0; })
+      .map(function (g) { return g.key; });
+    ck.check('数字智力可玩款数 = 目录 ' + casualCatalog.length + ' 款 − 运营暂停 '
+      + paused.filter(function (k) { return casualCatalog.some(function (g) { return g.key === k; }); }).length + ' 款',
+      (casual.games || []).length === expectKeys.length, '实际 = ' + (casual.games || []).length);
+    ck.check('网格里的玩法 = 目录里未暂停的那批',
+      JSON.stringify((casual.games || []).map(function (g) { return g.key; })) === JSON.stringify(expectKeys),
+      '实际 = ' + JSON.stringify((casual.games || []).map(function (g) { return g.key; }))
+      + ' / 期望 = ' + JSON.stringify(expectKeys));
 
     // ---------- F. 最后一关不给「下一关」（放在最后：会 reLaunch，销毁前面的 page 句柄） ----------
     console.log('[6/6] 最后一关不给「下一关」');

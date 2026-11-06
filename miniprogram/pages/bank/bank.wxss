@@ -43,12 +43,18 @@
   padding: 0;
   box-shadow: var(--clay-2);
 }
-.bk-title { font-size: var(--fs-title); font-weight: 900; color: var(--ink-deep); }
-.bk-sub { margin-top: 4rpx; font-size: var(--fs-cap); color: var(--ink-sub); }
+/* 2026-11-06（D6 回归修正）：导航栏与页面首色加深到 #2d74b8 后，深色标题在顶部天空上
+   对比度从 3.2:1 掉到 1.86:1（`--ink-sub` 更是只剩 1.16:1，几乎看不见）。
+   头部直接压在渐变上的文字统一改白：与 wrong-book / report / rank-info 等页一致。 */
+.bk-title { font-size: var(--fs-title); font-weight: 900; color: var(--white); text-shadow: 0 4rpx 0 rgba(0, 0, 0, .12); }
+/* 头部副标题：2026-11-06 改名 bk-head-sub —— 原来和「词条副行」共用 .bk-sub，
+   后者（第 519 行）把 color 覆盖回 ink-sub，头部灰色字压在深色天色上几乎看不见。 */
+.bk-head-sub { margin-top: 4rpx; font-size: var(--fs-cap); color: rgba(255, 255, 255, .85); }
 
 .library-intro { margin: 24rpx 6rpx 16rpx; }
-.library-intro-title { font-size: var(--fs-strong); font-weight: 900; color: var(--ink-deep); }
-.library-intro-sub { margin-top: 6rpx; font-size: var(--fs-cap); color: var(--ink-sub); }
+/* 2026-11-06（D6 回归修正）：这一段也直接压在天色渐变上（不在卡片里）→ 改白 */
+.library-intro-title { font-size: var(--fs-strong); font-weight: 900; color: var(--white); text-shadow: 0 2rpx 0 rgba(0, 0, 0, .10); }
+.library-intro-sub { margin-top: 6rpx; font-size: var(--fs-cap); color: rgba(255, 255, 255, .85); }
 .library-scroll { flex: 1 1 auto; min-height: 0; }
 .library-grid { display: flex; flex-wrap: wrap; gap: 16rpx; align-content: flex-start; }
 .library-card {
@@ -127,7 +133,8 @@
   flex: 0 0 auto;
   font-size: var(--fs-cap);
   font-weight: 800;
-  color: var(--ink-sub);
+  /* 2026-11-06：同样压在渐变上，深色字在 #2d74b8 上几乎看不见，改白 */
+  color: rgba(255, 255, 255, .85);
 }
 .bk-field .bk-row-scroll {
   flex: 1;

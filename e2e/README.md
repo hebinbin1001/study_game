@@ -136,6 +136,34 @@ await H.clearGameGates(page);          // 形态选择层 + 新手引导 ×3
 await H.waitForCount(page, '.option', 4, 20000);
 ```
 
+### 3.5 关卡页的「预习卡」和「运营暂停」两个环境口径（2026-11-06 补）
+
+这两条是 `verify-lines` 长期假红的根因，写新用例时先看一眼：
+
+1. **点 0 星的关会先弹「开打前认词」预习卡**（`.pv-mask`，2026-10-28 新增）——
+   点完关卡行还要再点 `.pv-go`（「开始挑战 ▶」）才进对局。存档全新的机器上必定遇到，
+   不处理就会断言「落到 XX 玩法页 实际 = level/level」：
+
+   ```js
+   await rows[0].tap();
+   await page.waitFor(800);
+   const pvGo = await page.$('.pv-go');
+   if (pvGo) { await pvGo.tap(); await page.waitFor(400); }
+   ```
+
+2. **玩法网格会隐藏「运营暂停」的玩法**（`/api/game-status` → `pausedGames`）。
+   断言「数字智力 N 款」这种写死数字的，运营开关一改就假红。用动态口径：
+
+   ```js
+   const catalog = require('../miniprogram/utils/game-catalog');
+   const casualCatalog = catalog.filter((g) => g.section === 'casual');
+   const paused = (await pl.data()).pausedGames || [];
+   const expect = casualCatalog.filter((g) => paused.indexOf(g.key) < 0).map((g) => g.key);
+   ```
+
+> 另外：**跑 E2E 期间不要改 `miniprogram/` 下的文件** —— 开发者工具会自动重编译，
+> 正在跑的用例可能读到半新半旧的页面，出现偶发假失败。改完再跑。
+
 ### 4. 涉及定时器/主循环的玩法，先冻结再手动步进
 
 **这是本仓最容易踩的坑**：开发者工具窗口不处于前台时，模拟器会对 canvas 的

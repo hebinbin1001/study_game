@@ -74,6 +74,29 @@ s.test('面板规模：正确字母之外至少再给若干干扰，且总数不
   s.assert.ok(r.pad.length >= CONFIG.padMinCount, '面板数量应 ≥ ' + CONFIG.padMinCount);
 });
 
+// 2026-11-06 截图巡检发现：kg「刀」这题的面板里出现了两个「刀」（一个答案 + 一个干扰），
+// 两个按钮文字完全一样，玩家分不清点哪个。根因是 buildPad 的中文分支没做去重
+// （英文分支早就有「同字母最多多给一份」的限制）。这里用真实词库抽样钉死。
+s.test('中文面板不得出现重复字（答案本身需要的重复除外）', () => {
+  const kg = require('../../miniprogram/data/kg');
+  const single = kg.items.filter((i) => i.type === 'c1' && i.a && String(i.a).length === 1);
+  s.assert.ok(single.length >= 8, 'kg 单字题太少（' + single.length + '），抽样会失真');
+  let bad = 0;
+  for (let t = 0; t < 300; t++) {
+    const item = single[t % single.length];
+    const r = shoot.buildRound(item, kg.items);
+    const need = {};
+    r.needed.forEach((ch) => { need[ch] = (need[ch] || 0) + 1; });
+    const count = {};
+    r.pad.forEach((c) => { count[c.text] = (count[c.text] || 0) + 1; });
+    Object.keys(count).forEach((ch) => {
+      // 非答案字最多出现 1 次；答案字最多出现「它需要填的次数」
+      if (count[ch] > Math.max(need[ch] || 0, 1)) bad++;
+    });
+  }
+  s.assert.equal(bad, 0, '中文面板出现重复字 ' + bad + ' 次（玩家分不清点哪个）');
+});
+
 // ============ 判定 ============
 
 s.test('点对：消耗该格、填进第一个空槽、filled 递增', () => {

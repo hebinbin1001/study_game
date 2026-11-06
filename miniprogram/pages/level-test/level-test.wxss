@@ -20,12 +20,14 @@
   margin-top: var(--sp-1);
   font-size: var(--fs-title);
   font-weight: 900;
-  color: var(--ink);
+  /* 2026-11-06（D6 回归修正）：hero 直接压在天色渐变上，深色字对比度不足 → 改白 */
+  color: var(--white);
+  text-shadow: 0 4rpx 0 rgba(0, 0, 0, .12);
 }
 .lt-hero__s {
   margin-top: var(--sp-1);
   font-size: var(--fs-cap);
-  color: var(--ink-sub);
+  color: rgba(255, 255, 255, .85);
 }
 
 .lt-card {
