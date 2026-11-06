@@ -64,7 +64,10 @@ s.test('条目数与 count 字段一致，且不低于各档下限', () => {
       key + ' 条目数 ' + items.length + ' 低于下限 ' + MIN_ITEMS[key]);
     total += items.length;
   }
-  s.assert.ok(total >= 2400, '14 档合计仅 ' + total);
+  // 2026-11-06（D10 方案 A）：g3 移出 44 条超纲成语（并入 g6，总量不变）、
+  // g4 清掉 30 条与 kg/g1/g2 重复的兜底填充、g5 清掉 10 条错标成 c2 的诗句。
+  // 净减 40 条 → 总量基线从 2400 下调到 2383（各档下限一个没动，仍能拦住「整档被删空」）。
+  s.assert.ok(total >= 2383, '14 档合计仅 ' + total);
   // 学段 key 与 constants.GRADES 一一对应
   s.assert.equal(Object.keys(all).length, 14);
 });

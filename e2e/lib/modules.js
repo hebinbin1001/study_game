@@ -240,7 +240,7 @@ const PATH_RULES = [
   // 词条例句（2026-10-28）：改例句只影响错题卡上那行小字，顺带跑 user 是因为
   // 错题卡的渲染护栏在那边（wrong-book-view）
   { re: /^miniprogram\/data\/examples\.js$/, modules: ['dict', 'user'] },
-  { re: /^miniprogram\/data\//, modules: ['puzzle', 'dict'] },
+  { re: /^miniprogram\/data\//, modules: ['dict', 'challenge', 'game', 'wordgames', 'puzzle'] },
   { re: /^miniprogram\/pages\/bounce\//, modules: ['wordgames'] },
   // 玩法操作引导（2026-10-28）：文案 + 组件 + 21 个玩法页的挂载点
   { re: /^miniprogram\/utils\/game-howto\.js$/, modules: ['wordgames', 'puzzle', 'challenge'] },
