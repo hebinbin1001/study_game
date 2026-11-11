@@ -250,5 +250,21 @@ check(adminRouteSrc.includes('admin-query') && adminRouteSrc.includes('searchOpe
       + bad.slice(0, 6).join('\n      '));
 })();
 
+// 13) 版本号单一来源（2026-11-11）：用户要求把版本号更新为 1.2.11。
+// 改之前「我的」页写死 `v1.2.0`、设置页开发版显示「开发版」——两处各写各的，迟早对不上。
+// 现在统一走 constants.APP_VERSION：常量只定义一次，两处都从它取，WXML 里不许再出现写死的版本号。
+(function checkAppVersionSingleSource() {
+  const c = fs.readFileSync('miniprogram/utils/constants.js', 'utf8');
+  const m = /const\s+APP_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/.exec(c);
+  check(!!m, 'constants.js 定义 APP_VERSION（x.y.z）');
+  const meWxml = fs.readFileSync('miniprogram/pages/me/me.wxml', 'utf8');
+  check(meWxml.indexOf('{{appVersion}}') !== -1, '「我的」页版本号使用 {{appVersion}}');
+  check(!/v\d+\.\d+\.\d+/.test(meWxml), '「我的」页不许写死版本号（要从 APP_VERSION 取）');
+  const meJs = fs.readFileSync('miniprogram/pages/me/me.js', 'utf8');
+  check(meJs.indexOf('APP_VERSION') !== -1, 'me.js 的 appVersion 来自 constants.APP_VERSION');
+  const setJs = fs.readFileSync('miniprogram/pages/settings/settings.js', 'utf8');
+  check(setJs.indexOf('APP_VERSION') !== -1, '设置页版本号来自 constants.APP_VERSION');
+})();
+
 console.log(fail ? `\n=== ${fail} 项失败 ===` : '\n=== 全部通过 ===');
 process.exit(fail ? 1 : 0);

@@ -57,6 +57,8 @@ var GROUP_ORDER = ['成长', '对战', '学习', '通用'];
 
 Page({
   data: {
+    // 版本号唯一来源：constants.APP_VERSION（发布时与上传 -v 参数保持一致）
+    appVersion: constants.APP_VERSION,
     loggedIn: false,
     nickname: '',
     avatarUrl: '',

@@ -61,6 +61,19 @@ git 历史里包内图标也一直是 36×36（无被删的大图）。所以「
 验证：模拟器截图确认（保存/返回同宽、账号行完整可见）；`--only=pages` E2E PASS（149.2s）；
 `--changed --no-e2e` 8/8 PASS。
 
+### 版本号统一为 1.2.11（2026-11-11 用户要求）
+
+改之前版本号是两处各写各的：「我的」页底部写死 `v1.2.0`，设置页开发版显示「开发版」
+（线上版才取微信注入的版本）。现在收敛成**唯一来源** `constants.APP_VERSION = '1.2.11'`：
+
+- `miniprogram/utils/constants.js`：新增 `APP_VERSION` 常量并导出；
+- 「我的」页：`me.js` 的 `appVersion` 从常量取，`me.wxml` 用 `{{appVersion}}`，不再写死；
+- 设置页：开发版/体验版 `getAccountInfoSync()` 拿不到版本号时回退到 `APP_VERSION`（原来回退「开发版」）；
+- 新增静态护栏（`e2e/structure-check.js` 第 13 条）：常量必须存在、两页必须从它取、WXML 不许写死版本号。
+- 发布约定：**开发者工具上传时 `-v 1.2.11`**，与常量保持一致（README / 当前未完成事项已写明）。
+
+验证：模拟器截图确认「我的」底部 `v1.2.11`、设置页版本 `1.2.11`；`e2e/structure-check.js` 新增 5 条断言全 PASS。
+
 ### 验证
 
 - `tests/unit/examples.test.js` 11/11（3644 断言）；

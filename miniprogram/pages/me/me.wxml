@@ -98,7 +98,8 @@
   <!-- 底部：协议（低频，从菜单移到这里）+ 版本号（连点 5 次进管理后台，普通用户看不到入口） -->
   <view class="version-row">
     <text class="version-link" bindtap="goAgreement">用户协议与隐私政策</text>
-    <text class="version" bindtap="onVersionTap">词力战士 · Word Warrior v1.2.0</text>
+    <!-- 2026-11-11：版本号不再写死，统一读 constants.APP_VERSION（当前 1.2.11） -->
+    <text class="version" bindtap="onVersionTap">词力战士 · Word Warrior v{{appVersion}}</text>
   </view>
 
   <!-- 2026-10-28 删掉 <view class="safe-gap">：

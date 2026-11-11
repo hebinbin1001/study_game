@@ -12,6 +12,12 @@
  *   - 游戏配置默认值（REQ-NFR-5、REQ-GAME-3）
  */
 
+// ============ 零、应用版本（唯一来源） ============
+// 「我的」页底部与设置页「版本」都读这里，**不许各自写死**（2026-11-11 用户要求更新为 1.2.11）。
+// 发布时把这里和开发者工具上传时的 `cli.bat upload -v` 参数保持一致：
+// 线上版的版本号由微信注入（getAccountInfoSync），开发版/体验版拿到的是空串，回退到本常量。
+const APP_VERSION = '1.2.11';
+
 // ============ 一、学段枚举（7 个学段，REQ-DICT-1） ============
 // 学段 = 年级（2026-10-08 起按年级细分，共 14 档）。
 //
@@ -204,6 +210,7 @@ function isItemInGroup(item, groupKey) {
 }
 
 module.exports = {
+  APP_VERSION,
   GRADES,
   BOOKS,
   BOOK_GRADES,

@@ -24,7 +24,9 @@ var TEMP_KEYS = [
 Page({
   data: {
     soundOn: true,
-    version: '开发版',
+    // 2026-11-11：版本号统一走 constants.APP_VERSION（1.2.11），开发版也显示具体版本而不是「开发版」，
+    // 与「我的」页底部保持同一个数；线上版仍以微信注入的版本号为准。
+    version: constants.APP_VERSION,
     fontKey: 'm',
     fontLevels: fontScale.LEVELS
   },
@@ -38,7 +40,7 @@ Page({
     this._readVersion();
   },
 
-  /** 线上版取微信给的版本号；开发版/体验版这里是空串 */
+  /** 线上版取微信给的版本号；开发版/体验版这里是空串 → 回退到 constants.APP_VERSION */
   _readVersion: function () {
     var v = '';
     try {
@@ -47,7 +49,7 @@ Page({
     } catch (e) {
       v = '';
     }
-    this.setData({ version: v || '开发版' });
+    this.setData({ version: v || constants.APP_VERSION });
   },
 
   goBack: function () {
