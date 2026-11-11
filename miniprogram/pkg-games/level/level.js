@@ -20,6 +20,8 @@ var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 var challenge = require('../../utils/challenge');
 var starRecovery = require('../../utils/star-recovery');
+// 埋点（2026-11-11）：进对局前记 game_start（取消预习不算开局）
+var track = require('../../utils/track');
 var rewards = require('../../utils/challenge-rewards');
 var request = require('../../utils/request');
 // 学段 → 镇守 Boss（第 30 关用暗紫卡 + 立绘，和首页 Boss 预告同源）
@@ -502,7 +504,26 @@ Page({
         url += '&type=' + this.data.currentType;
       }
     }
+    // 埋点数据：挑战/玩法线视图有 card.mode，普通视图就是字母射击
+    this._startMeta = {
+      game_type: card.mode ? challenge.gameTypeOf(card.mode) : 'word_warrior',
+      grade: grade.key,
+      level: card.level
+    };
     this._afterPick(card, grade, url);
+  },
+
+  /**
+   * 真正跳对局前记一次 game_start（2026-11-11 埋点）。
+   *
+   * 为什么不在点卡片时就记：新关会先弹「认词预习」，用户点「取消」并没开局；
+   * 统一收敛到真的 wx.navigateTo 这一处，计数才与 game_end 对得上。
+   * @param {string} url 对局页地址
+   */
+  _startGame: function (url) {
+    track.event('game_start', this._startMeta || {});
+    this._startMeta = null;
+    wx.navigateTo({ url: url });
   },
 
   /**
@@ -518,10 +539,10 @@ Page({
    */
   _afterPick: function (card, grade, url) {
     var stars = parseInt(card.stars, 10) || 0;
-    if (stars > 0) { wx.navigateTo({ url: url }); return; }
+    if (stars > 0) { this._startGame(url); return; }
 
     var items = this._previewItems(grade.key, card);
-    if (!items.length) { wx.navigateTo({ url: url }); return; }
+    if (!items.length) { this._startGame(url); return; }
 
     this._pendingUrl = url;
     // 玩法线的行不写 kindLabel（同一条线玩法固定，行上不重复），这里补回玩法名
@@ -580,7 +601,7 @@ Page({
     var url = this._pendingUrl;
     this._pendingUrl = '';
     this.setData({ 'preview.show': false });
-    if (url) wx.navigateTo({ url: url });
+    if (url) this._startGame(url);
   },
 
   /** 预习层：点遮罩空白处 = 取消本次进入（不跳转，避免误触直接开打） */

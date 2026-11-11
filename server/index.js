@@ -37,6 +37,8 @@ const pkRouter = require("./routes/pk");
 const subscribeRouter = require("./routes/subscribe");
 // 生词本（2026-10-28）：收藏 / 取消 / 列表 / 角标
 const favoriteRouter = require("./routes/favorite");
+// 埋点上报（2026-11-11）：最小数据回路（进入/开局/完局/分享进入/次日回访）
+const trackRouter = require("./routes/track");
 
 const app = express();
 
@@ -131,6 +133,8 @@ app.use("/api/pk", openid, pkRouter);
 // 订阅消息（2026-10-28）：模板 ID 走环境变量，未配置时 config 返回空对象，端上不弹框
 app.use("/api/subscribe", openid, subscribeRouter);
 app.use("/api/favorite", openid, favoriteRouter);
+// 埋点（2026-11-11）：游客也记（openid 由网关注入）；d1_return 服务端派生，不接受客户端上报
+app.use("/api/track", openid, trackRouter);
 // 头像图片（2026-09-19）：公开可读，不能挂 openid 中间件（<image> 不带自定义头）
 app.use("/api/avatar", avatarFileRouter);
 

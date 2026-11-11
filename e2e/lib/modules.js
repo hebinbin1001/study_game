@@ -138,7 +138,9 @@ const MODULES = [
       // 2026-10-29 补签卡：streak 重算算错会让用户从那天起每天的连续天数都错
       'makeup-card',
       // 2026-11-06 补登记：管理端服务端约束 + 老用户段位封顶存量修复
-      'admin-controls', 'backfill-exam-tier']
+      'admin-controls', 'backfill-exam-tier',
+      // 2026-11-11 埋点事件校验（白名单 / 截断 / 北京时间分桶 / 次日回访判定）
+      'track-events']
   },
   {
     id: 'pages',
@@ -146,7 +148,9 @@ const MODULES = [
     stages: ['pages', 'load'],
     unit: ['play-counts', 'index-entries',
       // 2026-11-06 补登记：断点续玩的 6 个页面接线（关卡页 / 2048 / 华容道 / 汉诺塔…）
-      'puzzle-resume-pages']
+      'puzzle-resume-pages',
+      // 2026-11-11 埋点客户端（队列 / 环境闸门 / 失败保留 / 分享进入识别）
+      'track-client']
   },
   {
     id: 'tools',
@@ -312,6 +316,9 @@ const PATH_RULES = [
   { re: /^miniprogram\/utils\/dict\.js$/, modules: ['dict', 'challenge', 'game', 'wordgames', 'puzzle'] },
   { re: /^miniprogram\/utils\/constants\.js$/, modules: ['dict', 'challenge', 'game', 'wordgames', 'puzzle'] },
   { re: /^miniprogram\/utils\/play-report\.js$/, modules: ['game', 'wordgames', 'user'] },
+  // 埋点（2026-11-11）：入口在 app.js、玩法出口在 play-report、开局在 level/puzzle-level，
+  // 还有 share_open 识别 —— 改它要连带跑页面/闯关/数字智力/玩法/用户几个模块
+  { re: /^miniprogram\/utils\/track\.js$/, modules: ['pages', 'challenge', 'puzzle', 'game', 'wordgames', 'user'] },
   { re: /^miniprogram\/utils\/request\.js$/, modules: ['user', 'server'] },
   { re: /^miniprogram\/pages\/(study|agreement|share-card|daily-question)\//, modules: ['pages', 'user'] },
   { re: /^miniprogram\/pages\/settings\//, modules: ['user', 'pages'] },

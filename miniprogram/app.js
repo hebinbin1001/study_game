@@ -14,6 +14,8 @@ var request = require('./utils/request');
 var storage = require('./utils/storage');
 var auth = require('./utils/auth');
 var dict = require('./utils/dict');
+// 埋点（2026-11-11 最小数据回路）：只在 release/trial 生效，开发者工具里不上报
+var track = require('./utils/track');
 
 // 云托管连接方案（2026-09-08 迁移）：
 //   前端通过 wx.cloud.init + wx.cloud.callContainer 调用后端（envId/serviceName
@@ -70,7 +72,7 @@ App({
   // wx.cloud.init 已执行标记（幂等，防止重复 init）
   _cloudInited: false,
 
-  onLaunch() {
+  onLaunch(options) {
     // 1. 初始化云开发（callContainer 前置；env 必须为本小程序已关联的环境 ID）
     this.initCloud();
 
@@ -97,6 +99,10 @@ App({
     // 6. 教材版本（2026-10-08 二期：教材对接）：按用户上次选的版本出题。
     //    放在 syncWordBank 之后：setBook 只影响「过滤口径」，不涉及覆盖层数据。
     dict.setBook(storage.getBook());
+
+    // 7. 埋点：记 visit；从分享卡片进入时补记 share_open（场景 1007/1008/1044 自动识别，
+    //    不需要每个页面的分享路径都加参数）。只在 release/trial 生效，见 utils/track.js。
+    track.launch(options);
   },
 
   /**
@@ -125,7 +131,7 @@ App({
     });
   },
 
-  onShow() {
+  onShow(options) {
     // 回到前台：补发离线滞留成绩队列（REQ-NFR-2）。
     // 单条上报成功即从队列移除；失败保留等待下次（onShow/成绩页成功后）重试。
     // flush 内部自带防并发锁，此处无需额外节流；catch 兜底确保不抛错。
@@ -134,6 +140,8 @@ App({
     }).catch(function () {
       // 补发失败（网络未恢复等）：静默，下次 onShow 再试
     });
+    // 埋点：热启动从分享卡片进入时补记 share_open，并把离线队列补发出去
+    track.onShow(options);
   },
 
   // 初始化云开发（wx.cloud.init，callContainer 前置；幂等，失败静默降级）

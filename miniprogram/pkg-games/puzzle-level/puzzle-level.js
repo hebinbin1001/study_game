@@ -8,6 +8,8 @@ var puzLv = require('../../utils/puzzle-levels');
 var progress = require('../../utils/puzzle-progress');
 var storage = require('../../utils/storage');
 var resume = require('../../utils/puzzle-resume');
+// 埋点（2026-11-11）：进对局前记 game_start
+var track = require('../../utils/track');
 
 var DEFAULT_UNLOCKED = 3;      // 前 3 关默认解锁，与题库类关卡页同口径
 
@@ -111,6 +113,8 @@ Page({
     }
     var page = GAME_PAGE[this._mode];
     if (!page) { wx.showToast({ title: '该玩法暂无关卡入口', icon: 'none' }); return; }
+    // 埋点：数字智力没有学段概念（grade 留空），game_type 用目录 key（与 play-report 上报一致）
+    track.event('game_start', { game_type: this._mode, level: row.no });
     wx.navigateTo({ url: page + '?level=' + row.no });
   },
 

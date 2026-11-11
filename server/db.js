@@ -48,6 +48,8 @@ const SubscribeGrant = require("./models/subscribe-grant")(sequelize);
 const WordFavorite = require("./models/word-favorite")(sequelize);
 // 补签卡（2026-10-29）：严格连续 7 天发 1 张，一张卡一行（口径见 server/makeup-card.js）
 const MakeupCard = require("./models/makeup-card")(sequelize);
+// 埋点事件（2026-11-11）：最小数据回路，表结构见 ensure-tables.js
+const TrackEvent = require("./models/track-event")(sequelize);
 
 // 建立关联
 User.hasMany(Score, { foreignKey: "user_id" });
@@ -180,4 +182,5 @@ module.exports = {
   SubscribeGrant,
   WordFavorite,
   MakeupCard,
+  TrackEvent,
 };

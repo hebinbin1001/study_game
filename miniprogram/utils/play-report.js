@@ -29,6 +29,8 @@ var request = require('./request');
 var auth = require('./auth');
 // 本机玩法计数（首页「推荐玩法」按玩得最多排序用，2026-09-13）
 var counts = require('./play-counts');
+// 埋点（2026-11-11）：game_end 从这里统一记 —— 21 个玩法都走这个出口
+var track = require('./track');
 
 /**
  * 休闲玩法（数字智力 + 街机式抢接）：没有「题目」概念，只上报星级、不写题量。
@@ -71,6 +73,17 @@ function reportPlay(p) {
   if (!d.gameType || !d.grade) return false;
   // 先记本机计数：**游客也记**（首页推荐要对游客生效），放在登录判断之前
   counts.bump(d.gameType);
+
+  // 埋点「打完一局」：同样放在登录判断之前 —— 数据回路要统计**所有**玩家
+  // （未登录游客也能拿到网关注入的 openid；只在 release/trial 上报，见 utils/track.js）
+  track.event('game_end', {
+    game_type: d.gameType,
+    grade: d.grade,
+    level: d.level || 1,
+    stars: d.stars || 0,
+    win: (parseInt(d.stars, 10) || 0) > 0 ? 1 : 0
+  });
+
   if (!auth.isLoggedIn()) return false;
 
   var casual = isCasualGame(d.gameType);

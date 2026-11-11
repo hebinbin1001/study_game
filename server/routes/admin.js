@@ -22,8 +22,10 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const { fn, col } = require("sequelize");
-const { User, Score, RankRecord, sequelize } = require("../db");
+const { QueryTypes } = require("sequelize");
+const { User, Score, RankRecord, TrackEvent, sequelize } = require("../db");
 const ladder = require("../rank-ladder");
+const T = require("../beijing-time");
 const { checkAdmin, pickWxNickname, maskOpenid } = require("../admin-auth");
 const { AdminControl } = require("../db");
 const adminControls = require("../admin-controls");
@@ -225,6 +227,125 @@ router.get("/stats", requireAdmin, async (req, res) => {
     });
   } catch (err) {
     console.error("GET /api/admin/stats 失败：", err);
+    res.send({ code: 5000, data: null, message: "服务内部错误" });
+  }
+});
+
+/**
+ * GET /api/admin/track/summary?days=7 —— 埋点数据回路（2026-11-11）
+ *
+ * 「发布后第一件事」的最小读侧：只看三件事——
+ *   ① 新用户在第几关流失（game_end 按 level 的人数分布）
+ *   ② 21 个玩法哪个真被反复玩（game_start / game_end 按 game_type）
+ *   ③ 分享卡片被点开几次（share_open；启动场景 1007/1008/1044 自动识别，不需要改分享路径）
+ * 另外顺手给出每日 visit/活跃/新增/次日回访率，供应对「先冲量」策略。
+ */
+router.get("/track/summary", requireAdmin, async (req, res) => {
+  try {
+    const days = Math.max(1, Math.min(30, parseInt(req.query.days, 10) || 7));
+    const since = T.dayKeyOffset(-(days - 1));
+    const sinceMs = Date.now() - days * 24 * 3600 * 1000;
+
+    const [eventRows, activeRows, userRows, funnelRows, levelRows] = await Promise.all([
+      // 按 (天, 事件) 聚合次数 + 去重用户数
+      TrackEvent.findAll({
+        attributes: [
+          "day",
+          "event",
+          [fn("COUNT", col("id")), "cnt"],
+          [fn("COUNT", fn("DISTINCT", col("openid"))), "users"],
+        ],
+        where: { day: { [Op.gte]: since } },
+        group: ["day", "event"],
+        raw: true,
+      }),
+      // 每天的去重活跃用户（任意事件）
+      TrackEvent.findAll({
+        attributes: ["day", [fn("COUNT", fn("DISTINCT", col("openid"))), "users"]],
+        where: { day: { [Op.gte]: since } },
+        group: ["day"],
+        raw: true,
+      }),
+      // 每天新增注册（按北京时间切日；createdAt 是 UTC，用 CONVERT_TZ 对齐）
+      sequelize.query(
+        "SELECT DATE_FORMAT(CONVERT_TZ(`createdAt`, '+00:00', '+08:00'), '%Y-%m-%d') AS day, COUNT(*) AS cnt " +
+          "FROM `users` WHERE `createdAt` >= :since GROUP BY day ORDER BY day",
+        { replacements: { since: new Date(sinceMs) }, type: QueryTypes.SELECT }
+      ),
+      // 玩法漏斗：开局 vs 完局（按玩法）
+      TrackEvent.findAll({
+        attributes: ["event", "game_type", [fn("COUNT", col("id")), "cnt"]],
+        where: { day: { [Op.gte]: since }, event: { [Op.in]: ["game_start", "game_end"] } },
+        group: ["event", "game_type"],
+        raw: true,
+      }),
+      // 关卡漏斗：完局按关卡号分布（新用户在第八关流失 = 第 8 关完局骤降）
+      TrackEvent.findAll({
+        attributes: ["level", [fn("COUNT", col("id")), "cnt"]],
+        where: { day: { [Op.gte]: since }, event: "game_end", level: { [Op.gt]: 0 } },
+        group: ["level"],
+        raw: true,
+      }),
+    ]);
+
+    // ---- 组装每日视图 ----
+    const dayMap = {};
+    const dayOf = (d) => (dayMap[d] = dayMap[d] || {
+      day: d, visitUsers: 0, visitCount: 0, gameStart: 0, gameEnd: 0,
+      shareOpen: 0, d1Return: 0, newUsers: 0, activeUsers: 0, d1Rate: 0,
+    });
+    const add = (rows, fnEach) => rows.forEach((r) => fnEach(dayOf(r.day), r));
+    add(eventRows.filter((r) => r.event === "visit"), (d, r) => { d.visitCount = Number(r.cnt) || 0; d.visitUsers = Number(r.users) || 0; });
+    add(eventRows.filter((r) => r.event === "d1_return"), (d, r) => { d.d1Return = Number(r.cnt) || 0; });
+    add(eventRows.filter((r) => r.event === "share_open"), (d, r) => { d.shareOpen = Number(r.cnt) || 0; });
+    add(funnelRows.filter((r) => r.event === "game_start"), (d, r) => { d.gameStart += Number(r.cnt) || 0; });
+    add(funnelRows.filter((r) => r.event === "game_end"), (d, r) => { d.gameEnd += Number(r.cnt) || 0; });
+    add(activeRows, (d, r) => { d.activeUsers = Number(r.users) || 0; });
+    add(userRows, (d, r) => { d.newUsers = Number(r.cnt) || 0; });
+
+    const daily = Object.keys(dayMap).sort().map((k) => {
+      const d = dayMap[k];
+      d.d1Rate = d.visitUsers > 0 ? Math.round((d.d1Return / d.visitUsers) * 1000) / 10 : 0;
+      return d;
+    });
+
+    // ---- 玩法漏斗：开局次数 / 完局次数 / 完局率 ----
+    const gameMap = {};
+    funnelRows.forEach((r) => {
+      const key = r.game_type || "";
+      if (!gameMap[key]) gameMap[key] = { gameType: key, start: 0, end: 0, finishRate: 0 };
+      gameMap[key][r.event === "game_start" ? "start" : "end"] = Number(r.cnt) || 0;
+    });
+    const gameFunnel = Object.keys(gameMap).map((k) => {
+      const g = gameMap[k];
+      g.finishRate = g.start > 0 ? Math.round((g.end / g.start) * 1000) / 10 : 0;
+      return g;
+    }).sort((a, b) => b.start - a.start);
+
+    // ---- 关卡漏斗：按关卡号的完局次数 ----
+    const levelFunnel = levelRows
+      .map((r) => ({ level: Number(r.level) || 0, ends: Number(r.cnt) || 0 }))
+      .sort((a, b) => a.level - b.level);
+
+    const totals = {
+      visitUsers: daily.reduce((n, d) => n + d.visitUsers, 0),
+      d1Return: daily.reduce((n, d) => n + d.d1Return, 0),
+      shareOpen: daily.reduce((n, d) => n + d.shareOpen, 0),
+      gameStart: daily.reduce((n, d) => n + d.gameStart, 0),
+      gameEnd: daily.reduce((n, d) => n + d.gameEnd, 0),
+      newUsers: daily.reduce((n, d) => n + d.newUsers, 0),
+    };
+    totals.d1Rate = totals.visitUsers > 0
+      ? Math.round((totals.d1Return / totals.visitUsers) * 1000) / 10
+      : 0;
+
+    res.send({
+      code: 0,
+      data: { days, since, daily, gameFunnel, levelFunnel, totals },
+      message: "ok",
+    });
+  } catch (err) {
+    console.error("GET /api/admin/track/summary 失败：", err);
     res.send({ code: 5000, data: null, message: "服务内部错误" });
   }
 });

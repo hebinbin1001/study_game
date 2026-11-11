@@ -266,5 +266,24 @@ check(adminRouteSrc.includes('admin-query') && adminRouteSrc.includes('searchOpe
   check(setJs.indexOf('APP_VERSION') !== -1, '设置页版本号来自 constants.APP_VERSION');
 })();
 
+// 14) 埋点接线（2026-11-11）：事件散落在 5 个文件里，任何一个被删/改错，数据都会静默缺失，
+// 而且要到「出报表时发现某一列全是 0」才会发现。这里把挂点和后端表/路由钉死。
+(function checkTrackWiring() {
+  const read = function (p) { return fs.readFileSync(p, 'utf8'); };
+  const indexSrc = read('server/index.js');
+  check(indexSrc.indexOf('"/api/track"') !== -1, '后端已注册 /api/track 路由');
+  check(read('server/ensure-tables.js').indexOf('track_events') !== -1,
+    'ensure-tables 里有 track_events 建表（生产启动自动补表）');
+  const appSrc = read('miniprogram/app.js');
+  check(appSrc.indexOf('track.launch(') !== -1, 'app.js onLaunch 调 track.launch（visit / share_open）');
+  check(appSrc.indexOf('track.onShow(') !== -1, 'app.js onShow 调 track.onShow（补发 + 热启动分享进入）');
+  check(read('miniprogram/utils/play-report.js').indexOf("track.event('game_end'") !== -1,
+    'play-report 统一记 game_end（21 个玩法的出口）');
+  check(read('miniprogram/pkg-games/level/level.js').indexOf("track.event('game_start'") !== -1,
+    '关卡页跳对局前记 game_start');
+  check(read('miniprogram/pkg-games/puzzle-level/puzzle-level.js').indexOf("track.event('game_start'") !== -1,
+    '数字智力关卡页跳对局前记 game_start');
+})();
+
 console.log(fail ? `\n=== ${fail} 项失败 ===` : '\n=== 全部通过 ===');
 process.exit(fail ? 1 : 0);
