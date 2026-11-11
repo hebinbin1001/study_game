@@ -285,5 +285,26 @@ check(adminRouteSrc.includes('admin-query') && adminRouteSrc.includes('searchOpe
     '数字智力关卡页跳对局前记 game_start');
 })();
 
+// 15) 分享图卡接线（2026-11-11）：分享 imageUrl 失效是「静默降级」——不会报错，只是退回默认缩略图，
+// 最容易被下次改动顺手删掉。这里钉住：两个分享场景各有 5:4 离屏画布，且 onShare 里真的用了它。
+(function checkShareImageWiring() {
+  const read = function (p) { return fs.readFileSync(p, 'utf8'); };
+  const pages = [
+    { name: '结算页（晒战绩）', dir: 'miniprogram/pkg-games/result', js: 'result.js', wxml: 'result.wxml', wxss: 'result.wxss' },
+    { name: '段位页（晒段位）', dir: 'miniprogram/pages/rank-info', js: 'rank-info.js', wxml: 'rank-info.wxml', wxss: 'rank-info.wxss' }
+  ];
+  pages.forEach(function (p) {
+    const wxml = read(p.dir + '/' + p.wxml);
+    check(wxml.indexOf('id="shareCanvas"') !== -1, p.name + '有 5:4 分享图卡画布');
+    check(wxml.indexOf('type="2d"') !== -1, p.name + '画布是 type=2d（离屏绘制要求）');
+    const js = read(p.dir + '/' + p.js);
+    check(js.indexOf('utils/share-image') !== -1, p.name + '引入了 utils/share-image');
+    check(js.indexOf('imageUrl: this._shareImage') !== -1, p.name + ' onShareAppMessage 返回 imageUrl');
+    const wxss = read(p.dir + '/' + p.wxss);
+    check(wxss.indexOf('.share-canvas') !== -1 && wxss.indexOf('left: -9999px') !== -1,
+      p.name + '画布样式是屏幕外离屏（不能 display:none，2d 节点会拿不到）');
+  });
+})();
+
 console.log(fail ? `\n=== ${fail} 项失败 ===` : '\n=== 全部通过 ===');
 process.exit(fail ? 1 : 0);

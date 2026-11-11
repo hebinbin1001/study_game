@@ -284,3 +284,14 @@ page {
   background: var(--sky-3);
   color: var(--pri);
 }
+
+/* 分享图卡画布（2026-11-11）：放在屏幕外，只做离屏绘制；不设 display:none（那样拿不到 2d 节点） */
+.share-canvas {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 500px;
+  height: 400px;
+  opacity: 0;
+  pointer-events: none;
+}

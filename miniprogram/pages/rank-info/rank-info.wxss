@@ -107,3 +107,14 @@
   font-size: var(--fs-body);
   font-weight: 700;
 }
+
+/* 分享图卡画布（2026-11-11）：屏幕外离屏绘制；不能 display:none（2d 节点拿不到） */
+.share-canvas {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 500px;
+  height: 400px;
+  opacity: 0;
+  pointer-events: none;
+}

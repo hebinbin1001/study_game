@@ -17,6 +17,8 @@ var question = require('../../game/question');
 var challenge = require('../../utils/challenge');
 // 本机玩法计数：首页「推荐玩法」按玩得最多的两款排序（2026-09-13）
 var playCounts = require('../../utils/play-counts');
+// 分享图卡（2026-11-11）：画 5:4 的「晒成绩」缩略图，纯前端绘制，不占包体
+var shareImage = require('../../utils/share-image');
 
 Page({
   data: {
@@ -309,6 +311,23 @@ Page({
     wx.redirectTo({ url: url });
   },
 
+  // 分享图卡（2026-11-11）：首帧渲染完再画，避免和结算动画抢主线程
+  onReady: function () {
+    var d = this.data;
+    var gradeLabel = '';
+    for (var i = 0; i < constants.GRADES.length; i++) {
+      if (constants.GRADES[i].key === d.grade) { gradeLabel = constants.GRADES[i].label; break; }
+    }
+    shareImage.build(this, 'result', {
+      stars: d.stars,
+      failed: d.failed,
+      level: d.level,
+      gradeLabel: gradeLabel,
+      score: d.score,
+      rate: d.ratePercent
+    }, ['r', d.stars || 0, d.failed ? 1 : 0, d.level || 1, d.score || 0, d.ratePercent || 0].join('|'));
+  },
+
   // M5 T4.1：结算页分享战绩（右上角转发）
   onShareAppMessage: function () {
     var d = this.data;
@@ -316,7 +335,9 @@ Page({
     var starText = stars > 0 ? ('拿下了 ' + stars + ' 颗星！') : '来挑战一下我的成绩！';
     return {
       title: '词力战士 - 我' + starText + '（得分 ' + (d.score || 0) + '）',
-      path: '/pages/index/index'
+      path: '/pages/index/index',
+      // 图卡没画好就留空 —— 微信会回退到默认缩略图，分享不受影响
+      imageUrl: this._shareImage || ''
     };
   },
 
@@ -330,7 +351,8 @@ Page({
       title: stars > 0
         ? ('我在词力战士拿了 ' + stars + ' 颗星，正确率 ' + rate + '%')
         : '刚在词力战士打完一局，来试试你能拿几星',
-      query: ''
+      query: '',
+      imageUrl: this._shareImage || ''
     };
   }
 });

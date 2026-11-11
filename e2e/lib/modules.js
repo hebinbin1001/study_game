@@ -73,7 +73,9 @@ const MODULES = [
     stages: ['game', 'result'],
     unit: ['shoot', 'question', 'battle-fx',
       // 2026-11-06 补登记：暂停弹层与固定操作按钮图标（对局公共组件，漏挂是静默失效）
-      'game-pause', 'ui-icons']
+      'game-pause', 'ui-icons',
+      // 2026-11-11 分享图卡（结算页在用；段位页在 user 模块）
+      'share-image']
   },
   {
     id: 'wordgames',
@@ -150,7 +152,9 @@ const MODULES = [
       // 2026-11-06 补登记：断点续玩的 6 个页面接线（关卡页 / 2048 / 华容道 / 汉诺塔…）
       'puzzle-resume-pages',
       // 2026-11-11 埋点客户端（队列 / 环境闸门 / 失败保留 / 分享进入识别）
-      'track-client']
+      'track-client',
+      // 2026-11-11 分享图卡（段位页在用；结算页在 game 模块）
+      'share-image']
   },
   {
     id: 'tools',
@@ -319,6 +323,8 @@ const PATH_RULES = [
   // 埋点（2026-11-11）：入口在 app.js、玩法出口在 play-report、开局在 level/puzzle-level，
   // 还有 share_open 识别 —— 改它要连带跑页面/闯关/数字智力/玩法/用户几个模块
   { re: /^miniprogram\/utils\/track\.js$/, modules: ['pages', 'challenge', 'puzzle', 'game', 'wordgames', 'user'] },
+  // 分享图卡（2026-11-11）：结算页（game 模块）与段位页（user 模块）共用
+  { re: /^miniprogram\/utils\/share-image\.js$/, modules: ['game', 'user', 'pages'] },
   { re: /^miniprogram\/utils\/request\.js$/, modules: ['user', 'server'] },
   { re: /^miniprogram\/pages\/(study|agreement|share-card|daily-question)\//, modules: ['pages', 'user'] },
   { re: /^miniprogram\/pages\/settings\//, modules: ['user', 'pages'] },

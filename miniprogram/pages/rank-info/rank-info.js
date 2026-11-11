@@ -7,6 +7,8 @@ var rankBadge = require('../../utils/rank-badge');
 var storage = require('../../utils/storage');
 var request = require('../../utils/request');
 var auth = require('../../utils/auth');
+// 分享图卡（2026-11-11）：画 5:4 的「晒段位」缩略图
+var shareImage = require('../../utils/share-image');
 
 Page({
   data: {
@@ -95,6 +97,15 @@ Page({
       curCell: curCell
     });
     wx.setNavigationBarTitle({ title: '段位详情' });
+
+    // 分享图卡（2026-11-11）：段位页打开就把 5:4 分享图预生成好，转发时直接用。
+    // key 带上段位名与星数：onShow 从服务端拿回封顶后的真值时会重画（否则图卡停在本地旧值上）
+    shareImage.build(this, 'rank', {
+      name: p.current.name,
+      stars: stars,
+      needExam: !!this.data.needExam,
+      nextName: p.nextName || ''
+    }, ['k', p.current.name, stars, this.data.needExam ? 1 : 0].join('|'));
   },
 
   goBack: function () { wx.navigateBack(); },
@@ -104,7 +115,9 @@ Page({
     var name = this.data.name || '';
     return {
       title: name ? ('词力战士 - 我已经是「' + name + '」了，来挑战我！') : '词力战士 - 看看段位阶梯，一起冲榜',
-      path: '/pages/index/index'
+      path: '/pages/index/index',
+      // 图卡没画好就留空，微信回退默认缩略图，分享不受影响
+      imageUrl: this._shareImage || ''
     };
   },
 
@@ -114,7 +127,8 @@ Page({
     var name = this.data.name || '';
     return {
       title: name ? ('我在词力战士已经是「' + name + '」了，你能追上吗') : '看看词力战士的段位阶梯',
-      query: 'stars=' + (this.data.stars || 0)
+      query: 'stars=' + (this.data.stars || 0),
+      imageUrl: this._shareImage || ''
     };
   }
 });

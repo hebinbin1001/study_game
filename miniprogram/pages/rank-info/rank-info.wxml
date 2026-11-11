@@ -50,4 +50,7 @@
   </scroll-view>
 
   <button class="btn-back" bindtap="goBack">返回</button>
+
+  <!-- 分享图卡画布（2026-11-11）：离屏隐藏，只用来画 5:4 的「晒段位」图 -->
+  <canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
 </view>
