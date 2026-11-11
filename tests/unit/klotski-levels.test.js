@@ -16,8 +16,8 @@
 const { suite } = require('./_runner');
 const s = suite('华容道关卡库（30 关）');
 
-const K = require('../../miniprogram/game/klotski');
-const DATA = require('../../miniprogram/data/klotski-levels');
+const K = require('../../miniprogram/pkg-games/engine/klotski');
+const DATA = require('../../miniprogram/pkg-games/data/klotski-levels');
 
 const LEVELS = DATA.levels;
 const TIERS = ['入门', '进阶', '困难', '经典', '炼狱'];

@@ -16,7 +16,7 @@
 
 'use strict';
 
-var storage = require('./storage');
+var storage = require('../../utils/storage');
 
 var CLAIM_KEY = 'ww_chest_claimed';
 

@@ -18,8 +18,8 @@
 const { suite } = require('./_runner');
 const s = suite('华容道引擎（game/klotski.js）');
 
-const K = require('../../miniprogram/game/klotski');
-const LEVELS = require('../../miniprogram/data/klotski-levels');
+const K = require('../../miniprogram/pkg-games/engine/klotski');
+const LEVELS = require('../../miniprogram/pkg-games/data/klotski-levels');
 
 const FIRST = LEVELS.levels[0];           // 8 步入门关
 const CLASSIC = LEVELS.levels.find(function (l) { return l.classic; });

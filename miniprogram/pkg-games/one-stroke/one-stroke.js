@@ -1,9 +1,9 @@
 // 一笔画：页面只负责渲染与交互；关卡/规则/提示在 game/one-stroke*.js。
-var lib = require('../../game/one-stroke');
+var lib = require('../engine/one-stroke');
 var storage = require('../../utils/storage');
-var playReport = require('../../utils/play-report');
-var progress = require('../../utils/puzzle-progress');
-var resume = require('../../utils/puzzle-resume');
+var playReport = require('../utils/play-report');
+var progress = require('../utils/puzzle-progress');
+var resume = require('../utils/puzzle-resume');
 
 var PAGE = 'one-stroke';
 

@@ -4,10 +4,10 @@
 // 关卡表来自 utils/puzzle-levels.js，进度/最短用时来自 utils/puzzle-progress.js；
 // 点某一关就跳到对应玩法页并带 ?level=N（各玩法页负责从这一关开始）。
 var catalog = require('../../utils/game-catalog');
-var puzLv = require('../../utils/puzzle-levels');
-var progress = require('../../utils/puzzle-progress');
+var puzLv = require('../utils/puzzle-levels');
+var progress = require('../utils/puzzle-progress');
 var storage = require('../../utils/storage');
-var resume = require('../../utils/puzzle-resume');
+var resume = require('../utils/puzzle-resume');
 // 埋点（2026-11-11）：进对局前记 game_start
 var track = require('../../utils/track');
 

@@ -28,7 +28,7 @@ global.wx = {
   }
 };
 
-const M = require('../../miniprogram/game/maze');
+const M = require('../../miniprogram/pkg-games/engine/maze');
 
 function loadPage(rel) {
   // 2026-10-28：页面可能在主包 pages/ 或分包 pkg-games/ 下，逐个试

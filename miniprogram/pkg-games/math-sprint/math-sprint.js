@@ -1,12 +1,12 @@
 // 口算冲刺（玩法落地：来自 demo g6）——60 秒限时口算，连对越多倍率越高
 // 与 demo 的差异：计时用引擎模块的常量、结算走公共 settle-pop、成绩不入字词进度（固定玩法）。
 // 关联：game/math-sprint.js（纯逻辑，可单测）
-var engineLib = require('../../game/math-sprint');
-var puzzleProgress = require('../../utils/puzzle-progress');
+var engineLib = require('../engine/math-sprint');
+var puzzleProgress = require('../utils/puzzle-progress');
 var challenge = require('../../utils/challenge');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
-var playReport = require('../../utils/play-report');
+var playReport = require('../utils/play-report');
 
 Page({
   data: {

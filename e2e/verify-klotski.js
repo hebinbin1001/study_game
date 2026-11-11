@@ -25,8 +25,8 @@
  */
 
 const H = require('./lib/harness');
-const K = require('../miniprogram/game/klotski');
-const LEVELS = require('../miniprogram/data/klotski-levels');
+const K = require('../miniprogram/pkg-games/engine/klotski');
+const LEVELS = require('../miniprogram/pkg-games/data/klotski-levels');
 
 const PAGE_URL = '/pkg-games/klotski/klotski';
 const L1 = LEVELS.levels[0];

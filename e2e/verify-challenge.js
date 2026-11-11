@@ -31,7 +31,7 @@ const H = require('./lib/harness');
 const challenge = require('../miniprogram/utils/challenge');
 const constants = require('../miniprogram/utils/constants');
 const dict = require('../miniprogram/utils/dict');
-const wbLib = require('../miniprogram/game/word-build');
+const wbLib = require('../miniprogram/pkg-games/engine/word-build');
 const rng = require('../miniprogram/utils/rng');
 
 const HOME_URL = '/pages/index/index';

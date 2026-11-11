@@ -5,11 +5,11 @@
 //     原文"4 柱 + 闭式解单测"自相矛盾，这里不做；
 //   · 只做 6 关（3~8 盘），不铺 30 关：最优解唯一，学完递归每关同一套动作，没有长线价值；
 //   · 无题目 → 星级按步数倍率折（照 klotski 的 starsFor），不接年级。
-var hanoi = require('../../game/hanoi');
+var hanoi = require('../engine/hanoi');
 var storage = require('../../utils/storage');
-var progress = require('../../utils/puzzle-progress');
-var playReport = require('../../utils/play-report');
-var resume = require('../../utils/puzzle-resume');
+var progress = require('../utils/puzzle-progress');
+var playReport = require('../utils/play-report');
+var resume = require('../utils/puzzle-resume');
 
 var PAGE = 'hanoi';
 

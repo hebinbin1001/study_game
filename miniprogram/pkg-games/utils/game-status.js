@@ -7,7 +7,7 @@
  */
 'use strict';
 
-var request = require('./request');
+var request = require('../../utils/request');
 
 function isPaused(gameKey) {
   var key = String(gameKey || '').trim();

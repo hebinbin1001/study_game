@@ -9,8 +9,8 @@ var storage = require('../../utils/storage');
 var auth = require('../../utils/auth');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
-var playReport = require('../../utils/play-report');
-var battleFx = require('../../utils/battle-fx');
+var playReport = require('../utils/play-report');
+var battleFx = require('../utils/battle-fx');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var PAIR_COUNT = 8; // 8 对 = 16 卡

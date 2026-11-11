@@ -12,8 +12,8 @@
 
 'use strict';
 
-var constants = require('./constants');
-var ebbinghaus = require('./ebbinghaus');
+var constants = require('../../utils/constants');
+var ebbinghaus = require('../../utils/ebbinghaus');
 
 // 错题回流概率：需求约定 20%~30%，取中值 25%
 var DEFAULT_REVIEW_RATE = 0.25;

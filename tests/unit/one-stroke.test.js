@@ -15,7 +15,7 @@
 const { suite } = require('./_runner');
 const s = suite('game/one-stroke.js');
 
-const g = require('../../miniprogram/game/one-stroke');
+const g = require('../../miniprogram/pkg-games/engine/one-stroke');
 
 /** 按关卡名取关卡（不写死下标：以后调顺序不会连带改测试） */
 function lv(name) {

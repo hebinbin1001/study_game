@@ -13,8 +13,8 @@ var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
-var playReport = require('../../utils/play-report');
-var battleFx = require('../../utils/battle-fx');
+var playReport = require('../utils/play-report');
+var battleFx = require('../utils/battle-fx');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var SIZE = 10;

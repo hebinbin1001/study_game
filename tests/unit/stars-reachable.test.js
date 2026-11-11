@@ -123,7 +123,7 @@ s.test('一致性：前端与服务端星级阈值完全相同', () => {
     '前端与 server/constants.js 的 STAR_THRESHOLDS 必须一致');
   // 计分口径交叉校验：前端每题得分（game/config.js）必须等于服务端推导用的每题得分，
   // 否则服务端「按答对数推导分数」的防伪结果会与前端展示的得分对不上。
-  const gameConfig = require('../../miniprogram/game/config');
+  const gameConfig = require('../../miniprogram/pkg-games/engine/config');
   s.assert.equal(server.SCORE_PER_QUESTION, gameConfig.CONFIG.scorePerCorrect,
     '前端每题得分应与服务端 SCORE_PER_QUESTION 一致');
   s.assert.equal(c.GAME_CONFIG.totalQ * server.SCORE_PER_QUESTION, 100,

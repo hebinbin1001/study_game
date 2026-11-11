@@ -21,7 +21,7 @@ const s = suite('2048 关卡表 / 不限步数');
 const fs = require('fs');
 const path = require('path');
 
-const LEVELS = require('../../miniprogram/data/g2048-levels').levels;
+const LEVELS = require('../../miniprogram/pkg-games/data/g2048-levels').levels;
 
 /** 实战可达性下限：按「每步平均 1.5 次合并」估算需要多少步 */
 function minBudget(target) {

@@ -1,11 +1,11 @@
 // 记忆矩阵（玩法落地：demo g7）——亮格记忆，程序生成关卡，与词库无关
 // 规则：亮起 N 格 → 熄灭 → 凭记忆点出；点错扣命（3 命）并把正确答案标出来；
 // 全对过关，逐关多亮一格、展示更短。进度本地存档（固定玩法不计入字词进度）。
-var lib = require('../../game/memory-grid');
+var lib = require('../engine/memory-grid');
 var storage = require('../../utils/storage');
-var playReport = require('../../utils/play-report');
-var puzzleLevels = require('../../utils/puzzle-levels');
-var puzzleProgress = require('../../utils/puzzle-progress');
+var playReport = require('../utils/play-report');
+var puzzleLevels = require('../utils/puzzle-levels');
+var puzzleProgress = require('../utils/puzzle-progress');
 
 Page({
   data: {

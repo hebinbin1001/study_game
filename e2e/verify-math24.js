@@ -14,7 +14,7 @@
  */
 
 const H = require('./lib/harness');
-const m24 = require('../miniprogram/game/math24');
+const m24 = require('../miniprogram/pkg-games/engine/math24');
 
 const URL = '/pkg-games/math24/math24';
 const OP_INDEX = { '+': 0, '-': 1, '*': 2, '/': 3 };   // 与页面上四个运算符按钮的顺序一致

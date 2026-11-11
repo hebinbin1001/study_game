@@ -9,7 +9,7 @@
  */
 'use strict';
 
-var constants = require('../utils/constants');
+var constants = require('../../utils/constants');
 
 var EN_WORD = /^[A-Za-z]{3,}$/;
 var ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');

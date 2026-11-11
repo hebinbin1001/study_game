@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { suite } = require('./_runner');
 const s = suite('components/battle-fx');
-const battleFx = require('../../miniprogram/utils/battle-fx');
+const battleFx = require('../../miniprogram/pkg-games/utils/battle-fx');
 
 // 2026-10-28：玩法页已迁进分包 pkg-games，读源码统一走 _mp.readMp 自动定位
 const { readMp } = require('./_mp');
@@ -128,7 +128,7 @@ s.test('对抗型字词玩法接入战斗反馈层', () => {
     if (!page) return;
     const js = read('miniprogram/pages/' + page + '.js');
     const wxml = read('miniprogram/pages/' + page + '.wxml');
-    s.assert.contains(js, "require('../../utils/battle-fx')", game.key + ' 未引入战斗反馈');
+    s.assert.contains(js, "require('../utils/battle-fx')", game.key + ' 未引入战斗反馈');
     s.assert.contains(js, 'battleFx.play', game.key + ' 未触发战斗反馈');
     s.assert.contains(wxml, '<battle-fx', game.key + ' 未挂载战斗反馈层');
   });
@@ -152,7 +152,7 @@ s.test('数字智力玩法不出现战士/反击战斗层', () => {
   PAGES.forEach(function (page) {
     const js = read('miniprogram/pages/' + page + '.js');
     const wxml = read('miniprogram/pages/' + page + '.wxml');
-    s.assert.ok(js.indexOf("require('../../utils/battle-fx')") === -1,
+    s.assert.ok(js.indexOf("require('../utils/battle-fx')") === -1,
       page + ' 仍在引入战斗反馈');
     s.assert.ok(wxml.indexOf('<battle-fx') === -1,
       page + ' 仍在渲染战斗反馈层');

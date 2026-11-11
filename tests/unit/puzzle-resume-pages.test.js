@@ -34,7 +34,7 @@ global.wx = {
   }
 };
 
-const resume = require('../../miniprogram/utils/puzzle-resume');
+const resume = require('../../miniprogram/pkg-games/utils/puzzle-resume');
 
 /** 加载页面定义（捕获 Page({...})），并清 require 缓存以便重复加载
  *
@@ -76,8 +76,8 @@ function reset(game) { resume.clear(game); }
 s.test('华容道：走子后存盘，重进能恢复同一局面与步数', () => {
   reset('klotski');
   const def = loadPage('klotski/klotski');
-  const K = require('../../miniprogram/game/klotski');
-  const LEVELS = require('../../miniprogram/data/klotski-levels');
+  const K = require('../../miniprogram/pkg-games/engine/klotski');
+  const LEVELS = require('../../miniprogram/pkg-games/data/klotski-levels');
 
   const a = makePage(def);
   a._pieces = K.parseGrid(LEVELS.levels[0].grid);
@@ -270,7 +270,7 @@ s.test('一笔画：越界点号的存档拒绝恢复', () => {
 // ==================== 迷宫 ====================
 s.test('迷宫：seed + 位置 + 门状态恢复（地图必须一模一样）', () => {
   reset('maze');
-  const mazeEngine = require('../../miniprogram/game/maze');
+  const mazeEngine = require('../../miniprogram/pkg-games/engine/maze');
   const def = loadPage('maze/maze');
   const a = makePage(def);
   a._lv = 1;
@@ -376,7 +376,7 @@ s.test('七个玩法页面都接了断点续玩（存 / 读 / 清 三件套）',
   const GAMES = ['klotski', 'sudoku', 'g2048', 'math24', 'one-stroke', 'maze', 'hanoi'];
   GAMES.forEach(function (g) {
     const src = fs.readFileSync(path.join(require('./_mp').pageDir(g), g + '.js'), 'utf8');
-    s.assert.contains(src, "require('../../utils/puzzle-resume')", g + ' 未引入断点模块');
+    s.assert.contains(src, "require('../utils/puzzle-resume')", g + ' 未引入断点模块');
     s.assert.contains(src, 'resume.load(', g + ' 未在进入页面时读档');
     s.assert.contains(src, '_restore: function', g + ' 缺恢复实现');
     s.assert.contains(src, '_saveProgress: function', g + ' 缺存盘实现');
@@ -390,7 +390,7 @@ s.test('2048 页面必须引入 game 与 storage（防再次漏 require）', () 
   const fs = require('fs');
   const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/g2048/g2048.js'), 'utf8');
-  s.assert.contains(src, "require('../../game/tw2048')");
+  s.assert.contains(src, "require('../engine/tw2048')");
   s.assert.contains(src, "require('../../utils/storage')");
 });
 

@@ -11,7 +11,7 @@
 const { suite } = require('./_runner');
 const s = suite('game/math-sprint.js');
 
-const m = require('../../miniprogram/game/math-sprint');
+const m = require('../../miniprogram/pkg-games/engine/math-sprint');
 
 s.test('常量：单局 60 秒、答错扣 2.5 秒', () => {
   s.assert.equal(m.TOTAL_MS, 60000);

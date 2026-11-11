@@ -11,7 +11,7 @@
 const { suite } = require('./_runner');
 const s = suite('game/memory-grid.js');
 
-const g = require('../../miniprogram/game/memory-grid');
+const g = require('../../miniprogram/pkg-games/engine/memory-grid');
 
 s.test('网格规模：5×5 = 25 格', () => {
   s.assert.equal(g.GRID, 25);

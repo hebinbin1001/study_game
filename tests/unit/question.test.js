@@ -14,7 +14,7 @@
 const { suite } = require('./_runner');
 const s = suite('game/question.js');
 
-const q = require('../../miniprogram/game/question');
+const q = require('../../miniprogram/pkg-games/engine/question');
 
 // ---------- 一、typeKind ----------
 s.test('typeKind：原型三分类 en/idiom/cn 原样返回', () => {

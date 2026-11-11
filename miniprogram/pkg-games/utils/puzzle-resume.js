@@ -25,7 +25,7 @@
 
 'use strict';
 
-var storage = require('./storage');
+var storage = require('../../utils/storage');
 
 /** 存储前缀（单槽：每个玩法只留最近一局） */
 var PREFIX = 'ww_resume_';

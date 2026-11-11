@@ -16,7 +16,7 @@
 
 'use strict';
 
-var constants = require('../utils/constants');
+var constants = require('../../utils/constants');
 
 var ROUND_Q = 8;      // 每局题数
 // 初始命数：3 → 5（2026-09-12 与字母射击统一口径）

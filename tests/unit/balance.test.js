@@ -11,7 +11,7 @@
 const { suite } = require('./_runner');
 const s = suite('game/balance.js');
 
-const g = require('../../miniprogram/game/balance');
+const g = require('../../miniprogram/pkg-games/engine/balance');
 
 function seededRandom(seed) {
   let x = seed || 1;

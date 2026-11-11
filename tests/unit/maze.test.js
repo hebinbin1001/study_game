@@ -14,7 +14,7 @@ const s = suite('词义迷宫（maze）');
 
 const fs = require('fs');
 const path = require('path');
-const M = require('../../miniprogram/game/maze');
+const M = require('../../miniprogram/pkg-games/engine/maze');
 const dict = require('../../miniprogram/utils/dict');
 
 const SIZE = M.SIZE;
@@ -197,7 +197,7 @@ s.test('星上限 = 30 关 × 3 星 = 90', () => {
 });
 
 s.test('引擎保持纯逻辑：不读年级 / 词库 / wx', () => {
-  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/game/maze.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/engine/maze.js'), 'utf8');
   const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\r\n]*/g, '');
   ['getLastGrade', 'loadByGrade', 'require(\'../../utils/dict\')', 'require(\'../../utils/storage\')', 'wx.']
     .forEach(function (k) {

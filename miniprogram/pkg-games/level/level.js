@@ -22,7 +22,7 @@ var challenge = require('../../utils/challenge');
 var starRecovery = require('../../utils/star-recovery');
 // 埋点（2026-11-11）：进对局前记 game_start（取消预习不算开局）
 var track = require('../../utils/track');
-var rewards = require('../../utils/challenge-rewards');
+var rewards = require('../utils/challenge-rewards');
 var request = require('../../utils/request');
 // 学段 → 镇守 Boss（第 30 关用暗紫卡 + 立绘，和首页 Boss 预告同源）
 var bossLadder = require('../../utils/boss-ladder');

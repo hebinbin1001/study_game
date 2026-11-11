@@ -10,7 +10,7 @@
  *   2. 用我们的引擎 BFS 求最优解，**必须等于关卡标注的 minMoves**（不一致直接报错退出）；
  *   3. 最优解在**独立回放器**里逐步执行，必须每步合法且确实通关（交叉验证，避免"求解器自说自话"）；
  *   4. 关卡去重（局面 key 唯一）、难度单调不减；
- *   5. 输出 `miniprogram/data/klotski-levels.js`：含 30 关的网格、档位、最少步数、最优解路径。
+ *   5. 输出 `miniprogram/pkg-games/data/klotski-levels.js`：含 30 关的网格、档位、最少步数、最优解路径。
  *
  * 用法：
  *   node e2e/gen-klotski-levels.js                    # 用默认参考路径生成
@@ -19,11 +19,11 @@
 
 const fs = require('fs');
 const path = require('path');
-const K = require('../miniprogram/game/klotski');
+const K = require('../miniprogram/pkg-games/engine/klotski');
 
 const ROOT = path.resolve(__dirname, '..');
 const DEFAULT_SRC = path.resolve(ROOT, '..', 'huarongdao', 'tools', 'levels.json');
-const OUT = path.join(ROOT, 'miniprogram', 'data', 'klotski-levels.js');
+const OUT = path.join(ROOT, 'miniprogram', 'pkg-games', 'data', 'klotski-levels.js');
 
 function argValue(name) {
   const hit = process.argv.slice(2).find((a) => a.indexOf('--' + name + '=') === 0);

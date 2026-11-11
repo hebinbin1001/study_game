@@ -10,11 +10,11 @@
 // 存档：`storage.saveStars('klotski', no, stars)`，与数独/2048/24 点同一套；
 //      解锁沿用「上一关 ≥1 星」。
 
-var K = require('../../game/klotski');
-var playReport = require('../../utils/play-report');
-var LEVELS = require('../../data/klotski-levels');
+var K = require('../engine/klotski');
+var playReport = require('../utils/play-report');
+var LEVELS = require('../data/klotski-levels');
 var storage = require('../../utils/storage');
-var resume = require('../../utils/puzzle-resume');
+var resume = require('../utils/puzzle-resume');
 
 var PAGE = 'klotski';
 var CUR_KEY = 'ww_klotski_cur';   // 上次玩到第几关（选关页默认高亮）

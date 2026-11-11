@@ -277,7 +277,7 @@ check(adminRouteSrc.includes('admin-query') && adminRouteSrc.includes('searchOpe
   const appSrc = read('miniprogram/app.js');
   check(appSrc.indexOf('track.launch(') !== -1, 'app.js onLaunch 调 track.launch（visit / share_open）');
   check(appSrc.indexOf('track.onShow(') !== -1, 'app.js onShow 调 track.onShow（补发 + 热启动分享进入）');
-  check(read('miniprogram/utils/play-report.js').indexOf("track.event('game_end'") !== -1,
+  check(read('miniprogram/pkg-games/utils/play-report.js').indexOf("track.event('game_end'") !== -1,
     'play-report 统一记 game_end（21 个玩法的出口）');
   check(read('miniprogram/pkg-games/level/level.js').indexOf("track.event('game_start'") !== -1,
     '关卡页跳对局前记 game_start');
@@ -304,6 +304,67 @@ check(adminRouteSrc.includes('admin-query') && adminRouteSrc.includes('searchOpe
     check(wxss.indexOf('.share-canvas') !== -1 && wxss.indexOf('left: -9999px') !== -1,
       p.name + '画布样式是屏幕外离屏（不能 display:none，2d 节点会拿不到）');
   });
+})();
+
+// 16) 主包内不许存在「只被分包引用」的 JS（2026-11-11 开发者工具代码扫描未通过后补的护栏）
+// 规则来源：微信代码扫描「主包内不应存在主包未使用的 JS 文件」。主包 JS 必须能从
+// app.js / 主包页面 / 主包组件 出发沿 require 到达；否则应移进分包（pkg-games）。
+// 为什么不用「有没有人 require」的简单判断：分包页面 require 主包文件是合法的，
+// 简单判断查不出来；这里只差「主包侧的依赖闭包」。
+(function checkNoMainOrphanJs() {
+  const read = function (p) { return fs.readFileSync(p, 'utf8'); };
+  const appJson = JSON.parse(read('miniprogram/app.json'));
+  const subRoots = (appJson.subPackages || appJson.subpackages || [])
+    .map(function (s) { return String(s.root || '').replace(/^\/+|\/+$/g, ''); });
+  const mpDir = 'miniprogram';
+  const isSub = function (rel) {
+    return subRoots.some(function (r) { return rel.indexOf(r + '/') === 0; });
+  };
+  const jsFiles = [];
+  const walkJs = function (dir) {
+    fs.readdirSync(dir, { withFileTypes: true }).forEach(function (e) {
+      const p = path.posix.join(dir, e.name);
+      if (e.isDirectory()) { walkJs(p); return; }
+      if (/\.js$/.test(e.name)) jsFiles.push(p);
+    });
+  };
+  walkJs(mpDir);
+  const deps = {};
+  const fileSet = new Set(jsFiles);
+  jsFiles.forEach(function (f) {
+    const src = read(f);
+    const out = [];
+    const re = /require\(\s*['"]([^'"]+)['"]\s*\)/g;
+    let m;
+    while ((m = re.exec(src))) {
+      if (m[1].charAt(0) !== '.') continue;
+      let t = path.posix.normalize(path.posix.join(path.posix.dirname(f), m[1]));
+      if (!/\.js$/.test(t)) t += '.js';
+      if (fileSet.has(t)) out.push(t);
+    }
+    deps[f] = out;
+  });
+  const rel = function (f) { return f.replace(/^miniprogram\//, ''); };
+  const roots = [mpDir + '/app.js'];
+  (appJson.pages || []).forEach(function (p) {
+    const f = mpDir + '/' + p + '.js';
+    if (fileSet.has(f)) roots.push(f);
+  });
+  jsFiles.forEach(function (f) { if (rel(f).indexOf('components/') === 0) roots.push(f); });
+  const used = new Set();
+  const q = roots.slice();
+  while (q.length) {
+    const f = q.pop();
+    if (used.has(f)) continue;
+    used.add(f);
+    (deps[f] || []).forEach(function (d) { if (!isSub(rel(d))) q.push(d); });
+  }
+  const orphans = jsFiles.filter(function (f) {
+    return !isSub(rel(f)) && !used.has(f) && rel(f) !== 'app.js';
+  });
+  check(orphans.length === 0,
+    '主包内有只被分包引用的 JS（应移进 pkg-games，否则代码扫描不通过）：'
+    + orphans.slice(0, 8).map(rel).join('、'));
 })();
 
 console.log(fail ? `\n=== ${fail} 项失败 ===` : '\n=== 全部通过 ===');

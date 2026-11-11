@@ -50,13 +50,24 @@ s.test('打包目录里每个文件都能推导出模块（漏映射 = --changed
 });
 
 s.test('21 个玩法页所在的分包目录逐个都有模块', () => {
+  // 2026-11-11：pkg-games 下新增 engine / data / utils 三个共享目录（主包治理搬进来的），
+  // 它们不是「玩法页目录」，单独在下一个用例里校验映射。
+  const SHARED_DIRS = ['engine', 'data', 'utils'];
   const dirs = fs.readdirSync(path.join(MP, 'pkg-games')).filter((d) => {
-    return fs.statSync(path.join(MP, 'pkg-games', d)).isDirectory();
+    return SHARED_DIRS.indexOf(d) === -1 && fs.statSync(path.join(MP, 'pkg-games', d)).isDirectory();
   });
   s.assert.ok(dirs.length >= 20, 'pkg-games 下应有 20+ 个玩法目录，实际 ' + dirs.length);
   dirs.forEach((d) => {
     const js = 'miniprogram/pkg-games/' + d + '/' + d + '.js';
     s.assert.ok(modules.modulesForPath(js) !== null, d + ' 没有映射到任何模块');
+  });
+  // 共享目录里的文件也必须能推导出模块（否则 --changed 改引擎会静默漏跑）
+  SHARED_DIRS.forEach((d) => {
+    const base = path.join(MP, 'pkg-games', d);
+    fs.readdirSync(base).filter((f) => /\.js$/.test(f)).forEach((f) => {
+      const p = 'miniprogram/pkg-games/' + d + '/' + f;
+      s.assert.ok(modules.modulesForPath(p) !== null, p + ' 没有映射到任何模块');
+    });
   });
 });
 

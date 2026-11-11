@@ -30,6 +30,8 @@ const path = require('path');
 const s = suite('休闲玩法上报口径（星星照给 · 题量不写）');
 const ROOT = path.join(__dirname, '../..');
 const U = path.join(ROOT, 'miniprogram/utils');
+// 2026-11-11：play-report 已随「主包内未使用 js」治理迁入分包（只被分包玩法页引用）
+const PU = path.join(ROOT, 'miniprogram/pkg-games/utils');
 const GAMES_DIR = path.join(ROOT, 'miniprogram/pkg-games');
 
 // ============ 加载 play-report（request / auth / play-counts 全部打桩） ============
@@ -51,7 +53,7 @@ stubUtil('request', {
 stubUtil('auth', { isLoggedIn: function () { return loggedIn; } });
 stubUtil('play-counts', { bump: function () {} });
 
-const playReport = require(path.join(U, 'play-report'));
+const playReport = require(path.join(PU, 'play-report'));
 const CASUAL = playReport.CASUAL_GAME_TYPES;
 
 // ============ ① 分类表自检 ============
@@ -163,7 +165,7 @@ s.test('服务端答题口径没被改动：8/10 → 2 星、score 80', () => {
 // ============ ④ 源码级防回退 + 全量覆盖 ============
 
 s.test('play-report 里不得再出现「按星级反推正确率」的伪造逻辑', () => {
-  const src = fs.readFileSync(path.join(U, 'play-report.js'), 'utf8');
+  const src = fs.readFileSync(path.join(PU, 'play-report.js'), 'utf8');
   s.assert.ok(src.indexOf('bandForStars') === -1, 'bandForStars 已被删除，不要再加回来（它会把假题量写进学习报告）');
   s.assert.ok(!/correct:\s*10\s*,\s*total:\s*10/.test(src), '源码里不应再有 10/10 的伪造样本');
 });

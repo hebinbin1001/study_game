@@ -16,8 +16,8 @@
 const { suite } = require('./_runner');
 const s = suite('口算/天平 按年级分档');
 
-const sprint = require('../../miniprogram/game/math-sprint');
-const balance = require('../../miniprogram/game/balance');
+const sprint = require('../../miniprogram/pkg-games/engine/math-sprint');
+const balance = require('../../miniprogram/pkg-games/engine/balance');
 
 function maxOf(list) {
   return list.reduce(function (m, v) { return v > m ? v : m; }, 0);

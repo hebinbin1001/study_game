@@ -9,8 +9,8 @@
 const { suite } = require('./_runner');
 const s = suite('限时抢答（quiz）');
 
-const quiz = require('../../miniprogram/game/quiz');
-const bankLib = require('../../miniprogram/game/quiz-bank');
+const quiz = require('../../miniprogram/pkg-games/engine/quiz');
+const bankLib = require('../../miniprogram/pkg-games/engine/quiz-bank');
 const dict = require('../../miniprogram/utils/dict');
 const constants = require('../../miniprogram/utils/constants');
 

@@ -11,7 +11,7 @@
  */
 'use strict';
 
-var constants = require('./constants');
+var constants = require('../../utils/constants');
 
 /** 每个玩法的关卡表由「档位描述」生成：{ no, label, sub } */
 function gridLevels(cols, rows, digitsList, prefix) {
@@ -95,7 +95,7 @@ function levelsOf(key) {
   if (k === 'onestroke') {
     // 2026-10-18：关卡表换成 demo 的 35 关手绘图形，关卡名/难度/线数直接从引擎取，
     // 关卡页就能显示「第 7 关 · 五角星 / 简单 · 5 条线」，不再是清一色「第 N 关」。
-    var os = require('../game/one-stroke');
+    var os = require('../engine/one-stroke');
     return os.LEVELS.map(function (lv, i) {
       return {
         no: i + 1,
@@ -109,7 +109,7 @@ function levelsOf(key) {
     // 2026-10-18：找规律的档位/题型名直接从引擎取（与出题同源），
     // 关卡页才会显示「第 13 关 · 中等 / 乘 2 与平方数 · 10 题」而不是清一色「第 N 关」。
     // 注意这里**不读年级**：数字智力的难度只由关卡序号决定。
-    var pat = require('../game/pattern');
+    var pat = require('../engine/pattern');
     var pout = [];
     for (var pi = 1; pi <= pat.TOTAL_LEVELS; pi++) {
       var pInfo = pat.tierOf(pi);
@@ -125,7 +125,7 @@ function levelsOf(key) {
   if (k === 'clock') {
     // 2026-10-18：档位/题型名与出题同源（game/clock.js 的 tierOf），
     // 关卡页显示「第 28 关 · 跨小时 / 24 时制与跨小时 · 10 题」。同样不读年级。
-    var ck = require('../game/clock');
+    var ck = require('../engine/clock');
     var cout = [];
     for (var ci = 1; ci <= ck.TOTAL_LEVELS; ci++) {
       var cinfo = ck.tierOf(ci);
@@ -141,7 +141,7 @@ function levelsOf(key) {
   if (k === 'maze') {
     // 2026-10-21：词义迷宫，档位/门数与出题同源（game/maze.js 的 tierOf），
     // 关卡页显示「第 20 关 · 挑战 / 成语 · 词义辨析 · 6 道门 · 6×6」。
-    var mz = require('../game/maze');
+    var mz = require('../engine/maze');
     var mout = [];
     for (var mi = 1; mi <= mz.TOTAL_LEVELS; mi++) {
       var minfo = mz.tierOf(mi);
@@ -156,14 +156,14 @@ function levelsOf(key) {
   }
   if (k === 'hanoi') {
     // 2026-10-18：6 关小品（3~8 盘），关卡表与引擎同源
-    return require('../game/hanoi').levelsForPage();
+    return require('../engine/hanoi').levelsForPage();
   }
   if (k === 'memory') {
     // 2026-10-09 修：这里的描述原本是「2×2 格 · 单个数字」这类，但引擎 game/memory-grid.js
     // 实际是**固定 5×5**、难度来自「亮格数 3→8 + 展示时长 1.5s→0.65s」，
     // 页面从来不读 rows/cols/digits —— 描述与玩法完全不符（玩家照描述选关会被误导）。
     // 现在直接从引擎取，描述与玩法同源，以后调难度也不会再漂移。
-    var mg = require('../game/memory-grid');
+    var mg = require('../engine/memory-grid');
     var out = [];
     var total = COUNTS.memory;
     for (var mi = 1; mi <= total; mi++) {

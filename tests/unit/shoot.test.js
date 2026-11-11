@@ -9,11 +9,11 @@
 const { suite } = require('./_runner');
 const s = suite('字母射击（shoot.js）');
 
-const shoot = require('../../miniprogram/game/shoot');
-const question = require('../../miniprogram/game/question');
+const shoot = require('../../miniprogram/pkg-games/engine/shoot');
+const question = require('../../miniprogram/pkg-games/engine/question');
 const dict = require('../../miniprogram/utils/dict');
 const constants = require('../../miniprogram/utils/constants');
-const { CONFIG } = require('../../miniprogram/game/config');
+const { CONFIG } = require('../../miniprogram/pkg-games/engine/config');
 
 // ============ 出题结构 ============
 

@@ -1,13 +1,13 @@
 // 词义迷宫：门必须答完才开出口；星按正确率；题目取当前学段词库。
-var maze = require('../../game/maze');
+var maze = require('../engine/maze');
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var skins = require('../../utils/skins');
-var progress = require('../../utils/puzzle-progress');
-var playReport = require('../../utils/play-report');
+var progress = require('../utils/puzzle-progress');
+var playReport = require('../utils/play-report');
 var challenge = require('../../utils/challenge');
-var resume = require('../../utils/puzzle-resume');
+var resume = require('../utils/puzzle-resume');
 
 var PAGE = 'maze';
 

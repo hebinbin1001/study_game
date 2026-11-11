@@ -12,7 +12,7 @@
 const { suite } = require('./_runner');
 const s = suite('数字智力关卡表');
 
-const lv = require('../../miniprogram/utils/puzzle-levels');
+const lv = require('../../miniprogram/pkg-games/utils/puzzle-levels');
 const constants = require('../../miniprogram/utils/constants');
 
 s.test('口算冲刺 / 算式天平：14 档、分母与真实档数一致', () => {
@@ -37,7 +37,7 @@ s.test('记忆矩阵：描述与引擎口径同源（不是另一套格子×位�
   // 2026-10-09 修：这里原来断言「params.rows/cols/digits 递增」，但那套参数**引擎根本不读**
   // （memory-grid 固定 5×5，难度来自亮格数与展示时长），关卡页描述与玩法完全对不上。
   // 现在按引擎真实口径断言，两边同源，以后调难度也不会漂移。
-  const mg = require('../../miniprogram/game/memory-grid');
+  const mg = require('../../miniprogram/pkg-games/engine/memory-grid');
   const list = lv.levelsOf('memory');
   s.assert.equal(list.length, 30);
   list.forEach(function (it, i) {
@@ -58,7 +58,7 @@ s.test('固定关卡表玩法：数量与现成数据一致', () => {
 });
 
 s.test('找规律：关卡页描述与引擎档位同源（不接年级）', () => {
-  const pat = require('../../miniprogram/game/pattern');
+  const pat = require('../../miniprogram/pkg-games/engine/pattern');
   const list = lv.levelsOf('pattern');
   list.forEach(function (it, i) {
     const info = pat.tierOf(i + 1);
@@ -71,7 +71,7 @@ s.test('找规律：关卡页描述与引擎档位同源（不接年级）', () 
 });
 
 s.test('一笔画：关卡名/难度/线数取自引擎（2026-10-18 换成 demo 的 35 关）', () => {
-  const os = require('../../miniprogram/game/one-stroke');
+  const os = require('../../miniprogram/pkg-games/engine/one-stroke');
   const list = lv.levelsOf('onestroke');
   list.forEach(function (it, i) {
     const raw = os.LEVELS[i];

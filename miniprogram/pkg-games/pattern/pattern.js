@@ -5,10 +5,10 @@
 //   · **不接年级**：难度只靠关卡序号（game/pattern.js 的 tierOf），引擎里没有任何 grade 依赖；
 //   · 答完一题立刻公布规则（"每次 +3"），这是它相对其他玩法唯一的教学增量；
 //   · 星级统一按正确率（challenge.starsByRightRate），与 2026-10-17 的拍板一致。
-var pattern = require('../../game/pattern');
+var pattern = require('../engine/pattern');
 var storage = require('../../utils/storage');
-var progress = require('../../utils/puzzle-progress');
-var playReport = require('../../utils/play-report');
+var progress = require('../utils/puzzle-progress');
+var playReport = require('../utils/play-report');
 var challenge = require('../../utils/challenge');
 
 // 题板内可用宽度（rpx）：750 - 页面左右各 32 - 题板左右各 20（.stage padding）

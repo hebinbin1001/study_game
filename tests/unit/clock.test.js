@@ -13,7 +13,7 @@ const s = suite('认钟表（clock）');
 
 const fs = require('fs');
 const path = require('path');
-const C = require('../../miniprogram/game/clock');
+const C = require('../../miniprogram/pkg-games/engine/clock');
 
 const LV = C.TOTAL_LEVELS;
 const RE12 = /^(1[0-2]|[1-9]):([0-5][0-9])$/;
@@ -203,7 +203,7 @@ s.test('星上限 = 30 关 × 3 星 = 90（首页 getAllStars 会汇总，不能
 });
 
 s.test('引擎源码不得出现年级依赖（数字智力统一 grade:all）', () => {
-  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/game/clock.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/engine/clock.js'), 'utf8');
   // 先剥注释再查：文件头就写着"不接年级"，直接搜字符串会把注释也算进去（误报）
   const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\r\n]*/g, '');
   ['gradeScale', 'getLastGrade', 'GRADES', 'grade', 'level_grade'].forEach(function (k) {

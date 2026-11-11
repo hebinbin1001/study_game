@@ -288,6 +288,20 @@ const PATH_RULES = [
   // 于是改这些文件时 `--changed` 会打印「没有映射」然后只跑静态护栏。
   // 下面按目录补齐；共享组件刻意映射到多个模块（改一个组件会牵连多类玩法）。
   { re: /^miniprogram\/pkg-games\/level\//, modules: ['challenge'] },
+  // 2026-11-11「主包内未使用 js」治理：只被分包引用的引擎 / 关卡数据 / 工具已从主包移入
+  // pkg-games（engine / data / utils）。改这些 = 改对应玩法，必须跑对应模块。
+  { re: /^miniprogram\/pkg-games\/engine\/(shoot|config|question)\.js$/, modules: ['game'] },
+  { re: /^miniprogram\/pkg-games\/engine\/(link|word-build|quiz|quiz-bank|letter-bubble)\.js$/,
+    modules: ['wordgames'] },
+  { re: /^miniprogram\/pkg-games\/engine\//, modules: ['puzzle'] },
+  { re: /^miniprogram\/pkg-games\/data\/.*-levels\.js$/, modules: ['puzzle'] },
+  { re: /^miniprogram\/pkg-games\/utils\/(battle-fx|play-report)\.js$/,
+    modules: ['game', 'wordgames', 'puzzle', 'user'] },
+  { re: /^miniprogram\/pkg-games\/utils\/(puzzle-levels|puzzle-progress|puzzle-resume)\.js$/,
+    modules: ['puzzle', 'pages'] },
+  { re: /^miniprogram\/pkg-games\/utils\/challenge-rewards\.js$/, modules: ['challenge'] },
+  { re: /^miniprogram\/pkg-games\/utils\/game-status\.js$/, modules: ['server', 'wordgames', 'puzzle'] },
+  { re: /^miniprogram\/pkg-games\/utils\/review\.js$/, modules: ['user'] },
   { re: /^miniprogram\/pkg-games\/puzzle-level\//, modules: ['puzzle'] },
   { re: /^miniprogram\/pkg-games\/(game|result)\//, modules: ['game'] },
   { re: /^miniprogram\/pkg-games\/(link|match|snake|word-build|idiom-build|quiz|bounce|letter-bubble)\//,

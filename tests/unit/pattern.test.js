@@ -14,7 +14,7 @@ const s = suite('找规律（pattern）');
 
 const fs = require('fs');
 const path = require('path');
-const P = require('../../miniprogram/game/pattern');
+const P = require('../../miniprogram/pkg-games/engine/pattern');
 
 const LV = P.TOTAL_LEVELS;
 const levels = [];
@@ -79,7 +79,7 @@ s.test('入门档（1~6 关）抽 1000 次也不会出现平方数/斐波那契/
 // ============ 不接年级 ============
 
 s.test('引擎源码里不得出现 grade / getLastGrade / gradeScale（数字智力的口径）', () => {
-  const file = path.join(__dirname, '../../miniprogram/game/pattern.js');
+  const file = path.join(__dirname, '../../miniprogram/pkg-games/engine/pattern.js');
   const src = fs.readFileSync(file, 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/\/\/[^\r\n]*/g, '');

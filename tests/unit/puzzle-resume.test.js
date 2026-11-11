@@ -11,7 +11,7 @@ const s = suite('utils/puzzle-resume');
 
 // storage 在非 wx 环境用内存兜底，测试之间手动清干净
 const storage = require('../../miniprogram/utils/storage');
-const resume = require('../../miniprogram/utils/puzzle-resume');
+const resume = require('../../miniprogram/pkg-games/utils/puzzle-resume');
 
 function reset(game) {
   resume.clear(game || 'klotski');

@@ -2,14 +2,14 @@
 // 与 demo 的差异：复用公共 HUD / 结算弹层；字块用本地成语词库随机抽，
 // 干扰字取其他成语里的真实字（不是乱码），拼满 4 格自动判题。
 // 关联：game/word-build.js（与字母拼词共用纯逻辑引擎）
-var lib = require('../../game/word-build');
+var lib = require('../engine/word-build');
 var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var CONST = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
-var playReport = require('../../utils/play-report');
-var battleFx = require('../../utils/battle-fx');
+var playReport = require('../utils/play-report');
+var battleFx = require('../utils/battle-fx');
 
 var MODE = 'idiom';
 var BEST_KEY = 'ww_idiom_build_best';

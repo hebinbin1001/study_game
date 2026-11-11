@@ -29,7 +29,7 @@ global.getApp = () => ({ globalData: {} });
 
 // 把出题逻辑打桩成「必失败题」：_nextQuestion 会走 invalid 分支 → answered++ → 递归下题，
 // 正好能把「一直出题」的循环跑到收尾，验证计数守卫。
-const shoot = require('../../miniprogram/game/shoot');
+const shoot = require('../../miniprogram/pkg-games/engine/shoot');
 shoot.buildRound = function () { return { invalid: true }; };
 
 let def = null;

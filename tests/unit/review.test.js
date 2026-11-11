@@ -16,7 +16,7 @@
 const { suite } = require('./_runner');
 const s = suite('utils/review.js');
 
-const review = require('../../miniprogram/utils/review');
+const review = require('../../miniprogram/pkg-games/utils/review');
 
 const NOW = Date.now();
 const PAST = new Date(NOW - 24 * 60 * 60 * 1000).toISOString();   // 已到期

@@ -23,7 +23,7 @@
 
 const question = require('./question');
 const { CONFIG } = require('./config');
-const { starsByRate } = require('../utils/constants');
+const { starsByRate } = require('../../utils/constants');
 
 // 随机源走 question.js 的可注入随机源：挑战关卡 setRandom(种子) 后，
 // 「同关同题、同挖空、同面板顺序」的既有承诺继续成立（见 game/question.js 顶部注释）。

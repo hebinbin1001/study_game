@@ -10,8 +10,8 @@
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
-var playReport = require('../../utils/play-report');
-var battleFx = require('../../utils/battle-fx');
+var playReport = require('../utils/play-report');
+var battleFx = require('../utils/battle-fx');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var COLS = 3;

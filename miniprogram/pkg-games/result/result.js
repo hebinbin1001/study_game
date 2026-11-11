@@ -13,7 +13,7 @@ var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
 var request = require('../../utils/request');
 var auth = require('../../utils/auth');
-var question = require('../../game/question');
+var question = require('../engine/question');
 var challenge = require('../../utils/challenge');
 // 本机玩法计数：首页「推荐玩法」按玩得最多的两款排序（2026-09-13）
 var playCounts = require('../../utils/play-counts');

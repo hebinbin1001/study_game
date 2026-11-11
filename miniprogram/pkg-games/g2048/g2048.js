@@ -7,13 +7,13 @@
 //   · par 依旧按「合并次数」模型定（合成 T 至少 (T/2 − 1) 次合并，实战约 1.2~1.5
 //     次/步），校验见 tests/unit/g2048-levels.test.js。
 // 关卡表在 data/g2048-levels.js（14 关）：关卡页与单测共用同一份
-var LEVELS = require('../../data/g2048-levels').levels;
-var game = require('../../game/tw2048');
+var LEVELS = require('../data/g2048-levels').levels;
+var game = require('../engine/tw2048');
 var storage = require('../../utils/storage');
-var resume = require('../../utils/puzzle-resume');
+var resume = require('../utils/puzzle-resume');
 // 关卡进度 + 每关最短用时（用户 2026-09-13：每关显示最短时间）
-var puzProgress = require('../../utils/puzzle-progress');
-var playReport = require('../../utils/play-report');
+var puzProgress = require('../utils/puzzle-progress');
+var playReport = require('../utils/play-report');
 
 // 挑战模式（2026-09-12 用户认可「保留打到 2048 的成就感」）：
 //   · 目标 2048、只比**最少步数**；

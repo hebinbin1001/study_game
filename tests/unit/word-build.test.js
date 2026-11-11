@@ -12,7 +12,7 @@
 const { suite } = require('./_runner');
 const s = suite('game/word-build.js');
 
-const g = require('../../miniprogram/game/word-build');
+const g = require('../../miniprogram/pkg-games/engine/word-build');
 
 const CONSTANTS = require('../../miniprogram/utils/constants');
 

@@ -10,7 +10,7 @@
  *   · 新版「每个空位点错扣 1 盾」，累计点错 5 次判负 —— 与旧版「答错 5 题判负」容错一致。
  */
 
-const { GAME_CONFIG } = require('../utils/constants');
+const { GAME_CONFIG } = require('../../utils/constants');
 const { DEFAULT_REVIEW_RATE } = require('../utils/review');
 
 // ============ 一、计分参数 ============

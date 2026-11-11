@@ -8,16 +8,16 @@
 //   · 结算走公共 settle-pop（含「下一关」，来自 challenge.nextLevelUrl）；
 //   · 挑战局上报 playReport（game_type=quiz），供玩法进度榜与玩法类成就使用。
 
-var quiz = require('../../game/quiz');
+var quiz = require('../engine/quiz');
 var challenge = require('../../utils/challenge');
 var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var constants = require('../../utils/constants');
 var rng = require('../../utils/rng');
-var playReport = require('../../utils/play-report');
-var question = require('../../game/question');
+var playReport = require('../utils/play-report');
+var question = require('../engine/question');
 var audio = require('../../game/audio');
-var battleFx = require('../../utils/battle-fx');
+var battleFx = require('../utils/battle-fx');
 
 var MODE = 'quiz';
 var BEST_KEY = 'ww_quiz_best';

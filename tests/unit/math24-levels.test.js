@@ -14,8 +14,8 @@
 const { suite } = require('./_runner');
 const s = suite('data/math24-levels.js 关卡库');
 
-const db = require('../../miniprogram/data/math24-levels');
-const m24 = require('../../miniprogram/game/math24');
+const db = require('../../miniprogram/pkg-games/data/math24-levels');
+const m24 = require('../../miniprogram/pkg-games/engine/math24');
 
 s.test('结构：60 关、编号连续、每关 4 个数字', () => {
   s.assert.equal(db.total, db.levels.length, 'total 应与实际关卡数一致');

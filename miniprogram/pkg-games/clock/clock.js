@@ -5,10 +5,10 @@
 //   · **不接年级**：难度只靠关卡序号（game/clock.js 的 tierOf），引擎里没有任何 grade 依赖；
 //   · 答完一题公布"怎么读"（分针走几小格、满 60 进 1 小时），这是它相对其他玩法的教学增量；
 //   · 星级统一按正确率（challenge.starsByRightRate），与 2026-10-17 拍板一致。
-var clock = require('../../game/clock');
+var clock = require('../engine/clock');
 var storage = require('../../utils/storage');
-var progress = require('../../utils/puzzle-progress');
-var playReport = require('../../utils/play-report');
+var progress = require('../utils/puzzle-progress');
+var playReport = require('../utils/play-report');
 var challenge = require('../../utils/challenge');
 
 var GOOD_MS = 700;        // 答对后停留（看一眼规则）

@@ -12,7 +12,7 @@
 const { suite } = require('./_runner');
 const s = suite('挑战主线里程碑宝箱');
 
-const rewards = require('../../miniprogram/utils/challenge-rewards');
+const rewards = require('../../miniprogram/pkg-games/utils/challenge-rewards');
 const storage = require('../../miniprogram/utils/storage');
 
 const G = 't_chest_g';        // 用独立学段 key 隔离用例，避免污染其它存档

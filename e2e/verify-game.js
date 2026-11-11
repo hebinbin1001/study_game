@@ -23,7 +23,7 @@
 
 const H = require('./lib/harness');
 const C = require('../miniprogram/utils/constants');
-const shoot = require('../miniprogram/game/shoot');
+const shoot = require('../miniprogram/pkg-games/engine/shoot');
 
 const GAME_URL = '/pkg-games/game/game?grade=kg&level=1';
 const EXPECTED_TOTAL_Q = 10;

@@ -3,13 +3,13 @@
 // 否则错配扣命(3❤)。清空过关（按正确率 1-3 星，2026-10-17 统一口径）。题库出题（随机学段 w1）。
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
-var link = require('../../game/link');
+var link = require('../engine/link');
 var storage = require('../../utils/storage');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
 var request = require('../../utils/request');
-var playReport = require('../../utils/play-report');
-var battleFx = require('../../utils/battle-fx');
+var playReport = require('../utils/play-report');
+var battleFx = require('../utils/battle-fx');
 
 var GRADES = (constants.GRADES || []).filter(function (g) { return g.key !== 'college'; });
 var COLS = 4, PAIR = 8;

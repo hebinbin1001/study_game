@@ -12,7 +12,7 @@
  */
 'use strict';
 
-var storage = require('./storage');
+var storage = require('../../utils/storage');
 
 var KEY = 'ww_puzzle_progress';
 

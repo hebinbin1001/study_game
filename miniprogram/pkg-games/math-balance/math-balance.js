@@ -2,10 +2,10 @@
 // 与 demo 的差异：复用公共 HUD / 结算弹层；倾斜角度与托盘状态由引擎纯函数决定；
 // 成绩只存本地最高分（固定玩法不入字词进度）。
 // 关联：game/balance.js（纯逻辑，可单测）
-var lib = require('../../game/balance');
+var lib = require('../engine/balance');
 var constants = require('../../utils/constants');
-var playReport = require('../../utils/play-report');
-var puzzleProgress = require('../../utils/puzzle-progress');
+var playReport = require('../utils/play-report');
+var puzzleProgress = require('../utils/puzzle-progress');
 var challenge = require('../../utils/challenge');
 var storage = require('../../utils/storage');
 

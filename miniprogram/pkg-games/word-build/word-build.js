@@ -2,14 +2,14 @@
 // 与 demo 的差异：复用公共 HUD / 结算弹层；词库取本地内置词库（首选最近学段，
 // 不足一局时并入其他学段）；成绩只存本地最高分（固定玩法不入字词进度）。
 // 关联：game/word-build.js（纯逻辑，可单测）
-var lib = require('../../game/word-build');
+var lib = require('../engine/word-build');
 var dict = require('../../utils/dict');
 var storage = require('../../utils/storage');
 var CONST = require('../../utils/constants');
 var challenge = require('../../utils/challenge');
 var rng = require('../../utils/rng');
-var playReport = require('../../utils/play-report');
-var battleFx = require('../../utils/battle-fx');
+var playReport = require('../utils/play-report');
+var battleFx = require('../utils/battle-fx');
 
 var MODE = 'letter';
 var BEST_KEY = 'ww_word_build_best';

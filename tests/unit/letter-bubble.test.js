@@ -8,7 +8,7 @@ const path = require('path');
 const { suite } = require('./_runner');
 const s = suite('Boss 补字母泡泡龙');
 
-const lib = require('../../miniprogram/game/letter-bubble');
+const lib = require('../../miniprogram/pkg-games/engine/letter-bubble');
 const challenge = require('../../miniprogram/utils/challenge');
 const rng = require('../../miniprogram/utils/rng');
 

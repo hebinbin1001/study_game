@@ -15,7 +15,7 @@
 const { suite } = require('./_runner');
 const s = suite('数独关卡档位');
 
-const sudoku = require('../../miniprogram/game/sudoku');
+const sudoku = require('../../miniprogram/pkg-games/engine/sudoku');
 
 // 与 pkg-games/sudoku/sudoku.js 的 STAGES 保持一致
 const STAGES = [

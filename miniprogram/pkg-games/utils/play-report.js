@@ -25,12 +25,12 @@
 
 'use strict';
 
-var request = require('./request');
-var auth = require('./auth');
+var request = require('../../utils/request');
+var auth = require('../../utils/auth');
 // 本机玩法计数（首页「推荐玩法」按玩得最多排序用，2026-09-13）
-var counts = require('./play-counts');
+var counts = require('../../utils/play-counts');
 // 埋点（2026-11-11）：game_end 从这里统一记 —— 21 个玩法都走这个出口
-var track = require('./track');
+var track = require('../../utils/track');
 
 /**
  * 休闲玩法（数字智力 + 街机式抢接）：没有「题目」概念，只上报星级、不写题量。

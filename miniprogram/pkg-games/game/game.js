@@ -19,9 +19,9 @@
  *   · 护盾 = CONFIG.initLives，每点错一次扣 1 —— 与旧版「答错 5 题判负」容错次数一致。
  */
 
-var shoot = require('../../game/shoot');
-var config = require('../../game/config');
-var question = require('../../game/question');
+var shoot = require('../engine/shoot');
+var config = require('../engine/config');
+var question = require('../engine/question');
 var dict = require('../../utils/dict');
 var constants = require('../../utils/constants');
 var storage = require('../../utils/storage');
@@ -31,9 +31,9 @@ var rng = require('../../utils/rng');
 var audio = require('../../game/audio');
 var auth = require('../../utils/auth');
 var request = require('../../utils/request');
-var review = require('../../utils/review');
+var review = require('../utils/review');
 var skins = require('../../utils/skins');
-var battleFx = require('../../utils/battle-fx');
+var battleFx = require('../utils/battle-fx');
 // 学段 → 镇守 Boss（2026-10-17）：Boss 关要画「该学段的 Boss」，不是玩家装备的怪兽
 var bossLadder = require('../../utils/boss-ladder');
 

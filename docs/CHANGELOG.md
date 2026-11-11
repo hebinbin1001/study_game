@@ -140,6 +140,41 @@ canvas 能力其实早就具备（定级测的分享诊断卡、share-card 海�
 - `e2e/structure-check.js` 新增 10 条接线断言（两页各有离屏画布 + imageUrl + 样式）；
 - `--only=result` PASS（25.8s）、`--only=pages` PASS（148.8s）。
 
+### 主包治理：32 个「只被分包引用」的 JS 移入 pkg-games（2026-11-11 用户反馈代码扫描未通过）
+
+**问题**：开发者工具「代码扫描」报「主包内不应存在主包未使用的 JS 文件」未通过，列出 20 个文件
+（`game/*` 引擎、`data/*-levels` 关卡数据、`utils/play-report` 等）。根因是 2026-10-28 把 21 个玩法页
+迁进 `pkg-games` 时，**引擎与工具还留在主包**，主包页面一个都不引用，只有分包页面在用。
+
+**口径**：主包 JS 只要没有任何主包文件（app.js / 主包页面 / 主包组件）依赖它，就算「主包内未使用」。
+而且**只移扫描列出的 20 个不够**：`puzzle-levels`、`shoot`、`quiz` 移走后，它们引用的
+`config / quiz-bank / one-stroke / one-stroke-levels / pattern / clock / maze / hanoi / memory-grid /
+question / g2048-levels / review` 就会失去最后一个主包引用，下一次扫描照样报警。所以按**闭包**
+一次移完：**32 个文件、239 KB**。
+
+**去向**（分包内按职责建目录）：
+
+| 原位置 | 新位置 | 数量 |
+|---|---|---|
+| `miniprogram/game/*.js` | `miniprogram/pkg-games/engine/` | 21 |
+| `miniprogram/data/*-levels.js` | `miniprogram/pkg-games/data/` | 3 |
+| `miniprogram/utils/*.js` | `miniprogram/pkg-games/utils/` | 8 |
+
+**改动**：147 处 require 相对路径重算（移动文件自身的内部依赖 + 分包页面的引用）；
+生成脚本（`e2e/gen-klotski-levels.js` / `gen-math24-levels.js`）输出路径同步；
+`e2e/lib/modules.js` 为 engine/data/utils 补「改动 → 该跑什么」映射；
+`tests/unit/modules-map.test.js` 把共享目录与玩法页目录分开校验；相关单测里的写死路径同步。
+
+**验证**：
+
+- 自建依赖分析：主包内「只被分包引用」的 JS = **0 个**；主包 require 分包 = **0 处**（合法边界）；
+- 全量单测通过；`e2e/structure-check.js`、`e2e/check-assets.js` 通过（structure-check 新增第 16 条
+  「主包不许有只被分包引用的 JS」，把这次的扫描口径固化成护栏，防回潮）；
+- 包体：**主包 1.45 → 1.22 MB**（-230KB），分包 0.53 → 0.77 MB，总包约 1.99 MB（三条线仍绿）；
+- E2E `--module=challenge,pages,game` → **13/13 PASS**（game 34.5s / result 23.6s / challenge 117.6s /
+  pages 146.7s / load 167.4s / lines 50.3s）；
+- 开发者工具「代码扫描」需你重开项目后再扫一次确认（本地无法无头触发该扫描）。
+
 ### 验证
 
 - `tests/unit/examples.test.js` 11/11（3644 断言）；

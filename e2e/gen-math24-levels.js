@@ -21,16 +21,16 @@
  *       高级(45-60)：必须借助分数中间结果（如 3 3 8 8）—— 1~13 里只有 16 组，故该档 16 关
  *
  * 用法：node e2e/gen-math24-levels.js
- *      产物：miniprogram/data/math24-levels.js（覆盖写入，勿手改）
+ *      产物：miniprogram/pkg-games/data/math24-levels.js（覆盖写入，勿手改）
  *      校验：node tests/unit/math24-levels.test.js
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const m24 = require('../miniprogram/game/math24');
+const m24 = require('../miniprogram/pkg-games/engine/math24');
 
-const OUT = path.resolve(__dirname, '..', 'miniprogram', 'data', 'math24-levels.js');
+const OUT = path.resolve(__dirname, '..', 'miniprogram', 'pkg-games', 'data', 'math24-levels.js');
 
 /**
  * 穷举 1~13 的全部四数组合并按难度分类。

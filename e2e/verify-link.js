@@ -28,7 +28,7 @@
  */
 
 const H = require('./lib/harness');
-const linkLib = require('../miniprogram/game/link');
+const linkLib = require('../miniprogram/pkg-games/engine/link');
 const challenge = require('../miniprogram/utils/challenge');
 
 const PAGE_URL = '/pkg-games/link/link';

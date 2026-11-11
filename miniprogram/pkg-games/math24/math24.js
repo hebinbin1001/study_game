@@ -13,13 +13,13 @@
 //
 // 值一律用**精确分数**表示（引擎的 frac/add/sub/mul/div），避免浮点误差
 // —— 像 8 ÷ (3 − 8 ÷ 3) 这种题必须靠分数中间结果才算得对。
-var m24 = require('../../game/math24');
+var m24 = require('../engine/math24');
 var storage = require('../../utils/storage');
-var playReport = require('../../utils/play-report');
-var resume = require('../../utils/puzzle-resume');
+var playReport = require('../utils/play-report');
+var resume = require('../utils/puzzle-resume');
 
 // 固定关卡库（60 关）：data/math24-levels.js，自动生成、每关保证有解
-var LEVELS = require('../../data/math24-levels').levels;
+var LEVELS = require('../data/math24-levels').levels;
 var PAGE = 'math24';
 
 function toFrac(n) { return { n: n, d: 1 }; }

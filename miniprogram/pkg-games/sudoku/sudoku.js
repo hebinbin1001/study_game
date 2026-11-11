@@ -3,10 +3,10 @@
 // 全填对过关 → 结算（星级按错次数）+ 本地存档 sudoku@level（不影响字词进度）。
 // 本地纯逻辑（game/sudoku.js）。星级存本机（固定关卡玩法），但**会上报一局成绩**
 // （game_type=sudoku），供「玩法进度榜」与玩法类成就使用（2026-09-12 P2 起）。
-var sudoku = require('../../game/sudoku');
+var sudoku = require('../engine/sudoku');
 var storage = require('../../utils/storage');
-var playReport = require('../../utils/play-report');
-var resume = require('../../utils/puzzle-resume');
+var playReport = require('../utils/play-report');
+var resume = require('../utils/puzzle-resume');
 
 var PAGE = 'sudoku';
 

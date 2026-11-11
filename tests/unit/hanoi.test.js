@@ -14,7 +14,7 @@ const s = suite('汉诺塔（hanoi）');
 
 const fs = require('fs');
 const path = require('path');
-const H = require('../../miniprogram/game/hanoi');
+const H = require('../../miniprogram/pkg-games/engine/hanoi');
 
 /** 标准 3 柱递归解：把 n 个盘从 from 挪到 to（via 是中转柱） */
 function solve(n, from, to, via, out) {
@@ -158,7 +158,7 @@ s.test('星上限 = 6 关 × 3 星 = 18（不参与无限刷星）', () => {
 });
 
 s.test('引擎源码不得出现年级依赖（数字智力统一 grade:all）', () => {
-  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/game/hanoi.js'), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '../../miniprogram/pkg-games/engine/hanoi.js'), 'utf8');
   const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\r\n]*/g, '');
   ['gradeScale', 'getLastGrade', 'GRADES', 'grade'].forEach(function (k) {
     s.assert.equal(code.indexOf(k) < 0, true, 'hanoi.js 代码里出现了年级相关标识：' + k);
