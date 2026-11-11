@@ -69,6 +69,17 @@ const FORBIDDEN_IN_PACKAGE = [
   { re: /(^|\/)assets\/(achievements|ranks)(\/|$)/, why: '成就图标/段位徽章（应放 art/，由云托管托管、URL 引入）' }
 ];
 
+/** 读 PNG 宽高（只解析文件头，不依赖图片库；非 PNG 返回 null） */
+function pngSize(file) {
+  try {
+    const buf = fs.readFileSync(file);
+    if (buf.length < 24 || buf.readUInt32BE(0) !== 0x89504e47) return null;
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+  } catch (e) {
+    return null;
+  }
+}
+
 function walk(dir, out) {
   fs.readdirSync(dir, { withFileTypes: true }).forEach((ent) => {
     const p = path.join(dir, ent.name);
@@ -251,6 +262,20 @@ function main() {
   if (oversized.length) {
     problems.push('单个文件超过 ' + MAX_FILE_KB + 'KB 的有 ' + oversized.length + ' 个（图片/音频都不能超），例如：'
       + oversized.slice(0, 3).map((f) => f.file + '(' + (f.size / 1024).toFixed(0) + 'KB)').join('、'));
+  }
+  // tabBar 图标尺寸提示（D8，**不阻断**）：官方要求 81×81，包内一直是 36×36，3x 屏会放大约 2.25 倍。
+  // 仓库里没有现版设计的高分辨率原图，换图要等设计导出；图到位后跑 node e2e/tab-icons.js。
+  const tabDir = path.join(MINIPROGRAM, 'assets', 'tab');
+  if (fs.existsSync(tabDir)) {
+    const tabFiles = fs.readdirSync(tabDir).filter((f) => /\.png$/i.test(f));
+    const small = tabFiles.map((f) => ({ f: f, s: pngSize(path.join(tabDir, f)) }))
+      .filter((x) => x.s && (x.s.width !== 81 || x.s.height !== 81));
+    if (small.length) {
+      console.log('');
+      console.log('提示：tabBar 图标有 ' + small.length + ' 张不是 81×81（官方要求），例如 '
+        + small.slice(0, 2).map((x) => x.f + '=' + x.s.width + '×' + x.s.height).join('、')
+        + '。3x 屏会放大约 2.25 倍偏糊；换图用 node e2e/tab-icons.js --src=<目录>（见 D8）。');
+    }
   }
   // 打包目录纯净度（2026-09-12 用户要求）：miniprogram/ 只放会被打进包的运行时代码，
   // 测试/工具/原图/演示一律放打包路径以外 —— 靠 ignore 规则「眼不见为净」不算数。

@@ -21,7 +21,7 @@
  * 批次记录：
  *   · 第一批 2026-10-28：kg~g5，共 100 条；
  *   · 第二批 2026-11-06（D11）：g6~college，共 101 条 → 合计 201/300；
- *   · 剩余约 99 条留给第三批（可以先补 g6~g9 的常用词，再看质量）。
+ *   · 第三批 2026-11-11（D11）：各学段补齐，+99 条 → **合计 300/300，目标达成**。
  */
 module.exports = {
   // 幼儿园：3~5 个词，全部现在时，只认 s 结尾的第三人称单数
@@ -35,7 +35,15 @@ module.exports = {
     car: 'My car is red. 我的车是红色的。',
     hat: 'I have a new hat. 我有一顶新帽子。',
     pen: 'Give me a pen, please. 请给我一支笔。',
-    ball: 'We play with a ball. 我们玩球。'
+    ball: 'We play with a ball. 我们玩球。',
+    tree: 'The tree is very tall. 这棵树很高。',
+    flower: 'This flower is pink. 这朵花是粉色的。',
+    bird: 'A bird is in the tree. 一只鸟在树上。',
+    water: 'I drink water every day. 我每天喝水。',
+    fire: 'The fire is very hot. 火很热。',
+    red: 'The red apple is sweet. 红苹果很甜。',
+    big: 'My dog is big and white. 我的狗又大又白。',
+    doll: 'She has a new doll. 她有一个新娃娃。'
   },
 
   // 一年级：食物 + 家人 + 教室，仍然全是现在时
@@ -59,7 +67,14 @@ module.exports = {
     desk: 'My book is on the desk. 我的书在桌上。',
     chair: 'Please sit on the chair. 请坐在椅子上。',
     classroom: 'Our classroom is clean. 我们的教室很干净。',
-    friend: 'She is my best friend. 她是我最好的朋友。'
+    friend: 'She is my best friend. 她是我最好的朋友。',
+    noodle: 'I eat noodles for lunch. 我午饭吃面条。',
+    window: 'Please open the window. 请打开窗户。',
+    blackboard: 'The teacher writes on the blackboard. 老师在黑板上写字。',
+    boy: 'The boy is my brother. 这个男孩是我弟弟。',
+    girl: 'That girl is my friend. 那个女孩是我的朋友。',
+    duck: 'The duck can swim. 鸭子会游泳。',
+    rabbit: 'A rabbit likes carrots. 兔子喜欢胡萝卜。'
   },
 
   // 二年级：地点 + 季节 + 交通 + 家具
@@ -81,7 +96,14 @@ module.exports = {
     photo: 'This photo is about my dog. 这张照片是我的狗。',
     computer: 'I use a computer to study. 我用电脑学习。',
     zoo: 'We saw a panda at the zoo. 我们在动物园看到了熊猫。',
-    library: 'The library is very quiet. 图书馆很安静。'
+    library: 'The library is very quiet. 图书馆很安静。',
+    sister: 'My sister is a student. 我姐姐是学生。',
+    home: 'I go home after school. 我放学后回家。',
+    sea: 'We swim in the sea. 我们在海里游泳。',
+    afternoon: 'I read books in the afternoon. 我下午看书。',
+    evening: 'We watch TV in the evening. 我们晚上看电视。',
+    today: 'Today is my birthday. 今天是我的生日。',
+    tomorrow: 'We will go to the zoo tomorrow. 我们明天去动物园。'
   },
 
   // 三年级：副词 + 动物 + 食物，开始出现 after/before 这类时间短语
@@ -105,7 +127,14 @@ module.exports = {
     sandwich: 'I made a sandwich for you. 我给你做了一个三明治。',
     balloon: 'The red balloon flew away. 红气球飞走了。',
     robot: 'My robot can walk and talk. 我的机器人会走会说。',
-    picture: 'There is a picture on the wall. 墙上有一幅画。'
+    picture: 'There is a picture on the wall. 墙上有一幅画。',
+    beautiful: 'The garden is beautiful in spring. 春天的花园很美。',
+    already: 'I have already finished my homework. 我已经写完作业了。',
+    sometimes: 'Sometimes I walk to school. 有时我走路去学校。',
+    slowly: 'Please speak slowly and clearly. 请慢慢说清楚。',
+    easily: 'He can easily find the answer. 他能轻易找到答案。',
+    happily: 'The children sing happily. 孩子们快乐地唱歌。',
+    loudly: 'Do not talk so loudly. 别这么大声说话。'
   },
 
   // 四年级：运动 + 天气 + 动物 + 学校生活
@@ -125,7 +154,14 @@ module.exports = {
     restaurant: 'We had dinner in a restaurant. 我们在一家餐馆吃晚饭。',
     airport: 'My uncle works at the airport. 我叔叔在机场工作。',
     castle: 'The old castle stands on the hill. 古老的城堡立在山丘上。',
-    letter: 'I wrote a letter to my friend. 我给朋友写了一封信。'
+    letter: 'I wrote a letter to my friend. 我给朋友写了一封信。',
+    remember: 'I remember my first teacher. 我记得我的第一位老师。',
+    always: 'She always helps her friends. 她总是帮助朋友。',
+    usually: 'We usually play football after school. 我们放学后通常踢足球。',
+    quietly: 'Please walk quietly in the library. 在图书馆请安静走路。',
+    jacket: 'Put on your jacket, it is cold. 穿上夹克，天冷了。',
+    scarf: 'She wears a red scarf in winter. 冬天她戴红围巾。',
+    glasses: 'My grandpa wears glasses. 我爷爷戴眼镜。'
   },
 
   // 五年级：频率副词 + 场所 + 职业
@@ -145,7 +181,14 @@ module.exports = {
     nurse: 'The nurse takes care of the patients. 护士照顾病人。',
     climb: 'We climb the hill on Sunday. 周日我们去爬山。',
     borrow: 'May I borrow your ruler? 我可以借你的尺子吗？',
-    delicious: 'The soup is really delicious. 这汤真好喝。'
+    delicious: 'The soup is really delicious. 这汤真好喝。',
+    impossible: 'It is impossible to finish it today. 今天完成它是不可能的。',
+    certainly: 'I will certainly come tomorrow. 我明天一定会来。',
+    recently: 'He recently moved to a new city. 他最近搬到了新城市。',
+    exactly: 'The answer is exactly right. 答案完全正确。',
+    correctly: 'Please spell the word correctly. 请正确拼写这个单词。',
+    morning: 'I run in the morning every day. 我每天早上跑步。',
+    winter: 'Winter is cold in the north. 北方的冬天很冷。'
   },
 
   // ===== 第二批（2026-11-06，D11）：g6 → college，共 101 条 =====
@@ -167,7 +210,14 @@ module.exports = {
     plastic: 'This bottle is made of plastic. 这个瓶子是塑料做的。',
     dictionary: 'I look up new words in a dictionary. 我用词典查生词。',
     holiday: 'We had a great holiday by the sea. 我们在海边度过了一个愉快的假期。',
-    improve: 'Reading every day can improve your English. 每天阅读能提高你的英语。'
+    improve: 'Reading every day can improve your English. 每天阅读能提高你的英语。',
+    weather: 'The weather is changing very fast. 天气变化很快。',
+    weekend: 'We visit our grandparents on the weekend. 周末我们去看望祖父母。',
+    health: 'Good sleep is important for health. 良好睡眠对健康很重要。',
+    city: 'This city is famous for its parks. 这座城市以公园闻名。',
+    nature: 'We should learn from nature. 我们应该向大自然学习。',
+    history: 'I like reading books about history. 我喜欢读历史书。',
+    cinema: 'We watched a new film at the cinema. 我们在电影院看了一部新电影。'
   },
 
   // 七年级：抽象名词 + 学习态度
@@ -183,7 +233,14 @@ module.exports = {
     career: 'She wants a career in science. 她想从事科学方面的职业。',
     celebrate: 'We celebrate the Spring Festival together. 我们一起庆祝春节。',
     century: 'The old tree is over a century old. 这棵老树有一百多年了。',
-    climate: 'The climate here is warm and wet. 这里气候温暖潮湿。'
+    climate: 'The climate here is warm and wet. 这里气候温暖潮湿。',
+    accept: 'I accept your kind invitation. 我接受你的邀请。',
+    agree: 'We agree with your idea. 我们同意你的想法。',
+    arrive: 'They arrive at school before eight. 他们八点前到校。',
+    believe: 'I believe you can do it. 我相信你能做到。',
+    choice: 'You have a choice between tea and milk. 你可以在茶和牛奶之间选择。',
+    choose: 'Please choose one book from the shelf. 请从书架上选一本书。',
+    challenge: 'Learning a new language is a challenge. 学一门新语言是个挑战。'
   },
 
   // 八年级：交流 + 成长 + 环境
@@ -199,7 +256,14 @@ module.exports = {
     environment: 'We must protect the environment. 我们必须保护环境。',
     encourage: 'Teachers encourage us to ask questions. 老师鼓励我们提问。',
     distance: 'The distance between the two cities is long. 两座城市之间的距离很长。',
-    decision: 'It was a wise decision to save money. 存钱是个明智的决定。'
+    decision: 'It was a wise decision to save money. 存钱是个明智的决定。',
+    compete: 'Ten teams compete for the cup. 十支队伍争夺奖杯。',
+    complete: 'Please complete the form in English. 请用英语填写表格。',
+    concern: 'Air pollution is a serious concern. 空气污染是严重的问题。',
+    contain: 'This box contains old photos. 这个盒子里装着旧照片。',
+    control: 'It is hard to control your anger. 控制怒气很难。',
+    courage: 'It takes courage to tell the truth. 说真话需要勇气。',
+    customer: 'The customer asked for a discount. 顾客要求打折。'
   },
 
   // 九年级：社会 + 文化
@@ -215,7 +279,14 @@ module.exports = {
     fashion: 'Short hair is in fashion this year. 今年短发很流行。',
     field: 'Farmers work hard in the field. 农民在田野里辛勤劳作。',
     foreign: 'She speaks two foreign languages well. 她两门外语说得很好。',
-    gather: 'We gather in the hall every Monday. 我们每周一在大厅集合。'
+    gather: 'We gather in the hall every Monday. 我们每周一在大厅集合。',
+    experiment: 'We did an interesting experiment today. 今天我们做了个有趣的实验。',
+    include: 'The price includes breakfast. 价格包含早餐。',
+    increase: 'The number of readers will increase. 读者数量会增加。',
+    language: 'English is a useful language. 英语是一门有用的语言。',
+    fair: 'The match must be fair to both sides. 比赛必须对双方公平。',
+    famous: 'This town is famous for its old bridge. 这个镇以老桥闻名。',
+    fear: 'He faced the test without fear. 他毫无畏惧地面对考试。'
   },
 
   // 高一：学术动词 + 抽象名词
@@ -232,7 +303,14 @@ module.exports = {
     alternative: 'We need an alternative way to go home. 我们需要另一个回家的办法。',
     ambition: 'Her ambition is to become a doctor. 她的雄心是成为一名医生。',
     analyse: 'Scientists analyse the data carefully. 科学家仔细分析数据。',
-    anxiety: 'Exam anxiety affects many students. 考试焦虑影响许多学生。'
+    anxiety: 'Exam anxiety affects many students. 考试焦虑影响许多学生。',
+    abstract: 'The idea is too abstract for children. 这个想法对孩子太抽象。',
+    absurd: 'It sounds absurd to go out in a storm. 暴风雨天出门听起来很荒谬。',
+    abundant: 'The valley has abundant water all year. 这个山谷全年水源充足。',
+    accelerate: 'The car began to accelerate slowly. 汽车开始慢慢加速。',
+    accessible: 'The library is accessible to everyone. 图书馆对所有人开放。',
+    accommodation: 'The hotel offers cheap accommodation. 这家旅馆提供便宜的住宿。',
+    accomplish: 'She can accomplish the task alone. 她能独自完成这项任务。'
   },
 
   // 高二：论证 + 组织类词汇
@@ -249,7 +327,14 @@ module.exports = {
     asset: 'Good health is your best asset. 健康是你最好的财富。',
     assume: 'Do not assume that everyone agrees with you. 别假设每个人都同意你。',
     attempt: 'He made an attempt to climb the hill. 他尝试爬那座山。',
-    audience: 'The audience clapped after the show. 演出结束后观众鼓掌。'
+    audience: 'The audience clapped after the show. 演出结束后观众鼓掌。',
+    amend: 'The team will amend the plan next week. 团队下周会修改计划。',
+    analyse: 'We need to analyse the results carefully. 我们需要仔细分析结果。',
+    annual: 'The school holds an annual sports meeting. 学校每年举办运动会。',
+    apparent: 'It became apparent that he was right. 很明显他是对的。',
+    appeal: 'The charity made an appeal for help. 慈善机构发出求助呼吁。',
+    appoint: 'They appoint her as the new leader. 他们任命她为新领导。',
+    appreciate: 'I really appreciate your support. 我非常感谢你的支持。'
   },
 
   // 高三：议论与说明文常用词
@@ -266,7 +351,14 @@ module.exports = {
     demonstrate: 'The teacher demonstrated the experiment twice. 老师演示了两次实验。',
     desire: 'Her desire to travel is very strong. 她旅行的愿望非常强烈。',
     dignity: 'Everyone should be treated with dignity. 每个人都应被有尊严地对待。',
-    discipline: 'Discipline makes study easier. 自律让学习更轻松。'
+    discipline: 'Discipline makes study easier. 自律让学习更轻松。',
+    autonomous: 'The region became autonomous last year. 该地区去年获得自治。',
+    abandon: 'They had to abandon the plan. 他们不得不放弃计划。',
+    accelerate: 'We must accelerate the work to meet the deadline. 我们必须加快工作以赶上截止日期。',
+    accurate: 'The report gives an accurate description. 报告给出了准确的描述。',
+    acknowledge: 'He acknowledged his mistake at once. 他立刻承认了错误。',
+    acquire: 'Children acquire new skills through play. 孩子通过玩耍获得新技能。',
+    adequate: 'The light here is not adequate for reading. 这里的光线不足以阅读。'
   },
 
   // 大学：学术高频词
@@ -283,6 +375,13 @@ module.exports = {
     catalyst: 'The discovery acted as a catalyst for change. 这一发现成为变革的催化剂。',
     collaborate: 'Students collaborate on the research project. 学生们合作开展研究项目。',
     commodity: 'Water is a precious commodity here. 水在这里是珍贵的商品。',
-    compensate: 'The company will compensate the customers. 公司会补偿顾客。'
+    compensate: 'The company will compensate the customers. 公司会补偿顾客。',
+    acquisition: 'The acquisition of new skills takes time. 获得新技能需要时间。',
+    administer: 'The committee will administer the fund. 委员会将管理这笔基金。',
+    advocate: 'Many doctors advocate regular exercise. 许多医生提倡规律锻炼。',
+    alleviate: 'These steps may alleviate the pressure. 这些措施可能缓解压力。',
+    analogy: 'He explained the idea by analogy. 他用类比解释了这个想法。',
+    arbitrary: 'The decision seemed arbitrary to us. 这个决定对我们来说很随意。',
+    aspiration: 'Her aspiration is to become a scientist. 她的志向是成为科学家。'
   }
 };
