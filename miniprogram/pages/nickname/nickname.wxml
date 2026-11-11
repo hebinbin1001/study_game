@@ -48,15 +48,23 @@
 
   </view>
 
-  <!-- 保存按钮 -->
-  <button class="btn btn-primary btn-save" bindtap="onSave">保存 ✨</button>
+  <!-- 底部操作区（2026-11-11 重排）：
+       保存 / 返回 = 两个同宽胶囊竖排；退出登录 / 注销账号 = 分隔线下的深色文字链接。
+       原来「返回」直接套了全局 .btn-back（按钮胶囊）在 view 上，会变成一颗小胶囊飘在保存下面；
+       账号链接是白字压在天色最浅的一段上，真机上几乎看不见。 -->
+  <view class="actions">
+    <button class="btn btn-primary btn-save" bindtap="onSave">保存 ✨</button>
+    <button class="btn btn-return" bindtap="goBack">返回</button>
 
-  <!-- 返回链接 -->
-  <view class="btn-back" bindtap="goBack">返回</view>
-
-  <!-- 退出登录（M5：仅已登录显示） -->
-  <view wx:if="{{loggedIn}}" class="back-link logout-link" bindtap="goLogout">退出登录</view>
-
-  <!-- 注销账号（M6-A：双重确认，删除全部数据） -->
-  <view wx:if="{{loggedIn}}" class="back-link logout-link" style="color:#ff5a5a;" bindtap="goDeleteAccount">注销账号</view>
+    <block wx:if="{{loggedIn}}">
+      <view class="account-sep"></view>
+      <!-- 退出登录（M5）与注销账号（M6-A，双重确认）都是不可逆操作：
+           放在同一行做文字链接（各 88rpx 热区），比堆两行更省高度、首屏也不会被安全区切掉 -->
+      <view class="account-row">
+        <view class="account-link" bindtap="goLogout">退出登录</view>
+        <view class="account-divider"></view>
+        <view class="account-link account-link--danger" bindtap="goDeleteAccount">注销账号</view>
+      </view>
+    </block>
+  </view>
 </view>

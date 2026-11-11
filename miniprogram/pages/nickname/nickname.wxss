@@ -222,29 +222,71 @@ page {
   50% { opacity: 0.45; }
 }
 
-/* ===== 保存按钮（全局 .btn-primary：480×128 橙色大按钮） ===== */
-.btn-save {
+/* ===== 底部操作区（2026-11-11 重排）=====
+   之前的三个问题：
+   ① 「返回」用的是全局 .btn-back（白胶囊 + ‹，宽度只跟文字走），套在 view 上变成一颗
+      小胶囊飘在保存按钮下面，跟 480rpx 的主按钮完全不成一套；
+   ② 「退出登录 / 注销账号」是白色文字，而这页的天色渐变到下方已经接近最浅的 --sky-3，
+      白字压白底等于看不见；
+   ③ 两个链接各自 min-height 88 + margin-bottom(含安全区)，竖向间距被撑乱、页面还会多出一截空白。
+   现在：保存/返回两个同宽胶囊竖排 → 分隔线 → 账号操作深色文字链接（各 88rpx 热区），
+   安全区只在 .actions 底部留一次。 */
+.actions {
+  width: 480rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 48rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
 }
-
-/* ===== 返回链接 ===== */
-.back-link {
+.btn-save {
+  margin-top: 0;
+}
+/* 次要操作：与主按钮同宽的白底胶囊。
+   必须用 `.actions .btn-return`（两个类）压过 app.wxss 里 `button.btn { background: var(--pri) }`
+   （那是 0,1,1；单个 .btn-return 是 0,1,0 压不住，上一版「返回」就还是橙的）。 */
+.actions .btn-return {
+  width: 480rpx;
+  height: 96rpx;
+  margin-top: 24rpx;
+  background: rgba(255, 255, 255, .94);
+  color: var(--ink-deep);
+  font-size: var(--fs-strong);
+  letter-spacing: 2rpx;
+  box-shadow: var(--clay-card);
+}
+.account-sep {
+  width: 100%;
+  height: 2rpx;
+  margin: 28rpx 0 0;
+  background: rgba(47, 74, 107, .14);
+}
+/* 账号操作同一行：两枚文字链接 + 中间细竖线，各保留 88rpx 热区 */
+.account-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 触控热区 88rpx（44pt）：「退出登录 / 注销账号」是竖向堆叠的窄文字链接，
-     原热区只有 ~77rpx；撑高后用底部外边距 24 → 13 抵掉，页面总高不变（2026-11-06） */
+}
+.account-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 88rpx;
-  margin-top: 32rpx;
-  margin-bottom: calc(13rpx + env(safe-area-inset-bottom));
-  font-size: var(--fs-strong);
-  color: var(--white);
-  opacity: 0.9;
+  padding: 0 28rpx;
+  font-size: var(--fs-body);
   font-weight: 700;
-  padding: 16rpx 48rpx;
-  box-sizing: border-box;
+  color: var(--ink-deep);
   transition: opacity 0.12s;
 }
-.back-link:active {
-  opacity: 0.6;
+.account-link:active {
+  opacity: 0.55;
+}
+.account-divider {
+  width: 2rpx;
+  height: 28rpx;
+  background: rgba(47, 74, 107, .18);
+}
+.account-link--danger {
+  font-weight: 800;
+  color: var(--danger-ink);
 }
